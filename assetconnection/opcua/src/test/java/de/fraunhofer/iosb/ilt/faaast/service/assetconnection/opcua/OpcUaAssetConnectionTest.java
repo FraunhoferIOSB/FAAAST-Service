@@ -813,7 +813,7 @@ public class OpcUaAssetConnectionTest {
         // first value should always be the current value
         OpcUaClient client = OpcUaHelper.connect(config);
         DataValue originalValue = OpcUaHelper.readValue(client, nodeId);
-        client.disconnect().get();
+        client.disconnect();
         final AtomicReference<DataElementValue> originalValueResponse = new AtomicReference<>();
         CountDownLatch conditionOriginalValue = new CountDownLatch(1);
         connection.getSubscriptionProviders().get(reference).addNewDataListener((DataElementValue data) -> {
@@ -933,10 +933,10 @@ public class OpcUaAssetConnectionTest {
 
     private void setOpcUaValue(OpcUaAssetConnectionConfig config, String nodeId, Object value) throws Exception {
         OpcUaClient client = OpcUaHelper.connect(config);
-        client.connect().get();
+        client.connect();
         StatusCode statusCode = OpcUaHelper.writeValue(client, nodeId, value);
         Assert.assertTrue(statusCode.isGood());
-        client.disconnect().get();
+        client.disconnect();
     }
 
 

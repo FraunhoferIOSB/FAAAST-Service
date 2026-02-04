@@ -159,6 +159,7 @@ public class KeyStoreHelper {
                 .setOrganizationalUnit(certificateInformation.getOrganizationUnit())
                 .setLocalityName(certificateInformation.getLocalityName())
                 .setCountryCode(certificateInformation.getCountryCode())
+                .setStateName(null)
                 .setApplicationUri(certificateInformation.getApplicationUri());
         // if no DNS & IP info available use localhost & 127.0.0.1
         if (certificateInformation.getDnsNames().isEmpty() && certificateInformation.getIpAddresses().isEmpty()) {

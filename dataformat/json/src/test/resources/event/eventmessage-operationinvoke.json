@@ -1,13 +1,16 @@
 {
     "@type": "OperationInvokeEvent",
     "element": {
-        "keys": [{
+        "keys": [
+            {
                 "type": "Submodel",
                 "value": "http://example.org/submodel"
-            }, {
+            },
+            {
                 "type": "Property",
                 "value": "property"
-            }],
+            }
+        ],
         "type": "ModelReference"
     },
     "input": {
@@ -18,13 +21,16 @@
         },
         "referenceElement": {
             "modelType": "ReferenceElement",
-            "keys": [{
+            "keys": [
+                {
                     "type": "Submodel",
                     "value": "http://example.org/submodel"
-                }, {
+                },
+                {
                     "type": "Property",
                     "value": "property"
-                }],
+                }
+            ],
             "type": "ModelReference"
         },
         "file": {
@@ -34,23 +40,37 @@
         },
         "submodelElementList": {
             "modelType": "SubmodelElementList",
-            "values": [{
+            "values": [
+                {
                     "modelType": "Property",
                     "dataType": "xs:int",
                     "value": 1
-                }, {
+                },
+                {
                     "modelType": "Property",
                     "dataType": "xs:double",
                     "value": 3.14
-                }, {
+                },
+                {
+                    "modelType": "Property",
+                    "dataType": "xs:datetime",
+                    "value": "2026-01-28T15:13:45+01:00"
+                },
+                {
                     "modelType": "Property",
                     "dataType": "xs:string",
                     "value": "example value"
-                }]
+                }
+            ]
         },
         "submodelElementCollection": {
             "modelType": "SubmodelElementCollection",
             "values": {
+                "property_datetime": {
+                    "modelType": "Property",
+                    "dataType": "xs:datetime",
+                    "value": "2026-01-28T15:13:45+01:00"
+                },
                 "nested_collection": {
                     "modelType": "SubmodelElementCollection",
                     "values": {
@@ -88,6 +108,11 @@
                 }
             }
         },
+        "propertyDatetime": {
+            "modelType": "Property",
+            "dataType": "xs:datetime",
+            "value": "2026-01-28T15:13:45+01:00"
+        },
         "propertyDouble": {
             "modelType": "Property",
             "dataType": "xs:double",
@@ -111,64 +136,81 @@
         },
         "multilanguageProperty": {
             "modelType": "MultiLanguageProperty",
-            "value": [{
-                    "en": "english"
-                }, {
+            "value": [
+                {
                     "de": "deutsch"
-                }]
+                },
+                {
+                    "en": "english"
+                }
+            ]
         },
         "relationshipElement": {
             "modelType": "RelationshipElement",
             "first": {
-                "keys": [{
+                "keys": [
+                    {
                         "type": "Submodel",
                         "value": "http://example.org/submodel"
-                    }, {
+                    },
+                    {
                         "type": "Property",
                         "value": "property"
-                    }],
+                    }
+                ],
                 "type": "ModelReference"
             },
             "second": {
-                "keys": [{
+                "keys": [
+                    {
                         "type": "Submodel",
                         "value": "http://example.org/submodel"
-                    }, {
+                    },
+                    {
                         "type": "Property",
                         "value": "property"
-                    }],
+                    }
+                ],
                 "type": "ModelReference"
             }
         },
         "annotatedRelationshipElement": {
             "modelType": "AnnotatedRelationshipElement",
             "first": {
-                "keys": [{
+                "keys": [
+                    {
                         "type": "Submodel",
                         "value": "http://example.org/submodel"
-                    }, {
+                    },
+                    {
                         "type": "Property",
                         "value": "property"
-                    }],
+                    }
+                ],
                 "type": "ModelReference"
             },
             "second": {
-                "keys": [{
+                "keys": [
+                    {
                         "type": "Submodel",
                         "value": "http://example.org/submodel"
-                    }, {
+                    },
+                    {
                         "type": "Property",
                         "value": "property"
-                    }],
+                    }
+                ],
                 "type": "ModelReference"
             },
-            "annotation": [{
+            "annotation": [
+                {
                     "exampleAnnotation": {
                         "modelType": "Property",
                         "dataType": "xs:int",
                         "value": 1
                     }
-                }]
+                }
+            ]
         }
     },
     "inoutput": {
@@ -179,13 +221,16 @@
         },
         "referenceElement": {
             "modelType": "ReferenceElement",
-            "keys": [{
+            "keys": [
+                {
                     "type": "Submodel",
                     "value": "http://example.org/submodel"
-                }, {
+                },
+                {
                     "type": "Property",
                     "value": "property"
-                }],
+                }
+            ],
             "type": "ModelReference"
         },
         "file": {
@@ -195,23 +240,37 @@
         },
         "submodelElementList": {
             "modelType": "SubmodelElementList",
-            "values": [{
+            "values": [
+                {
                     "modelType": "Property",
                     "dataType": "xs:int",
                     "value": 1
-                }, {
+                },
+                {
                     "modelType": "Property",
                     "dataType": "xs:double",
                     "value": 3.14
-                }, {
+                },
+                {
+                    "modelType": "Property",
+                    "dataType": "xs:datetime",
+                    "value": "2026-01-28T15:13:45+01:00"
+                },
+                {
                     "modelType": "Property",
                     "dataType": "xs:string",
                     "value": "example value"
-                }]
+                }
+            ]
         },
         "submodelElementCollection": {
             "modelType": "SubmodelElementCollection",
             "values": {
+                "property_datetime": {
+                    "modelType": "Property",
+                    "dataType": "xs:datetime",
+                    "value": "2026-01-28T15:13:45+01:00"
+                },
                 "nested_collection": {
                     "modelType": "SubmodelElementCollection",
                     "values": {
@@ -249,6 +308,11 @@
                 }
             }
         },
+        "propertyDatetime": {
+            "modelType": "Property",
+            "dataType": "xs:datetime",
+            "value": "2026-01-28T15:13:45+01:00"
+        },
         "propertyDouble": {
             "modelType": "Property",
             "dataType": "xs:double",
@@ -272,64 +336,81 @@
         },
         "multilanguageProperty": {
             "modelType": "MultiLanguageProperty",
-            "value": [{
-                    "en": "english"
-                }, {
+            "value": [
+                {
                     "de": "deutsch"
-                }]
+                },
+                {
+                    "en": "english"
+                }
+            ]
         },
         "relationshipElement": {
             "modelType": "RelationshipElement",
             "first": {
-                "keys": [{
+                "keys": [
+                    {
                         "type": "Submodel",
                         "value": "http://example.org/submodel"
-                    }, {
+                    },
+                    {
                         "type": "Property",
                         "value": "property"
-                    }],
+                    }
+                ],
                 "type": "ModelReference"
             },
             "second": {
-                "keys": [{
+                "keys": [
+                    {
                         "type": "Submodel",
                         "value": "http://example.org/submodel"
-                    }, {
+                    },
+                    {
                         "type": "Property",
                         "value": "property"
-                    }],
+                    }
+                ],
                 "type": "ModelReference"
             }
         },
         "annotatedRelationshipElement": {
             "modelType": "AnnotatedRelationshipElement",
             "first": {
-                "keys": [{
+                "keys": [
+                    {
                         "type": "Submodel",
                         "value": "http://example.org/submodel"
-                    }, {
+                    },
+                    {
                         "type": "Property",
                         "value": "property"
-                    }],
+                    }
+                ],
                 "type": "ModelReference"
             },
             "second": {
-                "keys": [{
+                "keys": [
+                    {
                         "type": "Submodel",
                         "value": "http://example.org/submodel"
-                    }, {
+                    },
+                    {
                         "type": "Property",
                         "value": "property"
-                    }],
+                    }
+                ],
                 "type": "ModelReference"
             },
-            "annotation": [{
+            "annotation": [
+                {
                     "exampleAnnotation": {
                         "modelType": "Property",
                         "dataType": "xs:int",
                         "value": 1
                     }
-                }]
+                }
+            ]
         }
     }
 }

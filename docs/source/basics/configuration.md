@@ -39,14 +39,18 @@ The `core` configuration block contains properties not related to the implementa
 :::{table} Configuration properties of `core` configuration section.
 | Name                                         | Allowed Values | Description                                                                                                                                     | Default Value                   |
 | -------------------------------------------- | -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------- |
-| aasRegistries<br>*(optional)*                | List<String>   | URLs of AAS registries to use (base URL, i.e. without /api/{version}). If not set, no synchronization of AASs with registry happens.            | *empty*                         |
+| aasRegistries<br>*(optional)*                | List<String>   | URLs of AAS registries to use (e.g., <https://example.com/api/v3.0>). If not set, no synchronization of AASs with registry happens.            | *empty*                         |
 | assetConnectionRetryInterval<br>*(optional)* | Long           | Interval in ms in which to retry establishing asset connections                                                                                 | 1000                            |
 | requestHandlerThreadPoolSize<br>*(optional)* | Integer        | Number of concurrent thread that can execute API requests                                                                                       | 2                               |
-| submodelRegistries<br>*(optional)*           | List<String>   | URLs of submodels registries to use (base URL, i.e. without /api/{version}). If not set, no synchronization of submodels with registry happens. | *empty*                         |
+| submodelRegistries<br>*(optional)*           | List<String>   | URLs of submodels registries to use (e.g., <https://example.com/api/v3.0>). If not set, no synchronization of submodels with registry happens. | *empty*                         |
 | validationOnLoad<br>*(optional)*             | Object         | Validation rules to use when loading the AAS model at startup                                                                                   | all enabled                     |
 | validationOnCreate<br>*(optional)*           | Object         | Validation rules to use when creating new elements via API                                                                                      | constraints validation disabled |
 | validationOnUpdate<br>*(optional)*           | Object         | Validation rules to use when updating elements via API                                                                                          | constraints validation disabled |
 | minInflateRatio<br>*(optional)*              | Double         | Ratio between de- and inflated bytes to detect zipbomb when loading AASX files                                                                  | 0.001                           |
+:::
+
+:::{tip}
+When FA³ST Service synchronizes its shells and submodels with AAS registries defined in `aasRegistries` and `submodelRegistries`, it will use the `hostname` of its HTTP endpoints to fill the `href` field of the Endpoints of the Descriptor. See also: [HTTP endpoint configuration](https://faaast-service.readthedocs.io/en/latest/interfaces/endpoint.html#http)
 :::
 
 ```{code-block} json

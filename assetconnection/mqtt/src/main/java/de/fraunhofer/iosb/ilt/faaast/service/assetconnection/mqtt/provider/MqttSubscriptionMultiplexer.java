@@ -59,11 +59,13 @@ public class MqttSubscriptionMultiplexer {
 
 
     private void unsubscribeTopic(String topic) {
-        try {
-            client.unsubscribe(topic);
-        }
-        catch (MqttException e) {
-            LOGGER.info("error unsubscribing from MQTT asset connection (topic: {})", topic, e);
+        if (client.isConnected()) {
+            try {
+                client.unsubscribe(topic);
+            }
+            catch (MqttException e) {
+                LOGGER.info("error unsubscribing from MQTT asset connection (topic: {})", topic, e);
+            }
         }
     }
 

@@ -38,4 +38,11 @@ public class HexBinaryValueTest {
         Assert.assertEquals(value, actual.asString());
     }
 
+
+    @Test
+    public void testNullAsString() throws ValueFormatException {
+        String value = null;
+        TypedValue actual = TypedValueFactory.create(Datatype.HEX_BINARY, value);
+        Assert.assertNull(actual.asString());
+    }
 }

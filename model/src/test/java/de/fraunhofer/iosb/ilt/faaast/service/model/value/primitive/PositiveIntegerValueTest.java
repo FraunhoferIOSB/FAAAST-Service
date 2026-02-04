@@ -58,4 +58,11 @@ public class PositiveIntegerValueTest {
         TypedValueFactory.create(Datatype.POSITIVE_INTEGER, value);
     }
 
+
+    @Test
+    public void testNullAsString() throws ValueFormatException {
+        String value = null;
+        TypedValue actual = TypedValueFactory.create(Datatype.POSITIVE_INTEGER, value);
+        Assert.assertNull(actual.asString());
+    }
 }

@@ -74,4 +74,11 @@ public class GMonthDayValueTest {
         Assert.assertEquals(value, actual.asString());
     }
 
+
+    @Test
+    public void testNullAsString() throws ValueFormatException {
+        String value = null;
+        TypedValue actual = TypedValueFactory.create(Datatype.GMONTH_DAY, value);
+        Assert.assertNull(actual.asString());
+    }
 }

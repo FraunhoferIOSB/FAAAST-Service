@@ -151,7 +151,7 @@ public abstract class AbstractDateTimeValue<T extends Temporal> extends TypedVal
                         ? getFormatLocal()
                         : getFormatOffset())
                         .toFormatter().format(value)
-                : null;
+                : super.asString();
     }
 
 

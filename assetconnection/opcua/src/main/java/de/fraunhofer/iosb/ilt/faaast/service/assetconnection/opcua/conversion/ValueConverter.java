@@ -28,15 +28,18 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import javax.xml.datatype.DatatypeFactory;
 import org.eclipse.milo.opcua.sdk.server.events.conversions.ImplicitConversions;
-import org.eclipse.milo.opcua.stack.core.BuiltinDataType;
-import org.eclipse.milo.opcua.stack.core.Identifiers;
+import org.eclipse.milo.opcua.stack.core.NodeIds;
+import org.eclipse.milo.opcua.stack.core.OpcUaDataType;
 import org.eclipse.milo.opcua.stack.core.types.builtin.ByteString;
 import org.eclipse.milo.opcua.stack.core.types.builtin.DateTime;
 import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId;
 import org.eclipse.milo.opcua.stack.core.types.builtin.Variant;
+import org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.UByte;
+import org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.UInteger;
+import org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.ULong;
+import org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.UShort;
 
 
 /**
@@ -50,19 +53,19 @@ public class ValueConverter {
     public ValueConverter() {
         this.aasToOpcUaConverters = new HashMap<>() {};
         this.opcUaToAasConverters = new HashMap<>();
-        register(Datatype.INTEGER, Identifiers.Integer, new AasToOpcUaValueConverter() {
+        register(Datatype.INTEGER, NodeIds.Integer, new AasToOpcUaValueConverter() {
             @Override
             public Variant convert(TypedValue<?> value, NodeId targetType) throws ValueConversionException {
                 return new Variant(((BigInteger) value.getValue()).intValueExact());
             }
         });
-        register(Datatype.DURATION, Identifiers.Duration, new AasToOpcUaValueConverter() {
+        register(Datatype.DURATION, NodeIds.Duration, new AasToOpcUaValueConverter() {
             @Override
             public Variant convert(TypedValue<?> value, NodeId targetType) throws ValueConversionException {
                 return new Variant(Long.valueOf(((DurationValue) value).getValue().getTimeInMillis(new Date())).doubleValue());
             }
         });
-        register(Datatype.DURATION, Identifiers.Double, new OpcUaToAasValueConverter() {
+        register(Datatype.DURATION, NodeIds.Double, new OpcUaToAasValueConverter() {
             @Override
             public TypedValue<?> convert(Variant value, Datatype targetType) throws ValueConversionException {
                 if (Objects.isNull(value) || value.isNull()) {
@@ -78,16 +81,46 @@ public class ValueConverter {
                 }
             }
         });
-        register(Datatype.HEX_BINARY, Identifiers.ByteString, new OpcUaToAasValueConverter() {
+        register(Datatype.HEX_BINARY, NodeIds.ByteString, new OpcUaToAasValueConverter() {
             @Override
             public TypedValue<?> convert(Variant value, Datatype targetType) throws ValueConversionException {
                 return convertByteString(value, targetType);
             }
         });
-        register(Datatype.BASE64_BINARY, Identifiers.ByteString, new OpcUaToAasValueConverter() {
+        register(Datatype.BASE64_BINARY, NodeIds.ByteString, new OpcUaToAasValueConverter() {
             @Override
             public TypedValue<?> convert(Variant value, Datatype targetType) throws ValueConversionException {
                 return convertByteString(value, targetType);
+            }
+        });
+        register(Datatype.UNSIGNED_SHORT, NodeIds.UInt16, new AasToOpcUaValueConverter() {
+            @Override
+            public Variant convert(TypedValue<?> value, NodeId targetType) throws ValueConversionException {
+                return new Variant(UShort.valueOf(value.getValue().toString()));
+            }
+        });
+        register(Datatype.UNSIGNED_INT, NodeIds.UInt32, new AasToOpcUaValueConverter() {
+            @Override
+            public Variant convert(TypedValue<?> value, NodeId targetType) throws ValueConversionException {
+                return new Variant(UInteger.valueOf(value.getValue().toString()));
+            }
+        });
+        register(Datatype.UNSIGNED_LONG, NodeIds.UInt64, new AasToOpcUaValueConverter() {
+            @Override
+            public Variant convert(TypedValue<?> value, NodeId targetType) throws ValueConversionException {
+                return new Variant(ULong.valueOf(value.getValue().toString()));
+            }
+        });
+        register(Datatype.UNSIGNED_BYTE, NodeIds.Byte, new AasToOpcUaValueConverter() {
+            @Override
+            public Variant convert(TypedValue<?> value, NodeId targetType) throws ValueConversionException {
+                return new Variant(UByte.valueOf(value.getValue().toString()));
+            }
+        });
+        register(Datatype.BYTE, NodeIds.SByte, new AasToOpcUaValueConverter() {
+            @Override
+            public Variant convert(TypedValue<?> value, NodeId targetType) throws ValueConversionException {
+                return new Variant(Byte.valueOf(value.getValue().toString()));
             }
         });
     }
@@ -152,11 +185,9 @@ public class ValueConverter {
         Ensure.requireNonNull(targetType, new ValueConversionException("targetType value must be non-null"));
         Ensure.require(value.getDataType().isPresent(), new ValueConversionException(String.format("unable to determine datatype of OPC UA value (value: %s)", value)));
 
-        Optional<NodeId> valueDatatype = value.getDataType().get().toNodeId(null);
-        Ensure.require(valueDatatype.isPresent(),
-                new ValueConversionException(String.format("unable to determine nodeId of datatype of OPC UA value (datatype: %s)", value.getDataType().get())));
+        NodeId valueDatatype = value.getDataType().get().getNodeId();
         OpcUaToAasValueConverter converter = opcUaToAasConverters.getOrDefault(
-                new ConversionTypeInfo(targetType, valueDatatype.get()),
+                new ConversionTypeInfo(targetType, valueDatatype),
                 new DefaultConverter());
         return converter.convert(value, targetType);
     }
@@ -188,21 +219,24 @@ public class ValueConverter {
             if (Objects.isNull(value) || Objects.isNull(value.getValue())) {
                 return new Variant(null);
             }
-            if (!BuiltinDataType.isBuiltin(targetType)) {
+            if (!OpcUaDataType.isBuiltin(targetType)) {
                 throw new ValueConversionException(String.format("encountered unsupported OPC UA data type (node id: %s)", targetType));
             }
-            BuiltinDataType builtinDataType = BuiltinDataType.fromNodeId(targetType);
-            if (value.getValue() != null && Objects.equals(builtinDataType.getBackingClass(), value.getValue().getClass())) {
-                if ((value.getDataType() == Datatype.DATE_TIME) && (targetType == Identifiers.DateTime)) {
+            OpcUaDataType dataType = OpcUaDataType.fromNodeId(targetType);
+            if (value.getValue() != null && Objects.equals(dataType.getBackingClass(), value.getValue().getClass())) {
+                if ((value.getDataType() == Datatype.DATE_TIME) && (targetType == NodeIds.DateTime)) {
                     return new Variant(new DateTime(((OffsetDateTime) value.getValue()).toInstant()));
                 }
                 return new Variant(value.getValue());
             }
-            if ((value.getDataType() == Datatype.DATE_TIME) && (targetType.equals(Identifiers.DateTime))) {
+            if ((value.getDataType() == Datatype.DATE_TIME) && (targetType.equals(NodeIds.DateTime))) {
                 return new Variant(new DateTime(((OffsetDateTime) value.getValue()).toInstant()));
             }
-            Object implicit = ImplicitConversions.convert(value.getValue(), builtinDataType);
-            if (Objects.isNull(implicit) && Objects.equals(String.class, builtinDataType.getBackingClass())) {
+            if (dataType == null) {
+                throw new ValueConversionException("datatype is null");
+            }
+            Object implicit = ImplicitConversions.convert(value.getValue(), dataType);
+            if (Objects.isNull(implicit) && Objects.equals(String.class, dataType.getBackingClass())) {
                 return new Variant(value.asString());
             }
             return new Variant(implicit);

@@ -59,4 +59,11 @@ public class NonPositiveIntegerValueTest {
         TypedValueFactory.create(Datatype.NON_POSITIVE_INTEGER, value);
     }
 
+
+    @Test
+    public void testNullAsString() throws ValueFormatException {
+        String value = null;
+        TypedValue actual = TypedValueFactory.create(Datatype.NON_POSITIVE_INTEGER, value);
+        Assert.assertNull(actual.asString());
+    }
 }

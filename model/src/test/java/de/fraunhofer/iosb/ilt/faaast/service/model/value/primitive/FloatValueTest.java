@@ -27,7 +27,7 @@ public class FloatValueTest {
     @Test
     public void testNegative() throws ValueFormatException {
         String value = "-1.0";
-        float expected = -1.0f;
+        Float expected = -1.0f;
         TypedValue actual = TypedValueFactory.create(Datatype.FLOAT, value);
         Assert.assertEquals(expected, actual.getValue());
         Assert.assertEquals(value, actual.asString());
@@ -37,7 +37,7 @@ public class FloatValueTest {
     @Test
     public void testPositiveZero() throws ValueFormatException {
         String value = "+0.0";
-        float expected = 0.0f;
+        Float expected = 0.0f;
         TypedValue actual = TypedValueFactory.create(Datatype.FLOAT, value);
         Assert.assertEquals(expected, actual.getValue());
         Assert.assertEquals("0.0", actual.asString());
@@ -47,7 +47,7 @@ public class FloatValueTest {
     @Test
     public void testNegativeZero() throws ValueFormatException {
         String value = "-0.0";
-        float expected = -0.0f;
+        Float expected = -0.0f;
         TypedValue actual = TypedValueFactory.create(Datatype.FLOAT, value);
         Assert.assertEquals(expected, actual.getValue());
         Assert.assertEquals(value, actual.asString());
@@ -57,7 +57,7 @@ public class FloatValueTest {
     @Test
     public void testE() throws ValueFormatException {
         String value = "234.567e8";
-        float expected = (float) 234.567e8;
+        Float expected = (float) 234.567e8;
         TypedValue actual = TypedValueFactory.create(Datatype.FLOAT, value);
         Assert.assertEquals(expected, actual.getValue());
     }
@@ -66,7 +66,7 @@ public class FloatValueTest {
     @Test
     public void testNegativeInf() throws ValueFormatException {
         String value = "-INF";
-        float expected = Float.NEGATIVE_INFINITY;
+        Float expected = Float.NEGATIVE_INFINITY;
         TypedValue actual = TypedValueFactory.create(Datatype.FLOAT, value);
         Assert.assertEquals(expected, actual.getValue());
         Assert.assertEquals(value, actual.asString());
@@ -76,10 +76,17 @@ public class FloatValueTest {
     @Test
     public void testNaN() throws ValueFormatException {
         String value = "NaN";
-        float expected = Float.NaN;
+        Float expected = Float.NaN;
         TypedValue actual = TypedValueFactory.create(Datatype.FLOAT, value);
         Assert.assertEquals(expected, actual.getValue());
         Assert.assertEquals(value, actual.asString());
     }
 
+
+    @Test
+    public void testNullAsString() throws ValueFormatException {
+        String value = null;
+        TypedValue actual = TypedValueFactory.create(Datatype.FLOAT, value);
+        Assert.assertNull(actual.asString());
+    }
 }

@@ -26,7 +26,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.JwtVa
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.Interface;
-import de.fraunhofer.iosb.ilt.faaast.service.model.Version;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import jakarta.servlet.DispatcherType;
 import java.io.File;
@@ -69,7 +68,6 @@ import org.slf4j.LoggerFactory;
  */
 public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
 
-    public static final Version API_VERSION = Version.V3_0;
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpEndpoint.class);
     private static final CertificateInformation SELFSIGNED_CERTIFICATE_INFORMATION = CertificateInformation.builder()
             .applicationUri("urn:de:fraunhofer:iosb:ilt:faaast:service:endpoint:http")
@@ -89,16 +87,6 @@ public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
     }
 
     private ServletContextHandler context;
-
-    /**
-     * Gets the API version prefix.
-     *
-     * @return the API version prefix
-     */
-    protected static String getVersionPrefix() {
-        return String.format("/api/%s", API_VERSION);
-    }
-
 
     @Override
     public void start() throws EndpointException {
@@ -248,12 +236,12 @@ public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
         if (config.getProfiles().stream()
                 .flatMap(x -> x.getInterfaces().stream())
                 .anyMatch(x -> Objects.equals(x, Interface.AAS_REPOSITORY))) {
-            result.add(endpointFor("AAS-REPOSITORY-3.0", "/shells"));
+            result.add(endpointFor("AAS-REPOSITORY-3.0", "shells"));
         }
         if (config.getProfiles().stream()
                 .flatMap(x -> x.getInterfaces().stream())
                 .anyMatch(x -> Objects.equals(x, Interface.AAS))) {
-            result.add(endpointFor("AAS-3.0", "/shells/" + EncodingHelper.base64UrlEncode(aasId)));
+            result.add(endpointFor("AAS-3.0", "shells/" + EncodingHelper.base64UrlEncode(aasId)));
         }
         return result;
     }
@@ -268,15 +256,25 @@ public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
         if (config.getProfiles().stream()
                 .flatMap(x -> x.getInterfaces().stream())
                 .anyMatch(x -> Objects.equals(x, Interface.SUBMODEL_REPOSITORY))) {
-            result.add(endpointFor("SUBMODEL-REPOSITORY-3.0", "/submodels"));
+            result.add(endpointFor("SUBMODEL-REPOSITORY-3.0", "submodels"));
         }
         if (config.getProfiles().stream()
                 .flatMap(x -> x.getInterfaces().stream())
                 .anyMatch(x -> Objects.equals(x, Interface.SUBMODEL))) {
-            result.add(endpointFor("SUBMODEL-3.0", "/submodels/" + EncodingHelper.base64UrlEncode(submodelId)));
+            result.add(endpointFor("SUBMODEL-3.0", "submodels/" + EncodingHelper.base64UrlEncode(submodelId)));
         }
 
         return result;
+    }
+
+
+    /**
+     * Gets the configured path prefix (e.g., /api/v3.0).
+     *
+     * @return the configured path prefix
+     */
+    public String getPathPrefix() {
+        return config.getPathPrefix();
     }
 
 
@@ -284,7 +282,7 @@ public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
         return new DefaultEndpoint.Builder()
                 ._interface(interfaceName)
                 .protocolInformation(new DefaultProtocolInformation.Builder()
-                        .href(getEndpointUri().resolve(getVersionPrefix() + path).toASCIIString())
+                        .href(getEndpointUri().resolve(path).toASCIIString())
                         .endpointProtocol(ENDPOINT_PROTOCOL)
                         .endpointProtocolVersion(ENDPOINT_PROTOCOL_VERSION)
                         .securityAttributes(new DefaultSecurityAttributeObject.Builder()
@@ -306,12 +304,12 @@ public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
                         result.getUserInfo(),
                         config.getHostname(),
                         result.getPort(),
-                        result.getPath(),
+                        config.getPathPrefix().concat(result.getPath()),
                         result.getQuery(),
                         result.getFragment());
             }
             catch (URISyntaxException e) {
-                LOGGER.warn("error creating endpoint URI for HTTP endpoint based on hostname from configuratoin (hostname: {})",
+                LOGGER.warn("error creating endpoint URI for HTTP endpoint based on hostname from configuration (hostname: {})",
                         config.getHostname(),
                         e);
             }

@@ -16,8 +16,8 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http;
 
 import de.fraunhofer.iosb.ilt.faaast.service.config.CertificateConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.EndpointConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.util.Objects;
-
 
 /**
  * Configuration class for {@link HttpEndpoint}.
@@ -32,10 +32,13 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
     public static final String DEFAULT_CORS_EXPOSED_HEADERS = "";
     public static final long DEFAULT_CORS_MAX_AGE = 3600;
     public static final String DEFAULT_HOSTNAME = null;
+    public static final String DEFAULT_PATH_PREFIX = "/api/v3.0";
     public static final boolean DEFAULT_INCLUDE_ERROR_DETAILS = false;
     public static final int DEFAULT_PORT = 443;
     public static final boolean DEFAULT_SNI_ENABLED = true;
     public static final boolean DEFAULT_SSL_ENABLED = true;
+
+    private static final String PATH_PREFIX_REGEX = "^(?:$|/|/.*[^/])$";
 
     public static Builder builder() {
         return new Builder();
@@ -50,6 +53,7 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
     private String corsExposedHeaders;
     private long corsMaxAge;
     private String hostname;
+    private String pathPrefix;
     private boolean includeErrorDetails;
     private int port;
     private boolean sniEnabled;
@@ -68,162 +72,147 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
         corsExposedHeaders = DEFAULT_CORS_EXPOSED_HEADERS;
         corsMaxAge = DEFAULT_CORS_MAX_AGE;
         hostname = DEFAULT_HOSTNAME;
+        pathPrefix = DEFAULT_PATH_PREFIX;
         includeErrorDetails = DEFAULT_INCLUDE_ERROR_DETAILS;
         port = DEFAULT_PORT;
         sniEnabled = DEFAULT_SNI_ENABLED;
         sslEnabled = DEFAULT_SSL_ENABLED;
     }
 
-
     public CertificateConfig getCertificate() {
         return certificate;
     }
-
 
     public void setCertificate(CertificateConfig certificate) {
         this.certificate = certificate;
     }
 
-
     public boolean isCorsEnabled() {
         return corsEnabled;
     }
-
 
     public void setCorsEnabled(boolean corsEnabled) {
         this.corsEnabled = corsEnabled;
     }
 
-
     public boolean isCorsAllowCredentials() {
         return corsAllowCredentials;
     }
-
 
     public void setCorsAllowCredentials(boolean corsAllowCredentials) {
         this.corsAllowCredentials = corsAllowCredentials;
     }
 
-
     public String getCorsAllowedHeaders() {
         return corsAllowedHeaders;
     }
-
 
     public void setCorsAllowedHeaders(String corsAllowedHeaders) {
         this.corsAllowedHeaders = corsAllowedHeaders;
     }
 
-
     public String getCorsAllowedMethods() {
         return corsAllowedMethods;
     }
-
 
     public void setCorsAllowedMethods(String corsAllowedMethods) {
         this.corsAllowedMethods = corsAllowedMethods;
     }
 
-
     public String getCorsAllowedOrigin() {
         return corsAllowedOrigin;
     }
-
 
     public void setCorsAllowedOrigin(String corsAllowedOrigin) {
         this.corsAllowedOrigin = corsAllowedOrigin;
     }
 
-
     public String getCorsExposedHeaders() {
         return corsExposedHeaders;
     }
-
 
     public void setCorsExposedHeaders(String corsExposedHeaders) {
         this.corsExposedHeaders = corsExposedHeaders;
     }
 
-
     public long getCorsMaxAge() {
         return corsMaxAge;
     }
-
 
     public void setCorsMaxAge(long corsMaxAge) {
         this.corsMaxAge = corsMaxAge;
     }
 
-
     public String getHostname() {
         return hostname;
     }
-
 
     public void setHostname(String hostname) {
         this.hostname = hostname;
     }
 
+    public String getPathPrefix() {
+        return pathPrefix;
+    }
+
+    /**
+     * Sets the path prefix of this endpoint. The path prefix must start with a "/"
+     * and not end with a "/".
+     *
+     * @param pathPrefix The path prefix used for HTTP requests to this endpoint.
+     */
+    public void setPathPrefix(String pathPrefix) {
+        validatePathPrefix(pathPrefix);
+        this.pathPrefix = pathPrefix;
+    }
 
     public boolean isIncludeErrorDetails() {
         return includeErrorDetails;
     }
 
-
     public void setIncludeErrorDetails(boolean includeErrorDetails) {
         this.includeErrorDetails = includeErrorDetails;
     }
-
 
     public int getPort() {
         return port;
     }
 
-
     public void setPort(int port) {
         this.port = port;
     }
-
 
     public boolean isSniEnabled() {
         return sniEnabled;
     }
 
-
     public void setSniEnabled(boolean sniEnabled) {
         this.sniEnabled = sniEnabled;
     }
-
 
     public boolean isSslEnabled() {
         return sslEnabled;
     }
 
-
     public void setSslEnabled(boolean sslEnabled) {
         this.sslEnabled = sslEnabled;
     }
-
 
     public String getJwkProvider() {
         return jwkProvider;
     }
 
-
     public void setJwkProvider(String jwkProvider) {
         this.jwkProvider = jwkProvider;
     }
-
 
     public String getAclFolder() {
         return aclFolder;
     }
 
-
     public void setAclFolder(String aclFolder) {
         this.aclFolder = aclFolder;
     }
-
 
     @Override
     public boolean equals(Object o) {
@@ -244,6 +233,7 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
                 && Objects.equals(corsExposedHeaders, that.corsExposedHeaders)
                 && Objects.equals(corsMaxAge, that.corsMaxAge)
                 && Objects.equals(hostname, that.hostname)
+                && Objects.equals(pathPrefix, that.pathPrefix)
                 && Objects.equals(includeErrorDetails, that.includeErrorDetails)
                 && Objects.equals(port, that.port)
                 && Objects.equals(sniEnabled, that.sniEnabled)
@@ -254,7 +244,6 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
                 && Objects.equals(aclFolder, that.aclFolder)
                 && Objects.equals(profiles, that.profiles);
     }
-
 
     @Override
     public int hashCode() {
@@ -269,6 +258,7 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
                 corsExposedHeaders,
                 corsMaxAge,
                 hostname,
+                pathPrefix,
                 includeErrorDetails,
                 port,
                 sniEnabled,
@@ -278,121 +268,113 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
                 profiles);
     }
 
-    private abstract static class AbstractBuilder<T extends HttpEndpointConfig, B extends AbstractBuilder<T, B>> extends EndpointConfig.AbstractBuilder<HttpEndpoint, T, B> {
+    private void validatePathPrefix(String pathPrefix) {
+        Ensure.require(pathPrefix.matches(PATH_PREFIX_REGEX),
+                String.format("%s.%s must match regex %s", this.getClass().getSimpleName(), "pathPrefix",
+                        PATH_PREFIX_REGEX));
+    }
+
+    private abstract static class AbstractBuilder<T extends HttpEndpointConfig, B extends AbstractBuilder<T, B>>
+            extends EndpointConfig.AbstractBuilder<HttpEndpoint, T, B> {
 
         public B certificate(CertificateConfig value) {
             getBuildingInstance().setCertificate(value);
             return getSelf();
         }
 
-
         public B cors() {
             getBuildingInstance().setCorsEnabled(true);
             return getSelf();
         }
-
 
         public B cors(boolean value) {
             getBuildingInstance().setCorsEnabled(value);
             return getSelf();
         }
 
-
         public B corsAllowCredentials() {
             getBuildingInstance().setCorsAllowCredentials(true);
             return getSelf();
         }
-
 
         public B corsAllowCredentials(boolean value) {
             getBuildingInstance().setCorsAllowCredentials(value);
             return getSelf();
         }
 
-
         public B corsAllowedHeaders(String value) {
             getBuildingInstance().setCorsAllowedHeaders(value);
             return getSelf();
         }
-
 
         public B corsAllowedMethods(String value) {
             getBuildingInstance().setCorsAllowedMethods(value);
             return getSelf();
         }
 
-
         public B corsAllowedOrigin(String value) {
             getBuildingInstance().setCorsAllowedOrigin(value);
             return getSelf();
         }
-
 
         public B corsExposedHeaders(String value) {
             getBuildingInstance().setCorsExposedHeaders(value);
             return getSelf();
         }
 
-
         public B corsMaxAge(long value) {
             getBuildingInstance().setCorsMaxAge(value);
             return getSelf();
         }
-
 
         public B hostname(String value) {
             getBuildingInstance().setHostname(value);
             return getSelf();
         }
 
-
         public B jwkProvider(String value) {
             getBuildingInstance().setJwkProvider(value);
-            return getSelf();
         }
 
+        public B pathPrefix(String value) {
+            getBuildingInstance().setPathPrefix(value);
+            return getSelf();
+        }
 
         public B includeErrorDetails() {
             getBuildingInstance().setIncludeErrorDetails(true);
             return getSelf();
         }
 
-
         public B includeErrorDetails(boolean value) {
             getBuildingInstance().setIncludeErrorDetails(value);
             return getSelf();
         }
-
 
         public B port(int value) {
             getBuildingInstance().setPort(value);
             return getSelf();
         }
 
-
         public B sni() {
             getBuildingInstance().setSniEnabled(true);
             return getSelf();
         }
-
 
         public B sni(boolean value) {
             getBuildingInstance().setSniEnabled(value);
             return getSelf();
         }
 
-
         public B ssl() {
             getBuildingInstance().setSslEnabled(true);
             return getSelf();
         }
 
-
         public B ssl(boolean value) {
             getBuildingInstance().setSslEnabled(value);
             return getSelf();
         }
-
 
         public B aclFolder(String value) {
             getBuildingInstance().setAclFolder(value);
@@ -406,7 +388,6 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
         protected Builder getSelf() {
             return this;
         }
-
 
         @Override
         protected HttpEndpointConfig newBuildingInstance() {

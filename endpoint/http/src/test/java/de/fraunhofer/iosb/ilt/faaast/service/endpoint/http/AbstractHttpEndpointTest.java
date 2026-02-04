@@ -121,7 +121,7 @@ public abstract class AbstractHttpEndpointTest {
 
     protected static final Logger LOGGER = LoggerFactory.getLogger(AbstractHttpEndpointTest.class);
     protected static final String HOST = "localhost";
-    protected static final String API_PREFIX = "/api/v3.0";
+    private static final String API_PREFIX = "/api/v3.0";
     protected static String scheme;
     protected static int port;
     protected static HttpClient client;
