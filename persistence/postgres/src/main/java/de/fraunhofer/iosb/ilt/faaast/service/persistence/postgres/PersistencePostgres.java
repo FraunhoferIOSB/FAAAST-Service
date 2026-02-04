@@ -874,9 +874,10 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
                 }
             }
         }
+        catch (ResourceNotFoundException e) {
+            throw e;
+        }
         catch (Exception e) {
-            if (e instanceof ResourceNotFoundException)
-                throw (ResourceNotFoundException) e;
             throw new RuntimeException("Database error loading " + id, e);
         }
     }
