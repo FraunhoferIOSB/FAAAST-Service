@@ -362,15 +362,8 @@ public class QueryToSqlTranslator {
                     suffix = field.substring(5);
                 }
                 else if (field.startsWith("$sme.")) {
-                    int dotIdx = field.indexOf('.', 5);
-                    if (dotIdx == -1) {
-                        prefix = "$sme";
-                        suffix = field.substring(5);
-                    }
-                    else {
-                        prefix = "$sme";
-                        suffix = field.substring(5);
-                    }
+                    prefix = "$sme";
+                    suffix = field.substring(5);
                 }
             }
             else if (field.startsWith("$sm#")) {
