@@ -380,7 +380,9 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
 
 
         public B jwkProvider(String value) {
+
             getBuildingInstance().setJwkProvider(value);
+            return getSelf();
         }
 
 
