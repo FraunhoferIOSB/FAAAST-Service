@@ -168,7 +168,7 @@ public class RequestHandlerServlet extends HttpServlet {
     private de.fraunhofer.iosb.ilt.faaast.service.model.api.Response handleResponseWithAcl(HttpServletRequest request,
                                                                                            de.fraunhofer.iosb.ilt.faaast.service.model.api.Request<? extends Response> apiRequest)
             throws ServletException {
-        String url = request.getRequestURI();
+        String url = request.getRequestURI().replaceFirst(config.getPathPrefix(), "");
         if ((url.equals("/shells") || url.equals("/shells/")) && request.getMethod().equals("GET")) {
             GetAllAssetAdministrationShellsResponse aasResponse = (GetAllAssetAdministrationShellsResponse) serviceContext.execute(endpoint, apiRequest);;
             return apiGateway.filterAas(request, aasResponse);
