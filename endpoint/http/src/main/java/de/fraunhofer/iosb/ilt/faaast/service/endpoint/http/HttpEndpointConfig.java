@@ -59,6 +59,8 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
     private int port;
     private boolean sniEnabled;
     private boolean sslEnabled;
+    private String jwkProvider;
+    private String aclFolder;
 
     public HttpEndpointConfig() {
         certificate = CertificateConfig.builder()
@@ -175,7 +177,8 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
 
 
     /**
-     * Sets the path prefix of this endpoint. The path prefix must start with a "/" and not end with a "/".
+     * Sets the path prefix of this endpoint. The path prefix must start with a "/"
+     * and not end with a "/".
      *
      * @param pathPrefix The path prefix used for HTTP requests to this endpoint.
      */
@@ -225,6 +228,26 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
     }
 
 
+    public String getJwkProvider() {
+        return jwkProvider;
+    }
+
+
+    public void setJwkProvider(String jwkProvider) {
+        this.jwkProvider = jwkProvider;
+    }
+
+
+    public String getAclFolder() {
+        return aclFolder;
+    }
+
+
+    public void setAclFolder(String aclFolder) {
+        this.aclFolder = aclFolder;
+    }
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -249,6 +272,10 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
                 && Objects.equals(port, that.port)
                 && Objects.equals(sniEnabled, that.sniEnabled)
                 && Objects.equals(sslEnabled, that.sslEnabled)
+                && Objects.equals(certificate, that.certificate)
+                && Objects.equals(hostname, that.hostname)
+                && Objects.equals(jwkProvider, that.jwkProvider)
+                && Objects.equals(aclFolder, that.aclFolder)
                 && Objects.equals(profiles, that.profiles);
     }
 
@@ -271,16 +298,20 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
                 port,
                 sniEnabled,
                 sslEnabled,
+                jwkProvider,
+                aclFolder,
                 profiles);
     }
 
 
     private void validatePathPrefix(String pathPrefix) {
         Ensure.require(pathPrefix.matches(PATH_PREFIX_REGEX),
-                String.format("%s.%s must match regex %s", this.getClass().getSimpleName(), "pathPrefix", PATH_PREFIX_REGEX));
+                String.format("%s.%s must match regex %s", this.getClass().getSimpleName(), "pathPrefix",
+                        PATH_PREFIX_REGEX));
     }
 
-    private abstract static class AbstractBuilder<T extends HttpEndpointConfig, B extends AbstractBuilder<T, B>> extends EndpointConfig.AbstractBuilder<HttpEndpoint, T, B> {
+    private abstract static class AbstractBuilder<T extends HttpEndpointConfig, B extends AbstractBuilder<T, B>>
+            extends EndpointConfig.AbstractBuilder<HttpEndpoint, T, B> {
 
         public B certificate(CertificateConfig value) {
             getBuildingInstance().setCertificate(value);
@@ -348,6 +379,13 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
         }
 
 
+        public B jwkProvider(String value) {
+
+            getBuildingInstance().setJwkProvider(value);
+            return getSelf();
+        }
+
+
         public B pathPrefix(String value) {
             getBuildingInstance().setPathPrefix(value);
             return getSelf();
@@ -392,6 +430,12 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
 
         public B ssl(boolean value) {
             getBuildingInstance().setSslEnabled(value);
+            return getSelf();
+        }
+
+
+        public B aclFolder(String value) {
+            getBuildingInstance().setAclFolder(value);
             return getSelf();
         }
     }
