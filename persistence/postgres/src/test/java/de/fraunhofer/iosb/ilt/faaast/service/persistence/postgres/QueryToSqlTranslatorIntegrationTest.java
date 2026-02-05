@@ -68,12 +68,11 @@ public class QueryToSqlTranslatorIntegrationTest {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
     private static EmbeddedPostgres embeddedPostgres;
-    private static String jdbcUrl;
 
     @BeforeClass
     public static void setUpDatabase() throws Exception {
         embeddedPostgres = EmbeddedPostgres.start();
-        jdbcUrl = embeddedPostgres.getJdbcUrl("postgres", "postgres");
+        embeddedPostgres.getJdbcUrl("postgres", "postgres");
 
         try (Connection conn = embeddedPostgres.getPostgresDatabase().getConnection()) {
             DatabaseSchema.createTables(conn);
