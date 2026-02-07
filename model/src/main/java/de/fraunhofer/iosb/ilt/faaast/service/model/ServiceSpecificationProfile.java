@@ -54,6 +54,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescriptio
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.description.GetSelfDescriptionRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.proprietary.ImportRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.proprietary.ResetRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.proprietary.UiPageRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.DeleteFileByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.DeleteSubmodelElementByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetAllSubmodelElementsPathRequest;
@@ -457,7 +458,11 @@ public enum ServiceSpecificationProfile {
     FAAAST_RESET(
             "https://github.com/FraunhoferIOSB/FAAAST-Service/API/1/4/Reset",
             List.of(),
-            List.of(ResetRequest.class));
+            List.of(ResetRequest.class)),
+    FAAAST_UI(
+            "https://github.com/FraunhoferIOSB/FAAAST-Service/API/1/4/Ui",
+            List.of(),
+            List.of(UiPageRequest.class));
 
     public static List<ServiceSpecificationProfile> ALL = Arrays.asList(ServiceSpecificationProfile.values());
 

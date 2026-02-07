@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FA³ST Service</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f5f7fa; color: #333; }
+.header { background: #009374; color: white; padding: 16px 24px; display: flex; align-items: center; gap: 16px; }
+.header h1 { font-size: 20px; font-weight: 600; }
+.header .subtitle { font-size: 13px; opacity: 0.7; }
+.container { max-width: 1200px; margin: 0 auto; padding: 24px; }
+.search-bar { width: 100%; padding: 10px 16px; font-size: 14px; border: 1px solid #d1d5db; border-radius: 6px; margin-bottom: 20px; outline: none; }
+.search-bar:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
+.tabs { display: flex; gap: 0; margin-bottom: 20px; border-bottom: 2px solid #e5e7eb; }
+.tab { padding: 10px 20px; cursor: pointer; font-size: 14px; font-weight: 500; color: #6b7280; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.15s; }
+.tab:hover { color: #1a365d; }
+.tab.active { color: #1a365d; border-bottom-color: #1a365d; }
+.badge { background: #e5e7eb; color: #374151; font-size: 11px; padding: 2px 8px; border-radius: 10px; margin-left: 6px; }
+.tab.active .badge { background: #1a365d; color: white; }
+.card { background: white; border: 1px solid #e5e7eb; border-radius: 8px; margin-bottom: 12px; transition: box-shadow 0.15s; cursor: pointer; }
+.card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+.card-header { padding: 16px; display: flex; justify-content: space-between; align-items: flex-start; }
+.card-title { font-size: 15px; font-weight: 600; color: #1a365d; word-break: break-all; }
+.card-id { font-size: 12px; color: #6b7280; margin-top: 4px; word-break: break-all; }
+.card-type { font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 500; white-space: nowrap; }
+.type-aas { background: #dbeafe; color: #1e40af; }
+.type-submodel { background: #d1fae5; color: #065f46; }
+.card-body { padding: 0 16px 16px; font-size: 13px; color: #4b5563; border-top: 1px solid #f3f4f6; }
+.card-body table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+.card-body th { text-align: left; font-weight: 500; color: #6b7280; padding: 6px 8px; font-size: 12px; }
+.card-body td { padding: 6px 8px; font-size: 13px; word-break: break-all; }
+.card-body tr:nth-child(even) { background: #f9fafb; }
+.elem-path { font-family: monospace; font-size: 12px; }
+.elem-value { font-family: monospace; font-size: 12px; color: #059669; max-width: 400px; overflow: hidden; text-overflow: ellipsis; }
+.elem-type { font-size: 11px; padding: 1px 6px; border-radius: 3px; background: #f3f4f6; color: #6b7280; }
+.breadcrumb { font-size: 13px; color: #6b7280; margin-bottom: 16px; }
+.breadcrumb a { color: #3b82f6; text-decoration: none; }
+.breadcrumb a:hover { text-decoration: underline; }
+.loading { text-align: center; padding: 40px; color: #9ca3af; }
+.error { text-align: center; padding: 40px; color: #dc2626; }
+.empty { text-align: center; padding: 40px; color: #9ca3af; }
+.back-btn { background: none; border: 1px solid #d1d5db; border-radius: 6px; padding: 6px 14px; font-size: 13px; cursor: pointer; color: #374151; margin-bottom: 16px; }
+.back-btn:hover { background: #f9fafb; }
+.toggle { cursor: pointer; user-select: none; }
+.toggle::before { content: '\25B6'; display: inline-block; margin-right: 4px; font-size: 10px; transition: transform 0.15s; }
+.toggle.open::before { transform: rotate(90deg); }
+.child-count { font-size: 11px; color: #9ca3af; margin-left: 4px; }
+.nested { display: none; }
+.nested.open { display: table-row-group; }
+</style>
+</head>
+<body>
+<div class="header">
+  <div>
+    <h1>FA&sup3;ST Service</h1>
+    <div class="subtitle">Asset Administration Shell & Submodel Repository</div>
+  </div>
+</div>
+<div class="container" id="app">
+  <div class="loading">Loading...</div>
+</div>
+<script>
+const API = window.location.pathname.replace(/\/ui\/?$/, '');
+
+const state = { view: 'list', tab: 'aas', shells: [], submodels: [], search: '', detail: null, detailType: null, elements: [] };
+
+function base64UrlEncode(str) {
+  return btoa(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+async function apiFetch(path) {
+  const resp = await fetch(API + path);
+  if (!resp.ok) throw new Error(resp.status + ' ' + resp.statusText);
+  return resp.json();
+}
+
+async function loadShells() {
+  try {
+    const data = await apiFetch('/shells');
+    state.shells = data.result || data || [];
+  } catch(e) { state.shells = []; console.error('Failed to load shells:', e); }
+}
+
+async function loadSubmodels() {
+  try {
+    const data = await apiFetch('/submodels');
+    state.submodels = data.result || data || [];
+  } catch(e) { state.submodels = []; console.error('Failed to load submodels:', e); }
+}
+
+async function loadDetail(type, id) {
+  const encoded = base64UrlEncode(id);
+  const path = type === 'aas' ? '/shells/' + encoded : '/submodels/' + encoded;
+  const data = await apiFetch(path);
+  state.detail = data;
+  state.detailType = type;
+  state.view = 'detail';
+  if (type === 'submodel') {
+    try {
+      const elems = await apiFetch('/submodels/' + encoded + '/submodel-elements');
+      state.elements = elems.result || elems || [];
+    } catch(e) { state.elements = []; }
+  } else {
+    state.elements = [];
+  }
+  render();
+}
+
+function esc(str) {
+  if (str == null) return '';
+  const d = document.createElement('div');
+  d.textContent = String(str);
+  return d.innerHTML;
+}
+
+function matchesSearch(item) {
+  if (!state.search) return true;
+  const s = state.search.toLowerCase();
+  const idShort = (item.idShort || '').toLowerCase();
+  const id = (item.id || '').toLowerCase();
+  const desc = JSON.stringify(item.description || '').toLowerCase();
+  return idShort.includes(s) || id.includes(s) || desc.includes(s);
+}
+
+function getDescription(item) {
+  if (!item.description || !item.description.length) return '';
+  const pref = item.description.find(d => d.language === 'en') || item.description[0];
+  return pref.text || '';
+}
+
+function renderList() {
+  const items = state.tab === 'aas' ? state.shells : state.submodels;
+  const filtered = items.filter(matchesSearch);
+  const typeClass = state.tab === 'aas' ? 'type-aas' : 'type-submodel';
+  const typeLabel = state.tab === 'aas' ? 'AAS' : 'Submodel';
+
+  let html = '<input class="search-bar" type="text" placeholder="Search by idShort, id, or description..." value="' + esc(state.search) + '" oninput="onSearch(this.value)">';
+  html += '<div class="tabs">';
+  html += '<div class="tab ' + (state.tab === 'aas' ? 'active' : '') + '" onclick="switchTab(\'aas\')">Shells<span class="badge">' + state.shells.length + '</span></div>';
+  html += '<div class="tab ' + (state.tab === 'submodels' ? 'active' : '') + '" onclick="switchTab(\'submodels\')">Submodels<span class="badge">' + state.submodels.length + '</span></div>';
+  html += '</div>';
+
+  if (filtered.length === 0) {
+    html += '<div class="empty">No ' + typeLabel + 's found' + (state.search ? ' matching "' + esc(state.search) + '"' : '') + '</div>';
+  } else {
+    filtered.forEach(item => {
+      const desc = getDescription(item);
+      html += '<div class="card" onclick="loadDetail(\'' + (state.tab === 'aas' ? 'aas' : 'submodel') + '\', \'' + esc(item.id).replace(/'/g, "\\'") + '\')">';
+      html += '<div class="card-header"><div><div class="card-title">' + esc(item.idShort || '(no idShort)') + '</div>';
+      html += '<div class="card-id">' + esc(item.id) + '</div>';
+      if (desc) html += '<div class="card-id" style="margin-top:2px">' + esc(desc) + '</div>';
+      html += '</div><span class="card-type ' + typeClass + '">' + typeLabel + '</span></div></div>';
+    });
+  }
+  return html;
+}
+
+function renderDetail() {
+  const item = state.detail;
+  if (!item) return '<div class="error">Not found</div>';
+  const isAas = state.detailType === 'aas';
+  const typeClass = isAas ? 'type-aas' : 'type-submodel';
+  const typeLabel = isAas ? 'AAS' : 'Submodel';
+
+  let html = '<button class="back-btn" onclick="goBack()">Back to list</button>';
+  html += '<div class="breadcrumb"><a href="#" onclick="goBack(); return false;">' + (isAas ? 'Shells' : 'Submodels') + '</a> / ' + esc(item.idShort || item.id) + '</div>';
+  html += '<div class="card"><div class="card-header"><div>';
+  html += '<div class="card-title">' + esc(item.idShort || '(no idShort)') + '</div>';
+  html += '<div class="card-id">' + esc(item.id) + '</div>';
+  const desc = getDescription(item);
+  if (desc) html += '<div class="card-id" style="margin-top:2px">' + esc(desc) + '</div>';
+  html += '</div><span class="card-type ' + typeClass + '">' + typeLabel + '</span></div>';
+
+  html += '<div class="card-body"><table>';
+  html += '<tr><th>Property</th><th>Value</th></tr>';
+  html += '<tr><td>id</td><td>' + esc(item.id) + '</td></tr>';
+  html += '<tr><td>idShort</td><td>' + esc(item.idShort) + '</td></tr>';
+  if (item.administration) {
+    if (item.administration.version) html += '<tr><td>Version</td><td>' + esc(item.administration.version) + '</td></tr>';
+    if (item.administration.revision) html += '<tr><td>Revision</td><td>' + esc(item.administration.revision) + '</td></tr>';
+  }
+  if (isAas && item.assetInformation) {
+    html += '<tr><td>Asset Kind</td><td>' + esc(item.assetInformation.assetKind) + '</td></tr>';
+    html += '<tr><td>Global Asset ID</td><td>' + esc(item.assetInformation.globalAssetId) + '</td></tr>';
+    if (item.assetInformation.assetType) html += '<tr><td>Asset Type</td><td>' + esc(item.assetInformation.assetType) + '</td></tr>';
+  }
+  if (!isAas && item.semanticId && item.semanticId.keys && item.semanticId.keys.length) {
+    html += '<tr><td>Semantic ID</td><td>' + esc(item.semanticId.keys.map(k => k.value).join(' / ')) + '</td></tr>';
+  }
+  if (!isAas && item.kind) html += '<tr><td>Kind</td><td>' + esc(item.kind) + '</td></tr>';
+  html += '</table></div></div>';
+
+  if (isAas && item.submodels && item.submodels.length) {
+    html += '<h3 style="margin:20px 0 12px;font-size:15px;font-weight:600;">Submodel References (' + item.submodels.length + ')</h3>';
+    item.submodels.forEach(ref => {
+      const keys = ref.keys || [];
+      const smId = keys.length > 0 ? keys[keys.length - 1].value : '';
+      html += '<div class="card" onclick="loadDetail(\'submodel\', \'' + esc(smId).replace(/'/g, "\\'") + '\')">';
+      html += '<div class="card-header"><div><div class="card-title">' + esc(smId) + '</div>';
+      html += '<div class="card-id">' + esc(ref.type || '') + '</div>';
+      html += '</div><span class="card-type type-submodel">Submodel</span></div></div>';
+    });
+  }
+
+  if (!isAas && state.elements.length) {
+    html += '<h3 style="margin:20px 0 12px;font-size:15px;font-weight:600;">Submodel Elements (' + state.elements.length + ')</h3>';
+    html += '<div class="card"><div class="card-body"><table>';
+    html += '<tr><th>idShort</th><th>Type</th><th>Value</th></tr>';
+    html += renderElements(state.elements, 0);
+    html += '</table></div></div>';
+  }
+
+  return html;
+}
+
+const CONTAINER_TYPES = ['SubmodelElementCollection', 'SubmodelElementList', 'Entity', 'AnnotatedRelationshipElement'];
+
+function isContainer(elem) {
+  return CONTAINER_TYPES.includes(elem.modelType) && Array.isArray(elem.value);
+}
+
+function renderElements(elements, depth) {
+  let html = '';
+  const id = () => 'n' + Math.random().toString(36).substring(2, 9);
+  elements.forEach(elem => {
+    const indent = depth * 20;
+    if (isContainer(elem)) {
+      const groupId = id();
+      const count = elem.value.length;
+      html += '<tr>';
+      html += '<td class="elem-path" style="padding-left:' + (8 + indent) + 'px"><span class="toggle" onclick="toggleNested(\'' + groupId + '\', this)">' + esc(elem.idShort) + '</span><span class="child-count">(' + count + ')</span></td>';
+      html += '<td><span class="elem-type">' + esc(elem.modelType) + '</span></td>';
+      html += '<td class="elem-value"></td>';
+      html += '</tr>';
+      html += '<tbody class="nested" id="' + groupId + '">';
+      html += renderElements(elem.value, depth + 1);
+      html += '</tbody>';
+    } else {
+      let val = '';
+      if (elem.modelType === 'Range') {
+        val = (elem.min != null ? elem.min : '') + ' .. ' + (elem.max != null ? elem.max : '');
+      } else if (elem.value != null) {
+        val = typeof elem.value === 'object' ? JSON.stringify(elem.value) : String(elem.value);
+      }
+      html += '<tr>';
+      html += '<td class="elem-path" style="padding-left:' + (8 + indent) + 'px">' + esc(elem.idShort) + '</td>';
+      html += '<td><span class="elem-type">' + esc(elem.modelType || '') + '</span></td>';
+      html += '<td class="elem-value">' + esc(val.length > 200 ? val.substring(0, 200) + '...' : val) + '</td>';
+      html += '</tr>';
+    }
+  });
+  return html;
+}
+
+function toggleNested(groupId, toggleEl) {
+  const tbody = document.getElementById(groupId);
+  if (tbody) { tbody.classList.toggle('open'); }
+  if (toggleEl) { toggleEl.classList.toggle('open'); }
+}
+
+function render() {
+  const app = document.getElementById('app');
+  const focused = document.activeElement;
+  const cursorPos = focused && focused.classList.contains('search-bar') ? focused.selectionStart : null;
+  app.innerHTML = state.view === 'detail' ? renderDetail() : renderList();
+  if (cursorPos !== null) {
+    const input = app.querySelector('.search-bar');
+    if (input) { input.focus(); input.setSelectionRange(cursorPos, cursorPos); }
+  }
+}
+
+function switchTab(tab) { state.tab = tab; state.search = ''; render(); }
+function onSearch(val) { state.search = val; render(); }
+function goBack() { state.view = 'list'; state.detail = null; state.elements = []; render(); }
+
+async function init() {
+  try {
+    await Promise.all([loadShells(), loadSubmodels()]);
+    render();
+  } catch(e) {
+    document.getElementById('app').innerHTML = '<div class="error">Failed to load data: ' + esc(e.message) + '</div>';
+  }
+}
+
+init();
+</script>
+</body>
+</html>
