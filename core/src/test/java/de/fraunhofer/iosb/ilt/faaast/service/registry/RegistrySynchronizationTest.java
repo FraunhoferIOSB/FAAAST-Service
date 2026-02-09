@@ -26,11 +26,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.Endpoint;
@@ -50,10 +46,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.net.URI;
 import java.util.List;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.SerializationException;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.JsonSerializer;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
-import org.eclipse.digitaltwin.aas4j.v3.model.SecurityAttributeObject;
 import org.eclipse.digitaltwin.aas4j.v3.model.SecurityTypeEnum;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelDescriptor;
@@ -79,7 +76,7 @@ public class RegistrySynchronizationTest {
     private static final String API_PREFIX = "/api/v3.0";
     private static final String AAS_URL_PATH = "/shell-descriptors";
     private static final String SUBMODEL_URL_PATH = "/submodel-descriptors";
-    private ObjectMapper mapper;
+    private JsonSerializer mapper;
     private MessageBus messageBus;
     private Endpoint endpoint;
     private Persistence persistence;
@@ -90,12 +87,7 @@ public class RegistrySynchronizationTest {
     @Before
     public void init() throws Exception {
         serviceUri = new URI("https://example.org/service/");
-        mapper = new ObjectMapper()
-                .enable(SerializationFeature.INDENT_OUTPUT)
-                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-                .setSerializationInclusion(JsonInclude.Include.NON_EMPTY)
-                .addMixIn(SecurityAttributeObject.class, SecurityAttributeObjectMixin.class)
-                .addMixIn(org.eclipse.digitaltwin.aas4j.v3.model.Endpoint.class, EndpointMixin.class);
+        mapper = new JsonSerializer();
         mockEndpoint();
         mockMessageBus();
         mockPersistence();
@@ -135,7 +127,7 @@ public class RegistrySynchronizationTest {
 
 
     @Test
-    public void testAasCreation() throws MessageBusException, JsonProcessingException {
+    public void testAasCreation() throws MessageBusException, JsonProcessingException, SerializationException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(0);
         registrySynchronization.start();
         messageBus.publish(ElementCreateEventMessage.builder()
@@ -147,7 +139,7 @@ public class RegistrySynchronizationTest {
 
 
     @Test
-    public void testAasUpdate() throws MessageBusException, JsonProcessingException {
+    public void testAasUpdate() throws MessageBusException, JsonProcessingException, SerializationException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(0);
         aas.setIdShort("Changed Id Short");
         registrySynchronization.start();
@@ -171,7 +163,7 @@ public class RegistrySynchronizationTest {
 
 
     @Test
-    public void testSubmodelCreation() throws MessageBusException, JsonProcessingException {
+    public void testSubmodelCreation() throws MessageBusException, JsonProcessingException, SerializationException {
         Submodel submodel = environment.getSubmodels().get(0);
         registrySynchronization.start();
         messageBus.publish(ElementCreateEventMessage.builder()
@@ -183,7 +175,7 @@ public class RegistrySynchronizationTest {
 
 
     @Test
-    public void testSubmodelUpdate() throws MessageBusException, JsonProcessingException {
+    public void testSubmodelUpdate() throws MessageBusException, JsonProcessingException, SerializationException {
         Submodel submodel = environment.getSubmodels().get(0);
         String oldIdShort = submodel.getIdShort();
         submodel.setIdShort("Changed Id Short");
@@ -348,8 +340,8 @@ public class RegistrySynchronizationTest {
     }
 
 
-    private String getAasDescriptorBody(AssetAdministrationShell aas) throws JsonProcessingException {
-        return mapper.writeValueAsString(new DefaultAssetAdministrationShellDescriptor.Builder()
+    private String getAasDescriptorBody(AssetAdministrationShell aas) throws JsonProcessingException, SerializationException {
+        return mapper.write(new DefaultAssetAdministrationShellDescriptor.Builder()
                 .administration(aas.getAdministration())
                 .id(aas.getId())
                 .idShort(aas.getIdShort())
@@ -365,8 +357,8 @@ public class RegistrySynchronizationTest {
     }
 
 
-    private String getSubmodelDescriptorBody(Submodel submodel) throws JsonProcessingException {
-        return mapper.writeValueAsString(new DefaultSubmodelDescriptor.Builder()
+    private String getSubmodelDescriptorBody(Submodel submodel) throws JsonProcessingException, SerializationException {
+        return mapper.write(new DefaultSubmodelDescriptor.Builder()
                 .administration(submodel.getAdministration())
                 .id(submodel.getId())
                 .idShort(submodel.getIdShort())
