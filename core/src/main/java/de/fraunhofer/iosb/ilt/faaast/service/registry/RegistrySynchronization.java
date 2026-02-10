@@ -14,10 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.registry;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
@@ -53,12 +49,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.SerializationException;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.JsonSerializer;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
-import org.eclipse.digitaltwin.aas4j.v3.model.Endpoint;
 import org.eclipse.digitaltwin.aas4j.v3.model.Key;
 import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
-import org.eclipse.digitaltwin.aas4j.v3.model.SecurityAttributeObject;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelDescriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetAdministrationShellDescriptor;
@@ -90,12 +86,7 @@ public class RegistrySynchronization {
     private final Persistence<?> persistence;
     private final MessageBus<?> messageBus;
     private final List<de.fraunhofer.iosb.ilt.faaast.service.endpoint.Endpoint> endpoints;
-    private final ObjectMapper mapper = new ObjectMapper()
-            .enable(SerializationFeature.INDENT_OUTPUT)
-            .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-            .setSerializationInclusion(JsonInclude.Include.NON_EMPTY)
-            .addMixIn(SecurityAttributeObject.class, SecurityAttributeObjectMixin.class)
-            .addMixIn(Endpoint.class, EndpointMixin.class);
+    private final JsonSerializer mapper = new JsonSerializer();
     private ExecutorService executor;
     private boolean running = false;
 
@@ -481,7 +472,7 @@ public class RegistrySynchronization {
                     }
 
                 }
-                catch (IOException | InterruptedException | KeyManagementException | NoSuchAlgorithmException e) {
+                catch (IOException | InterruptedException | KeyManagementException | NoSuchAlgorithmException | SerializationException e) {
                     LOGGER.warn(String.format(
                             errorMsg,
                             id,
@@ -498,7 +489,7 @@ public class RegistrySynchronization {
 
 
     private HttpResponse<String> execute(String method, String baseUrl, String path, Object payload)
-            throws IOException, InterruptedException, KeyManagementException, NoSuchAlgorithmException {
+            throws IOException, InterruptedException, KeyManagementException, NoSuchAlgorithmException, SerializationException {
         Ensure.requireNonNull(method, "method must be non-null");
         Ensure.requireNonNull(baseUrl, "baseUrl must be non-null");
         Ensure.requireNonNull(path, "path must be non-null");
@@ -507,7 +498,7 @@ public class RegistrySynchronization {
         HttpRequest.Builder builder = HttpRequest.newBuilder()
                 .uri(URI.create(safeBaseUrl).resolve(path))
                 .header("Content-Type", "application/json");
-        HttpRequest request = builder.method(method, HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(payload))).build();
+        HttpRequest request = builder.method(method, HttpRequest.BodyPublishers.ofString(mapper.write(payload))).build();
         return SslHelper.newClientAcceptingAllCertificates().send(request, BodyHandlers.ofString());
     }
 
