@@ -55,7 +55,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.JsonDeserializer;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.JsonSerializer;
@@ -86,6 +85,9 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
     private static final String MSG_CRITERIA_NOT_NULL = "criteria must be non-null";
     private static final String MSG_PAGING_NOT_NULL = "paging must be non-null";
     private static final String MSG_ELEMENT_NOT_NULL = "element must be non-null";
+    private static final String ILLEGAL_TYPE = "illegal type for identifiable: %s. Must be one of: %s, %s, %s";
+    private static final String SELECT_CONTENT = "SELECT content FROM ";
+    private static final String CONTENT = "content";
 
     private PersistencePostgresConfig config;
     private HikariDataSource dataSource;
@@ -431,7 +433,7 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
             acceptEmptyIdShort = true;
         }
         else {
-            throw new IllegalArgumentException(String.format("illegal type for identifiable: %s. Must be one of: %s, %s, %s",
+            throw new IllegalArgumentException(String.format(ILLEGAL_TYPE,
                     parent.getClass(),
                     Submodel.class,
                     SubmodelElementCollection.class,
@@ -476,7 +478,7 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
             container = ((SubmodelElementCollection) parent).getValue();
         }
         else {
-            throw new IllegalArgumentException(String.format("illegal type for identifiable: %s. Must be one of: %s, %s, %s",
+            throw new IllegalArgumentException(String.format(ILLEGAL_TYPE,
                     parent.getClass(),
                     Submodel.class,
                     SubmodelElementCollection.class,
@@ -509,7 +511,7 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
             ((Submodel) parent).getSubmodelElements().remove(element);
         }
         else {
-            throw new IllegalArgumentException(String.format("illegal type for identifiable: %s. Must be one of: %s, %s, %s",
+            throw new IllegalArgumentException(String.format(ILLEGAL_TYPE,
                     parent.getClass(),
                     Submodel.class,
                     SubmodelElementCollection.class,
@@ -647,12 +649,12 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
 
 
     private <T> T loadEntity(String table, String id, Class<T> clazz) throws ResourceNotFoundException, PersistenceException {
-        String sql = "SELECT content FROM " + table + " WHERE id = ?";
+        String sql = SELECT_CONTENT + table + " WHERE id = ?";
         try (Connection c = dataSource.getConnection(); PreparedStatement statement = c.prepareStatement(sql)) {
             statement.setString(1, id);
             try (ResultSet rs = statement.executeQuery()) {
                 if (rs.next()) {
-                    return jsonDeserializer.read(rs.getString("content"), clazz);
+                    return jsonDeserializer.read(rs.getString(CONTENT), clazz);
                 }
                 else {
                     throw new ResourceNotFoundException(clazz.getSimpleName() + " with id " + id + " not found");
@@ -670,11 +672,11 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
 
     private <T> List<T> loadAllEntities(String table, Class<T> clazz) throws PersistenceException {
         List<T> results = new ArrayList<>();
-        String sql = "SELECT content FROM " + table + " ORDER BY seq ASC";
+        String sql = SELECT_CONTENT + table + " ORDER BY seq ASC";
         try (Connection c = dataSource.getConnection(); PreparedStatement pstmt = c.prepareStatement(sql)) {
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
-                    results.add(jsonDeserializer.read(rs.getString("content"), clazz));
+                    results.add(jsonDeserializer.read(rs.getString(CONTENT), clazz));
                 }
             }
         }
@@ -687,13 +689,13 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
 
     private <T> List<T> loadAllEntitiesPaginated(String table, Class<T> clazz, long offset, int limit) throws PersistenceException {
         List<T> results = new ArrayList<>();
-        String sql = "SELECT content FROM " + table + " ORDER BY seq ASC LIMIT ? OFFSET ?";
+        String sql = SELECT_CONTENT + table + " ORDER BY seq ASC LIMIT ? OFFSET ?";
         try (Connection c = dataSource.getConnection(); PreparedStatement pstmt = c.prepareStatement(sql)) {
             pstmt.setInt(1, limit);
             pstmt.setLong(2, offset);
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
-                    results.add(jsonDeserializer.read(rs.getString("content"), clazz));
+                    results.add(jsonDeserializer.read(rs.getString(CONTENT), clazz));
                 }
             }
         }
@@ -737,7 +739,7 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
         result.setContent(QueryModifierHelper.applyQueryModifier(
                 result.getContent().stream()
                         .map(DeepCopyHelper::deepCopy)
-                        .collect(Collectors.toList()),
+                        .toList(),
                 modifier));
         return result;
     }
@@ -755,7 +757,7 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
         return Page.<T> builder()
                 .result(temp.stream()
                         .limit(paging.hasLimit() ? paging.getLimit() : temp.size())
-                        .collect(Collectors.toList()))
+                        .toList())
                 .metadata(PagingMetadata.builder()
                         .cursor(nextCursor(paging, temp.size()))
                         .build())

@@ -36,6 +36,9 @@ public final class DatabaseSchema {
     /** Table name for Operation Results. */
     public static final String TABLE_OPERATION_RESULT = "operation_results";
 
+    public static final String DROP_TABLE = "DROP TABLE IF EXISTS ";
+    public static final String CASCADE = " CASCADE";
+
     private DatabaseSchema() {}
 
 
@@ -131,12 +134,12 @@ public final class DatabaseSchema {
      */
     public static void dropTables(final Connection connection) throws SQLException {
         try (Statement stmt = connection.createStatement()) {
-            stmt.execute("DROP TABLE IF EXISTS " + TABLE_OPERATION_RESULT
-                    + " CASCADE");
-            stmt.execute("DROP TABLE IF EXISTS " + TABLE_CONCEPT_DESCRIPTION
-                    + " CASCADE");
-            stmt.execute("DROP TABLE IF EXISTS " + TABLE_SUBMODEL + " CASCADE");
-            stmt.execute("DROP TABLE IF EXISTS " + TABLE_AAS + " CASCADE");
+            stmt.execute(DROP_TABLE + TABLE_OPERATION_RESULT
+                    + CASCADE);
+            stmt.execute(DROP_TABLE + TABLE_CONCEPT_DESCRIPTION
+                    + CASCADE);
+            stmt.execute(DROP_TABLE + TABLE_SUBMODEL + CASCADE);
+            stmt.execute(DROP_TABLE + TABLE_AAS + CASCADE);
         }
     }
 }
