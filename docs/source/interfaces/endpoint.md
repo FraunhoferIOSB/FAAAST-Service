@@ -143,15 +143,20 @@ If a `jwkProvider` is defined and no Access rules exist, all HTTP API requests w
 We recommend Ory Hydra as OAuth2 and OpenID Connect server, which can be used with the following curl requests to retrieve a JWT token.
 
 Create client_id:
+
 ```
 curl -s -X POST http://127.0.0.1:4444/oauth2/token -u '6c176008-9308-4603-a55a-9975bb3a93b6:MCXepEOPh3GLx.hPpdb.NRCCsz' -d 'grant_type=client_credentials' -d 'scope=openid'"
 ```
+
 Retrieve token:
+
 ```
 curl -X POST -H "Content-Type: application/x-www-form-urlencoded"
 -d "grant_type=client_credentials" -d "scope=openid" -d "client_id=6c176008-9308-4603-a55a-9975bb3a93b6" -d "client_secret=MCXepEOPh3GLx.hPpdb.NRCCsz" http://127.0.0.1:4444/oauth2/token
 ```
+
 To grant READ access to this client_id, the following Access rule can be used:
+
 ```
 {
   "AllAccessPermissionRules": {
@@ -193,6 +198,7 @@ To grant READ access to this client_id, the following Access rule can be used:
 
 To grant access to specific submodels, FA³ST Service supports Identifiables like `"IDENTIFIABLE": "(Submodel)https://example.com/ids/sm/5120_2111_9032_9005"` or `"IDENTIFIABLE": "(Submodel)*"`.
 Example:
+
 ```
 {
   "AllAccessPermissionRules": {
