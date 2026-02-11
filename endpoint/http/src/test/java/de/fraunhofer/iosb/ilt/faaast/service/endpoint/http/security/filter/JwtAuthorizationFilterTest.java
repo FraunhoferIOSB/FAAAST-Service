@@ -24,30 +24,31 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.Collections;
 import java.util.List;
-import org.junit.Test;
 
 
 public class JwtAuthorizationFilterTest {
 
-    private JwtAuthorizationFilter testSubject = new JwtAuthorizationFilter() {
-        @Override
-        public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) {
-            // Intentionally left blank
-        }
-    };
-
-    @Test
-    public void testExtractAndDecodeJwt() {
-        // TODO
+    {
+        new JwtAuthorizationFilter() {
+            @Override
+            public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) {
+                // Intentionally left blank
+            }
+        };
     }
 
+    /**
+     * @Test
+     *       public void testExtractAndDecodeJwt() {
+     *       }
+     **/
 
     protected FilterChain mockFilterChain() {
         return mock(FilterChain.class);
     }
 
 
-    protected static HttpServletRequest mockRequest(String method, String uri, String jwt) {
+    protected static HttpServletRequest mockRequest(String jwt) {
         HttpServletRequest r = mock(HttpServletRequest.class);
         //when(r.getMethod()).thenReturn(method);
         //when(r.getRequestURI()).thenReturn(uri);
@@ -59,8 +60,7 @@ public class JwtAuthorizationFilterTest {
 
 
     protected static HttpServletResponse mockResponse() {
-        HttpServletResponse r = mock(HttpServletResponse.class);
-        return r;
+        return mock(HttpServletResponse.class);
     }
 
 }

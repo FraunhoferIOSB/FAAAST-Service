@@ -27,7 +27,6 @@ import static org.mockito.Mockito.when;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -55,7 +54,6 @@ public class ApiGatewayFilterTest extends JwtAuthorizationFilterTest {
 
     @Rule
     public TemporaryFolder tmp = new TemporaryFolder();
-    private Path aclDir;
     private ApiGateway apiGateway;
 
     private static HttpServletRequest req(String method, String uri) {
@@ -69,11 +67,10 @@ public class ApiGatewayFilterTest extends JwtAuthorizationFilterTest {
     @Test
     public void anonymousAccessDependsOnAclFile() throws Exception {
 
-        aclDir = tmp.newFolder("acl").toPath();
+        Path aclDir = tmp.newFolder("acl").toPath();
         apiGateway = new ApiGateway(aclDir.toString());
 
         HttpServletRequest request = req("GET", "/api/v3.0/submodels");
-        HttpServletResponse response = mockResponse();
         FilterChain filter = mockFilterChain();
 
         assertFalse(apiGateway.isAuthorized(request));

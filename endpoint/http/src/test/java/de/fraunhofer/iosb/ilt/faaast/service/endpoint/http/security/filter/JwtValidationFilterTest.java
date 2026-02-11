@@ -37,8 +37,6 @@ import org.junit.Test;
 
 public class JwtValidationFilterTest extends JwtAuthorizationFilterTest {
 
-    private JwtValidationFilter filter;
-
     @Test
     public void jwtIsVerified() throws Exception {
         KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
@@ -62,9 +60,9 @@ public class JwtValidationFilterTest extends JwtAuthorizationFilterTest {
 
         when(mockJwkProvider.get(kid)).thenReturn(jwk);
 
-        filter = new JwtValidationFilter(mockJwkProvider);
+        JwtValidationFilter filter = new JwtValidationFilter(mockJwkProvider);
 
-        HttpServletRequest request = mockRequest("GET", "/api/v3.0/submodels", jwt);
+        HttpServletRequest request = mockRequest(jwt);
         HttpServletResponse response = mockResponse();
         FilterChain filterChain = mockFilterChain();
 

@@ -22,6 +22,8 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.IntPredicate;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 
@@ -29,6 +31,20 @@ import java.util.regex.Pattern;
  * Class to evaluate formulas.
  */
 public final class FormulaEvaluator {
+
+    @FunctionalInterface
+    private interface ValueComparator {
+        boolean compare(Object left, Object right);
+    }
+
+    @FunctionalInterface
+    private interface StringComparator {
+        boolean compare(String left, String right);
+    }
+
+    private record ValueOperationSpec(String name, Supplier<List<Value>> operands, ValueComparator comparator) {}
+
+    private record StringOperationSpec(String name, Supplier<List<StringValue>> operands, StringComparator comparator) {}
 
     /**
      * Evaluates the given formula.
@@ -45,6 +61,33 @@ public final class FormulaEvaluator {
 
     private static boolean eval(LogicalExpression node,
                                 Map<String, Object> ctx) {
+        Boolean logical = evaluateLogical(node, ctx);
+        if (logical != null) {
+            return logical;
+        }
+
+        Boolean valueComparison = evaluateValueComparison(node, ctx);
+        if (valueComparison != null) {
+            return valueComparison;
+        }
+
+        Boolean stringComparison = evaluateStringComparison(node, ctx);
+        if (stringComparison != null) {
+            return stringComparison;
+        }
+
+        if (node.get$boolean() != null) {
+            return node.get$boolean();
+        }
+        if (!node.get$match().isEmpty()) {
+            throw new UnsupportedOperationException("Operator $match not supported");
+        }
+        throw new IllegalArgumentException("No supported operator found in node");
+    }
+
+
+    private static Boolean evaluateLogical(LogicalExpression node,
+                                           Map<String, Object> ctx) {
         if (!node.get$and().isEmpty()) {
             for (LogicalExpression child: node.get$and()) {
                 if (!eval(child, ctx)) {
@@ -64,123 +107,71 @@ public final class FormulaEvaluator {
         if (node.get$not() != null) {
             return !eval(node.get$not(), ctx);
         }
-        if (!node.get$eq().isEmpty()) {
-            List<Value> ops = node.get$eq();
-            if (ops.size() != 2) {
-                throw new IllegalArgumentException("$eq requires exactly 2 operands");
+        return null;
+    }
+
+
+    private static Boolean evaluateValueComparison(LogicalExpression node,
+                                                   Map<String, Object> ctx) {
+        List<ValueOperationSpec> operations = List.of(
+                new ValueOperationSpec("$eq", node::get$eq, Objects::equals),
+                new ValueOperationSpec("$ne", node::get$ne, (left, right) -> !Objects.equals(left, right)),
+                new ValueOperationSpec("$gt", node::get$gt, (left, right) -> compareComparable(left, right, v -> v > 0)),
+                new ValueOperationSpec("$ge", node::get$ge, (left, right) -> compareComparable(left, right, v -> v >= 0)),
+                new ValueOperationSpec("$lt", node::get$lt, (left, right) -> compareComparable(left, right, v -> v < 0)),
+                new ValueOperationSpec("$le", node::get$le, (left, right) -> compareComparable(left, right, v -> v <= 0)));
+
+        for (ValueOperationSpec spec: operations) {
+            List<Value> ops = spec.operands.get();
+            if (!ops.isEmpty()) {
+                validateOperandCount(ops.size(), spec.name);
+                Object left = resolve(ops.get(0), ctx);
+                Object right = resolve(ops.get(1), ctx);
+                return spec.comparator.compare(left, right);
             }
-            Object left = resolve(ops.get(0), ctx);
-            Object right = resolve(ops.get(1), ctx);
-            return Objects.equals(left, right);
         }
-        if (!node.get$ne().isEmpty()) {
-            List<Value> ops = node.get$ne();
-            if (ops.size() != 2) {
-                throw new IllegalArgumentException("$ne requires exactly 2 operands");
+        return null;
+    }
+
+
+    private static Boolean evaluateStringComparison(LogicalExpression node,
+                                                    Map<String, Object> ctx) {
+        List<StringOperationSpec> operations = List.of(
+                new StringOperationSpec("$contains", node::get$contains, (left, right) -> left != null && left.contains(right)),
+                new StringOperationSpec("$starts-with", node::get$startsWith, (left, right) -> left != null && left.startsWith(right)),
+                new StringOperationSpec("$ends-with", node::get$endsWith, (left, right) -> left != null && left.endsWith(right)),
+                new StringOperationSpec("$regex", node::get$regex, (left, right) -> left != null && Pattern.matches(right, left)));
+
+        for (StringOperationSpec spec: operations) {
+            List<StringValue> ops = spec.operands.get();
+            if (!ops.isEmpty()) {
+                validateOperandCount(ops.size(), spec.name);
+                String left = resolveString(ops.get(0), ctx);
+                String right = resolveString(ops.get(1), ctx);
+                return spec.comparator.compare(left, right);
             }
-            Object left = resolve(ops.get(0), ctx);
-            Object right = resolve(ops.get(1), ctx);
-            return !Objects.equals(left, right);
         }
-        if (!node.get$gt().isEmpty()) {
-            List<Value> ops = node.get$gt();
-            if (ops.size() != 2) {
-                throw new IllegalArgumentException("$gt requires exactly 2 operands");
-            }
-            Object lObj = resolve(ops.get(0), ctx);
-            Object rObj = resolve(ops.get(1), ctx);
-            if (!(lObj instanceof Comparable<?>) || !(rObj instanceof Comparable<?>)) {
-                throw new IllegalArgumentException("Operands are not comparable: "
-                        + lObj + ", " + rObj);
-            }
-            int cmp = ((Comparable<Object>) lObj).compareTo(rObj);
-            return cmp > 0;
+        return null;
+    }
+
+
+    private static void validateOperandCount(int count,
+                                             String operator) {
+        if (count != 2) {
+            throw new IllegalArgumentException(operator + " requires exactly 2 operands");
         }
-        if (!node.get$ge().isEmpty()) {
-            List<Value> ops = node.get$ge();
-            if (ops.size() != 2) {
-                throw new IllegalArgumentException("$ge requires exactly 2 operands");
-            }
-            Object lObj = resolve(ops.get(0), ctx);
-            Object rObj = resolve(ops.get(1), ctx);
-            if (!(lObj instanceof Comparable<?>) || !(rObj instanceof Comparable<?>)) {
-                throw new IllegalArgumentException("Operands are not comparable: "
-                        + lObj + ", " + rObj);
-            }
-            int cmp = ((Comparable<Object>) lObj).compareTo(rObj);
-            return cmp >= 0;
+    }
+
+
+    private static boolean compareComparable(Object left,
+                                             Object right,
+                                             IntPredicate predicate) {
+        if (!(left instanceof Comparable<?>) || !(right instanceof Comparable<?>)) {
+            throw new IllegalArgumentException("Operands are not comparable: "
+                    + left + ", " + right);
         }
-        if (!node.get$lt().isEmpty()) {
-            List<Value> ops = node.get$lt();
-            if (ops.size() != 2) {
-                throw new IllegalArgumentException("$lt requires exactly 2 operands");
-            }
-            Object lObj = resolve(ops.get(0), ctx);
-            Object rObj = resolve(ops.get(1), ctx);
-            if (!(lObj instanceof Comparable<?>) || !(rObj instanceof Comparable<?>)) {
-                throw new IllegalArgumentException("Operands are not comparable: "
-                        + lObj + ", " + rObj);
-            }
-            int cmp = ((Comparable<Object>) lObj).compareTo(rObj);
-            return cmp < 0;
-        }
-        if (!node.get$le().isEmpty()) {
-            List<Value> ops = node.get$le();
-            if (ops.size() != 2) {
-                throw new IllegalArgumentException("$le requires exactly 2 operands");
-            }
-            Object lObj = resolve(ops.get(0), ctx);
-            Object rObj = resolve(ops.get(1), ctx);
-            if (!(lObj instanceof Comparable<?>) || !(rObj instanceof Comparable<?>)) {
-                throw new IllegalArgumentException("Operands are not comparable: "
-                        + lObj + ", " + rObj);
-            }
-            int cmp = ((Comparable<Object>) lObj).compareTo(rObj);
-            return cmp <= 0;
-        }
-        if (!node.get$contains().isEmpty()) {
-            List<StringValue> ops = node.get$contains();
-            if (ops.size() != 2) {
-                throw new IllegalArgumentException("$contains requires exactly 2 operands");
-            }
-            String left = resolveString(ops.get(0), ctx);
-            String right = resolveString(ops.get(1), ctx);
-            return left != null && left.contains(right);
-        }
-        if (!node.get$startsWith().isEmpty()) {
-            List<StringValue> ops = node.get$startsWith();
-            if (ops.size() != 2) {
-                throw new IllegalArgumentException("$starts-with requires exactly 2 operands");
-            }
-            String left = resolveString(ops.get(0), ctx);
-            String right = resolveString(ops.get(1), ctx);
-            return left != null && left.startsWith(right);
-        }
-        if (!node.get$endsWith().isEmpty()) {
-            List<StringValue> ops = node.get$endsWith();
-            if (ops.size() != 2) {
-                throw new IllegalArgumentException("$ends-with requires exactly 2 operands");
-            }
-            String left = resolveString(ops.get(0), ctx);
-            String right = resolveString(ops.get(1), ctx);
-            return left != null && left.endsWith(right);
-        }
-        if (!node.get$regex().isEmpty()) {
-            List<StringValue> ops = node.get$regex();
-            if (ops.size() != 2) {
-                throw new IllegalArgumentException("$regex requires exactly 2 operands");
-            }
-            String left = resolveString(ops.get(0), ctx);
-            String regex = resolveString(ops.get(1), ctx);
-            return left != null && Pattern.matches(regex, left);
-        }
-        if (node.get$boolean() != null) {
-            return node.get$boolean();
-        }
-        if (!node.get$match().isEmpty()) {
-            throw new UnsupportedOperationException("Operator $match not supported");
-        }
-        throw new IllegalArgumentException("No supported operator found in node");
+        int cmp = ((Comparable<Object>) left).compareTo(right);
+        return predicate.test(cmp);
     }
 
 

@@ -35,7 +35,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionId;
 import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.AssetAdministrationShellSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.ConceptDescriptionSearchCriteria;
@@ -74,8 +73,6 @@ import org.slf4j.LoggerFactory;
 public class Service implements ServiceContext {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Service.class);
-    private static final String VALUE_NULL = "value must not be null";
-    private static final String ELEMENT_NULL = "element must not be null";
     private final ServiceConfig config;
     private AssetConnectionManager assetConnectionManager;
     private List<Endpoint> endpoints;
@@ -87,8 +84,6 @@ public class Service implements ServiceContext {
 
     private RegistrySynchronization registrySynchronization;
     private RequestHandlerManager requestHandler;
-    private List<SubmodelTemplateProcessor> submodelTemplateProcessors;
-    private List<SubscriptionId> subscriptions;
 
     /**
      * Creates a new instance of {@link Service}.
@@ -126,8 +121,6 @@ public class Service implements ServiceContext {
         else {
             this.endpoints = endpoints;
         }
-        this.submodelTemplateProcessors = submodelTemplateProcessors;
-        this.subscriptions = new ArrayList<>();
         this.config = ServiceConfig.builder()
                 .core(coreConfig)
                 .build();
@@ -156,7 +149,6 @@ public class Service implements ServiceContext {
             throws ConfigurationException, AssetConnectionException, PersistenceException, MessageBusException {
         Ensure.requireNonNull(config, "config must be non-null");
         this.config = config;
-        this.subscriptions = new ArrayList<>();
         init();
     }
 

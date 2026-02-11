@@ -210,9 +210,8 @@ public class QueryEvaluatorTest {
     }
 
 
-    /* ------------------------------------------------------------------ */
     @Test
-    public void simpleEq_withMatchingFields() throws Exception {
+    public void simpleEqWithMatchingFields() throws Exception {
         String json = """
                 {
                   "$condition": {
@@ -238,9 +237,8 @@ public class QueryEvaluatorTest {
     }
 
 
-    /* ------------------------------------------------------------------ */
     @Test
-    public void simpleEq_withNonMatchingFields() throws Exception {
+    public void simpleEqWithNonMatchingFields() throws Exception {
         String json = """
                 {
                   "$condition": {
@@ -266,9 +264,8 @@ public class QueryEvaluatorTest {
     }
 
 
-    /* ------------------------------------------------------------------ */
     @Test
-    public void documentsMatch_withMatchingValues() throws Exception {
+    public void documentsMatchWithMatchingValues() throws Exception {
         String json = """
                 {
                   "$condition": {
@@ -299,9 +296,8 @@ public class QueryEvaluatorTest {
     }
 
 
-    /* ------------------------------------------------------------------ */
     @Test
-    public void documentsMatch_withNonMatchingValues() throws Exception {
+    public void documentsMatchWithNonMatchingValues() throws Exception {
         String json = """
                 {
                   "$condition": {
@@ -332,9 +328,8 @@ public class QueryEvaluatorTest {
     }
 
 
-    /* ------------------------------------------------------------------ */
     @Test
-    public void andMatch_withMatchingConditions() throws Exception {
+    public void andMatchWithMatchingConditions() throws Exception {
         String json = """
                 {
                   "$condition": {
@@ -392,9 +387,8 @@ public class QueryEvaluatorTest {
     }
 
 
-    /* ------------------------------------------------------------------ */
     @Test
-    public void andMatch_withNonMatchingConditions() throws Exception {
+    public void andMatchWithNonMatchingConditions() throws Exception {
         String json = """
                 {
                   "$condition": {
@@ -452,9 +446,8 @@ public class QueryEvaluatorTest {
     }
 
 
-    /* ------------------------------------------------------------------ */
     @Test
-    public void orMatch_withMatchingSpecificAssetIds() throws Exception {
+    public void orMatchWithMatchingSpecificAssetIds() throws Exception {
         String json = """
                 {
                   "$condition": {
@@ -505,9 +498,8 @@ public class QueryEvaluatorTest {
     }
 
 
-    /* ------------------------------------------------------------------ */
     @Test
-    public void orMatch_withNonMatchingSpecificAssetIds() throws Exception {
+    public void orMatchWithNonMatchingSpecificAssetIds() throws Exception {
         String json = """
                 {
                   "$condition": {
