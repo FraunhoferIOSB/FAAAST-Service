@@ -86,7 +86,6 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
 
     private PersistencePostgresConfig config;
     private HikariDataSource dataSource;
-    private final QueryToSqlTranslator queryToSqlTranslator = new QueryToSqlTranslator();
 
     private final JsonSerializer jsonSerializer = new JsonSerializer();
     private final JsonDeserializer jsonDeserializer = new JsonDeserializer();
@@ -212,62 +211,7 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
                                                                                  Query query)
             throws PersistenceException {
 
-        if (query == null || query.get$condition() == null) {
-            return findAssetAdministrationShells(criteria, modifier, paging);
-        }
-
-        QueryToSqlTranslator.TranslationResult result = queryToSqlTranslator.translate(query.get$condition(), DatabaseSchema.TABLE_AAS);
-
-        if (result.isEmpty()) {
-            return findAssetAdministrationShells(criteria, modifier, paging);
-        }
-
-        long offset = 0;
-        if (paging.getCursor() != null) {
-            offset = readCursor(paging.getCursor());
-        }
-
-        int totalCount = countEntitiesWithQuery(DatabaseSchema.TABLE_AAS, result.getSql());
-        int limit = paging.hasLimit() ? (int) paging.getLimit() : totalCount;
-
-        String sql = "SELECT content FROM " + DatabaseSchema.TABLE_AAS + " WHERE " + result.getSql()
-                + " ORDER BY seq ASC LIMIT ? OFFSET ?";
-
-        List<AssetAdministrationShell> matched;
-        try (Connection c = dataSource.getConnection(); PreparedStatement pstmt = c.prepareStatement(sql)) {
-            pstmt.setInt(1, limit + 1);
-            pstmt.setLong(2, offset);
-            matched = executeQuery(pstmt, AssetAdministrationShell.class);
-        }
-        catch (Exception e) {
-            throw new PersistenceException("Failed to query AAS", e);
-        }
-
-        Stream<AssetAdministrationShell> stream = matched.stream();
-
-        if (criteria != null) {
-            if (criteria.getIdShort() != null) {
-                stream = stream.filter(x -> Objects.equals(x.getIdShort(), criteria.getIdShort()));
-            }
-            if (criteria.getAssetIds() != null && !criteria.getAssetIds().isEmpty()) {
-                stream = stream.filter(x -> x.getAssetInformation() != null &&
-                        criteria.getAssetIds().stream().anyMatch(
-                                c -> Objects.equals(x.getAssetInformation().getGlobalAssetId(), c.getValue())));
-            }
-        }
-
-        List<AssetAdministrationShell> filtered = stream.collect(Collectors.toList());
-
-        if (filtered.size() > limit) {
-            filtered = filtered.subList(0, limit);
-        }
-
-        return Page.<AssetAdministrationShell> builder()
-                .result(filtered)
-                .metadata(PagingMetadata.builder()
-                        .cursor(calculateNextCursor(paging, filtered.size(), limit))
-                        .build())
-                .build();
+        throw new PersistenceException("Query not supported with Postgres.");
     }
 
 
@@ -324,116 +268,6 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
             }
         }
         return preparePagedResult(stream, modifier, paging);
-    }
-
-
-    @Override
-    public Page<Submodel> findSubmodelsWithQuery(
-                                                 SubmodelSearchCriteria criteria,
-                                                 QueryModifier modifier,
-                                                 PagingInfo paging,
-                                                 Query query)
-            throws PersistenceException {
-
-        if (query == null || query.get$condition() == null) {
-            return findSubmodels(criteria, modifier, paging);
-        }
-
-        QueryToSqlTranslator.TranslationResult result = queryToSqlTranslator.translate(query.get$condition(), DatabaseSchema.TABLE_SUBMODEL);
-
-        if (result.isEmpty()) {
-            return findSubmodels(criteria, modifier, paging);
-        }
-
-        long offset = 0;
-        if (paging.getCursor() != null) {
-            offset = readCursor(paging.getCursor());
-        }
-
-        int totalCount = countEntitiesWithQuery(DatabaseSchema.TABLE_SUBMODEL, result.getSql());
-        int limit = paging.hasLimit() ? (int) paging.getLimit() : totalCount;
-
-        String sql = "SELECT content FROM " + DatabaseSchema.TABLE_SUBMODEL + " WHERE " + result.getSql()
-                + " ORDER BY seq ASC LIMIT ? OFFSET ?";
-
-        List<Submodel> matched;
-        try (Connection c = dataSource.getConnection(); PreparedStatement pstmt = c.prepareStatement(sql)) {
-            pstmt.setInt(1, limit + 1);
-            pstmt.setLong(2, offset);
-            matched = executeQuery(pstmt, Submodel.class);
-        }
-        catch (Exception e) {
-            throw new PersistenceException("Failed to query submodels", e);
-        }
-
-        Stream<Submodel> stream = matched.stream();
-
-        if (criteria != null) {
-            if (criteria.getIdShort() != null) {
-                stream = stream.filter(x -> Objects.equals(x.getIdShort(), criteria.getIdShort()));
-            }
-            if (criteria.getSemanticId() != null) {
-                stream = stream.filter(x -> ReferenceHelper.equals(x.getSemanticId(), criteria.getSemanticId()));
-            }
-        }
-
-        List<Submodel> filtered = stream.collect(Collectors.toList());
-
-        if (filtered.size() > limit) {
-            filtered = filtered.subList(0, limit);
-        }
-
-        return Page.<Submodel> builder()
-                .result(filtered)
-                .metadata(PagingMetadata.builder()
-                        .cursor(calculateNextCursor(paging, filtered.size(), limit))
-                        .build())
-                .build();
-    }
-
-
-    private int countEntitiesWithQuery(String table, String whereClause) {
-        String sql = "SELECT COUNT(*) FROM " + table + " WHERE " + whereClause;
-        try (Connection c = dataSource.getConnection(); PreparedStatement pstmt = c.prepareStatement(sql)) {
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getInt(1);
-                }
-            }
-        }
-        catch (Exception e) {
-            return 0;
-        }
-        return 0;
-    }
-
-
-    private <T> List<T> executeQuery(PreparedStatement pstmt, Class<T> clazz) {
-        List<T> results = new ArrayList<>();
-        try (ResultSet rs = pstmt.executeQuery()) {
-            while (rs.next()) {
-                results.add(jsonDeserializer.read(rs.getString("content"), clazz));
-            }
-        }
-        catch (Exception e) {
-            throw new RuntimeException("Failed to execute query", e);
-        }
-        return results;
-    }
-
-
-    private static String calculateNextCursor(PagingInfo paging, int resultCount, int limit) {
-        boolean hasMoreData = resultCount > limit;
-        if (!hasMoreData) {
-            return null;
-        }
-        if (!paging.hasLimit()) {
-            throw new IllegalStateException("unable to generate next cursor for paging - there should not be more data available if previous request did not have a limit set");
-        }
-        if (Objects.isNull(paging.getCursor())) {
-            return writeCursor(paging.getLimit());
-        }
-        return writeCursor(readCursor(paging.getCursor()) + paging.getLimit());
     }
 
 
@@ -732,65 +566,7 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
                                                                      Query query)
             throws PersistenceException {
 
-        if (query == null || query.get$condition() == null) {
-            return findConceptDescriptions(criteria, modifier, paging);
-        }
-
-        QueryToSqlTranslator.TranslationResult result = queryToSqlTranslator.translate(query.get$condition(), DatabaseSchema.TABLE_CONCEPT_DESCRIPTION);
-
-        if (result.isEmpty()) {
-            return findConceptDescriptions(criteria, modifier, paging);
-        }
-
-        long offset = 0;
-        if (paging.getCursor() != null) {
-            offset = readCursor(paging.getCursor());
-        }
-
-        int totalCount = countEntitiesWithQuery(DatabaseSchema.TABLE_CONCEPT_DESCRIPTION, result.getSql());
-        int limit = paging.hasLimit() ? (int) paging.getLimit() : totalCount;
-
-        String sql = "SELECT content FROM " + DatabaseSchema.TABLE_CONCEPT_DESCRIPTION + " WHERE " + result.getSql()
-                + " ORDER BY seq ASC LIMIT ? OFFSET ?";
-
-        List<ConceptDescription> matched;
-        try (Connection c = dataSource.getConnection(); PreparedStatement pstmt = c.prepareStatement(sql)) {
-            pstmt.setInt(1, limit + 1);
-            pstmt.setLong(2, offset);
-            matched = executeQuery(pstmt, ConceptDescription.class);
-        }
-        catch (Exception e) {
-            throw new PersistenceException("Failed to query concept descriptions", e);
-        }
-
-        Stream<ConceptDescription> stream = matched.stream();
-
-        if (criteria != null) {
-            if (criteria.getIdShort() != null) {
-                stream = stream.filter(x -> Objects.equals(x.getIdShort(), criteria.getIdShort()));
-            }
-            if (criteria.getIsCaseOf() != null) {
-                stream = stream.filter(x -> x.getIsCaseOf() != null && x.getIsCaseOf().contains(criteria.getIsCaseOf()));
-            }
-            if (criteria.getDataSpecification() != null) {
-                stream = stream.filter(x -> x.getEmbeddedDataSpecifications() != null &&
-                        x.getEmbeddedDataSpecifications().stream().anyMatch(
-                                d -> Objects.equals(d.getDataSpecification(), criteria.getDataSpecification())));
-            }
-        }
-
-        List<ConceptDescription> filtered = stream.collect(Collectors.toList());
-
-        if (filtered.size() > limit) {
-            filtered = filtered.subList(0, limit);
-        }
-
-        return Page.<ConceptDescription> builder()
-                .result(filtered)
-                .metadata(PagingMetadata.builder()
-                        .cursor(calculateNextCursor(paging, filtered.size(), limit))
-                        .build())
-                .build();
+        throw new PersistenceException("Query not supported with Postgres.");
     }
 
 
@@ -1011,11 +787,6 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
 
     private static String writeCursor(long index) {
         return Long.toString(index);
-    }
-
-
-    private static String nextCursor(PagingInfo paging, int resultCount) {
-        return nextCursor(paging, paging.hasLimit() && resultCount > paging.getLimit());
     }
 
 
