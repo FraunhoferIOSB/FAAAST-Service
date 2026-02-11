@@ -272,6 +272,13 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
 
 
     @Override
+    public Page<Submodel> findSubmodelsWithQuery(SubmodelSearchCriteria criteria, QueryModifier modifier, PagingInfo paging, Query query)
+            throws PersistenceException {
+        throw new PersistenceException("Query not supported with Postgres.");
+    }
+
+
+    @Override
     public void save(Submodel submodel) {
         saveEntity(DatabaseSchema.TABLE_SUBMODEL, submodel.getId(), submodel);
     }
@@ -801,6 +808,11 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
             return writeCursor(paging.getLimit());
         }
         return writeCursor(readCursor(paging.getCursor()) + paging.getLimit());
+    }
+
+
+    private static String nextCursor(PagingInfo paging, int resultCount) {
+        return nextCursor(paging, paging.hasLimit() && resultCount > paging.getLimit());
     }
 
 
