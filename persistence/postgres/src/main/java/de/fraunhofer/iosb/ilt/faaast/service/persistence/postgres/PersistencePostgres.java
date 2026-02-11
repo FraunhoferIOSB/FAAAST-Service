@@ -70,12 +70,16 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
  * Persistence implementation for Postgres DB.
  */
 public class PersistencePostgres implements Persistence<PersistencePostgresConfig> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(PersistencePostgres.class);
 
     private static final String MSG_ID_NOT_NULL = "id must be non-null";
     private static final String MSG_MODIFIER_NOT_NULL = "modifier must be non-null";
@@ -147,7 +151,7 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
     }
 
 
-    private AssetAdministrationShell getAssetAdministrationShell(String id) throws ResourceNotFoundException {
+    private AssetAdministrationShell getAssetAdministrationShell(String id) throws ResourceNotFoundException, PersistenceException {
         return loadEntity(DatabaseSchema.TABLE_AAS, id, AssetAdministrationShell.class);
     }
 
@@ -198,23 +202,33 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
                                 c -> Objects.equals(x.getAssetInformation().getGlobalAssetId(), c.getValue())));
             }
         }
-        return preparePagedResult(stream, modifier, paging, totalCount);
+        return preparePagedResult(stream, paging);
     }
 
 
     @Override
     public void save(AssetAdministrationShell shell) {
-        saveEntity(DatabaseSchema.TABLE_AAS, shell.getId(), shell);
+        try {
+            saveEntity(DatabaseSchema.TABLE_AAS, shell.getId(), shell);
+        }
+        catch (PersistenceException e) {
+            LOGGER.error("Could not save aas with id {}", shell.getId());
+        }
     }
 
 
     @Override
     public void deleteAssetAdministrationShell(String id) {
-        deleteEntity(DatabaseSchema.TABLE_AAS, id);
+        try {
+            deleteEntity(DatabaseSchema.TABLE_AAS, id);
+        }
+        catch (PersistenceException e) {
+            LOGGER.error("Could not delete AAS with id {}", id);
+        }
     }
 
 
-    private Submodel getSubmodel(String id) throws ResourceNotFoundException {
+    private Submodel getSubmodel(String id) throws ResourceNotFoundException, PersistenceException {
         return loadEntity(DatabaseSchema.TABLE_SUBMODEL, id, Submodel.class);
     }
 
@@ -260,13 +274,23 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
 
     @Override
     public void save(Submodel submodel) {
-        saveEntity(DatabaseSchema.TABLE_SUBMODEL, submodel.getId(), submodel);
+        try {
+            saveEntity(DatabaseSchema.TABLE_SUBMODEL, submodel.getId(), submodel);
+        }
+        catch (PersistenceException e) {
+            LOGGER.error("Could not save submodel with id {}", submodel.getId());
+        }
     }
 
 
     @Override
     public void deleteSubmodel(String id) {
-        deleteEntity(DatabaseSchema.TABLE_SUBMODEL, id);
+        try {
+            deleteEntity(DatabaseSchema.TABLE_SUBMODEL, id);
+        }
+        catch (PersistenceException e) {
+            LOGGER.error("Could not delete submodel with id {}", id);
+        }
     }
 
 
@@ -320,7 +344,7 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
     }
 
 
-    private List<SubmodelElement> getAllSubmodelElementsOptimized(PagingInfo paging) {
+    private List<SubmodelElement> getAllSubmodelElementsOptimized(PagingInfo paging) throws PersistenceException {
         List<SubmodelElement> elements = new ArrayList<>();
 
         if (paging.hasLimit()) {
@@ -495,7 +519,7 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
     }
 
 
-    private ConceptDescription getConceptDescription(String id) throws ResourceNotFoundException {
+    private ConceptDescription getConceptDescription(String id) throws ResourceNotFoundException, PersistenceException {
         return loadEntity(DatabaseSchema.TABLE_CONCEPT_DESCRIPTION, id, ConceptDescription.class);
     }
 
@@ -547,13 +571,23 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
 
     @Override
     public void save(ConceptDescription conceptDescription) {
-        saveEntity(DatabaseSchema.TABLE_CONCEPT_DESCRIPTION, conceptDescription.getId(), conceptDescription);
+        try {
+            saveEntity(DatabaseSchema.TABLE_CONCEPT_DESCRIPTION, conceptDescription.getId(), conceptDescription);
+        }
+        catch (PersistenceException e) {
+            LOGGER.error("Could not save ConceptDescription with id {}", conceptDescription.getId());
+        }
     }
 
 
     @Override
     public void deleteConceptDescription(String id) {
-        deleteEntity(DatabaseSchema.TABLE_CONCEPT_DESCRIPTION, id);
+        try {
+            deleteEntity(DatabaseSchema.TABLE_CONCEPT_DESCRIPTION, id);
+        }
+        catch (PersistenceException e) {
+            LOGGER.error("Could not delete ConceptDescription with id {}", id);
+        }
     }
 
 
@@ -593,7 +627,7 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
     }
 
 
-    private <T> void saveEntity(String table, String id, T entity) {
+    private <T> void saveEntity(String table, String id, T entity) throws PersistenceException {
         Ensure.requireNonNull(id, MSG_ID_NOT_NULL);
         try {
             String json = jsonSerializer.write(entity);
@@ -607,12 +641,12 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
             }
         }
         catch (Exception e) {
-            throw new RuntimeException("Failed to save to " + table + ": " + id, e);
+            throw new PersistenceException("Failed to save to " + table + ": " + id, e);
         }
     }
 
 
-    private <T> T loadEntity(String table, String id, Class<T> clazz) throws ResourceNotFoundException {
+    private <T> T loadEntity(String table, String id, Class<T> clazz) throws ResourceNotFoundException, PersistenceException {
         String sql = "SELECT content FROM " + table + " WHERE id = ?";
         try (Connection c = dataSource.getConnection(); PreparedStatement statement = c.prepareStatement(sql)) {
             statement.setString(1, id);
@@ -629,12 +663,12 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
             throw e;
         }
         catch (Exception e) {
-            throw new RuntimeException("Database error loading " + id, e);
+            throw new PersistenceException("Database error loading " + id, e);
         }
     }
 
 
-    private <T> List<T> loadAllEntities(String table, Class<T> clazz) {
+    private <T> List<T> loadAllEntities(String table, Class<T> clazz) throws PersistenceException {
         List<T> results = new ArrayList<>();
         String sql = "SELECT content FROM " + table + " ORDER BY seq ASC";
         try (Connection c = dataSource.getConnection(); PreparedStatement pstmt = c.prepareStatement(sql)) {
@@ -645,13 +679,13 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
             }
         }
         catch (Exception e) {
-            throw new RuntimeException("Database error loading all from " + table, e);
+            throw new PersistenceException("Database error loading all from " + table, e);
         }
         return results;
     }
 
 
-    private <T> List<T> loadAllEntitiesPaginated(String table, Class<T> clazz, long offset, int limit) {
+    private <T> List<T> loadAllEntitiesPaginated(String table, Class<T> clazz, long offset, int limit) throws PersistenceException {
         List<T> results = new ArrayList<>();
         String sql = "SELECT content FROM " + table + " ORDER BY seq ASC LIMIT ? OFFSET ?";
         try (Connection c = dataSource.getConnection(); PreparedStatement pstmt = c.prepareStatement(sql)) {
@@ -664,13 +698,13 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
             }
         }
         catch (Exception e) {
-            throw new RuntimeException("Database error loading paginated from " + table, e);
+            throw new PersistenceException("Database error loading paginated from " + table, e);
         }
         return results;
     }
 
 
-    private int countEntities(String table) {
+    private int countEntities(String table) throws PersistenceException {
         String sql = "SELECT COUNT(*) FROM " + table;
         try (Connection c = dataSource.getConnection(); PreparedStatement pstmt = c.prepareStatement(sql)) {
             try (ResultSet rs = pstmt.executeQuery()) {
@@ -680,20 +714,20 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
             }
         }
         catch (Exception e) {
-            throw new RuntimeException("Database error counting from " + table, e);
+            throw new PersistenceException("Database error counting from " + table, e);
         }
         return 0;
     }
 
 
-    private void deleteEntity(String table, String id) {
+    private void deleteEntity(String table, String id) throws PersistenceException {
         String sql = "DELETE FROM " + table + " WHERE id = ?";
         try (Connection c = dataSource.getConnection(); PreparedStatement pstmt = c.prepareStatement(sql)) {
             pstmt.setString(1, id);
             pstmt.executeUpdate();
         }
         catch (SQLException e) {
-            throw new RuntimeException("Database error deleting " + id, e);
+            throw new PersistenceException("Database error deleting " + id, e);
         }
     }
 
@@ -706,32 +740,6 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
                         .collect(Collectors.toList()),
                 modifier));
         return result;
-    }
-
-
-    private static <T extends Referable> Page<T> preparePagedResult(Stream<T> input, QueryModifier modifier, PagingInfo paging, int totalCount) {
-        Stream<T> result = input;
-        List<T> temp;
-        boolean hasMoreData = false;
-
-        if (paging.hasLimit()) {
-            result = result.limit(paging.getLimit() + 1);
-            temp = result.toList();
-            hasMoreData = temp.size() > paging.getLimit();
-            temp = temp.stream()
-                    .limit(paging.getLimit())
-                    .collect(Collectors.toList());
-        }
-        else {
-            temp = result.toList();
-        }
-
-        return Page.<T> builder()
-                .result(temp)
-                .metadata(PagingMetadata.builder()
-                        .cursor(nextCursor(paging, hasMoreData))
-                        .build())
-                .build();
     }
 
 
