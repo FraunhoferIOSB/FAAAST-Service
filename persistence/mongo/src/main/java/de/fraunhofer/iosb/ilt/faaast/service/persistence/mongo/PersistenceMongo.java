@@ -54,6 +54,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceAlreadyExis
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.UnsupportedModifierException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.Query;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.AssetAdministrationShellSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.ConceptDescriptionSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
@@ -211,6 +212,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
     @Override
     public void deleteAll() throws PersistenceException {
+        LOGGER.debug("Dropping all AAS collections from MongoDB.");
         aasCollection = resetCollection(AAS_COLLECTION_NAME);
         submodelCollection = resetCollection(SUBMODEL_COLLECTION_NAME);
         cdCollection = resetCollection(CD_COLLECTION_NAME);
@@ -257,6 +259,14 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
 
     @Override
+    public Page<AssetAdministrationShell> findAssetAdministrationShellsWithQuery(AssetAdministrationShellSearchCriteria criteria, QueryModifier modifier, PagingInfo paging,
+                                                                                 Query query)
+            throws PersistenceException {
+        throw new PersistenceException("Query not supported with mongoDB.");
+    }
+
+
+    @Override
     public Page<ConceptDescription> findConceptDescriptions(ConceptDescriptionSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) throws PersistenceException {
         Ensure.requireNonNull(criteria, MSG_CRITERIA_NOT_NULL);
         Ensure.requireNonNull(modifier, MSG_MODIFIER_NOT_NULL);
@@ -273,6 +283,13 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
 
     @Override
+    public Page<ConceptDescription> findConceptDescriptionsWithQuery(ConceptDescriptionSearchCriteria criteria, QueryModifier modifier, PagingInfo paging, Query query)
+            throws PersistenceException {
+        throw new PersistenceException("Query not supported with mongoDB.");
+    }
+
+
+    @Override
     public Page<Submodel> findSubmodels(SubmodelSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) throws PersistenceException {
         Ensure.requireNonNull(criteria, MSG_CRITERIA_NOT_NULL);
         Ensure.requireNonNull(modifier, MSG_MODIFIER_NOT_NULL);
@@ -283,6 +300,12 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
         if (criteria.isSemanticIdSet())
             filter = Filters.and(filter, getSemanticIdFilter(criteria.getSemanticId()));
         return preparePagedResult(submodelCollection, filter, paging, modifier, Submodel.class);
+    }
+
+
+    @Override
+    public Page<Submodel> findSubmodelsWithQuery(SubmodelSearchCriteria criteria, QueryModifier modifier, PagingInfo paging, Query query) throws PersistenceException {
+        throw new PersistenceException("Query not supported with mongoDB.");
     }
 
 
@@ -434,9 +457,14 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
         if (config.isOverride()) {
             deleteAll();
+            try {
+                saveEnvironment(config.loadInitialModel());
+            }
+            catch (DeserializationException | InvalidConfigurationException | IllegalStateException e) {
+                throw new PersistenceException(e);
+            }
         }
-
-        if (!databaseHasSavedEnvironment(database)) {
+        else if (!databaseHasSavedEnvironment(database)) {
             deleteAll();
             try {
                 saveEnvironment(config.loadInitialModel());
@@ -546,10 +574,14 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
     private boolean databaseHasSavedEnvironment(MongoDatabase database) {
         List<String> collectionNames = new ArrayList<>();
         database.listCollectionNames().into(collectionNames);
-        return collectionNames.contains(AAS_COLLECTION_NAME)
+        boolean dataPresent = collectionNames.contains(AAS_COLLECTION_NAME)
                 || collectionNames.contains(SUBMODEL_COLLECTION_NAME)
                 || collectionNames.contains(CD_COLLECTION_NAME)
                 || collectionNames.contains(OPERATION_COLLECTION_NAME);
+        if (dataPresent) {
+            LOGGER.error("Database is not empty and model will not be saved.");
+        }
+        return dataPresent;
     }
 
 
@@ -768,6 +800,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
 
     private void saveEnvironment(Environment environment) throws PersistenceException {
+        LOGGER.debug("Reading environment from file provided in config and storing in mongoDB collections.");
         save(environment.getAssetAdministrationShells(), aasCollection);
         save(environment.getSubmodels(), submodelCollection);
         save(environment.getConceptDescriptions(), cdCollection);

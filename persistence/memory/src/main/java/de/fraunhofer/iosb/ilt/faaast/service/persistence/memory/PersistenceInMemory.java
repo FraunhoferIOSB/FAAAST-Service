@@ -75,7 +75,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSpecificAssetId;
 
 
 /**
- * Implementation of {@link de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence} for in memory storage.
+ * Implementation of {@link Persistence} for in memory storage.
  *
  * <p>Following types are not supported in the current version:
  * <ul>

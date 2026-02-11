@@ -106,3 +106,39 @@ Each modification of the model results in only writing the specific part to the 
 	//...
 }
 ```
+
+## Postgres
+
+The Postgres Persistence stores the AAS model in a Postgres DB according to the AAS specification.
+Therefore, changes are stored permanently even when FA³ST Service is stopped or crashes.
+
+:::{important}
+Each modification of the model results in only writing the specific part to the Postgres table which should improve performance
+:::
+
+### Configuration
+
+:::{table} Configuration properties of MongoDB-based Persistence.
+| Name                     | Allowed Value       | Description                                                                                            | Default Value |
+| -------------------------| ------------------- | ------------------------------------------------------------------------------------------------------ | ------------- |
+| jdbcUrl<br>              | String              | The connection string where the PostgresDB is located.                                                 |               |
+| username<br>             | String              | The username to connect to Postgres.                                                                   |               |
+| password<br>             | String              | The password to connect to Postgres.                                                                   |               |
+| override<br>*(optional)* | Boolean             | If true, FA³ST persistence will always override the previous database, this might result in data loss. | false         |
+
+:::
+
+```{code-block} json
+:caption: Example configuration for Postgres-based Persistence.
+:lineno-start: 1
+{
+	"persistence" : {
+		"@class" : "de.fraunhofer.iosb.ilt.faaast.service.persistence.postgres.PersistencePostgres",
+		"jdbcUrl" : "jdbc:postgresql://localhost:5432/faaast",
+		"username": "faaast",
+		"password": "faaast",
+		"override": true
+	},
+	//...
+}
+```

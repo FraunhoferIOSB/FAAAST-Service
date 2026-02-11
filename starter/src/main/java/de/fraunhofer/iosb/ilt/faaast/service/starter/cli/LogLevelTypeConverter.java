@@ -19,7 +19,7 @@ import picocli.CommandLine.ITypeConverter;
 
 
 /**
- * Utility class to parse {@link ch.qos.logback.classic.Level} from string when provided as CLI argument.
+ * Utility class to parse {@link Level} from string when provided as CLI argument.
  */
 public class LogLevelTypeConverter implements ITypeConverter<Level> {
 

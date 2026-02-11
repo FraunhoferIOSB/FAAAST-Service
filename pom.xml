@@ -43,6 +43,7 @@
         <module>persistence/memory</module>
         <module>persistence/file</module>
         <module>persistence/mongo</module>
+        <module>persistence/postgres</module>
         <module>filestorage/memory</module>
         <module>filestorage/filesystem</module>
         <module>assetconnection/common</module>
@@ -78,9 +79,11 @@
         <container.image.tag>latest</container.image.tag>
         <de.flapdoodle.embed.version>4.24.0</de.flapdoodle.embed.version>
         <eclipse.jdt.version>4.32</eclipse.jdt.version>
+        <embedded-postgres.version>2.2.0</embedded-postgres.version>
         <equalsverifier.version>4.3.1</equalsverifier.version>
         <glassfish.jaxb-runtime>4.0.5</glassfish.jaxb-runtime>
         <guava.version>33.5.0-jre</guava.version>
+        <hikari.version>7.0.2</hikari.version>
         <jackson-jq.version>1.6.0</jackson-jq.version>
         <jackson.annotations.version>2.21</jackson.annotations.version>
         <jackson.databind.version>2.21.0</jackson.databind.version>
@@ -134,6 +137,7 @@
         <parsson.version>1.1.7</parsson.version>
         <picocli.version>4.7.7</picocli.version>
         <poi.ooxml.version>5.5.1</poi.ooxml.version>
+        <postgres.version>42.7.8</postgres.version>
         <proguard.core.version>9.3.0</proguard.core.version>
         <proguard.version>7.8.2</proguard.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
