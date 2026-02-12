@@ -226,6 +226,9 @@ public class RegistrySynchronization {
 
 
     private void registerAllAass() throws PersistenceException {
+        if (coreConfig.getAasRegistries().isEmpty()) {
+            return;
+        }
         getPageSafe(persistence.getAllAssetAdministrationShells(QueryModifier.MINIMAL, PagingInfo.ALL))
                 .getContent()
                 .forEach(this::registerAas);
@@ -253,6 +256,9 @@ public class RegistrySynchronization {
 
 
     private void unregisterAllAass() throws PersistenceException {
+        if (coreConfig.getAasRegistries().isEmpty()) {
+            return;
+        }
         getPageSafe(persistence.getAllAssetAdministrationShells(QueryModifier.MINIMAL, PagingInfo.ALL))
                 .getContent()
                 .forEach(this::unregisterAas);
@@ -300,6 +306,9 @@ public class RegistrySynchronization {
 
 
     private void registerAllSubmodels() throws PersistenceException {
+        if (coreConfig.getSubmodelRegistries().isEmpty()) {
+            return;
+        }
         getPageSafe(persistence.getAllSubmodels(QueryModifier.MINIMAL, PagingInfo.ALL))
                 .getContent()
                 .forEach(this::registerSubmodel);
@@ -327,6 +336,9 @@ public class RegistrySynchronization {
 
 
     private void unregisterAllSubmodels() throws PersistenceException {
+        if (coreConfig.getSubmodelRegistries().isEmpty()) {
+            return;
+        }
         getPageSafe(persistence.getAllSubmodels(QueryModifier.MINIMAL, PagingInfo.ALL))
                 .getContent()
                 .forEach(this::unregisterSubmodel);
