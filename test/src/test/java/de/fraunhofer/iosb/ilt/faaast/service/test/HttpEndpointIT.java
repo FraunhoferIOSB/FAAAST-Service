@@ -186,7 +186,10 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
     private static RequestHandlerManager requestHandlerManager;
     private static final Path pathForTestSubmodel3 = Path.builder()
             .child("ExampleRelationshipElement")
-            .child("ExampleAnnotatedRelationshipElement")
+            .child(Path.builder()
+                    .id("ExampleAnnotatedRelationshipElement")
+                    .child("ExampleProperty3")
+                    .build())
             .child("ExampleOperation")
             .child("ExampleCapability")
             .child("ExampleBasicEvent")
