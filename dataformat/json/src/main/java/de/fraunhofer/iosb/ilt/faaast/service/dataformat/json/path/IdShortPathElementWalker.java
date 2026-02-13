@@ -69,7 +69,9 @@ public class IdShortPathElementWalker extends AssetAdministrationShellElementWal
         return AssetAdministrationShell.class.isAssignableFrom(referable.getClass())
                 || Submodel.class.isAssignableFrom(referable.getClass())
                 || SubmodelElementCollection.class.isAssignableFrom(referable.getClass())
-                || SubmodelElementList.class.isAssignableFrom(referable.getClass());
+                || SubmodelElementList.class.isAssignableFrom(referable.getClass())
+                || Entity.class.isAssignableFrom(referable.getClass())
+                || AnnotatedRelationshipElement.class.isAssignableFrom(referable.getClass());
     }
 
 
@@ -145,12 +147,11 @@ public class IdShortPathElementWalker extends AssetAdministrationShellElementWal
         };
     }
 
-
-    @Override
-    public void visit(AnnotatedRelationshipElement element) {
-        visitBefore(element);
-        visitAfter(element);
-    }
+    //@Override
+    //public void visit(AnnotatedRelationshipElement element) {
+    //    visitBefore(element);
+    //    visitAfter(element);
+    //}
 
 
     @Override
@@ -168,9 +169,14 @@ public class IdShortPathElementWalker extends AssetAdministrationShellElementWal
 
 
     @Override
-    public void visit(Entity element) {
-        visitBefore(element);
-        visitAfter(element);
+    public void visit(Entity entity) {
+        visitBefore(entity);
+        if (entity != null) {
+            if (entity.getStatements() != null) {
+                entity.getStatements().forEach(this::visit);
+            }
+        }
+        visitAfter(entity);
     }
 
 
