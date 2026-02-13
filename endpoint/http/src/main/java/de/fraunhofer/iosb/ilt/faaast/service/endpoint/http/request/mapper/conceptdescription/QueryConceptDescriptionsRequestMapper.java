@@ -21,7 +21,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.Abstra
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.QueryConceptDescriptionsRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.Query;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.Schema;
 import java.util.Map;
 
 
@@ -40,7 +40,7 @@ public class QueryConceptDescriptionsRequestMapper extends AbstractRequestMapper
     @Override
     public Request doParse(HttpRequest httpRequest, Map<String, String> urlParameters) throws InvalidRequestException {
         return QueryConceptDescriptionsRequest.builder()
-                .query(parseBody(httpRequest, Query.class))
+                .query(parseBody(httpRequest, Schema.class).getQuery())
                 .build();
     }
 }
