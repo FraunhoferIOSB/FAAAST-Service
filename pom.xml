@@ -97,7 +97,7 @@
         <jsonpath.version>2.10.0</jsonpath.version>
         <junit.version>4.13.2</junit.version>
         <log4j.api.version>2.25.3</log4j.api.version>
-        <logback.version>1.5.29</logback.version>
+        <logback.version>1.5.32</logback.version>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <maven.plugin.assembly.version>3.8.0</maven.plugin.assembly.version>
