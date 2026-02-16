@@ -57,8 +57,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.eclipse.digitaltwin.aas4j.v3.model.AnnotatedRelationshipElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.Entity;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.eclipse.digitaltwin.aas4j.v3.model.HasSemantics;
 import org.eclipse.digitaltwin.aas4j.v3.model.Identifiable;
@@ -382,6 +385,21 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
         else if (SubmodelElementList.class.isAssignableFrom(parent.getClass())) {
             container = ((SubmodelElementList) parent).getValue();
             acceptEmptyIdShort = true;
+        }
+        else if (Entity.class.isAssignableFrom(parent.getClass())) {
+            container = ((Entity) parent).getStatements();
+        }
+        else if (AnnotatedRelationshipElement.class.isAssignableFrom(parent.getClass()) && DataElement.class.isAssignableFrom(submodelElement.getClass())) {
+            DataElement dataElement = (DataElement) submodelElement;
+            Collection<DataElement> dataElementContainer = ((AnnotatedRelationshipElement) parent).getAnnotations();
+            CollectionHelper.put(dataElementContainer,
+                    dataElementContainer.stream()
+                            .filter(x -> !StringHelper.isBlank(x.getIdShort())
+                                    && x.getIdShort().equalsIgnoreCase(dataElement.getIdShort()))
+                            .findFirst()
+                            .orElse(null),
+                    dataElement);
+            return;
         }
         else {
             throw new IllegalArgumentException(String.format("illegal type for identifiable: %s. Must be one of: %s, %s, %s",
