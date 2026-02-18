@@ -3,9 +3,9 @@
         "requestHandlerThreadPoolSize": 2
     },
     "endpoints": [{
-        "@class": "de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpoint",
-        "port": 443
-    }],
+            "@class": "de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpoint",
+            "port": 443
+        }],
     "persistence": {
         "@class": "de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemory",
         "initialModelFile": "/app/resources/demoAAS.json"
