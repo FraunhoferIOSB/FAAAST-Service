@@ -66,7 +66,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.apache.poi.openxml4j.util.ZipSecureFile;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEnvironment;
 import org.slf4j.Logger;
@@ -358,9 +357,6 @@ public class App implements Runnable {
         config = withModel(config);
         config = withEndpoints(config);
         config = withOverrides(config);
-
-        ZipSecureFile.setMinInflateRatio(config.getCore().getMinInflateRatio());
-
         validate(config);
         if (!dryRun) {
             runService(config);
