@@ -1,16 +1,16 @@
 {
-  "core": {
-    "requestHandlerThreadPoolSize": 2
-  },
-  "endpoints": [{
-    "@class": "de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpoint",
-    "port": 443
-  }],
-  "persistence": {
-    "@class": "de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemory",
-    "initialModelFile": "/app/resources/demoAAS.json"
-  },
-  "messageBus": {
-    "@class": "de.fraunhofer.iosb.ilt.faaast.service.messagebus.internal.MessageBusInternal"
-  }
+    "core": {
+        "requestHandlerThreadPoolSize": 2
+    },
+    "endpoints": [{
+        "@class": "de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpoint",
+        "port": 443
+    }],
+    "persistence": {
+        "@class": "de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemory",
+        "initialModelFile": "/app/resources/demoAAS.json"
+    },
+    "messageBus": {
+        "@class": "de.fraunhofer.iosb.ilt.faaast.service.messagebus.internal.MessageBusInternal"
+    }
 }
