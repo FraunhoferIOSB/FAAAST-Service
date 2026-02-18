@@ -1,20 +1,14 @@
 {
   "core": {
-    "requestHandlerThreadPoolSize": 2,
-    "minInflateRatio": 0
+    "requestHandlerThreadPoolSize": 2
   },
-  "endpoints": [
-    {
-      "@class": "de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpoint",
-      "initialModelFile": "/misc/examples/model.json",
-      "callbackAddress": "https://example.com/my-aas/cool",
-      "subprotocol": "DSP",
-      "subprotocolBody": "assetId=42&DSPEndpoint=https://my-dsp.endpoint",
-      "subprotocolBodyEncoding": "plain"
-    }
-  ],
+  "endpoints": [{
+    "@class": "de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpoint",
+    "port": 443
+  }],
   "persistence": {
-    "@class": "de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemory"
+    "@class": "de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemory",
+    "initialModelFile": "/app/resources/demoAAS.json"
   },
   "messageBus": {
     "@class": "de.fraunhofer.iosb.ilt.faaast.service.messagebus.internal.MessageBusInternal"
