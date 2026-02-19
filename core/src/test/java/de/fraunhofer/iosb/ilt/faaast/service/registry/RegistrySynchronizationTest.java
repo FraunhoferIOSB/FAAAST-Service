@@ -217,6 +217,9 @@ public class RegistrySynchronizationTest {
                                             .key("")
                                             .value("")
                                             .build())
+                                    .subprotocol("MyTestSubprotocol")
+                                    .subprotocolBody("MyTestSubprotocolBody")
+                                    .subprotocolBodyEncoding("MyTestSubprotocolBodyEncoding")
                                     .build())
                             .build(),
                     new org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEndpoint.Builder()
@@ -230,6 +233,9 @@ public class RegistrySynchronizationTest {
                                             .key("")
                                             .value("")
                                             .build())
+                                    .subprotocol("MyTestSubprotocol")
+                                    .subprotocolBody("MyTestSubprotocolBody")
+                                    .subprotocolBodyEncoding("MyTestSubprotocolBodyEncoding")
                                     .build())
                             .build());
         }).when(endpoint).getAasEndpointInformation(any(String.class));
@@ -248,6 +254,9 @@ public class RegistrySynchronizationTest {
                                             .key("")
                                             .value("")
                                             .build())
+                                    .subprotocol("MyTestSubprotocol")
+                                    .subprotocolBody("MyTestSubprotocolBody")
+                                    .subprotocolBodyEncoding("MyTestSubprotocolBodyEncoding")
                                     .build())
                             .build(),
                     new org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEndpoint.Builder()
@@ -261,6 +270,9 @@ public class RegistrySynchronizationTest {
                                             .key("")
                                             .value("")
                                             .build())
+                                    .subprotocol("MyTestSubprotocol")
+                                    .subprotocolBody("MyTestSubprotocolBody")
+                                    .subprotocolBodyEncoding("MyTestSubprotocolBodyEncoding")
                                     .build())
                             .build());
         }).when(endpoint).getSubmodelEndpointInformation(any(String.class));

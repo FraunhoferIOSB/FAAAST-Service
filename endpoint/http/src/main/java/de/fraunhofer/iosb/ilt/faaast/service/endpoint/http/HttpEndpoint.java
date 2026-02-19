@@ -23,6 +23,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.AbstractEndpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.Interface;
+import de.fraunhofer.iosb.ilt.faaast.service.model.Version;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import java.io.File;
 import java.io.IOException;
@@ -57,10 +58,12 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Implementation of HTTP endpoint. Accepts http request and maps them to Request objects passes them to the service and
- * expects a response object which is streamed as json response to the http client
+ * expects a response object which is streamed as json
+ * response to the http client
  */
 public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
 
+    public static final Version API_VERSION = Version.V3_0;
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpEndpoint.class);
     private static final CertificateInformation SELFSIGNED_CERTIFICATE_INFORMATION = CertificateInformation.builder()
             .applicationUri("urn:de:fraunhofer:iosb:ilt:faaast:service:endpoint:http")
@@ -73,7 +76,23 @@ public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
     private static final String ENDPOINT_PROTOCOL = "HTTP";
     private static final String ENDPOINT_PROTOCOL_VERSION = "1.1";
     private Server server;
+
+    @Override
+    public HttpEndpointConfig asConfig() {
+        return config;
+    }
+
     private ServletContextHandler context;
+
+    /**
+     * Gets the API version prefix.
+     *
+     * @return the API version prefix
+     */
+    protected String getPathPrefix() {
+        return config.getPathPrefix();
+    }
+
 
     @Override
     public void start() throws EndpointException {
@@ -156,7 +175,7 @@ public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
         SslContextFactory.Server sslContextFactory = new SslContextFactory.Server();
         if (Objects.isNull(config.getCertificate())
                 || Objects.isNull(config.getCertificate().getKeyStorePath())
-                || config.getCertificate().getKeyStorePath().equals("")) {
+                || config.getCertificate().getKeyStorePath().isEmpty()) {
             LOGGER.info("Generating self-signed certificate for HTTPS (reason: no certificate provided)");
             sslContextFactory.setKeyStore(generateSelfSignedCertificate());
         }
@@ -209,12 +228,13 @@ public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
         if (config.getProfiles().stream()
                 .flatMap(x -> x.getInterfaces().stream())
                 .anyMatch(x -> Objects.equals(x, Interface.AAS_REPOSITORY))) {
-            result.add(endpointFor("AAS-REPOSITORY-3.0", "shells"));
+            // Intentionally omitting trailing slash for path. *_REPOSITORY-Endpoint does not append id to path.
+            result.add(endpointFor(Interface.AAS_REPOSITORY, "/shells", EncodingHelper.base64UrlEncode(aasId)));
         }
         if (config.getProfiles().stream()
                 .flatMap(x -> x.getInterfaces().stream())
                 .anyMatch(x -> Objects.equals(x, Interface.AAS))) {
-            result.add(endpointFor("AAS-3.0", "shells/" + EncodingHelper.base64UrlEncode(aasId)));
+            result.add(endpointFor(Interface.AAS, "/shells/", EncodingHelper.base64UrlEncode(aasId)));
         }
         return result;
     }
@@ -229,35 +249,35 @@ public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
         if (config.getProfiles().stream()
                 .flatMap(x -> x.getInterfaces().stream())
                 .anyMatch(x -> Objects.equals(x, Interface.SUBMODEL_REPOSITORY))) {
-            result.add(endpointFor("SUBMODEL-REPOSITORY-3.0", "submodels"));
+            // Intentionally omitting trailing slash for path. *_REPOSITORY-Endpoint does not append id to path.
+            result.add(endpointFor(Interface.SUBMODEL_REPOSITORY, "/submodels", EncodingHelper.base64UrlEncode(submodelId)));
         }
         if (config.getProfiles().stream()
                 .flatMap(x -> x.getInterfaces().stream())
                 .anyMatch(x -> Objects.equals(x, Interface.SUBMODEL))) {
-            result.add(endpointFor("SUBMODEL-3.0", "submodels/" + EncodingHelper.base64UrlEncode(submodelId)));
+            result.add(endpointFor(Interface.SUBMODEL, "/submodels/", EncodingHelper.base64UrlEncode(submodelId)));
         }
 
         return result;
     }
 
 
-    /**
-     * Gets the configured path prefix (e.g., /api/v3.0).
-     *
-     * @return the configured path prefix
-     */
-    public String getPathPrefix() {
-        return config.getPathPrefix();
-    }
+    private org.eclipse.digitaltwin.aas4j.v3.model.Endpoint endpointFor(Interface iface, String path, String identifiableId) {
+        URI endpointUri = buildUri(getEndpointUri().toString(), getPathPrefix(), path);
 
+        if (iface == Interface.SUBMODEL || iface == Interface.AAS) {
+            endpointUri = buildUri(endpointUri.toString(), identifiableId);
+        }
 
-    private org.eclipse.digitaltwin.aas4j.v3.model.Endpoint endpointFor(String interfaceName, String path) {
         return new DefaultEndpoint.Builder()
-                ._interface(interfaceName)
+                ._interface(String.format("%s-%d.%d", iface, API_VERSION.getMajor(), API_VERSION.getMinor()))
                 .protocolInformation(new DefaultProtocolInformation.Builder()
-                        .href(getEndpointUri().resolve(path).toASCIIString())
+                        .href(endpointUri.toASCIIString())
                         .endpointProtocol(ENDPOINT_PROTOCOL)
                         .endpointProtocolVersion(ENDPOINT_PROTOCOL_VERSION)
+                        .subprotocol(config.getSubprotocol())
+                        .subprotocolBody(render(config.getSubprotocolBody(), identifiableId))
+                        .subprotocolBodyEncoding(config.getSubprotocolBodyEncoding())
                         .securityAttributes(new DefaultSecurityAttributeObject.Builder()
                                 .type(SecurityTypeEnum.NONE)
                                 .key("")
@@ -268,26 +288,60 @@ public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
     }
 
 
+    private String render(String subprotocolBodyTemplate, String identifiableId) {
+        if (subprotocolBodyTemplate == null) {
+            return null;
+        }
+        return subprotocolBodyTemplate.replace("{}", identifiableId == null ? "" : identifiableId);
+    }
+
+
     private URI getEndpointUri() {
         URI result = server.getURI();
-        if (Objects.nonNull(config.getHostname())) {
-            try {
+        try {
+            if (Objects.nonNull(config.getCallbackAddress())) {
+                result = buildUri(
+                        config.getCallbackAddress(),
+                        // server URI path comes before configured prefix
+                        result.getPath(),
+                        config.getPathPrefix());
+            }
+            else if (Objects.nonNull(config.getHostname())) {
                 result = new URI(
                         result.getScheme(),
                         result.getUserInfo(),
                         config.getHostname(),
                         result.getPort(),
-                        config.getPathPrefix().concat(result.getPath()),
+                        // server URI path comes before configured prefix
+                        result.getPath().concat(config.getPathPrefix()),
                         result.getQuery(),
                         result.getFragment());
             }
-            catch (URISyntaxException e) {
-                LOGGER.warn("error creating endpoint URI for HTTP endpoint based on hostname from configuration (hostname: {})",
-                        config.getHostname(),
-                        e);
-            }
+        }
+        catch (URISyntaxException e) {
+            LOGGER.error("error creating endpoint URI for HTTP endpoint based on hostname from configuration (callbackAddress: {}, hostname: {}): {}",
+                    config.getCallbackAddress(), config.getHostname(), e.getMessage());
         }
         return result;
+    }
+
+
+    private URI buildUri(String base, String... paths) {
+        String safeBase = base.endsWith("/") ? base : base.concat("/");
+        StringBuilder safePathBuilder = new StringBuilder();
+        for (String path: paths) {
+            if (path == null || path.isBlank()) {
+                continue;
+            }
+            safePathBuilder.append(path.startsWith("/") ? path : path.concat("/"));
+        }
+        String safePath = safePathBuilder.toString();
+        if (safePath.startsWith("/")) {
+            safePath = safePath.substring(1);
+        }
+
+        // Remove leading slash again
+        return URI.create(safeBase).resolve(safePath);
     }
 
 
