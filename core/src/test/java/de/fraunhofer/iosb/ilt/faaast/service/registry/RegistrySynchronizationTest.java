@@ -80,7 +80,7 @@ public class RegistrySynchronizationTest {
     private static final String SUBMODEL_URL_PATH = "/submodel-descriptors";
     private static final String AUTH_HEADER_NAME = "Authorization";
     private static final String AUTH_HEADER_VALUE = "Basic dXNlcjpwYXNz";
-        private JsonSerializer mapper;
+    private JsonSerializer mapper;
     private MessageBus messageBus;
     private Endpoint endpoint;
     private Persistence persistence;
