@@ -24,7 +24,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.DefaultAssetAdministr
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.util.Collection;
 import java.util.List;
+import org.eclipse.digitaltwin.aas4j.v3.model.AnnotatedRelationshipElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.Blob;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.Entity;
 import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
@@ -108,6 +111,23 @@ public class QueryModifierHelper {
                         public void visit(SubmodelElementCollection submodelElementCollection) {
                             submodelElementCollection.getValue().clear();
                         }
+
+
+                        @Override
+                        public void visit(Entity entity) {
+                            entity.getStatements().clear();
+                        }
+                    };
+                    list.forEach(visitor::visit);
+                }
+
+
+                private void clearSubcollectionsDataElement(Collection<DataElement> list) {
+                    AssetAdministrationShellElementVisitor visitor = new DefaultAssetAdministrationShellElementSubtypeResolvingVisitor() {
+                        @Override
+                        public void visit(AnnotatedRelationshipElement annotatedRelationshipElement) {
+                            annotatedRelationshipElement.getAnnotations().clear();
+                        }
                     };
                     list.forEach(visitor::visit);
                 }
@@ -116,6 +136,18 @@ public class QueryModifierHelper {
                 @Override
                 public void visit(SubmodelElementCollection submodelElementCollection) {
                     clearSubcollections(submodelElementCollection.getValue());
+                }
+
+
+                @Override
+                public void visit(Entity entity) {
+                    clearSubcollections(entity.getStatements());
+                }
+
+
+                @Override
+                public void visit(AnnotatedRelationshipElement annotatedRelationshipElement) {
+                    clearSubcollectionsDataElement(annotatedRelationshipElement.getAnnotations());
                 }
             }.visit(referable);
         }
