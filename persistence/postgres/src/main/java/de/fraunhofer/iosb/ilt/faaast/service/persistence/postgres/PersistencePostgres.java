@@ -19,6 +19,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.DeserializerWrapper;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.SubmodelElementIdentifier;
@@ -56,7 +57,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.JsonDeserializer;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.JsonSerializer;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
@@ -93,7 +93,7 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
     private HikariDataSource dataSource;
 
     private final JsonSerializer jsonSerializer = new JsonSerializer();
-    private final JsonDeserializer jsonDeserializer = new JsonDeserializer();
+    private final DeserializerWrapper jsonDeserializer = new DeserializerWrapper();
 
     @Override
     public void init(CoreConfig coreConfig, PersistencePostgresConfig config, ServiceContext serviceContext) throws ConfigurationInitializationException {

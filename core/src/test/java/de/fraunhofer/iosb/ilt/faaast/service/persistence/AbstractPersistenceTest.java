@@ -894,7 +894,7 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
                         .build()));
         persistence.save(operationHandle, expected);
         OperationResult actual = persistence.getOperationResult(operationHandle);
-        Assert.assertEquals(expected.toString(), actual.toString());
+        Assert.assertEquals(expected, actual);
     }
 
 
