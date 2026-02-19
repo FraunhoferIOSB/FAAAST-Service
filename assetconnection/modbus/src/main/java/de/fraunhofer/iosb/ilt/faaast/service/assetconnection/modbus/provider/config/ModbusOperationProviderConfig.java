@@ -1,0 +1,95 @@
+/*
+ * Copyright (c) 2021 Fraunhofer IOSB, eine rechtlich nicht selbstaendige
+ * Einrichtung der Fraunhofer-Gesellschaft zur Foerderung der angewandten
+ * Forschung e.V.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.config;
+
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.ArgumentValidationMode;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProviderConfig;
+
+
+/**
+ * Modbus asset connection operation provider config.
+ */
+public class ModbusOperationProviderConfig extends AbstractModbusProviderConfig implements AssetOperationProviderConfig {
+
+    @Override
+    public ArgumentValidationMode getInputValidationMode() {
+        return null;
+    }
+
+
+    @Override
+    public void setInputValidationMode(ArgumentValidationMode mode) {
+
+    }
+
+
+    @Override
+    public ArgumentValidationMode getInoutputValidationMode() {
+        return null;
+    }
+
+
+    @Override
+    public void setInoutputValidationMode(ArgumentValidationMode mode) {
+
+    }
+
+
+    @Override
+    public ArgumentValidationMode getOutputValidationMode() {
+        return null;
+    }
+
+
+    @Override
+    public void setOutputValidationMode(ArgumentValidationMode mode) {
+
+    }
+
+    protected abstract static class AbstractBuilder<T extends ModbusOperationProviderConfig, B extends AbstractBuilder<T, B>>
+            extends AbstractModbusProviderConfig.AbstractBuilder<T, B> {
+
+        public B inputValidationMode(ArgumentValidationMode value) {
+            getBuildingInstance().setInputValidationMode(value);
+            return getSelf();
+        }
+
+
+        public B inoutputValidationMode(ArgumentValidationMode value) {
+            getBuildingInstance().setInoutputValidationMode(value);
+            return getSelf();
+        }
+
+
+        public B outputValidationMode(ArgumentValidationMode value) {
+            getBuildingInstance().setOutputValidationMode(value);
+            return getSelf();
+        }
+    }
+
+    public static class Builder extends AbstractBuilder<ModbusOperationProviderConfig, Builder> {
+
+        @Override
+        protected Builder getSelf() {
+            return this;
+        }
+
+
+        @Override
+        protected ModbusOperationProviderConfig newBuildingInstance() {
+            return new ModbusOperationProviderConfig();
+        }
+    }
+}
