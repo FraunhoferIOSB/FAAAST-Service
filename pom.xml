@@ -89,7 +89,7 @@
         <jakarta.xml.bind-api.version>4.0.5</jakarta.xml.bind-api.version>
         <janino.version>3.1.12</janino.version>
         <jaxb.api.version>2.3.1</jaxb.api.version>
-        <jena.version>5.6.0</jena.version>
+        <jena.version>6.0.0</jena.version>
         <jetty.version>12.1.6</jetty.version>
         <json-patch.version>1.13</json-patch.version>
         <json-smart.version>2.6.0</json-smart.version>
