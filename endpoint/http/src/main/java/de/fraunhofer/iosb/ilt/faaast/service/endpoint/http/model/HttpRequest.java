@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
  */
 public class HttpRequest extends HttpMessage {
 
-    private HttpMethod method;
+    private de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod method;
     private String path;
     private Map<String, String> queryParameters;
     private List<String> pathElements;
@@ -41,18 +41,18 @@ public class HttpRequest extends HttpMessage {
 
 
     public HttpRequest() {
-        method = HttpMethod.GET;
+        method = de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod.GET;
         queryParameters = new HashMap<>();
         pathElements = new ArrayList<>();
     }
 
 
-    public HttpMethod getMethod() {
+    public de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod getMethod() {
         return method;
     }
 
 
-    public void setMethod(HttpMethod method) {
+    public void setMethod(de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod method) {
         this.method = method;
     }
 
@@ -186,7 +186,7 @@ public class HttpRequest extends HttpMessage {
 
     public abstract static class AbstractBuilder<T extends HttpRequest, B extends AbstractBuilder<T, B>> extends HttpMessage.AbstractBuilder<T, B> {
 
-        public B method(HttpMethod value) {
+        public B method(de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod value) {
             getBuildingInstance().setMethod(value);
             return getSelf();
         }

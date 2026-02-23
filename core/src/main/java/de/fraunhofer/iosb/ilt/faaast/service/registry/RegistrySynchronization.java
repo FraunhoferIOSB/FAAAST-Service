@@ -14,10 +14,10 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.registry;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod.DELETE;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod.POST;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod.PUT;
+
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
@@ -26,6 +26,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementChangeEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
@@ -386,7 +387,7 @@ public class RegistrySynchronization {
 
 
     private void register(List<String> registries, String path, Object payload, String id, String errorMsg) {
-        executeForAll(registries, path, HttpMethod.METHOD_POST.method(), payload, id, errorMsg);
+        executeForAll(registries, path, POST, payload, id, errorMsg);
     }
 
 
@@ -394,7 +395,7 @@ public class RegistrySynchronization {
         executeForAll(
                 registries,
                 String.format("%s/%s", path, EncodingHelper.base64UrlEncode(id)),
-                HttpMethod.METHOD_PUT.method(),
+                PUT,
                 payload,
                 id,
                 errorMsg);
@@ -405,7 +406,7 @@ public class RegistrySynchronization {
         executeForAll(
                 registries,
                 String.format("%s/%s", path, EncodingHelper.base64UrlEncode(id)),
-                HttpMethod.METHOD_DELETE.method(),
+                DELETE,
                 payload,
                 id,
                 errorMsg);
@@ -456,7 +457,7 @@ public class RegistrySynchronization {
 
     private void executeForAll(List<String> registries,
                                String path,
-                               String method,
+                               HttpMethod method,
                                Object payload,
                                String id,
                                String errorMsg) {
@@ -506,7 +507,7 @@ public class RegistrySynchronization {
         HttpRequest.Builder builder = HttpRequest.newBuilder()
                 .uri(URI.create(safeBaseUrl).resolve(path))
                 .header("Content-Type", "application/json");
-        HttpRequest request = builder.method(method, HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(payload))).build();
+        HttpRequest request = builder.method(method.toString(), HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(payload))).build();
         return SslHelper.newClientAcceptingAllCertificates().send(request, BodyHandlers.ofString());
     }
 
