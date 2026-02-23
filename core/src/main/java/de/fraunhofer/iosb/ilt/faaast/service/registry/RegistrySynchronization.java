@@ -241,10 +241,10 @@ public class RegistrySynchronization {
         }
         catch (ResourceNotFoundException | PersistenceException e) {
             LOGGER.warn(String.format(
-                            MSG_REGISTER_AAS_FAILED,
-                            id,
-                            "-",
-                            MSG_AAS_NOT_FOUND),
+                    MSG_REGISTER_AAS_FAILED,
+                    id,
+                    "-",
+                    MSG_AAS_NOT_FOUND),
                     e);
         }
     }
@@ -271,10 +271,10 @@ public class RegistrySynchronization {
         }
         catch (ResourceNotFoundException | PersistenceException e) {
             LOGGER.warn(String.format(
-                            MSG_UNREGISTER_AAS_FAILED,
-                            id,
-                            "-",
-                            MSG_AAS_NOT_FOUND),
+                    MSG_UNREGISTER_AAS_FAILED,
+                    id,
+                    "-",
+                    MSG_AAS_NOT_FOUND),
                     e);
         }
     }
@@ -291,10 +291,10 @@ public class RegistrySynchronization {
         }
         catch (ResourceNotFoundException | PersistenceException e) {
             LOGGER.warn(String.format(
-                            MSG_UPDATE_AAS_FAILED,
-                            id,
-                            "-",
-                            MSG_AAS_NOT_FOUND),
+                    MSG_UPDATE_AAS_FAILED,
+                    id,
+                    "-",
+                    MSG_AAS_NOT_FOUND),
                     e);
         }
     }
@@ -321,10 +321,10 @@ public class RegistrySynchronization {
         }
         catch (ResourceNotFoundException | PersistenceException e) {
             LOGGER.warn(String.format(
-                            MSG_REGISTER_SUBMODEL_FAILED,
-                            id,
-                            "-",
-                            MSG_SUBMODEL_NOT_FOUND),
+                    MSG_REGISTER_SUBMODEL_FAILED,
+                    id,
+                    "-",
+                    MSG_SUBMODEL_NOT_FOUND),
                     e);
         }
     }
@@ -351,10 +351,10 @@ public class RegistrySynchronization {
         }
         catch (ResourceNotFoundException | PersistenceException e) {
             LOGGER.warn(String.format(
-                            MSG_UNREGISTER_SUBMODEL_FAILED,
-                            id,
-                            "-",
-                            MSG_SUBMODEL_NOT_FOUND),
+                    MSG_UNREGISTER_SUBMODEL_FAILED,
+                    id,
+                    "-",
+                    MSG_SUBMODEL_NOT_FOUND),
                     e);
         }
     }
@@ -371,10 +371,10 @@ public class RegistrySynchronization {
         }
         catch (ResourceNotFoundException | PersistenceException e) {
             LOGGER.warn(String.format(
-                            MSG_UPDATE_SUBMODEL_FAILED,
-                            id,
-                            "-",
-                            MSG_SUBMODEL_NOT_FOUND),
+                    MSG_UPDATE_SUBMODEL_FAILED,
+                    id,
+                    "-",
+                    MSG_SUBMODEL_NOT_FOUND),
                     e);
         }
     }
@@ -480,10 +480,10 @@ public class RegistrySynchronization {
                 }
                 catch (IOException | InterruptedException | KeyManagementException | NoSuchAlgorithmException | SerializationException | DeserializationException e) {
                     LOGGER.warn(String.format(
-                                    errorMsg,
-                                    id,
-                                    registry,
-                                    e.getClass().getSimpleName().concat(": ").concat(Optional.ofNullable(e.getMessage()).orElse(MSG_NO_EXCEPTION_MESSAGE))),
+                            errorMsg,
+                            id,
+                            registry,
+                            e.getClass().getSimpleName().concat(": ").concat(Optional.ofNullable(e.getMessage()).orElse(MSG_NO_EXCEPTION_MESSAGE))),
                             e);
                     if (e instanceof InterruptedException) {
                         Thread.currentThread().interrupt();
