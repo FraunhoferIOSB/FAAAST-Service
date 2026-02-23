@@ -52,17 +52,16 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
-import org.apache.jena.riot.web.HttpMethod;
+import java.util.stream.Collectors;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.DeserializationException;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.SerializationException;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.JsonDeserializer;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.JsonSerializer;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
-import org.eclipse.digitaltwin.aas4j.v3.model.Endpoint;
 import org.eclipse.digitaltwin.aas4j.v3.model.Key;
 import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
-import org.eclipse.digitaltwin.aas4j.v3.model.Message;
 import org.eclipse.digitaltwin.aas4j.v3.model.Result;
-import org.eclipse.digitaltwin.aas4j.v3.model.SecurityAttributeObject;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelDescriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetAdministrationShellDescriptor;
@@ -94,12 +93,7 @@ public class RegistrySynchronization {
     private final Persistence<?> persistence;
     private final MessageBus<?> messageBus;
     private final List<de.fraunhofer.iosb.ilt.faaast.service.endpoint.Endpoint> endpoints;
-    private final ObjectMapper mapper = new ObjectMapper()
-            .enable(SerializationFeature.INDENT_OUTPUT)
-            .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-            .setSerializationInclusion(JsonInclude.Include.NON_EMPTY)
-            .addMixIn(SecurityAttributeObject.class, SecurityAttributeObjectMixin.class)
-            .addMixIn(Endpoint.class, EndpointMixin.class);
+    private final JsonSerializer mapper = new JsonSerializer();
     private ExecutorService executor;
     private boolean running = false;
 
@@ -474,14 +468,17 @@ public class RegistrySynchronization {
                     }
                     // Non-successful response, log response message
                     Result responseBody = new JsonDeserializer().read(response.body(), Result.class);
+                    String responseMessages = responseBody.getMessages().stream()
+                            .map(m -> String.join(": ", m.getMessageType().toString(), m.getText()))
+                            .collect(Collectors.joining("; "));
 
                     LOGGER.warn(String.format(errorMsg,
                             id,
                             registry,
-                            String.join(" ", responseBody.getMessages().stream().map(Message::getText).toList()),
+                            responseMessages,
                             response.statusCode()));
                 }
-                catch (IOException | InterruptedException | KeyManagementException | NoSuchAlgorithmException | DeserializationException e) {
+                catch (IOException | InterruptedException | KeyManagementException | NoSuchAlgorithmException | SerializationException | DeserializationException e) {
                     LOGGER.warn(String.format(
                                     errorMsg,
                                     id,
@@ -497,8 +494,8 @@ public class RegistrySynchronization {
     }
 
 
-    private HttpResponse<String> execute(String method, String baseUrl, String path, Object payload)
-            throws IOException, InterruptedException, KeyManagementException, NoSuchAlgorithmException {
+    private HttpResponse<String> execute(HttpMethod method, String baseUrl, String path, Object payload)
+            throws IOException, InterruptedException, KeyManagementException, NoSuchAlgorithmException, SerializationException {
         Ensure.requireNonNull(method, "method must be non-null");
         Ensure.requireNonNull(baseUrl, "baseUrl must be non-null");
         Ensure.requireNonNull(path, "path must be non-null");
@@ -507,7 +504,7 @@ public class RegistrySynchronization {
         HttpRequest.Builder builder = HttpRequest.newBuilder()
                 .uri(URI.create(safeBaseUrl).resolve(path))
                 .header("Content-Type", "application/json");
-        HttpRequest request = builder.method(method.toString(), HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(payload))).build();
+        HttpRequest request = builder.method(method.toString(), HttpRequest.BodyPublishers.ofString(mapper.write(payload))).build();
         return SslHelper.newClientAcceptingAllCertificates().send(request, BodyHandlers.ofString());
     }
 
