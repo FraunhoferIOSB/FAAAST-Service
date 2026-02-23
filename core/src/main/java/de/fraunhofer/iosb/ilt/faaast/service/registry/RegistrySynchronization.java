@@ -107,7 +107,7 @@ public class RegistrySynchronization {
     }
 
 
-    private static RegistryRequestDecorator createRequestDecorator(CoreConfig coreConfig) {
+    private RegistryRequestDecorator createRequestDecorator(CoreConfig coreConfig) {
         var registrySynchronizationConfig = coreConfig.getRegistrySynchronization();
         if (registrySynchronizationConfig == null) {
             return RegistryRequestDecorator.noop();
