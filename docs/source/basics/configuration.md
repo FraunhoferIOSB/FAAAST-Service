@@ -54,12 +54,12 @@ The `core` configuration block contains properties not related to the implementa
 :caption: Example: add an auth header for registry synchronization
 :lineno-start: 1
 {
-	"core" : {
-		"registrySynchronization": {
-			"auth": {
-				"header": {
-					"name": "Authorization",
-					"value": "Bearer <token>"
+    "core" : {
+        "registrySynchronization": {
+            "auth": {
+                "header": {
+                    "name": "Authorization",
+                    "value": "Bearer <token>"
 				}
 			}
 		}
