@@ -25,7 +25,6 @@ import java.util.Objects;
  */
 public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
 
-    public static final String DEFAULT_CALLBACK_ADDRESS = null;
     public static final boolean DEFAULT_CORS_ENABLED = false;
     public static final boolean DEFAULT_CORS_ALLOW_CREDENTIALS = false;
     public static final String DEFAULT_CORS_ALLOWED_HEADERS = "*";
@@ -33,15 +32,11 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
     public static final String DEFAULT_CORS_ALLOWED_ORIGIN = "*";
     public static final String DEFAULT_CORS_EXPOSED_HEADERS = "";
     public static final long DEFAULT_CORS_MAX_AGE = 3600;
-    public static final String DEFAULT_HOSTNAME = null;
     public static final String DEFAULT_PATH_PREFIX = "/api/v3.0";
     public static final boolean DEFAULT_INCLUDE_ERROR_DETAILS = false;
     public static final int DEFAULT_PORT = 443;
     public static final boolean DEFAULT_SNI_ENABLED = true;
     public static final boolean DEFAULT_SSL_ENABLED = true;
-    public static final String DEFAULT_SUBPROTOCOL = null;
-    public static final String DEFAULT_SUBPROTOCOL_BODY = null;
-    public static final String DEFAULT_SUBPROTOCOL_BODY_ENCODING = null;
 
     private static final String PATH_PREFIX_REGEX = "^(?:$|/|/.*[^/])$";
 
@@ -69,7 +64,6 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
     private String subprotocolBodyEncoding;
 
     public HttpEndpointConfig() {
-        callbackAddress = DEFAULT_CALLBACK_ADDRESS;
         certificate = CertificateConfig.builder()
                 .build();
         corsEnabled = DEFAULT_CORS_ENABLED;
@@ -79,15 +73,11 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
         corsAllowedOrigin = DEFAULT_CORS_ALLOWED_ORIGIN;
         corsExposedHeaders = DEFAULT_CORS_EXPOSED_HEADERS;
         corsMaxAge = DEFAULT_CORS_MAX_AGE;
-        hostname = DEFAULT_HOSTNAME;
         pathPrefix = DEFAULT_PATH_PREFIX;
         includeErrorDetails = DEFAULT_INCLUDE_ERROR_DETAILS;
         port = DEFAULT_PORT;
         sniEnabled = DEFAULT_SNI_ENABLED;
         sslEnabled = DEFAULT_SSL_ENABLED;
-        subprotocol = DEFAULT_SUBPROTOCOL;
-        subprotocolBody = DEFAULT_SUBPROTOCOL_BODY;
-        subprotocolBodyEncoding = DEFAULT_SUBPROTOCOL_BODY_ENCODING;
     }
 
 
