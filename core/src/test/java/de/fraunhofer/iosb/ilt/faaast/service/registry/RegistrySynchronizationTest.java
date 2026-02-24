@@ -243,7 +243,7 @@ public class RegistrySynchronizationTest {
                                             .value("")
                                             .build())
                                     .subprotocol("MyTestSubprotocol")
-                                    .subprotocolBody("MyTestSubprotocolBody")
+                                    .subprotocolBody("id: ${id}. again: ${id}.MyTestSubprotocolBody")
                                     .subprotocolBodyEncoding("MyTestSubprotocolBodyEncoding")
                                     .build())
                             .build());
@@ -280,7 +280,7 @@ public class RegistrySynchronizationTest {
                                             .value("")
                                             .build())
                                     .subprotocol("MyTestSubprotocol")
-                                    .subprotocolBody("MyTestSubprotocolBody")
+                                    .subprotocolBody(String.format("id: %s. again: %s.MyTestSubprotocolBody", submodelId, submodelId))
                                     .subprotocolBodyEncoding("MyTestSubprotocolBodyEncoding")
                                     .build())
                             .build());
