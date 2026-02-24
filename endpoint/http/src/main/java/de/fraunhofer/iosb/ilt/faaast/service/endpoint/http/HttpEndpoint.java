@@ -38,6 +38,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import org.eclipse.digitaltwin.aas4j.v3.model.SecurityTypeEnum;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEndpoint;
@@ -229,12 +230,12 @@ public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
                 .flatMap(x -> x.getInterfaces().stream())
                 .anyMatch(x -> Objects.equals(x, Interface.AAS_REPOSITORY))) {
             // Intentionally omitting trailing slash for path. *_REPOSITORY-Endpoint does not append id to path.
-            result.add(endpointFor(Interface.AAS_REPOSITORY, "/shells", EncodingHelper.base64UrlEncode(aasId)));
+            result.add(endpointFor(Interface.AAS_REPOSITORY, "/shells", aasId));
         }
         if (config.getProfiles().stream()
                 .flatMap(x -> x.getInterfaces().stream())
                 .anyMatch(x -> Objects.equals(x, Interface.AAS))) {
-            result.add(endpointFor(Interface.AAS, "/shells/", EncodingHelper.base64UrlEncode(aasId)));
+            result.add(endpointFor(Interface.AAS, "/shells/", aasId));
         }
         return result;
     }
@@ -250,12 +251,12 @@ public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
                 .flatMap(x -> x.getInterfaces().stream())
                 .anyMatch(x -> Objects.equals(x, Interface.SUBMODEL_REPOSITORY))) {
             // Intentionally omitting trailing slash for path. *_REPOSITORY-Endpoint does not append id to path.
-            result.add(endpointFor(Interface.SUBMODEL_REPOSITORY, "/submodels", EncodingHelper.base64UrlEncode(submodelId)));
+            result.add(endpointFor(Interface.SUBMODEL_REPOSITORY, "/submodels", submodelId));
         }
         if (config.getProfiles().stream()
                 .flatMap(x -> x.getInterfaces().stream())
                 .anyMatch(x -> Objects.equals(x, Interface.SUBMODEL))) {
-            result.add(endpointFor(Interface.SUBMODEL, "/submodels/", EncodingHelper.base64UrlEncode(submodelId)));
+            result.add(endpointFor(Interface.SUBMODEL, "/submodels/", submodelId));
         }
 
         return result;
@@ -266,7 +267,7 @@ public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
         URI endpointUri = buildUri(getEndpointUri().toString(), getPathPrefix(), path);
 
         if (iface == Interface.SUBMODEL || iface == Interface.AAS) {
-            endpointUri = buildUri(endpointUri.toString(), identifiableId);
+            endpointUri = buildUri(endpointUri.toString(), EncodingHelper.base64UrlEncode(identifiableId));
         }
 
         return new DefaultEndpoint.Builder()
@@ -292,7 +293,7 @@ public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
         if (subprotocolBodyTemplate == null) {
             return null;
         }
-        return subprotocolBodyTemplate.replace("${id}", identifiableId == null ? "" : identifiableId);
+        return subprotocolBodyTemplate.replace("${id}", Optional.ofNullable(identifiableId).orElse(""));
     }
 
 
