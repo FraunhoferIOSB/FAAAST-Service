@@ -94,7 +94,7 @@
         <json-patch.version>1.13</json-patch.version>
         <json-smart.version>2.6.0</json-smart.version>
         <jsonassert.version>1.5.3</jsonassert.version>
-        <jsonpath.version>2.10.0</jsonpath.version>
+        <jsonpath.version>3.0.0</jsonpath.version>
         <junit.version>4.13.2</junit.version>
         <log4j.api.version>2.25.3</log4j.api.version>
         <logback.version>1.5.32</logback.version>
