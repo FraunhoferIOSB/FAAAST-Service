@@ -292,7 +292,7 @@ public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
         if (subprotocolBodyTemplate == null) {
             return null;
         }
-        return subprotocolBodyTemplate.replace("{}", identifiableId == null ? "" : identifiableId);
+        return subprotocolBodyTemplate.replace("${id}", identifiableId == null ? "" : identifiableId);
     }
 
 
