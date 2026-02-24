@@ -78,7 +78,7 @@
         <container.image.tag>latest</container.image.tag>
         <de.flapdoodle.embed.version>4.24.0</de.flapdoodle.embed.version>
         <eclipse.jdt.version>4.32</eclipse.jdt.version>
-        <equalsverifier.version>4.3.1</equalsverifier.version>
+        <equalsverifier.version>4.4.1</equalsverifier.version>
         <glassfish.jaxb-runtime>4.0.5</glassfish.jaxb-runtime>
         <guava.version>33.5.0-jre</guava.version>
         <jackson-jq.version>1.6.0</jackson-jq.version>
