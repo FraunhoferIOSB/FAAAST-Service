@@ -147,12 +147,6 @@ public class IdShortPathElementWalker extends AssetAdministrationShellElementWal
         };
     }
 
-    //@Override
-    //public void visit(AnnotatedRelationshipElement element) {
-    //    visitBefore(element);
-    //    visitAfter(element);
-    //}
-
 
     @Override
     public void visit(AssetInformation element) {
@@ -171,10 +165,8 @@ public class IdShortPathElementWalker extends AssetAdministrationShellElementWal
     @Override
     public void visit(Entity entity) {
         visitBefore(entity);
-        if (entity != null) {
-            if (entity.getStatements() != null) {
-                entity.getStatements().forEach(this::visit);
-            }
+        if ((entity != null) && (entity.getStatements() != null)) {
+            entity.getStatements().forEach(this::visit);
         }
         visitAfter(entity);
     }

@@ -125,15 +125,6 @@ public class ReferenceCollector extends AssetAdministrationShellElementWalker {
         };
     }
 
-    //@Override
-    //public void visit(AnnotatedRelationshipElement annotatedRelationshipElement) {
-    //    visitBefore(annotatedRelationshipElement);
-    //    if (annotatedRelationshipElement != null && annotatedRelationshipElement.getAnnotations() != null) {
-    //        annotatedRelationshipElement.getAnnotations().forEach(this::visit);
-    //    }
-    //    visitAfter(annotatedRelationshipElement);
-    //}
-
 
     @Override
     public void visit(AssetInformation element) {
