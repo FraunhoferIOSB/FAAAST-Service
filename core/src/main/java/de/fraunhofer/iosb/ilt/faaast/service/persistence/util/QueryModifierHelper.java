@@ -111,12 +111,6 @@ public class QueryModifierHelper {
                         public void visit(SubmodelElementCollection submodelElementCollection) {
                             submodelElementCollection.getValue().clear();
                         }
-
-
-                        @Override
-                        public void visit(Entity entity) {
-                            entity.getStatements().clear();
-                        }
                     };
                     list.forEach(visitor::visit);
                 }
