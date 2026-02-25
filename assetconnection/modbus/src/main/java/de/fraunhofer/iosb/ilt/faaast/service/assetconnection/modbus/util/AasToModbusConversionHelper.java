@@ -121,7 +121,7 @@ public class AasToModbusConversionHelper {
      * @param datatype the datatype to convert the data into.
      * @return converted data.
      */
-    public static TypedValue<?> convert(byte[] rawBytes, Datatype datatype) throws AssetConnectionException {
+    public static TypedValue convert(byte[] rawBytes, Datatype datatype) throws AssetConnectionException {
 
         return switch (datatype) {
             case BOOLEAN -> new BooleanValue(toBigInteger(rawBytes, 1).signum() != 0);
@@ -198,14 +198,9 @@ public class AasToModbusConversionHelper {
     }
 
 
-    private static void throwTooManyBytes(int totalBytes, long maxBytes) throws AssetConnectionException {
-        throw new AssetConnectionException(String.format(TOO_MANY_BYTES_READ, totalBytes, maxBytes));
-    }
-
-
     private static BigInteger toUnsignedBigInteger(byte[] rawBytes, long maxBytes) throws AssetConnectionException {
         if (amountNonzero(rawBytes) > maxBytes) {
-            throwTooManyBytes(amountNonzero(rawBytes), maxBytes);
+            throw new AssetConnectionException(String.format(TOO_MANY_BYTES_READ, amountNonzero(rawBytes), maxBytes));
         }
         return new BigInteger(1, rawBytes);
     }
@@ -213,7 +208,7 @@ public class AasToModbusConversionHelper {
 
     private static BigInteger toBigInteger(byte[] rawBytes, long maxBytes) throws AssetConnectionException {
         if (amountNonzeroNonnegative(rawBytes) > maxBytes) {
-            throwTooManyBytes(amountNonzeroNonnegative(rawBytes), maxBytes);
+            throw new AssetConnectionException(String.format(TOO_MANY_BYTES_READ, amountNonzeroNonnegative(rawBytes), maxBytes));
         }
         return new BigInteger(ByteArrayHelper.removePadding(rawBytes));
     }

@@ -73,28 +73,38 @@ public class ByteArrayHelper {
 
 
     /**
-     * Returns the most significant bit index in an array of bytes. Assuming big endian, so the first byte in an array will
-     * be the most significant byte. Example: array =
-     * [0b00.10.00.00] -> MSBI = 6; array = [0b00.10.00.00, 0b00.00.00.00] -> MSBI = 14.
+     * Returns the most significant bit index in an array of bytes, starting at index 0.
      *
-     * @param array The array.
-     * @return The most significant bit.
+     * @param bytes The byte array.
+     * @return The most significant bit index or 0 if bytes is null/empty.
      */
-    public static int mostSignificantBitIndex(byte[] array) {
-        int mostSignificantByte = array.length;
-        byte msb_index = 0;
-        for (byte b: array) {
-            if (b == 0) {
-                mostSignificantByte--;
-                continue;
-            }
-
-            while ((b & 0x80) == 0) {
-                b <<= 0x01;
-                msb_index++;
-            }
-            break;
+    public static int mostSignificantBitIndex(byte[] bytes) {
+        if (bytes == null || bytes.length == 0) {
+            return -1;
         }
-        return (mostSignificantByte - 1) * 8 + msb_index;
+
+        // Find first non-zero byte from the left (most significant side)
+        int byteIndex = 0;
+        while (byteIndex < bytes.length && bytes[byteIndex] == 0) {
+            byteIndex++;
+        }
+
+        // All bytes are zero -> no set bit
+        if (byteIndex == bytes.length) {
+            return -1;
+        }
+
+        int b = bytes[byteIndex] & 0xFF; // assume unsigned
+
+        int leadingZerosInByte = 0;
+        while ((b & 0x80) == 0) {
+            b <<= 1;
+            leadingZerosInByte++;
+        }
+
+        int totalBits = bytes.length * 8;
+        int totalLeadingZeroBits = byteIndex * 8 + leadingZerosInByte;
+
+        return totalBits - totalLeadingZeroBits - 1;
     }
 }

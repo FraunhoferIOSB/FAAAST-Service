@@ -19,27 +19,20 @@ import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.config.ModbusOperationProviderConfig;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
 
 /**
- * Modbus asset connection operation provider
- *
- * <p>
- * My idea of what an operation in modbus-land <i><b>could be</b></i>:
- * <ol>
- * <li>Set the value of a writable modbus server address to given input/inoutput parameter values</li>
- * <li>Wait for {@code timeout} seconds</li>
- * <li>Read inoutput parameter address and optionally output parameter addresses.</li>
- * </ol>
+ * OperationProvider for Modbus.
  */
 public class ModbusOperationProvider extends AbstractModbusProvider<ModbusOperationProviderConfig> implements AssetOperationProvider<ModbusOperationProviderConfig> {
 
     public ModbusOperationProvider(ServiceContext serviceContext, Reference reference, ModbusClient modbusClient, ModbusOperationProviderConfig config)
             throws AssetConnectionException {
         super(serviceContext, reference, modbusClient, config);
-        throw new AssetConnectionException("Operations are not supported for modbus asset connections");
     }
 
 
@@ -51,6 +44,13 @@ public class ModbusOperationProvider extends AbstractModbusProvider<ModbusOperat
 
     @Override
     public OperationVariable[] invoke(OperationVariable[] input, OperationVariable[] inoutput) {
-        return null;
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+
+    @Override
+    public void invokeAsync(OperationVariable[] input, OperationVariable[] inoutput, BiConsumer<OperationVariable[], OperationVariable[]> callbackSuccess,
+                            Consumer<Throwable> callbackFailure) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

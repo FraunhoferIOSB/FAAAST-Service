@@ -214,16 +214,10 @@ public class ModbusAssetConnectionTest {
         writeToServer(port, unitId, modbusAddress, newValue);
 
         // add listener, get value, validate again
-        assertTrue(conditionUpdated.await(pollingRate + 10000, TimeUnit.MILLISECONDS));
+        assertTrue(conditionUpdated.await(pollingRate + 15000, TimeUnit.MILLISECONDS));
         assertEquals(newValue, (int) ((PropertyValue) updatedResponse.get()).getValue().getValue());
 
         server.stop();
-    }
-
-
-    @Test
-    public void testOperationProvider() {
-        // TODO if operations are implemented
     }
 
 

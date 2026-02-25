@@ -25,8 +25,6 @@ import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
  */
 public abstract class AbstractModbusProviderConfig implements AssetProviderConfig {
 
-    public static final ModbusDatatype DEFAULT_DATATYPE = null;
-    public static final Integer DEFAULT_ADDRESS = null;
     public static final int DEFAULT_QUANTITY = 1;
     public static final int DEFAULT_UNIT_ID = 1;
 
@@ -35,9 +33,7 @@ public abstract class AbstractModbusProviderConfig implements AssetProviderConfi
     private int quantity;
     private int unitId;
 
-    public AbstractModbusProviderConfig() {
-        this.dataType = DEFAULT_DATATYPE;
-        this.address = DEFAULT_ADDRESS;
+    protected AbstractModbusProviderConfig() {
         this.quantity = DEFAULT_QUANTITY;
         this.unitId = DEFAULT_UNIT_ID;
     }
@@ -52,9 +48,9 @@ public abstract class AbstractModbusProviderConfig implements AssetProviderConfi
             return false;
         }
         AbstractModbusProviderConfig that = (AbstractModbusProviderConfig) other;
-        return Objects.equals(dataType, that.getDataType()) &&
+        return Objects.equals(dataType, that.dataType) &&
                 Objects.equals(address, that.address) &&
-                Objects.equals(unitId, that.getUnitId()) &&
+                Objects.equals(unitId, that.unitId) &&
                 Objects.equals(quantity, that.quantity);
     }
 

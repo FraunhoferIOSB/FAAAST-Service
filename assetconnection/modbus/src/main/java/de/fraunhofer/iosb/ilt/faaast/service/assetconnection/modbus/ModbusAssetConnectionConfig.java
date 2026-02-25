@@ -32,7 +32,6 @@ import java.util.Objects;
 public class ModbusAssetConnectionConfig
         extends AssetConnectionConfig<ModbusAssetConnection, ModbusValueProviderConfig, ModbusOperationProviderConfig, ModbusSubscriptionProviderConfig> {
 
-    public static final String DEFAULT_HOSTNAME = null;
     public static final int DEFAULT_PORT = 502;
     public static final long DEFAULT_CONNECT_TIMEOUT_MILLIS = 5000;
     public static final long DEFAULT_REQUEST_TIMEOUT_MILLIS = 5000;
@@ -52,7 +51,6 @@ public class ModbusAssetConnectionConfig
     private CertificateConfig trustCertificateConfig;
 
     public ModbusAssetConnectionConfig() {
-        this.hostname = DEFAULT_HOSTNAME;
         this.port = DEFAULT_PORT;
         this.connectTimeoutMillis = DEFAULT_CONNECT_TIMEOUT_MILLIS;
         this.requestTimeoutMillis = DEFAULT_REQUEST_TIMEOUT_MILLIS;

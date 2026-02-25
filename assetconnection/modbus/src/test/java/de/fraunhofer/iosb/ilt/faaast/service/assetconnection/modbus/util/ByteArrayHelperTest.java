@@ -42,12 +42,11 @@ public class ByteArrayHelperTest {
         };
 
         try {
-
-            assertEquals(unpadded, ByteArrayHelper.pad(unpadded, -1));
+            ByteArrayHelper.pad(unpadded, -1);
             fail();
         }
         catch (IllegalArgumentException expected) {
-
+            // expecting an exception for a negative padding
         }
     }
 
@@ -84,6 +83,6 @@ public class ByteArrayHelperTest {
                 (byte) 0x84,
                 (byte) 0xAB
         };
-        assertEquals(8 * 3 + 7, ByteArrayHelper.mostSignificantBitIndex(unpadded));
+        assertEquals(8 * 3, ByteArrayHelper.mostSignificantBitIndex(unpadded));
     }
 }

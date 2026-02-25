@@ -62,15 +62,18 @@ public class ModbusSubscriptionProvider extends AbstractModbusProvider<ModbusSub
 
 
     @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) {
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
             return false;
         }
-        if (!super.equals(o)) {
+        if (getClass() != obj.getClass()) {
             return false;
         }
-        ModbusSubscriptionProvider that = (ModbusSubscriptionProvider) o;
-        return super.equals(o) &&
+        ModbusSubscriptionProvider that = (ModbusSubscriptionProvider) obj;
+        return super.equals(obj) &&
                 Objects.equals(executor, that.executor) &&
                 Objects.equals(executorHandler, that.executorHandler) &&
                 Objects.equals(listeners, that.listeners);

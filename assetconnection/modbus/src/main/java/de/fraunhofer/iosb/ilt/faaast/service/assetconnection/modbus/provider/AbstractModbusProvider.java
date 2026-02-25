@@ -158,15 +158,9 @@ public abstract class AbstractModbusProvider<C extends AbstractModbusProviderCon
      * Write a byte array to a specified modbus server address.
      *
      * @param writeRequest The write request containing address, quantity and bytes to write.
-     * @throws AssetConnectionException If writing to modbus server fails.
      */
-    protected void doWrite(ModbusRequestPdu writeRequest) throws AssetConnectionException {
-        try {
-            write(writeRequest);
-        }
-        catch (ModbusExecutionException | ModbusTimeoutException | ModbusResponseException e) {
-            throw new AssetConnectionException(e);
-        }
+    protected void doWrite(ModbusRequestPdu writeRequest) {
+        write(writeRequest);
     }
 
 
@@ -191,7 +185,7 @@ public abstract class AbstractModbusProvider<C extends AbstractModbusProviderCon
     }
 
 
-    private void write(ModbusRequestPdu request) throws ModbusExecutionException, ModbusTimeoutException, ModbusResponseException {
+    private void write(ModbusRequestPdu request) {
         int unitId = config.getUnitId();
 
         // Java 24 offers an enhanced switch for this case
@@ -272,7 +266,8 @@ public abstract class AbstractModbusProvider<C extends AbstractModbusProviderCon
 
 
     private void validateCoilQuantity(byte[] bytesToWrite) throws AssetConnectionException {
-        int coilsToWrite = ByteArrayHelper.mostSignificantBitIndex(bytesToWrite);
+        int msbIndex = ByteArrayHelper.mostSignificantBitIndex(bytesToWrite);
+        int coilsToWrite = (msbIndex < 0) ? 0 : msbIndex + 1;
         if (config.getQuantity() < coilsToWrite) {
             throw new AssetConnectionException(String.format(WRITE_OVERFLOW_TEMPLATE, COIL, config.getQuantity(), coilsToWrite));
         }

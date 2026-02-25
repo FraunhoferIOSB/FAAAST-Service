@@ -89,7 +89,9 @@ public class AasToModbusConversionHelperTest {
             AasToModbusConversionHelper.convert(bytesRead, Datatype.INT);
             fail();
         }
-        catch (AssetConnectionException expected) {}
+        catch (AssetConnectionException expected) {
+            // expecting an exception since the value is too large for an int
+        }
     }
 
 
@@ -214,40 +216,29 @@ public class AasToModbusConversionHelperTest {
 
     @Test
     public void testBase64BinarySucceeds() throws AssetConnectionException {
-        byte[] bytesRead = new byte[] {
-                (byte) 0xAB,
-                (byte) 0xCD,
-                (byte) 0xDE,
-                (byte) 0xFF
-        };
-
-        var typedValue = AasToModbusConversionHelper.convert(bytesRead, Datatype.BASE64_BINARY);
-        assertEquals(bytesRead, typedValue.getValue());
-
-        var bytesConverted = AasToModbusConversionHelper.convert(new PropertyValue(typedValue), bytesRead.length);
-        assertArrayEquals(bytesRead, removePadding(bytesConverted));
+        testConvert(Datatype.BASE64_BINARY);
     }
 
 
     @Test
     public void testHexBinarySucceeds() throws AssetConnectionException {
-        byte[] bytesRead = new byte[] {
-                (byte) 0xAB,
-                (byte) 0xCD,
-                (byte) 0xDE,
-                (byte) 0xFF
-        };
-
-        var typedValue = AasToModbusConversionHelper.convert(bytesRead, Datatype.BASE64_BINARY);
-        assertEquals(bytesRead, typedValue.getValue());
-
-        var bytesConverted = AasToModbusConversionHelper.convert(new PropertyValue(typedValue), bytesRead.length);
-        assertArrayEquals(bytesRead, removePadding(bytesConverted));
+        testConvert(Datatype.HEX_BINARY);
     }
 
 
     @Test
-    public void testLangStringFails() throws AssetConnectionException {
+    public void testLangStringFails() {
+        try {
+            testConvert(Datatype.LANG_STRING);
+            fail();
+        }
+        catch (AssetConnectionException expected) {
+            // expected because LANG_STRING is not supported
+        }
+    }
+
+
+    private void testConvert(Datatype datatype) throws AssetConnectionException {
         byte[] bytesRead = new byte[] {
                 (byte) 0xAB,
                 (byte) 0xCD,
@@ -255,11 +246,13 @@ public class AasToModbusConversionHelperTest {
                 (byte) 0xFF
         };
 
-        var typedValue = AasToModbusConversionHelper.convert(bytesRead, Datatype.BASE64_BINARY);
+        var typedValue = AasToModbusConversionHelper.convert(bytesRead, datatype);
+
         assertEquals(bytesRead, typedValue.getValue());
 
         var bytesConverted = AasToModbusConversionHelper.convert(new PropertyValue(typedValue), bytesRead.length);
         assertArrayEquals(bytesRead, removePadding(bytesConverted));
+
     }
 
 
@@ -291,7 +284,9 @@ public class AasToModbusConversionHelperTest {
             AasToModbusConversionHelper.convert(bytesRead, Datatype.BOOLEAN);
             fail();
         }
-        catch (AssetConnectionException expected) {}
+        catch (AssetConnectionException expected) {
+            // expecting an exception since the value is too large for a boolean
+        }
     }
 
 
