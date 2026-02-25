@@ -97,8 +97,8 @@ Validation of operation argument can be configured independently for in-, out-, 
 ### Supported Providers
 
 - ValueProvider
-	- read ✔️
-	- write ✔️
+    - read ✔️
+    - write ✔️
 - OperationProvider ✔️
 - SubscriptionProvider ✔️ (via polling)
 
@@ -455,6 +455,141 @@ Which authentication certificate is used is determined by a similar logic as for
 	}
 }
 ```
+
+
+## Modbus TCP
+
+### Supported Providers
+
+- ValueProvider
+    - read ✔️
+    - write ✔️
+- OperationProvider ❌
+- SubscriptionProvider ✔️ (via polling)
+
+### Configuration
+
+#### Connection-Level
+
+:::{table} Configuration properties of HTTP AssetConnection.
+| Name                                   | Allowed Value                                               | Description                                                                                                                     | Default Value |
+| -------------------------------------- | ----------------------------------------------------------- |-------------------------------------------------------------------------------------------------------------------------------- | ------------- |
+| hostname                               | String                                                      | Hostname of the Modbus server, excluding protocol and port. Example: localhost                                                  |               |
+| port<br>*(optional)*                   | int                                                         | TCP Port of the Modbus server.                                                                                                  | 502           |
+| tlsEnabled<br>*(optional)*             | boolean                                                     | Whether TLS is enabled for the server. If enabled, key and trust certificates need to be provided.                              | false         |
+| keyCertificateConfig<br>*(optional)*   | [CertificateInfo](#providing-certificates-in-configuration) | Key store certificates. Only required if tlsEnabled is `true`.                                                                  | empty         |   
+| trustCertificateConfig<br>*(optional)* | [CertificateInfo](#providing-certificates-in-configuration) | Trusted certificates when connecting to a server that is using self-signed certificates. Only required if tlsEnabled is `true`. | empty         |
+| connectTimeoutMillis<br>*(optional)*   | long                                                        | Timeout for connecting to the Modbus server.                                                                                    | 5000          |
+| requestTimeoutMillis<br>*(optional)*   | long                                                        | Timeout for a request to the Modbus server.                                                                                     | 5000          |
+| connectPersistent<br>*(optional)*      | boolean                                                     | Set whether to connect persistently.                                                                                            | false         |
+| reconnectLazy<br>*(optional)*          | boolean                                                     | Set whether to reconnect lazily.                                                                                                | false         |
+:::
+
+#### Value Provider
+
+:::{table} Configuration properties of HTTP AssetConnection Value Provider.
+| Name                        | Allowed Value                                             | Description                                        | Default Value |
+| --------------------------- | --------------------------------------------------------- | -------------------------------------------------- | ------------- |
+| dataType                 | COIL<br>DISCRETE_INPUT<br>HOLDING_REGISTER<br>INPUT_REGISTER | Modbus data type of this value.                    |               |
+| address                  | int                                                          | Address of this value within the Modbus server.    |               |
+| quantity<br>*(optional)* | int                                                          | Amount of dataType values to assign to this value. | 1             |
+| unitId<br>*(optional)*   | int                                                          | Modbus unit ID to address specific servers.        | 1             |
+:::
+
+```{code-block} json
+:caption: Example configuration section for Modbus AssetConnection.
+:lineno-start: 1
+{
+  "dataType": "HOLDING_REGISTER",
+  "address": 42,
+  "quantity": 1
+}
+```
+
+#### Subscription Provider
+
+:::{table} Configuration properties of HTTP AssetConnection Subscription Provider.
+| Name                          | Allowed Value                                                | Description                                                     | Default Value |
+| ----------------------------- | ------------------------------------------------------------ | --------------------------------------------------------------- | ------------- |
+| dataType                      | COIL<br>DISCRETE_INPUT<br>HOLDING_REGISTER<br>INPUT_REGISTER | Modbus data type of this value.                                 |               |
+| address                       | int                                                          | Address of this value within the Modbus server.                 |               |
+| quantity<br>*(optional)*      | int                                                          | Amount of dataType values to assign to this value.              | 1             |
+| unitId<br>*(optional)*        | int                                                          | Modbus unit ID to address specific servers.                     | 1             |
+| pollingRate<br>*(optional)*   | int                                                          | Interval to poll the server for changes in milliseconds.        | 1000          |
+
+:::
+
+
+```{code-block} json
+:caption: Example configuration section for Modbus SubscriptionProvider.
+:lineno-start: 1
+{
+  "dataType": "COIL",
+  "address": 1,
+  "quantity": 3,
+  "pollingRate": 5000
+}
+```
+
+### Complete Example
+
+```{code-block} json
+:caption: Complete example configuration section for Modbus Asset Connection.
+:lineno-start: 1
+{
+	"@class": "de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.ModbusAssetConnection",
+    "hostname": "localhost",
+    "port": 502,
+    "connectTimeout": 10000,
+    "requestTimeout": 5000,
+    "reconnectLazy": true,
+    "tlsEnabled": true,
+	"keyCertificateConfig": {
+		"keyStoreType": "PKCS12",
+		"keyStorePath": "C:\faaast\MyKeyStore.p12",
+		"keyStorePassword": "changeit",
+		"keyAlias": "app-cert",
+		"keyPassword": "changeit"
+	},
+	"trustCertificateConfig": {
+		"keyStoreType": "PKCS12",
+		"keyStorePath": "C:\faaast\MyTrustStore.p12",
+		"keyStorePassword": "changeit",
+		"keyAlias": "auth-cert",
+		"keyPassword": "changeit"
+	},
+	"valueProviders": {
+		"[ModelRef](Submodel)urn:aas:id:example:submodel:1, (Property)Property1": {
+			"nodeId": "some.node.id.property.1"
+		},
+		"[ModelRef](Submodel)urn:aas:id:example:submodel:1, (Property)Property2": {
+			"nodeId": "some.node.id.property.2"
+		}
+	},
+    "valueProviders": {
+    	"[ModelRef](Submodel)urn:aas:id:example:submodel:1, (Property)Property1": {
+    		"dataType": "HOLDING_REGISTER",
+			"address": 42,
+			"quantity": 1
+		},
+		"[ModelRef](Submodel)urn:aas:id:example:submodel:1, (Property)Property2": {
+			"dataType": "COIL",
+			"address": 10,
+			"quantity": 4
+		}
+	},
+	"subscriptionProviders": {
+		"[ModelRef](Submodel)urn:aas:id:example:submodel:1, (Property)Property3": {
+			"dataType": "COIL",
+			"address": 1,
+			"quantity": 3,
+			"pollingRate": 1
+		}
+	}
+}
+```
+
+
 
 ## Lambda
 
