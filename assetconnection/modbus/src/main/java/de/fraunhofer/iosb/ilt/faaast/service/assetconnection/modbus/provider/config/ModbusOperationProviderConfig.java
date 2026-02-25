@@ -14,82 +14,11 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.config;
 
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.ArgumentValidationMode;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.provider.config.AbstractMultiFormatOperationProviderConfig;
 
 
 /**
  * Modbus asset connection operation provider config.
  */
-public class ModbusOperationProviderConfig extends AbstractModbusProviderConfig implements AssetOperationProviderConfig {
-
-    @Override
-    public ArgumentValidationMode getInputValidationMode() {
-        return null;
-    }
-
-
-    @Override
-    public void setInputValidationMode(ArgumentValidationMode mode) {
-
-    }
-
-
-    @Override
-    public ArgumentValidationMode getInoutputValidationMode() {
-        return null;
-    }
-
-
-    @Override
-    public void setInoutputValidationMode(ArgumentValidationMode mode) {
-
-    }
-
-
-    @Override
-    public ArgumentValidationMode getOutputValidationMode() {
-        return null;
-    }
-
-
-    @Override
-    public void setOutputValidationMode(ArgumentValidationMode mode) {
-
-    }
-
-    protected abstract static class AbstractBuilder<T extends ModbusOperationProviderConfig, B extends AbstractBuilder<T, B>>
-            extends AbstractModbusProviderConfig.AbstractBuilder<T, B> {
-
-        public B inputValidationMode(ArgumentValidationMode value) {
-            getBuildingInstance().setInputValidationMode(value);
-            return getSelf();
-        }
-
-
-        public B inoutputValidationMode(ArgumentValidationMode value) {
-            getBuildingInstance().setInoutputValidationMode(value);
-            return getSelf();
-        }
-
-
-        public B outputValidationMode(ArgumentValidationMode value) {
-            getBuildingInstance().setOutputValidationMode(value);
-            return getSelf();
-        }
-    }
-
-    public static class Builder extends AbstractBuilder<ModbusOperationProviderConfig, Builder> {
-
-        @Override
-        protected Builder getSelf() {
-            return this;
-        }
-
-
-        @Override
-        protected ModbusOperationProviderConfig newBuildingInstance() {
-            return new ModbusOperationProviderConfig();
-        }
-    }
+public class ModbusOperationProviderConfig extends AbstractMultiFormatOperationProviderConfig {
 }
