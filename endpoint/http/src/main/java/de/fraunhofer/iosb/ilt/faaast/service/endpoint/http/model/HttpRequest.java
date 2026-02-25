@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model;
 
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpConstants;
+import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,7 +31,7 @@ import java.util.stream.Collectors;
  */
 public class HttpRequest extends HttpMessage {
 
-    private de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod method;
+    private HttpMethod method;
     private String path;
     private Map<String, String> queryParameters;
     private List<String> pathElements;
@@ -41,18 +42,18 @@ public class HttpRequest extends HttpMessage {
 
 
     public HttpRequest() {
-        method = de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod.GET;
+        method = HttpMethod.GET;
         queryParameters = new HashMap<>();
         pathElements = new ArrayList<>();
     }
 
 
-    public de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod getMethod() {
+    public HttpMethod getMethod() {
         return method;
     }
 
 
-    public void setMethod(de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod method) {
+    public void setMethod(HttpMethod method) {
         this.method = method;
     }
 
@@ -186,7 +187,7 @@ public class HttpRequest extends HttpMessage {
 
     public abstract static class AbstractBuilder<T extends HttpRequest, B extends AbstractBuilder<T, B>> extends HttpMessage.AbstractBuilder<T, B> {
 
-        public B method(de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod value) {
+        public B method(HttpMethod value) {
             getBuildingInstance().setMethod(value);
             return getSelf();
         }
