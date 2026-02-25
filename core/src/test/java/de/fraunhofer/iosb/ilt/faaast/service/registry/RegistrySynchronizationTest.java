@@ -57,6 +57,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SecurityTypeEnum;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelDescriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetAdministrationShellDescriptor;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEndpoint;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProtocolInformation;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSecurityAttributeObject;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelDescriptor;
@@ -237,6 +238,9 @@ public class RegistrySynchronizationTest {
                                             .key("")
                                             .value("")
                                             .build())
+                                    .subprotocol("MyTestSubprotocol")
+                                    .subprotocolBody("id: ${id}. again: ${id}.MyTestSubprotocolBody")
+                                    .subprotocolBodyEncoding("MyTestSubprotocolBodyEncoding")
                                     .build())
                             .build(),
                     new org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEndpoint.Builder()
@@ -250,6 +254,9 @@ public class RegistrySynchronizationTest {
                                             .key("")
                                             .value("")
                                             .build())
+                                    .subprotocol("MyTestSubprotocol")
+                                    .subprotocolBody("id: ${id}. again: ${id}.MyTestSubprotocolBody")
+                                    .subprotocolBodyEncoding("MyTestSubprotocolBodyEncoding")
                                     .build())
                             .build());
         }).when(endpoint).getAasEndpointInformation(any(String.class));
@@ -257,7 +264,7 @@ public class RegistrySynchronizationTest {
         doAnswer((InvocationOnMock invocation) -> {
             String submodelId = invocation.getArgument(0);
             return List.of(
-                    new org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEndpoint.Builder()
+                    new DefaultEndpoint.Builder()
                             ._interface("SUBMODEL-REPOSITORY-3.0")
                             .protocolInformation(new DefaultProtocolInformation.Builder()
                                     .href(serviceUri.toASCIIString())
@@ -268,9 +275,12 @@ public class RegistrySynchronizationTest {
                                             .key("")
                                             .value("")
                                             .build())
+                                    .subprotocol("MyTestSubprotocol")
+                                    .subprotocolBody(String.format("id: %s. again: %s.MyTestSubprotocolBody", submodelId, submodelId))
+                                    .subprotocolBodyEncoding("MyTestSubprotocolBodyEncoding")
                                     .build())
                             .build(),
-                    new org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEndpoint.Builder()
+                    new DefaultEndpoint.Builder()
                             ._interface("SUBMODEL-3.0")
                             .protocolInformation(new DefaultProtocolInformation.Builder()
                                     .href(serviceUri.toASCIIString() + "/submodels/" + EncodingHelper.base64UrlEncode(submodelId))
@@ -281,6 +291,9 @@ public class RegistrySynchronizationTest {
                                             .key("")
                                             .value("")
                                             .build())
+                                    .subprotocol("MyTestSubprotocol")
+                                    .subprotocolBody(String.format("id: %s. again: %s.MyTestSubprotocolBody", submodelId, submodelId))
+                                    .subprotocolBodyEncoding("MyTestSubprotocolBodyEncoding")
                                     .build())
                             .build());
         }).when(endpoint).getSubmodelEndpointInformation(any(String.class));

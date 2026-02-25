@@ -32,7 +32,6 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
     public static final String DEFAULT_CORS_ALLOWED_ORIGIN = "*";
     public static final String DEFAULT_CORS_EXPOSED_HEADERS = "";
     public static final long DEFAULT_CORS_MAX_AGE = 3600;
-    public static final String DEFAULT_HOSTNAME = null;
     public static final String DEFAULT_PATH_PREFIX = "/api/v3.0";
     public static final boolean DEFAULT_INCLUDE_ERROR_DETAILS = false;
     public static final int DEFAULT_PORT = 443;
@@ -45,6 +44,7 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
         return new Builder();
     }
 
+    private String callbackAddress;
     private CertificateConfig certificate;
     private boolean corsEnabled;
     private boolean corsAllowCredentials;
@@ -59,6 +59,9 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
     private int port;
     private boolean sniEnabled;
     private boolean sslEnabled;
+    private String subprotocol;
+    private String subprotocolBody;
+    private String subprotocolBodyEncoding;
 
     public HttpEndpointConfig() {
         certificate = CertificateConfig.builder()
@@ -70,12 +73,21 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
         corsAllowedOrigin = DEFAULT_CORS_ALLOWED_ORIGIN;
         corsExposedHeaders = DEFAULT_CORS_EXPOSED_HEADERS;
         corsMaxAge = DEFAULT_CORS_MAX_AGE;
-        hostname = DEFAULT_HOSTNAME;
         pathPrefix = DEFAULT_PATH_PREFIX;
         includeErrorDetails = DEFAULT_INCLUDE_ERROR_DETAILS;
         port = DEFAULT_PORT;
         sniEnabled = DEFAULT_SNI_ENABLED;
         sslEnabled = DEFAULT_SSL_ENABLED;
+    }
+
+
+    public String getCallbackAddress() {
+        return callbackAddress;
+    }
+
+
+    public void setCallbackAddress(String callbackAddress) {
+        this.callbackAddress = callbackAddress;
     }
 
 
@@ -225,6 +237,36 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
     }
 
 
+    public String getSubprotocol() {
+        return subprotocol;
+    }
+
+
+    public void setSubprotocol(String subprotocol) {
+        this.subprotocol = subprotocol;
+    }
+
+
+    public String getSubprotocolBody() {
+        return subprotocolBody;
+    }
+
+
+    public void setSubprotocolBody(String subprotocolBody) {
+        this.subprotocolBody = subprotocolBody;
+    }
+
+
+    public String getSubprotocolBodyEncoding() {
+        return subprotocolBodyEncoding;
+    }
+
+
+    public void setSubprotocolBodyEncoding(String subprotocolBodyEncoding) {
+        this.subprotocolBodyEncoding = subprotocolBodyEncoding;
+    }
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -235,6 +277,7 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
         }
         HttpEndpointConfig that = (HttpEndpointConfig) o;
         return super.equals(o)
+                && Objects.equals(callbackAddress, that.callbackAddress)
                 && Objects.equals(certificate, that.certificate)
                 && Objects.equals(corsEnabled, that.corsEnabled)
                 && Objects.equals(corsAllowCredentials, that.corsAllowCredentials)
@@ -248,8 +291,10 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
                 && Objects.equals(includeErrorDetails, that.includeErrorDetails)
                 && Objects.equals(port, that.port)
                 && Objects.equals(sniEnabled, that.sniEnabled)
-                && Objects.equals(sslEnabled, that.sslEnabled)
-                && Objects.equals(profiles, that.profiles);
+                && Objects.equals(profiles, that.profiles)
+                && Objects.equals(subprotocol, that.subprotocol)
+                && Objects.equals(subprotocolBody, that.subprotocolBody)
+                && Objects.equals(subprotocolBodyEncoding, that.subprotocolBodyEncoding);
     }
 
 
@@ -257,6 +302,7 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
     public int hashCode() {
         return Objects.hash(
                 super.hashCode(),
+                callbackAddress,
                 certificate,
                 corsEnabled,
                 corsAllowCredentials,
@@ -271,7 +317,10 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
                 port,
                 sniEnabled,
                 sslEnabled,
-                profiles);
+                profiles,
+                subprotocol,
+                subprotocolBody,
+                subprotocolBodyEncoding);
     }
 
 
@@ -281,6 +330,12 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
     }
 
     private abstract static class AbstractBuilder<T extends HttpEndpointConfig, B extends AbstractBuilder<T, B>> extends EndpointConfig.AbstractBuilder<HttpEndpoint, T, B> {
+
+        public B callbackAddress(String value) {
+            getBuildingInstance().setCallbackAddress(value);
+            return getSelf();
+        }
+
 
         public B certificate(CertificateConfig value) {
             getBuildingInstance().setCertificate(value);
@@ -392,6 +447,24 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
 
         public B ssl(boolean value) {
             getBuildingInstance().setSslEnabled(value);
+            return getSelf();
+        }
+
+
+        public B subprotocol(String value) {
+            getBuildingInstance().setSubprotocol(value);
+            return getSelf();
+        }
+
+
+        public B subprotocolBody(String value) {
+            getBuildingInstance().setSubprotocolBody(value);
+            return getSelf();
+        }
+
+
+        public B subprotocolBodyEncoding(String value) {
+            getBuildingInstance().setSubprotocolBodyEncoding(value);
             return getSelf();
         }
     }
