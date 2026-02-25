@@ -97,8 +97,8 @@ Validation of operation argument can be configured independently for in-, out-, 
 ### Supported Providers
 
 - ValueProvider
-    - read ✔️
-    - write ✔️
+	- read ✔️
+	- write ✔️
 - OperationProvider ✔️
 - SubscriptionProvider ✔️ (via polling)
 
