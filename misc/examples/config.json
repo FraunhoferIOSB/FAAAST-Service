@@ -2,45 +2,15 @@
   "core": {
     "requestHandlerThreadPoolSize": 2
   },
-  "endpoints": [
-    {
-      "@class": "de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpoint",
-      "pathPrefix": "/",
-      "port": 443
-    }
-  ],
+  "endpoints": [{
+    "@class": "de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpoint",
+    "port": 443
+  }],
   "persistence": {
     "@class": "de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemory",
-    "initialModelFile": "misc/examples/model.json"
+    "initialModelFile": "/app/resources/demoAAS.json"
   },
   "messageBus": {
     "@class": "de.fraunhofer.iosb.ilt.faaast.service.messagebus.internal.MessageBusInternal"
-  },
-  "assetConnections": [
-    {
-      "@class": "de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.ModbusAssetConnection",
-      "subscriptionProviders": {
-        "[ModelRef](Submodel)4e406af2-12fa-4b14-ae27-69cfc347bd5f, (SubmodelElementCollection)TechnicalProperties, (SubmodelElementCollection)Dimensions, (SubmodelElementCollection)MachineDimensions, (Property)Height": {
-          "dataType": "COIL",
-          "address": 1,
-          "quantity": 3,
-          "pollingRate": 1
-        }
-      },
-      "valueProviders": {
-        "[ModelRef](Submodel)4e406af2-12fa-4b14-ae27-69cfc347bd5f, (SubmodelElementCollection)TechnicalProperties, (SubmodelElementCollection)Dimensions, (SubmodelElementCollection)MachineDimensions, (Property)Width": {
-          "dataType": "HOLDING_REGISTER",
-          "address": 42,
-          "quantity": 1
-        }
-      },
-      "hostname": "localhost",
-      "port": 502,
-      "connectTimeout": 5000,
-      "requestTimeout": 5000,
-      "reconnectLazy": true,
-      "tlsEnabled": false,
-      "unitId": 1
-    }
-  ]
+  }
 }
