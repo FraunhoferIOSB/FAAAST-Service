@@ -93,6 +93,7 @@ public class RegistrySynchronization {
     private final Persistence<?> persistence;
     private final MessageBus<?> messageBus;
     private final List<de.fraunhofer.iosb.ilt.faaast.service.endpoint.Endpoint> endpoints;
+    private final RegistryRequestDecorator requestDecorator;
     private final JsonSerializer mapper = new JsonSerializer();
     private ExecutorService executor;
     private boolean running = false;
@@ -106,6 +107,22 @@ public class RegistrySynchronization {
         this.persistence = Ensure.requireNonNull(persistence, "persistence must be non-null");
         this.messageBus = Ensure.requireNonNull(messageBus, "messageBus must be non-null");
         this.endpoints = Optional.ofNullable(endpoints).orElse(List.of());
+        this.requestDecorator = createRequestDecorator(coreConfig);
+    }
+
+
+    private RegistryRequestDecorator createRequestDecorator(CoreConfig coreConfig) {
+        var registrySynchronizationConfig = coreConfig.getRegistrySynchronization();
+        if (registrySynchronizationConfig == null) {
+            return RegistryRequestDecorator.noop();
+        }
+        var header = registrySynchronizationConfig.getAuth().getHeader();
+        if (!header.isConfigured()) {
+            return RegistryRequestDecorator.noop();
+        }
+        return new StaticHeaderRegistryRequestDecorator(
+                header.getName(),
+                header.getValue());
     }
 
 
@@ -504,6 +521,7 @@ public class RegistrySynchronization {
         HttpRequest.Builder builder = HttpRequest.newBuilder()
                 .uri(URI.create(safeBaseUrl).resolve(path))
                 .header("Content-Type", "application/json");
+        requestDecorator.decorate(builder);
         HttpRequest request = builder.method(method.toString(), HttpRequest.BodyPublishers.ofString(mapper.write(payload))).build();
         return SslHelper.newClientAcceptingAllCertificates().send(request, BodyHandlers.ofString());
     }

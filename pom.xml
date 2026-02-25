@@ -78,13 +78,13 @@
         <container.image.tag>latest</container.image.tag>
         <de.flapdoodle.embed.version>4.24.0</de.flapdoodle.embed.version>
         <eclipse.jdt.version>4.32</eclipse.jdt.version>
-        <equalsverifier.version>4.3.1</equalsverifier.version>
+        <equalsverifier.version>4.4.1</equalsverifier.version>
         <glassfish.jaxb-runtime>4.0.5</glassfish.jaxb-runtime>
         <guava.version>33.5.0-jre</guava.version>
         <jackson-jq.version>1.6.0</jackson-jq.version>
         <jackson.annotations.version>2.21</jackson.annotations.version>
-        <jackson.databind.version>2.21.0</jackson.databind.version>
-        <jackson.version>2.21.0</jackson.version>
+        <jackson.databind.version>2.21.1</jackson.databind.version>
+        <jackson.version>2.21.1</jackson.version>
         <jakarta.json-api.version>2.1.2</jakarta.json-api.version>
         <jakarta.xml.bind-api.version>4.0.5</jakarta.xml.bind-api.version>
         <janino.version>3.1.12</janino.version>
@@ -106,7 +106,7 @@
         <maven.plugin.checkstyle.version>3.6.0</maven.plugin.checkstyle.version>
         <maven.plugin.compiler.version>3.15.0</maven.plugin.compiler.version>
         <maven.plugin.dependency.version>3.10.0</maven.plugin.dependency.version>
-        <maven.plugin.failsafe.version>3.5.4</maven.plugin.failsafe.version>
+        <maven.plugin.failsafe.version>3.5.5</maven.plugin.failsafe.version>
         <maven.plugin.git.commit.id.version>9.0.2</maven.plugin.git.commit.id.version>
         <maven.plugin.gpg.version>3.2.8</maven.plugin.gpg.version>
         <maven.plugin.jacoco.version>0.8.14</maven.plugin.jacoco.version>
@@ -122,10 +122,10 @@
         <maven.plugin.sonar.version>5.5.0.6356</maven.plugin.sonar.version>
         <maven.plugin.source.version>3.4.0</maven.plugin.source.version>
         <maven.plugin.spotless.version>3.2.1</maven.plugin.spotless.version>
-        <maven.plugin.surefire.version>3.5.4</maven.plugin.surefire.version>
+        <maven.plugin.surefire.version>3.5.5</maven.plugin.surefire.version>
         <milo.version>1.1.1</milo.version>
         <mockito.version>5.21.0</mockito.version>
-        <mongodb.version>5.6.3</mongodb.version>
+        <mongodb.version>5.6.4</mongodb.version>
         <moquette.version>0.18.3</moquette.version>
         <netty.version>4.2.10.Final</netty.version>
         <org.apache.httpcomponents.client5.version>5.6</org.apache.httpcomponents.client5.version>
