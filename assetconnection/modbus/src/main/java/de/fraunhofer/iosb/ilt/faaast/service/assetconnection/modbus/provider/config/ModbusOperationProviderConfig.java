@@ -14,11 +14,47 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.config;
 
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.provider.config.AbstractMultiFormatOperationProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.ArgumentValidationMode;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProviderConfig;
 
 
 /**
  * Modbus asset connection operation provider config.
  */
-public class ModbusOperationProviderConfig extends AbstractMultiFormatOperationProviderConfig {
+public class ModbusOperationProviderConfig extends AbstractModbusProviderConfig implements AssetOperationProviderConfig {
+
+    @Override
+    public ArgumentValidationMode getInputValidationMode() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+
+    @Override
+    public void setInputValidationMode(ArgumentValidationMode mode) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+
+    @Override
+    public ArgumentValidationMode getInoutputValidationMode() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+
+    @Override
+    public void setInoutputValidationMode(ArgumentValidationMode mode) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+
+    @Override
+    public ArgumentValidationMode getOutputValidationMode() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+
+    @Override
+    public void setOutputValidationMode(ArgumentValidationMode mode) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 }
