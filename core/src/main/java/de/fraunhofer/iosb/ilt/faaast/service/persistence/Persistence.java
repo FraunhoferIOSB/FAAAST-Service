@@ -136,7 +136,9 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      * Gets all children {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}s of a
      * {@code org.eclipse.digitaltwin.aas4j.v3.model.Submodel},
      * {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection}, or
-     * {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList}.
+     * {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList} or
+     * {@code org.eclipse.digitaltwin.aas4j.v3.model.Entity} or
+     * {@code org.eclipse.digitaltwin.aas4j.v3.model.AnnotatedRelationshipElement}.
      *
      * @param identifier the identifier of the SubmodelElement
      * @param modifier the modifier
@@ -163,7 +165,10 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      * Gets all children {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}s of a
      * {@code org.eclipse.digitaltwin.aas4j.v3.model.Submodel},
      * {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection}, or
-     * {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList} that are supported by valueOnly serialization.
+     * {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList} or
+     * {@code org.eclipse.digitaltwin.aas4j.v3.model.Entity} or
+     * {@code org.eclipse.digitaltwin.aas4j.v3.model.AnnotatedRelationshipElement}
+     * that are supported by valueOnly serialization.
      *
      * @param identifier the identifier of the SubmodelElement
      * @param modifier the modifier
@@ -191,7 +196,10 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      * Gets all children {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}s of a
      * {@code org.eclipse.digitaltwin.aas4j.v3.model.Submodel},
      * {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection}, or
-     * {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList} that are supported by valueOnly serialization.
+     * {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList} or
+     * {@code org.eclipse.digitaltwin.aas4j.v3.model.Entity} or
+     * {@code org.eclipse.digitaltwin.aas4j.v3.model.AnnotatedRelationshipElement}
+     * that are supported by valueOnly serialization.
      *
      * @param reference the reference to the parent/container element
      * @param modifier the modifier
@@ -534,7 +542,9 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      * Gets all children {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}s of a
      * {@code org.eclipse.digitaltwin.aas4j.v3.model.Submodel},
      * {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection}, or
-     * {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList}.
+     * {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList} or
+     * {@code org.eclipse.digitaltwin.aas4j.v3.model.Entity} or
+     * {@code org.eclipse.digitaltwin.aas4j.v3.model.AnnotatedRelationshipElement}.
      *
      * @param reference the reference to the parent/container element
      * @param modifier the modifier

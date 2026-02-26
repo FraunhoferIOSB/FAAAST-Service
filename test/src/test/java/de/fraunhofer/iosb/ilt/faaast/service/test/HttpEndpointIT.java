@@ -73,7 +73,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemoryConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.util.QueryModifierHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.request.RequestHandlerManager;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.StaticRequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.util.Path;
 import de.fraunhofer.iosb.ilt.faaast.service.test.util.ApiPaths;
@@ -124,12 +123,15 @@ import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpEntity;
 import org.awaitility.Awaitility;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.aasx.InMemoryFile;
+import org.eclipse.digitaltwin.aas4j.v3.model.AnnotatedRelationshipElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetInformation;
 import org.eclipse.digitaltwin.aas4j.v3.model.BaseOperationResult;
 import org.eclipse.digitaltwin.aas4j.v3.model.Blob;
 import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
+import org.eclipse.digitaltwin.aas4j.v3.model.Entity;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.eclipse.digitaltwin.aas4j.v3.model.ExecutionState;
 import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
@@ -183,10 +185,12 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
     private static ApiPaths apiPaths;
     private static MessageBus messageBus;
     private static AssetConnectionManager assetConnectionManager;
-    private static RequestHandlerManager requestHandlerManager;
     private static final Path pathForTestSubmodel3 = Path.builder()
             .child("ExampleRelationshipElement")
-            .child("ExampleAnnotatedRelationshipElement")
+            .child(Path.builder()
+                    .id("ExampleAnnotatedRelationshipElement")
+                    .child("ExampleProperty3")
+                    .build())
             .child("ExampleOperation")
             .child("ExampleCapability")
             .child("ExampleBasicEvent")
@@ -2845,6 +2849,144 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
 
         }
 
+    }
+
+
+    @Test
+    public void testSubmodelInterfaceCreateSubmodelElementInsideEntity()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, NoSuchAlgorithmException,
+            KeyManagementException {
+        Submodel submodel = environment.getSubmodels().get(1);
+        Entity entity = (Entity) submodel.getSubmodelElements().get(0);
+
+        String id = "newProperty";
+        SubmodelElement expected = new DefaultProperty.Builder()
+                .idShort(id)
+                .build();
+        assertEvent(
+                messageBus,
+                ElementCreateEventMessage.class,
+                expected,
+                LambdaExceptionHelper.wrap(
+                        x -> {
+                            var response = assertExecuteSingle(
+                                    HttpMethod.POST,
+                                    apiPaths.submodelRepository().submodelInterface(submodel).submodelElement(entity),
+                                    StatusCode.SUCCESS_CREATED,
+                                    expected,
+                                    expected,
+                                    SubmodelElement.class);
+                            Optional<String> location = response.headers().firstValue(LOCATION_HEADER);
+                            Assert.assertTrue(location.isPresent());
+                            Assert.assertEquals(String.format(".%s", id), location.get());
+                        }));
+        SubmodelElement actual = HttpHelper.getWithSingleResult(
+                httpClient,
+                apiPaths.submodelRepository()
+                        .submodelInterface(submodel)
+                        .submodelElement(IdShortPath.builder()
+                                .idShort(entity.getIdShort())
+                                .idShort(expected.getIdShort())
+                                .build()),
+                SubmodelElement.class);
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testSubmodelInterfaceCreateSubmodelElementInsideAnnotatedRelElem()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, NoSuchAlgorithmException,
+            KeyManagementException {
+        Submodel submodel = environment.getSubmodels().get(2);
+        AnnotatedRelationshipElement relElement = (AnnotatedRelationshipElement) submodel.getSubmodelElements().get(1);
+
+        String id = "newProperty";
+        SubmodelElement expected = new DefaultProperty.Builder()
+                .idShort(id)
+                .build();
+        assertEvent(
+                messageBus,
+                ElementCreateEventMessage.class,
+                expected,
+                LambdaExceptionHelper.wrap(
+                        x -> {
+                            var response = assertExecuteSingle(
+                                    HttpMethod.POST,
+                                    apiPaths.submodelRepository().submodelInterface(submodel).submodelElement(relElement),
+                                    StatusCode.SUCCESS_CREATED,
+                                    expected,
+                                    expected,
+                                    SubmodelElement.class);
+                            Optional<String> location = response.headers().firstValue(LOCATION_HEADER);
+                            Assert.assertTrue(location.isPresent());
+                            Assert.assertEquals(String.format(".%s", id), location.get());
+                        }));
+        SubmodelElement actual = HttpHelper.getWithSingleResult(
+                httpClient,
+                apiPaths.submodelRepository()
+                        .submodelInterface(submodel)
+                        .submodelElement(IdShortPath.builder()
+                                .idShort(relElement.getIdShort())
+                                .idShort(expected.getIdShort())
+                                .build()),
+                SubmodelElement.class);
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testSubmodelInterfaceDeleteSubmodelElementInsideEntity()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, NoSuchAlgorithmException,
+            KeyManagementException {
+        Submodel submodel = environment.getSubmodels().get(1);
+        Entity entity = (Entity) submodel.getSubmodelElements().get(0);
+        SubmodelElement expected = entity.getStatements().get(0);
+        Entity before = HttpHelper.getWithSingleResult(httpClient, apiPaths.submodelRepository().submodelInterface(submodel).submodelElement(entity.getIdShort()),
+                Entity.class);
+        Assert.assertTrue(before.getStatements().contains(expected));
+
+        assertEvent(
+                messageBus,
+                ElementDeleteEventMessage.class,
+                expected,
+                LambdaExceptionHelper.wrap(
+                        x -> assertExecute(
+                                HttpMethod.DELETE,
+                                apiPaths.submodelRepository().submodelInterface(submodel)
+                                        .submodelElement(IdShortPath.builder().idShort(entity.getIdShort()).idShort(expected.getIdShort()).build()),
+                                StatusCode.SUCCESS_NO_CONTENT)));
+        Entity after = HttpHelper.getWithSingleResult(httpClient, apiPaths.submodelRepository().submodelInterface(submodel).submodelElement(entity.getIdShort()),
+                Entity.class);
+        Assert.assertFalse(after.getStatements().contains(expected));
+    }
+
+
+    @Test
+    public void testSubmodelInterfaceDeleteSubmodelElementInsideAnnotatedRelElem()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, NoSuchAlgorithmException,
+            KeyManagementException {
+        Submodel submodel = environment.getSubmodels().get(2);
+        AnnotatedRelationshipElement relElement = (AnnotatedRelationshipElement) submodel.getSubmodelElements().get(1);
+        DataElement expected = relElement.getAnnotations().get(0);
+        AnnotatedRelationshipElement before = HttpHelper.getWithSingleResult(httpClient,
+                apiPaths.submodelRepository().submodelInterface(submodel).submodelElement(relElement.getIdShort()),
+                AnnotatedRelationshipElement.class);
+        Assert.assertTrue(before.getAnnotations().contains(expected));
+
+        assertEvent(
+                messageBus,
+                ElementDeleteEventMessage.class,
+                expected,
+                LambdaExceptionHelper.wrap(
+                        x -> assertExecute(
+                                HttpMethod.DELETE,
+                                apiPaths.submodelRepository().submodelInterface(submodel)
+                                        .submodelElement(IdShortPath.builder().idShort(relElement.getIdShort()).idShort(expected.getIdShort()).build()),
+                                StatusCode.SUCCESS_NO_CONTENT)));
+        AnnotatedRelationshipElement after = HttpHelper.getWithSingleResult(httpClient,
+                apiPaths.submodelRepository().submodelInterface(submodel).submodelElement(relElement.getIdShort()),
+                AnnotatedRelationshipElement.class);
+        Assert.assertFalse(after.getAnnotations().contains(expected));
     }
 
 
