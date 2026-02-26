@@ -73,7 +73,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemoryConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.util.QueryModifierHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.request.RequestHandlerManager;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.StaticRequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.util.Path;
 import de.fraunhofer.iosb.ilt.faaast.service.test.util.ApiPaths;
@@ -186,7 +185,6 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
     private static ApiPaths apiPaths;
     private static MessageBus messageBus;
     private static AssetConnectionManager assetConnectionManager;
-    private static RequestHandlerManager requestHandlerManager;
     private static final Path pathForTestSubmodel3 = Path.builder()
             .child("ExampleRelationshipElement")
             .child(Path.builder()
