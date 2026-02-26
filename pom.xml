@@ -49,6 +49,7 @@
         <module>assetconnection/mqtt</module>
         <module>assetconnection/opcua</module>
         <module>assetconnection/http</module>
+        <module>assetconnection/modbus</module>
         <module>dataformat/json</module>
         <module>starter</module>
         <module>submodeltemplate/asset-interfaces-mapping-configuration</module>
