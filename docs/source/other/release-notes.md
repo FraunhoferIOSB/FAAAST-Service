@@ -5,6 +5,7 @@
 **Internal changes & bugfixes**
 - General
 	- Fixed bug that incorrectly removed submodel reference from AAS when updating a submodel via PUT /submodels/{submodelId}
+	- Better failure logging in the registry synchronization component: Log error responses from AAS/Submodel registries
 	- Fix idShortPaths to support Entity and AnnotatedRelationshipElement
 - Asset Connection
 	- OPC UA
