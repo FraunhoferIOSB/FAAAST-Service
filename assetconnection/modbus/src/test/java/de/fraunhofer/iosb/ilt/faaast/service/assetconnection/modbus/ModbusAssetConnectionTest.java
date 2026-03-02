@@ -355,7 +355,7 @@ public class ModbusAssetConnectionTest {
             Assert.assertArrayEquals((byte[]) expected.getValue().getValue(), (byte[]) actual.getValue().getValue());
         }
         else {
-            Assert.assertEquals(expected.getValue().getValue(), actual.getValue().getValue());
+            assertEquals(expected.getValue().getValue(), actual.getValue().getValue());
         }
         // Clean up
         if (quantity > 1) {

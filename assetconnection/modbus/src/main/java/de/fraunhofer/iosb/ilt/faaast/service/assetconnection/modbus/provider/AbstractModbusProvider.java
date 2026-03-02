@@ -54,6 +54,8 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
 /**
  * Modbus provider common functionality.
+ *
+ * @param <C> type of the asset provider config
  */
 public abstract class AbstractModbusProvider<C extends AbstractModbusProviderConfig> implements AssetProvider {
 
@@ -243,26 +245,26 @@ public abstract class AbstractModbusProvider<C extends AbstractModbusProviderCon
         int address = config.getAddress();
         int quantity = config.getQuantity();
 
-        rawBytesToWrite = ByteArrayHelper.removePadding(rawBytesToWrite);
+        byte[] unpadded = ByteArrayHelper.removePadding(rawBytesToWrite);
 
         return switch (config.getDataType()) {
             case COIL -> {
-                validateCoilQuantity(rawBytesToWrite);
-                yield (quantity > 1) ? new WriteMultipleCoilsRequest(address, rawBytesToWrite.length, rawBytesToWrite) : new WriteSingleCoilRequest(address, rawBytesToWrite[0]);
+                validateCoilQuantity(unpadded);
+                yield (quantity > 1) ? new WriteMultipleCoilsRequest(address, unpadded.length, unpadded) : new WriteSingleCoilRequest(address, unpadded[0]);
             }
             case HOLDING_REGISTER -> {
                 // Use the configured addresses in full
-                if (quantity * 2 > rawBytesToWrite.length) {
-                    rawBytesToWrite = ByteArrayHelper.pad(rawBytesToWrite, quantity * 2 - rawBytesToWrite.length);
+                if (quantity * 2 > unpadded.length) {
+                    unpadded = ByteArrayHelper.pad(unpadded, quantity * 2 - unpadded.length);
                 }
 
-                validateHoldingRegisterQuantity(rawBytesToWrite);
+                validateHoldingRegisterQuantity(unpadded);
 
                 if (quantity > 1) {
-                    yield new WriteMultipleRegistersRequest(address, quantity, rawBytesToWrite);
+                    yield new WriteMultipleRegistersRequest(address, quantity, unpadded);
                 }
                 else {
-                    yield new WriteSingleRegisterRequest(address, new BigInteger(rawBytesToWrite).intValue());
+                    yield new WriteSingleRegisterRequest(address, new BigInteger(unpadded).intValue());
                 }
             }
             case DISCRETE_INPUT, INPUT_REGISTER -> throw new AssetConnectionException(String.format("Unsupported operation WRITE on %s", config.getDataType()));
