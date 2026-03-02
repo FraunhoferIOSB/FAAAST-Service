@@ -67,7 +67,10 @@ public class AasToModbusConversionHelper {
      * @return converted data.
      */
     public static byte[] convert(DataElementValue dataElementValue, int minBytes) throws AssetConnectionException {
-        if (dataElementValue instanceof BlobValue blobValue) {
+        if (dataElementValue == null) {
+            throw new AssetConnectionException("Trying to convert null value");
+        }
+        else if (dataElementValue instanceof BlobValue blobValue) {
             return blobValue.getValue();
         }
         else if (dataElementValue instanceof File file) {
