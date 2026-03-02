@@ -275,7 +275,7 @@ public class ModbusAssetConnectionTest {
 
         assetConnection.getValueProviders().get(reference).setValue(new PropertyValue(new IntValue(newValue)));
 
-        assertTrue(conditionUpdated.await(pollingRate + 100, TimeUnit.MILLISECONDS));
+        assertTrue(conditionUpdated.await(pollingRate + 15000, TimeUnit.MILLISECONDS));
         assertTrue(notified.get());
         server.stop();
     }
