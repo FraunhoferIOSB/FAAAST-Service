@@ -65,6 +65,9 @@ public abstract class AbstractModbusProvider<C extends AbstractModbusProviderCon
     private final ModbusClient modbusClient;
     private final Datatype datatype;
 
+    // Do not allow parallel read operations
+    private static final Object LOCK = new Object();
+
     protected AbstractModbusProvider(ServiceContext serviceContext, Reference reference, ModbusClient modbusClient, C config) throws AssetConnectionException {
         this.serviceContext = serviceContext;
         this.reference = reference;
@@ -127,11 +130,13 @@ public abstract class AbstractModbusProvider<C extends AbstractModbusProviderCon
      * @throws AssetConnectionException If writing to modbus server fails.
      */
     protected byte[] doRead(ModbusRequestPdu readRequest) throws AssetConnectionException {
-        try {
-            return read(readRequest);
-        }
-        catch (ModbusExecutionException | ModbusTimeoutException | ModbusResponseException e) {
-            throw new AssetConnectionException(e);
+        synchronized (LOCK) {
+            try {
+                return read(readRequest);
+            }
+            catch (ModbusExecutionException | ModbusTimeoutException | ModbusResponseException e) {
+                throw new AssetConnectionException(e);
+            }
         }
     }
 
