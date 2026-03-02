@@ -44,6 +44,7 @@ import org.slf4j.LoggerFactory;
 public class ModbusSubscriptionProvider extends AbstractModbusProvider<ModbusSubscriptionProviderConfig> implements AssetSubscriptionProvider {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ModbusSubscriptionProvider.class);
+    public static final long MINIMUM_INTERVAL = 100;
 
     private ScheduledExecutorService executor;
     private ScheduledFuture<?> executorHandler;
@@ -126,7 +127,7 @@ public class ModbusSubscriptionProvider extends AbstractModbusProvider<ModbusSub
                 catch (AssetConnectionException e) {
                     LOGGER.debug("error subscribing to asset connection (reference: {})", ReferenceHelper.toString(reference), e);
                 }
-            }, 0, asConfig().getPollingRate(), TimeUnit.MILLISECONDS);
+            }, 0, Math.max(MINIMUM_INTERVAL, asConfig().getPollingRate()), TimeUnit.MILLISECONDS);
         }
     }
 
