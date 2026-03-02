@@ -540,9 +540,10 @@ Which authentication certificate is used is determined by a similar logic as for
 	"@class": "de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.ModbusAssetConnection",
     "hostname": "localhost",
     "port": 502,
-    "connectTimeout": 10000,
-    "requestTimeout": 5000,
-    "reconnectLazy": true,
+    "connectTimeoutMillis": 10000,
+    "requestTimeoutMillis": 5000,
+    "connectPersistent": true,
+    "reconnectLazy": false,
     "tlsEnabled": true,
 	"keyCertificateConfig": {
 		"keyStoreType": "PKCS12",
@@ -557,14 +558,6 @@ Which authentication certificate is used is determined by a similar logic as for
 		"keyStorePassword": "changeit",
 		"keyAlias": "auth-cert",
 		"keyPassword": "changeit"
-	},
-	"valueProviders": {
-		"[ModelRef](Submodel)urn:aas:id:example:submodel:1, (Property)Property1": {
-			"nodeId": "some.node.id.property.1"
-		},
-		"[ModelRef](Submodel)urn:aas:id:example:submodel:1, (Property)Property2": {
-			"nodeId": "some.node.id.property.2"
-		}
 	},
     "valueProviders": {
     	"[ModelRef](Submodel)urn:aas:id:example:submodel:1, (Property)Property1": {
@@ -583,7 +576,7 @@ Which authentication certificate is used is determined by a similar logic as for
 			"dataType": "COIL",
 			"address": 1,
 			"quantity": 3,
-			"pollingRate": 1
+			"pollingRate": 1000
 		}
 	}
 }

@@ -56,8 +56,6 @@ public class ModbusSubscriptionProvider extends AbstractModbusProvider<ModbusSub
             throws AssetConnectionException {
         super(serviceContext, reference, modbusClient, config);
         this.listeners = Collections.synchronizedList(new ArrayList<>());
-        // fail fast if address not available
-        lastValue = null;
     }
 
 
