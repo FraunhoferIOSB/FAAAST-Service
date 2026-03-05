@@ -1535,7 +1535,8 @@ public class RequestHandlerManagerTest {
                 parentRef,
                 submodelElements,
                 true,
-                new StaticRequestExecutionContext(coreConfig, persistence, fileStorage, messageBus, assetConnectionManager));
+                new StaticRequestExecutionContext(coreConfig, persistence, fileStorage, messageBus, assetConnectionManager),
+                false);
         verify(persistence).update(propertyUpdatedRef, propertyExpected);
         verify(persistence).update(rangeUpdatedRef, rangeExpected);
         verify(persistence, times(0)).update(parentRef, propertyStatic);

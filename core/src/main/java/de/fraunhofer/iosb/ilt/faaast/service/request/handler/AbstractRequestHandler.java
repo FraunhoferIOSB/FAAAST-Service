@@ -36,7 +36,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.FaaastConstants;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -46,13 +48,16 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.reflect.ConstructorUtils;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.DeserializationException;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.JsonDeserializer;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.JsonSerializer;
+import org.eclipse.digitaltwin.aas4j.v3.model.AnnotatedRelationshipElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.Entity;
+import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList;
 
 
 /**
@@ -92,42 +97,50 @@ public abstract class AbstractRequestHandler<I extends Request<O>, O extends Res
 
 
     /**
-     * Check for each SubmodelElement if there is an AssetConnection.If yes read the value from it and compare it to the
+     * Check for each SubmodelElement if there is an AssetConnection. If yes read the value from it and compare it to the
      * current value.If they differ from each other update the submodelelement with the value from the AssetConnection.
      *
      * @param parent of the SubmodelElement List
      * @param submodelElements List of SubmodelElements which should be considered and updated
      * @param publishOnMessageBus if ValueChangeEventMessages should be sent on message bus
      * @param context the execution context
+     * @param parentIsList True if parent is a SubmodelElementList, false if not.
      * @throws ResourceNotFoundException if reference does not point to valid element
      * @throws ResourceNotAContainerElementException if reference does not point to valid element
      * @throws AssetConnectionException if reading value from asset connection fails
-     * @throws de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException if mapping value read from
-     *             asset connection fails
-     * @throws de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException if publishing fails
+     * @throws ValueMappingException if mapping value read from asset connection fails
+     * @throws MessageBusException if publishing fails
+     * @throws PersistenceException if storage error occurs
      */
-    protected void syncWithAsset(Reference parent, Collection<SubmodelElement> submodelElements, boolean publishOnMessageBus, RequestExecutionContext context)
+    protected void syncWithAsset(Reference parent, Collection<SubmodelElement> submodelElements, boolean publishOnMessageBus, RequestExecutionContext context, boolean parentIsList)
             throws ResourceNotFoundException, ResourceNotAContainerElementException, AssetConnectionException, ValueMappingException, MessageBusException, PersistenceException {
         if (parent == null || submodelElements == null) {
             return;
         }
         Map<SubmodelElement, ElementValue> updatedSubmodelElements = new HashMap<>();
+        Map<SubmodelElement, Reference> updatedSubmodelElementRefs = new HashMap<>();
+        int index = 0;
         for (SubmodelElement submodelElement: submodelElements) {
-            Reference reference = AasUtils.toReference(parent, submodelElement);
+            Reference reference;
+            reference = createReference(parentIsList, parent, index, submodelElement);
+            //Reference reference = AasUtils.toReference(parent, submodelElement);
             Optional<DataElementValue> newValue = context.getAssetConnectionManager().readValue(reference);
             if (newValue.isPresent()) {
                 ElementValue oldValue = ElementValueMapper.toValue(submodelElement);
                 if (!Objects.equals(oldValue, newValue.get())) {
                     updatedSubmodelElements.put(submodelElement, newValue.get());
+                    updatedSubmodelElementRefs.put(submodelElement, reference);
                 }
             }
-            else if (SubmodelElementCollection.class.isAssignableFrom(submodelElement.getClass())) {
-                syncWithAsset(reference, ((SubmodelElementCollection) submodelElement).getValue(), publishOnMessageBus, context);
+            else if (isSubmodelElementContainer(submodelElement)) {
+                syncAssetSubmodelElementContainer(reference, submodelElement, publishOnMessageBus, context);
             }
+            index++;
         }
 
         for (var update: updatedSubmodelElements.entrySet()) {
-            Reference reference = AasUtils.toReference(parent, update.getKey());
+            //Reference reference = AasUtils.toReference(parent, update.getKey());
+            Reference reference = updatedSubmodelElementRefs.get(update.getKey());
             SubmodelElement oldElement = update.getKey();
             SubmodelElement newElement = DeepCopyHelper.deepCopy(oldElement, SubmodelElement.class);
             ElementValueMapper.setValue(newElement, update.getValue());
@@ -142,6 +155,18 @@ public abstract class AbstractRequestHandler<I extends Request<O>, O extends Res
                         .build());
             }
         }
+    }
+
+
+    private Reference createReference(boolean parentIsList, Reference parent, int index, SubmodelElement submodelElement) {
+        Reference reference;
+        if (parentIsList) {
+            reference = ReferenceBuilder.with(parent).index(index).build();
+        }
+        else {
+            reference = ReferenceBuilder.forParent(parent, submodelElement);
+        }
+        return reference;
     }
 
 
@@ -205,4 +230,61 @@ public abstract class AbstractRequestHandler<I extends Request<O>, O extends Res
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
+
+
+    /**
+     * Synchronizes SubmodelElement Containers with the AssetConnection.
+     *
+     * @param reference of the SubmodelElement List
+     * @param submodelElement the desired submodelElement
+     * @param publishOnMessageBus if ValueChangeEventMessages should be sent on message bus
+     * @param context the execution context
+     * @throws ResourceNotFoundException if reference does not point to valid element
+     * @throws ResourceNotAContainerElementException if reference does not point to valid element
+     * @throws AssetConnectionException if reading value from asset connection fails
+     * @throws ValueMappingException if mapping value read from asset connection fails
+     * @throws MessageBusException if publishing fails
+     * @throws PersistenceException if storage error occurs
+     */
+    protected void syncAssetSubmodelElementContainer(Reference reference, SubmodelElement submodelElement, boolean publishOnMessageBus, RequestExecutionContext context)
+            throws ResourceNotFoundException, ResourceNotAContainerElementException, AssetConnectionException, ValueMappingException, MessageBusException, PersistenceException {
+        //Reference reference = AasUtils.toReference(parent, submodelElement);
+        if (submodelElement instanceof SubmodelElementCollection collection) {
+            syncWithAsset(reference, collection.getValue(), publishOnMessageBus, context, false);
+        }
+        else if (submodelElement instanceof SubmodelElementList list) {
+            if (reference.getKeys().get(reference.getKeys().size() - 1).getType() != KeyTypes.SUBMODEL_ELEMENT_LIST) {
+                reference.getKeys().get(reference.getKeys().size() - 1).setType(KeyTypes.SUBMODEL_ELEMENT_LIST);
+            }
+            syncWithAsset(reference, list.getValue(), publishOnMessageBus, context, true);
+        }
+        else if (submodelElement instanceof Entity entity) {
+            syncWithAsset(reference, entity.getStatements(), publishOnMessageBus, context, false);
+        }
+        else if (submodelElement instanceof AnnotatedRelationshipElement relElement) {
+            List<SubmodelElement> list = new ArrayList<>(relElement.getAnnotations());
+            //for (var elem: relElement.getAnnotations()) {
+            //    list.add(elem);
+            //}
+            syncWithAsset(reference, list, publishOnMessageBus, context, false);
+        }
+    }
+
+
+    /**
+     * Checks whether the given submodelElement is a container (e.g. a Collection).
+     *
+     * @param submodelElement The desired submodelElement.
+     * @return True if it's a container, false if not.
+     */
+    protected static boolean isSubmodelElementContainer(SubmodelElement submodelElement) {
+        if (submodelElement == null) {
+            return false;
+        }
+        return SubmodelElementCollection.class.isAssignableFrom(submodelElement.getClass())
+                || SubmodelElementList.class.isAssignableFrom(submodelElement.getClass())
+                || Entity.class.isAssignableFrom(submodelElement.getClass())
+                || AnnotatedRelationshipElement.class.isAssignableFrom(submodelElement.getClass());
+    }
+
 }

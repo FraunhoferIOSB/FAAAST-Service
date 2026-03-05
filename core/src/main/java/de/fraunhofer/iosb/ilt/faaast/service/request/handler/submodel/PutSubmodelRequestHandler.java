@@ -68,7 +68,7 @@ public class PutSubmodelRequestHandler extends AbstractRequestHandler<PutSubmode
         }
         context.getPersistence().save(request.getSubmodel());
         Reference reference = AasUtils.toReference(request.getSubmodel());
-        syncWithAsset(reference, request.getSubmodel().getSubmodelElements(), !request.isInternal(), context);
+        syncWithAsset(reference, request.getSubmodel().getSubmodelElements(), !request.isInternal(), context, false);
         context.getMessageBus().publish(ElementUpdateEventMessage.builder()
                 .element(reference)
                 .value(request.getSubmodel())
