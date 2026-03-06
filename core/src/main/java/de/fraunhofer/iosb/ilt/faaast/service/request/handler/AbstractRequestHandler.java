@@ -38,7 +38,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.FaaastConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -51,8 +50,8 @@ import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.DeserializationException
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.JsonDeserializer;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.JsonSerializer;
 import org.eclipse.digitaltwin.aas4j.v3.model.AnnotatedRelationshipElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.Entity;
-import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
@@ -112,18 +111,25 @@ public abstract class AbstractRequestHandler<I extends Request<O>, O extends Res
      * @throws MessageBusException if publishing fails
      * @throws PersistenceException if storage error occurs
      */
-    protected void syncWithAsset(Reference parent, Collection<SubmodelElement> submodelElements, boolean publishOnMessageBus, RequestExecutionContext context, boolean parentIsList)
+    protected void syncWithAsset(Reference parent, Collection<SubmodelElement> submodelElements, boolean publishOnMessageBus, RequestExecutionContext context,
+                                 boolean parentIsList)
+            throws ResourceNotFoundException, ResourceNotAContainerElementException, AssetConnectionException, ValueMappingException, MessageBusException, PersistenceException {
+        syncWithAsset(parent, submodelElements, publishOnMessageBus, context, parentIsList, SubmodelElement.class);
+    }
+
+
+    private <S extends SubmodelElement> void syncWithAsset(Reference parent, Collection<S> submodelElements, boolean publishOnMessageBus, RequestExecutionContext context,
+                                                           boolean parentIsList, Class<S> collectionClass)
             throws ResourceNotFoundException, ResourceNotAContainerElementException, AssetConnectionException, ValueMappingException, MessageBusException, PersistenceException {
         if (parent == null || submodelElements == null) {
             return;
         }
-        Map<SubmodelElement, ElementValue> updatedSubmodelElements = new HashMap<>();
-        Map<SubmodelElement, Reference> updatedSubmodelElementRefs = new HashMap<>();
+        Map<S, ElementValue> updatedSubmodelElements = new HashMap<>();
+        Map<S, Reference> updatedSubmodelElementRefs = new HashMap<>();
         int index = 0;
-        for (SubmodelElement submodelElement: submodelElements) {
+        for (S submodelElement: submodelElements) {
             Reference reference;
             reference = createReference(parentIsList, parent, index, submodelElement);
-            //Reference reference = AasUtils.toReference(parent, submodelElement);
             Optional<DataElementValue> newValue = context.getAssetConnectionManager().readValue(reference);
             if (newValue.isPresent()) {
                 ElementValue oldValue = ElementValueMapper.toValue(submodelElement);
@@ -139,10 +145,9 @@ public abstract class AbstractRequestHandler<I extends Request<O>, O extends Res
         }
 
         for (var update: updatedSubmodelElements.entrySet()) {
-            //Reference reference = AasUtils.toReference(parent, update.getKey());
             Reference reference = updatedSubmodelElementRefs.get(update.getKey());
-            SubmodelElement oldElement = update.getKey();
-            SubmodelElement newElement = DeepCopyHelper.deepCopy(oldElement, SubmodelElement.class);
+            S oldElement = update.getKey();
+            S newElement = DeepCopyHelper.deepCopy(oldElement, collectionClass);
             ElementValueMapper.setValue(newElement, update.getValue());
             context.getPersistence().update(reference, newElement);
             submodelElements.remove(oldElement);
@@ -248,25 +253,17 @@ public abstract class AbstractRequestHandler<I extends Request<O>, O extends Res
      */
     protected void syncAssetSubmodelElementContainer(Reference reference, SubmodelElement submodelElement, boolean publishOnMessageBus, RequestExecutionContext context)
             throws ResourceNotFoundException, ResourceNotAContainerElementException, AssetConnectionException, ValueMappingException, MessageBusException, PersistenceException {
-        //Reference reference = AasUtils.toReference(parent, submodelElement);
         if (submodelElement instanceof SubmodelElementCollection collection) {
-            syncWithAsset(reference, collection.getValue(), publishOnMessageBus, context, false);
+            syncWithAsset(reference, collection.getValue(), publishOnMessageBus, context, false, SubmodelElement.class);
         }
         else if (submodelElement instanceof SubmodelElementList list) {
-            if (reference.getKeys().get(reference.getKeys().size() - 1).getType() != KeyTypes.SUBMODEL_ELEMENT_LIST) {
-                reference.getKeys().get(reference.getKeys().size() - 1).setType(KeyTypes.SUBMODEL_ELEMENT_LIST);
-            }
-            syncWithAsset(reference, list.getValue(), publishOnMessageBus, context, true);
+            syncWithAsset(reference, list.getValue(), publishOnMessageBus, context, true, SubmodelElement.class);
         }
         else if (submodelElement instanceof Entity entity) {
-            syncWithAsset(reference, entity.getStatements(), publishOnMessageBus, context, false);
+            syncWithAsset(reference, entity.getStatements(), publishOnMessageBus, context, false, SubmodelElement.class);
         }
         else if (submodelElement instanceof AnnotatedRelationshipElement relElement) {
-            List<SubmodelElement> list = new ArrayList<>(relElement.getAnnotations());
-            //for (var elem: relElement.getAnnotations()) {
-            //    list.add(elem);
-            //}
-            syncWithAsset(reference, list, publishOnMessageBus, context, false);
+            syncWithAsset(reference, relElement.getAnnotations(), publishOnMessageBus, context, false, DataElement.class);
         }
     }
 

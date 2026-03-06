@@ -511,19 +511,6 @@ public class ReferenceBuilder extends AbstractBuilder<Reference> {
     }
 
 
-    private static boolean isIdentifiable(KeyTypes type) {
-        switch (type) {
-            case IDENTIFIABLE:
-            case CONCEPT_DESCRIPTION:
-            case ASSET_ADMINISTRATION_SHELL:
-            case SUBMODEL:
-                return true;
-            default:
-                return false;
-        }
-    }
-
-
     @Override
     protected Reference newBuildingInstance() {
         return new DefaultReference();
