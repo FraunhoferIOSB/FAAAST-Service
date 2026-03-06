@@ -51,7 +51,7 @@ public class PatchSubmodelByIdRequestHandler extends AbstractRequestHandler<Patc
         context.getPersistence().save(updated);
         Reference reference = ReferenceBuilder.forSubmodel(updated);
         context.getAssetConnectionManager().cleanupDanglingConnectionsAfterModify(reference);
-        syncWithAsset(reference, updated.getSubmodelElements(), !request.isInternal(), context);
+        syncWithAsset(reference, updated.getSubmodelElements(), !request.isInternal(), context, false);
         if (!request.isInternal()) {
             context.getMessageBus().publish(ElementUpdateEventMessage.builder()
                     .element(reference)

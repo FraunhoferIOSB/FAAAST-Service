@@ -53,18 +53,23 @@ public class GetSubmodelElementByPathRequestHandler extends AbstractSubmodelInte
                 .idShortPath(request.getPath())
                 .build();
         SubmodelElement submodelElement = context.getPersistence().getSubmodelElement(reference, request.getOutputModifier());
-        Optional<DataElementValue> valueFromAssetConnection = context.getAssetConnectionManager().readValue(reference);
-        if (valueFromAssetConnection.isPresent()) {
-            ElementValue oldValue = ElementValueMapper.toValue(submodelElement);
-            if (!Objects.equals(valueFromAssetConnection, oldValue)) {
-                submodelElement = ElementValueMapper.setValue(submodelElement, valueFromAssetConnection.get());
-                context.getPersistence().update(reference, submodelElement);
-                if (!request.isInternal()) {
-                    context.getMessageBus().publish(ValueChangeEventMessage.builder()
-                            .element(reference)
-                            .oldValue(oldValue)
-                            .newValue(valueFromAssetConnection.get())
-                            .build());
+        if (isSubmodelElementContainer(submodelElement)) {
+            syncAssetSubmodelElementContainer(reference, submodelElement, !request.isInternal(), context);
+        }
+        else {
+            Optional<DataElementValue> valueFromAssetConnection = context.getAssetConnectionManager().readValue(reference);
+            if (valueFromAssetConnection.isPresent()) {
+                ElementValue oldValue = ElementValueMapper.toValue(submodelElement);
+                if (!Objects.equals(valueFromAssetConnection, oldValue)) {
+                    submodelElement = ElementValueMapper.setValue(submodelElement, valueFromAssetConnection.get());
+                    context.getPersistence().update(reference, submodelElement);
+                    if (!request.isInternal()) {
+                        context.getMessageBus().publish(ValueChangeEventMessage.builder()
+                                .element(reference)
+                                .oldValue(oldValue)
+                                .newValue(valueFromAssetConnection.get())
+                                .build());
+                    }
                 }
             }
         }
