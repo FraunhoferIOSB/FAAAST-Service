@@ -472,17 +472,18 @@ Which authentication certificate is used is determined by a similar logic as for
 #### Connection-Level
 
 :::{table} Configuration properties of HTTP AssetConnection.
-| Name                                   | Allowed Value                                               | Description                                                                                                                     | Default Value |
-| -------------------------------------- | ----------------------------------------------------------- |-------------------------------------------------------------------------------------------------------------------------------- | ------------- |
-| hostname                               | String                                                      | Hostname of the Modbus server, excluding protocol and port. Example: localhost                                                  |               |
-| port<br>*(optional)*                   | int                                                         | TCP Port of the Modbus server.                                                                                                  | 502           |
-| tlsEnabled<br>*(optional)*             | boolean                                                     | Whether TLS is enabled for the server. If enabled, key and trust certificates need to be provided.                              | false         |
-| keyCertificateConfig<br>*(optional)*   | [CertificateInfo](#providing-certificates-in-configuration) | Key store certificates. Only required if tlsEnabled is `true`.                                                                  | empty         |   
-| trustCertificateConfig<br>*(optional)* | [CertificateInfo](#providing-certificates-in-configuration) | Trusted certificates when connecting to a server that is using self-signed certificates. Only required if tlsEnabled is `true`. | empty         |
-| connectTimeoutMillis<br>*(optional)*   | long                                                        | Timeout for connecting to the Modbus server.                                                                                    | 5000          |
-| requestTimeoutMillis<br>*(optional)*   | long                                                        | Timeout for a request to the Modbus server.                                                                                     | 5000          |
-| connectPersistent<br>*(optional)*      | boolean                                                     | Set whether to connect persistently.                                                                                            | false         |
-| reconnectLazy<br>*(optional)*          | boolean                                                     | Set whether to reconnect lazily.                                                                                                | false         |
+| Name                                   | Allowed Value                                               | Description                                                                                                                                                     | Default Value |
+| -------------------------------------- | ----------------------------------------------------------- |---------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- |
+| hostname                               | String                                                      | Hostname of the Modbus server, excluding protocol and port. Example: localhost                                                                                  |               |
+| port<br>*(optional)*                   | int                                                         | TCP Port of the Modbus server.                                                                                                                                  | 502           |
+| tlsEnabled<br>*(optional)*             | boolean                                                     | Whether TLS is enabled for the server. If enabled, key and trust certificates need to be provided.                                                              | false         |
+| keyCertificateConfig<br>*(optional)*   | [CertificateInfo](#providing-certificates-in-configuration) | Key store certificates. Only required if tlsEnabled is `true`.                                                                                                  | empty         |   
+| trustCertificateConfig<br>*(optional)* | [CertificateInfo](#providing-certificates-in-configuration) | Trusted certificates when connecting to a server that is using self-signed certificates. Only required if tlsEnabled is `true`.                                 | empty         |
+| connectTimeoutMillis<br>*(optional)*   | long                                                        | Timeout for connecting to the Modbus server.                                                                                                                    | 5000          |
+| requestTimeoutMillis<br>*(optional)*   | long                                                        | Timeout for a request to the Modbus server.                                                                                                                     | 5000          |
+| connectPersistent<br>*(optional)*      | boolean                                                     | Set whether to connect persistently.                                                                                                                            | false         |
+| reconnectLazy<br>*(optional)*          | boolean                                                     | Set whether to reconnect lazily.                                                                                                                                | false         |
+| mostSignificantWord<br>*(optional)*    | LOW<br>HIGH                                                 | Define the highest order word in a sequence of words. If "LOW", the word at the lowest address will be the highest order one. Within words, big endian is used. | LOW           |
 :::
 
 #### Value Provider
@@ -543,6 +544,7 @@ Which authentication certificate is used is determined by a similar logic as for
     "connectTimeoutMillis": 10000,
     "requestTimeoutMillis": 5000,
     "connectPersistent": true,
+    "mostSignificantWord": "HIGH",
     "reconnectLazy": false,
     "tlsEnabled": true,
 	"keyCertificateConfig": {

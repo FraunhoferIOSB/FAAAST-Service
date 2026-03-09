@@ -14,6 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.model.MostSignificantWord.LOW;
+
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.ModbusOperationProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.ModbusSubscriptionProvider;
@@ -21,6 +23,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.Mod
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.config.ModbusOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.config.ModbusSubscriptionProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.config.ModbusValueProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.model.MostSignificantWord;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CertificateConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.util.StringHelper;
 import java.util.Objects;
@@ -39,6 +42,7 @@ public class ModbusAssetConnectionConfig
     public static final boolean DEFAULT_RECONNECT_LAZY = false;
     public static final boolean DEFAULT_TLS_ENABLED = false;
     public static final CertificateConfig DEFAULT_CERTIFICATE_CONFIG = CertificateConfig.builder().build();
+    public static final MostSignificantWord DEFAULT_MOST_SIGNIFICANT_WORD = LOW;
 
     private String hostname;
     private int port;
@@ -49,6 +53,7 @@ public class ModbusAssetConnectionConfig
     private boolean tlsEnabled;
     private CertificateConfig keyCertificateConfig;
     private CertificateConfig trustCertificateConfig;
+    private MostSignificantWord mostSignificantWord;
 
     public ModbusAssetConnectionConfig() {
         this.port = DEFAULT_PORT;
@@ -59,6 +64,7 @@ public class ModbusAssetConnectionConfig
         this.tlsEnabled = DEFAULT_TLS_ENABLED;
         this.keyCertificateConfig = DEFAULT_CERTIFICATE_CONFIG;
         this.trustCertificateConfig = DEFAULT_CERTIFICATE_CONFIG;
+        this.mostSignificantWord = DEFAULT_MOST_SIGNIFICANT_WORD;
     }
 
 
@@ -79,7 +85,8 @@ public class ModbusAssetConnectionConfig
                 Objects.equals(connectTimeoutMillis, that.connectTimeoutMillis) &&
                 Objects.equals(requestTimeoutMillis, that.requestTimeoutMillis) &&
                 Objects.equals(keyCertificateConfig, that.keyCertificateConfig) &&
-                Objects.equals(trustCertificateConfig, that.trustCertificateConfig);
+                Objects.equals(trustCertificateConfig, that.trustCertificateConfig) &&
+                Objects.equals(mostSignificantWord, that.mostSignificantWord);
     }
 
 
@@ -98,7 +105,8 @@ public class ModbusAssetConnectionConfig
                 Objects.equals(connectTimeoutMillis, that.connectTimeoutMillis) &&
                 Objects.equals(requestTimeoutMillis, that.requestTimeoutMillis) &&
                 Objects.equals(keyCertificateConfig, that.keyCertificateConfig) &&
-                Objects.equals(trustCertificateConfig, that.trustCertificateConfig);
+                Objects.equals(trustCertificateConfig, that.trustCertificateConfig) &&
+                Objects.equals(mostSignificantWord, that.mostSignificantWord);
     }
 
 
@@ -113,7 +121,8 @@ public class ModbusAssetConnectionConfig
                 reconnectLazy,
                 tlsEnabled,
                 keyCertificateConfig,
-                trustCertificateConfig);
+                trustCertificateConfig,
+                mostSignificantWord);
     }
 
 
@@ -211,6 +220,16 @@ public class ModbusAssetConnectionConfig
         this.requestTimeoutMillis = requestTimeoutMillis;
     }
 
+
+    public MostSignificantWord getMostSignificantWord() {
+        return mostSignificantWord;
+    }
+
+
+    public void setMostSignificantWord(MostSignificantWord mostSignificantWord) {
+        this.mostSignificantWord = mostSignificantWord;
+    }
+
     public abstract static class AbstractBuilder<T extends ModbusAssetConnectionConfig, B extends AbstractBuilder<T, B>>
             extends
             AssetConnectionConfig.AbstractBuilder<ModbusAssetConnectionConfig, ModbusValueProviderConfig, ModbusValueProvider, ModbusOperationProviderConfig, ModbusOperationProvider, ModbusSubscriptionProviderConfig, ModbusSubscriptionProvider, ModbusAssetConnection, B> {
@@ -265,6 +284,12 @@ public class ModbusAssetConnectionConfig
 
         public B trustCertificateConfig(CertificateConfig trustCertificateConfig) {
             getBuildingInstance().setTrustCertificateConfig(trustCertificateConfig);
+            return getSelf();
+        }
+
+
+        public B mostSignificantWord(MostSignificantWord mostSignificantWord) {
+            getBuildingInstance().setMostSignificantWord(mostSignificantWord);
             return getSelf();
         }
     }

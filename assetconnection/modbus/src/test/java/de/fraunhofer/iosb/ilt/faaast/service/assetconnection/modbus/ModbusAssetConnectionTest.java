@@ -14,6 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.model.MostSignificantWord.HIGH;
+import static de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.model.MostSignificantWord.LOW;
 import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -148,6 +150,7 @@ public class ModbusAssetConnectionTest {
         int unitId = 1;
         int value = 42;
         int newValue = 43;
+        final int expectedValue = newValue;
 
         Reference reference = ReferenceHelper.parseReference("(Property)[ID_SHORT]Temperature");
         ServiceContext serviceContext = mockedContext(PropertyValue.of(Datatype.INT, String.valueOf(value)), reference);
@@ -192,8 +195,11 @@ public class ModbusAssetConnectionTest {
         final AtomicReference<DataElementValue> updatedResponse = new AtomicReference<>();
         CountDownLatch conditionUpdated = new CountDownLatch(1);
         NewDataListener updatedListener = (DataElementValue data) -> {
-            updatedResponse.set(data);
-            conditionUpdated.countDown();
+            int v = ((IntValue) ((PropertyValue) data).getValue()).getValue();
+            if (v == expectedValue) {
+                updatedResponse.set(data);
+                conditionUpdated.countDown();
+            }
         };
 
         assetConnection.getSubscriptionProviders().get(reference).addNewDataListener(updatedListener);
@@ -287,31 +293,33 @@ public class ModbusAssetConnectionTest {
         ModbusTcpServer server = ModbusTestHelper.getServer(port, false);
         server.start();
 
-        assertWriteReadRegister(port, 1, PropertyValue.of(Datatype.INTEGER, "787878787878787878787878787878"), 2, 7);
-        assertWriteReadRegister(port, 1, PropertyValue.of(Datatype.UNSIGNED_BYTE, "78"), 17);
-        assertWriteReadRegister(port, 1, PropertyValue.of(Datatype.INT, "78"), 1);
-        assertWriteReadRegister(port, 1, PropertyValue.of(Datatype.STRING, "testtest"), 49, "testtest".getBytes(StandardCharsets.UTF_8).length / 2);
         assertWriteReadRegister(port, 1, PropertyValue.of(Datatype.BOOLEAN, new BooleanValue(false).asString()), 9);
         assertWriteReadRegister(port, 1, PropertyValue.of(Datatype.BYTE, "-78"), 10);
-        assertWriteReadRegister(port, 1, PropertyValue.of(Datatype.SHORT, "-189"), 11);
-        assertWriteReadRegister(port, 1, PropertyValue.of(Datatype.INT, "78"), 12);
+        assertWriteReadRegister(port, 1, PropertyValue.of(Datatype.SHORT, "-189"), 11, 1);
+        assertWriteReadRegister(port, 1, PropertyValue.of(Datatype.INT, "78"), 12, 2, false);
+        assertWriteReadRegister(port, 1, PropertyValue.of(Datatype.INT, "78"), 12, 2, true);
         assertWriteReadRegister(port, 1, PropertyValue.of(Datatype.LONG, "7878787878787878787"), 13, 4);
-        assertWriteReadRegister(port, 1, PropertyValue.of(Datatype.UNSIGNED_SHORT, "78"), 18);
-        // UnsignedInt has >4 bytes;
+
+        assertWriteReadRegister(port, 1, PropertyValue.of(Datatype.INTEGER, "787878787878787878787878787878"), 2, 7);
+
+        assertWriteReadRegister(port, 1, PropertyValue.of(Datatype.UNSIGNED_BYTE, "78"), 17, 1);
+        assertWriteReadRegister(port, 1, PropertyValue.of(Datatype.UNSIGNED_SHORT, "78"), 18, 2);
         assertWriteReadRegister(port, 1, PropertyValue.of(Datatype.UNSIGNED_INT, "2222278"), 19, 4);
         assertWriteReadRegister(port, 1, PropertyValue.of(Datatype.UNSIGNED_LONG, "78"), 24, 5);
 
         assertWriteReadRegister(port, 1, PropertyValue.of(Datatype.POSITIVE_INTEGER, "78"), 30);
         assertWriteReadRegister(port, 1, PropertyValue.of(Datatype.NON_NEGATIVE_INTEGER, "78"), 33);
         assertWriteReadRegister(port, 1, PropertyValue.of(Datatype.NON_NEGATIVE_INTEGER, "0"), 1234);
-        assertWriteReadRegister(port, 1, PropertyValue.of(Datatype.NEGATIVE_INTEGER, "-78"), 1234);
         assertWriteReadRegister(port, 1, PropertyValue.of(Datatype.NON_POSITIVE_INTEGER, "-78"), 1234);
+        assertWriteReadRegister(port, 1, PropertyValue.of(Datatype.NEGATIVE_INTEGER, "-78"), 1234);
         assertWriteReadRegister(port, 1, PropertyValue.of(Datatype.NON_POSITIVE_INTEGER, "0"), 1234);
+
+        assertWriteReadRegister(port, 1, PropertyValue.of(Datatype.STRING, "testtest"), 49, "testtest".getBytes(StandardCharsets.UTF_8).length / 2);
         assertWriteReadRegister(port, 1, PropertyValue.of(Datatype.HEX_BINARY, new HexBinaryValue(new byte[] {
                 0x0,
                 0xF
-        }).asString()), 1234);
-        assertWriteReadRegister(port, 1, PropertyValue.of(Datatype.BASE64_BINARY, "0xE"), 1234);
+        }).asString()), 1234, 1);
+        assertWriteReadRegister(port, 1, PropertyValue.of(Datatype.BASE64_BINARY, "0xE"), 1234, 1);
 
         server.stop();
     }
@@ -319,11 +327,18 @@ public class ModbusAssetConnectionTest {
 
     private void assertWriteReadRegister(int port, int unitId, PropertyValue expected, int address) throws Exception {
         assertWriteReadRegister(port, unitId, expected, address, 1);
+        assertWriteReadRegister(port, unitId, expected, address, 2);
+    }
+
+
+    private void assertWriteReadRegister(int port, int unitId, PropertyValue expected, int address, int quantity) throws Exception {
+        assertWriteReadRegister(port, unitId, expected, address, quantity, false);
+        assertWriteReadRegister(port, unitId, expected, address, quantity, true);
     }
 
 
     // From opcua test
-    private void assertWriteReadRegister(int port, int unitId, PropertyValue expected, int address, int quantity) throws Exception {
+    private void assertWriteReadRegister(int port, int unitId, PropertyValue expected, int address, int quantity, boolean mostSignificantWordLow) throws Exception {
         Reference reference = ReferenceHelper.parseReference("(Property)[ID_SHORT]Temperature");
         ServiceContext serviceContext = mock(ServiceContext.class);
         doReturn(ElementValueTypeInfo.builder()
@@ -338,6 +353,7 @@ public class ModbusAssetConnectionTest {
                 .port(port)
                 .requestTimeout(10001)
                 .connectTimeout(10001)
+                .mostSignificantWord(mostSignificantWordLow ? LOW : HIGH)
                 .valueProvider(reference,
                         new ModbusValueProviderConfig.Builder()
                                 .unitId(unitId)
@@ -349,6 +365,7 @@ public class ModbusAssetConnectionTest {
         ModbusAssetConnection connection = config.newInstance(CoreConfig.DEFAULT, serviceContext);
         awaitConnection(connection);
         connection.getValueProviders().get(reference).setValue(expected);
+        Thread.sleep(1000);
         PropertyValue actual = (PropertyValue) connection.getValueProviders().get(reference).getValue();
         connection.disconnect();
         if (expected.getValue().getValue() instanceof byte[]) {

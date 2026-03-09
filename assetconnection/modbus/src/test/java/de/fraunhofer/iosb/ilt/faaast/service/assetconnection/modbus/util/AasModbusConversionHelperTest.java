@@ -29,7 +29,7 @@ import java.nio.charset.StandardCharsets;
 import org.junit.Test;
 
 
-public class AasToModbusConversionHelperTest {
+public class AasModbusConversionHelperTest {
 
     @Test
     public void testNormalValueSucceeds() throws AssetConnectionException {
@@ -42,7 +42,7 @@ public class AasToModbusConversionHelperTest {
         // 8234h -> -32204d
         int shouldBe = 4660;
 
-        var typedValue = AasToModbusConversionHelper.convert(bytesRead, Datatype.INT);
+        var typedValue = ModbusToAasConversionHelper.convert(bytesRead, Datatype.INT);
         assertEquals(shouldBe, typedValue.getValue());
 
         var bytesConverted = AasToModbusConversionHelper.convert(new PropertyValue(typedValue), bytesRead.length);
@@ -60,7 +60,7 @@ public class AasToModbusConversionHelperTest {
         // 1234h -> 4660d
         int shouldBe = -32204;
 
-        var typedValue = AasToModbusConversionHelper.convert(bytesRead, Datatype.INT);
+        var typedValue = ModbusToAasConversionHelper.convert(bytesRead, Datatype.INT);
         assertEquals(shouldBe, typedValue.getValue());
 
         var bytesConverted = AasToModbusConversionHelper.convert(new PropertyValue(typedValue), bytesRead.length);
@@ -86,7 +86,7 @@ public class AasToModbusConversionHelperTest {
         };
 
         try {
-            AasToModbusConversionHelper.convert(bytesRead, Datatype.INT);
+            ModbusToAasConversionHelper.convert(bytesRead, Datatype.INT);
             fail();
         }
         catch (AssetConnectionException expected) {
@@ -105,7 +105,7 @@ public class AasToModbusConversionHelperTest {
         // 80h -> -128d
         int shouldBe = -128;
 
-        var typedValue = AasToModbusConversionHelper.convert(bytesRead, Datatype.INT);
+        var typedValue = ModbusToAasConversionHelper.convert(bytesRead, Datatype.INT);
         assertEquals(shouldBe, typedValue.getValue());
 
         var bytesConverted = AasToModbusConversionHelper.convert(new PropertyValue(typedValue), bytesRead.length);
@@ -130,7 +130,7 @@ public class AasToModbusConversionHelperTest {
         // 80h -> -128d
         short shouldBe = 128;
 
-        var typedValue = AasToModbusConversionHelper.convert(bytesRead, Datatype.UNSIGNED_BYTE);
+        var typedValue = ModbusToAasConversionHelper.convert(bytesRead, Datatype.UNSIGNED_BYTE);
         assertEquals(shouldBe, typedValue.getValue());
 
         var bytesConverted = AasToModbusConversionHelper.convert(new PropertyValue(typedValue), bytesRead.length);
@@ -151,7 +151,7 @@ public class AasToModbusConversionHelperTest {
         // 80000001h -> 2147483649d
         long shouldBe = ((long) Integer.MIN_VALUE) * (-1) + 1;
 
-        var typedValue = AasToModbusConversionHelper.convert(bytesRead, Datatype.UNSIGNED_INT);
+        var typedValue = ModbusToAasConversionHelper.convert(bytesRead, Datatype.UNSIGNED_INT);
         assertEquals(shouldBe, typedValue.getValue());
 
         var bytesConverted = AasToModbusConversionHelper.convert(new PropertyValue(typedValue), bytesRead.length);
@@ -171,7 +171,7 @@ public class AasToModbusConversionHelperTest {
         // 800001h -> -8388607d
         int shouldBe = -8388607;
 
-        var typedValue = AasToModbusConversionHelper.convert(bytesRead, Datatype.INT);
+        var typedValue = ModbusToAasConversionHelper.convert(bytesRead, Datatype.INT);
         assertEquals(shouldBe, typedValue.getValue());
 
         var bytesConverted = AasToModbusConversionHelper.convert(new PropertyValue(typedValue), bytesRead.length);
@@ -192,7 +192,7 @@ public class AasToModbusConversionHelperTest {
 
         String shouldBe = "Hello World";
 
-        var typedValue = AasToModbusConversionHelper.convert(bytesRead, Datatype.STRING);
+        var typedValue = ModbusToAasConversionHelper.convert(bytesRead, Datatype.STRING);
         assertEquals(shouldBe, typedValue.getValue());
 
         var bytesConverted = AasToModbusConversionHelper.convert(new PropertyValue(typedValue), bytesRead.length);
@@ -206,7 +206,7 @@ public class AasToModbusConversionHelperTest {
 
         String shouldBe = new URI("https://invalid.local/path/param?query=2&other=4#test").toString();
 
-        var typedValue = AasToModbusConversionHelper.convert(bytesRead, Datatype.ANY_URI);
+        var typedValue = ModbusToAasConversionHelper.convert(bytesRead, Datatype.ANY_URI);
         assertEquals(shouldBe, typedValue.getValue());
 
         var bytesConverted = AasToModbusConversionHelper.convert(new PropertyValue(typedValue), bytesRead.length);
@@ -246,7 +246,7 @@ public class AasToModbusConversionHelperTest {
                 (byte) 0xFF
         };
 
-        var typedValue = AasToModbusConversionHelper.convert(bytesRead, datatype);
+        var typedValue = ModbusToAasConversionHelper.convert(bytesRead, datatype);
 
         assertEquals(bytesRead, typedValue.getValue());
 
@@ -265,7 +265,7 @@ public class AasToModbusConversionHelperTest {
 
         boolean shouldBe = true;
 
-        var typedValue = AasToModbusConversionHelper.convert(bytesRead, Datatype.BOOLEAN);
+        var typedValue = ModbusToAasConversionHelper.convert(bytesRead, Datatype.BOOLEAN);
         assertEquals(shouldBe, typedValue.getValue());
 
         var bytesConverted = AasToModbusConversionHelper.convert(new PropertyValue(typedValue), bytesRead.length);
@@ -281,7 +281,7 @@ public class AasToModbusConversionHelperTest {
         };
 
         try {
-            AasToModbusConversionHelper.convert(bytesRead, Datatype.BOOLEAN);
+            ModbusToAasConversionHelper.convert(bytesRead, Datatype.BOOLEAN);
             fail();
         }
         catch (AssetConnectionException expected) {
@@ -301,7 +301,7 @@ public class AasToModbusConversionHelperTest {
 
         BigInteger shouldBe = new BigInteger(1, bytesRead);
 
-        var typedValue = AasToModbusConversionHelper.convert(bytesRead, Datatype.UNSIGNED_LONG);
+        var typedValue = ModbusToAasConversionHelper.convert(bytesRead, Datatype.UNSIGNED_LONG);
         assertEquals(shouldBe, typedValue.getValue());
 
         var bytesConverted = AasToModbusConversionHelper.convert(new PropertyValue(typedValue), bytesRead.length);
@@ -332,7 +332,7 @@ public class AasToModbusConversionHelperTest {
 
         long shouldBe = Long.MIN_VALUE;
 
-        var typedValue = AasToModbusConversionHelper.convert(bytesRead, Datatype.LONG);
+        var typedValue = ModbusToAasConversionHelper.convert(bytesRead, Datatype.LONG);
         assertEquals(shouldBe, typedValue.getValue());
 
         var bytesConverted = AasToModbusConversionHelper.convert(new PropertyValue(typedValue), bytesRead.length);
@@ -349,7 +349,7 @@ public class AasToModbusConversionHelperTest {
 
         long shouldBe = new BigInteger(1, bytesRead).longValue();
 
-        var typedValue = AasToModbusConversionHelper.convert(bytesRead, Datatype.UNSIGNED_INT);
+        var typedValue = ModbusToAasConversionHelper.convert(bytesRead, Datatype.UNSIGNED_INT);
         assertEquals(shouldBe, typedValue.getValue());
 
         var bytesConverted = AasToModbusConversionHelper.convert(new PropertyValue(typedValue), bytesRead.length);
@@ -372,7 +372,7 @@ public class AasToModbusConversionHelperTest {
 
         int shouldBe = Integer.MIN_VALUE;
 
-        var typedValue = AasToModbusConversionHelper.convert(bytesRead, Datatype.INT);
+        var typedValue = ModbusToAasConversionHelper.convert(bytesRead, Datatype.INT);
         assertEquals(shouldBe, typedValue.getValue());
 
         var bytesConverted = AasToModbusConversionHelper.convert(new PropertyValue(typedValue), bytesRead.length);
@@ -388,7 +388,7 @@ public class AasToModbusConversionHelperTest {
 
         int shouldBe = new BigInteger(1, bytesRead).intValue();
 
-        var typedValue = AasToModbusConversionHelper.convert(bytesRead, Datatype.UNSIGNED_SHORT);
+        var typedValue = ModbusToAasConversionHelper.convert(bytesRead, Datatype.UNSIGNED_SHORT);
         assertEquals(shouldBe, typedValue.getValue());
 
         var bytesConverted = AasToModbusConversionHelper.convert(new PropertyValue(typedValue), bytesRead.length);
@@ -407,7 +407,7 @@ public class AasToModbusConversionHelperTest {
 
         short shouldBe = Short.MIN_VALUE;
 
-        var typedValue = AasToModbusConversionHelper.convert(bytesRead, Datatype.SHORT);
+        var typedValue = ModbusToAasConversionHelper.convert(bytesRead, Datatype.SHORT);
         assertEquals(shouldBe, typedValue.getValue());
 
         var bytesConverted = AasToModbusConversionHelper.convert(new PropertyValue(typedValue), bytesRead.length);
@@ -423,7 +423,7 @@ public class AasToModbusConversionHelperTest {
 
         short shouldBe = new BigInteger(1, bytesRead).shortValue();
 
-        var typedValue = AasToModbusConversionHelper.convert(bytesRead, Datatype.UNSIGNED_BYTE);
+        var typedValue = ModbusToAasConversionHelper.convert(bytesRead, Datatype.UNSIGNED_BYTE);
         assertEquals(shouldBe, typedValue.getValue());
 
         var bytesConverted = AasToModbusConversionHelper.convert(new PropertyValue(typedValue), bytesRead.length);
@@ -440,7 +440,7 @@ public class AasToModbusConversionHelperTest {
 
         byte shouldBe = Byte.MIN_VALUE;
 
-        var typedValue = AasToModbusConversionHelper.convert(bytesRead, Datatype.BYTE);
+        var typedValue = ModbusToAasConversionHelper.convert(bytesRead, Datatype.BYTE);
         assertEquals(shouldBe, typedValue.getValue());
 
         var bytesConverted = AasToModbusConversionHelper.convert(new PropertyValue(typedValue), bytesRead.length);

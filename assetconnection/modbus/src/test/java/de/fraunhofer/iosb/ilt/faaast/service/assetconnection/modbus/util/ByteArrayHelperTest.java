@@ -16,12 +16,63 @@ package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.util;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
 
 public class ByteArrayHelperTest {
+
+    @Test
+    public void testReverseWordsSucceeds() {
+        byte[] original = new byte[] {
+                0x0,
+                0x3,
+                0xA,
+                0xE,
+                0x1,
+                0xF,
+                0x4,
+                0x4,
+                0x1,
+                0x2,
+                0x3,
+                0x4
+        };
+        byte[] reversed = new byte[] {
+                0x3,
+                0x4,
+                0x1,
+                0x2,
+                0x4,
+                0x4,
+                0x1,
+                0xF,
+                0xA,
+                0xE,
+                0x0,
+                0x3
+        };
+
+        assertArrayEquals(reversed, ByteArrayHelper.reverseWords(original));
+    }
+
+
+    @Test
+    public void testReverseWordsFailsWrongNumberOfBytes() {
+        byte[] original = new byte[] {
+                0x0,
+                0x3,
+                0xA,
+                0xE,
+                0x1
+        };
+
+        assertThrows(IllegalArgumentException.class, () -> ByteArrayHelper.reverseWords(original));
+    }
+
+
     @Test
     public void testPadZeroPaddingNoEffect() {
         byte[] unpadded = new byte[] {

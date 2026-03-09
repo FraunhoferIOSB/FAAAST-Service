@@ -20,6 +20,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.config.ModbusValueProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.model.MostSignificantWord;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
@@ -32,9 +33,10 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
  */
 public class ModbusValueProvider extends AbstractModbusProvider<ModbusValueProviderConfig> implements AssetValueProvider {
 
-    public ModbusValueProvider(ServiceContext serviceContext, Reference reference, ModbusClient modbusClient, ModbusValueProviderConfig config)
+    public ModbusValueProvider(ServiceContext serviceContext, Reference reference, ModbusClient modbusClient, ModbusValueProviderConfig config,
+            MostSignificantWord mostSignificantWord)
             throws AssetConnectionException {
-        super(serviceContext, reference, modbusClient, config);
+        super(serviceContext, reference, modbusClient, config, mostSignificantWord);
     }
 
 
@@ -51,8 +53,8 @@ public class ModbusValueProvider extends AbstractModbusProvider<ModbusValueProvi
 
     @Override
     public void setValue(DataElementValue value) throws AssetConnectionException {
-        byte[] bytesToWrite = convert(value);
-        ModbusRequestPdu request = createWriteRequest(bytesToWrite);
-        doWrite(request);
+        // TODO there seems to be an error here.
+        byte[] bytesToWrite = convert(value, asConfig().getQuantity() * bytesFor(asConfig().getDataType()));
+        doWrite(bytesToWrite);
     }
 }

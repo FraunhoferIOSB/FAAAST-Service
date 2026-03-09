@@ -103,19 +103,19 @@ public class ModbusAssetConnection extends
 
     @Override
     protected ModbusValueProvider createValueProvider(Reference reference, ModbusValueProviderConfig providerConfig) throws AssetConnectionException {
-        return new ModbusValueProvider(serviceContext, reference, client, providerConfig);
+        return new ModbusValueProvider(serviceContext, reference, client, providerConfig, config.getMostSignificantWord());
     }
 
 
     @Override
     protected ModbusOperationProvider createOperationProvider(Reference reference, ModbusOperationProviderConfig providerConfig) throws AssetConnectionException {
-        return new ModbusOperationProvider(serviceContext, reference, client, providerConfig);
+        return new ModbusOperationProvider(serviceContext, reference, client, providerConfig, config.getMostSignificantWord());
     }
 
 
     @Override
     protected ModbusSubscriptionProvider createSubscriptionProvider(Reference reference, ModbusSubscriptionProviderConfig providerConfig) throws AssetConnectionException {
-        return new ModbusSubscriptionProvider(serviceContext, reference, client, providerConfig);
+        return new ModbusSubscriptionProvider(serviceContext, reference, client, providerConfig, config.getMostSignificantWord());
     }
 
 

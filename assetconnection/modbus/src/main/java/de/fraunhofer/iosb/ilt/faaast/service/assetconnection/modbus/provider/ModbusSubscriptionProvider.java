@@ -20,6 +20,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionExce
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetSubscriptionProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.NewDataListener;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.config.ModbusSubscriptionProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.model.MostSignificantWord;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.ArrayList;
@@ -53,9 +54,10 @@ public class ModbusSubscriptionProvider extends AbstractModbusProvider<ModbusSub
 
     protected final List<NewDataListener> listeners;
 
-    public ModbusSubscriptionProvider(ServiceContext serviceContext, Reference reference, ModbusClient modbusClient, ModbusSubscriptionProviderConfig config)
+    public ModbusSubscriptionProvider(ServiceContext serviceContext, Reference reference, ModbusClient modbusClient, ModbusSubscriptionProviderConfig config,
+            MostSignificantWord mostSignificantWord)
             throws AssetConnectionException {
-        super(serviceContext, reference, modbusClient, config);
+        super(serviceContext, reference, modbusClient, config, mostSignificantWord);
         this.listeners = Collections.synchronizedList(new ArrayList<>());
     }
 

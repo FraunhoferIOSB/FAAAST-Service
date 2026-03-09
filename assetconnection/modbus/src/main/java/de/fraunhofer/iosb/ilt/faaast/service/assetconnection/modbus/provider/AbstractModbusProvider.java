@@ -16,7 +16,8 @@ package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider;
 
 import static de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.model.ModbusDatatype.COIL;
 import static de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.model.ModbusDatatype.DISCRETE_INPUT;
-import static de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.model.ModbusDatatype.HOLDING_REGISTER;
+import static de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.model.MostSignificantWord.HIGH;
+import static de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.util.ByteArrayHelper.reverseWords;
 
 import com.digitalpetri.modbus.client.ModbusClient;
 import com.digitalpetri.modbus.exceptions.ModbusExecutionException;
@@ -36,8 +37,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionExce
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.config.AbstractModbusProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.model.ModbusDatatype;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.model.MostSignificantWord;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.util.AasToModbusConversionHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.util.ByteArrayHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.util.ModbusToAasConversionHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
@@ -66,16 +68,19 @@ public abstract class AbstractModbusProvider<C extends AbstractModbusProviderCon
     private final ServiceContext serviceContext;
     private final ModbusClient modbusClient;
     private final Datatype datatype;
+    private final MostSignificantWord mostSignificantWord;
 
     // Do not allow parallel read operations
     private static final Object LOCK = new Object();
 
-    protected AbstractModbusProvider(ServiceContext serviceContext, Reference reference, ModbusClient modbusClient, C config) throws AssetConnectionException {
+    protected AbstractModbusProvider(ServiceContext serviceContext, Reference reference, ModbusClient modbusClient, C config, MostSignificantWord mostSignificantWord)
+            throws AssetConnectionException {
         this.serviceContext = serviceContext;
         this.reference = reference;
         this.modbusClient = modbusClient;
         this.config = config;
         this.datatype = getDatatype(reference);
+        this.mostSignificantWord = mostSignificantWord;
     }
 
 
@@ -87,7 +92,12 @@ public abstract class AbstractModbusProvider<C extends AbstractModbusProviderCon
 
     @Override
     public int hashCode() {
-        return Objects.hash(serviceContext, modbusClient, datatype, reference, config);
+        return Objects.hash(serviceContext,
+                modbusClient,
+                datatype,
+                reference,
+                config,
+                mostSignificantWord);
     }
 
 
@@ -106,7 +116,8 @@ public abstract class AbstractModbusProvider<C extends AbstractModbusProviderCon
                 Objects.equals(modbusClient, abstractModbusProvider.modbusClient) &&
                 Objects.equals(datatype, abstractModbusProvider.datatype) &&
                 Objects.equals(reference, abstractModbusProvider.reference) &&
-                Objects.equals(config, abstractModbusProvider.config);
+                Objects.equals(config, abstractModbusProvider.config) &&
+                Objects.equals(mostSignificantWord, abstractModbusProvider.mostSignificantWord);
     }
 
 
@@ -118,7 +129,7 @@ public abstract class AbstractModbusProvider<C extends AbstractModbusProviderCon
      * @throws AssetConnectionException If conversion of data fails due to type constraints.
      */
     protected TypedValue<?> convert(byte[] rawBytes) throws AssetConnectionException {
-        return AasToModbusConversionHelper.convert(rawBytes, datatype);
+        return ModbusToAasConversionHelper.convert(rawBytes, datatype);
     }
 
 
@@ -134,7 +145,8 @@ public abstract class AbstractModbusProvider<C extends AbstractModbusProviderCon
     protected byte[] doRead(ModbusRequestPdu readRequest) throws AssetConnectionException {
         synchronized (LOCK) {
             try {
-                return read(readRequest);
+                byte[] readBytes = read(readRequest);
+                return mostSignificantWord == HIGH ? reverseWords(readBytes) : readBytes;
             }
             catch (ModbusExecutionException | ModbusTimeoutException | ModbusResponseException e) {
                 throw new AssetConnectionException(e);
@@ -147,26 +159,28 @@ public abstract class AbstractModbusProvider<C extends AbstractModbusProviderCon
      * Convert AAS data to raw bytes readable by the modbus server.
      *
      * @param value AAS TypedValue data
+     * @param numberBytes number of bytes the resulting byte array should have
      * @return The bytes to write.
      * @throws AssetConnectionException If conversion of data fails due to type constraints.
      */
-    protected byte[] convert(DataElementValue value) throws AssetConnectionException {
+    protected byte[] convert(DataElementValue value, int numberBytes) throws AssetConnectionException {
         ModbusDatatype dtype = config.getDataType();
         if (dtype == COIL || dtype == DISCRETE_INPUT) {
-            return AasToModbusConversionHelper.convert(value, 1);
+            return AasToModbusConversionHelper.convert(value, numberBytes);
         }
         else {
-            return AasToModbusConversionHelper.convert(value, 2);
+            return AasToModbusConversionHelper.convert(value, numberBytes);
         }
     }
 
 
     /**
-     * Write a byte array to a specified modbus server address.
+     * Write a byte array to a modbus server address specified in the config.
      *
-     * @param writeRequest The write request containing address, quantity and bytes to write.
+     * @param bytesToWrite The bytes to write.
      */
-    protected void doWrite(ModbusRequestPdu writeRequest) {
+    protected void doWrite(byte[] bytesToWrite) throws AssetConnectionException {
+        ModbusRequestPdu writeRequest = createWriteRequest(bytesToWrite);
         write(writeRequest);
     }
 
@@ -245,26 +259,24 @@ public abstract class AbstractModbusProvider<C extends AbstractModbusProviderCon
         int address = config.getAddress();
         int quantity = config.getQuantity();
 
-        byte[] unpadded = ByteArrayHelper.removePadding(rawBytesToWrite);
+        byte[] toWrite = rawBytesToWrite;
 
         return switch (config.getDataType()) {
             case COIL -> {
-                validateCoilQuantity(unpadded);
-                yield (quantity > 1) ? new WriteMultipleCoilsRequest(address, unpadded.length, unpadded) : new WriteSingleCoilRequest(address, unpadded[0]);
+                // Depending on most significant word, flip words
+                toWrite = mostSignificantWord == HIGH ? reverseWords(toWrite) : toWrite;
+
+                yield (quantity > 1) ? new WriteMultipleCoilsRequest(address, toWrite.length, toWrite) : new WriteSingleCoilRequest(address, toWrite[0]);
             }
             case HOLDING_REGISTER -> {
-                // Use the configured addresses in full
-                if (quantity * 2 > unpadded.length) {
-                    unpadded = ByteArrayHelper.pad(unpadded, quantity * 2 - unpadded.length);
-                }
-
-                validateHoldingRegisterQuantity(unpadded);
+                // Depending on most significant word, flip words
+                toWrite = mostSignificantWord == HIGH ? reverseWords(toWrite) : toWrite;
 
                 if (quantity > 1) {
-                    yield new WriteMultipleRegistersRequest(address, quantity, unpadded);
+                    yield new WriteMultipleRegistersRequest(address, quantity, toWrite);
                 }
                 else {
-                    yield new WriteSingleRegisterRequest(address, new BigInteger(unpadded).intValue());
+                    yield new WriteSingleRegisterRequest(address, new BigInteger(toWrite).intValue());
                 }
             }
             case DISCRETE_INPUT, INPUT_REGISTER -> throw new AssetConnectionException(String.format("Unsupported operation WRITE on %s", config.getDataType()));
@@ -272,24 +284,17 @@ public abstract class AbstractModbusProvider<C extends AbstractModbusProviderCon
     }
 
 
-    private void validateCoilQuantity(byte[] bytesToWrite) throws AssetConnectionException {
-        int msbIndex = ByteArrayHelper.mostSignificantBitIndex(bytesToWrite);
-        int coilsToWrite = (msbIndex < 0) ? 0 : msbIndex + 1;
-        if (config.getQuantity() < coilsToWrite) {
-            throw new AssetConnectionException(String.format(WRITE_OVERFLOW_TEMPLATE, COIL, config.getQuantity(), coilsToWrite));
-        }
-    }
-
-
-    private void validateHoldingRegisterQuantity(byte[] bytesToWrite) throws AssetConnectionException {
-        // If zero-padded, get real bytes to write
-        int realNumberOfBytesToWrite = bytesToWrite.length;
-
-        // 2 bytes per register
-        realNumberOfBytesToWrite = (int) Math.ceil(realNumberOfBytesToWrite * 0.5);
-        if (config.getQuantity() < realNumberOfBytesToWrite) {
-            throw new AssetConnectionException(String.format(WRITE_OVERFLOW_TEMPLATE, HOLDING_REGISTER, config.getQuantity(), realNumberOfBytesToWrite));
-        }
+    /**
+     * Get the number of bytes needed to write one unit of a ModbusDatatype.
+     *
+     * @param dtype the modbus datatype
+     * @return the number of bytes needed to write
+     */
+    protected int bytesFor(ModbusDatatype dtype) {
+        return switch (dtype) {
+            case COIL, DISCRETE_INPUT -> 1;
+            case INPUT_REGISTER, HOLDING_REGISTER -> 2;
+        };
     }
 
 

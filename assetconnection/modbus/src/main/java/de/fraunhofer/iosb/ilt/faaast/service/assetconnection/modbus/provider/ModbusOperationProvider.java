@@ -19,6 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.config.ModbusOperationProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.model.MostSignificantWord;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
@@ -30,9 +31,10 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
  */
 public class ModbusOperationProvider extends AbstractModbusProvider<ModbusOperationProviderConfig> implements AssetOperationProvider<ModbusOperationProviderConfig> {
 
-    public ModbusOperationProvider(ServiceContext serviceContext, Reference reference, ModbusClient modbusClient, ModbusOperationProviderConfig config)
+    public ModbusOperationProvider(ServiceContext serviceContext, Reference reference, ModbusClient modbusClient, ModbusOperationProviderConfig config,
+            MostSignificantWord mostSignificantWord)
             throws AssetConnectionException {
-        super(serviceContext, reference, modbusClient, config);
+        super(serviceContext, reference, modbusClient, config, mostSignificantWord);
     }
 
 
