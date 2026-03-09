@@ -21,6 +21,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionExce
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.config.ModbusValueProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.model.MostSignificantWord;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.util.AasToModbusConversionHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
@@ -53,8 +54,7 @@ public class ModbusValueProvider extends AbstractModbusProvider<ModbusValueProvi
 
     @Override
     public void setValue(DataElementValue value) throws AssetConnectionException {
-        // TODO there seems to be an error here.
-        byte[] bytesToWrite = convert(value, asConfig().getQuantity() * bytesFor(asConfig().getDataType()));
+        byte[] bytesToWrite = AasToModbusConversionHelper.convert(value, asConfig().getQuantity() * bytesFor(asConfig().getDataType()));
         doWrite(bytesToWrite);
     }
 }

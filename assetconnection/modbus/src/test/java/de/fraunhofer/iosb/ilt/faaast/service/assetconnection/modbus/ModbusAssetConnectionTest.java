@@ -365,7 +365,6 @@ public class ModbusAssetConnectionTest {
         ModbusAssetConnection connection = config.newInstance(CoreConfig.DEFAULT, serviceContext);
         awaitConnection(connection);
         connection.getValueProviders().get(reference).setValue(expected);
-        Thread.sleep(1000);
         PropertyValue actual = (PropertyValue) connection.getValueProviders().get(reference).getValue();
         connection.disconnect();
         if (expected.getValue().getValue() instanceof byte[]) {

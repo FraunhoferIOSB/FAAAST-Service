@@ -14,8 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider;
 
-import static de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.model.ModbusDatatype.COIL;
-import static de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.model.ModbusDatatype.DISCRETE_INPUT;
 import static de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.model.MostSignificantWord.HIGH;
 import static de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.util.ByteArrayHelper.reverseWords;
 
@@ -38,11 +36,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.config.AbstractModbusProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.model.ModbusDatatype;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.model.MostSignificantWord;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.util.AasToModbusConversionHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.util.ModbusToAasConversionHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
@@ -149,25 +145,6 @@ public abstract class AbstractModbusProvider<C extends AbstractModbusProviderCon
             catch (ModbusExecutionException | ModbusTimeoutException | ModbusResponseException e) {
                 throw new AssetConnectionException(e);
             }
-        }
-    }
-
-
-    /**
-     * Convert AAS data to raw bytes readable by the modbus server.
-     *
-     * @param value AAS TypedValue data
-     * @param numberBytes number of bytes the resulting byte array should have
-     * @return The bytes to write.
-     * @throws AssetConnectionException If conversion of data fails due to type constraints.
-     */
-    protected byte[] convert(DataElementValue value, int numberBytes) throws AssetConnectionException {
-        ModbusDatatype dtype = config.getDataType();
-        if (dtype == COIL || dtype == DISCRETE_INPUT) {
-            return AasToModbusConversionHelper.convert(value, numberBytes);
-        }
-        else {
-            return AasToModbusConversionHelper.convert(value, numberBytes);
         }
     }
 
