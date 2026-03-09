@@ -14,11 +14,69 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.util;
 
+import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+import java.util.Arrays;
+
+
 /**
  * Modbus asset connection helper for byte array operations and checks.
  */
 public class ByteArrayHelper {
     private ByteArrayHelper() {}
+
+
+    /**
+     * Reverses the given array by flipping all words (2-bytes). Special case: If the array contains zero, one or two
+     * elements, it is returned as-is.
+     *
+     * <p>
+     * b[] = [1,2,3,4,5,6]; reverseWords(b[]) = [5,6,3,4,1,2].
+     *
+     * @param array Array to reverse
+     * @return Reversed array.
+     */
+    public static byte[] reverseWords(byte[] array) {
+        if (array.length <= 2) {
+            return array;
+        }
+
+        Ensure.require(array.length % 2 == 0, new IllegalArgumentException("Array to reverse contains uneven number of bytes"));
+
+        byte[] reversed = new byte[array.length];
+
+        for (int i = 0; i < array.length; i += 2) {
+            reversed[i] = array[array.length - i - 2];
+            reversed[i + 1] = array[array.length - i - 1];
+        }
+
+        return reversed;
+    }
+
+
+    /**
+     * Returns the array with padding such that the number of bytes is even.
+     *
+     * @param array Possibly unpadded array.
+     * @param numberBytes number of bytes the final array should have.
+     * @param signed True if the value is signed, else false.
+     * @return Padded array.
+     */
+    public static byte[] padToWords(byte[] array, int numberBytes, boolean signed) {
+        Ensure.require(array.length > 0, new IllegalArgumentException("Trying to pad empty array."));
+        if (array.length == numberBytes) {
+            return array;
+        }
+
+        byte[] ret = new byte[numberBytes];
+
+        // If value negative and signed, pad with ones
+        if (signed && array[0] < 0) {
+            Arrays.fill(ret, (byte) 0xFF);
+        }
+
+        System.arraycopy(array, 0, ret, ret.length - array.length, array.length);
+        return ret;
+    }
 
 
     /**
