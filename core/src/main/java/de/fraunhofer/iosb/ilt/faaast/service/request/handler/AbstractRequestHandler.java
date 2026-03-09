@@ -118,18 +118,19 @@ public abstract class AbstractRequestHandler<I extends Request<O>, O extends Res
     }
 
 
-    private <S extends SubmodelElement> void syncWithAsset(Reference parent, Collection<S> submodelElements, boolean publishOnMessageBus, RequestExecutionContext context,
-                                                           boolean parentIsList, Class<S> collectionClass)
+    private <T extends SubmodelElement> void syncWithAsset(Reference parent, Collection<T> submodelElements, boolean publishOnMessageBus, RequestExecutionContext context,
+                                                           boolean parentIsList, Class<T> collectionClass)
             throws ResourceNotFoundException, ResourceNotAContainerElementException, AssetConnectionException, ValueMappingException, MessageBusException, PersistenceException {
         if (parent == null || submodelElements == null) {
             return;
         }
-        Map<S, ElementValue> updatedSubmodelElements = new HashMap<>();
-        Map<S, Reference> updatedSubmodelElementRefs = new HashMap<>();
+        Map<T, ElementValue> updatedSubmodelElements = new HashMap<>();
+        Map<T, Reference> updatedSubmodelElementRefs = new HashMap<>();
         int index = 0;
-        for (S submodelElement: submodelElements) {
-            Reference reference;
-            reference = createReference(parentIsList, parent, index, submodelElement);
+        for (T submodelElement: submodelElements) {
+            Reference reference = parentIsList
+                    ? ReferenceBuilder.with(parent).index(index).build()
+                    : ReferenceBuilder.with(parent).element(submodelElement).build();
             Optional<DataElementValue> newValue = context.getAssetConnectionManager().readValue(reference);
             if (newValue.isPresent()) {
                 ElementValue oldValue = ElementValueMapper.toValue(submodelElement);
@@ -143,11 +144,10 @@ public abstract class AbstractRequestHandler<I extends Request<O>, O extends Res
             }
             index++;
         }
-
         for (var update: updatedSubmodelElements.entrySet()) {
             Reference reference = updatedSubmodelElementRefs.get(update.getKey());
-            S oldElement = update.getKey();
-            S newElement = DeepCopyHelper.deepCopy(oldElement, collectionClass);
+            T oldElement = update.getKey();
+            T newElement = DeepCopyHelper.deepCopy(oldElement, collectionClass);
             ElementValueMapper.setValue(newElement, update.getValue());
             context.getPersistence().update(reference, newElement);
             submodelElements.remove(oldElement);
@@ -160,18 +160,6 @@ public abstract class AbstractRequestHandler<I extends Request<O>, O extends Res
                         .build());
             }
         }
-    }
-
-
-    private Reference createReference(boolean parentIsList, Reference parent, int index, SubmodelElement submodelElement) {
-        Reference reference;
-        if (parentIsList) {
-            reference = ReferenceBuilder.with(parent).index(index).build();
-        }
-        else {
-            reference = ReferenceBuilder.forParent(parent, submodelElement);
-        }
-        return reference;
     }
 
 
