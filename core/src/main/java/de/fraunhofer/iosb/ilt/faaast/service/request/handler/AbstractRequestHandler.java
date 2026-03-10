@@ -31,10 +31,15 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContain
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ValueChangeEventMessage;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.AnnotatedRelationshipElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.EntityValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.SubmodelElementCollectionValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.SubmodelElementListValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.FaaastConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import java.lang.reflect.InvocationTargetException;
@@ -71,10 +76,13 @@ public abstract class AbstractRequestHandler<I extends Request<O>, O extends Res
      * Creates a empty response object.
      *
      * @return new empty response object
-     * @throws NoSuchMethodException if response type does not implement a parameterless constructor
+     * @throws NoSuchMethodException if response type does not implement a
+     *             parameterless constructor
      * @throws InstantiationException if response type is abstract
-     * @throws InvocationTargetException if parameterless constructor of response type throws an exception
-     * @throws IllegalAccessException if parameterless constructor of response type is inaccessible
+     * @throws InvocationTargetException if parameterless constructor of
+     *             response type throws an exception
+     * @throws IllegalAccessException if parameterless constructor of response
+     *             type is inaccessible
      */
     public O newResponse() throws NoSuchMethodException, InstantiationException, InvocationTargetException, IllegalAccessException {
         return (O) ConstructorUtils.invokeConstructor(
@@ -96,18 +104,27 @@ public abstract class AbstractRequestHandler<I extends Request<O>, O extends Res
 
 
     /**
-     * Check for each SubmodelElement if there is an AssetConnection. If yes read the value from it and compare it to the
-     * current value.If they differ from each other update the submodelelement with the value from the AssetConnection.
+     * Checks for each SubmodelElement if there is an AssetConnection
+     * ValueProvider. If yes read the value from it and compare it to the
+     * current value.If they differ from each other update the submodelelement
+     * with the value from the AssetConnection.
      *
      * @param parent of the SubmodelElement List
-     * @param submodelElements List of SubmodelElements which should be considered and updated
-     * @param publishOnMessageBus if ValueChangeEventMessages should be sent on message bus
+     * @param submodelElements List of SubmodelElements which should be
+     *            considered and updated
+     * @param publishOnMessageBus if ValueChangeEventMessages should be sent on
+     *            message bus
      * @param context the execution context
-     * @param parentIsList True if parent is a SubmodelElementList, false if not.
-     * @throws ResourceNotFoundException if reference does not point to valid element
-     * @throws ResourceNotAContainerElementException if reference does not point to valid element
-     * @throws AssetConnectionException if reading value from asset connection fails
-     * @throws ValueMappingException if mapping value read from asset connection fails
+     * @param parentIsList True if parent is a SubmodelElementList, false if
+     *            not.
+     * @throws ResourceNotFoundException if reference does not point to valid
+     *             element
+     * @throws ResourceNotAContainerElementException if reference does not point
+     *             to valid element
+     * @throws AssetConnectionException if reading value from asset connection
+     *             fails
+     * @throws ValueMappingException if mapping value read from asset connection
+     *             fails
      * @throws MessageBusException if publishing fails
      * @throws PersistenceException if storage error occurs
      */
@@ -164,6 +181,49 @@ public abstract class AbstractRequestHandler<I extends Request<O>, O extends Res
 
 
     /**
+     * Checks for each SubmodelElement if there is an AssetConnection
+     * ValueProvider, it compares the new value with the current value. If it
+     * has changed, it writes the new value to the AssetConnection.
+     *
+     * @param <T> The actual class derived from SubmodelElement.
+     * @param parent of the SubmodelElement List.
+     * @param oldSubmodelElements The old list of SubmodelElements.
+     * @param newSubmodelElements The new list of SubmodelElements.
+     * @param publishOnMessageBus if ValueChangeEventMessages should be sent on
+     *            message bus.
+     * @param context the execution context.
+     * @param parentIsList True if parent is a SubmodelElementList, false if
+     *            not.
+     * @throws ValueMappingException if mapping value read from asset connection
+     *             fails.
+     * @throws MessageBusException if publishing fails.
+     * @throws AssetConnectionException if writing the value to the asset
+     *             connection fails.
+     */
+    protected <T extends SubmodelElement> void syncWriteWithAsset(Reference parent, List<T> oldSubmodelElements, List<T> newSubmodelElements, boolean publishOnMessageBus,
+                                                                  RequestExecutionContext context, boolean parentIsList)
+            throws ValueMappingException, AssetConnectionException, MessageBusException {
+
+        if (parent == null || oldSubmodelElements == null || newSubmodelElements == null) {
+            return;
+        }
+
+        int index = 0;
+        for (T newSubmodelElement: newSubmodelElements) {
+            Reference reference = parentIsList
+                    ? ReferenceBuilder.with(parent).index(index).build()
+                    : ReferenceBuilder.with(parent).element(newSubmodelElement).build();
+            Optional<T> oldSubmodelElement = oldSubmodelElements.stream().filter(x -> Objects.equals(x.getIdShort(), newSubmodelElement.getIdShort())).findFirst();
+            if (oldSubmodelElement.isPresent()) {
+                syncWriteAssetSubmodelElement(reference, oldSubmodelElement.get(), newSubmodelElement, publishOnMessageBus, context);
+            }
+
+            index++;
+        }
+    }
+
+
+    /**
      * Creates an updated element based on a JSON merge patch.
      *
      * @param <T> the type of the element to update
@@ -171,8 +231,9 @@ public abstract class AbstractRequestHandler<I extends Request<O>, O extends Res
      * @param targetBean the original element to apply the update to
      * @param type the type information
      * @return the updated element
-     * @throws de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException if applying the merge patch
-     *             fails
+     * @throws
+     * de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException
+     *             if applying the merge patch fails
      */
     protected <T> T applyMergePatch(JsonMergePatch patch, T targetBean, Class<T> type) throws InvalidRequestException {
         try {
@@ -228,14 +289,19 @@ public abstract class AbstractRequestHandler<I extends Request<O>, O extends Res
     /**
      * Synchronizes SubmodelElement Containers with the AssetConnection.
      *
-     * @param reference of the SubmodelElement List
+     * @param reference of the SubmodelElement container
      * @param submodelElement the desired submodelElement
-     * @param publishOnMessageBus if ValueChangeEventMessages should be sent on message bus
+     * @param publishOnMessageBus if ValueChangeEventMessages should be sent on
+     *            message bus
      * @param context the execution context
-     * @throws ResourceNotFoundException if reference does not point to valid element
-     * @throws ResourceNotAContainerElementException if reference does not point to valid element
-     * @throws AssetConnectionException if reading value from asset connection fails
-     * @throws ValueMappingException if mapping value read from asset connection fails
+     * @throws ResourceNotFoundException if reference does not point to valid
+     *             element
+     * @throws ResourceNotAContainerElementException if reference does not point
+     *             to valid element
+     * @throws AssetConnectionException if reading value from asset connection
+     *             fails
+     * @throws ValueMappingException if mapping value read from asset connection
+     *             fails
      * @throws MessageBusException if publishing fails
      * @throws PersistenceException if storage error occurs
      */
@@ -257,7 +323,42 @@ public abstract class AbstractRequestHandler<I extends Request<O>, O extends Res
 
 
     /**
-     * Checks whether the given submodelElement is a container (e.g. a Collection).
+     * Synchronizes (write) SubmodelElement Containers with the AssetConnection
+     * ValueProvider.
+     *
+     * @param reference of the SubmodelElement container
+     * @param oldSubmodelElement The old submodelElement.
+     * @param newSubmodelElement The new submodelElement.
+     * @param publishOnMessageBus if ValueChangeEventMessages should be sent on
+     *            message bus
+     * @param context the execution context
+     * @throws ValueMappingException if mapping value read from asset connection
+     *             fails
+     * @throws MessageBusException if publishing fails
+     * @throws AssetConnectionException if writing the value to the asset
+     *             connection fails.
+     */
+    protected void syncWriteAssetSubmodelElementContainer(Reference reference, SubmodelElement oldSubmodelElement, SubmodelElement newSubmodelElement, boolean publishOnMessageBus,
+                                                          RequestExecutionContext context)
+            throws ValueMappingException, AssetConnectionException, MessageBusException {
+        if ((oldSubmodelElement instanceof SubmodelElementCollection oldCollection) && (newSubmodelElement instanceof SubmodelElementCollection newCollection)) {
+            syncWriteWithAsset(reference, oldCollection.getValue(), newCollection.getValue(), publishOnMessageBus, context, false);
+        }
+        else if ((oldSubmodelElement instanceof Entity oldEntity) && (newSubmodelElement instanceof Entity newEntity)) {
+            syncWriteWithAsset(reference, oldEntity.getStatements(), newEntity.getStatements(), publishOnMessageBus, context, false);
+        }
+        else if ((oldSubmodelElement instanceof SubmodelElementList oldList) && (newSubmodelElement instanceof SubmodelElementList newList)) {
+            syncWriteWithAsset(reference, oldList.getValue(), newList.getValue(), publishOnMessageBus, context, true);
+        }
+        else if ((oldSubmodelElement instanceof AnnotatedRelationshipElement oldRelElement) && (newSubmodelElement instanceof AnnotatedRelationshipElement newRelElement)) {
+            syncWriteWithAsset(reference, oldRelElement.getAnnotations(), newRelElement.getAnnotations(), publishOnMessageBus, context, false);
+        }
+    }
+
+
+    /**
+     * Checks whether the given submodelElement is a container (e.g. a
+     * Collection).
      *
      * @param submodelElement The desired submodelElement.
      * @return True if it's a container, false if not.
@@ -272,4 +373,169 @@ public abstract class AbstractRequestHandler<I extends Request<O>, O extends Res
                 || AnnotatedRelationshipElement.class.isAssignableFrom(submodelElement.getClass());
     }
 
+
+    /**
+     * Checks for the given SubmodelElement if there is an AssetConnection
+     * ValueProvider, it compares the new value with the current value. If it
+     * has changed, it writes the new value to the AssetConnection. If the
+     * SubmodelElement is acontainer, this is done recursively.
+     *
+     * @param reference of the SubmodelElement List
+     * @param oldSubmodelElement The old SubmodelElement.
+     * @param newSubmodelElement The new SubmodelElement,
+     * @param publishOnMessageBus if ValueChangeEventMessages should be sent on
+     *            message bus
+     * @param context the execution context
+     * @throws ValueMappingException if mapping value read from asset connection
+     *             fails
+     * @throws AssetConnectionException if writing the value to the asset
+     *             connection fails.
+     * @throws MessageBusException if publishing fails
+     */
+    protected void syncWriteAssetSubmodelElement(Reference reference, SubmodelElement oldSubmodelElement, SubmodelElement newSubmodelElement, boolean publishOnMessageBus,
+                                                 RequestExecutionContext context)
+            throws ValueMappingException, AssetConnectionException, MessageBusException {
+        if (Objects.equals(oldSubmodelElement.getClass(), newSubmodelElement.getClass())
+                && ElementValueHelper.isSerializableAsValue(oldSubmodelElement.getClass())) {
+            if (isSubmodelElementContainer(newSubmodelElement)) {
+                syncWriteAssetSubmodelElementContainer(reference, oldSubmodelElement, newSubmodelElement, publishOnMessageBus, context);
+            }
+            else {
+                writeToAsset(reference, oldSubmodelElement, newSubmodelElement, publishOnMessageBus, context);
+            }
+        }
+    }
+
+
+    /**
+     * Checks for the given SubmodelElement if there is an AssetConnection
+     * ValueProvider, it compares the new value with the old value. If it
+     * has changed, it writes the new value to the AssetConnection. If the
+     * SubmodelElement is acontainer, this is done recursively.
+     *
+     * @param reference of the SubmodelElement.
+     * @param submodelElement The desired SubmodelElement.
+     * @param oldValue The old value.
+     * @param newValue The new value.
+     * @param publishOnMessageBus if ValueChangeEventMessages should be sent on
+     *            message bus
+     * @param context the execution context
+     * @throws AssetConnectionException if writing the value to the asset
+     *             connection fails.
+     * @throws MessageBusException if publishing fails
+     */
+    protected void syncWriteAssetSubmodelElementValue(Reference reference, SubmodelElement submodelElement, ElementValue oldValue, ElementValue newValue,
+                                                      boolean publishOnMessageBus,
+                                                      RequestExecutionContext context)
+            throws AssetConnectionException, MessageBusException {
+        if (Objects.equals(oldValue.getClass(), newValue.getClass())) {
+            if (isSubmodelElementContainer(submodelElement)) {
+                syncWriteAssetSubmodelElementContainerValue(reference, submodelElement, oldValue, newValue, publishOnMessageBus, context);
+            }
+            else {
+                writeToAsset(reference, oldValue, newValue, publishOnMessageBus, context);
+            }
+        }
+    }
+
+
+    /**
+     * Checks for the given SubmodelElement if there is an AssetConnection
+     * ValueProvider, it compares the new value with the current value. If it
+     * has changed, it writes the new value to the AssetConnection. If the
+     * SubmodelElement is acontainer, this is done recursively.
+     * 
+     * @param parent The parent SubmodelElement.
+     * @param parentElement The reference of the parent SubmodelElement.
+     * @param oldValue The old value.
+     * @param newValue Tzhe new value.
+     * @param publishOnMessageBus if ValueChangeEventMessages should be sent on
+     *            message bus
+     * @param context the execution context
+     * @throws MessageBusException if publishing fails
+     * @throws AssetConnectionException if writing the value to the asset
+     *             connection fails.
+     */
+    protected void syncWriteAssetSubmodelElementContainerValue(Reference parent, SubmodelElement parentElement, ElementValue oldValue, ElementValue newValue,
+                                                               boolean publishOnMessageBus,
+                                                               RequestExecutionContext context)
+            throws AssetConnectionException, MessageBusException {
+
+        //Reference reference = parentIsList
+        //        ? ReferenceBuilder.with(parent).index(index).build()
+        //        : ReferenceBuilder.with(parent).element(submodelElement).build();
+        if ((parentElement instanceof SubmodelElementCollection oldCollection)
+                && (oldValue instanceof SubmodelElementCollectionValue oldCollValue)
+                && (newValue instanceof SubmodelElementCollectionValue newCollValue)) {
+            for (var child: oldCollection.getValue()) {
+                if (oldCollValue.getValues().containsKey(child.getIdShort()) && newCollValue.getValues().containsKey(child.getIdShort())) {
+                    Reference reference = ReferenceBuilder.with(parent).element(child).build();
+                    syncWriteAssetSubmodelElementValue(reference, child, oldCollValue.getValues().get(child.getIdShort()), newCollValue.getValues().get(child.getIdShort()),
+                            publishOnMessageBus, context);
+                }
+            }
+        }
+        else if ((parentElement instanceof SubmodelElementList oldList)
+                && (oldValue instanceof SubmodelElementListValue oldListValue)
+                && (newValue instanceof SubmodelElementListValue newListValue)) {
+            for (int index = 0; index < oldList.getValue().size(); index++) {
+                if ((oldListValue.getValues().size() > index) && (newListValue.getValues().size() > index)) {
+                    Reference reference = ReferenceBuilder.with(parent).index(index).build();
+                    syncWriteAssetSubmodelElementValue(reference, oldList.getValue().get(index), oldListValue.getValues().get(index), newListValue.getValues().get(index),
+                            publishOnMessageBus, context);
+                }
+            }
+        }
+        else if ((parentElement instanceof Entity oldEntity)
+                && (oldValue instanceof EntityValue oldEntityValue)
+                && (newValue instanceof EntityValue newEntityValue)) {
+            for (var child: oldEntity.getStatements()) {
+                if (oldEntityValue.getStatements().containsKey(child.getIdShort()) && newEntityValue.getStatements().containsKey(child.getIdShort())) {
+                    Reference reference = ReferenceBuilder.with(parent).element(child).build();
+                    syncWriteAssetSubmodelElementValue(reference, child, oldEntityValue.getStatements().get(child.getIdShort()),
+                            newEntityValue.getStatements().get(child.getIdShort()),
+                            publishOnMessageBus, context);
+                }
+            }
+        }
+        else if ((parentElement instanceof AnnotatedRelationshipElement oldEntRelElement)
+                && (oldValue instanceof AnnotatedRelationshipElementValue oldEntRelElementValue)
+                && (newValue instanceof AnnotatedRelationshipElementValue newEntRelElementValue)) {
+            for (var child: oldEntRelElement.getAnnotations()) {
+                if (oldEntRelElementValue.getAnnotations().containsKey(child.getIdShort()) && newEntRelElementValue.getAnnotations().containsKey(child.getIdShort())) {
+                    Reference reference = ReferenceBuilder.with(parent).element(child).build();
+                    syncWriteAssetSubmodelElementValue(reference, child, oldEntRelElementValue.getAnnotations().get(child.getIdShort()),
+                            newEntRelElementValue.getAnnotations().get(child.getIdShort()),
+                            publishOnMessageBus, context);
+                }
+            }
+        }
+    }
+
+
+    private void writeToAsset(Reference reference, SubmodelElement oldSubmodelElement, SubmodelElement newSubmodelElement, boolean publishOnMessageBus,
+                              RequestExecutionContext context)
+            throws ValueMappingException, AssetConnectionException, MessageBusException {
+        ElementValue oldValue = ElementValueMapper.toValue(oldSubmodelElement);
+        ElementValue newValue = ElementValueMapper.toValue(newSubmodelElement);
+        writeToAsset(reference, oldValue, newValue, publishOnMessageBus, context);
+    }
+
+
+    private void writeToAsset(Reference reference, ElementValue oldValue, ElementValue newValue, boolean publishOnMessageBus, RequestExecutionContext context)
+            throws AssetConnectionException, MessageBusException {
+
+        if ((context.getAssetConnectionManager().hasValueProvider(reference))
+                && (!Objects.equals(oldValue, newValue))) {
+            context.getAssetConnectionManager().setValue(reference, newValue);
+            if (publishOnMessageBus) {
+                context.getMessageBus().publish(ValueChangeEventMessage.builder()
+                        .element(reference)
+                        .oldValue(oldValue)
+                        .newValue(newValue)
+                        .build());
+            }
+        }
+
+    }
 }
