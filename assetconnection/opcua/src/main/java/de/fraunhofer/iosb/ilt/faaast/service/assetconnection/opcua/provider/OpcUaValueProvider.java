@@ -132,8 +132,9 @@ public class OpcUaValueProvider extends AbstractOpcUaProviderWithArray<OpcUaValu
                         valueToWrite,
                         arrayIndex);
             }
+            // write value without Timestamp (which is often not supported)
             List<StatusCode> results = client.writeValues(List.of(node.getNodeId()), List.of(new DataValue(
-                    valueToWrite)));
+                    valueToWrite, StatusCode.GOOD, null)));
             StatusCode result = results.get(0);
             OpcUaHelper.checkStatusCode(result, "error setting value on asset connection");
         }
