@@ -461,53 +461,78 @@ public abstract class AbstractRequestHandler<I extends Request<O>, O extends Res
                                                                RequestExecutionContext context)
             throws AssetConnectionException, MessageBusException {
 
-        //Reference reference = parentIsList
-        //        ? ReferenceBuilder.with(parent).index(index).build()
-        //        : ReferenceBuilder.with(parent).element(submodelElement).build();
         if ((parentElement instanceof SubmodelElementCollection oldCollection)
                 && (oldValue instanceof SubmodelElementCollectionValue oldCollValue)
                 && (newValue instanceof SubmodelElementCollectionValue newCollValue)) {
-            for (var child: oldCollection.getValue()) {
-                if (oldCollValue.getValues().containsKey(child.getIdShort()) && newCollValue.getValues().containsKey(child.getIdShort())) {
-                    Reference reference = ReferenceBuilder.with(parent).element(child).build();
-                    syncWriteAssetSubmodelElementValue(reference, child, oldCollValue.getValues().get(child.getIdShort()), newCollValue.getValues().get(child.getIdShort()),
-                            publishOnMessageBus, context);
-                }
-            }
+            syncWriteCollectionValue(parent, oldCollection, oldCollValue, newCollValue, publishOnMessageBus, context);
         }
         else if ((parentElement instanceof SubmodelElementList oldList)
                 && (oldValue instanceof SubmodelElementListValue oldListValue)
                 && (newValue instanceof SubmodelElementListValue newListValue)) {
-            for (int index = 0; index < oldList.getValue().size(); index++) {
-                if ((oldListValue.getValues().size() > index) && (newListValue.getValues().size() > index)) {
-                    Reference reference = ReferenceBuilder.with(parent).index(index).build();
-                    syncWriteAssetSubmodelElementValue(reference, oldList.getValue().get(index), oldListValue.getValues().get(index), newListValue.getValues().get(index),
-                            publishOnMessageBus, context);
-                }
-            }
+            syncWriteListValue(parent, oldList, oldListValue, newListValue, publishOnMessageBus, context);
         }
         else if ((parentElement instanceof Entity oldEntity)
                 && (oldValue instanceof EntityValue oldEntityValue)
                 && (newValue instanceof EntityValue newEntityValue)) {
-            for (var child: oldEntity.getStatements()) {
-                if (oldEntityValue.getStatements().containsKey(child.getIdShort()) && newEntityValue.getStatements().containsKey(child.getIdShort())) {
-                    Reference reference = ReferenceBuilder.with(parent).element(child).build();
-                    syncWriteAssetSubmodelElementValue(reference, child, oldEntityValue.getStatements().get(child.getIdShort()),
-                            newEntityValue.getStatements().get(child.getIdShort()),
-                            publishOnMessageBus, context);
-                }
-            }
+            syncWriteEntityValue(parent, oldEntity, oldEntityValue, newEntityValue, publishOnMessageBus, context);
         }
         else if ((parentElement instanceof AnnotatedRelationshipElement oldEntRelElement)
                 && (oldValue instanceof AnnotatedRelationshipElementValue oldEntRelElementValue)
                 && (newValue instanceof AnnotatedRelationshipElementValue newEntRelElementValue)) {
-            for (var child: oldEntRelElement.getAnnotations()) {
-                if (oldEntRelElementValue.getAnnotations().containsKey(child.getIdShort()) && newEntRelElementValue.getAnnotations().containsKey(child.getIdShort())) {
-                    Reference reference = ReferenceBuilder.with(parent).element(child).build();
-                    syncWriteAssetSubmodelElementValue(reference, child, oldEntRelElementValue.getAnnotations().get(child.getIdShort()),
-                            newEntRelElementValue.getAnnotations().get(child.getIdShort()),
-                            publishOnMessageBus, context);
-                }
+            syncWriteAnnotatedRelationshipValue(parent, oldEntRelElement, oldEntRelElementValue, newEntRelElementValue, publishOnMessageBus, context);
+        }
+    }
+
+
+    private void syncWriteAnnotatedRelationshipValue(Reference parent, AnnotatedRelationshipElement oldEntRelElement, AnnotatedRelationshipElementValue oldEntRelElementValue,
+                                                     AnnotatedRelationshipElementValue newEntRelElementValue, boolean publishOnMessageBus, RequestExecutionContext context)
+            throws AssetConnectionException, MessageBusException {
+        for (var child: oldEntRelElement.getAnnotations()) {
+            if (oldEntRelElementValue.getAnnotations().containsKey(child.getIdShort()) && newEntRelElementValue.getAnnotations().containsKey(child.getIdShort())) {
+                Reference reference = ReferenceBuilder.with(parent).element(child).build();
+                syncWriteAssetSubmodelElementValue(reference, child, oldEntRelElementValue.getAnnotations().get(child.getIdShort()),
+                        newEntRelElementValue.getAnnotations().get(child.getIdShort()),
+                        publishOnMessageBus, context);
+            }
+        }
+    }
+
+
+    private void syncWriteEntityValue(Reference parent, Entity oldEntity, EntityValue oldEntityValue, EntityValue newEntityValue, boolean publishOnMessageBus,
+                                      RequestExecutionContext context)
+            throws MessageBusException, AssetConnectionException {
+        for (var child: oldEntity.getStatements()) {
+            if (oldEntityValue.getStatements().containsKey(child.getIdShort()) && newEntityValue.getStatements().containsKey(child.getIdShort())) {
+                Reference reference = ReferenceBuilder.with(parent).element(child).build();
+                syncWriteAssetSubmodelElementValue(reference, child, oldEntityValue.getStatements().get(child.getIdShort()),
+                        newEntityValue.getStatements().get(child.getIdShort()),
+                        publishOnMessageBus, context);
+            }
+        }
+    }
+
+
+    private void syncWriteListValue(Reference parent, SubmodelElementList oldList, SubmodelElementListValue oldListValue, SubmodelElementListValue newListValue,
+                                    boolean publishOnMessageBus, RequestExecutionContext context)
+            throws MessageBusException, AssetConnectionException {
+        for (int index = 0; index < oldList.getValue().size(); index++) {
+            if ((oldListValue.getValues().size() > index) && (newListValue.getValues().size() > index)) {
+                Reference reference = ReferenceBuilder.with(parent).index(index).build();
+                syncWriteAssetSubmodelElementValue(reference, oldList.getValue().get(index), oldListValue.getValues().get(index), newListValue.getValues().get(index),
+                        publishOnMessageBus, context);
+            }
+        }
+    }
+
+
+    private void syncWriteCollectionValue(Reference parent, SubmodelElementCollection oldCollection, SubmodelElementCollectionValue oldCollValue,
+                                          SubmodelElementCollectionValue newCollValue, boolean publishOnMessageBus, RequestExecutionContext context)
+            throws AssetConnectionException, MessageBusException {
+        for (var child: oldCollection.getValue()) {
+            if (oldCollValue.getValues().containsKey(child.getIdShort()) && newCollValue.getValues().containsKey(child.getIdShort())) {
+                Reference reference = ReferenceBuilder.with(parent).element(child).build();
+                syncWriteAssetSubmodelElementValue(reference, child, oldCollValue.getValues().get(child.getIdShort()), newCollValue.getValues().get(child.getIdShort()),
+                        publishOnMessageBus, context);
             }
         }
     }

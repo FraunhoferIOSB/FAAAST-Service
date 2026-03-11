@@ -68,21 +68,6 @@ public class PatchSubmodelElementByPathRequestHandler extends AbstractSubmodelIn
         }
         syncWriteAssetSubmodelElement(reference, oldSubmodelElement, newSubmodelElement, !request.isInternal(), context);
 
-        //else if (Objects.equals(oldSubmodelElement.getClass(), newSubmodelElement.getClass())
-        //        && ElementValueHelper.isSerializableAsValue(oldSubmodelElement.getClass())) {
-        //    ElementValue oldValue = ElementValueMapper.toValue(oldSubmodelElement);
-        //    ElementValue newValue = ElementValueMapper.toValue(newSubmodelElement);
-        //    if (!Objects.equals(oldValue, newValue)) {
-        //        context.getAssetConnectionManager().setValue(reference, newValue);
-        //        if (!request.isInternal()) {
-        //            context.getMessageBus().publish(ValueChangeEventMessage.builder()
-        //                    .element(reference)
-        //                    .oldValue(oldValue)
-        //                    .newValue(newValue)
-        //                    .build());
-        //        }
-        //    }
-        //}
         if (!request.isInternal()) {
             context.getMessageBus().publish(ElementUpdateEventMessage.builder()
                     .element(reference)

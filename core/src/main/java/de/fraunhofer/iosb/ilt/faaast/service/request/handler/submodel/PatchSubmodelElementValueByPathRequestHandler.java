@@ -58,7 +58,6 @@ public class PatchSubmodelElementValueByPathRequestHandler
         ElementValue newValue = request.getValueParser().parse(request.getRawValue(), oldValue.getClass());
         ElementValueMapper.setValue(submodelElement, newValue);
         if (request.isSyncWithAsset()) {
-            //context.getAssetConnectionManager().setValue(reference, newValue);
             syncWriteAssetSubmodelElementValue(reference, submodelElement, oldValue, newValue, !request.isInternal(), context);
         }
         try {
