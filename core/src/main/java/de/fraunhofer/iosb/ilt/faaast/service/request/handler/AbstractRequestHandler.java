@@ -200,8 +200,8 @@ public abstract class AbstractRequestHandler<I extends Request<O>, O extends Res
      * @throws AssetConnectionException if writing the value to the asset
      *             connection fails.
      */
-    protected <T extends SubmodelElement> void syncWriteWithAsset(Reference parent, List<T> oldSubmodelElements, List<T> newSubmodelElements, boolean publishOnMessageBus,
-                                                                  RequestExecutionContext context, boolean parentIsList)
+    protected <T extends SubmodelElement> void syncWriteAsset(Reference parent, List<T> oldSubmodelElements, List<T> newSubmodelElements, boolean publishOnMessageBus,
+                                                              RequestExecutionContext context, boolean parentIsList)
             throws ValueMappingException, AssetConnectionException, MessageBusException {
 
         if (parent == null || oldSubmodelElements == null || newSubmodelElements == null) {
@@ -342,16 +342,16 @@ public abstract class AbstractRequestHandler<I extends Request<O>, O extends Res
                                                           RequestExecutionContext context)
             throws ValueMappingException, AssetConnectionException, MessageBusException {
         if ((oldSubmodelElement instanceof SubmodelElementCollection oldCollection) && (newSubmodelElement instanceof SubmodelElementCollection newCollection)) {
-            syncWriteWithAsset(reference, oldCollection.getValue(), newCollection.getValue(), publishOnMessageBus, context, false);
+            syncWriteAsset(reference, oldCollection.getValue(), newCollection.getValue(), publishOnMessageBus, context, false);
         }
         else if ((oldSubmodelElement instanceof Entity oldEntity) && (newSubmodelElement instanceof Entity newEntity)) {
-            syncWriteWithAsset(reference, oldEntity.getStatements(), newEntity.getStatements(), publishOnMessageBus, context, false);
+            syncWriteAsset(reference, oldEntity.getStatements(), newEntity.getStatements(), publishOnMessageBus, context, false);
         }
         else if ((oldSubmodelElement instanceof SubmodelElementList oldList) && (newSubmodelElement instanceof SubmodelElementList newList)) {
-            syncWriteWithAsset(reference, oldList.getValue(), newList.getValue(), publishOnMessageBus, context, true);
+            syncWriteAsset(reference, oldList.getValue(), newList.getValue(), publishOnMessageBus, context, true);
         }
         else if ((oldSubmodelElement instanceof AnnotatedRelationshipElement oldRelElement) && (newSubmodelElement instanceof AnnotatedRelationshipElement newRelElement)) {
-            syncWriteWithAsset(reference, oldRelElement.getAnnotations(), newRelElement.getAnnotations(), publishOnMessageBus, context, false);
+            syncWriteAsset(reference, oldRelElement.getAnnotations(), newRelElement.getAnnotations(), publishOnMessageBus, context, false);
         }
     }
 

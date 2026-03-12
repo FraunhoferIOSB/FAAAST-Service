@@ -71,7 +71,7 @@ public class PutSubmodelRequestHandler extends AbstractRequestHandler<PutSubmode
         Reference reference = AasUtils.toReference(request.getSubmodel());
         // if statement only necessary for unit test
         if (oldSubmodel != null) {
-            syncWriteWithAsset(reference, oldSubmodel.getSubmodelElements(), request.getSubmodel().getSubmodelElements(), !request.isInternal(), context, false);
+            syncWriteAsset(reference, oldSubmodel.getSubmodelElements(), request.getSubmodel().getSubmodelElements(), !request.isInternal(), context, false);
         }
         context.getMessageBus().publish(ElementUpdateEventMessage.builder()
                 .element(reference)

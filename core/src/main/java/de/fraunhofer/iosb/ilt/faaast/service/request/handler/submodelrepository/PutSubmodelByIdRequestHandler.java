@@ -31,6 +31,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHand
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 
 
 /**
@@ -48,10 +49,13 @@ public class PutSubmodelByIdRequestHandler extends AbstractRequestHandler<PutSub
             PersistenceException {
         ModelValidator.validate(request.getSubmodel(), context.getCoreConfig().getValidationOnUpdate());
         //check if resource does exist
-        context.getPersistence().getSubmodel(request.getSubmodel().getId(), QueryModifier.DEFAULT);
+        Submodel oldSubmodel = context.getPersistence().getSubmodel(request.getSubmodel().getId(), QueryModifier.DEFAULT);
         context.getPersistence().save(request.getSubmodel());
         Reference reference = AasUtils.toReference(request.getSubmodel());
-        syncWithAsset(reference, request.getSubmodel().getSubmodelElements(), !request.isInternal(), context, false);
+        // if statement only necessary for unit test
+        if (oldSubmodel != null) {
+            syncWriteAsset(reference, oldSubmodel.getSubmodelElements(), request.getSubmodel().getSubmodelElements(), !request.isInternal(), context, false);
+        }
         if (!request.isInternal()) {
             context.getMessageBus().publish(ElementUpdateEventMessage.builder()
                     .element(reference)
