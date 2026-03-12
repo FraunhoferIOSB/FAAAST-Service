@@ -577,7 +577,7 @@ public abstract class AbstractRequestHandler<I extends Request<O>, O extends Res
     private void writeToAsset(Reference reference, SubmodelElement oldSubmodelElement, SubmodelElement newSubmodelElement, boolean publishOnMessageBus,
                               RequestExecutionContext context)
             throws ValueMappingException, AssetConnectionException, MessageBusException {
-        ElementValue oldValue = ElementValueMapper.toValue(oldSubmodelElement);
+        ElementValue oldValue = oldSubmodelElement != null ? ElementValueMapper.toValue(oldSubmodelElement) : null;
         ElementValue newValue = ElementValueMapper.toValue(newSubmodelElement);
         writeToAsset(reference, oldValue, newValue, publishOnMessageBus, context);
     }
@@ -587,7 +587,7 @@ public abstract class AbstractRequestHandler<I extends Request<O>, O extends Res
             throws AssetConnectionException, MessageBusException {
 
         if ((context.getAssetConnectionManager().hasValueProvider(reference))
-                && (!Objects.equals(oldValue, newValue))) {
+                && ((oldValue == null) || (!Objects.equals(oldValue, newValue)))) {
             context.getAssetConnectionManager().setValue(reference, newValue);
             if (publishOnMessageBus) {
                 context.getMessageBus().publish(ValueChangeEventMessage.builder()
