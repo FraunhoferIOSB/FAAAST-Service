@@ -25,7 +25,7 @@ import java.util.Map;
 
 
 /**
- * class to map HTTP-PUT-Request path: /import.
+ * class to map HTTP-POST-Request path: /import.
  */
 public class ImportRequestMapper extends AbstractRequestMapper {
 

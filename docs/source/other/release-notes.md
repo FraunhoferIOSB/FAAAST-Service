@@ -7,6 +7,7 @@
 	- Fixed bug that incorrectly removed submodel reference from AAS when updating a submodel via PUT /submodels/{submodelId}
 	- Better failure logging in the registry synchronization component: Log error responses from AAS/Submodel registries
 	- Fix idShortPaths to support Entity and AnnotatedRelationshipElement
+    - Fix inconsistencies between docs and proprietary API: DELETE /reset resets the server, POST /import imports an AAS file, /upload was removed from docs
 - Asset Connection
 	- OPC UA
 		- When connecting to an OPC UA asset and the discovery service returns mutliple URLs to use, the ones with a reachable host are preferred.
@@ -57,7 +58,7 @@
 	- HTTP
 		- Improved CORS support by introducing additional config properties `corsAllowCredentials`, `corsAllowedHeaders`, `corsAllowedMethods`, `corsAllowedOrigin`, `corsExposedHeaders`, and `corsMaxAge`
 		- Improved error messages; stack trace may now be returned in HTTP responses via config property `includeErrorDetails`
-		- New API calls: PUT on /upload will now accept JSON/AASX model files. DELETE on /reset will erase everything including AAS, Submodels and ConceptDescriptions.
+		- New API calls: POST on /import will now accept JSON/AASX model files. DELETE on /reset will erase everything including AAS, Submodels and ConceptDescriptions.
 	- OPC UA
 		- Added support for all datatypes of the AAS specification
 

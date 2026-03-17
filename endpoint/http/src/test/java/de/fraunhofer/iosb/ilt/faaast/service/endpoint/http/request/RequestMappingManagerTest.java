@@ -1202,7 +1202,7 @@ public class RequestMappingManagerTest {
         Request expected = ResetRequest.builder()
                 .build();
         Request actual = mappingManager.map(HttpRequest.builder()
-                .method(HttpMethod.GET)
+                .method(HttpMethod.DELETE)
                 .path("reset")
                 .header(HttpConstants.HEADER_CONTENT_TYPE, "application/json")
                 .body(json.getBytes())
