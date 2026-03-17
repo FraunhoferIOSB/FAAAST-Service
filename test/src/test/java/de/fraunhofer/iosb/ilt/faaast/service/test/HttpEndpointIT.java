@@ -2736,7 +2736,7 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
             KeyManagementException, UnsupportedModifierException {
         HttpResponse response = HttpHelper.execute(
                 httpClient,
-                HttpMethod.GET,
+                HttpMethod.DELETE,
                 apiPaths.proprietaryInterface().reset());
         Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS_NO_CONTENT), response.statusCode());
         assertExecutePage(
