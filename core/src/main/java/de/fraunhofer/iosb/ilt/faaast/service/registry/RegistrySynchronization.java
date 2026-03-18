@@ -72,8 +72,7 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Class to handle the synchronisation of assetAdministrationShells and submodels
- * with the Registry.
+ * Class to handle the synchronisation of assetAdministrationShells and submodels with the Registry.
  */
 public class RegistrySynchronization {
     private static final Logger LOGGER = LoggerFactory.getLogger(RegistrySynchronization.class);
@@ -533,8 +532,9 @@ public class RegistrySynchronization {
     private URI sanitize(String baseUrl) throws URISyntaxException {
         String sanitized = baseUrl.endsWith("/") ? baseUrl : baseUrl.concat("/");
         URI sanitizedUri = URI.create(sanitized);
-        if (sanitizedUri.getScheme() == null) {
-            sanitizedUri = new URI("https", sanitizedUri.getSchemeSpecificPart(), null);
+        String scheme = sanitizedUri.getScheme();
+        if (scheme == null || !(scheme.equals("https") || scheme.equals("http"))) {
+            sanitizedUri = new URI("https://".concat(sanitizedUri.toString()));
         }
         return sanitizedUri;
     }

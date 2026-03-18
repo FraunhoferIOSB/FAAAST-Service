@@ -333,7 +333,7 @@ public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
         String scheme = safeBase.getScheme();
         // callback address can only have http(s) for HTTP endpoint
         if (scheme == null || !(scheme.equals(HttpScheme.HTTPS.toString()) || scheme.equals(HttpScheme.HTTP.toString()))) {
-            safeBase = URI.create("https://".concat(safeBase.toString()));
+            safeBase = URI.create(HttpScheme.HTTPS.toString().concat("://").concat(safeBase.toString()));
         }
         safeBase = safeBase.toString().endsWith("/") ? safeBase : URI.create(safeBase.toString().concat("/"));
 
