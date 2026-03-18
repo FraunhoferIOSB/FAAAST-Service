@@ -264,10 +264,10 @@ public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
 
 
     private org.eclipse.digitaltwin.aas4j.v3.model.Endpoint endpointFor(Interface iface, String path, String identifiableId) {
-        URI endpointUri = buildUri(getEndpointUri().toString(), path);
+        URI endpointUri = buildUri(getEndpointUri(), path);
 
         if (iface == Interface.SUBMODEL || iface == Interface.AAS) {
-            endpointUri = buildUri(endpointUri.toString(), EncodingHelper.base64UrlEncode(identifiableId));
+            endpointUri = buildUri(endpointUri, EncodingHelper.base64UrlEncode(identifiableId));
         }
 
         return new DefaultEndpoint.Builder()
@@ -302,7 +302,7 @@ public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
         try {
             if (Objects.nonNull(config.getCallbackAddress())) {
                 result = buildUri(
-                        config.getCallbackAddress(),
+                        URI.create(config.getCallbackAddress()),
                         // server URI path comes before configured prefix
                         result.getPath(),
                         config.getPathPrefix());
@@ -327,8 +327,15 @@ public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
     }
 
 
-    private URI buildUri(String base, String... paths) {
-        String safeBase = base.endsWith("/") ? base : base.concat("/");
+    private URI buildUri(URI base, String... paths) {
+        URI safeBase = base;
+        String scheme = safeBase.getScheme();
+        // CallbackAddress can only have http(s) for HTTP endpoint
+        if (scheme == null || !(scheme.equals("https") || scheme.equals("http"))) {
+            safeBase = URI.create("https://".concat(safeBase.toString()));
+        }
+        safeBase = safeBase.toString().endsWith("/") ? safeBase : URI.create(safeBase.toString().concat("/"));
+
         StringBuilder safePathBuilder = new StringBuilder();
         for (String path: paths) {
             if (path == null || path.isBlank()) {
@@ -346,7 +353,7 @@ public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
         }
 
         // Remove leading slash again
-        return URI.create(safeBase).resolve(safePath);
+        return safeBase.resolve(safePath);
     }
 
 
