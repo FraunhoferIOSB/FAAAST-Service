@@ -40,6 +40,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.SslHelper;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
@@ -495,7 +496,8 @@ public class RegistrySynchronization {
                             responseMessages,
                             response.statusCode()));
                 }
-                catch (IOException | InterruptedException | KeyManagementException | NoSuchAlgorithmException | SerializationException | DeserializationException e) {
+                catch (IOException | InterruptedException | KeyManagementException | NoSuchAlgorithmException | SerializationException | DeserializationException |
+                        URISyntaxException e) {
                     LOGGER.warn(String.format(
                             errorMsg,
                             id,
@@ -512,18 +514,29 @@ public class RegistrySynchronization {
 
 
     private HttpResponse<String> execute(HttpMethod method, String baseUrl, String path, Object payload)
-            throws IOException, InterruptedException, KeyManagementException, NoSuchAlgorithmException, SerializationException {
+            throws IOException, InterruptedException, KeyManagementException, NoSuchAlgorithmException, SerializationException, URISyntaxException {
         Ensure.requireNonNull(method, "method must be non-null");
         Ensure.requireNonNull(baseUrl, "baseUrl must be non-null");
         Ensure.requireNonNull(path, "path must be non-null");
         Ensure.requireNonNull(payload, "payload must be non-null");
-        String safeBaseUrl = baseUrl.endsWith("/") ? baseUrl : baseUrl.concat("/");
+        URI sanitizedBaseUrl = sanitize(baseUrl).resolve(path);
+
         HttpRequest.Builder builder = HttpRequest.newBuilder()
-                .uri(URI.create(safeBaseUrl).resolve(path))
+                .uri(sanitizedBaseUrl)
                 .header("Content-Type", "application/json");
         requestDecorator.decorate(builder);
         HttpRequest request = builder.method(method.toString(), HttpRequest.BodyPublishers.ofString(mapper.write(payload))).build();
         return SslHelper.newClientAcceptingAllCertificates().send(request, BodyHandlers.ofString());
+    }
+
+
+    private URI sanitize(String baseUrl) throws URISyntaxException {
+        String sanitized = baseUrl.endsWith("/") ? baseUrl : baseUrl.concat("/");
+        URI sanitizedUri = URI.create(sanitized);
+        if (sanitizedUri.getScheme() == null) {
+           sanitizedUri = new URI("https", sanitizedUri.getSchemeSpecificPart(), null);
+        }
+        return sanitizedUri;
     }
 
 
