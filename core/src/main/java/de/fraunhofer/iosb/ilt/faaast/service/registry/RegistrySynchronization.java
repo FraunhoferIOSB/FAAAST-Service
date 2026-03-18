@@ -518,25 +518,16 @@ public class RegistrySynchronization {
         Ensure.requireNonNull(baseUrl, "baseUrl must be non-null");
         Ensure.requireNonNull(path, "path must be non-null");
         Ensure.requireNonNull(payload, "payload must be non-null");
-        URI sanitizedBaseUrl = sanitize(baseUrl).resolve(path);
+
+        // URI.resolve will remove the path if it is not suffixed by "/"
+        String safeBaseUrl = baseUrl.endsWith("/") ? baseUrl : baseUrl.concat("/");
 
         HttpRequest.Builder builder = HttpRequest.newBuilder()
-                .uri(sanitizedBaseUrl)
+                .uri(URI.create(safeBaseUrl).resolve(path))
                 .header("Content-Type", "application/json");
         requestDecorator.decorate(builder);
         HttpRequest request = builder.method(method.toString(), HttpRequest.BodyPublishers.ofString(mapper.write(payload))).build();
         return SslHelper.newClientAcceptingAllCertificates().send(request, BodyHandlers.ofString());
-    }
-
-
-    private URI sanitize(String baseUrl) throws URISyntaxException {
-        String sanitized = baseUrl.endsWith("/") ? baseUrl : baseUrl.concat("/");
-        URI sanitizedUri = URI.create(sanitized);
-        String scheme = sanitizedUri.getScheme();
-        if (scheme == null || !(scheme.equals("https") || scheme.equals("http"))) {
-            sanitizedUri = new URI("https://".concat(sanitizedUri.toString()));
-        }
-        return sanitizedUri;
     }
 
 

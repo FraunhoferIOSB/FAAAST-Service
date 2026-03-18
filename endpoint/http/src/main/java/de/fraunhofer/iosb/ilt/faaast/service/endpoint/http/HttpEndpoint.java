@@ -45,7 +45,6 @@ import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEndpoint;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProtocolInformation;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSecurityAttributeObject;
 import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
-import org.eclipse.jetty.http.HttpScheme;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.SecureRequestCustomizer;
@@ -230,13 +229,12 @@ public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
         if (config.getProfiles().stream()
                 .flatMap(x -> x.getInterfaces().stream())
                 .anyMatch(x -> Objects.equals(x, Interface.AAS_REPOSITORY))) {
-            // Intentionally omitting trailing slash for path. *_REPOSITORY-Endpoint does not append id to path.
-            result.add(endpointFor(Interface.AAS_REPOSITORY, "/shells", aasId));
+            result.add(endpointFor(Interface.AAS_REPOSITORY, "shells", aasId));
         }
         if (config.getProfiles().stream()
                 .flatMap(x -> x.getInterfaces().stream())
                 .anyMatch(x -> Objects.equals(x, Interface.AAS))) {
-            result.add(endpointFor(Interface.AAS, "/shells/", aasId));
+            result.add(endpointFor(Interface.AAS, "shells", aasId));
         }
         return result;
     }
@@ -251,13 +249,12 @@ public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
         if (config.getProfiles().stream()
                 .flatMap(x -> x.getInterfaces().stream())
                 .anyMatch(x -> Objects.equals(x, Interface.SUBMODEL_REPOSITORY))) {
-            // Intentionally omitting trailing slash for path. *_REPOSITORY-Endpoint does not append id to path.
-            result.add(endpointFor(Interface.SUBMODEL_REPOSITORY, "/submodels", submodelId));
+            result.add(endpointFor(Interface.SUBMODEL_REPOSITORY, "submodels", submodelId));
         }
         if (config.getProfiles().stream()
                 .flatMap(x -> x.getInterfaces().stream())
                 .anyMatch(x -> Objects.equals(x, Interface.SUBMODEL))) {
-            result.add(endpointFor(Interface.SUBMODEL, "/submodels/", submodelId));
+            result.add(endpointFor(Interface.SUBMODEL, "submodels", submodelId));
         }
 
         return result;
@@ -265,10 +262,10 @@ public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
 
 
     private org.eclipse.digitaltwin.aas4j.v3.model.Endpoint endpointFor(Interface iface, String path, String identifiableId) {
-        URI endpointUri = buildUri(getEndpointUri(), path);
+        URI endpointUri = buildUri(getEndpointUri().toString(), path);
 
         if (iface == Interface.SUBMODEL || iface == Interface.AAS) {
-            endpointUri = buildUri(endpointUri, EncodingHelper.base64UrlEncode(identifiableId));
+            endpointUri = buildUri(endpointUri.toString(), EncodingHelper.base64UrlEncode(identifiableId));
         }
 
         return new DefaultEndpoint.Builder()
@@ -303,7 +300,7 @@ public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
         try {
             if (Objects.nonNull(config.getCallbackAddress())) {
                 result = buildUri(
-                        URI.create(config.getCallbackAddress()),
+                        config.getCallbackAddress(),
                         // server URI path comes before configured prefix
                         result.getPath(),
                         config.getPathPrefix());
@@ -328,33 +325,31 @@ public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
     }
 
 
-    private URI buildUri(URI base, String... paths) {
-        URI safeBase = base;
-        String scheme = safeBase.getScheme();
-        // callback address can only have http(s) for HTTP endpoint
-        if (scheme == null || !(scheme.equals(HttpScheme.HTTPS.toString()) || scheme.equals(HttpScheme.HTTP.toString()))) {
-            safeBase = URI.create(HttpScheme.HTTPS.toString().concat("://").concat(safeBase.toString()));
-        }
-        safeBase = safeBase.toString().endsWith("/") ? safeBase : URI.create(safeBase.toString().concat("/"));
+    private URI buildUri(String base, String... paths) {
+        String safeBase = base.endsWith("/") ? base : base.concat("/");
 
+        String safePath = getSafePath(paths);
+
+        return URI.create(safeBase).resolve(safePath);
+    }
+
+
+    private String getSafePath(String[] paths) {
         StringBuilder safePathBuilder = new StringBuilder();
+
+        // Each path in paths should not start with / but end with /.
         for (String path: paths) {
-            if (path == null || path.isBlank()) {
+            if (path == null || path.isEmpty() || path.equals("/")) {
+                // Do not consider empty path segments
                 continue;
             }
-            safePathBuilder.append(path.startsWith("/") ? path : path.concat("/"));
+            // Double-slashes within path segments are valid and sometimes even meaningful,
+            // so we only care about the bits connecting the path segments (prefix/suffix).
+            String safePath = path.startsWith("/") ? path.substring(1) : path;
+            safePathBuilder.append(safePath.endsWith("/") ? safePath : safePath.concat("/"));
         }
 
-        String safePath = safePathBuilder.toString();
-
-        safePath = safePath.replace("//", "/");
-
-        while (safePath.startsWith("/")) {
-            safePath = safePath.substring(1);
-        }
-
-        // Remove leading slash again
-        return safeBase.resolve(safePath);
+        return safePathBuilder.toString().endsWith("/") ? safePathBuilder.substring(0, safePathBuilder.length() - 1) : safePathBuilder.toString();
     }
 
 
