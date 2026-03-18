@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.config;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.validation.ModelValidatorConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -32,6 +33,7 @@ public class CoreConfig {
     private static final long DEFAULT_ASSET_CONNECTION_RETRY_INTERVAL = 1000;
     private static final int DEFAULT_REQUEST_HANDLER_THREADPOOL_SIZE = 1;
     private static final double DEFAULT_MIN_INFLATE_RATIO = 0.001;
+    private static final String ALLOWED_URL_PREFIX_REGEX = "https?://.*";
 
     private long assetConnectionRetryInterval;
     private int requestHandlerThreadPoolSize;
@@ -128,6 +130,7 @@ public class CoreConfig {
 
 
     public void setAasRegistries(List<String> aasRegistries) {
+        validateRegistryUrl(aasRegistries);
         this.aasRegistries = aasRegistries;
     }
 
@@ -138,7 +141,16 @@ public class CoreConfig {
 
 
     public void setSubmodelRegistries(List<String> submodelRegistries) {
+        validateRegistryUrl(submodelRegistries);
         this.submodelRegistries = submodelRegistries;
+    }
+
+
+    private void validateRegistryUrl(List<String> registryUrls) {
+        for (String url: registryUrls) {
+            Ensure.require(url.matches(ALLOWED_URL_PREFIX_REGEX), String.format("URLs in %s.%s must start with https:// or http://, but one of them is: %s",
+                    this.getClass().getSimpleName(), "(aas|submodel)Registries", url));
+        }
     }
 
 
