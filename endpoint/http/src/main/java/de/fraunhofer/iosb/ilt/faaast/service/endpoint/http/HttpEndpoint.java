@@ -264,7 +264,7 @@ public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
 
 
     private org.eclipse.digitaltwin.aas4j.v3.model.Endpoint endpointFor(Interface iface, String path, String identifiableId) {
-        URI endpointUri = buildUri(getEndpointUri().toString(), getPathPrefix(), path);
+        URI endpointUri = buildUri(getEndpointUri().toString(), path);
 
         if (iface == Interface.SUBMODEL || iface == Interface.AAS) {
             endpointUri = buildUri(endpointUri.toString(), EncodingHelper.base64UrlEncode(identifiableId));
@@ -336,8 +336,12 @@ public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
             }
             safePathBuilder.append(path.startsWith("/") ? path : path.concat("/"));
         }
+
         String safePath = safePathBuilder.toString();
-        if (safePath.startsWith("/")) {
+
+        safePath = safePath.replace("//", "/");
+
+        while (safePath.startsWith("/")) {
             safePath = safePath.substring(1);
         }
 
