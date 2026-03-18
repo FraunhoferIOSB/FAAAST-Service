@@ -496,8 +496,8 @@ public class RegistrySynchronization {
                             responseMessages,
                             response.statusCode()));
                 }
-                catch (IOException | InterruptedException | KeyManagementException | NoSuchAlgorithmException | SerializationException | DeserializationException |
-                        URISyntaxException e) {
+                catch (IOException | InterruptedException | KeyManagementException | NoSuchAlgorithmException | SerializationException | DeserializationException
+                        | URISyntaxException e) {
                     LOGGER.warn(String.format(
                             errorMsg,
                             id,
@@ -534,7 +534,7 @@ public class RegistrySynchronization {
         String sanitized = baseUrl.endsWith("/") ? baseUrl : baseUrl.concat("/");
         URI sanitizedUri = URI.create(sanitized);
         if (sanitizedUri.getScheme() == null) {
-           sanitizedUri = new URI("https", sanitizedUri.getSchemeSpecificPart(), null);
+            sanitizedUri = new URI("https", sanitizedUri.getSchemeSpecificPart(), null);
         }
         return sanitizedUri;
     }

@@ -45,6 +45,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEndpoint;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProtocolInformation;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSecurityAttributeObject;
 import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
+import org.eclipse.jetty.http.HttpScheme;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.SecureRequestCustomizer;
@@ -330,8 +331,8 @@ public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
     private URI buildUri(URI base, String... paths) {
         URI safeBase = base;
         String scheme = safeBase.getScheme();
-        // CallbackAddress can only have http(s) for HTTP endpoint
-        if (scheme == null || !(scheme.equals("https") || scheme.equals("http"))) {
+        // callback address can only have http(s) for HTTP endpoint
+        if (scheme == null || !(scheme.equals(HttpScheme.HTTPS.toString()) || scheme.equals(HttpScheme.HTTP.toString()))) {
             safeBase = URI.create("https://".concat(safeBase.toString()));
         }
         safeBase = safeBase.toString().endsWith("/") ? safeBase : URI.create(safeBase.toString().concat("/"));
