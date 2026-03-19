@@ -513,7 +513,7 @@ public class RegistrySynchronization {
 
 
     private HttpResponse<String> execute(HttpMethod method, String baseUrl, String path, Object payload)
-            throws IOException, InterruptedException, KeyManagementException, NoSuchAlgorithmException, SerializationException, URISyntaxException {
+            throws IOException, InterruptedException, KeyManagementException, NoSuchAlgorithmException, SerializationException {
         Ensure.requireNonNull(method, "method must be non-null");
         Ensure.requireNonNull(baseUrl, "baseUrl must be non-null");
         Ensure.requireNonNull(path, "path must be non-null");
