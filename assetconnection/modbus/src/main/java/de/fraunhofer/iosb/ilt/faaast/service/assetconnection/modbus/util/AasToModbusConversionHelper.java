@@ -59,6 +59,7 @@ public class AasToModbusConversionHelper {
      * @param dataElementValue Value to convert.
      * @param numberBytes If true, the resulting array will have an even number of bytes.
      * @return converted data.
+     * @throws AssetConnectionException When trying to convert null-values.
      */
     public static byte[] convert(DataElementValue dataElementValue, int numberBytes) throws AssetConnectionException {
         if (dataElementValue == null) {

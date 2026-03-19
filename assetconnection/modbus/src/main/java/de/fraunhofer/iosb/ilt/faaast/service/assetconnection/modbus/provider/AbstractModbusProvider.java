@@ -153,6 +153,7 @@ public abstract class AbstractModbusProvider<C extends AbstractModbusProviderCon
      * Write a byte array to a modbus server address specified in the config.
      *
      * @param bytesToWrite The bytes to write.
+     * @throws AssetConnectionException If the provider does not support write-operations.
      */
     protected void doWrite(byte[] bytesToWrite) throws AssetConnectionException {
         ModbusRequestPdu writeRequest = createWriteRequest(bytesToWrite);
