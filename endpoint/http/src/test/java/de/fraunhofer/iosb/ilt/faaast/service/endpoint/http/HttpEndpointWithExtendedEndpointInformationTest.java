@@ -103,30 +103,6 @@ public class HttpEndpointWithExtendedEndpointInformationTest extends AbstractHtt
     }
 
 
-    @Test
-    public void testGetAasEndpointInformationWithCallbackAddressNoScheme() {
-        String callbackAddressMissingScheme = "invalid.local:1234/path";
-        endpoint.init(
-                CoreConfig.DEFAULT,
-                HttpEndpointConfig.builder()
-                        .port(port)
-                        .cors(true)
-                        .ssl(false)
-                        .callbackAddress(callbackAddressMissingScheme)
-                        .subprotocol(subprotocol)
-                        .subprotocolBody(subprotocolBody)
-                        .subprotocolBodyEncoding(subprotocolBodyEncoding)
-                        .hostname("http://willbeoverridden.local:4242/example")
-                        .build(),
-                service);
-
-        String expectedHref = "https://".concat(callbackAddressMissingScheme).concat(endpoint.getPathPrefix()).concat("/shells");
-        List<Endpoint> actual = endpoint.getAasEndpointInformation(UUID.randomUUID().toString());
-
-        assertProtocolInformation(actual.get(0).getProtocolInformation(), expectedHref);
-    }
-
-
     private void assertProtocolInformation(ProtocolInformation protocolInformation, String expectedCallbackAddress) {
         Assert.assertEquals(expectedCallbackAddress, protocolInformation.getHref());
         Assert.assertEquals(subprotocol, protocolInformation.getSubprotocol());

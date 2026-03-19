@@ -129,6 +129,11 @@ public class CoreConfig {
     }
 
 
+    /**
+     * Sets the AAS registries. Each URL must start with either http:// or https://.
+     *
+     * @param aasRegistries The aasRegistries URL list as a list of strings.
+     */
     public void setAasRegistries(List<String> aasRegistries) {
         validateRegistryUrl(aasRegistries);
         this.aasRegistries = aasRegistries;
@@ -140,6 +145,11 @@ public class CoreConfig {
     }
 
 
+    /**
+     * Sets the submodel registries. Each URL must start with either http:// or https://.
+     *
+     * @param submodelRegistries The submodelRegistries URL list as a list of strings.
+     */
     public void setSubmodelRegistries(List<String> submodelRegistries) {
         validateRegistryUrl(submodelRegistries);
         this.submodelRegistries = submodelRegistries;
