@@ -40,7 +40,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.SslHelper;
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
@@ -495,8 +494,7 @@ public class RegistrySynchronization {
                             responseMessages,
                             response.statusCode()));
                 }
-                catch (IOException | InterruptedException | KeyManagementException | NoSuchAlgorithmException | SerializationException | DeserializationException
-                        | URISyntaxException e) {
+                catch (IOException | InterruptedException | KeyManagementException | NoSuchAlgorithmException | SerializationException | DeserializationException e) {
                     LOGGER.warn(String.format(
                             errorMsg,
                             id,
