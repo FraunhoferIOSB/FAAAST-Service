@@ -18,17 +18,21 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
+import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.QueryParameters;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.filestorage.FileStorage;
+import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
 import de.fraunhofer.iosb.ilt.faaast.service.model.EnvironmentContext;
 import de.fraunhofer.iosb.ilt.faaast.service.model.TypedInMemoryFile;
@@ -75,14 +79,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.apache.hc.core5.http.ContentType;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
+import org.eclipse.digitaltwin.aas4j.v3.model.Endpoint;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.eclipse.digitaltwin.aas4j.v3.model.ExecutionState;
 import org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum;
+import org.eclipse.digitaltwin.aas4j.v3.model.ProtocolInformation;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.Result;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
@@ -104,6 +111,7 @@ import org.eclipse.jetty.client.StringRequestContent;
 import org.eclipse.jetty.http.HttpFields;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpMethod;
+import org.eclipse.jetty.http.HttpScheme;
 import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.jetty.http.MultiPart;
 import org.eclipse.jetty.server.Server;
@@ -134,12 +142,32 @@ public abstract class AbstractHttpEndpointTest {
     protected static Server server;
 
     @Before
-    public void setUp() {
+    public void setUp() throws Exception {
+        startServer();
         serializer = new HttpJsonApiSerializer();
         deserializer = new HttpJsonApiDeserializer();
         Mockito.reset(persistence);
         Mockito.reset(fileStorage);
         Mockito.reset(service);
+    }
+
+
+    private void startServer() throws Exception {
+        scheme = HttpScheme.HTTPS.toString();
+        endpoint = new HttpEndpoint();
+        server = new Server();
+        service = spy(new Service(CoreConfig.DEFAULT, persistence, fileStorage, mock(MessageBus.class), List.of(endpoint), List.of(), List.of()));
+        endpoint.init(
+                CoreConfig.DEFAULT,
+                getEndpointConfig(),
+                service);
+        server.start();
+        service.start();
+    }
+
+
+    protected HttpEndpointConfig getEndpointConfig() {
+        return HttpEndpointConfig.builder().build();
     }
 
 
@@ -296,6 +324,22 @@ public abstract class AbstractHttpEndpointTest {
         ContentResponse response = execute(HttpMethod.GET, "/submodels/" + EncodingHelper.base64UrlEncode(idShort)
                 + "/submodel-elements/ExampleRelationshipElement?level=normal&bogus");
         Assert.assertEquals(HttpStatus.BAD_REQUEST_400, response.getStatus());
+    }
+
+
+    @Test
+    public void testGetAasEndpointInformationWithCallbackAddress() {
+        List<Endpoint> actual = endpoint.getAasEndpointInformation(UUID.randomUUID().toString());
+
+        ProtocolInformation protocolInformation = actual.get(0).getProtocolInformation();
+
+        HttpEndpointConfig config = endpoint.asConfig();
+        if (config.getCallbackAddress() != null) {
+            Assert.assertEquals(config.getCallbackAddress().concat(endpoint.getPathPrefix()).concat("/shells"), protocolInformation.getHref());
+        }
+        Assert.assertEquals(config.getSubprotocol(), protocolInformation.getSubprotocol());
+        Assert.assertEquals(config.getSubprotocolBody(), protocolInformation.getSubprotocolBody());
+        Assert.assertEquals(config.getSubprotocolBodyEncoding(), protocolInformation.getSubprotocolBodyEncoding());
     }
 
 
