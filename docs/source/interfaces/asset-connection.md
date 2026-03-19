@@ -486,6 +486,14 @@ Which authentication certificate is used is determined by a similar logic as for
 | mostSignificantWord<br>*(optional)*    | LOW<br>HIGH                                                 | Define the highest order word in a sequence of words. If "LOW", the word at the lowest address will be the highest order one. Within words, big endian is used. | LOW           |
 :::
 
+##### Remarks on byte-order, word-order, addresses, data types
+
+This implementation uses zero-based addressing and big-endian byte order. 
+
+By default, the word at the lowest address is treated as the most significant word in a sequence, but the position of the most significant word can be configured (see above).
+
+Floating point numbers are not supported as the implementation varies for many modbus server implementations. Contributions are highly welcome.
+
 #### Value Provider
 
 :::{table} Configuration properties of HTTP AssetConnection Value Provider.

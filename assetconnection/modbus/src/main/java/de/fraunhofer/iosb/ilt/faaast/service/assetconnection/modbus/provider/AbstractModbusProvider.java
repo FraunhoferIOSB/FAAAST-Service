@@ -36,6 +36,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.config.AbstractModbusProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.model.ModbusDatatype;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.model.MostSignificantWord;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.util.ByteArrayHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.util.ModbusToAasConversionHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
@@ -241,8 +242,9 @@ public abstract class AbstractModbusProvider<C extends AbstractModbusProviderCon
             case COIL -> {
                 // Depending on most significant word, flip words
                 toWrite = mostSignificantWord == HIGH ? reverseWords(toWrite) : toWrite;
+                toWrite = ByteArrayHelper.removePadding(toWrite);
 
-                yield (quantity > 1) ? new WriteMultipleCoilsRequest(address, toWrite.length, toWrite) : new WriteSingleCoilRequest(address, toWrite[0]);
+                yield (quantity > 1) ? new WriteMultipleCoilsRequest(address, quantity, toWrite) : new WriteSingleCoilRequest(address, toWrite[0] != 0);
             }
             case HOLDING_REGISTER -> {
                 // Depending on most significant word, flip words
