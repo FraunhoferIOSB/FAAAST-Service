@@ -134,11 +134,13 @@ public abstract class AbstractRequestHandler<I extends Request<O>, O extends Res
             context.getPersistence().update(reference, newElement);
             submodelElements.remove(oldElement);
             submodelElements.add(newElement);
-            if (publishOnMessageBus) {
+            ElementValue oldValue = ElementValueMapper.toValue(oldElement);
+            ElementValue newValue = ElementValueMapper.toValue(newElement);
+            if (publishOnMessageBus && !Objects.equals(oldValue, newValue)) {
                 context.getMessageBus().publish(ValueChangeEventMessage.builder()
                         .element(reference)
-                        .oldValue(ElementValueMapper.toValue(oldElement))
-                        .newValue(ElementValueMapper.toValue(newElement))
+                        .oldValue(oldValue)
+                        .newValue(newValue)
                         .build());
             }
         }
