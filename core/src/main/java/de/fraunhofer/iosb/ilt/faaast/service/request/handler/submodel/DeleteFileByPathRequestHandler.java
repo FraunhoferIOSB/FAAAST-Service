@@ -24,11 +24,13 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundExc
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ValueChangeEventMessage;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractSubmodelInterfaceRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import java.io.IOException;
+import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.File;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
@@ -52,11 +54,13 @@ public class DeleteFileByPathRequestHandler extends AbstractSubmodelInterfaceReq
         file.setValue("");
         file.setContentType("");
         context.getPersistence().update(reference, file);
-        if (!request.isInternal()) {
+        ElementValue oldValue = ElementValueMapper.toValue(oldFile);
+        ElementValue newValue = ElementValueMapper.toValue(file);
+        if (!request.isInternal() && !Objects.equals(oldValue, newValue)) {
             context.getMessageBus().publish(ValueChangeEventMessage.builder()
                     .element(reference)
-                    .oldValue(ElementValueMapper.toValue(oldFile))
-                    .newValue(ElementValueMapper.toValue(file))
+                    .oldValue(oldValue)
+                    .newValue(newValue)
                     .build());
             context.getMessageBus().publish(ElementUpdateEventMessage.builder()
                     .element(reference)
