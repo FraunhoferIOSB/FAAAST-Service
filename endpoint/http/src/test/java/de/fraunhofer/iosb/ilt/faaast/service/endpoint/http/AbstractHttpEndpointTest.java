@@ -18,21 +18,17 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
-import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.QueryParameters;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.filestorage.FileStorage;
-import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
 import de.fraunhofer.iosb.ilt.faaast.service.model.EnvironmentContext;
 import de.fraunhofer.iosb.ilt.faaast.service.model.TypedInMemoryFile;
@@ -111,7 +107,6 @@ import org.eclipse.jetty.client.StringRequestContent;
 import org.eclipse.jetty.http.HttpFields;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpMethod;
-import org.eclipse.jetty.http.HttpScheme;
 import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.jetty.http.MultiPart;
 import org.eclipse.jetty.server.Server;
@@ -134,6 +129,7 @@ public abstract class AbstractHttpEndpointTest {
     protected static int port;
     protected static HttpClient client;
     protected static HttpEndpoint endpoint;
+    protected static HttpEndpointConfig endpointConfig;
     protected static Service service;
     protected static Persistence persistence;
     protected static FileStorage fileStorage;
@@ -142,32 +138,12 @@ public abstract class AbstractHttpEndpointTest {
     protected static Server server;
 
     @Before
-    public void setUp() throws Exception {
-        startServer();
+    public void setUp() {
         serializer = new HttpJsonApiSerializer();
         deserializer = new HttpJsonApiDeserializer();
         Mockito.reset(persistence);
         Mockito.reset(fileStorage);
         Mockito.reset(service);
-    }
-
-
-    private void startServer() throws Exception {
-        scheme = HttpScheme.HTTPS.toString();
-        endpoint = new HttpEndpoint();
-        server = new Server();
-        service = spy(new Service(CoreConfig.DEFAULT, persistence, fileStorage, mock(MessageBus.class), List.of(endpoint), List.of(), List.of()));
-        endpoint.init(
-                CoreConfig.DEFAULT,
-                getEndpointConfig(),
-                service);
-        server.start();
-        service.start();
-    }
-
-
-    protected HttpEndpointConfig getEndpointConfig() {
-        return HttpEndpointConfig.builder().build();
     }
 
 
