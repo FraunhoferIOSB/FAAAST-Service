@@ -129,7 +129,6 @@ public abstract class AbstractHttpEndpointTest {
     protected static int port;
     protected static HttpClient client;
     protected static HttpEndpoint endpoint;
-    protected static HttpEndpointConfig endpointConfig;
     protected static Service service;
     protected static Persistence persistence;
     protected static FileStorage fileStorage;
