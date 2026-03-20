@@ -229,13 +229,12 @@ public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
         if (config.getProfiles().stream()
                 .flatMap(x -> x.getInterfaces().stream())
                 .anyMatch(x -> Objects.equals(x, Interface.AAS_REPOSITORY))) {
-            // Intentionally omitting trailing slash for path. *_REPOSITORY-Endpoint does not append id to path.
-            result.add(endpointFor(Interface.AAS_REPOSITORY, "/shells", aasId));
+            result.add(endpointFor(Interface.AAS_REPOSITORY, "shells", aasId));
         }
         if (config.getProfiles().stream()
                 .flatMap(x -> x.getInterfaces().stream())
                 .anyMatch(x -> Objects.equals(x, Interface.AAS))) {
-            result.add(endpointFor(Interface.AAS, "/shells/", aasId));
+            result.add(endpointFor(Interface.AAS, "shells", aasId));
         }
         return result;
     }
@@ -250,13 +249,12 @@ public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
         if (config.getProfiles().stream()
                 .flatMap(x -> x.getInterfaces().stream())
                 .anyMatch(x -> Objects.equals(x, Interface.SUBMODEL_REPOSITORY))) {
-            // Intentionally omitting trailing slash for path. *_REPOSITORY-Endpoint does not append id to path.
-            result.add(endpointFor(Interface.SUBMODEL_REPOSITORY, "/submodels", submodelId));
+            result.add(endpointFor(Interface.SUBMODEL_REPOSITORY, "submodels", submodelId));
         }
         if (config.getProfiles().stream()
                 .flatMap(x -> x.getInterfaces().stream())
                 .anyMatch(x -> Objects.equals(x, Interface.SUBMODEL))) {
-            result.add(endpointFor(Interface.SUBMODEL, "/submodels/", submodelId));
+            result.add(endpointFor(Interface.SUBMODEL, "submodels", submodelId));
         }
 
         return result;
@@ -264,7 +262,7 @@ public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
 
 
     private org.eclipse.digitaltwin.aas4j.v3.model.Endpoint endpointFor(Interface iface, String path, String identifiableId) {
-        URI endpointUri = buildUri(getEndpointUri().toString(), getPathPrefix(), path);
+        URI endpointUri = buildUri(getEndpointUri().toString(), path);
 
         if (iface == Interface.SUBMODEL || iface == Interface.AAS) {
             endpointUri = buildUri(endpointUri.toString(), EncodingHelper.base64UrlEncode(identifiableId));
@@ -329,20 +327,29 @@ public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
 
     private URI buildUri(String base, String... paths) {
         String safeBase = base.endsWith("/") ? base : base.concat("/");
+
+        String safePath = getSafePath(paths);
+
+        return URI.create(safeBase).resolve(safePath);
+    }
+
+
+    private String getSafePath(String[] paths) {
         StringBuilder safePathBuilder = new StringBuilder();
+
+        // Each path in paths should not start with / but end with /.
         for (String path: paths) {
-            if (path == null || path.isBlank()) {
+            if (path == null || path.isEmpty() || path.equals("/")) {
+                // Do not consider empty path segments
                 continue;
             }
-            safePathBuilder.append(path.startsWith("/") ? path : path.concat("/"));
-        }
-        String safePath = safePathBuilder.toString();
-        if (safePath.startsWith("/")) {
-            safePath = safePath.substring(1);
+            // Double-slashes within path segments are valid and sometimes even meaningful,
+            // so we only care about the bits connecting the path segments (prefix/suffix).
+            String safePath = path.startsWith("/") ? path.substring(1) : path;
+            safePathBuilder.append(safePath.endsWith("/") ? safePath : safePath.concat("/"));
         }
 
-        // Remove leading slash again
-        return URI.create(safeBase).resolve(safePath);
+        return safePathBuilder.toString().endsWith("/") ? safePathBuilder.substring(0, safePathBuilder.length() - 1) : safePathBuilder.toString();
     }
 
 

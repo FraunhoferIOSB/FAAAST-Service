@@ -75,14 +75,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.apache.hc.core5.http.ContentType;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
+import org.eclipse.digitaltwin.aas4j.v3.model.Endpoint;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.eclipse.digitaltwin.aas4j.v3.model.ExecutionState;
 import org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum;
+import org.eclipse.digitaltwin.aas4j.v3.model.ProtocolInformation;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.Result;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
@@ -296,6 +299,22 @@ public abstract class AbstractHttpEndpointTest {
         ContentResponse response = execute(HttpMethod.GET, "/submodels/" + EncodingHelper.base64UrlEncode(idShort)
                 + "/submodel-elements/ExampleRelationshipElement?level=normal&bogus");
         Assert.assertEquals(HttpStatus.BAD_REQUEST_400, response.getStatus());
+    }
+
+
+    @Test
+    public void testGetAasEndpointInformationWithCallbackAddress() {
+        List<Endpoint> actual = endpoint.getAasEndpointInformation(UUID.randomUUID().toString());
+
+        ProtocolInformation protocolInformation = actual.get(0).getProtocolInformation();
+
+        HttpEndpointConfig config = endpoint.asConfig();
+        if (config.getCallbackAddress() != null) {
+            Assert.assertEquals(config.getCallbackAddress().concat(endpoint.getPathPrefix()).concat("/shells"), protocolInformation.getHref());
+        }
+        Assert.assertEquals(config.getSubprotocol(), protocolInformation.getSubprotocol());
+        Assert.assertEquals(config.getSubprotocolBody(), protocolInformation.getSubprotocolBody());
+        Assert.assertEquals(config.getSubprotocolBodyEncoding(), protocolInformation.getSubprotocolBodyEncoding());
     }
 
 
