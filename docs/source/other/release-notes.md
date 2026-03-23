@@ -9,6 +9,7 @@
 	- Fix idShortPaths to support Entity and AnnotatedRelationshipElement
     - Fix inconsistencies between docs and proprietary API: DELETE /reset resets the server, POST /import imports an AAS file, /upload was removed from docs
     - Fix incorrect triggering of ValueChanged events when a value did in fact not change.
+    - Fix ElementDelete events not being triggered on DELETE /reset.
 - Asset Connection
 	- OPC UA
 		- When connecting to an OPC UA asset and the discovery service returns mutliple URLs to use, the ones with a reachable host are preferred.
