@@ -43,9 +43,9 @@ public class ResetRequestHandler extends AbstractRequestHandler<ResetRequest, Re
     public ResetResponse process(ResetRequest request, RequestExecutionContext context) {
         try {
             StreamHelper.concat(
-                            context.getPersistence().getAllAssetAdministrationShells(QueryModifier.MINIMAL, PagingInfo.ALL).getContent().stream(),
-                            context.getPersistence().getAllSubmodels(QueryModifier.MINIMAL, PagingInfo.ALL).getContent().stream(),
-                            context.getPersistence().getAllConceptDescriptions(QueryModifier.MINIMAL, PagingInfo.ALL).getContent().stream())
+                    context.getPersistence().getAllAssetAdministrationShells(QueryModifier.MINIMAL, PagingInfo.ALL).getContent().stream(),
+                    context.getPersistence().getAllSubmodels(QueryModifier.MINIMAL, PagingInfo.ALL).getContent().stream(),
+                    context.getPersistence().getAllConceptDescriptions(QueryModifier.MINIMAL, PagingInfo.ALL).getContent().stream())
                     .forEach(x -> {
                         try {
                             context.getMessageBus().publish(ElementDeleteEventMessage.builder()
