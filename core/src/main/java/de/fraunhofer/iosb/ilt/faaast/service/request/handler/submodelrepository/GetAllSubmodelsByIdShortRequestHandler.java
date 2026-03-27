@@ -55,7 +55,7 @@ public class GetAllSubmodelsByIdShortRequestHandler extends AbstractRequestHandl
         if (Objects.nonNull(page.getContent())) {
             for (Submodel submodel: page.getContent()) {
                 Reference reference = AasUtils.toReference(submodel);
-                syncWithAsset(reference, submodel.getSubmodelElements(), !request.isInternal(), context);
+                syncWithAsset(reference, submodel.getSubmodelElements(), !request.isInternal(), context, false);
                 if (!request.isInternal()) {
                     context.getMessageBus().publish(ElementReadEventMessage.builder()
                             .element(reference)

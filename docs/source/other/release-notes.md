@@ -16,6 +16,7 @@
 - Endpoint
 	- HTTP
 		- URL prefix /api/v3.x is now optional
+		- Fixed bug that reading a SubmodelElement Container, like a Collection, didn't trigger the AssetConnection ValueProviders of underlying elements.
 - SMT Processor
 	- AID/AIMC
 		- Fixed bug that prevented to update asset connection providers are runtime
