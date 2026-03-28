@@ -2,6 +2,11 @@
 <!--start:changelog-header-->
 ## 1.4.0-SNAPSHOT (current development version)<!--end:changelog-header-->
 
+**New Features & Major Changes**
+- Asset Connection
+	- Modbus TCP asset connection added
+
+
 **Internal changes & bugfixes**
 - General
 	- Fixed bug that incorrectly removed submodel reference from AAS when updating a submodel via PUT /submodels/{submodelId}
