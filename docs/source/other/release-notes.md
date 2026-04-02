@@ -20,6 +20,8 @@
 	- AID/AIMC
 		- Fixed bug that prevented to update asset connection providers are runtime
 		- Fixed bug that prevented subscription providers to not be properly stopped
+- MessageBus
+    - CloudEventsMessageBus now available implementing the async-aas specification in https://factory-x-contributions.github.io/async-aas-helm/
 
 ## 1.3.0
 

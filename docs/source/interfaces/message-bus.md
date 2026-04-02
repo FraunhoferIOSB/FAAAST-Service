@@ -161,3 +161,63 @@ For deserialization of events the class `JsonEventDeserializer` in module `dataf
 	//...
 }
 ```
+
+
+
+## CloudEvents
+
+This implementation of the `MessageBus` interface publishes CloudEvent messages via MQTT by using an externally hosted MQTT broker.
+
+### Topics & Payload
+
+Each message type is published on its own topic in the form of `[topicPrefix]`.
+The payload is a JSON serialization of a CloudEvent as specified in the async-aas specification: https://factory-x-contributions.github.io/async-aas-helm
+
+### Configuration
+
+:::{table} Configuration properties of MQTT MessageBus.
+| Name                                | Allowed Value                                               | Description                                                                                                                                                     | Default Value                                                                                        |
+| ----------------------------------- | ----------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| host<br>*(optional)*                | String                                                      | The host name of the MQTT server with scheme, port and path segments if relevant.                                                                               | tcp://localhost:1883                                                                                 |
+| clientId<br>*(optional)*            | String                                                      | ClientId to use when connecting to the MQTT server. This clientId will only be used to identify as a MQTT publisher, not for oauth-flows or as a username.      | FA3ST MQTT MessageBus                                                                                |
+| username<br>*(optional)*            | String                                                      | Username used to connect to the MQTT server.                                                                                                                    |                                                                                                      |
+| password<br>*(optional)*            | String                                                      | Password used to connect to the MQTT server.                                                                                                                    |                                                                                                      |
+| identityProviderUrl<br>*(optional)* | String                                                      | Oauth2 IdP URL. Obtained tokens are placed as the MQTT broker password, the username is obtained from the username config. Token refresh happens automatically. |                                                                                                      |
+| oauth2ClientId<br>*(optional)*      | String                                                      | Oauth2 client id to use when retrieving an oauth2-token from the IdP.                                                                                           |                                                                                                      |
+| oauth2ClientSecret<br>*(optional)*  | String                                                      | Oauth2 client secret to use when retrieving an oauth2-token from the IdP.                                                                                       |                                                                                                      |
+| topicPrefix<br>*(optional)*         | String                                                      | Prefix to use for the topic names.                                                                                                                              | noauth                                                                                               |
+| slimEvents<br>*(optional)*          | boolean                                                     | Whether the full referable is sent in a CloudEvent's data-field. If true, the data-field will be empty.                                                         | true                                                                                                 |
+| eventTypePrefix<br>*(optional)*     | String                                                      | Prefix to use in the CloudEvents type-field. Should end with a ".".                                                                                             | io.admin-shell.events.v1.                                                                            |
+| dataSchemaPrefix<br>*(optional)*    | String                                                      | Prefix to use in the CloudEvents dataschema-field. Should end with a "/".                                                                                       | https://api.swaggerhub.com/domains/Plattform_i40/Part1-MetaModel-Schemas/V3.1.0#/components/schemas/ |
+| clientCertificate<br>*(optional)*   | [CertificateInfo](#providing-certificates-in-configuration) | The client certificate to use. If not set, SSL will be disabled.                                                                                                |                                                                                                      |
+:::
+
+```{code-block} json
+:caption: Example configuration for MQTT MessageBus.
+:lineno-start: 1
+{
+	"messageBus": {
+		"@class": "de.fraunhofer.iosb.ilt.faaast.service.messagebus.mqtt.MessageBusMqtt",
+		"useInternalServer": true,
+		"host": "tcp://localhost:1883",
+		"clientCertificate": {
+			"keyStoreType": "PKCS12",
+			"keyStorePath": "C:\faaast\MyKeyStore.p12",
+			"keyStorePassword": "changeit",
+			"keyAlias": "client-key",
+			"keyPassword": "changeit"
+		},
+		"username": "broker-user",
+		"password": "broker-password",
+		"identityProviderUrl": "http://localhost:12345/realms/fa3st/protocol/openid-connect/token",
+		"oauth2ClientId": "my-keycloak-clientid",
+		"oauth2ClientSecret": "my-keycloak-clientsecret",
+		"clientId": "FA³ST Service client",
+		"topicPrefix": "noauth",
+		"slimEvents": true,
+		"eventTypePrefix": "io.admin-shell.events.v1.",
+		"dataSchemaPrefix": "https://api.swaggerhub.com/domains/Plattform_i40/Part1-MetaModel-Schemas/V3.1.0#/components/schemas/"
+	},
+	//...
+}
+```
