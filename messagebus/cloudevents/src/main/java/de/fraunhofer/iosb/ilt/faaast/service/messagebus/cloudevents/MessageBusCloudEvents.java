@@ -14,6 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.messagebus.cloudevents;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.messagebus.cloudevents.mapper.CloudEventMapperRegistryProvider.defaultRegistry;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -25,8 +27,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.cloudevents.mapper.CloudEventMapperConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.cloudevents.mapper.CloudEventMapperRegistry;
-import de.fraunhofer.iosb.ilt.faaast.service.messagebus.cloudevents.mapper.impl.DefaultCloudEventMapper;
-import de.fraunhofer.iosb.ilt.faaast.service.messagebus.cloudevents.mapper.impl.ElementDeletedCloudEventMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.cloudevents.mqtt.client.PahoClient;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.cloudevents.mqtt.client.config.MqttClientConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.cloudevents.mqtt.client.impl.PasswordBasedPahoClient;
@@ -72,7 +72,6 @@ public class MessageBusCloudEvents implements MessageBus<MessageBusCloudEventsCo
     private final ExecutorService executor;
     private final Map<SubscriptionId, SubscriptionInfo> subscriptions;
 
-    private Function<Reference, Referable> referableSupplier;
     private MessageBusCloudEventsConfig config;
     private PahoClient client;
     private ObjectMapper objectMapper;
@@ -156,7 +155,7 @@ public class MessageBusCloudEvents implements MessageBus<MessageBusCloudEventsCo
                 .setDefaultPropertyInclusion(JsonInclude.Include.NON_EMPTY)
                 .registerModule(JsonFormat.getCloudEventJacksonModule());
 
-        referableSupplier = reference -> {
+        Function<Reference, Referable> referableSupplier = reference -> {
             try {
                 return EnvironmentHelper.resolve(reference, serviceContext.getAASEnvironment());
             }
@@ -166,11 +165,7 @@ public class MessageBusCloudEvents implements MessageBus<MessageBusCloudEventsCo
             }
         };
 
-        CloudEventMapperConfig cloudEventMapperConfig = CloudEventMapperConfig.from(config, referableSupplier);
-
-        mapperRegistry = new CloudEventMapperRegistry();
-        mapperRegistry.register(new DefaultCloudEventMapper(cloudEventMapperConfig, objectMapper));
-        mapperRegistry.register(new ElementDeletedCloudEventMapper(cloudEventMapperConfig, objectMapper));
+        mapperRegistry = defaultRegistry(CloudEventMapperConfig.from(config), referableSupplier);
 
         running.set(false);
     }

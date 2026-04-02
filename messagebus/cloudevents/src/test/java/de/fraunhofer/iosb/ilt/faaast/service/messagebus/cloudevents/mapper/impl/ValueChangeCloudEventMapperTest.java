@@ -20,8 +20,7 @@ import static org.mockito.Mockito.when;
 
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.cloudevents.mapper.CloudEventMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.cloudevents.mapper.CloudEventMapperConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
-import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ValueChangeEventMessage;
 import io.cloudevents.CloudEvent;
 import java.util.function.Function;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
@@ -35,19 +34,18 @@ import org.junit.Assert;
 import org.junit.Test;
 
 
-public class DefaultCloudEventMapperTest extends AbstractCloudEventMapperTest {
+public class ValueChangeCloudEventMapperTest extends AbstractCloudEventMapperTest {
+    private final String valueChanged = "valueChanged";
 
-    private final String updated = "updated";
-    private final String created = "created";
-
+    @Override
     protected CloudEventMapper getCloudEventMapper(String callbackAddress, String dataSchemaPrefix, String eventTypePrefix, boolean slimEvents,
                                                    Function<Reference, Referable> referableSupplier) {
-        return new DefaultCloudEventMapper(new CloudEventMapperConfig(callbackAddress, dataSchemaPrefix, eventTypePrefix, slimEvents));
+        return new ValueChangedCloudEventMapper(new CloudEventMapperConfig(callbackAddress, dataSchemaPrefix, eventTypePrefix, slimEvents), referableSupplier);
     }
 
 
     @Test
-    public void testElementUpdatedMappingValid() throws Exception {
+    public void testValueChangeMappingValid() throws Exception {
         String submodelId = "hello-world";
         Property property = new DefaultProperty.Builder()
                 .idShort("test")
@@ -61,51 +59,15 @@ public class DefaultCloudEventMapperTest extends AbstractCloudEventMapperTest {
                 .value("bar")
                 .build();
 
-        CloudEvent expected = expectedFrom(submodelId, property, "Property", updated);
+        CloudEvent expected = expectedFrom(submodelId, property, "Property", valueChanged);
 
         Function<Reference, Referable> referableSupplier = mock(Function.class);
         when(referableSupplier.apply(any())).thenReturn(property);
 
         CloudEventMapper mapper = getCloudEventMapper(referableSupplier);
 
-        var fastMessage = ElementUpdateEventMessage.builder()
+        var fastMessage = ValueChangeEventMessage.builder()
                 .element(asReference(submodelId, property))
-                .value(property)
-                .build();
-
-        Assert.assertTrue(mapper.canHandle(fastMessage));
-
-        CloudEvent actual = mapper.createCloudEvent(fastMessage);
-
-        assertCloudEvent(expected, actual);
-    }
-
-
-    @Test
-    public void testElementCreatedMappingValid() throws Exception {
-        String submodelId = "hello-world";
-        Property property = new DefaultProperty.Builder()
-                .idShort("test")
-                .semanticId(new DefaultReference.Builder()
-                        .keys(new DefaultKey.Builder()
-                                .value("my-semantic-id")
-                                .build())
-                        .build())
-                .idShort("ExampleProperty")
-                .valueType(DataTypeDefXsd.STRING)
-                .value("bar")
-                .build();
-
-        CloudEvent expected = expectedFrom(submodelId, property, "Property", created);
-
-        Function<Reference, Referable> referableSupplier = mock(Function.class);
-        when(referableSupplier.apply(any())).thenReturn(property);
-
-        CloudEventMapper mapper = getCloudEventMapper(referableSupplier);
-
-        var fastMessage = ElementCreateEventMessage.builder()
-                .element(asReference(submodelId, property))
-                .value(property)
                 .build();
 
         Assert.assertTrue(mapper.canHandle(fastMessage));
@@ -131,16 +93,15 @@ public class DefaultCloudEventMapperTest extends AbstractCloudEventMapperTest {
                 .value("bar")
                 .build();
 
-        CloudEvent expected = expectedFrom(submodelId, property, "Property", updated);
+        CloudEvent expected = expectedFrom(submodelId, property, "Property", valueChanged);
 
         Function<Reference, Referable> referableSupplier = mock(Function.class);
         when(referableSupplier.apply(any())).thenReturn(property);
 
         CloudEventMapper mapper = getCloudEventMapper(true, referableSupplier);
 
-        ElementUpdateEventMessage fastMessage = ElementUpdateEventMessage.builder()
+        ValueChangeEventMessage fastMessage = ValueChangeEventMessage.builder()
                 .element(asReference(submodelId, property))
-                .value(property)
                 .build();
 
         Assert.assertTrue(mapper.canHandle(fastMessage));

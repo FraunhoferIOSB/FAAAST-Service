@@ -63,6 +63,7 @@ public class Oauth2Client {
             response = httpClient.send(toHttpRequest(request), HttpResponse.BodyHandlers.ofString());
         }
         catch (IOException | InterruptedException e) {
+            Thread.currentThread().interrupt();
             throw new MessageBusException("Oauth2 token request failed", e);
         }
 

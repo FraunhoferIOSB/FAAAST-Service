@@ -15,9 +15,6 @@
 package de.fraunhofer.iosb.ilt.faaast.service.messagebus.cloudevents.mapper;
 
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.cloudevents.MessageBusCloudEventsConfig;
-import java.util.function.Function;
-import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
-import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
 
 /**
@@ -27,24 +24,19 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
  * @param dataSchemaPrefix Data schema prefix used to assign semantic information to data elements
  * @param eventTypePrefix Prefix for event types
  * @param slimEvents If true, the data field in CloudEvents will be empty
- * @param referableSupplier Supplier attached to the FA³ST persistence layer to get referable information for the
- *            semantic id and data fields
  */
-public record CloudEventMapperConfig(String eventCallbackAddress, String dataSchemaPrefix, String eventTypePrefix, boolean slimEvents,
-        Function<Reference, Referable> referableSupplier) {
+public record CloudEventMapperConfig(String eventCallbackAddress, String dataSchemaPrefix, String eventTypePrefix, boolean slimEvents) {
 
     /**
      * Build a CloudEventMapperConfig from MessageBusCloudEventsConfig and a referable supplier.
      *
      * @param messageBusConfig The MessageBusCloudEventsConfig
-     * @param referableSupplier The referable supplier
      * @return The CloudEventMapperConfig
      */
-    public static CloudEventMapperConfig from(MessageBusCloudEventsConfig messageBusConfig, Function<Reference, Referable> referableSupplier) {
+    public static CloudEventMapperConfig from(MessageBusCloudEventsConfig messageBusConfig) {
         return new CloudEventMapperConfig(messageBusConfig.getEventCallbackAddress(),
                 messageBusConfig.getDataSchemaPrefix(),
                 messageBusConfig.getEventTypePrefix(),
-                messageBusConfig.isSlimEvents(),
-                referableSupplier);
+                messageBusConfig.isSlimEvents());
     }
 }

@@ -51,7 +51,7 @@ public abstract class PahoClient {
     private MqttClient mqttClient;
     private MqttConnectOptions connectOptions;
 
-    public PahoClient(MqttClientConfig config) {
+    protected PahoClient(MqttClientConfig config) {
         this.config = config;
     }
 

@@ -14,13 +14,13 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.messagebus.cloudevents.mapper.impl;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.cloudevents.mapper.CloudEventMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.cloudevents.mapper.CloudEventMapperConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.EventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementDeleteEventMessage;
 import io.cloudevents.CloudEvent;
 import java.util.List;
+import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
 
 
 /**
@@ -28,9 +28,8 @@ import java.util.List;
  */
 public class ElementDeletedCloudEventMapper extends CloudEventMapper {
 
-    public ElementDeletedCloudEventMapper(CloudEventMapperConfig config,
-            ObjectMapper objectMapper) {
-        super(config, objectMapper);
+    public ElementDeletedCloudEventMapper(CloudEventMapperConfig config) {
+        super(config);
     }
 
 
@@ -43,5 +42,17 @@ public class ElementDeletedCloudEventMapper extends CloudEventMapper {
     @Override
     protected List<Class<? extends EventMessage>> getHandleable() {
         return List.of(ElementDeleteEventMessage.class);
+    }
+
+
+    @Override
+    protected byte[] getData(EventMessage message) {
+        return null;
+    }
+
+
+    @Override
+    protected Referable getReferable(EventMessage message) {
+        return ((ElementDeleteEventMessage) message).getValue();
     }
 }

@@ -17,8 +17,11 @@ package de.fraunhofer.iosb.ilt.faaast.service.messagebus.cloudevents.mapper;
 import static org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes.ASSET_ADMINISTRATION_SHELL;
 import static org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes.SUBMODEL;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.EventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.OperationFinishEventMessage;
@@ -31,6 +34,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.cloudevents.CloudEvent;
 import io.cloudevents.core.builder.CloudEventBuilder;
+import io.cloudevents.jackson.JsonFormat;
 import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -63,17 +67,20 @@ public abstract class CloudEventMapper {
             OperationInvokeEventMessage.class, "invoked",
             OperationFinishEventMessage.class, "finished");
     private final CloudEventMapperConfig config;
-    private final ObjectMapper objectMapper;
+    protected final ObjectMapper objectMapper;
 
     /**
      * Class constructor.
      *
      * @param config Mapping config.
-     * @param objectMapper JSON-serializer.
      */
-    public CloudEventMapper(CloudEventMapperConfig config, ObjectMapper objectMapper) {
+    protected CloudEventMapper(CloudEventMapperConfig config) {
         this.config = config;
-        this.objectMapper = objectMapper;
+        this.objectMapper = new ObjectMapper()
+                .enable(SerializationFeature.INDENT_OUTPUT)
+                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .setDefaultPropertyInclusion(JsonInclude.Include.NON_EMPTY)
+                .registerModule(JsonFormat.getCloudEventJacksonModule());
     }
 
 
@@ -140,8 +147,27 @@ public abstract class CloudEventMapper {
     }
 
 
+    /**
+     * Returns the content of the cloud event's data field, if any.
+     *
+     * @param message The message to get the data field from
+     * @return The content of the data field or null if no data is meant to be sent.
+     * @throws JsonProcessingException On serialization of the data.
+     */
+    protected abstract byte[] getData(EventMessage message) throws JsonProcessingException;
+
+
+    /**
+     * Returns the referable associated with this event message.
+     *
+     * @param message The message to get the referable from
+     * @return The referable or null if no referable is available.
+     */
+    protected abstract Referable getReferable(EventMessage message);
+
+
     private void appendSemanticId(CloudEventBuilder cloudEventBuilder, EventMessage message) {
-        Optional.ofNullable(config.referableSupplier().apply(message.getElement()))
+        Optional.ofNullable(getReferable(message))
                 .map(this::getSemanticId)
                 .ifPresent(s -> cloudEventBuilder.withExtension(SEMANTIC_ID_KEY, s));
     }
@@ -159,17 +185,12 @@ public abstract class CloudEventMapper {
 
     private void appendData(CloudEventBuilder cloudEventBuilder, EventMessage message) {
         if (!config.slimEvents()) {
-            Optional.ofNullable(config.referableSupplier().apply(message.getElement()))
-                    .map(value -> {
-                        try {
-                            return objectMapper.writeValueAsBytes(value);
-                        }
-                        catch (JsonProcessingException e) {
-                            LOGGER.warn("{} when trying to write referable into data field: {}", e.getClass().getName(), e.getMessage());
-                            return null;
-                        }
-                    })
-                    .ifPresent(cloudEventBuilder::withData);
+            try {
+                Optional.ofNullable(getData(message)).ifPresent(cloudEventBuilder::withData);
+            }
+            catch (JsonProcessingException e) {
+                LOGGER.warn("{} when trying to write cloud event data field: {}", e.getClass().getName(), e.getMessage());
+            }
         }
     }
 

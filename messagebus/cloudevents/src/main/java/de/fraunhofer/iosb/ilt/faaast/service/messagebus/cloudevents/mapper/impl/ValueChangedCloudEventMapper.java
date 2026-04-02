@@ -18,47 +18,47 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.cloudevents.mapper.CloudEventMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.cloudevents.mapper.CloudEventMapperConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.EventMessage;
-import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementChangeEventMessage;
-import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
-import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ValueChangeEventMessage;
 import java.util.List;
+import java.util.function.Function;
 import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
 
 /**
- * Mapping FA³ST Events to CloudEvents conformant to async-aas specification.
+ * Mapping FA³ST ValueChange Events to CloudEvents conformant to async-aas specification.
  */
-public class DefaultCloudEventMapper extends CloudEventMapper {
+public class ValueChangedCloudEventMapper extends CloudEventMapper {
 
-    private final List<Class<? extends EventMessage>> handleableEventTypes = List.of(
-            ElementCreateEventMessage.class,
-            ElementUpdateEventMessage.class);
+    private final Function<Reference, Referable> referableResolver;
 
     /**
      * Class constructor.
      *
-     * @param config Mapping configuration
+     * @param config Mapping config.
+     * @param referableResolver Supplier attached to the FA³ST persistence layer to get referable information for the
+     *            semantic id and data fields
      */
-    public DefaultCloudEventMapper(CloudEventMapperConfig config) {
+    public ValueChangedCloudEventMapper(CloudEventMapperConfig config, Function<Reference, Referable> referableResolver) {
         super(config);
+        this.referableResolver = referableResolver;
     }
 
 
     @Override
     protected List<Class<? extends EventMessage>> getHandleable() {
-        return handleableEventTypes;
+        return List.of(ValueChangeEventMessage.class);
     }
 
 
     @Override
     protected byte[] getData(EventMessage message) throws JsonProcessingException {
-        ElementChangeEventMessage m = (ElementChangeEventMessage) message;
-        return objectMapper.writeValueAsBytes(m.getValue());
+        return objectMapper.writeValueAsBytes(referableResolver.apply(message.getElement()));
     }
 
 
     @Override
     protected Referable getReferable(EventMessage message) {
-        return ((ElementChangeEventMessage) message).getValue();
+        return referableResolver.apply(message.getElement());
     }
 }

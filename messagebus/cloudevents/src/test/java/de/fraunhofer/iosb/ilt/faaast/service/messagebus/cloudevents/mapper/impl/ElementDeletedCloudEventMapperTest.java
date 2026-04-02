@@ -34,7 +34,7 @@ import org.junit.Test;
 
 public class ElementDeletedCloudEventMapperTest extends AbstractCloudEventMapperTest {
 
-    private final String DELETED = "deleted";
+    private final String deleted = "deleted";
 
     @Test
     public void testElementDeletedMappingValid() throws Exception {
@@ -47,7 +47,7 @@ public class ElementDeletedCloudEventMapperTest extends AbstractCloudEventMapper
                 .value("bar")
                 .build();
 
-        CloudEvent expected = expectedFrom(submodelId, property, "Property", DELETED);
+        CloudEvent expected = expectedFrom(submodelId, property, "Property", deleted);
 
         Function<Reference, Referable> referableSupplier = mock(Function.class);
         when(referableSupplier.apply(any())).thenReturn(null);
@@ -69,7 +69,7 @@ public class ElementDeletedCloudEventMapperTest extends AbstractCloudEventMapper
     @Override
     protected CloudEventMapper getCloudEventMapper(String callbackAddress, String dataSchemaPrefix, String eventTypePrefix, boolean slimEvents,
                                                    Function<Reference, Referable> referableSupplier) {
-        return new ElementDeletedCloudEventMapper(new CloudEventMapperConfig(callbackAddress, dataSchemaPrefix, eventTypePrefix, slimEvents, referableSupplier), objectMapper);
+        return new ElementDeletedCloudEventMapper(new CloudEventMapperConfig(callbackAddress, dataSchemaPrefix, eventTypePrefix, slimEvents));
     }
 
 
