@@ -49,19 +49,12 @@ public abstract class AbstractPahoClientTest<T extends PahoClient> {
     private static final int MQTT_BROKER_PORT = PortHelper.findFreePort();
     protected static final String MQTT_BROKER_URL = String.format("tcp://%s:%d", HostnameUtil.LOCALHOST_IP, MQTT_BROKER_PORT);
     private static final String TOPIC = "test-topic";
-    private static final MqttClient MQTT_CLIENT;
-
-    static {
-        try {
-            MQTT_CLIENT = new MqttClient(MQTT_BROKER_URL, UUID.randomUUID().toString());
-        }
-        catch (MqttException e) {
-            throw new RuntimeException(e);
-        }
-    }
+    private static MqttClient MQTT_CLIENT;
 
     @BeforeClass
     public static void init() throws IOException, MqttException {
+        MQTT_CLIENT = new MqttClient(MQTT_BROKER_URL, UUID.randomUUID().toString());
+
         IConfig config = new MemoryConfig(new Properties());
         Path tempDir = Files.createTempDirectory("moquette-test-");
         config.setProperty(IConfig.DATA_PATH_PROPERTY_NAME, tempDir.toString() + File.separator);
