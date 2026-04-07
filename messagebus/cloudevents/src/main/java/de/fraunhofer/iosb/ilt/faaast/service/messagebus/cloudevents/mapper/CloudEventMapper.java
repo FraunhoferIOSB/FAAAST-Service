@@ -151,7 +151,7 @@ public abstract class CloudEventMapper {
      * Returns the content of the cloud event's data field, if any.
      *
      * @param message The message to get the data field from
-     * @return The content of the data field or null if no data is meant to be sent.
+     * @return The content of the data field or an empty array if no data is to be sent.
      * @throws JsonProcessingException On serialization of the data.
      */
     protected abstract byte[] getData(EventMessage message) throws JsonProcessingException;
@@ -184,13 +184,20 @@ public abstract class CloudEventMapper {
 
 
     private void appendData(CloudEventBuilder cloudEventBuilder, EventMessage message) {
-        if (!config.slimEvents()) {
-            try {
-                Optional.ofNullable(getData(message)).ifPresent(cloudEventBuilder::withData);
-            }
-            catch (JsonProcessingException e) {
-                LOGGER.warn("{} when trying to write cloud event data field: {}", e.getClass().getName(), e.getMessage());
-            }
+        if (config.slimEvents()) {
+            return;
+        }
+
+        byte[] data = new byte[0];
+        try {
+            data = getData(message);
+        }
+        catch (JsonProcessingException e) {
+            LOGGER.warn("{} when trying to write cloud event data field: {}", e.getClass().getName(), e.getMessage());
+        }
+
+        if (data.length > 0) {
+            cloudEventBuilder.withData(data);
         }
     }
 

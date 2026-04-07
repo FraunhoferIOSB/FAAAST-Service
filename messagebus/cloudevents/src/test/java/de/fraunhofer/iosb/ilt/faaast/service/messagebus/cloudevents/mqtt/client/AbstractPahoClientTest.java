@@ -49,11 +49,11 @@ public abstract class AbstractPahoClientTest<T extends PahoClient> {
     private static final int MQTT_BROKER_PORT = PortHelper.findFreePort();
     protected static final String MQTT_BROKER_URL = String.format("tcp://%s:%d", HostnameUtil.LOCALHOST_IP, MQTT_BROKER_PORT);
     private static final String TOPIC = "test-topic";
-    private static MqttClient MQTT_CLIENT;
+    private static MqttClient mqttClient;
 
     @BeforeClass
     public static void init() throws IOException, MqttException {
-        MQTT_CLIENT = new MqttClient(MQTT_BROKER_URL, UUID.randomUUID().toString());
+        mqttClient = new MqttClient(MQTT_BROKER_URL, UUID.randomUUID().toString());
 
         IConfig config = new MemoryConfig(new Properties());
         Path tempDir = Files.createTempDirectory("moquette-test-");
@@ -73,7 +73,7 @@ public abstract class AbstractPahoClientTest<T extends PahoClient> {
         connectOptions.setUserName(USERNAME);
         connectOptions.setPassword(PASSWORD.toCharArray());
 
-        MQTT_CLIENT.connect(connectOptions);
+        mqttClient.connect(connectOptions);
     }
 
 
@@ -89,7 +89,7 @@ public abstract class AbstractPahoClientTest<T extends PahoClient> {
         CountDownLatch latch = new CountDownLatch(1);
         var client = getInstance();
 
-        MQTT_CLIENT.subscribe(TOPIC, (IMqttMessageListener) (s, mqttMessage) -> {
+        mqttClient.subscribe(TOPIC, (IMqttMessageListener) (s, mqttMessage) -> {
             Assert.assertEquals(Arrays.toString(payload.getBytes()), Arrays.toString(mqttMessage.getPayload()));
             latch.countDown();
         });

@@ -47,7 +47,7 @@ public class ElementDeletedCloudEventMapper extends CloudEventMapper {
 
     @Override
     protected byte[] getData(EventMessage message) {
-        return null;
+        return new byte[0];
     }
 
 
