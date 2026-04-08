@@ -81,7 +81,7 @@
         <equalsverifier.version>4.4.1</equalsverifier.version>
         <glassfish.jaxb-runtime>4.0.5</glassfish.jaxb-runtime>
         <guava.version>33.5.0-jre</guava.version>
-        <jackson-jq.version>1.6.0</jackson-jq.version>
+        <jackson-jq.version>1.6.1</jackson-jq.version>
         <jackson.annotations.version>2.21</jackson.annotations.version>
         <jackson.databind.version>2.21.2</jackson.databind.version>
         <jackson.version>2.21.2</jackson.version>
