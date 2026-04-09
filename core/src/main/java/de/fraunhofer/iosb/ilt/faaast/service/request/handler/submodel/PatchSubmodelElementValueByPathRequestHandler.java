@@ -66,9 +66,7 @@ public class PatchSubmodelElementValueByPathRequestHandler
                     newSubmodelElement,
                     !request.isInternal());
         }
-        else {
-            context.getPersistence().update(reference, newSubmodelElement);
-        }
+        context.getPersistence().update(reference, newSubmodelElement);
         if (!request.isInternal() && !Objects.equals(oldValue, newValue)) {
             context.getMessageBus().publish(ValueChangeEventMessage.builder()
                     .element(reference)
