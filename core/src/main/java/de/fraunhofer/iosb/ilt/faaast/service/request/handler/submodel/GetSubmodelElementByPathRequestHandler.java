@@ -23,15 +23,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContain
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ElementReadEventMessage;
-import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ValueChangeEventMessage;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractSubmodelInterfaceRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
-import java.util.Objects;
-import java.util.Optional;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 
@@ -48,31 +42,13 @@ public class GetSubmodelElementByPathRequestHandler extends AbstractSubmodelInte
     @Override
     public GetSubmodelElementByPathResponse doProcess(GetSubmodelElementByPathRequest request, RequestExecutionContext context)
             throws ResourceNotFoundException, ValueMappingException, AssetConnectionException, MessageBusException, ResourceNotAContainerElementException, PersistenceException {
+
         Reference reference = new ReferenceBuilder()
                 .submodel(request.getSubmodelId())
                 .idShortPath(request.getPath())
                 .build();
         SubmodelElement submodelElement = context.getPersistence().getSubmodelElement(reference, request.getOutputModifier());
-        if (isSubmodelElementContainer(submodelElement)) {
-            syncAssetSubmodelElementContainer(reference, submodelElement, !request.isInternal(), context);
-        }
-        else {
-            Optional<DataElementValue> valueFromAssetConnection = context.getAssetConnectionManager().readValue(reference);
-            if (valueFromAssetConnection.isPresent()) {
-                ElementValue oldValue = ElementValueMapper.toValue(submodelElement);
-                if (!Objects.equals(valueFromAssetConnection, oldValue)) {
-                    submodelElement = ElementValueMapper.setValue(submodelElement, valueFromAssetConnection.get());
-                    context.getPersistence().update(reference, submodelElement);
-                    if (!request.isInternal()) {
-                        context.getMessageBus().publish(ValueChangeEventMessage.builder()
-                                .element(reference)
-                                .oldValue(oldValue)
-                                .newValue(valueFromAssetConnection.get())
-                                .build());
-                    }
-                }
-            }
-        }
+        context.getAssetConnectionManager().syncValueProvidersOnRead(reference, submodelElement, !request.isInternal());
         if (!request.isInternal()) {
             context.getMessageBus().publish(ElementReadEventMessage.builder()
                     .element(reference)

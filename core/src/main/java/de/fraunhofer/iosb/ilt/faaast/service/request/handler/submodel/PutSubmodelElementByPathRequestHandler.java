@@ -56,6 +56,7 @@ public class PutSubmodelElementByPathRequestHandler extends AbstractSubmodelInte
                 .build();
         SubmodelElement oldSubmodelElement = context.getPersistence().getSubmodelElement(reference, QueryModifier.DEFAULT);
         SubmodelElement newSubmodelElement = request.getSubmodelElement();
+        context.getAssetConnectionManager().syncValueProvidersOnWrite(reference, oldSubmodelElement, newSubmodelElement, !request.isInternal());
         context.getPersistence().update(reference, newSubmodelElement);
         if (Objects.isNull(oldSubmodelElement)) {
             if (!request.isInternal()) {
@@ -64,9 +65,6 @@ public class PutSubmodelElementByPathRequestHandler extends AbstractSubmodelInte
                         .value(newSubmodelElement)
                         .build());
             }
-        }
-        else {
-            syncWriteAssetSubmodelElement(reference, oldSubmodelElement, newSubmodelElement, !request.isInternal(), context);
         }
         if (!request.isInternal()) {
             context.getMessageBus().publish(ElementUpdateEventMessage.builder()

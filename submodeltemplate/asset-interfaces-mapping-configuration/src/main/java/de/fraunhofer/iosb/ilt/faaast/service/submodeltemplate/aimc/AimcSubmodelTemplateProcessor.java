@@ -27,7 +27,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.SemanticIdPath;
 import de.fraunhofer.iosb.ilt.faaast.service.model.SubmodelElementIdentifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetSubmodelElementByPathRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.GetSubmodelByIdRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetSubmodelRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.SubmodelTemplateProcessor;
@@ -266,9 +266,9 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
 
 
     private Submodel getSubmodel(String submodelId) {
-        return serviceContext.execute(GetSubmodelByIdRequest.builder()
+        return serviceContext.execute(GetSubmodelRequest.builder()
                 .internal()
-                .id(submodelId)
+                .submodelId(submodelId)
                 .build()).getPayload();
     }
 

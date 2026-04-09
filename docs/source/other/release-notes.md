@@ -7,13 +7,15 @@
 	- Fixed bug that incorrectly removed submodel reference from AAS when updating a submodel via PUT /submodels/{submodelId}
 	- Better failure logging in the registry synchronization component: Log error responses from AAS/Submodel registries
 	- Fix idShortPaths to support Entity and AnnotatedRelationshipElement
+	- Removed duplicate requests that have not been mapped to any API (`GetAssetAdministrationShellByIdRequest`, `PutAssetAdministrationShellById`, `GetSubmodelByIdRequest`, `PatchSubmodelByIdRequest`, `PutSubmodelByIdRequest`)
 - Asset Connection
+	- Fixed bug that reading a SubmodelElement Container, like a Collection, didn't trigger the AssetConnection ValueProviders of underlying elements.
+	- Synchronization with asset now happens asynchronously in multiple threads. This can be configured via new config properties `assetConnectionReadMaxThreadPoolSize`, `assetConnectionWriteMaxThreadPoolSize`, and `assetConnectionReadTimeout`.
 	- OPC UA
 		- When connecting to an OPC UA asset and the discovery service returns mutliple URLs to use, the ones with a reachable host are preferred.
 - Endpoint
 	- HTTP
 		- URL prefix /api/v3.x is now optional
-		- Fixed bug that reading a SubmodelElement Container, like a Collection, didn't trigger the AssetConnection ValueProviders of underlying elements.
 - SMT Processor
 	- AID/AIMC
 		- Fixed bug that prevented to update asset connection providers are runtime

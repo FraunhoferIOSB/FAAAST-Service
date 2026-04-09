@@ -14,14 +14,20 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.util;
 
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import java.util.List;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.eclipse.digitaltwin.aas4j.v3.model.Property;
 import org.eclipse.digitaltwin.aas4j.v3.model.Range;
 import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
+import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultRange;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodel;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -121,6 +127,55 @@ public class DeepCopyHelperTest {
     public void testDeepEnvCopy() {
         Environment expected = AASFull.createEnvironment();
         Environment actual = DeepCopyHelper.deepCopy(expected);
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testDeepCopyPageSubmodel() {
+        Page<Submodel> expected = Page.of(
+                new DefaultSubmodel.Builder()
+                        .id("submodel1")
+                        .submodelElements(new DefaultProperty.Builder()
+                                .idShort("property1")
+                                .value("some value")
+                                .build())
+                        .build());
+        Page<Submodel> actual = DeepCopyHelper.deepCopyAny(expected, TypeFactory.defaultInstance().constructParametricType(Page.class, Submodel.class));
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testDeepCopyPageSubmodelElement() {
+        Page<SubmodelElement> expected = Page.of(
+                new DefaultProperty.Builder()
+                        .idShort("property1")
+                        .value("some value")
+                        .build(),
+                new DefaultRange.Builder()
+                        .min("min")
+                        .min("max")
+                        .valueType(DataTypeDefXsd.STRING)
+                        .build());
+        Page<SubmodelElement> actual = DeepCopyHelper.deepCopyAny(expected, TypeFactory.defaultInstance().constructParametricType(Page.class, SubmodelElement.class));
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testDeepCopyListSubmodelElement() {
+        List<SubmodelElement> expected = List.of(
+                new DefaultProperty.Builder()
+                        .idShort("property1")
+                        .value("some value")
+                        .build(),
+                new DefaultRange.Builder()
+                        .min("min")
+                        .min("max")
+                        .valueType(DataTypeDefXsd.STRING)
+                        .build());
+        List<SubmodelElement> actual = DeepCopyHelper.deepCopy(expected, SubmodelElement.class);
         Assert.assertEquals(expected, actual);
     }
 

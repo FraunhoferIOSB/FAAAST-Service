@@ -24,6 +24,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractSubmodelInterfaceRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
+import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
@@ -56,12 +57,16 @@ public class PatchSubmodelElementValueByPathRequestHandler
                         .build());
         ElementValue oldValue = ElementValueMapper.toValue(submodelElement);
         ElementValue newValue = request.getValueParser().parse(request.getRawValue(), oldValue.getClass());
-        ElementValueMapper.setValue(submodelElement, newValue);
+        SubmodelElement newSubmodelElement = ElementValueMapper.setValue(DeepCopyHelper.deepCopy(submodelElement), newValue);
         if (request.isSyncWithAsset()) {
-            syncWriteAssetSubmodelElementValue(reference, submodelElement, oldValue, newValue, !request.isInternal(), context);
+            context.getAssetConnectionManager().syncValueProvidersOnWrite(
+                    reference,
+                    submodelElement,
+                    newSubmodelElement,
+                    !request.isInternal());
         }
         try {
-            context.getPersistence().update(reference, submodelElement);
+            context.getPersistence().update(reference, newSubmodelElement);
         }
         catch (IllegalArgumentException e) {
             // empty on purpose

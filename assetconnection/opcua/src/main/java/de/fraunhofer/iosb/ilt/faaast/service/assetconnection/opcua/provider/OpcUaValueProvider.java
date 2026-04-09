@@ -132,7 +132,7 @@ public class OpcUaValueProvider extends AbstractOpcUaProviderWithArray<OpcUaValu
                         valueToWrite,
                         arrayIndex);
             }
-            // write value without Timestamp (which is often not supported)
+            // explicitly creating DataValue with timestamp=null because if not set explicitly to null milo will use current time and handling time is often not supported by OPC UA servers.
             List<StatusCode> results = client.writeValues(List.of(node.getNodeId()), List.of(new DataValue(
                     valueToWrite, StatusCode.GOOD, null)));
             StatusCode result = results.get(0);

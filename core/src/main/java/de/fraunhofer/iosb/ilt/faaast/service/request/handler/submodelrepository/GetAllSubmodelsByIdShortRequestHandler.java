@@ -24,13 +24,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceExceptio
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ElementReadEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.SubmodelSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
-import java.util.Objects;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
-import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 
 
@@ -52,18 +48,7 @@ public class GetAllSubmodelsByIdShortRequestHandler extends AbstractRequestHandl
                         .build(),
                 QueryModifier.DEFAULT,
                 request.getPagingInfo());
-        if (Objects.nonNull(page.getContent())) {
-            for (Submodel submodel: page.getContent()) {
-                Reference reference = AasUtils.toReference(submodel);
-                syncWithAsset(reference, submodel.getSubmodelElements(), !request.isInternal(), context, false);
-                if (!request.isInternal()) {
-                    context.getMessageBus().publish(ElementReadEventMessage.builder()
-                            .element(reference)
-                            .value(submodel)
-                            .build());
-                }
-            }
-        }
+        context.getAssetConnectionManager().syncValueProvidersOnRead(null, page, !request.isInternal());
         return GetAllSubmodelsByIdShortResponse.builder()
                 .payload(page)
                 .success()

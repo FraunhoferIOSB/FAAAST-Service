@@ -66,8 +66,7 @@ public class PatchSubmodelElementByPathRequestHandler extends AbstractSubmodelIn
                     .value(newSubmodelElement)
                     .build());
         }
-        syncWriteAssetSubmodelElement(reference, oldSubmodelElement, newSubmodelElement, !request.isInternal(), context);
-
+        context.getAssetConnectionManager().syncValueProvidersOnWrite(reference, oldSubmodelElement, newSubmodelElement, !request.isInternal());
         if (!request.isInternal()) {
             context.getMessageBus().publish(ElementUpdateEventMessage.builder()
                     .element(reference)

@@ -48,7 +48,7 @@ public class GetAllSubmodelElementsRequestHandler extends AbstractSubmodelInterf
             throws AssetConnectionException, ValueMappingException, ResourceNotFoundException, MessageBusException, ResourceNotAContainerElementException, PersistenceException {
         Reference reference = ReferenceBuilder.forSubmodel(request.getSubmodelId());
         Page<SubmodelElement> page = context.getPersistence().getSubmodelElements(reference, request.getOutputModifier(), request.getPagingInfo());
-        syncWithAsset(reference, page.getContent(), !request.isInternal(), context, false);
+        context.getAssetConnectionManager().syncValueProvidersOnRead(reference, page, !request.isInternal());
         if (!request.isInternal() && Objects.nonNull(page.getContent())) {
             page.getContent().forEach(LambdaExceptionHelper.rethrowConsumer(
                     x -> context.getMessageBus().publish(ElementReadEventMessage.builder()

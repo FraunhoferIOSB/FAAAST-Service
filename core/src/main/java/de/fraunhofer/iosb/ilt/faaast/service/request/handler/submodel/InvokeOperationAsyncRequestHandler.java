@@ -149,7 +149,6 @@ public class InvokeOperationAsyncRequestHandler extends AbstractInvokeOperationR
     protected InvokeOperationAsyncResponse executeOperation(Reference reference, InvokeOperationAsyncRequest request, RequestExecutionContext context) {
         OperationHandle operationHandle = new OperationHandle();
         handleOperationInvoke(reference, operationHandle, request, context);
-
         // The timeout is ignored, as the server may choose to take it into account or ignore it.
         try {
             context.getAssetConnectionManager().invokeAsync(reference,
