@@ -111,6 +111,6 @@ public class AssetConnectionModelSimple {
     public static final String NODE_ID_SOURCE_3 = "ns=3;s=3.Value";
     public static final String NODE_ID_SOURCE_4 = "ns=3;s=4.Value";
 
-    public AssetConnectionModelSimple() {}
+    private AssetConnectionModelSimple() {}
 
 }

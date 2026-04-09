@@ -328,6 +328,6 @@ public class AssetConnectionModelRecursive {
             .submodels(SUBMODEL)
             .build();
 
-    public AssetConnectionModelRecursive() {}
+    private AssetConnectionModelRecursive() {}
 
 }

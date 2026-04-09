@@ -74,6 +74,7 @@ import org.slf4j.LoggerFactory;
 public class AssetConnectionManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AssetConnectionManager.class);
+    private static final RejectedExecutionHandler DEFAULT_EXECUTOR_REJECTED_EXECUTION_POLICY = new ThreadPoolExecutor.CallerRunsPolicy();
     private final List<AssetConnection> connections;
     private final CoreConfig coreConfig;
     private final Service service;
@@ -657,7 +658,6 @@ public class AssetConnectionManager {
         executorWrite = newExecutor(0, coreConfig.getAssetConnectionWriteMaxThreadPoolSize(), "asset connection write");
     }
 
-    private static final RejectedExecutionHandler DEFAULT_EXECUTOR_REJECTED_EXECUTION_POLICY = new ThreadPoolExecutor.CallerRunsPolicy();
 
     /**
      * Normalizes a list of connections. Normalization means that there is only one connection with the same properties
