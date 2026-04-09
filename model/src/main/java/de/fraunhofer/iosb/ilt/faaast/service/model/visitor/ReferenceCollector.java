@@ -194,7 +194,7 @@ public class ReferenceCollector extends AssetAdministrationShellElementWalker {
                 }
                 catch (NumberFormatException e) {
                     throw new IllegalArgumentException(String.format(
-                            "Reference points to an element in a SubmodelElementList but effective key is not a valid index (actual: )",
+                            "Reference points to an element in a SubmodelElementList but effective key is not a valid index (actual: %s)",
                             ReferenceHelper.getEffectiveKey(reference).getValue()));
                 }
             }

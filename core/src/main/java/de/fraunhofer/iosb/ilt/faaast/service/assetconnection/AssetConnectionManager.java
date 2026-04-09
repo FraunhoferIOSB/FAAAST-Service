@@ -40,6 +40,7 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
@@ -328,7 +329,7 @@ public class AssetConnectionManager {
         Map<Reference, DataElement> children = findSynchronizableElements(reference, element);
         Map<Reference, Future<?>> tasks = children.entrySet().stream()
                 .collect(Collectors.toMap(
-                        x -> x.getKey(),
+                        Entry::getKey,
                         x -> executorRead.submit(() -> {
                             try {
                                 Optional<DataElementValue> newValue = readValue(x.getKey());
@@ -371,7 +372,7 @@ public class AssetConnectionManager {
         Map<Reference, DataElement> oldChildren = findSynchronizableElements(reference, oldElement);
         Map<Reference, DataElement> newChildren = findSynchronizableElements(reference, newElement);
         Map<Reference, Pair<DataElement, DataElement>> toSyncChildren = newChildren.entrySet().stream().collect(Collectors.toMap(
-                x -> x.getKey(),
+                Entry::getKey,
                 x -> Pair.of(oldChildren.get(x.getKey()), x.getValue())));
         for (var child: toSyncChildren.entrySet()) {
             executorRead.submit(() -> {
@@ -1203,8 +1204,10 @@ public class AssetConnectionManager {
 
     private Map<Reference, DataElement> findSynchronizableElements(Reference rootReference, Object root) {
         return ReferenceCollector.collect(root, rootReference).entrySet().stream()
-                .filter(x -> DataElement.class.isInstance(x.getValue()))
-                .collect(Collectors.toMap(x -> x.getKey(), x -> (DataElement) x.getValue()));
+                .filter(x -> x instanceof DataElement)
+                .collect(Collectors.toMap(
+                        Entry::getKey,
+                        x -> (DataElement) x.getValue()));
     }
 
 
@@ -1215,6 +1218,7 @@ public class AssetConnectionManager {
         }
         catch (Exception e) {
             executor.shutdownNow();
+            Thread.currentThread().interrupt();
         }
     }
 
@@ -1234,12 +1238,9 @@ public class AssetConnectionManager {
                         return new Thread(target, name + count.getAndIncrement());
                     }
                 });
-        result.setRejectedExecutionHandler(new RejectedExecutionHandler() {
-            @Override
-            public void rejectedExecution(Runnable runnable, ThreadPoolExecutor executor) {
-                LOGGER.warn("{} - async task rejected because queue of execution handler is full. Try to increase the maxa thread pool size in the configuration.");
-                DEFAULT_EXECUTOR_REJECTED_EXECUTION_POLICY.rejectedExecution(runnable, executor);
-            }
+        result.setRejectedExecutionHandler((Runnable runnable, ThreadPoolExecutor executor) -> {
+            LOGGER.warn("{} - async task rejected because queue of execution handler is full. Try to increase the maxa thread pool size in the configuration.", name);
+            DEFAULT_EXECUTOR_REJECTED_EXECUTION_POLICY.rejectedExecution(runnable, executor);
         });
         return result;
     }

@@ -58,19 +58,20 @@ public class PutSubmodelElementByPathRequestHandler extends AbstractSubmodelInte
         SubmodelElement newSubmodelElement = request.getSubmodelElement();
         context.getAssetConnectionManager().syncValueProvidersOnWrite(reference, oldSubmodelElement, newSubmodelElement, !request.isInternal());
         context.getPersistence().update(reference, newSubmodelElement);
-        if (Objects.isNull(oldSubmodelElement)) {
-            if (!request.isInternal()) {
+
+        if (!request.isInternal()) {
+            if (Objects.isNull(oldSubmodelElement)) {
                 context.getMessageBus().publish(ElementCreateEventMessage.builder()
                         .element(reference)
                         .value(newSubmodelElement)
                         .build());
             }
-        }
-        if (!request.isInternal()) {
-            context.getMessageBus().publish(ElementUpdateEventMessage.builder()
-                    .element(reference)
-                    .value(newSubmodelElement)
-                    .build());
+            else {
+                context.getMessageBus().publish(ElementUpdateEventMessage.builder()
+                        .element(reference)
+                        .value(newSubmodelElement)
+                        .build());
+            }
         }
         return PutSubmodelElementByPathResponse.builder()
                 .statusCode(StatusCode.SUCCESS_NO_CONTENT)
