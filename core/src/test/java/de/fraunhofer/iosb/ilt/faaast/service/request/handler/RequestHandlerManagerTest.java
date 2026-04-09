@@ -1868,7 +1868,6 @@ public class RequestHandlerManagerTest {
                                                     Function<T, Response> expectedResponseBuilder)
             throws Exception {
         Map<Reference, Property> updatedProperties = new HashMap<>();
-        // when claled from POST, the newly added element is not found here - maybe have seperate methods for POST and PUT?
         T expectedData = randomizePropertyValues(
                 originalData,
                 baseReference,

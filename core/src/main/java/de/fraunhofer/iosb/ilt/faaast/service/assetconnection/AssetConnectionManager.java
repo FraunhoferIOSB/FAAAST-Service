@@ -64,6 +64,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
 import org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -326,36 +327,20 @@ public class AssetConnectionManager {
      * @param publishOnMessageBus if ElementChangeEvents should be fired or not
      */
     public void syncValueProvidersOnRead(Reference reference, Object element, boolean publishOnMessageBus) {
-        Map<Reference, DataElement> children = findSynchronizableElements(reference, element);
-        Map<Reference, Future<?>> tasks = children.entrySet().stream()
-                .collect(Collectors.toMap(
-                        Entry::getKey,
-                        x -> executorRead.submit(() -> {
-                            try {
-                                Optional<DataElementValue> newValue = readValue(x.getKey());
-                                if (newValue.isPresent()) {
-                                    ElementValue oldValue = ElementValueMapper.toValue(x.getValue());
-                                    if (!Objects.equals(oldValue, newValue.get())) {
-                                        ElementValueMapper.setValue(x.getValue(), newValue.get());
-                                        service.getPersistence().update(x.getKey(), x.getValue());
-                                        if (publishOnMessageBus) {
-                                            service.getMessageBus().publish(ValueChangeEventMessage.builder()
-                                                    .element(x.getKey())
-                                                    .oldValue(oldValue)
-                                                    .newValue(newValue.get())
-                                                    .build());
-                                        }
-                                    }
-                                }
-                            }
-                            catch (Exception e) {
-                                LOGGER.warn("failed to read from value provider (reference: {}, message: {})",
-                                        ReferenceHelper.asString(x.getKey()),
-                                        e.getMessage(),
-                                        e);
-                            }
-                        })));
-        waitForTasks(tasks, coreConfig.getAssetConnectionReadTimeout(), "read from asset connection");
+        if (Objects.isNull(element)) {
+            return;
+        }
+        if (element instanceof DataElement dataElement && hasValueProvider(reference)) {
+            syncElementOnRead(reference, dataElement, false);
+        }
+        else {
+            Map<Reference, DataElement> children = findSynchronizableElements(reference, element);
+            Map<Reference, Future<?>> tasks = children.entrySet().stream()
+                    .collect(Collectors.toMap(
+                            Entry::getKey,
+                            x -> executorRead.submit(() -> syncElementOnRead(x.getKey(), x.getValue(), publishOnMessageBus))));
+            waitForTasks(tasks, coreConfig.getAssetConnectionReadTimeout(), "read from asset connection");
+        }
     }
 
 
@@ -369,40 +354,14 @@ public class AssetConnectionManager {
      * @param publishOnMessageBus if ElementChangeEvents should be fired or not
      */
     public void syncValueProvidersOnWrite(Reference reference, Object oldElement, Object newElement, boolean publishOnMessageBus) {
-        Map<Reference, DataElement> oldChildren = findSynchronizableElements(reference, oldElement);
-        Map<Reference, DataElement> newChildren = findSynchronizableElements(reference, newElement);
-        Map<Reference, Pair<DataElement, DataElement>> toSyncChildren = newChildren.entrySet().stream().collect(Collectors.toMap(
-                Entry::getKey,
-                x -> Pair.of(oldChildren.get(x.getKey()), x.getValue())));
-        for (var child: toSyncChildren.entrySet()) {
-            executorRead.submit(() -> {
-                try {
-                    ElementValue oldValue = Objects.nonNull(child.getValue().getKey())
-                            ? ElementValueMapper.toValue(child.getValue().getKey())
-                            : null;
-                    ElementValue newValue = Objects.nonNull(child.getValue().getValue())
-                            ? ElementValueMapper.toValue(child.getValue().getValue())
-                            : null;
-                    // Potential feature: check against latest value from asset vs current value in persistence?
-                    // --> will be even slower as it doubles to calls to assets
-                    if (Objects.isNull(oldValue) || !Objects.equals(oldValue, newValue)) {
-                        setValue(child.getKey(), newValue);
-                        if (publishOnMessageBus) {
-                            service.getMessageBus().publish(ValueChangeEventMessage.builder()
-                                    .element(child.getKey())
-                                    .oldValue(oldValue)
-                                    .newValue(newValue)
-                                    .build());
-                        }
-                    }
-                }
-                catch (Exception e) {
-                    LOGGER.warn("failed to write to value provider (reference: {}, message: {})",
-                            ReferenceHelper.asString(child.getKey()),
-                            e.getMessage(),
-                            e);
-                }
-            });
+        if (newElement instanceof DataElement dataElement && hasValueProvider(reference)) {
+            syncElementOnWrite(reference, Pair.of(oldElement instanceof DataElement temp ? temp : null, dataElement), false);
+        }
+        else {
+            Map<Reference, DataElement> oldChildren = findSynchronizableElements(reference, oldElement);
+            Map<Reference, DataElement> newChildren = findSynchronizableElements(reference, newElement);
+            newChildren.entrySet().stream()
+                    .forEach(x -> syncElementOnWrite(x.getKey(), Pair.of(oldChildren.get(x.getKey()), x.getValue()), publishOnMessageBus));
         }
     }
 
@@ -1204,7 +1163,7 @@ public class AssetConnectionManager {
 
     private Map<Reference, DataElement> findSynchronizableElements(Reference rootReference, Object root) {
         return ReferenceCollector.collect(root, rootReference).entrySet().stream()
-                .filter(x -> x instanceof DataElement)
+                .filter(x -> x.getValue() instanceof DataElement)
                 .collect(Collectors.toMap(
                         Entry::getKey,
                         x -> (DataElement) x.getValue()));
@@ -1219,6 +1178,63 @@ public class AssetConnectionManager {
         catch (Exception e) {
             executor.shutdownNow();
             Thread.currentThread().interrupt();
+        }
+    }
+
+
+    private void syncElementOnRead(Reference reference, SubmodelElement element, boolean publishOnMessageBus) {
+        try {
+            Optional<DataElementValue> newValue = readValue(reference);
+            if (newValue.isPresent()) {
+                ElementValue oldValue = ElementValueMapper.toValue(element);
+                if (!Objects.equals(oldValue, newValue.get())) {
+                    ElementValueMapper.setValue(element, newValue.get());
+                    service.getPersistence().update(reference, element);
+                    if (publishOnMessageBus) {
+                        service.getMessageBus().publish(ValueChangeEventMessage.builder()
+                                .element(reference)
+                                .oldValue(oldValue)
+                                .newValue(newValue.get())
+                                .build());
+                    }
+                }
+            }
+        }
+        catch (Exception e) {
+            LOGGER.warn("failed to read from value provider (reference: {}, message: {})",
+                    ReferenceHelper.asString(reference),
+                    e.getMessage(),
+                    e);
+        }
+    }
+
+
+    private void syncElementOnWrite(Reference reference, Pair<DataElement, DataElement> values, boolean publishOnMessageBus) {
+        try {
+            ElementValue oldValue = Objects.nonNull(values.getKey())
+                    ? ElementValueMapper.toValue(values.getKey())
+                    : null;
+            ElementValue newValue = Objects.nonNull(values.getValue())
+                    ? ElementValueMapper.toValue(values.getValue())
+                    : null;
+            // Potential feature: check against latest value from asset vs current value in persistence?
+            // --> will be even slower as it doubles to calls to assets
+            if (Objects.isNull(oldValue) || !Objects.equals(oldValue, newValue)) {
+                setValue(reference, newValue);
+                if (publishOnMessageBus) {
+                    service.getMessageBus().publish(ValueChangeEventMessage.builder()
+                            .element(reference)
+                            .oldValue(oldValue)
+                            .newValue(newValue)
+                            .build());
+                }
+            }
+        }
+        catch (Exception e) {
+            LOGGER.warn("failed to write to value provider (reference: {}, message: {})",
+                    ReferenceHelper.asString(reference),
+                    e.getMessage(),
+                    e);
         }
     }
 
