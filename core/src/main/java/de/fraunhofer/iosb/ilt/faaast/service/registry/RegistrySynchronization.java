@@ -71,8 +71,7 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Class to handle the synchronisation of assetAdministrationShells and submodels
- * with the Registry.
+ * Class to handle the synchronisation of assetAdministrationShells and submodels with the Registry.
  */
 public class RegistrySynchronization {
     private static final Logger LOGGER = LoggerFactory.getLogger(RegistrySynchronization.class);
@@ -517,7 +516,10 @@ public class RegistrySynchronization {
         Ensure.requireNonNull(baseUrl, "baseUrl must be non-null");
         Ensure.requireNonNull(path, "path must be non-null");
         Ensure.requireNonNull(payload, "payload must be non-null");
+
+        // URI.resolve will remove the path if it is not suffixed by "/"
         String safeBaseUrl = baseUrl.endsWith("/") ? baseUrl : baseUrl.concat("/");
+
         HttpRequest.Builder builder = HttpRequest.newBuilder()
                 .uri(URI.create(safeBaseUrl).resolve(path))
                 .header("Content-Type", "application/json");

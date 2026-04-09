@@ -26,6 +26,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractSubmodelInt
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
+import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 
@@ -65,20 +66,22 @@ public class PatchSubmodelElementValueByPathRequestHandler
                     newSubmodelElement,
                     !request.isInternal());
         }
-        try {
-            context.getPersistence().update(reference, newSubmodelElement);
-        }
-        catch (IllegalArgumentException e) {
-            // empty on purpose
+        else {
+            try {
+                context.getPersistence().update(reference, newSubmodelElement);
+            }
+            catch (IllegalArgumentException e) {
+                // empty on purpose
+            }
+            if (!request.isInternal() && !Objects.equals(oldValue, newValue)) {
+                context.getMessageBus().publish(ValueChangeEventMessage.builder()
+                        .element(reference)
+                        .oldValue(oldValue)
+                        .newValue(newValue)
+                        .build());
+            }
         }
         response.setStatusCode(StatusCode.SUCCESS_NO_CONTENT);
-        if (!request.isInternal()) {
-            context.getMessageBus().publish(ValueChangeEventMessage.builder()
-                    .element(reference)
-                    .oldValue(oldValue)
-                    .newValue(newValue)
-                    .build());
-        }
         return response;
     }
 

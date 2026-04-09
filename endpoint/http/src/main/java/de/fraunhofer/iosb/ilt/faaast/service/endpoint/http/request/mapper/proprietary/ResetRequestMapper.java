@@ -32,7 +32,7 @@ public class ResetRequestMapper extends AbstractRequestMapper {
     private static final String PATTERN = "reset";
 
     public ResetRequestMapper(ServiceContext serviceContext) {
-        super(serviceContext, HttpMethod.GET, PATTERN);
+        super(serviceContext, HttpMethod.DELETE, PATTERN);
     }
 
 
