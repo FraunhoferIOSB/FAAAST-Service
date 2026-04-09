@@ -67,19 +67,14 @@ public class PatchSubmodelElementValueByPathRequestHandler
                     !request.isInternal());
         }
         else {
-            try {
-                context.getPersistence().update(reference, newSubmodelElement);
-            }
-            catch (IllegalArgumentException e) {
-                // empty on purpose
-            }
-            if (!request.isInternal() && !Objects.equals(oldValue, newValue)) {
-                context.getMessageBus().publish(ValueChangeEventMessage.builder()
-                        .element(reference)
-                        .oldValue(oldValue)
-                        .newValue(newValue)
-                        .build());
-            }
+            context.getPersistence().update(reference, newSubmodelElement);
+        }
+        if (!request.isInternal() && !Objects.equals(oldValue, newValue)) {
+            context.getMessageBus().publish(ValueChangeEventMessage.builder()
+                    .element(reference)
+                    .oldValue(oldValue)
+                    .newValue(newValue)
+                    .build());
         }
         response.setStatusCode(StatusCode.SUCCESS_NO_CONTENT);
         return response;

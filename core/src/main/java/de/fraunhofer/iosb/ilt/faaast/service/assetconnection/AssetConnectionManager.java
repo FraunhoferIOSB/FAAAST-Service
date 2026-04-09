@@ -384,7 +384,7 @@ public class AssetConnectionManager {
                             : null;
                     // Potential feature: check against latest value from asset vs current value in persistence?
                     // --> will be even slower as it doubles to calls to assets
-                    if (hasValueProvider(child.getKey()) && (Objects.isNull(oldValue) || !Objects.equals(oldValue, newValue))) {
+                    if (Objects.isNull(oldValue) || !Objects.equals(oldValue, newValue)) {
                         setValue(child.getKey(), newValue);
                         if (publishOnMessageBus) {
                             service.getMessageBus().publish(ValueChangeEventMessage.builder()
