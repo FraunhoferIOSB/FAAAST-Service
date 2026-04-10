@@ -140,6 +140,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestExcep
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.EventMessage;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ValueChangeEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
@@ -173,6 +175,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
@@ -1230,7 +1233,15 @@ public class RequestHandlerManagerTest {
                 x -> new PostSubmodelElementByPathResponse.Builder()
                         .payload(x)
                         .statusCode(StatusCode.SUCCESS_CREATED)
-                        .build());
+                        .build(),
+                (reference, property) -> msg -> {
+                    if (!(msg instanceof ElementCreateEventMessage)) {
+                        return false;
+                    }
+                    ElementCreateEventMessage event = (ElementCreateEventMessage) msg;
+                    return ReferenceHelper.equals(reference, event.getElement())
+                            && Objects.equals(property, event.getValue());
+                });
     }
 
 
@@ -1865,7 +1876,8 @@ public class RequestHandlerManagerTest {
                                                     Reference baseReference,
                                                     JavaType type,
                                                     Function<T, Request> requestBuilder,
-                                                    Function<T, Response> expectedResponseBuilder)
+                                                    Function<T, Response> expectedResponseBuilder,
+                                                    BiFunction<Reference, Property, ArgumentMatcher<EventMessage>> eventMatcherBuilder)
             throws Exception {
         Map<Reference, Property> updatedProperties = new HashMap<>();
         T expectedData = randomizePropertyValues(
@@ -1891,7 +1903,39 @@ public class RequestHandlerManagerTest {
         assetConnectionManager.stop();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
         assertValueProviderSetValueCalled(updatedProperties);
-        assertValueChangeEventsSent(updatedProperties);
+        if (Objects.nonNull(eventMatcherBuilder)) {
+            updatedProperties.entrySet().stream().forEach(LambdaExceptionHelper.rethrowConsumer(
+                    x -> verify(messageBus).publish(argThat(eventMatcherBuilder.apply(x.getKey(), x.getValue())))));
+        }
+    }
+
+
+    private <T> void assertWriteWithAssetConnection(T originalData,
+                                                    Reference baseReference,
+                                                    JavaType type,
+                                                    Function<T, Request> requestBuilder,
+                                                    Function<T, Response> expectedResponseBuilder)
+            throws Exception {
+        assertWriteWithAssetConnection(
+                originalData,
+                baseReference,
+                type,
+                requestBuilder,
+                expectedResponseBuilder,
+                (reference, property) -> msg -> {
+                    if (!(msg instanceof ValueChangeEventMessage)) {
+                        return false;
+                    }
+                    ValueChangeEventMessage event = (ValueChangeEventMessage) msg;
+                    try {
+                        return ReferenceHelper.equals(reference, event.getElement())
+                                && Objects.equals(ElementValueMapper.toValue(property), event.getNewValue());
+                    }
+                    catch (ValueMappingException e) {
+                        Assert.fail();
+                        return false;
+                    }
+                });
     }
 
 
