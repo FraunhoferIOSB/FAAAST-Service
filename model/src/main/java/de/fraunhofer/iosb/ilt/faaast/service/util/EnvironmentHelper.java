@@ -50,7 +50,7 @@ public class EnvironmentHelper {
      * @throws IllegalArgumentException if resolved element does not match the return type
      * @throws ResourceNotFoundException if reference cannot be resolved because element does not exist
      */
-    public static <T extends Referable> T resolve(Reference reference, Object root, Class<T> returnType) throws ResourceNotFoundException {
+    public static synchronized <T extends Referable> T resolve(Reference reference, Object root, Class<T> returnType) throws ResourceNotFoundException {
         Ensure.requireNonNull(reference, "reference must be non-null");
         Ensure.require(!reference.getKeys().isEmpty(), "reference must contain at least one key");
         Ensure.requireNonNull(root, "root must be non-null");

@@ -38,10 +38,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository.Get
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository.GetAllAssetAdministrationShellsByIdShortRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository.GetAllAssetAdministrationShellsReferenceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository.GetAllAssetAdministrationShellsRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository.GetAssetAdministrationShellByIdReferenceRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository.GetAssetAdministrationShellByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository.PostAssetAdministrationShellRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository.PutAssetAdministrationShellByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasserialization.GenerateSerializationByIdsRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.DeleteConceptDescriptionByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.GetAllConceptDescriptionsByDataSpecificationReferenceRequest;
@@ -82,11 +79,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepositor
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.GetAllSubmodelsBySemanticIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.GetAllSubmodelsReferenceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.GetAllSubmodelsRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.GetSubmodelByIdReferenceRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.GetSubmodelByIdRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.PatchSubmodelByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.PostSubmodelRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.PutSubmodelByIdRequest;
 import java.util.Arrays;
 import java.util.List;
 
@@ -273,10 +266,7 @@ public enum ServiceSpecificationProfile {
                     GetAllAssetAdministrationShellsByIdShortRequest.class,
                     GetAllAssetAdministrationShellsReferenceRequest.class,
                     GetAllAssetAdministrationShellsRequest.class,
-                    GetAssetAdministrationShellByIdReferenceRequest.class,
-                    GetAssetAdministrationShellByIdRequest.class,
                     PostAssetAdministrationShellRequest.class,
-                    PutAssetAdministrationShellByIdRequest.class,
                     DeleteSubmodelReferenceRequest.class,
                     DeleteThumbnailRequest.class,
                     GetAllSubmodelReferencesRequest.class,
@@ -293,11 +283,7 @@ public enum ServiceSpecificationProfile {
                     GetAllSubmodelsBySemanticIdRequest.class,
                     GetAllSubmodelsReferenceRequest.class,
                     GetAllSubmodelsRequest.class,
-                    GetSubmodelByIdReferenceRequest.class,
-                    GetSubmodelByIdRequest.class,
-                    PatchSubmodelByIdRequest.class,
                     PostSubmodelRequest.class,
-                    PutSubmodelByIdRequest.class,
                     DeleteFileByPathRequest.class,
                     DeleteSubmodelElementByPathRequest.class,
                     GetAllSubmodelElementsPathRequest.class,
@@ -340,8 +326,6 @@ public enum ServiceSpecificationProfile {
                     GetAllAssetAdministrationShellsByIdShortRequest.class,
                     GetAllAssetAdministrationShellsReferenceRequest.class,
                     GetAllAssetAdministrationShellsRequest.class,
-                    GetAssetAdministrationShellByIdReferenceRequest.class,
-                    GetAssetAdministrationShellByIdRequest.class,
                     GetAllSubmodelReferencesRequest.class,
                     GetAssetAdministrationShellReferenceRequest.class,
                     GetAssetAdministrationShellRequest.class,
@@ -351,8 +335,6 @@ public enum ServiceSpecificationProfile {
                     GetAllSubmodelsBySemanticIdRequest.class,
                     GetAllSubmodelsReferenceRequest.class,
                     GetAllSubmodelsRequest.class,
-                    GetSubmodelByIdReferenceRequest.class,
-                    GetSubmodelByIdRequest.class,
                     GetAllSubmodelElementsPathRequest.class,
                     GetAllSubmodelElementsReferenceRequest.class,
                     GetAllSubmodelElementsRequest.class,
@@ -377,11 +359,7 @@ public enum ServiceSpecificationProfile {
                     GetAllSubmodelsBySemanticIdRequest.class,
                     GetAllSubmodelsReferenceRequest.class,
                     GetAllSubmodelsRequest.class,
-                    GetSubmodelByIdReferenceRequest.class,
-                    GetSubmodelByIdRequest.class,
-                    PatchSubmodelByIdRequest.class,
                     PostSubmodelRequest.class,
-                    PutSubmodelByIdRequest.class,
                     DeleteFileByPathRequest.class,
                     DeleteSubmodelElementByPathRequest.class,
                     GetAllSubmodelElementsPathRequest.class,
@@ -420,8 +398,6 @@ public enum ServiceSpecificationProfile {
                     GetAllSubmodelsBySemanticIdRequest.class,
                     GetAllSubmodelsReferenceRequest.class,
                     GetAllSubmodelsRequest.class,
-                    GetSubmodelByIdReferenceRequest.class,
-                    GetSubmodelByIdRequest.class,
                     GetAllSubmodelElementsPathRequest.class,
                     GetAllSubmodelElementsReferenceRequest.class,
                     GetAllSubmodelElementsRequest.class,

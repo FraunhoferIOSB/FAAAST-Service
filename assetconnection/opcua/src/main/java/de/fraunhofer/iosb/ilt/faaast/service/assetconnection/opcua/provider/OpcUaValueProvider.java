@@ -132,8 +132,9 @@ public class OpcUaValueProvider extends AbstractOpcUaProviderWithArray<OpcUaValu
                         valueToWrite,
                         arrayIndex);
             }
+            // explicitly creating DataValue with timestamp=null because if not set explicitly to null milo will use current time and handling time is often not supported by OPC UA servers.
             List<StatusCode> results = client.writeValues(List.of(node.getNodeId()), List.of(new DataValue(
-                    valueToWrite)));
+                    valueToWrite, StatusCode.GOOD, null)));
             StatusCode result = results.get(0);
             OpcUaHelper.checkStatusCode(result, "error setting value on asset connection");
         }

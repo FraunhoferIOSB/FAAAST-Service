@@ -56,9 +56,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetAllS
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetOperationAsyncResultResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetOperationAsyncStatusResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetSubmodelElementByPathResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetSubmodelResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.InvokeOperationAsyncResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.PostSubmodelElementResponse;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodelrepository.GetSubmodelByIdResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodelrepository.PostSubmodelResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
@@ -254,7 +254,7 @@ public abstract class AbstractHttpEndpointTest {
     @Test
     public void testNonExistentId() throws Exception {
         String idShort = AASFull.SUBMODEL_3.getIdShort() + "123";
-        when(service.execute(any(), any())).thenReturn(GetSubmodelByIdResponse.builder()
+        when(service.execute(any(), any())).thenReturn(GetSubmodelResponse.builder()
                 .statusCode(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND)
                 .payload(null)
                 .build());
@@ -266,7 +266,7 @@ public abstract class AbstractHttpEndpointTest {
     @Test
     public void testDoubleQueryValue() throws Exception {
         String idShort = AASFull.SUBMODEL_3.getIdShort() + "123";
-        when(service.execute(any(), any())).thenReturn(GetSubmodelByIdResponse.builder()
+        when(service.execute(any(), any())).thenReturn(GetSubmodelResponse.builder()
                 .statusCode(StatusCode.SUCCESS)
                 .payload(null)
                 .build());
@@ -279,7 +279,7 @@ public abstract class AbstractHttpEndpointTest {
     @Test
     public void testMissingQueryValue() throws Exception {
         String idShort = AASFull.SUBMODEL_3.getIdShort() + "123";
-        when(service.execute(any(), any())).thenReturn(GetSubmodelByIdResponse.builder()
+        when(service.execute(any(), any())).thenReturn(GetSubmodelResponse.builder()
                 .statusCode(StatusCode.SUCCESS)
                 .payload(null)
                 .build());
@@ -292,7 +292,7 @@ public abstract class AbstractHttpEndpointTest {
     @Test
     public void testBogusAndMissingQueryValue() throws Exception {
         String idShort = AASFull.SUBMODEL_3.getIdShort() + "123";
-        when(service.execute(any(), any())).thenReturn(GetSubmodelByIdResponse.builder()
+        when(service.execute(any(), any())).thenReturn(GetSubmodelResponse.builder()
                 .statusCode(StatusCode.SUCCESS)
                 .payload(null)
                 .build());

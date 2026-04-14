@@ -36,6 +36,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 
 
 /**
@@ -52,7 +53,7 @@ public class PutSubmodelRequestHandler extends AbstractRequestHandler<PutSubmode
             PersistenceException {
         ModelValidator.validate(request.getSubmodel(), context.getCoreConfig().getValidationOnUpdate());
         //check if resource does exist
-        context.getPersistence().getSubmodel(request.getSubmodelId(), QueryModifier.DEFAULT);
+        Submodel oldSubmodel = context.getPersistence().getSubmodel(request.getSubmodelId(), QueryModifier.DEFAULT);
         if (Objects.nonNull(request.getSubmodel()) && !Objects.equals(request.getSubmodel().getId(), request.getSubmodelId())) {
             // id has changed, need to update references to this submodel
             Reference submodelRefOld = ReferenceBuilder.forSubmodel(request.getSubmodelId());
@@ -68,7 +69,7 @@ public class PutSubmodelRequestHandler extends AbstractRequestHandler<PutSubmode
         }
         context.getPersistence().save(request.getSubmodel());
         Reference reference = AasUtils.toReference(request.getSubmodel());
-        syncWithAsset(reference, request.getSubmodel().getSubmodelElements(), !request.isInternal(), context);
+        context.getAssetConnectionManager().syncValueProvidersOnWrite(reference, oldSubmodel, request.getSubmodel(), !request.isInternal());
         context.getMessageBus().publish(ElementUpdateEventMessage.builder()
                 .element(reference)
                 .value(request.getSubmodel())

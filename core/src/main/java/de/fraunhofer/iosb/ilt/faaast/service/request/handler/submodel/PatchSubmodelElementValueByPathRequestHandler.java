@@ -24,6 +24,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractSubmodelInterfaceRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
+import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
@@ -57,17 +58,15 @@ public class PatchSubmodelElementValueByPathRequestHandler
                         .build());
         ElementValue oldValue = ElementValueMapper.toValue(submodelElement);
         ElementValue newValue = request.getValueParser().parse(request.getRawValue(), oldValue.getClass());
-        ElementValueMapper.setValue(submodelElement, newValue);
+        SubmodelElement newSubmodelElement = ElementValueMapper.setValue(DeepCopyHelper.deepCopy(submodelElement), newValue);
         if (request.isSyncWithAsset()) {
-            context.getAssetConnectionManager().setValue(reference, newValue);
+            context.getAssetConnectionManager().syncValueProvidersOnWrite(
+                    reference,
+                    submodelElement,
+                    newSubmodelElement,
+                    !request.isInternal());
         }
-        try {
-            context.getPersistence().update(reference, submodelElement);
-        }
-        catch (IllegalArgumentException e) {
-            // empty on purpose
-        }
-        response.setStatusCode(StatusCode.SUCCESS_NO_CONTENT);
+        context.getPersistence().update(reference, newSubmodelElement);
         if (!request.isInternal() && !Objects.equals(oldValue, newValue)) {
             context.getMessageBus().publish(ValueChangeEventMessage.builder()
                     .element(reference)
@@ -75,6 +74,7 @@ public class PatchSubmodelElementValueByPathRequestHandler
                     .newValue(newValue)
                     .build());
         }
+        response.setStatusCode(StatusCode.SUCCESS_NO_CONTENT);
         return response;
     }
 
