@@ -17,12 +17,10 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
-import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.QueryParameters;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiDeserializer;
@@ -60,7 +58,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetSubm
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.InvokeOperationAsyncResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.PostSubmodelElementResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodelrepository.PostSubmodelResponse;
-import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
@@ -649,7 +646,6 @@ public abstract class AbstractHttpEndpointTest {
                         .level(Level.CORE)
                         .build()))
                 .thenReturn(aas);
-        mockAasContext(service, aasId);
         ContentResponse response = execute(
                 HttpMethod.GET,
                 String.format("/shells/%s/submodels/%s/submodel-elements",
@@ -781,17 +777,6 @@ public abstract class AbstractHttpEndpointTest {
         ContentResponse responseResult = execute(HttpMethod.GET, urlResult.toString(), operationRequest);
         Assert.assertEquals(HttpStatus.OK_200, responseResult.getStatus());
         // assert state == COMPLETED
-    }
-
-
-    private void mockAasContext(ServiceContext serviceContext, String aasId) throws PersistenceException {
-        doReturn(new DefaultEnvironment.Builder()
-                .assetAdministrationShells(new DefaultAssetAdministrationShell.Builder()
-                        .id(aasId)
-                        .build())
-                .build())
-                .when(serviceContext)
-                .getAASEnvironment();
     }
 
 

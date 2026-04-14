@@ -108,7 +108,7 @@ public class ProcessorTest {
                 .filter(x -> x.getId().equals(SUBMODEL_ID_AIMC))
                 .findFirst();
         assertTrue(submodel.isPresent());
-        smtProcessor.add(submodel.get(), assetConnectionManager);
+        smtProcessor.add(submodel.get());
 
         HttpAssetConnectionConfig httpExpected = new HttpAssetConnectionConfig.Builder()
                 .baseUrl(SERVER_URL)

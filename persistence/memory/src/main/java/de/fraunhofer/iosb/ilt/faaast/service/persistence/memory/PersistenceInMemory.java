@@ -103,8 +103,9 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
     }
 
 
+    @Override
     public Environment getEnvironment() {
-        return environment;
+        return DeepCopyHelper.deepCopy(environment);
     }
 
 

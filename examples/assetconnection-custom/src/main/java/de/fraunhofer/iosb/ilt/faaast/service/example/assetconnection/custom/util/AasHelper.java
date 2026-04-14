@@ -15,6 +15,8 @@
 package de.fraunhofer.iosb.ilt.faaast.service.example.assetconnection.custom.util;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
@@ -43,7 +45,7 @@ public class AasHelper {
 
 
     public static void ensureType(Reference reference, Class<?> type, ServiceContext serviceContext) throws ResourceNotFoundException, PersistenceException {
-        Referable element = EnvironmentHelper.resolve(reference, serviceContext.getAASEnvironment());
+        Referable element = EnvironmentHelper.resolve(reference, serviceContext.getPersistence().getAllSubmodels(QueryModifier.MAXIMAL, PagingInfo.ALL));
         if (element == null) {
             throw new IllegalArgumentException(String.format("element could not be resolved (reference: %s)", ReferenceHelper.toString(reference)));
         }

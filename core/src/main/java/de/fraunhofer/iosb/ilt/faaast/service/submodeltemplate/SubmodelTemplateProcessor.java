@@ -14,7 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate;
 
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
 import de.fraunhofer.iosb.ilt.faaast.service.config.Configurable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 
@@ -39,28 +38,25 @@ public interface SubmodelTemplateProcessor<T extends SubmodelTemplateProcessorCo
      * Processes a given submodel, by adding elements.
      *
      * @param submodel the submodel to check
-     * @param assetConnectionManager manager for asset connection, can be used to modify underlying asset connection
      * @return true if submodel has been modified, false otherwise
      */
-    public boolean add(Submodel submodel, AssetConnectionManager assetConnectionManager);
+    public boolean add(Submodel submodel);
 
 
     /**
      * Processes a given submodel to update the information.
      *
      * @param submodel the submodel to check
-     * @param assetConnectionManager manager for asset connection, can be used to modify underlying asset connection
      * @return true if submodel has been modified, false otherwise
      */
-    public boolean update(Submodel submodel, AssetConnectionManager assetConnectionManager);
+    public boolean update(Submodel submodel);
 
 
     /**
      * Processes a given submodel to delete the information.
      *
      * @param submodel the submodel to check
-     * @param assetConnectionManager manager for asset connection, can be used to modify underlying asset connection
      * @return true if submodel has been modified, false otherwise
      */
-    public boolean delete(Submodel submodel, AssetConnectionManager assetConnectionManager);
+    public boolean delete(Submodel submodel);
 }

@@ -20,6 +20,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.provider.Mul
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.HttpAssetConnectionConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.HttpOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.util.HttpHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
@@ -31,8 +32,10 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.function.UnaryOperator;
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 
 
 /**
@@ -65,8 +68,20 @@ public class HttpOperationProvider extends MultiFormatOperationProvider<HttpOper
 
     @Override
     protected OperationVariable[] getOutputParameters() {
+        if (reference == null) {
+            throw new IllegalArgumentException("reference must be non-null");
+        }
         try {
-            return serviceContext.getOperationOutputVariables(reference);
+            SubmodelElement element = serviceContext.getPersistence().getSubmodelElement(reference, QueryModifier.DEFAULT);
+            if (element == null) {
+                throw new ResourceNotFoundException(String.format("reference could not be resolved (reference: %s)", ReferenceHelper.toString(reference)));
+            }
+            if (!Operation.class.isAssignableFrom(element.getClass())) {
+                throw new IllegalArgumentException(String.format("reference points to invalid type (reference: %s, expected type: Operation, actual type: %s)",
+                        ReferenceHelper.toString(reference),
+                        element.getClass()));
+            }
+            return ((Operation) element).getOutputVariables().toArray(new OperationVariable[0]);
         }
         catch (ResourceNotFoundException | PersistenceException e) {
             throw new IllegalStateException(
