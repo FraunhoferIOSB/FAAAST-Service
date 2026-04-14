@@ -180,7 +180,7 @@ public class Util {
         List<String> supportedSecurity = new ArrayList<>();
         for (SubmodelElement se: securityList.getValue()) {
             if (se instanceof ReferenceElement refElem) {
-                Referable securityReferable = EnvironmentHelper.resolve(refElem.getValue(), serviceContext.getAASEnvironment());
+                Referable securityReferable = EnvironmentHelper.resolve(refElem.getValue(), serviceContext.getPersistence().getEnvironment());
                 if (securityReferable instanceof SubmodelElement securityElement) {
                     if (semanticIdEquals(securityElement, Constants.AID_SECURITY_NOSEC_SEMANTIC_ID)) {
                         supportedSecurity.add(Constants.AID_SECURITY_NOSEC);
@@ -346,7 +346,8 @@ public class Util {
             if (parent != null) {
                 Reference grandParent = ReferenceHelper.getParent(parent);
                 if ((grandParent != null)
-                        && (EnvironmentHelper.resolve(grandParent, data.getServiceContext().getAASEnvironment()) instanceof SubmodelElementCollection grandParentObject)
+                        && (EnvironmentHelper.resolve(grandParent,
+                                data.getServiceContext().getPersistence().getEnvironment()) instanceof SubmodelElementCollection grandParentObject)
                         && (!Util.isInteractionMetadata(grandParentObject))) {
                     pathList.add(Util.getKey(grandParentObject));
                     current = grandParent;
@@ -382,7 +383,8 @@ public class Util {
         while (semanticIdEquals(current, Constants.AID_PROPERTY_NESTED_SEMANTIC_ID)) {
             Reference grandParent = getGrandParent(currentReference);
             if ((grandParent != null)
-                    && (EnvironmentHelper.resolve(grandParent, data.getServiceContext().getAASEnvironment()) instanceof SubmodelElementCollection grandParentObject)) {
+                    && (EnvironmentHelper.resolve(grandParent,
+                            data.getServiceContext().getPersistence().getEnvironment()) instanceof SubmodelElementCollection grandParentObject)) {
                 current = grandParentObject;
                 currentReference = grandParent;
             }

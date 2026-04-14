@@ -11,6 +11,7 @@
     - Fix incorrect triggering of ValueChanged events when a value did in fact not change.
     - Fix ElementDelete events not being triggered on DELETE /reset.
 	- Removed duplicate requests that have not been mapped to any API (`GetAssetAdministrationShellByIdRequest`, `PutAssetAdministrationShellById`, `GetSubmodelByIdRequest`, `PatchSubmodelByIdRequest`, `PutSubmodelByIdRequest`)
+	- Update `ServiceContext` interface to now allow access to persistence, file storage, and asset connection manager
 - Asset Connection
 	- Fixed bug that reading a SubmodelElement container, like a `SubmodelElementCollection`, didn't trigger the asset connection value providers of underlying elements recursively.
 	- Synchronization with asset now happens asynchronously in multiple threads. This can be configured via new config properties `assetConnectionReadMaxThreadPoolSize`, `assetConnectionWriteMaxThreadPoolSize`, and `assetConnectionReadTimeout`.
