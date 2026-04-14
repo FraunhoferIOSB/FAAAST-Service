@@ -68,4 +68,11 @@ public class UnsignedLongValueTest {
         Assert.assertEquals(value, actual.asString());
     }
 
+
+    @Test
+    public void testNullAsString() throws ValueFormatException {
+        String value = null;
+        TypedValue actual = TypedValueFactory.create(Datatype.UNSIGNED_LONG, value);
+        Assert.assertNull(actual.asString());
+    }
 }

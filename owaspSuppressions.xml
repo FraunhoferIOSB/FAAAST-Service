@@ -16,4 +16,8 @@
 		<notes><![CDATA[False positive]]></notes>
 		<cve>CVE-2025-10543</cve>
 	</suppress>
+	<suppress>
+		<notes><![CDATA[Does not apply because it only affects Nu Html Checker (validator.nu) (see https://github.com/advisories/GHSA-fccg-7w3p-w66f)]]></notes>
+		<cve>CVE-2025-15104</cve>
+	</suppress>
 </suppressions>

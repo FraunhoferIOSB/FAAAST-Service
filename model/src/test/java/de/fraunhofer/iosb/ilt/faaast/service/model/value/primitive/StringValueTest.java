@@ -50,4 +50,11 @@ public class StringValueTest {
         Assert.assertEquals(expected, actual.asString());
     }
 
+
+    @Test
+    public void testNullAsString() throws ValueFormatException {
+        String value = null;
+        TypedValue actual = TypedValueFactory.create(Datatype.STRING, value);
+        Assert.assertNull(actual.asString());
+    }
 }

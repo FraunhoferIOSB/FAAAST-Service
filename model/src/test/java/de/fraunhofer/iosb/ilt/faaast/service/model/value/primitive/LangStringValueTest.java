@@ -58,7 +58,7 @@ public class LangStringValueTest {
         String value = "";
         TypedValue actual = TypedValueFactory.create(Datatype.LANG_STRING, value);
         Assert.assertEquals(expected, actual.getValue());
-        Assert.assertEquals(value, actual.asString());
+        Assert.assertEquals(null, actual.asString());
     }
 
 
@@ -68,7 +68,7 @@ public class LangStringValueTest {
         String value = null;
         TypedValue actual = TypedValueFactory.create(Datatype.LANG_STRING, value);
         Assert.assertEquals(expected, actual.getValue());
-        Assert.assertEquals("", actual.asString());
+        Assert.assertEquals(null, actual.asString());
     }
 
 

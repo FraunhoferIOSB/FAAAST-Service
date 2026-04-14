@@ -83,4 +83,11 @@ public class DateTimeValueTest {
         Assert.assertEquals(value, actual.asString());
     }
 
+
+    @Test
+    public void testNullAsString() throws ValueFormatException {
+        String value = null;
+        TypedValue actual = TypedValueFactory.create(Datatype.DATE_TIME, value);
+        Assert.assertNull(actual.asString());
+    }
 }

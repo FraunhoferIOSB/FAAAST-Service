@@ -64,4 +64,11 @@ public class IntegerValueTest {
         Assert.assertEquals(value, actual.asString());
     }
 
+
+    @Test
+    public void testNullAsString() throws ValueFormatException {
+        String value = null;
+        TypedValue actual = TypedValueFactory.create(Datatype.INTEGER, value);
+        Assert.assertNull(actual.asString());
+    }
 }

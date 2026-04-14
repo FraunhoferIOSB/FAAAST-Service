@@ -64,4 +64,11 @@ public class NegativeIntegerValueTest {
         TypedValueFactory.create(Datatype.NEGATIVE_INTEGER, value);
     }
 
+
+    @Test
+    public void testNullAsString() throws ValueFormatException {
+        String value = null;
+        TypedValue actual = TypedValueFactory.create(Datatype.NEGATIVE_INTEGER, value);
+        Assert.assertNull(actual.asString());
+    }
 }

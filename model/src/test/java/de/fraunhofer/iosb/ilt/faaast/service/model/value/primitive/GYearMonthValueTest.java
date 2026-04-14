@@ -74,4 +74,11 @@ public class GYearMonthValueTest {
         Assert.assertEquals(value, actual.asString());
     }
 
+
+    @Test
+    public void testNullAsString() throws ValueFormatException {
+        String value = null;
+        TypedValue actual = TypedValueFactory.create(Datatype.GYEAR_MONTH, value);
+        Assert.assertNull(actual.asString());
+    }
 }

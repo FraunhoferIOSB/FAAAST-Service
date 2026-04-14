@@ -57,8 +57,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.eclipse.digitaltwin.aas4j.v3.model.AnnotatedRelationshipElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.Entity;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.eclipse.digitaltwin.aas4j.v3.model.HasSemantics;
 import org.eclipse.digitaltwin.aas4j.v3.model.Identifiable;
@@ -182,6 +185,20 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
                     public void visit(Submodel submodel) {
                         deleted.compareAndSet(false, submodel.getSubmodelElements().remove(element));
                     }
+
+
+                    @Override
+                    public void visit(Entity entity) {
+                        deleted.compareAndSet(false, entity.getStatements().remove(element));
+                    }
+
+
+                    @Override
+                    public void visit(AnnotatedRelationshipElement annotatedRelationshipElement) {
+                        if (element instanceof DataElement dataElement) {
+                            deleted.compareAndSet(false, annotatedRelationshipElement.getAnnotations().remove(dataElement));
+                        }
+                    }
                 })
                 .build()
                 .walk(parent);
@@ -250,6 +267,12 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
             }
             else if (SubmodelElementList.class.isAssignableFrom(parent.getClass())) {
                 elements.addAll(((SubmodelElementList) parent).getValue());
+            }
+            else if (Entity.class.isAssignableFrom(parent.getClass())) {
+                elements.addAll(((Entity) parent).getStatements());
+            }
+            else if (AnnotatedRelationshipElement.class.isAssignableFrom(parent.getClass())) {
+                elements.addAll(((AnnotatedRelationshipElement) parent).getAnnotations());
             }
         }
         else {
@@ -383,12 +406,36 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
             container = ((SubmodelElementList) parent).getValue();
             acceptEmptyIdShort = true;
         }
+        else if (Entity.class.isAssignableFrom(parent.getClass())) {
+            container = ((Entity) parent).getStatements();
+        }
+        else if (AnnotatedRelationshipElement.class.isAssignableFrom(parent.getClass())) {
+            if (DataElement.class.isAssignableFrom(submodelElement.getClass())) {
+                DataElement dataElement = (DataElement) submodelElement;
+                Collection<DataElement> dataElementContainer = ((AnnotatedRelationshipElement) parent).getAnnotations();
+                CollectionHelper.put(dataElementContainer,
+                        dataElementContainer.stream()
+                                .filter(x -> !StringHelper.isBlank(x.getIdShort())
+                                        && x.getIdShort().equalsIgnoreCase(dataElement.getIdShort()))
+                                .findFirst()
+                                .orElse(null),
+                        dataElement);
+                return;
+            }
+            else {
+                throw new IllegalArgumentException(String.format("illegal type for new SubmodelElement: %s: Must be a %s",
+                        submodelElement.getClass(),
+                        DataElement.class));
+            }
+        }
         else {
-            throw new IllegalArgumentException(String.format("illegal type for identifiable: %s. Must be one of: %s, %s, %s",
+            throw new IllegalArgumentException(String.format("illegal type for identifiable: %s. Must be one of: %s, %s, %s, %s, %s",
                     parent.getClass(),
                     Submodel.class,
                     SubmodelElementCollection.class,
-                    SubmodelElementList.class));
+                    SubmodelElementList.class,
+                    Entity.class,
+                    AnnotatedRelationshipElement.class));
         }
         if (!acceptEmptyIdShort && StringHelper.isBlank(submodelElement.getIdShort())) {
             throw new IllegalArgumentException("idShort most be non-empty");
@@ -425,12 +472,36 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
         else if (SubmodelElementCollection.class.isAssignableFrom(parent.getClass())) {
             container = ((SubmodelElementCollection) parent).getValue();
         }
+        else if (Entity.class.isAssignableFrom(parent.getClass())) {
+            container = ((Entity) parent).getStatements();
+        }
+        else if (AnnotatedRelationshipElement.class.isAssignableFrom(parent.getClass()) && DataElement.class.isAssignableFrom(oldElement.getClass())) {
+            if (DataElement.class.isAssignableFrom(submodelElement.getClass())) {
+                DataElement dataElement = (DataElement) submodelElement;
+                DataElement oldDataElement = (DataElement) oldElement;
+                Collection<DataElement> dataElementContainer = ((AnnotatedRelationshipElement) parent).getAnnotations();
+                CollectionHelper.put(dataElementContainer,
+                        dataElementContainer.stream()
+                                .filter(x -> Objects.equals(x, oldDataElement))
+                                .findFirst()
+                                .orElse(null),
+                        dataElement);
+                return;
+            }
+            else {
+                throw new IllegalArgumentException(String.format("illegal type for new SubmodelElement: %s: Must be a %s",
+                        submodelElement.getClass(),
+                        DataElement.class));
+            }
+        }
         else {
-            throw new IllegalArgumentException(String.format("illegal type for identifiable: %s. Must be one of: %s, %s, %s",
+            throw new IllegalArgumentException(String.format("illegal type for identifiable: %s. Must be one of: %s, %s, %s, %s, %s",
                     parent.getClass(),
                     Submodel.class,
                     SubmodelElementCollection.class,
-                    SubmodelElementList.class));
+                    SubmodelElementList.class,
+                    Entity.class,
+                    AnnotatedRelationshipElement.class));
         }
         CollectionHelper.put(container,
                 container.stream()

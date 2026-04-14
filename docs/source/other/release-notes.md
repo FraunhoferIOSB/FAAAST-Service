@@ -10,7 +10,15 @@
 **Internal changes & bugfixes**
 - General
 	- Fixed bug that incorrectly removed submodel reference from AAS when updating a submodel via PUT /submodels/{submodelId}
+	- Better failure logging in the registry synchronization component: Log error responses from AAS/Submodel registries
+	- Fix idShortPaths to support Entity and AnnotatedRelationshipElement
+    - Fix inconsistencies between docs and proprietary API: DELETE /reset resets the server, POST /import imports an AAS file, /upload was removed from docs
+    - Fix incorrect triggering of ValueChanged events when a value did in fact not change.
+    - Fix ElementDelete events not being triggered on DELETE /reset.
+	- Removed duplicate requests that have not been mapped to any API (`GetAssetAdministrationShellByIdRequest`, `PutAssetAdministrationShellById`, `GetSubmodelByIdRequest`, `PatchSubmodelByIdRequest`, `PutSubmodelByIdRequest`)
 - Asset Connection
+	- Fixed bug that reading a SubmodelElement container, like a `SubmodelElementCollection`, didn't trigger the asset connection value providers of underlying elements recursively.
+	- Synchronization with asset now happens asynchronously in multiple threads. This can be configured via new config properties `assetConnectionReadMaxThreadPoolSize`, `assetConnectionWriteMaxThreadPoolSize`, and `assetConnectionReadTimeout`.
 	- OPC UA
 		- When connecting to an OPC UA asset and the discovery service returns mutliple URLs to use, the ones with a reachable host are preferred.
 - Endpoint
@@ -60,7 +68,7 @@
 	- HTTP
 		- Improved CORS support by introducing additional config properties `corsAllowCredentials`, `corsAllowedHeaders`, `corsAllowedMethods`, `corsAllowedOrigin`, `corsExposedHeaders`, and `corsMaxAge`
 		- Improved error messages; stack trace may now be returned in HTTP responses via config property `includeErrorDetails`
-		- New API calls: PUT on /upload will now accept JSON/AASX model files. DELETE on /reset will erase everything including AAS, Submodels and ConceptDescriptions.
+		- New API calls: POST on /import will now accept JSON/AASX model files. DELETE on /reset will erase everything including AAS, Submodels and ConceptDescriptions.
 	- OPC UA
 		- Added support for all datatypes of the AAS specification
 

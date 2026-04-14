@@ -45,8 +45,8 @@ import org.eclipse.milo.opcua.stack.core.StatusCodes;
 import org.eclipse.milo.opcua.stack.core.UaException;
 import org.eclipse.milo.opcua.stack.core.UaServiceFaultException;
 import org.eclipse.milo.opcua.stack.core.security.DefaultClientCertificateValidator;
+import org.eclipse.milo.opcua.stack.core.security.FileBasedCertificateQuarantine;
 import org.eclipse.milo.opcua.stack.core.security.FileBasedTrustListManager;
-import org.eclipse.milo.opcua.stack.core.security.MemoryCertificateQuarantine;
 import org.eclipse.milo.opcua.stack.core.transport.TransportProfile;
 import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
 import org.eclipse.milo.opcua.stack.core.types.builtin.ExpandedNodeId;
@@ -408,8 +408,9 @@ public class OpcUaHelper {
         DefaultClientCertificateValidator certificateValidator;
         try {
             Files.createDirectories(config.getSecurityBaseDir());
-            certificateValidator = new DefaultClientCertificateValidator(FileBasedTrustListManager.createAndInitialize(SecurityPathHelper.pki(config.getSecurityBaseDir())),
-                    new MemoryCertificateQuarantine());
+            Path pkiDir = SecurityPathHelper.pki(config.getSecurityBaseDir());
+            certificateValidator = new DefaultClientCertificateValidator(FileBasedTrustListManager.createAndInitialize(pkiDir),
+                    FileBasedCertificateQuarantine.create(pkiDir.resolve("rejected")));
         }
         catch (IOException e) {
             throw new ConfigurationInitializationException("unable to initialize OPC UA client security", e);

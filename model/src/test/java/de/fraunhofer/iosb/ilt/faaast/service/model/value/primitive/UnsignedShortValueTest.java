@@ -34,7 +34,7 @@ public class UnsignedShortValueTest {
     @Test
     public void testMax() throws ValueFormatException {
         String value = "65535";
-        Integer expected = Integer.parseInt(value);
+        Integer expected = Integer.valueOf(value);
         TypedValue actual = TypedValueFactory.create(Datatype.UNSIGNED_SHORT, value);
         Assert.assertEquals(expected, actual.getValue());
         Assert.assertEquals(value, actual.asString());
@@ -44,7 +44,7 @@ public class UnsignedShortValueTest {
     @Test
     public void testExplicitPlusPrefix() throws ValueFormatException {
         String value = "+10000";
-        Integer expected = Integer.parseInt(value);
+        Integer expected = Integer.valueOf(value);
         TypedValue actual = TypedValueFactory.create(Datatype.UNSIGNED_SHORT, value);
         Assert.assertEquals(expected, actual.getValue());
         Assert.assertEquals("10000", actual.asString());
@@ -54,7 +54,7 @@ public class UnsignedShortValueTest {
     @Test
     public void testZero() throws ValueFormatException {
         String value = "0";
-        Integer expected = Integer.parseInt(value);
+        Integer expected = Integer.valueOf(value);
         TypedValue actual = TypedValueFactory.create(Datatype.UNSIGNED_SHORT, value);
         Assert.assertEquals(expected, actual.getValue());
         Assert.assertEquals(value, actual.asString());
@@ -67,4 +67,11 @@ public class UnsignedShortValueTest {
         TypedValueFactory.create(Datatype.UNSIGNED_SHORT, value);
     }
 
+
+    @Test
+    public void testNullAsString() throws ValueFormatException {
+        String value = null;
+        TypedValue actual = TypedValueFactory.create(Datatype.UNSIGNED_SHORT, value);
+        Assert.assertNull(actual.asString());
+    }
 }

@@ -17,6 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
+import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
 
 
@@ -37,6 +38,9 @@ public class UnsignedByteValue extends TypedValue<Short> {
 
     @Override
     public String asString() {
+        if (Objects.isNull(value)) {
+            return super.asString();
+        }
         return Short.toString(value);
     }
 
@@ -48,7 +52,7 @@ public class UnsignedByteValue extends TypedValue<Short> {
             return;
         }
         try {
-            Short valueShort = Short.parseShort(value);
+            Short valueShort = Short.valueOf(value);
             if (valueShort < 0 || valueShort > 255) {
                 throw new ValueFormatException(String.format("value must be between 0 and 255 (actual value: %s)", value));
             }

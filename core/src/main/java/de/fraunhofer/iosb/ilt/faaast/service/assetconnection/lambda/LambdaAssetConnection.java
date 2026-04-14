@@ -163,6 +163,19 @@ public class LambdaAssetConnection {
 
 
     /**
+     * Returns whether the there is a value provider defined for the element referenced by the reference either directly or
+     * recursively or not.
+     *
+     * @param reference AAS element
+     * @return true if there is a value provider defined for the element referenced by the reference either directly or
+     *         recursively, otherwise false
+     */
+    public boolean hasValueProviderRecursive(Reference reference) {
+        return valueProviders.keySet().stream().anyMatch(x -> ReferenceHelper.startsWith(x, reference));
+    }
+
+
+    /**
      * Gets the operation provider for the AAS element defined by reference.
      *
      * @param reference AAS element

@@ -34,4 +34,11 @@ public class Base64BinaryValueTest {
         Assert.assertEquals(value, actual.asString());
     }
 
+
+    @Test
+    public void testNullAsString() throws ValueFormatException {
+        String value = null;
+        TypedValue actual = TypedValueFactory.create(Datatype.BASE64_BINARY, value);
+        Assert.assertNull(actual.asString());
+    }
 }

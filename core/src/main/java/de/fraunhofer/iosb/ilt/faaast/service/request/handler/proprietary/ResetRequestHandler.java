@@ -42,9 +42,6 @@ public class ResetRequestHandler extends AbstractRequestHandler<ResetRequest, Re
     @Override
     public ResetResponse process(ResetRequest request, RequestExecutionContext context) {
         try {
-            context.getAssetConnectionManager().reset();
-            context.getPersistence().deleteAll();
-            context.getFileStorage().deleteAll();
             StreamHelper.concat(
                     context.getPersistence().getAllAssetAdministrationShells(QueryModifier.MINIMAL, PagingInfo.ALL).getContent().stream(),
                     context.getPersistence().getAllSubmodels(QueryModifier.MINIMAL, PagingInfo.ALL).getContent().stream(),
@@ -57,9 +54,12 @@ public class ResetRequestHandler extends AbstractRequestHandler<ResetRequest, Re
                                     .build());
                         }
                         catch (MessageBusException e) {
-                            LOGGER.warn("Publishing ElementDeleteEvent on message bus after reset failed (reference: {})", AasUtils.toReference(x));
+                            LOGGER.warn("Publishing ElementDeleteEvent on message bus during reset failed (reference: {})", AasUtils.toReference(x));
                         }
                     });
+            context.getAssetConnectionManager().reset();
+            context.getPersistence().deleteAll();
+            context.getFileStorage().deleteAll();
             return ResetResponse.builder().statusCode(StatusCode.SUCCESS_NO_CONTENT).build();
         }
         catch (PersistenceException e) {

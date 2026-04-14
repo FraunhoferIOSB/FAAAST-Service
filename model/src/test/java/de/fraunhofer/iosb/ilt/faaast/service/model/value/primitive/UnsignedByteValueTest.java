@@ -57,4 +57,11 @@ public class UnsignedByteValueTest {
         Assert.assertEquals(value, actual.asString());
     }
 
+
+    @Test
+    public void testNullAsString() throws ValueFormatException {
+        String value = null;
+        TypedValue actual = TypedValueFactory.create(Datatype.UNSIGNED_BYTE, value);
+        Assert.assertNull(actual.asString());
+    }
 }

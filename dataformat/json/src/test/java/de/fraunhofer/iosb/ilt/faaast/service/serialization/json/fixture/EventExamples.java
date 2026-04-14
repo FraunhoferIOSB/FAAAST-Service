@@ -96,8 +96,15 @@ public class EventExamples {
             .value("example value")
             .build();
 
+    private static final Property PROPERTY_DATETIME = new DefaultProperty.Builder()
+            .idShort("PROPERTY_DATETIME")
+            .valueType(DataTypeDefXsd.DATE_TIME)
+            .value("2026-01-28T15:13:45+01:00")
+            .build();
+
     private static final PropertyValue PROPERTY_VALUE_INT;
     private static final PropertyValue PROPERTY_VALUE_DOUBLE;
+    private static final PropertyValue PROPERTY_VALUE_DATETIME;
     private static final PropertyValue PROPERTY_VALUE_STRING;
     private static final RangeValue RANGE_VALUE;
     private static final RelationshipElementValue RELATIONSHIP_ELEMENT_VALUE;
@@ -113,6 +120,7 @@ public class EventExamples {
         try {
             PROPERTY_VALUE_INT = ElementValueMapper.toValue(PROPERTY_INT, PropertyValue.class);
             PROPERTY_VALUE_DOUBLE = ElementValueMapper.toValue(PROPERTY_DOUBLE, PropertyValue.class);
+            PROPERTY_VALUE_DATETIME = ElementValueMapper.toValue(PROPERTY_DATETIME, PropertyValue.class);
             PROPERTY_VALUE_STRING = ElementValueMapper.toValue(PROPERTY_STRING, PropertyValue.class);
             RANGE_VALUE = RangeValue.builder()
                     .min(TypedValueFactory.create(Datatype.DOUBLE, "0.1"))
@@ -141,6 +149,7 @@ public class EventExamples {
             SUBMODEL_ELEMENT_COLLECTION_VALUE = SubmodelElementCollectionValue.builder()
                     .value("property_int", PROPERTY_VALUE_INT)
                     .value("property_double", PROPERTY_VALUE_DOUBLE)
+                    .value("property_datetime", PROPERTY_VALUE_DATETIME)
                     .value("property_string", PROPERTY_VALUE_STRING)
                     .value("nested_collection", SubmodelElementCollectionValue.builder()
                             .value("nested_property_int", PROPERTY_VALUE_INT)
@@ -151,11 +160,13 @@ public class EventExamples {
             SUBMODEL_ELEMENT_LIST_VALUE = SubmodelElementListValue.builder()
                     .value(PROPERTY_VALUE_INT)
                     .value(PROPERTY_VALUE_DOUBLE)
+                    .value(PROPERTY_VALUE_DATETIME)
                     .value(PROPERTY_VALUE_STRING)
                     .build();
             ALL_ELEMENT_VALUE_TYPES_MAP = new HashMap<>();
             ALL_ELEMENT_VALUE_TYPES_MAP.put("propertyInt", PROPERTY_VALUE_INT);
             ALL_ELEMENT_VALUE_TYPES_MAP.put("propertyDouble", PROPERTY_VALUE_DOUBLE);
+            ALL_ELEMENT_VALUE_TYPES_MAP.put("propertyDatetime", PROPERTY_VALUE_DATETIME);
             ALL_ELEMENT_VALUE_TYPES_MAP.put("propertyString", PROPERTY_VALUE_STRING);
             ALL_ELEMENT_VALUE_TYPES_MAP.put("range", RANGE_VALUE);
             ALL_ELEMENT_VALUE_TYPES_MAP.put("relationshipElement", RELATIONSHIP_ELEMENT_VALUE);

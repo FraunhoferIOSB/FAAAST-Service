@@ -14,11 +14,13 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
@@ -45,11 +47,13 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatExceptio
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
+import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
 import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
@@ -139,7 +143,8 @@ public class LambdaAssetConnectionTest {
                         .valueType(DataTypeDefXsd.INT)
                         .build())
                 .build());
-
+        await().atMost(10000, TimeUnit.MILLISECONDS)
+                .until(() -> !service.getAssetConnectionManager().hasPendingWrites());
         actual = readProperty(propertyRef);
         assertEquals(newValue, Integer.parseInt(actual.getValue()));
     }
@@ -167,7 +172,6 @@ public class LambdaAssetConnectionTest {
         when(persistence.getSubmodelElement(eq(propertyRef), any())).thenReturn(property);
 
         List<Integer> values = List.of(1, 2, 3, 4);
-        // need two locks: canUpdate, updated
         Semaphore canUpdate = new Semaphore(1);
         Semaphore updated = new Semaphore(1);
         canUpdate.acquire();
@@ -204,12 +208,12 @@ public class LambdaAssetConnectionTest {
                         })
                         .build());
         service.start();
-
-        assertEquals(initialValueAAS, Integer.parseInt(readProperty(propertyRef).getValue()));
         canUpdate.release();
         for (int value: values) {
             updated.acquire();
-            assertEquals(value, Integer.parseInt(readProperty(propertyRef).getValue()));
+            Property expected = DeepCopyHelper.deepCopy(property);
+            expected.setValue(Integer.toString(value));
+            verify(persistence).update(propertyRef, expected);
             canUpdate.release();
         }
     }

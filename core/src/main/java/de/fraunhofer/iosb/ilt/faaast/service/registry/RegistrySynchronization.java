@@ -14,10 +14,10 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.registry;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod.DELETE;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod.POST;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod.PUT;
+
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
@@ -26,6 +26,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementChangeEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
@@ -50,15 +51,17 @@ import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.DeserializationException;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.SerializationException;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.JsonDeserializer;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.JsonSerializer;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
-import org.eclipse.digitaltwin.aas4j.v3.model.Endpoint;
 import org.eclipse.digitaltwin.aas4j.v3.model.Key;
 import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
-import org.eclipse.digitaltwin.aas4j.v3.model.SecurityAttributeObject;
+import org.eclipse.digitaltwin.aas4j.v3.model.Result;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelDescriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetAdministrationShellDescriptor;
@@ -68,8 +71,7 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Class to handle the synchronisation of assetAdministrationShells and submodels
- * with the Registry.
+ * Class to handle the synchronisation of assetAdministrationShells and submodels with the Registry.
  */
 public class RegistrySynchronization {
     private static final Logger LOGGER = LoggerFactory.getLogger(RegistrySynchronization.class);
@@ -81,7 +83,7 @@ public class RegistrySynchronization {
     private static final String MSG_UNREGISTER_SUBMODEL_FAILED = "Removing submodel descriptor from registry failed (id: %s, registry: %s, reason: %s)";
     private static final String MSG_AAS_NOT_FOUND = "AAS could not be found in persistence";
     private static final String MSG_SUBMODEL_NOT_FOUND = "submodel could not be found in persistence";
-    private static final String MSG_BAD_RETURN_CODE = "bad return code %s";
+    private static final String MSG_NO_EXCEPTION_MESSAGE = "No exception message.";
 
     private static final String AAS_URL_PATH = "shell-descriptors";
     private static final String SUBMODEL_URL_PATH = "submodel-descriptors";
@@ -90,12 +92,8 @@ public class RegistrySynchronization {
     private final Persistence<?> persistence;
     private final MessageBus<?> messageBus;
     private final List<de.fraunhofer.iosb.ilt.faaast.service.endpoint.Endpoint> endpoints;
-    private final ObjectMapper mapper = new ObjectMapper()
-            .enable(SerializationFeature.INDENT_OUTPUT)
-            .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-            .setSerializationInclusion(JsonInclude.Include.NON_EMPTY)
-            .addMixIn(SecurityAttributeObject.class, SecurityAttributeObjectMixin.class)
-            .addMixIn(Endpoint.class, EndpointMixin.class);
+    private final RegistryRequestDecorator requestDecorator;
+    private final JsonSerializer mapper = new JsonSerializer();
     private ExecutorService executor;
     private boolean running = false;
 
@@ -104,13 +102,26 @@ public class RegistrySynchronization {
             Persistence<?> persistence,
             MessageBus<?> messageBus,
             List<de.fraunhofer.iosb.ilt.faaast.service.endpoint.Endpoint> endpoints) {
-        Ensure.requireNonNull(coreConfig, "coreConfig must be non-null");
-        Ensure.requireNonNull(persistence, "persistence must be non-null");
-        Ensure.requireNonNull(messageBus, "messageBus must be non-null");
-        this.coreConfig = coreConfig;
-        this.persistence = persistence;
-        this.messageBus = messageBus;
+        this.coreConfig = Ensure.requireNonNull(coreConfig, "coreConfig must be non-null");
+        this.persistence = Ensure.requireNonNull(persistence, "persistence must be non-null");
+        this.messageBus = Ensure.requireNonNull(messageBus, "messageBus must be non-null");
         this.endpoints = Optional.ofNullable(endpoints).orElse(List.of());
+        this.requestDecorator = createRequestDecorator(coreConfig);
+    }
+
+
+    private RegistryRequestDecorator createRequestDecorator(CoreConfig coreConfig) {
+        var registrySynchronizationConfig = coreConfig.getRegistrySynchronization();
+        if (registrySynchronizationConfig == null) {
+            return RegistryRequestDecorator.noop();
+        }
+        var header = registrySynchronizationConfig.getAuth().getHeader();
+        if (!header.isConfigured()) {
+            return RegistryRequestDecorator.noop();
+        }
+        return new StaticHeaderRegistryRequestDecorator(
+                header.getName(),
+                header.getValue());
     }
 
 
@@ -226,6 +237,9 @@ public class RegistrySynchronization {
 
 
     private void registerAllAass() throws PersistenceException {
+        if (coreConfig.getAasRegistries().isEmpty()) {
+            return;
+        }
         getPageSafe(persistence.getAllAssetAdministrationShells(QueryModifier.MINIMAL, PagingInfo.ALL))
                 .getContent()
                 .forEach(this::registerAas);
@@ -233,7 +247,7 @@ public class RegistrySynchronization {
 
 
     private void registerAas(AssetAdministrationShell aas) {
-        register("AAS", coreConfig.getAasRegistries(), AAS_URL_PATH, asDescriptor(aas), aas.getId(), MSG_REGISTER_AAS_FAILED);
+        register(coreConfig.getAasRegistries(), AAS_URL_PATH, asDescriptor(aas), aas.getId(), MSG_REGISTER_AAS_FAILED);
     }
 
 
@@ -253,6 +267,9 @@ public class RegistrySynchronization {
 
 
     private void unregisterAllAass() throws PersistenceException {
+        if (coreConfig.getAasRegistries().isEmpty()) {
+            return;
+        }
         getPageSafe(persistence.getAllAssetAdministrationShells(QueryModifier.MINIMAL, PagingInfo.ALL))
                 .getContent()
                 .forEach(this::unregisterAas);
@@ -300,6 +317,9 @@ public class RegistrySynchronization {
 
 
     private void registerAllSubmodels() throws PersistenceException {
+        if (coreConfig.getSubmodelRegistries().isEmpty()) {
+            return;
+        }
         getPageSafe(persistence.getAllSubmodels(QueryModifier.MINIMAL, PagingInfo.ALL))
                 .getContent()
                 .forEach(this::registerSubmodel);
@@ -307,7 +327,7 @@ public class RegistrySynchronization {
 
 
     private void registerSubmodel(Submodel submodel) {
-        register("submodel", coreConfig.getSubmodelRegistries(), SUBMODEL_URL_PATH, asDescriptor(submodel), submodel.getId(), MSG_REGISTER_SUBMODEL_FAILED);
+        register(coreConfig.getSubmodelRegistries(), SUBMODEL_URL_PATH, asDescriptor(submodel), submodel.getId(), MSG_REGISTER_SUBMODEL_FAILED);
     }
 
 
@@ -327,6 +347,9 @@ public class RegistrySynchronization {
 
 
     private void unregisterAllSubmodels() throws PersistenceException {
+        if (coreConfig.getSubmodelRegistries().isEmpty()) {
+            return;
+        }
         getPageSafe(persistence.getAllSubmodels(QueryModifier.MINIMAL, PagingInfo.ALL))
                 .getContent()
                 .forEach(this::unregisterSubmodel);
@@ -373,18 +396,8 @@ public class RegistrySynchronization {
     }
 
 
-    private void register(String type, List<String> registries, String path, Object payload, String id, String errorMsg) {
-        executeForAll(registries, path, "POST", payload, id, errorMsg, (registry, response) -> {
-            if (response.statusCode() == 409) {
-                LOGGER.warn(String.format(
-                        errorMsg,
-                        id,
-                        registry,
-                        String.format("%s descriptor already exists", type)));
-                return true;
-            }
-            return false;
-        });
+    private void register(List<String> registries, String path, Object payload, String id, String errorMsg) {
+        executeForAll(registries, path, POST, payload, id, errorMsg);
     }
 
 
@@ -392,11 +405,10 @@ public class RegistrySynchronization {
         executeForAll(
                 registries,
                 String.format("%s/%s", path, EncodingHelper.base64UrlEncode(id)),
-                "PUT",
+                PUT,
                 payload,
                 id,
-                errorMsg,
-                null);
+                errorMsg);
     }
 
 
@@ -404,11 +416,10 @@ public class RegistrySynchronization {
         executeForAll(
                 registries,
                 String.format("%s/%s", path, EncodingHelper.base64UrlEncode(id)),
-                "DELETE",
+                DELETE,
                 payload,
                 id,
-                errorMsg,
-                null);
+                errorMsg);
     }
 
 
@@ -456,11 +467,10 @@ public class RegistrySynchronization {
 
     private void executeForAll(List<String> registries,
                                String path,
-                               String method,
+                               HttpMethod method,
                                Object payload,
                                String id,
-                               String errorMsg,
-                               BiPredicate<String, HttpResponse<String>> handler) {
+                               String errorMsg) {
         for (String registry: registries) {
             executor.submit(() -> {
                 try {
@@ -469,24 +479,27 @@ public class RegistrySynchronization {
                             registry,
                             path,
                             payload);
-                    if (Objects.nonNull(handler) && handler.test(registry, response)) {
+                    if (is2xxSuccessful(response.statusCode())) {
                         return;
                     }
-                    if (!is2xxSuccessful(response.statusCode())) {
-                        LOGGER.warn(String.format(
-                                errorMsg,
-                                id,
-                                registry,
-                                String.format(MSG_BAD_RETURN_CODE, response.statusCode())));
-                    }
+                    // Non-successful response, log response message
+                    Result responseBody = new JsonDeserializer().read(response.body(), Result.class);
+                    String responseMessages = responseBody.getMessages().stream()
+                            .map(m -> String.join(": ", m.getMessageType().toString(), m.getText()))
+                            .collect(Collectors.joining("; "));
 
+                    LOGGER.warn(String.format(errorMsg,
+                            id,
+                            registry,
+                            responseMessages,
+                            response.statusCode()));
                 }
-                catch (IOException | InterruptedException | KeyManagementException | NoSuchAlgorithmException e) {
+                catch (IOException | InterruptedException | KeyManagementException | NoSuchAlgorithmException | SerializationException | DeserializationException e) {
                     LOGGER.warn(String.format(
                             errorMsg,
                             id,
                             registry,
-                            e.getMessage()),
+                            e.getClass().getSimpleName().concat(": ").concat(Optional.ofNullable(e.getMessage()).orElse(MSG_NO_EXCEPTION_MESSAGE))),
                             e);
                     if (e instanceof InterruptedException) {
                         Thread.currentThread().interrupt();
@@ -497,17 +510,21 @@ public class RegistrySynchronization {
     }
 
 
-    private HttpResponse<String> execute(String method, String baseUrl, String path, Object payload)
-            throws IOException, InterruptedException, KeyManagementException, NoSuchAlgorithmException {
+    private HttpResponse<String> execute(HttpMethod method, String baseUrl, String path, Object payload)
+            throws IOException, InterruptedException, KeyManagementException, NoSuchAlgorithmException, SerializationException {
         Ensure.requireNonNull(method, "method must be non-null");
         Ensure.requireNonNull(baseUrl, "baseUrl must be non-null");
         Ensure.requireNonNull(path, "path must be non-null");
         Ensure.requireNonNull(payload, "payload must be non-null");
+
+        // URI.resolve will remove the path if it is not suffixed by "/"
         String safeBaseUrl = baseUrl.endsWith("/") ? baseUrl : baseUrl.concat("/");
+
         HttpRequest.Builder builder = HttpRequest.newBuilder()
                 .uri(URI.create(safeBaseUrl).resolve(path))
                 .header("Content-Type", "application/json");
-        HttpRequest request = builder.method(method, HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(payload))).build();
+        requestDecorator.decorate(builder);
+        HttpRequest request = builder.method(method.toString(), HttpRequest.BodyPublishers.ofString(mapper.write(payload))).build();
         return SslHelper.newClientAcceptingAllCertificates().send(request, BodyHandlers.ofString());
     }
 
@@ -526,8 +543,6 @@ public class RegistrySynchronization {
 
 
     private static void printRegistries(List<String> registries) {
-        LOGGER.info(registries.stream()
-                .map(x -> String.format("     %s", x))
-                .collect(Collectors.joining(System.lineSeparator())));
+        LOGGER.info(String.join(System.lineSeparator().concat("     "), registries));
     }
 }

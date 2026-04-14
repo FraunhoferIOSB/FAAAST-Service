@@ -60,4 +60,11 @@ public class NonNegativeValueTest {
         Assert.assertEquals(expected, actual.getValue());
     }
 
+
+    @Test
+    public void testNullAsString() throws ValueFormatException {
+        String value = null;
+        TypedValue actual = TypedValueFactory.create(Datatype.NON_NEGATIVE_INTEGER, value);
+        Assert.assertNull(actual.asString());
+    }
 }

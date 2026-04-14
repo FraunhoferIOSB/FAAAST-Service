@@ -75,4 +75,11 @@ public class GDayValueTest {
         Assert.assertEquals(value, actual.asString());
     }
 
+
+    @Test
+    public void testNullAsString() throws ValueFormatException {
+        String value = null;
+        TypedValue actual = TypedValueFactory.create(Datatype.GDAY, value);
+        Assert.assertNull(actual.asString());
+    }
 }
