@@ -75,6 +75,16 @@ You can define both a ValueProvider and a SubscriptionProvider for the same elem
 :::
 
 
+## ValueProvider Configuration
+All ValueProvider share the following common set of configuration properties.
+
+:::{table} Common configuration properties of OperationProviders.
+| Name                                   | Allowed Value                                               | Description                             | Default Value             |
+| -------------------------------------- | ----------------------------------------------------------- |---------------------------------------- | ------------------------- |
+| readWriteMode:<br>*(optional)*         | READ<br>WRITE<br>READ_WRITE<br>NONE                         | Supported read/write mode               | READ_WRITE                |
+:::
+
+
 ## OperationProvider Configuration
 All OperationProvider share the following common set of configuration properties.
 

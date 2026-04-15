@@ -436,7 +436,9 @@ public class AssetConnectionManager {
      *             fails
      */
     public void setValue(Reference reference, ElementValue value) throws AssetConnectionException {
-        if (hasValueProvider(reference) && ElementValueHelper.isValidDataElementValue(value)) {
+        if (hasValueProvider(reference)
+                && getValueProvider(reference).getReadWriteMode().supportsWrite()
+                && ElementValueHelper.isValidDataElementValue(value)) {
             try {
                 getValueProvider(reference).setValue((DataElementValue) value);
             }
@@ -458,7 +460,7 @@ public class AssetConnectionManager {
      *             reading fails
      */
     public Optional<DataElementValue> readValue(Reference reference) throws AssetConnectionException {
-        if (hasValueProvider(reference)) {
+        if (hasValueProvider(reference) && getValueProvider(reference).getReadWriteMode().supportsRead()) {
             return Optional.ofNullable(getValueProvider(reference).getValue());
         }
         return Optional.empty();

@@ -14,11 +14,11 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.assetconnection;
 
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AbstractAssetValueProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetProviderConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProviderConfig;
 
 
-public class TestValueProviderConfig implements AssetValueProviderConfig {
+public class TestValueProviderConfig extends AbstractAssetValueProviderConfig {
 
     @Override
     public boolean sameAs(AssetProviderConfig other) {

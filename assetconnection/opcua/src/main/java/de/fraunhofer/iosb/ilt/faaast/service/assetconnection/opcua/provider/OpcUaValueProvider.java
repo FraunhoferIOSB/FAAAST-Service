@@ -17,6 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.ReadWriteMode;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.conversion.ValueConversionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.conversion.ValueConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config.OpcUaValueProviderConfig;
@@ -56,6 +57,12 @@ public class OpcUaValueProvider extends AbstractOpcUaProviderWithArray<OpcUaValu
             ValueConverter valueConverter) throws AssetConnectionException, InvalidConfigurationException {
         super(serviceContext, client, reference, providerConfig, valueConverter);
         init();
+    }
+
+
+    @Override
+    public ReadWriteMode getReadWriteMode() {
+        return providerConfig.getReadWriteMode();
     }
 
 
@@ -167,4 +174,5 @@ public class OpcUaValueProvider extends AbstractOpcUaProviderWithArray<OpcUaValu
                 && Objects.equals(node, that.node)
                 && Objects.equals(datatype, that.datatype);
     }
+
 }
