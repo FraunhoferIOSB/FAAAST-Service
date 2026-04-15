@@ -19,6 +19,7 @@ import com.digitalpetri.modbus.pdu.ModbusRequestPdu;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.ReadWriteMode;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.config.ModbusValueProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.model.MostSignificantWord;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.util.AasToModbusConversionHelper;
@@ -56,5 +57,11 @@ public class ModbusValueProvider extends AbstractModbusProvider<ModbusValueProvi
     public void setValue(DataElementValue value) throws AssetConnectionException {
         byte[] bytesToWrite = AasToModbusConversionHelper.convert(value, asConfig().getQuantity() * bytesFor(asConfig().getDataType()));
         doWrite(bytesToWrite);
+    }
+
+
+    @Override
+    public ReadWriteMode getReadWriteMode() {
+        return asConfig().getReadWriteMode();
     }
 }

@@ -5,7 +5,13 @@
 **New Features & Major Changes**
 - Asset Connection
 	- Modbus TCP asset connection added
-
+	- Synchronization with asset now happens asynchronously in multiple threads. This can be configured via new config properties `assetConnectionReadMaxThreadPoolSize`, `assetConnectionWriteMaxThreadPoolSize`, and `assetConnectionReadTimeout`.
+	- Value providers now support configuring a read/write mode to explicitly tell FA³ST to use it for read-only, write-only, or both.
+	- OPC UA
+		- When connecting to an OPC UA asset and the discovery service returns mutliple URLs to use, the ones with a reachable host are preferred.
+- Endpoint
+	- HTTP
+		- URL prefix /api/v3.x is now optional
 
 **Internal changes & bugfixes**
 - General
@@ -16,14 +22,9 @@
     - Fix incorrect triggering of ValueChanged events when a value did in fact not change.
     - Fix ElementDelete events not being triggered on DELETE /reset.
 	- Removed duplicate requests that have not been mapped to any API (`GetAssetAdministrationShellByIdRequest`, `PutAssetAdministrationShellById`, `GetSubmodelByIdRequest`, `PatchSubmodelByIdRequest`, `PutSubmodelByIdRequest`)
+	- Update `ServiceContext` interface to now allow access to persistence, file storage, and asset connection manager
 - Asset Connection
 	- Fixed bug that reading a SubmodelElement container, like a `SubmodelElementCollection`, didn't trigger the asset connection value providers of underlying elements recursively.
-	- Synchronization with asset now happens asynchronously in multiple threads. This can be configured via new config properties `assetConnectionReadMaxThreadPoolSize`, `assetConnectionWriteMaxThreadPoolSize`, and `assetConnectionReadTimeout`.
-	- OPC UA
-		- When connecting to an OPC UA asset and the discovery service returns mutliple URLs to use, the ones with a reachable host are preferred.
-- Endpoint
-	- HTTP
-		- URL prefix /api/v3.x is now optional
 - SMT Processor
 	- AID/AIMC
 		- Fixed bug that prevented to update asset connection providers are runtime

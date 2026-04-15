@@ -14,14 +14,14 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.fixtures.foo;
 
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AbstractAssetValueProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetProviderConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.util.StringHelper;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
-public class FooValueProviderConfig implements AssetValueProviderConfig {
+public class FooValueProviderConfig extends AbstractAssetValueProviderConfig {
 
     private String property1;
 

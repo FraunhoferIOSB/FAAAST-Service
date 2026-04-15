@@ -14,13 +14,27 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.config;
 
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AbstractAssetValueProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.ReadWriteMode;
 
 
 /**
  * Modbus asset connection value provider config.
  */
 public class ModbusValueProviderConfig extends AbstractModbusProviderConfig implements AssetValueProviderConfig {
+
+    protected ReadWriteMode readWriteMode;
+
+    protected ModbusValueProviderConfig() {
+        this.readWriteMode = AbstractAssetValueProviderConfig.DEFAULT_READ_WRITE_MODE;
+    }
+
+
+    @Override
+    public ReadWriteMode getReadWriteMode() {
+        return readWriteMode;
+    }
 
     protected abstract static class AbstractBuilder<T extends ModbusValueProviderConfig, B extends AbstractBuilder<T, B>>
             extends AbstractModbusProviderConfig.AbstractBuilder<T, B> {}

@@ -15,6 +15,8 @@
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua;
 
 import static org.awaitility.Awaitility.await;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
@@ -48,6 +50,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.ElementValueTypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
@@ -78,6 +81,7 @@ import java.util.stream.Collectors;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Property;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperation;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
@@ -748,9 +752,15 @@ public class OpcUaAssetConnectionTest {
                             .build();
                 }).toArray(OperationVariable[]::new);
         ServiceContext serviceContext = mock(ServiceContext.class);
-        doReturn(expectedOut)
+        Persistence persistence = mock(Persistence.class);
+        doReturn(persistence)
                 .when(serviceContext)
-                .getOperationOutputVariables(reference);
+                .getPersistence();
+        doReturn(new DefaultOperation.Builder()
+                .outputVariables(Arrays.asList(expectedOut))
+                .build())
+                .when(persistence)
+                .getSubmodelElement(eq(reference), any());
         OpcUaAssetConnection connection = config.newInstance(CoreConfig.DEFAULT, serviceContext);
         awaitConnection(connection);
         OperationVariable[] actual;

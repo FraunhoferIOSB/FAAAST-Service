@@ -14,20 +14,29 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.example.assetconnection.custom.provider.config;
 
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AbstractAssetValueProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetProviderConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.util.StringHelper;
 import java.util.Objects;
-import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
-public class CustomValueProviderConfig implements AssetValueProviderConfig {
+public class CustomValueProviderConfig extends AbstractAssetValueProviderConfig {
 
     private static final String DEFAULT_NOTE = "-";
     private String note;
 
     public CustomValueProviderConfig() {
         this.note = DEFAULT_NOTE;
+    }
+
+
+    public String getNote() {
+        return note;
+    }
+
+
+    public void setNote(String note) {
+        this.note = note;
     }
 
 
@@ -68,7 +77,7 @@ public class CustomValueProviderConfig implements AssetValueProviderConfig {
         return Objects.hashCode(note);
     }
 
-    public class Builder extends ExtendableBuilder<CustomValueProviderConfig, Builder> {
+    public class Builder extends AbstractAssetValueProviderConfig.AbstractBuilder<CustomValueProviderConfig, Builder> {
 
         @Override
         protected Builder getSelf() {
@@ -89,12 +98,4 @@ public class CustomValueProviderConfig implements AssetValueProviderConfig {
 
     }
 
-    public String getNote() {
-        return note;
-    }
-
-
-    public void setNote(String note) {
-        this.note = note;
-    }
 }
