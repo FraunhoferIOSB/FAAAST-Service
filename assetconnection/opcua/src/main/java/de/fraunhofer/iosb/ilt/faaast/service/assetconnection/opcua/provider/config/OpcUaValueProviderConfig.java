@@ -68,7 +68,7 @@ public class OpcUaValueProviderConfig extends AbstractOpcUaProviderWithArrayConf
         }
         OpcUaValueProviderConfig that = (OpcUaValueProviderConfig) other;
         return super.sameAs(that)
-                && Objects.equals(readWriteMode, other.getClass());
+                && Objects.equals(readWriteMode, that.readWriteMode);
     }
 
 
