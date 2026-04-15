@@ -14,20 +14,28 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
-
-
 /**
- * An AssetValueWriteProvider provides methods to write data values to an asset.
+ * An abstract AssetValueProvider implementation.
+ *
+ * @param <T> type of the config
  */
-public interface AssetValueWriteProvider extends AssetProvider {
+public abstract class AbstractAssetValueProvider<T extends AssetValueProviderConfig> implements AssetValueProvider {
 
-    /**
-     * Sets the data value on an asset.
-     *
-     * @param value the value to set
-     * @throws de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException when writing the value to the
-     *             asset connection fails
-     */
-    public void setValue(DataElementValue value) throws AssetConnectionException;
+    protected T config;
+
+    protected AbstractAssetValueProvider(T config) {
+        this.config = config;
+    }
+
+
+    @Override
+    public ReadWriteMode getReadWriteMode() {
+        return config.getReadWriteMode();
+    }
+
+
+    @Override
+    public AssetProviderConfig asConfig() {
+        return config;
+    }
 }

@@ -14,14 +14,35 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config;
 
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AbstractAssetValueProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.ReadWriteMode;
+import java.util.Objects;
 
 
 /**
  * * Config file for OPC UA-based {@link de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider}.
  */
 public class OpcUaValueProviderConfig extends AbstractOpcUaProviderWithArrayConfig implements AssetValueProviderConfig {
+
+    protected ReadWriteMode readWriteMode;
+
+    protected OpcUaValueProviderConfig() {
+        this.readWriteMode = AbstractAssetValueProviderConfig.DEFAULT_READ_WRITE_MODE;
+    }
+
+
+    @Override
+    public ReadWriteMode getReadWriteMode() {
+        return readWriteMode;
+    }
+
+
+    public void setReadWriteMode(ReadWriteMode readWriteMode) {
+        this.readWriteMode = readWriteMode;
+    }
+
 
     @Override
     public boolean equals(Object o) {
@@ -31,19 +52,29 @@ public class OpcUaValueProviderConfig extends AbstractOpcUaProviderWithArrayConf
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        return super.equals(o);
+        OpcUaValueProviderConfig that = (OpcUaValueProviderConfig) o;
+        return super.equals(o)
+                && Objects.equals(readWriteMode, that.readWriteMode);
     }
 
 
     @Override
     public boolean sameAs(AssetProviderConfig other) {
-        return super.sameAs(other);
+        if (this == other) {
+            return true;
+        }
+        if (other == null || getClass() != other.getClass()) {
+            return false;
+        }
+        OpcUaValueProviderConfig that = (OpcUaValueProviderConfig) other;
+        return super.sameAs(that)
+                && Objects.equals(readWriteMode, other.getClass());
     }
 
 
     @Override
     public int hashCode() {
-        return super.hashCode();
+        return Objects.hash(super.hashCode(), readWriteMode);
     }
 
 
@@ -68,5 +99,9 @@ public class OpcUaValueProviderConfig extends AbstractOpcUaProviderWithArrayConf
     private abstract static class AbstractBuilder<T extends OpcUaValueProviderConfig, B extends AbstractBuilder<T, B>>
             extends AbstractOpcUaProviderWithArrayConfig.AbstractBuilder<T, B> {
 
+        public B readWriteMode(ReadWriteMode value) {
+            getBuildingInstance().setReadWriteMode(value);
+            return getSelf();
+        }
     }
 }
