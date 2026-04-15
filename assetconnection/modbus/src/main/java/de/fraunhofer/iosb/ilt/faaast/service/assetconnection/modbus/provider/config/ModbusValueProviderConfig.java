@@ -15,8 +15,10 @@
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.config;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AbstractAssetValueProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.ReadWriteMode;
+import java.util.Objects;
 
 
 /**
@@ -36,8 +38,53 @@ public class ModbusValueProviderConfig extends AbstractModbusProviderConfig impl
         return readWriteMode;
     }
 
+
+    public void setReadWriteMode(ReadWriteMode readWriteMode) {
+        this.readWriteMode = readWriteMode;
+    }
+
+
+    @Override
+    public boolean sameAs(AssetProviderConfig other) {
+        if (this == other) {
+            return true;
+        }
+        if (other == null || getClass() != other.getClass()) {
+            return false;
+        }
+        ModbusValueProviderConfig that = (ModbusValueProviderConfig) other;
+        return super.sameAs(that)
+                && Objects.equals(readWriteMode, that.readWriteMode);
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ModbusValueProviderConfig that = (ModbusValueProviderConfig) o;
+        return super.equals(o)
+                && Objects.equals(readWriteMode, that.readWriteMode);
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), readWriteMode);
+    }
+
     protected abstract static class AbstractBuilder<T extends ModbusValueProviderConfig, B extends AbstractBuilder<T, B>>
-            extends AbstractModbusProviderConfig.AbstractBuilder<T, B> {}
+            extends AbstractModbusProviderConfig.AbstractBuilder<T, B> {
+
+        public B readWriteMode(ReadWriteMode value) {
+            getBuildingInstance().setReadWriteMode(value);
+            return getSelf();
+        }
+    }
 
     public static class Builder extends AbstractBuilder<ModbusValueProviderConfig, Builder> {
 
