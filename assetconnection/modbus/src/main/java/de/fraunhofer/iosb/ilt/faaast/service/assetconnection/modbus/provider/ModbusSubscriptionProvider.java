@@ -134,7 +134,7 @@ public class ModbusSubscriptionProvider extends AbstractModbusProvider<ModbusSub
     }
 
 
-    private void notifyOnChangedData(byte[] newValue) throws AssetConnectionException {
+    private void notifyOnChangedData(byte[] newValue) {
         if (lastValue != null && Arrays.equals(lastValue, newValue)) {
             return;
         }
