@@ -64,9 +64,7 @@ public class ModbusAssetConnectionTest {
     public void testConnectNoTls() throws Exception {
         int port = PortHelper.findFreePort();
         ModbusTcpServer server = ModbusTestHelper.getServer(port, false);
-
         Reference reference = ReferenceHelper.parseReference("(Property)[ID_SHORT]Temperature");
-
         ModbusAssetConnectionConfig connectionConfig = ModbusAssetConnectionConfig.builder()
                 .hostname(InetAddress.getLoopbackAddress().getHostName())
                 .port(port)
@@ -79,21 +77,17 @@ public class ModbusAssetConnectionTest {
                                 .dataType(ModbusDatatype.HOLDING_REGISTER)
                                 .quantity(1)
                                 .build())
-
                 .build();
-
         PropertyValue expected = PropertyValue.of(Datatype.INTEGER, "3");
         ServiceContext serviceContext = mockedContext(expected, reference);
 
         server.start();
-
         ModbusAssetConnection connection = connectionConfig.newInstance(CoreConfig.DEFAULT, serviceContext);
         awaitConnection(connection);
         connection.getValueProviders().get(reference).setValue(expected);
         DataElementValue actual = connection.getValueProviders().get(reference).getValue();
         connection.disconnect();
         assertEquals(expected, actual);
-
         server.stop();
     }
 
@@ -102,9 +96,7 @@ public class ModbusAssetConnectionTest {
     public void testConnectWithTls() throws Exception {
         int port = PortHelper.findFreePort();
         ModbusTcpServer server = ModbusTestHelper.getServer(port, true);
-
         Reference reference = ReferenceHelper.parseReference("(Property)[ID_SHORT]Temperature");
-
         ModbusAssetConnectionConfig connectionConfig = ModbusAssetConnectionConfig.builder()
                 .hostname(InetAddress.getLoopbackAddress().getHostName())
                 .port(port)
@@ -126,19 +118,16 @@ public class ModbusAssetConnectionTest {
                                 .quantity(1)
                                 .build())
                 .build();
-
         PropertyValue expected = PropertyValue.of(Datatype.INTEGER, "3");
         ServiceContext serviceContext = mockedContext(expected, reference);
 
         server.start();
-
         ModbusAssetConnection connection = connectionConfig.newInstance(CoreConfig.DEFAULT, serviceContext);
         awaitConnection(connection);
         connection.getValueProviders().get(reference).setValue(expected);
         DataElementValue actual = connection.getValueProviders().get(reference).getValue();
         connection.disconnect();
         assertEquals(expected, actual);
-
         server.stop();
     }
 
@@ -151,15 +140,13 @@ public class ModbusAssetConnectionTest {
         int value = 42;
         int newValue = 43;
         final int expectedValue = newValue;
-
         Reference reference = ReferenceHelper.parseReference("(Property)[ID_SHORT]Temperature");
         ServiceContext serviceContext = mockedContext(PropertyValue.of(Datatype.INT, String.valueOf(value)), reference);
-
         // create server, start server
         int port = PortHelper.findFreePort();
+
         ModbusTcpServer server = ModbusTestHelper.getServer(port, false);
         server.start();
-
         // set value at an address of the server
         writeToServer(port, unitId, modbusAddress, value);
         // create and init assetconnection with a subscription
@@ -185,13 +172,10 @@ public class ModbusAssetConnectionTest {
                                 .unitId(unitId)
                                 .build())
                 .build();
-
         var assetConnection = connConfig.newInstance(CoreConfig.DEFAULT, serviceContext);
         awaitConnection(assetConnection);
-
         // add listener to subscription
         // Assert that the next value received from the subscription is 43
-
         final AtomicReference<DataElementValue> updatedResponse = new AtomicReference<>();
         CountDownLatch conditionUpdated = new CountDownLatch(1);
         NewDataListener updatedListener = (DataElementValue data) -> {
@@ -201,28 +185,23 @@ public class ModbusAssetConnectionTest {
                 conditionUpdated.countDown();
             }
         };
-
         assetConnection.getSubscriptionProviders().get(reference).addNewDataListener(updatedListener);
-
         // get the previously set value, assert it is correct
         assertEquals(42, (int) ((IntValue) ((PropertyValue) assetConnection.getValueProviders().get(reference).getValue()).getValue()).getValue());
-
         // shutdown modbus server, wait until !connection.isConnected(), restart server, wait til connection.isConnected(),
         server.stop();
+
         await().atMost(Duration.ofSeconds(30))
                 .until(() -> !assetConnection.isConnected());
 
         server.start();
         await().atMost(Duration.ofSeconds(30))
                 .until(assetConnection::isConnected);
-
         // update value at address
         writeToServer(port, unitId, modbusAddress, newValue);
-
         // add listener, get value, validate again
         assertTrue(conditionUpdated.await(pollingRate + 15000, TimeUnit.MILLISECONDS));
         assertEquals(newValue, (int) ((PropertyValue) updatedResponse.get()).getValue().getValue());
-
         server.stop();
     }
 
@@ -235,15 +214,13 @@ public class ModbusAssetConnectionTest {
         int unitId = 1;
         int value = 42;
         int newValue = 43;
-
         Reference reference = ReferenceHelper.parseReference("(Property)[ID_SHORT]Temperature");
         ServiceContext serviceContext = mockedContext(PropertyValue.of(Datatype.INT, String.valueOf(value)), reference);
-
         // create server, start server
         int port = PortHelper.findFreePort();
+
         ModbusTcpServer server = ModbusTestHelper.getServer(port, false);
         server.start();
-
         // valueProvider and subscriptionProvider
         var connConfig = ModbusAssetConnectionConfig.builder()
                 .hostname(InetAddress.getLoopbackAddress().getHostName())
@@ -267,10 +244,8 @@ public class ModbusAssetConnectionTest {
                                 .unitId(unitId)
                                 .build())
                 .build();
-
         var assetConnection = connConfig.newInstance(CoreConfig.DEFAULT, serviceContext);
         awaitConnection(assetConnection);
-
         // with value provider, change value; with subProvider, check if dataListeners get notified
         final AtomicReference<Boolean> notified = new AtomicReference<>(false);
         CountDownLatch conditionUpdated = new CountDownLatch(1);
@@ -278,9 +253,7 @@ public class ModbusAssetConnectionTest {
             notified.set(true);
             conditionUpdated.countDown();
         });
-
         assetConnection.getValueProviders().get(reference).setValue(new PropertyValue(new IntValue(newValue)));
-
         assertTrue(conditionUpdated.await(pollingRate + 15000, TimeUnit.MILLISECONDS));
         assertTrue(notified.get());
         server.stop();
@@ -290,6 +263,7 @@ public class ModbusAssetConnectionTest {
     @Test
     public void testValueProvider() throws Exception {
         int port = PortHelper.findFreePort();
+
         ModbusTcpServer server = ModbusTestHelper.getServer(port, false);
         server.start();
 
@@ -320,7 +294,6 @@ public class ModbusAssetConnectionTest {
                 0xF
         }).asString()), 1234, 1);
         assertWriteReadRegister(port, 1, PropertyValue.of(Datatype.BASE64_BINARY, "0xE"), 1234, 1);
-
         server.stop();
     }
 
@@ -386,7 +359,6 @@ public class ModbusAssetConnectionTest {
     private void writeToServer(int port, int unitId, int address, int value) throws Exception {
         ModbusTcpClient client = ModbusTestHelper.getClient(port);
         client.connect();
-
         client.writeSingleRegister(unitId, new WriteSingleRegisterRequest(address, value));
     }
 
@@ -406,7 +378,6 @@ public class ModbusAssetConnectionTest {
                 .build())
                 .when(serviceContext)
                 .getTypeInfo(reference);
-
         return serviceContext;
     }
 
@@ -420,7 +391,6 @@ public class ModbusAssetConnectionTest {
                         connection.connect();
                     }
                     catch (AssetConnectionException e) {
-                        throw new AssetConnectionException(e);
                         // do nothing
                     }
                     return connection.isConnected();

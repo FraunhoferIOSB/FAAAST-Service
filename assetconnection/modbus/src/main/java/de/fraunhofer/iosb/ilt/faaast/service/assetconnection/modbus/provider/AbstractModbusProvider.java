@@ -40,6 +40,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.util.ByteArr
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.util.ModbusToAasConversionHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
@@ -58,10 +59,10 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
  */
 public abstract class AbstractModbusProvider<C extends AbstractModbusProviderConfig> implements AssetProvider {
 
-    protected final Reference reference;
     private final C config;
     private final ServiceContext serviceContext;
     private final ModbusClient modbusClient;
+    protected final Reference reference;
     private final Datatype datatype;
     private final MostSignificantWord mostSignificantWord;
 
@@ -74,8 +75,13 @@ public abstract class AbstractModbusProvider<C extends AbstractModbusProviderCon
         this.reference = reference;
         this.modbusClient = modbusClient;
         this.config = config;
-        this.datatype = getDatatype(reference);
         this.mostSignificantWord = mostSignificantWord;
+        try {
+            this.datatype = getDatatype(reference);
+        }
+        catch (IllegalArgumentException e) {
+            throw new AssetConnectionException("failed to get datatype", e);
+        }
     }
 
 
@@ -107,12 +113,12 @@ public abstract class AbstractModbusProvider<C extends AbstractModbusProviderCon
         if (!(obj instanceof AbstractModbusProvider<?> abstractModbusProvider)) {
             return false;
         }
-        return Objects.equals(serviceContext, abstractModbusProvider.serviceContext) &&
-                Objects.equals(modbusClient, abstractModbusProvider.modbusClient) &&
-                Objects.equals(datatype, abstractModbusProvider.datatype) &&
-                Objects.equals(reference, abstractModbusProvider.reference) &&
-                Objects.equals(config, abstractModbusProvider.config) &&
-                Objects.equals(mostSignificantWord, abstractModbusProvider.mostSignificantWord);
+        return Objects.equals(serviceContext, abstractModbusProvider.serviceContext)
+                && Objects.equals(modbusClient, abstractModbusProvider.modbusClient)
+                && Objects.equals(datatype, abstractModbusProvider.datatype)
+                && Objects.equals(reference, abstractModbusProvider.reference)
+                && Objects.equals(config, abstractModbusProvider.config)
+                && Objects.equals(mostSignificantWord, abstractModbusProvider.mostSignificantWord);
     }
 
 
@@ -121,9 +127,9 @@ public abstract class AbstractModbusProvider<C extends AbstractModbusProviderCon
      *
      * @param rawBytes The bytes to convert.
      * @return AAS TypedValue data
-     * @throws AssetConnectionException If conversion of data fails due to type constraints.
+     * @throws ValueFormatException If conversion of data fails due to type constraints.
      */
-    protected TypedValue<?> convert(byte[] rawBytes) throws AssetConnectionException {
+    protected TypedValue<?> convert(byte[] rawBytes) throws ValueFormatException {
         return ModbusToAasConversionHelper.convert(rawBytes, datatype);
     }
 
@@ -144,7 +150,7 @@ public abstract class AbstractModbusProvider<C extends AbstractModbusProviderCon
                 return mostSignificantWord == HIGH ? reverseWords(readBytes) : readBytes;
             }
             catch (ModbusExecutionException | ModbusTimeoutException | ModbusResponseException e) {
-                throw new AssetConnectionException(e);
+                throw new AssetConnectionException("Failed to read from Modbus connection", e);
             }
         }
     }
@@ -157,52 +163,7 @@ public abstract class AbstractModbusProvider<C extends AbstractModbusProviderCon
      * @throws AssetConnectionException If the provider does not support write-operations.
      */
     protected void doWrite(byte[] bytesToWrite) throws AssetConnectionException {
-        ModbusRequestPdu writeRequest = createWriteRequest(bytesToWrite);
-        write(writeRequest);
-    }
-
-
-    private byte[] read(ModbusRequestPdu request) throws ModbusExecutionException, ModbusTimeoutException, ModbusResponseException {
-        int unitId = config.getUnitId();
-
-        if (request instanceof ReadCoilsRequest coilsRequest) {
-            return modbusClient.readCoils(unitId, coilsRequest).coils();
-        }
-        else if (request instanceof ReadDiscreteInputsRequest discreteInputsRequest) {
-            return modbusClient.readDiscreteInputs(unitId, discreteInputsRequest).inputs();
-        }
-        else if (request instanceof ReadHoldingRegistersRequest holdingRegistersRequest) {
-            return modbusClient.readHoldingRegisters(unitId, holdingRegistersRequest).registers();
-        }
-        else if (request instanceof ReadInputRegistersRequest inputRegistersRequest) {
-            return modbusClient.readInputRegisters(unitId, inputRegistersRequest).registers();
-        }
-        else {
-            throw new UnsupportedOperationException(String.format("Request type unknown: %s", request.getClass()));
-        }
-    }
-
-
-    private void write(ModbusRequestPdu request) {
-        int unitId = config.getUnitId();
-
-        // Java 24 offers an enhanced switch for this case
-        // We use async operations as we do not use the results.
-        if (request instanceof WriteMultipleCoilsRequest req) {
-            modbusClient.writeMultipleCoilsAsync(unitId, req);
-        }
-        else if (request instanceof WriteSingleCoilRequest req) {
-            modbusClient.writeSingleCoilAsync(unitId, req);
-        }
-        else if (request instanceof WriteMultipleRegistersRequest req) {
-            modbusClient.writeMultipleRegistersAsync(unitId, req);
-        }
-        else if (request instanceof WriteSingleRegisterRequest req) {
-            modbusClient.writeSingleRegisterAsync(unitId, req);
-        }
-        else {
-            throw new UnsupportedOperationException(String.format("Request type unknown: %s", request.getClass()));
-        }
+        write(createWriteRequest(bytesToWrite));
     }
 
 
@@ -235,7 +196,6 @@ public abstract class AbstractModbusProvider<C extends AbstractModbusProviderCon
     protected ModbusRequestPdu createWriteRequest(byte[] rawBytesToWrite) throws AssetConnectionException {
         int address = config.getAddress();
         int quantity = config.getQuantity();
-
         byte[] toWrite = rawBytesToWrite;
 
         return switch (config.getDataType()) {
@@ -243,13 +203,11 @@ public abstract class AbstractModbusProvider<C extends AbstractModbusProviderCon
                 // Depending on most significant word, flip words
                 toWrite = mostSignificantWord == HIGH ? reverseWords(toWrite) : toWrite;
                 toWrite = ByteArrayHelper.removePadding(toWrite);
-
                 yield (quantity > 1) ? new WriteMultipleCoilsRequest(address, quantity, toWrite) : new WriteSingleCoilRequest(address, toWrite[0] != 0);
             }
             case HOLDING_REGISTER -> {
                 // Depending on most significant word, flip words
                 toWrite = mostSignificantWord == HIGH ? reverseWords(toWrite) : toWrite;
-
                 if (quantity > 1) {
                     yield new WriteMultipleRegistersRequest(address, quantity, toWrite);
                 }
@@ -276,35 +234,77 @@ public abstract class AbstractModbusProvider<C extends AbstractModbusProviderCon
     }
 
 
-    private Datatype getDatatype(Reference reference) throws AssetConnectionException {
+    private byte[] read(ModbusRequestPdu request) throws ModbusExecutionException, ModbusTimeoutException, ModbusResponseException {
+        int unitId = config.getUnitId();
+
+        if (request instanceof ReadCoilsRequest coilsRequest) {
+            return modbusClient.readCoils(unitId, coilsRequest).coils();
+        }
+        else if (request instanceof ReadDiscreteInputsRequest discreteInputsRequest) {
+            return modbusClient.readDiscreteInputs(unitId, discreteInputsRequest).inputs();
+        }
+        else if (request instanceof ReadHoldingRegistersRequest holdingRegistersRequest) {
+            return modbusClient.readHoldingRegisters(unitId, holdingRegistersRequest).registers();
+        }
+        else if (request instanceof ReadInputRegistersRequest inputRegistersRequest) {
+            return modbusClient.readInputRegisters(unitId, inputRegistersRequest).registers();
+        }
+        else {
+            throw new UnsupportedOperationException(String.format("Request type unknown: %s", request.getClass()));
+        }
+    }
+
+
+    private void write(ModbusRequestPdu request) {
+        int unitId = config.getUnitId();
+        // We use async operations as we do not use the results.
+        if (request instanceof WriteMultipleCoilsRequest req) {
+            modbusClient.writeMultipleCoilsAsync(unitId, req);
+        }
+        else if (request instanceof WriteSingleCoilRequest req) {
+            modbusClient.writeSingleCoilAsync(unitId, req);
+        }
+        else if (request instanceof WriteMultipleRegistersRequest req) {
+            modbusClient.writeMultipleRegistersAsync(unitId, req);
+        }
+        else if (request instanceof WriteSingleRegisterRequest req) {
+            modbusClient.writeSingleRegisterAsync(unitId, req);
+        }
+        else {
+            throw new UnsupportedOperationException(String.format("Request type unknown: %s", request.getClass()));
+        }
+    }
+
+
+    private Datatype getDatatype(Reference reference) {
         TypeInfo<?> typeInfo;
         try {
             typeInfo = serviceContext.getTypeInfo(reference);
         }
-        catch (ResourceNotFoundException | PersistenceException ex) {
-            throw new AssetConnectionException(
+        catch (ResourceNotFoundException | PersistenceException e) {
+            throw new IllegalArgumentException(
                     String.format("Could not resolve type information (reference: %s)",
                             ReferenceHelper.toString(reference)));
         }
         if (typeInfo == null) {
-            throw new AssetConnectionException(
+            throw new IllegalArgumentException(
                     String.format("Could not resolve type information (reference: %s)",
                             ReferenceHelper.toString(reference)));
         }
         if (!(typeInfo instanceof ElementValueTypeInfo valueTypeInfo)) {
-            throw new AssetConnectionException(
+            throw new IllegalArgumentException(
                     String.format("Reference must point to element with value (reference: %s)",
                             ReferenceHelper.toString(reference)));
         }
         if (!PropertyValue.class.isAssignableFrom(valueTypeInfo.getType())) {
-            throw new AssetConnectionException(String.format("Unsupported element type (reference: %s, element type: %s)",
+            throw new IllegalArgumentException(String.format("Unsupported element type (reference: %s, element type: %s)",
                     ReferenceHelper.toString(reference),
                     valueTypeInfo.getType()));
         }
         Datatype type = valueTypeInfo.getDatatype();
 
         if (type == null) {
-            throw new AssetConnectionException(String.format("Missing datatype (reference: %s)",
+            throw new IllegalArgumentException(String.format("Missing datatype (reference: %s)",
                     ReferenceHelper.toString(reference)));
         }
         return type;

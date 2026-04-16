@@ -39,43 +39,6 @@ public abstract class AbstractModbusProviderConfig implements AssetProviderConfi
     }
 
 
-    @Override
-    public boolean sameAs(AssetProviderConfig other) {
-        if (this == other) {
-            return true;
-        }
-        if (other == null || getClass() != other.getClass()) {
-            return false;
-        }
-        AbstractModbusProviderConfig that = (AbstractModbusProviderConfig) other;
-        return Objects.equals(dataType, that.dataType) &&
-                Objects.equals(address, that.address) &&
-                Objects.equals(unitId, that.unitId) &&
-                Objects.equals(quantity, that.quantity);
-    }
-
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass())
-            return false;
-        AbstractModbusProviderConfig that = (AbstractModbusProviderConfig) o;
-        return Objects.equals(dataType, that.getDataType()) &&
-                Objects.equals(address, that.getAddress()) &&
-                Objects.equals(unitId, that.getUnitId()) &&
-                Objects.equals(quantity, that.getQuantity());
-    }
-
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(Objects.hashCode(dataType),
-                Objects.hashCode(address),
-                Objects.hashCode(unitId),
-                Objects.hashCode(quantity));
-    }
-
-
     public void setDataType(ModbusDatatype dataType) {
         this.dataType = dataType;
     }
@@ -113,6 +76,43 @@ public abstract class AbstractModbusProviderConfig implements AssetProviderConfi
 
     public void setUnitId(int unitId) {
         this.unitId = unitId;
+    }
+
+
+    @Override
+    public boolean sameAs(AssetProviderConfig other) {
+        if (this == other) {
+            return true;
+        }
+        if (other == null || getClass() != other.getClass()) {
+            return false;
+        }
+        AbstractModbusProviderConfig that = (AbstractModbusProviderConfig) other;
+        return Objects.equals(dataType, that.dataType)
+                && Objects.equals(address, that.address)
+                && Objects.equals(unitId, that.unitId)
+                && Objects.equals(quantity, that.quantity);
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass())
+            return false;
+        AbstractModbusProviderConfig that = (AbstractModbusProviderConfig) o;
+        return Objects.equals(dataType, that.getDataType())
+                && Objects.equals(address, that.getAddress())
+                && Objects.equals(unitId, that.getUnitId())
+                && Objects.equals(quantity, that.getQuantity());
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(Objects.hashCode(dataType),
+                Objects.hashCode(address),
+                Objects.hashCode(unitId),
+                Objects.hashCode(quantity));
     }
 
     protected abstract static class AbstractBuilder<T extends AbstractModbusProviderConfig, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {

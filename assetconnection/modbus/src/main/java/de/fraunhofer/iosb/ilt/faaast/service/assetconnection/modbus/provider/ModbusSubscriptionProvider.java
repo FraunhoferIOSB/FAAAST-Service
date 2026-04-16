@@ -21,6 +21,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetSubscriptionPr
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.NewDataListener;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.config.ModbusSubscriptionProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.model.MostSignificantWord;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.ArrayList;
@@ -51,7 +52,6 @@ public class ModbusSubscriptionProvider extends AbstractModbusProvider<ModbusSub
     private ScheduledFuture<?> executorHandler;
     // Don't rely on equals implementation of TypedValue inheritors
     private byte[] lastValue;
-
     protected final List<NewDataListener> listeners;
 
     public ModbusSubscriptionProvider(ServiceContext serviceContext, Reference reference, ModbusClient modbusClient, ModbusSubscriptionProviderConfig config,
@@ -74,10 +74,10 @@ public class ModbusSubscriptionProvider extends AbstractModbusProvider<ModbusSub
             return false;
         }
         ModbusSubscriptionProvider that = (ModbusSubscriptionProvider) obj;
-        return super.equals(obj) &&
-                Objects.equals(executor, that.executor) &&
-                Objects.equals(executorHandler, that.executorHandler) &&
-                Objects.equals(listeners, that.listeners);
+        return super.equals(obj)
+                && Objects.equals(executor, that.executor)
+                && Objects.equals(executorHandler, that.executorHandler)
+                && Objects.equals(listeners, that.listeners);
     }
 
 
@@ -139,9 +139,13 @@ public class ModbusSubscriptionProvider extends AbstractModbusProvider<ModbusSub
             return;
         }
         lastValue = newValue;
-
         for (NewDataListener listener: listeners) {
-            listener.newDataReceived(new PropertyValue(convert(newValue)));
+            try {
+                listener.newDataReceived(new PropertyValue(convert(newValue)));
+            }
+            catch (ValueFormatException e) {
+                LOGGER.warn("failed to notify modbus subscription listener because received value could not be converted to AAS format", e);
+            }
         }
     }
 

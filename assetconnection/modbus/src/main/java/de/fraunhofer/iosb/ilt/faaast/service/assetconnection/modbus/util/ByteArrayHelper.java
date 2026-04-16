@@ -39,16 +39,12 @@ public class ByteArrayHelper {
         if (array.length <= 2) {
             return array;
         }
-
         Ensure.require(array.length % 2 == 0, new IllegalArgumentException("Array to reverse contains uneven number of bytes"));
-
         byte[] reversed = new byte[array.length];
-
         for (int i = 0; i < array.length; i += 2) {
             reversed[i] = array[array.length - i - 2];
             reversed[i + 1] = array[array.length - i - 1];
         }
-
         return reversed;
     }
 
@@ -66,14 +62,11 @@ public class ByteArrayHelper {
         if (array.length == numberBytes) {
             return array;
         }
-
         byte[] ret = new byte[numberBytes];
-
         // If value negative and signed, pad with ones
         if (signed && array[0] < 0) {
             Arrays.fill(ret, (byte) 0xFF);
         }
-
         System.arraycopy(array, 0, ret, ret.length - array.length, array.length);
         return ret;
     }
@@ -92,9 +85,7 @@ public class ByteArrayHelper {
             throw new IllegalArgumentException(String.format("Tried to pad %d bytes", padding));
         }
         byte[] padded = new byte[array.length + padding];
-
         System.arraycopy(array, 0, padded, padded.length - array.length, array.length);
-
         return padded;
     }
 
@@ -115,17 +106,13 @@ public class ByteArrayHelper {
                 break;
             }
             unpaddedLength--;
-
         }
         // Don't allow empty arrays. Zero is a number too
         if (unpaddedLength == 0) {
             unpaddedLength++;
         }
-
         byte[] notPadded = new byte[unpaddedLength];
-
         System.arraycopy(array, array.length - unpaddedLength, notPadded, 0, unpaddedLength);
-
         return notPadded;
     }
 
@@ -140,29 +127,23 @@ public class ByteArrayHelper {
         if (bytes == null || bytes.length == 0) {
             return -1;
         }
-
         // Find first non-zero byte from the left (most significant side)
         int byteIndex = 0;
         while (byteIndex < bytes.length && bytes[byteIndex] == 0) {
             byteIndex++;
         }
-
         // All bytes are zero -> no set bit
         if (byteIndex == bytes.length) {
             return -1;
         }
-
         int b = bytes[byteIndex] & 0xFF; // assume unsigned
-
         int leadingZerosInByte = 0;
         while ((b & 0x80) == 0) {
             b <<= 1;
             leadingZerosInByte++;
         }
-
         int totalBits = bytes.length * 8;
         int totalLeadingZeroBits = byteIndex * 8 + leadingZerosInByte;
-
         return totalBits - totalLeadingZeroBits - 1;
     }
 }

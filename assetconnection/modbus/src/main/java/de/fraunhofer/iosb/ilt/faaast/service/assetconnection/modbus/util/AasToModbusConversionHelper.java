@@ -14,7 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.util;
 
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.BlobValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
@@ -48,9 +47,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.File;
  */
 public class AasToModbusConversionHelper {
 
-    private AasToModbusConversionHelper() {
-
-    }
+    private AasToModbusConversionHelper() {}
 
 
     /**
@@ -59,11 +56,11 @@ public class AasToModbusConversionHelper {
      * @param dataElementValue Value to convert.
      * @param numberBytes If true, the resulting array will have an even number of bytes.
      * @return converted data.
-     * @throws AssetConnectionException When trying to convert null-values.
+     * @throws IllegalArgumentException When trying to convert null value or datatype is not supported
      */
-    public static byte[] convert(DataElementValue dataElementValue, int numberBytes) throws AssetConnectionException {
+    public static byte[] convert(DataElementValue dataElementValue, int numberBytes) {
         if (dataElementValue == null) {
-            throw new AssetConnectionException("Trying to convert null value");
+            throw new IllegalArgumentException("Trying to convert null value");
         }
         else if (dataElementValue instanceof BlobValue blobValue) {
             return ByteArrayHelper.padToWords(blobValue.getValue(), numberBytes, false);
@@ -75,13 +72,13 @@ public class AasToModbusConversionHelper {
             return convert(propertyValue.getValue(), numberBytes);
         }
         else {
-            throw new UnsupportedOperationException(
+            throw new IllegalArgumentException(
                     String.format("Data type currently not supported for writing to modbus server: %s", dataElementValue.getClass().getName()));
         }
     }
 
 
-    private static byte[] convert(TypedValue value, int numberBytes) throws AssetConnectionException {
+    private static byte[] convert(TypedValue value, int numberBytes) {
         return switch (value.getDataType()) {
             case BOOLEAN -> toByteArray(((BooleanValue) value).getValue(), numberBytes);
             case BYTE -> toByteArray(((ByteValue) value).getValue(), numberBytes);
@@ -106,7 +103,7 @@ public class AasToModbusConversionHelper {
             case BASE64_BINARY -> ByteArrayHelper.padToWords(((Base64BinaryValue) value).getValue(), numberBytes, false);
             case ANY_URI -> ByteArrayHelper.padToWords(((AnyURIValue) value).getValue().getBytes(StandardCharsets.UTF_8), numberBytes, false);
             // case LANG_STRING, DOUBLE, FLOAT
-            default -> throw new AssetConnectionException(String.format("Data type currently not supported for writing to modbus server: %s", value.getDataType().getName()));
+            default -> throw new IllegalArgumentException(String.format("Data type currently not supported for writing to modbus server: %s", value.getDataType().getName()));
         };
     }
 

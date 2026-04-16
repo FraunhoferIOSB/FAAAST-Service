@@ -32,22 +32,6 @@ public class ModbusSubscriptionProviderConfig extends AbstractModbusProviderConf
     }
 
 
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass())
-            return false;
-        ModbusSubscriptionProviderConfig that = (ModbusSubscriptionProviderConfig) o;
-        return super.equals(o) &&
-                Objects.equals(pollingRate, that.pollingRate);
-    }
-
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), Objects.hashCode(pollingRate));
-    }
-
-
     public long getPollingRate() {
         return pollingRate;
     }
@@ -55,6 +39,22 @@ public class ModbusSubscriptionProviderConfig extends AbstractModbusProviderConf
 
     public void setPollingRate(long pollingRate) {
         this.pollingRate = pollingRate;
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass())
+            return false;
+        ModbusSubscriptionProviderConfig that = (ModbusSubscriptionProviderConfig) o;
+        return super.equals(o)
+                && Objects.equals(pollingRate, that.pollingRate);
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), Objects.hashCode(pollingRate));
     }
 
 

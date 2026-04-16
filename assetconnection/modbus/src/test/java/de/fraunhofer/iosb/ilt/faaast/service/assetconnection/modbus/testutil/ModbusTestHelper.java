@@ -29,7 +29,6 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.nio.file.Path;
 import java.security.GeneralSecurityException;
-import java.security.KeyStore;
 import java.util.Optional;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.TrustManagerFactory;
@@ -68,17 +67,22 @@ public class ModbusTestHelper {
 
 
     private static KeyManagerFactory initializeKeyManagerFactory(CertificateConfig keyCertificateConfig) throws GeneralSecurityException, IOException {
-        KeyStore keyStore = KeyStoreHelper.load(Path.of(keyCertificateConfig.getKeyStorePath()).toFile(), keyCertificateConfig.getKeyStoreType(),
-                keyCertificateConfig.getKeyStorePassword());
-        return SecurityUtil.createKeyManagerFactory(keyStore, keyCertificateConfig.getKeyStorePassword().toCharArray());
+        return SecurityUtil.createKeyManagerFactory(
+                KeyStoreHelper.load(
+                        Path.of(keyCertificateConfig.getKeyStorePath()).toFile(),
+                        keyCertificateConfig.getKeyStoreType(),
+                        keyCertificateConfig.getKeyStorePassword()),
+                keyCertificateConfig.getKeyStorePassword().toCharArray());
 
     }
 
 
     private static TrustManagerFactory initializeTrustManagerFactory(CertificateConfig trustCertificateConfig) throws GeneralSecurityException, IOException {
-        KeyStore trustStore = KeyStoreHelper.load(Path.of(trustCertificateConfig.getKeyStorePath()).toFile(), trustCertificateConfig.getKeyStoreType(),
-                trustCertificateConfig.getKeyStorePassword());
-        return SecurityUtil.createTrustManagerFactory(trustStore);
+        return SecurityUtil.createTrustManagerFactory(
+                KeyStoreHelper.load(
+                        Path.of(trustCertificateConfig.getKeyStorePath()).toFile(),
+                        trustCertificateConfig.getKeyStoreType(),
+                        trustCertificateConfig.getKeyStorePassword()));
 
     }
 

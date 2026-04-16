@@ -77,16 +77,16 @@ public class ModbusAssetConnectionConfig
             return false;
         }
         ModbusAssetConnectionConfig that = (ModbusAssetConnectionConfig) obj;
-        return StringHelper.equalsNullOrEmpty(hostname, that.hostname) &&
-                Objects.equals(port, that.port) &&
-                Objects.equals(connectPersistent, that.connectPersistent) &&
-                Objects.equals(reconnectLazy, that.reconnectLazy) &&
-                Objects.equals(tlsEnabled, that.tlsEnabled) &&
-                Objects.equals(connectTimeoutMillis, that.connectTimeoutMillis) &&
-                Objects.equals(requestTimeoutMillis, that.requestTimeoutMillis) &&
-                Objects.equals(keyCertificateConfig, that.keyCertificateConfig) &&
-                Objects.equals(trustCertificateConfig, that.trustCertificateConfig) &&
-                Objects.equals(mostSignificantWord, that.mostSignificantWord);
+        return StringHelper.equalsNullOrEmpty(hostname, that.hostname)
+                && Objects.equals(port, that.port)
+                && Objects.equals(connectPersistent, that.connectPersistent)
+                && Objects.equals(reconnectLazy, that.reconnectLazy)
+                && Objects.equals(tlsEnabled, that.tlsEnabled)
+                && Objects.equals(connectTimeoutMillis, that.connectTimeoutMillis)
+                && Objects.equals(requestTimeoutMillis, that.requestTimeoutMillis)
+                && Objects.equals(keyCertificateConfig, that.keyCertificateConfig)
+                && Objects.equals(trustCertificateConfig, that.trustCertificateConfig)
+                && Objects.equals(mostSignificantWord, that.mostSignificantWord);
     }
 
 
@@ -97,16 +97,16 @@ public class ModbusAssetConnectionConfig
         if (!super.equals(o))
             return false;
         ModbusAssetConnectionConfig that = (ModbusAssetConnectionConfig) o;
-        return StringHelper.equalsNullOrEmpty(hostname, that.hostname) &&
-                Objects.equals(port, that.port) &&
-                Objects.equals(connectPersistent, that.connectPersistent) &&
-                Objects.equals(reconnectLazy, that.reconnectLazy) &&
-                Objects.equals(tlsEnabled, that.tlsEnabled) &&
-                Objects.equals(connectTimeoutMillis, that.connectTimeoutMillis) &&
-                Objects.equals(requestTimeoutMillis, that.requestTimeoutMillis) &&
-                Objects.equals(keyCertificateConfig, that.keyCertificateConfig) &&
-                Objects.equals(trustCertificateConfig, that.trustCertificateConfig) &&
-                Objects.equals(mostSignificantWord, that.mostSignificantWord);
+        return StringHelper.equalsNullOrEmpty(hostname, that.hostname)
+                && Objects.equals(port, that.port)
+                && Objects.equals(connectPersistent, that.connectPersistent)
+                && Objects.equals(reconnectLazy, that.reconnectLazy)
+                && Objects.equals(tlsEnabled, that.tlsEnabled)
+                && Objects.equals(connectTimeoutMillis, that.connectTimeoutMillis)
+                && Objects.equals(requestTimeoutMillis, that.requestTimeoutMillis)
+                && Objects.equals(keyCertificateConfig, that.keyCertificateConfig)
+                && Objects.equals(trustCertificateConfig, that.trustCertificateConfig)
+                && Objects.equals(mostSignificantWord, that.mostSignificantWord);
     }
 
 
@@ -176,11 +176,6 @@ public class ModbusAssetConnectionConfig
     }
 
 
-    public static Builder builder() {
-        return new Builder();
-    }
-
-
     public boolean isTlsEnabled() {
         return tlsEnabled;
     }
@@ -228,6 +223,11 @@ public class ModbusAssetConnectionConfig
 
     public void setMostSignificantWord(MostSignificantWord mostSignificantWord) {
         this.mostSignificantWord = mostSignificantWord;
+    }
+
+
+    public static Builder builder() {
+        return new Builder();
     }
 
     public abstract static class AbstractBuilder<T extends ModbusAssetConnectionConfig, B extends AbstractBuilder<T, B>>

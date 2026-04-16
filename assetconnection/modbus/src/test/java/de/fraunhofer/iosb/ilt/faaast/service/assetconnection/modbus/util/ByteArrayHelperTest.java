@@ -17,7 +17,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.util;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
@@ -54,7 +53,6 @@ public class ByteArrayHelperTest {
                 0x0,
                 0x3
         };
-
         assertArrayEquals(reversed, ByteArrayHelper.reverseWords(original));
     }
 
@@ -68,7 +66,6 @@ public class ByteArrayHelperTest {
                 0xE,
                 0x1
         };
-
         assertThrows(IllegalArgumentException.class, () -> ByteArrayHelper.reverseWords(original));
     }
 
@@ -84,21 +81,14 @@ public class ByteArrayHelperTest {
     }
 
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void testPadNegativePaddingFails() {
         byte[] unpadded = new byte[] {
                 0x23,
                 (byte) 0x84,
                 (byte) 0xAB
         };
-
-        try {
-            ByteArrayHelper.pad(unpadded, -1);
-            fail();
-        }
-        catch (IllegalArgumentException expected) {
-            // expecting an exception for a negative padding
-        }
+        ByteArrayHelper.pad(unpadded, -1);
     }
 
 
@@ -109,14 +99,12 @@ public class ByteArrayHelperTest {
                 (byte) 0x84,
                 (byte) 0xAB
         };
-
         for (int i = 1; i < 65536; i++) {
             byte[] padded = ByteArrayHelper.pad(unpadded, i);
             assertEquals(i + unpadded.length, padded.length);
             for (int j = 0; j < i; j++) {
                 assertEquals(0x00, padded[j]);
             }
-
             byte[] unpaddedAgain = ByteArrayHelper.removePadding(padded);
             assertArrayEquals(unpadded, unpaddedAgain);
         }

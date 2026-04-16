@@ -23,9 +23,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.ReadWriteMode;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.config.ModbusValueProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.model.MostSignificantWord;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.util.AasToModbusConversionHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
 
@@ -45,18 +45,25 @@ public class ModbusValueProvider extends AbstractModbusProvider<ModbusValueProvi
     @Override
     public DataElementValue getValue() throws AssetConnectionException {
         ModbusRequestPdu request = createReadRequest();
-
         byte[] responseBytes = doRead(request);
-        TypedValue<?> responseAas = convert(responseBytes);
-
-        return new PropertyValue(responseAas);
+        try {
+            return new PropertyValue(convert(responseBytes));
+        }
+        catch (ValueFormatException e) {
+            throw new AssetConnectionException("failed to read value from modbus connection", e);
+        }
     }
 
 
     @Override
     public void setValue(DataElementValue value) throws AssetConnectionException {
-        byte[] bytesToWrite = AasToModbusConversionHelper.convert(value, asConfig().getQuantity() * bytesFor(asConfig().getDataType()));
-        doWrite(bytesToWrite);
+        try {
+            byte[] bytesToWrite = AasToModbusConversionHelper.convert(value, asConfig().getQuantity() * bytesFor(asConfig().getDataType()));
+            doWrite(bytesToWrite);
+        }
+        catch (IllegalArgumentException e) {
+            throw new AssetConnectionException("failed to write value to modbus connection", e);
+        }
     }
 
 

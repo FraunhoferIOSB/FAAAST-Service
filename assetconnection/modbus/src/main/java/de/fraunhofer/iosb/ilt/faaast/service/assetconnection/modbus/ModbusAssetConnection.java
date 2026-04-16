@@ -36,7 +36,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializati
 import java.io.IOException;
 import java.nio.file.Path;
 import java.security.GeneralSecurityException;
-import java.security.KeyStore;
 import java.time.Duration;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.TrustManagerFactory;
@@ -52,15 +51,12 @@ public class ModbusAssetConnection extends
         AbstractAssetConnection<ModbusAssetConnection, ModbusAssetConnectionConfig, ModbusValueProviderConfig, ModbusValueProvider, ModbusOperationProviderConfig, ModbusOperationProvider, ModbusSubscriptionProviderConfig, ModbusSubscriptionProvider> {
     private static final Logger LOGGER = LoggerFactory.getLogger(ModbusAssetConnection.class);
 
-    ModbusTcpClient client;
+    private ModbusTcpClient client;
 
     @Override
     public void init(CoreConfig coreConfig, ModbusAssetConnectionConfig config, ServiceContext serviceContext) throws ConfigurationInitializationException {
         super.init(coreConfig, config, serviceContext);
         LOGGER.debug("Creating modbus client for {}", getEndpointInformation());
-
-        String hostname = config.getHostname();
-        int port = config.getPort();
 
         KeyManagerFactory keyManagerFactory = null;
         TrustManagerFactory trustManagerFactory = null;
@@ -75,29 +71,30 @@ public class ModbusAssetConnection extends
             }
         }
 
-        NettyClientTransportConfig nettyConfig = new NettyClientTransportConfig.Builder()
-                .setHostname(hostname)
-                .setPort(port)
-                .setConnectTimeout(Duration.ofMillis(config.getConnectTimeoutMillis()))
-                .setConnectPersistent(config.isConnectPersistent())
-                .setReconnectLazy(config.isReconnectLazy())
-                .setTlsEnabled(config.isTlsEnabled())
-                .setKeyManagerFactory(keyManagerFactory)
-                .setTrustManagerFactory(trustManagerFactory)
-                .build();
-
-        ModbusClientConfig modbusClientConfig = new ModbusClientConfig.Builder()
-                .setRequestTimeout(Duration.ofMillis(config.getRequestTimeoutMillis()))
-                .build();
-
-        client = new ModbusTcpClient(modbusClientConfig, new NettyTcpClientTransport(nettyConfig));
+        client = new ModbusTcpClient(
+                new ModbusClientConfig.Builder()
+                        .setRequestTimeout(Duration.ofMillis(config.getRequestTimeoutMillis()))
+                        .build(),
+                new NettyTcpClientTransport(new NettyClientTransportConfig.Builder()
+                        .setHostname(config.getHostname())
+                        .setPort(config.getPort())
+                        .setConnectTimeout(Duration.ofMillis(config.getConnectTimeoutMillis()))
+                        .setConnectPersistent(config.isConnectPersistent())
+                        .setReconnectLazy(config.isReconnectLazy())
+                        .setTlsEnabled(config.isTlsEnabled())
+                        .setKeyManagerFactory(keyManagerFactory)
+                        .setTrustManagerFactory(trustManagerFactory)
+                        .build()));
         LOGGER.debug("Created modbus client for {}", getEndpointInformation());
     }
 
 
     @Override
     public String getEndpointInformation() {
-        return "Modbus TCP Server(hostname: " + config.getHostname() + ", port: " + config.getPort() + ", tls enabled: " + config.isTlsEnabled() + ")";
+        return String.format("Modbus TCP Server(hostname: %s, port: %d, tls enabled: %b)",
+                config.getHostname(),
+                config.getPort(),
+                config.isTlsEnabled());
     }
 
 
@@ -130,14 +127,12 @@ public class ModbusAssetConnection extends
         if (client.isConnected()) {
             return;
         }
-
         LOGGER.debug("Attempting to connect to {}.", getEndpointInformation());
-
         try {
             client.connect();
         }
         catch (ModbusExecutionException e) {
-            throw new AssetConnectionException(e);
+            throw new AssetConnectionException("Failed to establish Modbus connection", e);
         }
         LOGGER.debug("Successfully connected to {}.", getEndpointInformation());
     }
@@ -153,24 +148,27 @@ public class ModbusAssetConnection extends
             client.disconnect();
         }
         catch (ModbusExecutionException e) {
-            throw new AssetConnectionException(e);
+            throw new AssetConnectionException("Failed to close Modbus connection", e);
         }
         LOGGER.debug("Successfully disconnected from {}.", getEndpointInformation());
     }
 
 
     private KeyManagerFactory initializeKeyManagerFactory(CertificateConfig keyCertificateConfig) throws GeneralSecurityException, IOException {
-        KeyStore keyStore = KeyStoreHelper.load(Path.of(keyCertificateConfig.getKeyStorePath()).toFile(), keyCertificateConfig.getKeyStoreType(),
-                keyCertificateConfig.getKeyStorePassword());
-        return SecurityUtil.createKeyManagerFactory(keyStore, keyCertificateConfig.getKeyStorePassword().toCharArray());
-
+        return SecurityUtil.createKeyManagerFactory(
+                KeyStoreHelper.load(
+                        Path.of(keyCertificateConfig.getKeyStorePath()).toFile(),
+                        keyCertificateConfig.getKeyStoreType(),
+                        keyCertificateConfig.getKeyStorePassword()),
+                keyCertificateConfig.getKeyStorePassword().toCharArray());
     }
 
 
     private TrustManagerFactory initializeTrustManagerFactory(CertificateConfig trustCertificateConfig) throws GeneralSecurityException, IOException {
-        KeyStore trustStore = KeyStoreHelper.load(Path.of(trustCertificateConfig.getKeyStorePath()).toFile(), trustCertificateConfig.getKeyStoreType(),
-                trustCertificateConfig.getKeyStorePassword());
-        return SecurityUtil.createTrustManagerFactory(trustStore);
-
+        return SecurityUtil.createTrustManagerFactory(
+                KeyStoreHelper.load(
+                        Path.of(trustCertificateConfig.getKeyStorePath()).toFile(),
+                        trustCertificateConfig.getKeyStoreType(),
+                        trustCertificateConfig.getKeyStorePassword()));
     }
 }

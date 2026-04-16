@@ -16,7 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.util;
 
 import static de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.util.ByteArrayHelper.removePadding;
 
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.AnyURIValue;
@@ -51,9 +51,7 @@ public class ModbusToAasConversionHelper {
 
     private static final String TOO_MANY_BYTES_READ = "too many bytes read: %d, should be %d";
 
-    private ModbusToAasConversionHelper() {
-
-    }
+    private ModbusToAasConversionHelper() {}
 
 
     /**
@@ -62,9 +60,9 @@ public class ModbusToAasConversionHelper {
      * @param rawBytes Value to convert.
      * @param datatype the datatype to convert the data into.
      * @return converted data.
+     * @throws ValueFormatException if datatype is not supported
      */
-    public static TypedValue convert(byte[] rawBytes, Datatype datatype) throws AssetConnectionException {
-
+    public static TypedValue convert(byte[] rawBytes, Datatype datatype) throws ValueFormatException {
         return switch (datatype) {
             case BOOLEAN -> new BooleanValue(toBigInteger(rawBytes, 1).signum() != 0);
             case BYTE -> new ByteValue(toBigInteger(rawBytes, 1).byteValueExact());
@@ -89,14 +87,14 @@ public class ModbusToAasConversionHelper {
             case BASE64_BINARY -> new Base64BinaryValue(rawBytes);
             case ANY_URI -> new AnyURIValue(new String(rawBytes, StandardCharsets.UTF_8));
             // case LANG_STRING, DOUBLE, FLOAT
-            default -> throw new AssetConnectionException(String.format("type %s not supported by modbus asset connection", datatype));
+            default -> throw new ValueFormatException(String.format("type %s not supported by modbus asset connection", datatype));
         };
     }
 
 
-    private static BigInteger toUnsignedBigInteger(byte[] rawBytes, long maxBytes) throws AssetConnectionException {
+    private static BigInteger toUnsignedBigInteger(byte[] rawBytes, long maxBytes) throws ValueFormatException {
         if (amountNonzero(rawBytes) > maxBytes) {
-            throw new AssetConnectionException(String.format(TOO_MANY_BYTES_READ, amountNonzero(rawBytes), maxBytes));
+            throw new ValueFormatException(String.format(TOO_MANY_BYTES_READ, amountNonzero(rawBytes), maxBytes));
         }
         return new BigInteger(1, rawBytes);
     }
@@ -116,9 +114,9 @@ public class ModbusToAasConversionHelper {
     }
 
 
-    private static BigInteger toBigInteger(byte[] rawBytes, long maxBytes) throws AssetConnectionException {
+    private static BigInteger toBigInteger(byte[] rawBytes, long maxBytes) throws ValueFormatException {
         if (amountNonzeroNonnegative(rawBytes) > maxBytes) {
-            throw new AssetConnectionException(String.format(TOO_MANY_BYTES_READ, amountNonzeroNonnegative(rawBytes), maxBytes));
+            throw new ValueFormatException(String.format(TOO_MANY_BYTES_READ, amountNonzeroNonnegative(rawBytes), maxBytes));
         }
         return new BigInteger(removePadding(rawBytes));
     }
