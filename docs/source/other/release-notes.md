@@ -4,6 +4,7 @@
 
 **New Features & Major Changes**
 - Asset Connection
+	- Modbus TCP asset connection added
 	- Synchronization with asset now happens asynchronously in multiple threads. This can be configured via new config properties `assetConnectionReadMaxThreadPoolSize`, `assetConnectionWriteMaxThreadPoolSize`, and `assetConnectionReadTimeout`.
 	- Value providers now support configuring a read/write mode to explicitly tell FA³ST to use it for read-only, write-only, or both.
 	- OPC UA
