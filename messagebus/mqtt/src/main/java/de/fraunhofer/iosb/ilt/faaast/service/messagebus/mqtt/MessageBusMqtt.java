@@ -33,6 +33,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -40,6 +42,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * EventMessages.
  */
 public class MessageBusMqtt implements MessageBus<MessageBusMqttConfig> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(MoquetteServer.class);
 
     private final Map<SubscriptionId, SubscriptionInfo> subscriptions;
     private final JsonEventSerializer serializer;
@@ -78,6 +82,7 @@ public class MessageBusMqtt implements MessageBus<MessageBusMqttConfig> {
             client.publish(config.getTopicPrefix() + messageType.getSimpleName(), serializer.write(message));
         }
         catch (Exception e) {
+            LOGGER.debug("publishing on MQTT messgae bus failed (reason: {})", e.getMessage(), e);
             throw new MessageBusException("Error publishing event via MQTT message bus", e);
         }
     }

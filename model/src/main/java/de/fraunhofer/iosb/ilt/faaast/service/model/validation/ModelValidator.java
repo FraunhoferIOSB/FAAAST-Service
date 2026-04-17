@@ -19,13 +19,13 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.AssetAdministrationSh
 import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.DefaultAssetAdministrationShellElementVisitor;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.eclipse.digitaltwin.aas4j.v3.model.Identifiable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
@@ -116,12 +116,13 @@ public class ModelValidator {
                         if (!config.getIdShortUniqueness() || Objects.isNull(elements)) {
                             return;
                         }
-                        Collection<String> idShorts = elements.stream()
+                        elements.stream()
                                 .map(x -> x.getIdShort())
-                                .collect(Collectors.toList());
-                        idShorts.stream()
-                                .filter(i -> Collections.frequency(idShorts, i) > 1)
-                                .distinct()
+                                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
+                                .entrySet()
+                                .stream()
+                                .filter(entry -> entry.getValue() > 1)
+                                .map(Map.Entry::getKey)
                                 .forEach(x -> errors.add(String.format(
                                         "Found duplicate idShort '%s' (parent element: %s)",
                                         x,

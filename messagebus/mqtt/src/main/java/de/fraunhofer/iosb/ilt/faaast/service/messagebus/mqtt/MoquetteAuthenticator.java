@@ -44,7 +44,8 @@ class MoquetteAuthenticator implements IAuthenticator, IAuthorizatorPolicy {
 
     @Override
     public boolean checkValid(String clientId, String username, byte[] password) {
-        return config.getUsers().isEmpty()
+        return Objects.isNull(config.getUsers())
+                || config.getUsers().isEmpty()
                 || Objects.equals(config.getUsers().get(username), new String(password, StandardCharsets.UTF_8));
     }
 

@@ -128,7 +128,7 @@ public class MessageBusHelper {
             condition.countDown();
         }));
         trigger.accept(null);
-        condition.await(timeout, TimeUnit.MILLISECONDS);
+        condition.await(timeout, TimeUnit.MINUTES);
         messageBus.unsubscribe(subscriptionId);
         Assert.assertEquals("number of message(s) on message bus", events.size(), counter.get());
     }

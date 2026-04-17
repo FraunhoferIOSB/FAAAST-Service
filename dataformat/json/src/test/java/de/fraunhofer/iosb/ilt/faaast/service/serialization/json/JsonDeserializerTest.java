@@ -27,6 +27,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOperationRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOperationSyncRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetSubmodelElementByPathResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
@@ -35,6 +36,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.RangeValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.fixture.ValueOnlyExamples;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.util.ValueHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.typing.ElementValueTypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeExtractor;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
@@ -43,16 +45,18 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperation;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class JsonDeserializerTest {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(JsonDeserializerTest.class);
     private final JsonApiDeserializer deserializer = new JsonApiDeserializer();
 
     @Test
@@ -180,7 +184,10 @@ public class JsonDeserializerTest {
         ServiceContext serviceContext = mock(ServiceContext.class);
         when(serviceContext.execute(any(), any()))
                 .thenReturn(GetSubmodelElementByPathResponse.builder()
-                        .payload(ValueOnlyExamples.CONTEXT_OPERATION_INVOKE)
+                        .payload(new DefaultOperation.Builder()
+                                .inputVariables(ValueOnlyExamples.INVOKE_OPERATION_SYNC_REQUEST.getInputArguments())
+                                .inoutputVariables(ValueOnlyExamples.INVOKE_OPERATION_SYNC_REQUEST.getInoutputArguments())
+                                .build())
                         .success()
                         .build());
         InvokeOperationRequest expected = ValueOnlyExamples.INVOKE_OPERATION_SYNC_REQUEST;
@@ -193,6 +200,54 @@ public class JsonDeserializerTest {
                         .submodelId("http://example.org/submodels/1")
                         .idShortPath(IdShortPath.parse("my.test.operation"))
                         .build());
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testInvokeOperationRequestSync2() throws DeserializationException, FileNotFoundException, IOException, ValueMappingException {
+        ServiceContext serviceContext = mock(ServiceContext.class);
+        when(serviceContext.execute(any(), any()))
+                .thenReturn(GetSubmodelElementByPathResponse.builder()
+                        .payload(new DefaultOperation.Builder()
+                                .inputVariables(ValueOnlyExamples.INVOKE_OPERATION_SYNC_REQUEST_2.getInputArguments())
+                                .inoutputVariables(ValueOnlyExamples.INVOKE_OPERATION_SYNC_REQUEST_2.getInoutputArguments())
+                                .build())
+                        .success()
+                        .build());
+        InvokeOperationRequest expected = ValueOnlyExamples.INVOKE_OPERATION_SYNC_REQUEST_2;
+        InvokeOperationSyncRequest actual = deserializer.readValueOperationRequest(
+                ValueOnlyExamples.INVOKE_OPERATION_REQUEST_2_FILE,
+                InvokeOperationSyncRequest.class,
+                serviceContext,
+                SubmodelElementIdentifier.builder()
+                        .submodelId("http://example.org/submodels/1")
+                        .idShortPath(IdShortPath.parse("my.test.operation2"))
+                        .build());
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testEmptyPropertyValue() throws DeserializationException, ValueFormatException {
+        for (var datatype: Datatype.values()) {
+            String expectedValue = null;
+            if (datatype == Datatype.STRING) {
+                expectedValue = "";
+            }
+            LOGGER.info("testing empty property value deserializatin for datatype {}...", datatype);
+            assertPropertyValue(null, datatype, expectedValue);
+            assertPropertyValue("", datatype, expectedValue);
+        }
+    }
+
+
+    private void assertPropertyValue(String input, Datatype datatype, String expectedValue) throws DeserializationException, ValueFormatException {
+        PropertyValue expected = PropertyValue.of(datatype, expectedValue);
+        ElementValue actual = deserializer.readValue(input, ElementValueTypeInfo.builder()
+                .type(PropertyValue.class)
+                .datatype(datatype)
+                .build());
         Assert.assertEquals(expected, actual);
     }
 
@@ -269,8 +324,7 @@ public class JsonDeserializerTest {
                         return ValueHelper.extractValueJson(x.getValue(), x.getKey());
                     }
                     catch (IOException e) {
-                        // TODO proper error handling
-                        Logger.getLogger(JsonDeserializerTest.class.getName()).log(Level.SEVERE, null, e);
+                        LOGGER.error("failed to convert files to JSON array", e);
                     }
                     return null;
                 })
@@ -287,8 +341,7 @@ public class JsonDeserializerTest {
                                 ValueHelper.extractValueJson(x.getValue(), x.getKey()));
                     }
                     catch (IOException e) {
-                        // TODO proper error handling
-                        Logger.getLogger(JsonDeserializerTest.class.getName()).log(Level.SEVERE, null, e);
+                        LOGGER.error("failed to convert files to JSON object", e);
                     }
                     return null;
                 })

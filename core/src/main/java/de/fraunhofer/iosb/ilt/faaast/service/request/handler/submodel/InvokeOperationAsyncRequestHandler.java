@@ -31,6 +31,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionCon
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueHelper;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import org.eclipse.digitaltwin.aas4j.v3.model.ExecutionState;
 import org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum;
 import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
@@ -52,6 +55,47 @@ import org.slf4j.LoggerFactory;
 public class InvokeOperationAsyncRequestHandler extends AbstractInvokeOperationRequestHandler<InvokeOperationAsyncRequest, InvokeOperationAsyncResponse> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InvokeOperationAsyncRequestHandler.class);
+
+    @Override
+    protected InvokeOperationAsyncResponse executeOperation(Reference reference, InvokeOperationAsyncRequest request, RequestExecutionContext context) {
+        OperationHandle operationHandle = new OperationHandle();
+        handleOperationInvoke(reference, operationHandle, request, context);
+        CompletableFuture<Void> future = new CompletableFuture<>();
+        try {
+            context.getAssetConnectionManager().invokeAsync(reference,
+                    request.getInputArguments().toArray(new OperationVariable[0]),
+                    request.getInoutputArguments().toArray(new OperationVariable[0]),
+                    (output, inoutput) -> {
+                        handleOperationSuccess(reference, operationHandle, inoutput, output, context);
+                        future.complete(null);
+                    },
+                    error -> {
+                        handleOperationFailure(reference, request.getInoutputArguments(), operationHandle, error, context);
+                        future.completeExceptionally(error);
+                    });
+        }
+        catch (Exception e) {
+            handleOperationFailure(reference, request.getInoutputArguments(), operationHandle, e, context);
+        }
+        long timeout = getEffectiveTimeout(request, context);
+        if (timeout > 0) {
+            future.orTimeout(timeout, TimeUnit.MILLISECONDS)
+                    .exceptionally(e -> {
+                        if (e instanceof TimeoutException) {
+                            handleOperationTimeout(reference, request.getInoutputArguments(), operationHandle, context);
+                        }
+                        else {
+                            handleOperationFailure(reference, request.getInoutputArguments(), operationHandle, e, context);
+                        }
+                        return null;
+                    });
+        }
+        return InvokeOperationAsyncResponse.builder()
+                .payload(operationHandle)
+                .statusCode(StatusCode.SUCCESS_ACCEPTED)
+                .build();
+    }
+
 
     private void handleOperationSuccess(Reference reference, OperationHandle operationHandle, OperationVariable[] inoutput, OperationVariable[] output,
                                         RequestExecutionContext context) {
@@ -100,7 +144,8 @@ public class InvokeOperationAsyncRequestHandler extends AbstractInvokeOperationR
                                 operation.getOutputVariables(),
                                 operationResult.getOutputArguments(),
                                 context.getAssetConnectionManager().getOperationOutputValidationMode(reference).get(),
-                                ArgumentType.OUTPUT));
+                                ArgumentType.OUTPUT,
+                                context));
             }
         }
         catch (ResourceNotFoundException | InvalidRequestException | PersistenceException e) {
@@ -111,6 +156,7 @@ public class InvokeOperationAsyncRequestHandler extends AbstractInvokeOperationR
             context.getPersistence().save(operationHandle, operationResult);
             context.getMessageBus().publish(OperationFinishEventMessage.builder()
                     .element(reference)
+                    .success(operationResult.getSuccess())
                     .inoutput(ElementValueHelper.toValueMap(operationResult.getInoutputArguments()))
                     .output(ElementValueHelper.toValueMap(operationResult.getOutputArguments()))
                     .build());
@@ -145,24 +191,17 @@ public class InvokeOperationAsyncRequestHandler extends AbstractInvokeOperationR
     }
 
 
-    @Override
-    protected InvokeOperationAsyncResponse executeOperation(Reference reference, InvokeOperationAsyncRequest request, RequestExecutionContext context) {
-        OperationHandle operationHandle = new OperationHandle();
-        handleOperationInvoke(reference, operationHandle, request, context);
-        // The timeout is ignored, as the server may choose to take it into account or ignore it.
-        try {
-            context.getAssetConnectionManager().invokeAsync(reference,
-                    request.getInputArguments().toArray(new OperationVariable[0]),
-                    request.getInoutputArguments().toArray(new OperationVariable[0]),
-                    (output, inoutput) -> handleOperationSuccess(reference, operationHandle, inoutput, output, context),
-                    error -> handleOperationFailure(reference, request.getInoutputArguments(), operationHandle, error, context));
-        }
-        catch (Exception e) {
-            handleOperationFailure(reference, request.getInoutputArguments(), operationHandle, e, context);
-        }
-        return InvokeOperationAsyncResponse.builder()
-                .payload(operationHandle)
-                .statusCode(StatusCode.SUCCESS_ACCEPTED)
-                .build();
+    private void handleOperationTimeout(Reference reference, List<OperationVariable> inoutput, OperationHandle operationHandle, RequestExecutionContext context) {
+        handleOperationResult(
+                reference,
+                operationHandle,
+                new DefaultOperationResult.Builder()
+                        .executionState(ExecutionState.TIMEOUT)
+                        .inoutputArguments(inoutput)
+                        .outputArguments(List.of())
+                        .success(false)
+                        .build(),
+                context);
     }
+
 }

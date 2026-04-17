@@ -17,6 +17,9 @@ package de.fraunhofer.iosb.ilt.faaast.service.starter;
 import static de.fraunhofer.iosb.ilt.faaast.service.starter.App.APP_NAME;
 
 import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
+import ch.qos.logback.core.ConsoleAppender;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -113,6 +116,7 @@ public class App implements Runnable {
     protected static final String ENV_PATH_LOGLEVEL_EXTERNAL = envPath(ENV_KEY_PREFIX, "loglevel_external");
     protected static final String ENV_PATH_LOGLEVEL_FAAAAST = envPath(ENV_KEY_PREFIX, "loglevel_faaast");
     protected static final String ENV_PATH_NO_VALIDATION = envPath(ENV_KEY_PREFIX, "no_validation");
+    protected static final String ENV_PATH_SHOW_STACKTRACE = envPath(ENV_KEY_PREFIX, "show_stacktrace");
     protected static final String ENV_PREFIX_CONFIG_EXTENSION = envPath(ENV_KEY_PREFIX, "config", "extension", "");
     protected static final String ENV_PREFIX_CONFIG_EXTENSION_ALTERNATIVE = envPathWithAlternativeSeparator(ENV_PREFIX_CONFIG_EXTENSION);
     // model
@@ -162,6 +166,12 @@ public class App implements Runnable {
             "--quiet"
     }, description = "Reduces log output (ERROR for FA³ST packages, ERROR for all other packages). Default information about the starting process will still be printed.")
     public boolean quiet = false;
+
+    @Option(names = {
+            "-s",
+            "--show-stacktrace"
+    }, description = "Shows/Hides stack trace information from the standard output.")
+    public boolean showStacktrace = false;
 
     @Option(names = {
             "-v",
@@ -337,8 +347,12 @@ public class App implements Runnable {
         if (getEnvValue(ENV_PATH_LOGLEVEL_EXTERNAL) != null && !getEnvValue(ENV_PATH_LOGLEVEL_EXTERNAL).isBlank()) {
             FaaastFilter.setLevelExternal(Level.toLevel(getEnvValue(ENV_PATH_LOGLEVEL_EXTERNAL), FaaastFilter.getLevelExternal()));
         }
+        if (showStacktrace || Boolean.parseBoolean(getEnvValue(ENV_PATH_SHOW_STACKTRACE))) {
+            enableShowStacktraceInSdtOut();
+        }
         LOGGER.info("Using log level for FA³ST packages: {}", FaaastFilter.getLevelFaaast());
         LOGGER.info("Using log level for external packages: {}", FaaastFilter.getLevelExternal());
+        LOGGER.info("Showing stack traces on standard output is {}", showStacktrace ? "enabled" : "disabled");
     }
 
 
@@ -452,6 +466,23 @@ public class App implements Runnable {
         return System.getenv().containsKey(key)
                 ? System.getenv(key)
                 : System.getenv(envPathWithAlternativeSeparator(key));
+    }
+
+
+    private static void enableShowStacktraceInSdtOut() {
+        LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
+        context.putProperty("PATTERN_STDOUT", "%date{yyyy-MM-dd HH:mm:ss} [%level] %msg%n");
+        context.putProperty("PATTERN_STDOUT_FAAAST", "%date{yyyy-MM-dd HH:mm:ss} %msg%n");
+        context.getLoggerList().forEach(logger -> {
+            logger.iteratorForAppenders().forEachRemaining(appender -> {
+                if (appender instanceof ConsoleAppender consoleAppender) {
+                    if (consoleAppender.getEncoder() instanceof PatternLayoutEncoder patternLayoutEncoder) {
+                        patternLayoutEncoder.setPattern(patternLayoutEncoder.getPattern().replace("%nopex", "%ex"));
+                        patternLayoutEncoder.start();
+                    }
+                }
+            });
+        });
     }
 
 

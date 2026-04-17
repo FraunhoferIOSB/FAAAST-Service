@@ -22,18 +22,24 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOp
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.EventMessage;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractSubmodelInterfaceRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Predicate;
 import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
+import org.eclipse.digitaltwin.aas4j.v3.model.Qualifier;
+import org.eclipse.digitaltwin.aas4j.v3.model.QualifierKind;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperationVariable;
@@ -51,6 +57,8 @@ public abstract class AbstractInvokeOperationRequestHandler<T extends InvokeOper
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractInvokeOperationRequestHandler.class);
 
+    public static final Reference SEMANTIC_ID_QUALIFIER_VALUE_BY_REFERENCE = ReferenceBuilder.global("http://iosb.fraunhofer.de/faaaast/qualifier/operation-value-by-reference");
+
     @Override
     public U doProcess(T request, RequestExecutionContext context) throws ResourceNotFoundException, InvalidRequestException, PersistenceException {
         Reference reference = new ReferenceBuilder()
@@ -67,12 +75,14 @@ public abstract class AbstractInvokeOperationRequestHandler<T extends InvokeOper
                 operation.getInputVariables(),
                 request.getInputArguments(),
                 context.getAssetConnectionManager().getOperationInputValidationMode(reference).get(),
-                ArgumentType.INPUT));
+                ArgumentType.INPUT,
+                context));
         request.setInoutputArguments(validateAndPrepare(
                 operation.getInoutputVariables(),
                 request.getInoutputArguments(),
                 context.getAssetConnectionManager().getOperationInoutputValidationMode(reference).get(),
-                ArgumentType.INOUTPUT));
+                ArgumentType.INOUTPUT,
+                context));
         return executeOperation(reference, request, context);
     }
 
@@ -97,6 +107,7 @@ public abstract class AbstractInvokeOperationRequestHandler<T extends InvokeOper
      * @param providedArguments the actual arguments present
      * @param mode the validation mode
      * @param argumentType the type of argumen; needed for property error messages
+     * @param context the execution context
      * @return the potentially updated arguments
      * @throws InvalidRequestException if validation of the arguments fails
      */
@@ -104,11 +115,125 @@ public abstract class AbstractInvokeOperationRequestHandler<T extends InvokeOper
                                                          List<OperationVariable> definedArguments,
                                                          List<OperationVariable> providedArguments,
                                                          ArgumentValidationMode mode,
-                                                         ArgumentType argumentType)
+                                                         ArgumentType argumentType,
+                                                         RequestExecutionContext context)
             throws InvalidRequestException {
         if (mode == ArgumentValidationMode.NONE) {
             return providedArguments;
         }
+        validateArguments(definedArguments, providedArguments, argumentType);
+
+        List<OperationVariable> result = new ArrayList<>();
+        for (SubmodelElement definedArgument: definedArguments.stream().map(OperationVariable::getValue).toList()) {
+            Optional<SubmodelElement> provided = providedArguments.stream()
+                    .map(OperationVariable::getValue)
+                    .filter(x -> Objects.equals(definedArgument.getIdShort(), x.getIdShort()))
+                    .findFirst();
+            SubmodelElement actual = null;
+            if (provided.isPresent()) {
+                actual = provided.get();
+            }
+            else {
+                if (mode == ArgumentValidationMode.REQUIRE_PRESENT) {
+                    throw new InvalidRequestException(String.format("missing required input argument '%s'", definedArgument.getIdShort()));
+                }
+                if (mode == ArgumentValidationMode.REQUIRE_PRESENT_OR_DEFAULT) {
+                    if (argumentType == ArgumentType.INPUT) {
+                        actual = handleNotProvidedInputArgument(definedArgument, context);
+                    }
+                    else if (argumentType == ArgumentType.OUTPUT) {
+                        actual = handleNotProvidedOutputArgument(definedArgument, provided.get(), context);
+                    }
+                }
+            }
+            result.add(new DefaultOperationVariable.Builder()
+                    .value(actual)
+                    .build());
+        }
+        return result;
+    }
+
+
+    /**
+     * Publishes an event message on the message bus. Instead of throwing an exception when this fails the error is logged.
+     *
+     * @param message the event message to publish
+     * @param context the execution context
+     */
+    protected void publishSafe(EventMessage message, RequestExecutionContext context) {
+        try {
+            context.getMessageBus().publish(message);
+        }
+        catch (MessageBusException e) {
+            LOGGER.warn("Publishing event on message bus failed (reason: {})", e.getMessage(), e);
+        }
+    }
+
+
+    /**
+     * Gets the effective timeout for a request based on the global timeout and request-level timeout in milliseconds.
+     *
+     * @param request the request
+     * @param context the execution context
+     * @return the effective timeout in milliseconds. Returned value is guaranteed to be non-negative while 0 means there is
+     *         no timeout.
+     */
+    protected long getEffectiveTimeout(InvokeOperationRequest request, RequestExecutionContext context) {
+        long globalTimeout = Math.max(0, context.getCoreConfig().getOperationTimeout());
+        long localTimeout = Objects.nonNull(request.getTimeout())
+                ? Math.max(0, request.getTimeout().getTimeInMillis(Calendar.getInstance()))
+                : 0;
+        return globalTimeout == 0 || localTimeout == 0
+                ? Math.max(globalTimeout, localTimeout)
+                : Math.min(globalTimeout, localTimeout);
+    }
+
+
+    private static Optional<Qualifier> findValueProvidedViaReferenceQualifier(SubmodelElement argument) {
+        return argument.getQualifiers().stream()
+                .filter(x -> Objects.equals(QualifierKind.VALUE_QUALIFIER, x.getKind()))
+                .filter(x -> ReferenceHelper.equals(SEMANTIC_ID_QUALIFIER_VALUE_BY_REFERENCE, x.getSemanticId()))
+                .findFirst();
+    }
+
+
+    private static <T extends SubmodelElement> T loadValueFromReference(T argument, Reference reference, RequestExecutionContext context) throws InvalidRequestException {
+        try {
+            SubmodelElement referencedElement = context.getPersistence().getSubmodelElement(reference, QueryModifier.MAXIMAL);
+            T result = DeepCopyHelper.deepCopy(argument);
+            ElementValueMapper.setValue(result, ElementValueMapper.toValue(referencedElement));
+            return result;
+        }
+        catch (ResourceNotFoundException | PersistenceException | ValueMappingException e) {
+            throw new InvalidRequestException(String.format(
+                    "Unable to resolve referenced value for argument (name: %s, reference: %s)",
+                    argument.getIdShort(),
+                    ReferenceHelper.asString(reference)),
+                    e);
+        }
+    }
+
+
+    private static void writeValueToReference(SubmodelElement argument, Reference reference, RequestExecutionContext context) throws InvalidRequestException {
+        try {
+            SubmodelElement referencedElement = context.getPersistence().getSubmodelElement(reference, QueryModifier.MAXIMAL);
+            ElementValueMapper.setValue(referencedElement, ElementValueMapper.toValue(argument));
+            context.getPersistence().update(reference, referencedElement);
+        }
+        catch (ResourceNotFoundException | PersistenceException | ValueMappingException e) {
+            throw new InvalidRequestException(String.format(
+                    "Unable to write operation output ot referenced element (name: %s, reference: %s)",
+                    argument.getIdShort(),
+                    ReferenceHelper.asString(reference)),
+                    e);
+        }
+    }
+
+
+    private void validateArguments(List<OperationVariable> definedArguments,
+                                   List<OperationVariable> providedArguments,
+                                   ArgumentType argumentType)
+            throws InvalidRequestException {
         if (definedArguments.stream().anyMatch(Objects::isNull)
                 || definedArguments.stream().map(OperationVariable::getValue).anyMatch(Objects::isNull)) {
             throw new InvalidRequestException(String.format(
@@ -133,7 +258,6 @@ public abstract class AbstractInvokeOperationRequestHandler<T extends InvokeOper
                     argumentType.getName(),
                     String.join(", ", unkownProvidedArguments)));
         }
-        List<OperationVariable> result = new ArrayList<>();
         for (SubmodelElement definedArgument: definedArguments.stream().map(OperationVariable::getValue).toList()) {
             List<SubmodelElement> provided = providedArguments.stream()
                     .map(OperationVariable::getValue)
@@ -144,42 +268,28 @@ public abstract class AbstractInvokeOperationRequestHandler<T extends InvokeOper
                         argumentType.getName(),
                         definedArgument.getIdShort()));
             }
-            if (provided.isEmpty()) {
-                if (mode == ArgumentValidationMode.REQUIRE_PRESENT) {
-                    throw new InvalidRequestException(String.format(
-                            "missing required %s argument '%s'",
-                            argumentType.getName(),
-                            definedArgument.getIdShort()));
-                }
-                if (mode == ArgumentValidationMode.REQUIRE_PRESENT_OR_DEFAULT) {
-                    result.add(new DefaultOperationVariable.Builder()
-                            .value(DeepCopyHelper.deepCopy(definedArgument))
-                            .build());
-                }
-            }
-            else {
-                result.add(new DefaultOperationVariable.Builder()
-                        .value(provided.get(0))
-                        .build());
-            }
         }
-        return result;
+
     }
 
 
-    /**
-     * Publishes an event message on the message bus. Instead of throwing an exception when this fails the error is logged.
-     *
-     * @param message the event message to publish
-     * @param context the execution context
-     */
-    protected void publishSafe(EventMessage message, RequestExecutionContext context) {
-        try {
-            context.getMessageBus().publish(message);
+    private SubmodelElement handleNotProvidedInputArgument(SubmodelElement definedArgument, RequestExecutionContext context) throws InvalidRequestException {
+        Optional<Qualifier> qualifier = findValueProvidedViaReferenceQualifier(definedArgument);
+        if (qualifier.isPresent()) {
+            return loadValueFromReference(definedArgument, qualifier.get().getValueId(), context);
         }
-        catch (MessageBusException e) {
-            LOGGER.warn("Publishing event on message bus failed (reason: {})", e.getMessage(), e);
+        return DeepCopyHelper.deepCopy(definedArgument);
+    }
+
+
+    private SubmodelElement handleNotProvidedOutputArgument(SubmodelElement definedArgument, SubmodelElement providedArgument, RequestExecutionContext context)
+            throws InvalidRequestException {
+        Optional<Qualifier> qualifier = findValueProvidedViaReferenceQualifier(definedArgument);
+        if (qualifier.isPresent()) {
+            writeValueToReference(providedArgument, qualifier.get().getValueId(), context);
+            return providedArgument;
         }
+        return DeepCopyHelper.deepCopy(definedArgument);
     }
 
     /**

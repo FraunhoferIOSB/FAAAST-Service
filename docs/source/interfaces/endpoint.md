@@ -58,6 +58,7 @@ The HTTP Endpoint is based on the document [Details of the Asset Administration 
 | corsExposedHeaders<br>*(optional)*      | String (comma-separated list)                               | Sets the `Access-Control-Expose-Headers` response header.                                                                                                                                                                             |                                             |
 | corsMaxAge<br>*(optional)*              | Long                                                        | Sets the `Access-Control-Max-Age` response header.                                                                                                                                                                                    | 3600                                        |
 | hostname<br>*(optional)*                | String                                                      | The hostname to be used for automated registration with registry.                                                                                                                                                                     | auto-detect (typically IP address)          |
+| httpVersion<br>*(optional)*             | HTTP_1_1<br>HTTP_2                                          | The HTTP version to use for the connection. If HTTP 2 is used but not supported by the server, the connection will automatically downgrade.                                                                                           | HTTP_2                                      |
 | pathPrefix<br>*(optional)*              | String                                                      | The path prefix to be used for automatic registration with registry. Must start with a "/" and not end with a "/". Exceptions: "" and "/". (regex: `^(?:$\|/\|/.*[^/])$`)                                                             | /api/v3.0                                   |
 | includeErrorDetails<br>*(optional)*     | Boolean                                                     | If set, stack trace is added to the HTTP responses incase of error.                                                                                                                                                                   | false                                       |
 | port<br>*(optional)*                    | Integer                                                     | The port to use.                                                                                                                                                                                                                      | 443                                         |
@@ -89,6 +90,7 @@ The HTTP Endpoint is based on the document [Details of the Asset Administration 
 		"corsExposedHeaders": "X-Custom-Header",
 		"corsMaxAge": 1000,
 		"hostname": "localhost",
+		"httpVersion": "HTTP_2",
 		"pathPrefix": "/api/v3.0",
 		"includeErrorDetails": true,
 		"port": 443,

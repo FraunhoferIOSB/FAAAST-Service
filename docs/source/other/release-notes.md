@@ -3,15 +3,23 @@
 ## 1.4.0-SNAPSHOT (current development version)<!--end:changelog-header-->
 
 **New Features & Major Changes**
+- General
+	- Added support for reading/writing operation arguments from/to referenced other AAS elements (by using Qualifiers)
+	- Added CLI argument --show-stacktrace
+	- Added new core config properties `operationTimeout` to set a global timeout for executing AAS operations
 - Asset Connection
 	- Modbus TCP asset connection added
 	- Synchronization with asset now happens asynchronously in multiple threads. This can be configured via new config properties `assetConnectionReadMaxThreadPoolSize`, `assetConnectionWriteMaxThreadPoolSize`, and `assetConnectionReadTimeout`.
 	- Value providers now support configuring a read/write mode to explicitly tell FA³ST to use it for read-only, write-only, or both.
+	- Improves parsing of JSON payload for operations so that if no mappings are provided it tries to use the variable name (if there are multiple parameters) or the whole object if there is only one parameter
 	- OPC UA
 		- When connecting to an OPC UA asset and the discovery service returns mutliple URLs to use, the ones with a reachable host are preferred.
 - Endpoint
 	- HTTP
 		- URL prefix /api/v3.x is now optional
+		- Add new ocnfig property `httpVersion`
+		- Treat headers case-insenstive (see RFC 2616)
+		- OperationProvider now supports use of input arguments via variables in headers
 
 **Internal changes & bugfixes**
 - General
@@ -25,10 +33,18 @@
 	- Update `ServiceContext` interface to now allow access to persistence, file storage, and asset connection manager
 - Asset Connection
 	- Fixed bug that reading a SubmodelElement container, like a `SubmodelElementCollection`, didn't trigger the asset connection value providers of underlying elements recursively.
+	- Fixed asset connection JSON serialization not including blob values in serialization
+	- HTTP
+		- Add logging of raw HTTP requests & responses with level `TRACE`
+- MessageBus
+	- MQTT
+		- Changed default value for `host` from localhost to 0.0.0.0
 - SMT Processor
 	- AID/AIMC
 		- Fixed bug that prevented to update asset connection providers are runtime
 		- Fixed bug that prevented subscription providers to not be properly stopped
+- Serialization
+	- Fixed valueOnly serialization for some edge cases with nested `SubmodelElementCollections`s
 
 ## 1.3.0
 
