@@ -53,6 +53,7 @@ public class CoreConfig {
     private RegistrySynchronizationConfig registrySynchronization;
     private double minInflateRatio;
     private long operationTimeout;
+    private String callbackAddress;
 
     public CoreConfig() {
         this.assetConnectionRetryInterval = DEFAULT_ASSET_CONNECTION_RETRY_INTERVAL;
@@ -237,6 +238,16 @@ public class CoreConfig {
     }
 
 
+    public String getCallbackAddress() {
+        return callbackAddress;
+    }
+
+
+    public void setCallbackAddress(String callbackAddress) {
+        this.callbackAddress = callbackAddress;
+    }
+
+
     @Override
     public int hashCode() {
         return Objects.hash(assetConnectionRetryInterval,
@@ -251,7 +262,8 @@ public class CoreConfig {
                 submodelRegistries,
                 registrySynchronization,
                 minInflateRatio,
-                operationTimeout);
+                operationTimeout,
+                callbackAddress);
     }
 
 
@@ -279,7 +291,8 @@ public class CoreConfig {
                 && Objects.equals(this.submodelRegistries, other.submodelRegistries)
                 && Objects.equals(this.registrySynchronization, other.registrySynchronization)
                 && Objects.equals(this.minInflateRatio, other.minInflateRatio)
-                && Objects.equals(this.operationTimeout, other.operationTimeout);
+                && Objects.equals(this.operationTimeout, other.operationTimeout)
+                && Objects.equals(callbackAddress, other.callbackAddress);
     }
 
     public static class Builder extends ExtendableBuilder<CoreConfig, Builder> {
@@ -394,6 +407,12 @@ public class CoreConfig {
 
         public Builder operationTimeout(long value) {
             getBuildingInstance().setOperationTimeout(value);
+            return getSelf();
+        }
+
+
+        public Builder callbackAddress(String value) {
+            getBuildingInstance().setCallbackAddress(value);
             return getSelf();
         }
 

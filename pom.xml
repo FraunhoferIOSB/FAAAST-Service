@@ -38,6 +38,7 @@
         <module>core</module>
         <module>model</module>
         <module>endpoint/http</module>
+        <module>messagebus/cloudevents</module>
         <module>messagebus/internal</module>
         <module>messagebus/mqtt</module>
         <module>persistence/memory</module>
@@ -70,6 +71,7 @@
         <bouncycastle.version>1.84</bouncycastle.version>
         <checkstyle.version>12.3.0</checkstyle.version>
         <classgraph.version>4.8.184</classgraph.version>
+        <cloudevents.version>4.0.1</cloudevents.version>
         <commons.codec.version>1.21.0</commons.codec.version>
         <commons.compress.version>1.28.0</commons.compress.version>
         <commons.fileupload.version>1.6.0</commons.fileupload.version>

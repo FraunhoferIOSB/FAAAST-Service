@@ -37,6 +37,7 @@
 	- HTTP
 		- Add logging of raw HTTP requests & responses with level `TRACE`
 - MessageBus
+    - CloudEventsMessageBus now available implementing the async-aas specification in https://factory-x-contributions.github.io/async-aas-helm/
 	- MQTT
 		- Changed default value for `host` from localhost to 0.0.0.0
 - SMT Processor
