@@ -205,7 +205,7 @@ public class JsonDeserializerTest {
 
 
     @Test
-    public void testInvokeOperationRequestSync2() throws DeserializationException, FileNotFoundException, IOException, ValueMappingException {
+    public void testInvokeOperationRequestSync2() throws DeserializationException, IOException {
         ServiceContext serviceContext = mock(ServiceContext.class);
         when(serviceContext.execute(any(), any()))
                 .thenReturn(GetSubmodelElementByPathResponse.builder()

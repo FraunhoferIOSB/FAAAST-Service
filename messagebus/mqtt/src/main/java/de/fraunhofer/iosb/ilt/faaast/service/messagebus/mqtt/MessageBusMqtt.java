@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
  */
 public class MessageBusMqtt implements MessageBus<MessageBusMqttConfig> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MoquetteServer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MessageBusMqtt.class);
 
     private final Map<SubscriptionId, SubscriptionInfo> subscriptions;
     private final JsonEventSerializer serializer;

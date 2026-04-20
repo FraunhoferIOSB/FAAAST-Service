@@ -473,16 +473,12 @@ public class App implements Runnable {
         LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
         context.putProperty("PATTERN_STDOUT", "%date{yyyy-MM-dd HH:mm:ss} [%level] %msg%n");
         context.putProperty("PATTERN_STDOUT_FAAAST", "%date{yyyy-MM-dd HH:mm:ss} %msg%n");
-        context.getLoggerList().forEach(logger -> {
-            logger.iteratorForAppenders().forEachRemaining(appender -> {
-                if (appender instanceof ConsoleAppender consoleAppender) {
-                    if (consoleAppender.getEncoder() instanceof PatternLayoutEncoder patternLayoutEncoder) {
-                        patternLayoutEncoder.setPattern(patternLayoutEncoder.getPattern().replace("%nopex", "%ex"));
-                        patternLayoutEncoder.start();
-                    }
-                }
-            });
-        });
+        context.getLoggerList().forEach(logger -> logger.iteratorForAppenders().forEachRemaining(appender -> {
+            if (appender instanceof ConsoleAppender consoleAppender && consoleAppender.getEncoder() instanceof PatternLayoutEncoder patternLayoutEncoder) {
+                patternLayoutEncoder.setPattern(patternLayoutEncoder.getPattern().replace("%nopex", "%ex"));
+                patternLayoutEncoder.start();
+            }
+        }));
     }
 
 

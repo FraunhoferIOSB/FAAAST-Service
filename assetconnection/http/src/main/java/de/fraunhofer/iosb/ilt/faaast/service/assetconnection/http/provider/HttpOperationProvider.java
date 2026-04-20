@@ -31,6 +31,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
@@ -108,7 +109,7 @@ public class HttpOperationProvider extends MultiFormatOperationProvider<HttpOper
                     ? DEFAULT_EXECUTE_METHOD
                     : config.getMethod();
             Map<String, String> headers = HttpHelper.mergeHeaders(connectionConfig.getHeaders(), config.getHeaders());
-            headers = headers.entrySet().stream().collect(Collectors.toMap(x -> x.getKey(), x -> variableReplacer.apply(x.getValue())));
+            headers = headers.entrySet().stream().collect(Collectors.toMap(Entry::getKey, x -> variableReplacer.apply(x.getValue())));
             LOGGER.trace("Sending HTTP request to asset (baseUrl: {}, path: {}, method: {}, headers: {}, body: {})",
                     connectionConfig.getBaseUrl(),
                     config.getPath(),

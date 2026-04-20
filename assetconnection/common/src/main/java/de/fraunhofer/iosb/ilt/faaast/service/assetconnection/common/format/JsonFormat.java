@@ -77,57 +77,7 @@ public class JsonFormat implements Format {
         }
         return elements.entrySet().stream().collect(Collectors.toMap(
                 Entry::getKey,
-                LambdaExceptionHelper.rethrowFunction(x -> {
-                    String query = x.getValue().getQuery();
-                    String actualValue = value;
-                    if (!StringHelper.isBlank(query)) {
-                        try {
-                            List<Object> jsonPathResult = JsonPath
-                                    .using(Configuration.defaultConfiguration().addOptions(Option.ALWAYS_RETURN_LIST))
-                                    .parse(value)
-                                    .read(query);
-                            if (jsonPathResult.isEmpty()) {
-                                throw new AssetConnectionException(String.format("JSONPath expression did not return any value (JSON path: %s, JSON: %s)", query, value));
-                            }
-                            if (jsonPathResult.size() > 1) {
-                                throw new AssetConnectionException(String.format("JSONPath expression returned more than one value (JSON path: %s, JSON: %s)", query, value));
-                            }
-                            actualValue = jsonPathResult.get(0).toString();
-                        }
-                        catch (PathNotFoundException e) {
-                            throw new AssetConnectionException(String.format("value addressed by JSONPath not found (JSON path: %s, JSON: %s)", query, value), e);
-                        }
-                        catch (InvalidPathException e) {
-                            throw new AssetConnectionException(String.format("invalid JSONPath (JSON path: %s)", query), e);
-                        }
-                        catch (JsonPathException e) {
-                            throw new AssetConnectionException(String.format("error resolving JSONPath (JSON path: %s, JSON: %s)", query, value), e);
-                        }
-                    }
-                    try {
-                        TypeInfo<?> typeInfo = x.getValue().getTypeInfo();
-                        // if datatype is string, we need to escape and wrap it with additional quotes
-                        if (typeInfo != null
-                                && ElementValueTypeInfo.class.isAssignableFrom(typeInfo.getClass())
-                                && ((ElementValueTypeInfo) typeInfo).getDatatype() == Datatype.STRING
-                                && !actualValue.startsWith("\"")
-                                && !actualValue.endsWith("\"")) {
-                            actualValue = String.format("\"%s\"", escapeJson(actualValue));
-                        }
-                        return deserializer.readValue(actualValue, x.getValue().getTypeInfo());
-                    }
-                    catch (DeserializationException e) {
-                        throw new AssetConnectionException(String.format("JSON deserialization failed (json: %S)", actualValue), e);
-                    }
-                })));
-    }
-
-
-    private static DataElementValue handleException(String message, Exception e, boolean shouldThrowException) throws AssetConnectionException {
-        if (shouldThrowException) {
-            throw new AssetConnectionException(message, e);
-        }
-        return null;
+                LambdaExceptionHelper.rethrowFunction(x -> evaluateJsonPath(value, x.getValue().getQuery(), x.getValue().getTypeInfo()))));
     }
 
 
@@ -144,6 +94,49 @@ public class JsonFormat implements Format {
         }
         catch (SerializationException | UnsupportedModifierException e) {
             throw new AssetConnectionException("serializing value to JSON failed", e);
+        }
+    }
+
+
+    private DataElementValue evaluateJsonPath(String value, String query, TypeInfo<?> typeInfo) throws AssetConnectionException {
+        String actualValue = value;
+        if (!StringHelper.isBlank(query)) {
+            try {
+                List<Object> jsonPathResult = JsonPath
+                        .using(Configuration.defaultConfiguration().addOptions(Option.ALWAYS_RETURN_LIST))
+                        .parse(value)
+                        .read(query);
+                if (jsonPathResult.isEmpty()) {
+                    throw new AssetConnectionException(String.format("JSONPath expression did not return any value (JSON path: %s, JSON: %s)", query, value));
+                }
+                if (jsonPathResult.size() > 1) {
+                    throw new AssetConnectionException(String.format("JSONPath expression returned more than one value (JSON path: %s, JSON: %s)", query, value));
+                }
+                actualValue = jsonPathResult.get(0).toString();
+            }
+            catch (PathNotFoundException e) {
+                throw new AssetConnectionException(String.format("value addressed by JSONPath not found (JSON path: %s, JSON: %s)", query, value), e);
+            }
+            catch (InvalidPathException e) {
+                throw new AssetConnectionException(String.format("invalid JSONPath (JSON path: %s)", query), e);
+            }
+            catch (JsonPathException e) {
+                throw new AssetConnectionException(String.format("error resolving JSONPath (JSON path: %s, JSON: %s)", query, value), e);
+            }
+        }
+        try {
+            // if datatype is string, we need to escape and wrap it with additional quotes
+            if (typeInfo != null
+                    && ElementValueTypeInfo.class.isAssignableFrom(typeInfo.getClass())
+                    && ((ElementValueTypeInfo) typeInfo).getDatatype() == Datatype.STRING
+                    && !actualValue.startsWith("\"")
+                    && !actualValue.endsWith("\"")) {
+                actualValue = String.format("\"%s\"", escapeJson(actualValue));
+            }
+            return deserializer.readValue(actualValue, typeInfo);
+        }
+        catch (DeserializationException e) {
+            throw new AssetConnectionException(String.format("JSON deserialization failed (json: %S)", actualValue), e);
         }
     }
 
