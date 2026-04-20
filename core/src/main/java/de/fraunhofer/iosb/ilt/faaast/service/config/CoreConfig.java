@@ -36,6 +36,8 @@ public class CoreConfig {
     private static final int DEFAULT_ASSET_CONNECTION_WRITE_MAX_THREADPOOL_SIZE = 1000;
     private static final long DEFAULT_ASSET_CONNECTION_READ_TIMEOUT = 5000;
     private static final double DEFAULT_MIN_INFLATE_RATIO = 0.001;
+    private static final long DEFAULT_OPERATION_TIMEOUT = 3600000;
+
     private static final String ALLOWED_URL_PREFIX_REGEX = "https?://.*";
 
     private long assetConnectionRetryInterval;
@@ -50,6 +52,7 @@ public class CoreConfig {
     private List<String> submodelRegistries;
     private RegistrySynchronizationConfig registrySynchronization;
     private double minInflateRatio;
+    private long operationTimeout;
     private String callbackAddress;
 
     public CoreConfig() {
@@ -76,6 +79,7 @@ public class CoreConfig {
         this.aasRegistries = new ArrayList<>();
         this.submodelRegistries = new ArrayList<>();
         this.minInflateRatio = DEFAULT_MIN_INFLATE_RATIO;
+        this.operationTimeout = DEFAULT_OPERATION_TIMEOUT;
     }
 
 
@@ -204,21 +208,11 @@ public class CoreConfig {
     }
 
 
-    /**
-     * Gets configuration for registry synchronization.
-     *
-     * @return registry synchronization configuration or {@code null} if not configured
-     */
     public RegistrySynchronizationConfig getRegistrySynchronization() {
         return registrySynchronization;
     }
 
 
-    /**
-     * Sets configuration for registry synchronization.
-     *
-     * @param registrySynchronization registry synchronization configuration or {@code null} to disable
-     */
     public void setRegistrySynchronization(RegistrySynchronizationConfig registrySynchronization) {
         this.registrySynchronization = registrySynchronization;
     }
@@ -231,6 +225,16 @@ public class CoreConfig {
 
     public void setMinInflateRatio(double minInflateRatio) {
         this.minInflateRatio = minInflateRatio;
+    }
+
+
+    public long getOperationTimeout() {
+        return operationTimeout;
+    }
+
+
+    public void setOperationTimeout(long operationTimeout) {
+        this.operationTimeout = operationTimeout;
     }
 
 
@@ -258,6 +262,7 @@ public class CoreConfig {
                 submodelRegistries,
                 registrySynchronization,
                 minInflateRatio,
+                operationTimeout,
                 callbackAddress);
     }
 
@@ -286,6 +291,7 @@ public class CoreConfig {
                 && Objects.equals(this.submodelRegistries, other.submodelRegistries)
                 && Objects.equals(this.registrySynchronization, other.registrySynchronization)
                 && Objects.equals(this.minInflateRatio, other.minInflateRatio)
+                && Objects.equals(this.operationTimeout, other.operationTimeout)
                 && Objects.equals(callbackAddress, other.callbackAddress);
     }
 
@@ -387,14 +393,20 @@ public class CoreConfig {
         }
 
 
+        public Builder registrySynchronization(RegistrySynchronizationConfig value) {
+            getBuildingInstance().setRegistrySynchronization(value);
+            return getSelf();
+        }
+
+
         public Builder minInflateRatio(double value) {
             getBuildingInstance().setMinInflateRatio(value);
             return getSelf();
         }
 
 
-        public Builder registrySynchronization(RegistrySynchronizationConfig value) {
-            getBuildingInstance().setRegistrySynchronization(value);
+        public Builder operationTimeout(long value) {
+            getBuildingInstance().setOperationTimeout(value);
             return getSelf();
         }
 

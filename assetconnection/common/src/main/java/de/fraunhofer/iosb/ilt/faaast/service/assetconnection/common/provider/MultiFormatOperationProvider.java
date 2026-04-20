@@ -23,6 +23,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.provider.con
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.util.TemplateHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeExtractor;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
@@ -73,7 +74,7 @@ public abstract class MultiFormatOperationProvider<T extends MultiFormatOperatio
         Map<String, Object> variableReplacements = Stream.concat(inputParameter.entrySet().stream(), inoutputParameter.entrySet().stream())
                 .collect(Collectors.toMap(
                         Entry::getKey,
-                        LambdaExceptionHelper.rethrowFunction(x -> format.write(x.getValue()))));
+                        LambdaExceptionHelper.rethrowFunction(x -> (x.getValue() instanceof PropertyValue p) ? p.getValue().asString() : format.write(x.getValue()))));
         UnaryOperator<String> variableReplacer = x -> TemplateHelper.replace(x, variableReplacements);
         String request = variableReplacer.apply(config.getTemplate());
         String response = new String(invoke(request != null ? request.getBytes() : new byte[0], variableReplacer));

@@ -30,18 +30,26 @@ import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.function.UnaryOperator;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
  * Provides the capability to execute operation via HTTP.
  */
 public class HttpOperationProvider extends MultiFormatOperationProvider<HttpOperationProviderConfig> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(HttpOperationProvider.class);
 
     public static final String DEFAULT_EXECUTE_METHOD = "POST";
     private final ServiceContext serviceContext;
@@ -96,24 +104,41 @@ public class HttpOperationProvider extends MultiFormatOperationProvider<HttpOper
     @Override
     protected byte[] invoke(byte[] input, UnaryOperator<String> variableReplacer) throws AssetConnectionException {
         try {
+            String path = variableReplacer.apply(config.getPath());
+            String method = StringUtils.isBlank(config.getMethod())
+                    ? DEFAULT_EXECUTE_METHOD
+                    : config.getMethod();
+            Map<String, String> headers = HttpHelper.mergeHeaders(connectionConfig.getHeaders(), config.getHeaders());
+            headers = headers.entrySet().stream().collect(Collectors.toMap(Entry::getKey, x -> variableReplacer.apply(x.getValue())));
+            LOGGER.trace("Sending HTTP request to asset (baseUrl: {}, path: {}, method: {}, headers: {}, body: {})",
+                    connectionConfig.getBaseUrl(),
+                    config.getPath(),
+                    method,
+                    headers,
+                    Objects.nonNull(input) ? new String(input) : "");
             HttpResponse<byte[]> response = HttpHelper.execute(
                     client,
                     connectionConfig.getBaseUrl(),
-                    variableReplacer.apply(config.getPath()),
+                    path,
                     config.getFormat(),
-                    StringUtils.isBlank(config.getMethod())
-                            ? DEFAULT_EXECUTE_METHOD
-                            : config.getMethod(),
+                    method,
                     HttpRequest.BodyPublishers.ofByteArray(input),
                     HttpResponse.BodyHandlers.ofByteArray(),
-                    HttpHelper.mergeHeaders(connectionConfig.getHeaders(), config.getHeaders()));
+                    headers);
+            LOGGER.trace("Response from asset (status code: {}, headers: {}, body: {})",
+                    response.statusCode(),
+                    response.headers().map(),
+                    response.body() != null ? new String(response.body()) : "[empty]");
             if (!HttpHelper.is2xxSuccessful(response)) {
                 throw new AssetConnectionException(String.format("executing operation via HTTP asset connection failed (reference: %s)", ReferenceHelper.toString(reference)));
             }
             return response.body();
         }
-        catch (IOException | URISyntaxException | InterruptedException e) {
+        catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+            throw new AssetConnectionException(String.format("executing operation via HTTP asset connection failed (reference: %s)", ReferenceHelper.toString(reference)), e);
+        }
+        catch (IOException | URISyntaxException e) {
             throw new AssetConnectionException(String.format("executing operation via HTTP asset connection failed (reference: %s)", ReferenceHelper.toString(reference)), e);
         }
     }

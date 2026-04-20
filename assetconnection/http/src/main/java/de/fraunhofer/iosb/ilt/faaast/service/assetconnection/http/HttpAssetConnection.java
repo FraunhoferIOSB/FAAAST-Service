@@ -26,6 +26,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.confi
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.SslHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.StringHelper;
 import java.io.IOException;
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
@@ -33,6 +34,8 @@ import java.net.http.HttpClient;
 import java.security.GeneralSecurityException;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -60,6 +63,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 public class HttpAssetConnection extends
         AbstractAssetConnection<HttpAssetConnection, HttpAssetConnectionConfig, HttpValueProviderConfig, HttpValueProvider, HttpOperationProviderConfig, HttpOperationProvider, HttpSubscriptionProviderConfig, HttpSubscriptionProvider> {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(HttpAssetConnection.class);
     private static final String PROTOCOL_HTTPS = "https";
     private HttpClient client;
 
@@ -101,6 +105,7 @@ public class HttpAssetConnection extends
     protected void doConnect() throws AssetConnectionException {
         try {
             HttpClient.Builder builder = HttpClient.newBuilder();
+            builder = setHttpVersion(builder);
             if (PROTOCOL_HTTPS.equalsIgnoreCase(config.getBaseUrl().getProtocol())) {
                 builder = builder.sslContext(SslHelper.newContextAcceptingCertificates(config.getTrustedCertificates()));
             }
@@ -129,4 +134,16 @@ public class HttpAssetConnection extends
         // no need to close a HTTP connection
     }
 
+
+    private HttpClient.Builder setHttpVersion(HttpClient.Builder builder) {
+        if (!StringHelper.isBlank(config.getHttpVersion())) {
+            try {
+                builder.version(HttpClient.Version.valueOf(config.getHttpVersion()));
+            }
+            catch (Exception e) {
+                LOGGER.debug("failed to set HTTP version for asset connection - invalid version info: {}", config.getHttpVersion());
+            }
+        }
+        return builder;
+    }
 }
