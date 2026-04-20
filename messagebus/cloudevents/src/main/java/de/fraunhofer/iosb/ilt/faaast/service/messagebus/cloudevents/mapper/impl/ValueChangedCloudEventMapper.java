@@ -46,14 +46,14 @@ public class ValueChangedCloudEventMapper extends CloudEventMapper {
 
 
     @Override
-    protected List<Class<? extends EventMessage>> getHandleable() {
+    protected List<Class<? extends EventMessage>> getSupportedEventTypes() {
         return List.of(ValueChangeEventMessage.class);
     }
 
 
     @Override
     protected byte[] getData(EventMessage message) throws JsonProcessingException {
-        return objectMapper.writeValueAsBytes(referableResolver.apply(message.getElement()));
+        return mapper.writeValueAsBytes(referableResolver.apply(message.getElement()));
     }
 
 

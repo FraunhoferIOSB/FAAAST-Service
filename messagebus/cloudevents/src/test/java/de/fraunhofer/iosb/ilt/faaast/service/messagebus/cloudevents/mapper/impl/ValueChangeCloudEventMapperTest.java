@@ -14,10 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.messagebus.cloudevents.mapper.impl;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
+import de.fraunhofer.iosb.ilt.faaast.service.messagebus.cloudevents.mapper.AbstractCloudEventMapperTest;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.cloudevents.mapper.CloudEventMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.cloudevents.mapper.CloudEventMapperConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ValueChangeEventMessage;
@@ -61,8 +58,7 @@ public class ValueChangeCloudEventMapperTest extends AbstractCloudEventMapperTes
 
         CloudEvent expected = expectedFrom(submodelId, property, "Property", valueChanged);
 
-        Function<Reference, Referable> referableSupplier = mock(Function.class);
-        when(referableSupplier.apply(any())).thenReturn(property);
+        Function<Reference, Referable> referableSupplier = r -> property;
 
         CloudEventMapper mapper = getCloudEventMapper(referableSupplier);
 
@@ -95,8 +91,7 @@ public class ValueChangeCloudEventMapperTest extends AbstractCloudEventMapperTes
 
         CloudEvent expected = expectedFrom(submodelId, property, "Property", valueChanged);
 
-        Function<Reference, Referable> referableSupplier = mock(Function.class);
-        when(referableSupplier.apply(any())).thenReturn(property);
+        Function<Reference, Referable> referableSupplier = r -> property;
 
         CloudEventMapper mapper = getCloudEventMapper(true, referableSupplier);
 

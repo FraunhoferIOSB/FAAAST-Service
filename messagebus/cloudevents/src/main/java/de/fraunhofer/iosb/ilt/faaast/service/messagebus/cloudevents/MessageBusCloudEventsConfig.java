@@ -25,13 +25,14 @@ import java.util.UUID;
  */
 public class MessageBusCloudEventsConfig extends MessageBusConfig<MessageBusCloudEvents> {
 
-    private static final String DEFAULT_CLIENT_ID = "FA³ST CloudEvents" + UUID.randomUUID();
+    // Mosquitto default configuration allows clientIDs of up to 23 characters in length
+    private static final String DEFAULT_CLIENT_ID = UUID.randomUUID().toString()
+            .replace("-", "")
+            .substring(0, 23);
     private static final String DEFAULT_CLIENT_KEYSTORE_PASSWORD = "";
     private static final String DEFAULT_CLIENT_KEYSTORE_PATH = "";
-    private static final String DEFAULT_HOST = "tcp://localhost:1883";
     private static final String DEFAULT_TOPIC_PREFIX = "noauth";
     private static final boolean DEFAULT_SLIM_EVENTS = true;
-    private static final String DEFAULT_EVENT_CALLBACK_ADDRESS = "https://localhost";
     private static final String DEFAULT_EVENT_TYPE_PREFIX = "io.admin-shell.events.v1.";
     private static final String DEFAULT_DATA_SCHEMA_PREFIX = "https://api.swaggerhub.com/domains/Plattform_i40/Part1-MetaModel-Schemas/V3.1" +
             ".0#/components/schemas/";
@@ -43,7 +44,6 @@ public class MessageBusCloudEventsConfig extends MessageBusConfig<MessageBusClou
     private String password;
     private String topicPrefix;
     private boolean slimEvents;
-    private String eventCallbackAddress;
     private String eventTypePrefix;
     private String dataSchemaPrefix;
     private String oauth2ClientId;
@@ -51,7 +51,6 @@ public class MessageBusCloudEventsConfig extends MessageBusConfig<MessageBusClou
     private String identityProviderUrl;
 
     public MessageBusCloudEventsConfig() {
-        this.host = DEFAULT_HOST;
         this.clientCertificate = CertificateConfig.builder()
                 .keyStorePath(DEFAULT_CLIENT_KEYSTORE_PATH)
                 .keyStorePassword(DEFAULT_CLIENT_KEYSTORE_PASSWORD)
@@ -59,7 +58,6 @@ public class MessageBusCloudEventsConfig extends MessageBusConfig<MessageBusClou
         this.clientId = DEFAULT_CLIENT_ID;
         this.topicPrefix = DEFAULT_TOPIC_PREFIX;
         this.slimEvents = DEFAULT_SLIM_EVENTS;
-        this.eventCallbackAddress = DEFAULT_EVENT_CALLBACK_ADDRESS;
         this.eventTypePrefix = DEFAULT_EVENT_TYPE_PREFIX;
         this.dataSchemaPrefix = DEFAULT_DATA_SCHEMA_PREFIX;
     }
@@ -165,16 +163,6 @@ public class MessageBusCloudEventsConfig extends MessageBusConfig<MessageBusClou
     }
 
 
-    public String getEventCallbackAddress() {
-        return eventCallbackAddress;
-    }
-
-
-    public void setEventCallbackAddress(String eventCallbackAddress) {
-        this.eventCallbackAddress = eventCallbackAddress;
-    }
-
-
     public String getEventTypePrefix() {
         return eventTypePrefix;
     }
@@ -210,9 +198,12 @@ public class MessageBusCloudEventsConfig extends MessageBusConfig<MessageBusClou
                 && Objects.equals(clientId, other.clientId)
                 && Objects.equals(topicPrefix, other.topicPrefix)
                 && Objects.equals(slimEvents, other.slimEvents)
-                && Objects.equals(eventCallbackAddress, other.eventCallbackAddress)
                 && Objects.equals(eventTypePrefix, other.eventTypePrefix)
-                && Objects.equals(dataSchemaPrefix, other.dataSchemaPrefix);
+                && Objects.equals(dataSchemaPrefix, other.dataSchemaPrefix)
+                && Objects.equals(user, other.user)
+                && Objects.equals(oauth2ClientId, other.oauth2ClientId)
+                && Objects.equals(oauth2ClientSecret, other.oauth2ClientSecret)
+                && Objects.equals(identityProviderUrl, other.identityProviderUrl);
     }
 
 
@@ -225,9 +216,12 @@ public class MessageBusCloudEventsConfig extends MessageBusConfig<MessageBusClou
                 clientId,
                 topicPrefix,
                 slimEvents,
-                eventCallbackAddress,
                 eventTypePrefix,
-                dataSchemaPrefix);
+                dataSchemaPrefix,
+                user,
+                oauth2ClientId,
+                oauth2ClientSecret,
+                identityProviderUrl);
     }
 
 
@@ -261,9 +255,11 @@ public class MessageBusCloudEventsConfig extends MessageBusConfig<MessageBusClou
             getBuildingInstance().setClientId(base.getClientId());
             getBuildingInstance().setTopicPrefix(base.getTopicPrefix());
             getBuildingInstance().setSlimEvents(base.isSlimEvents());
-            getBuildingInstance().setEventCallbackAddress(base.getEventCallbackAddress());
             getBuildingInstance().setEventTypePrefix(base.getEventTypePrefix());
             getBuildingInstance().setDataSchemaPrefix(base.getDataSchemaPrefix());
+            getBuildingInstance().setOauth2ClientId(base.getOauth2ClientId());
+            getBuildingInstance().setOauth2ClientSecret(base.getOauth2ClientSecret());
+            getBuildingInstance().setIdentityProviderUrl(base.getIdentityProviderUrl());
             return getSelf();
         }
 
@@ -329,7 +325,6 @@ public class MessageBusCloudEventsConfig extends MessageBusConfig<MessageBusClou
 
 
         public B eventCallbackAddress(String value) {
-            getBuildingInstance().setEventCallbackAddress(value);
             return getSelf();
         }
 

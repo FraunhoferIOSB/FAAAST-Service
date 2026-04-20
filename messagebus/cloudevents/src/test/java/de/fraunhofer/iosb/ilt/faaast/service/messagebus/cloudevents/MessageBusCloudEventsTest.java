@@ -27,6 +27,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.error.ErrorE
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.error.ErrorLevel;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.IntValue;
+import de.fraunhofer.iosb.ilt.faaast.service.util.PortHelper;
 import io.moquette.broker.Server;
 import io.moquette.broker.config.IConfig;
 import io.moquette.broker.config.MemoryConfig;
@@ -61,7 +62,7 @@ public class MessageBusCloudEventsTest {
     private static ErrorEventMessage errorMessage;
     // default timeout in milliseconds
     private static final long DEFAULT_TIMEOUT = 1000;
-
+    private static final int BROKER_PORT = PortHelper.findFreePort();
     private static final Reference property1Reference = new DefaultReference.Builder()
             .keys(new DefaultKey.Builder()
                     .type(KeyTypes.PROPERTY)
@@ -73,6 +74,7 @@ public class MessageBusCloudEventsTest {
     public static void init() throws IOException {
         IConfig config = new MemoryConfig(new Properties());
         config.setProperty(IConfig.PERSISTENCE_ENABLED_PROPERTY_NAME, "false");
+        config.setProperty(IConfig.PORT_PROPERTY_NAME, String.valueOf(BROKER_PORT));
         MQTT_BROKER.startServer(config);
 
         valueChangeMessage = new ValueChangeEventMessage();
@@ -98,7 +100,7 @@ public class MessageBusCloudEventsTest {
     @Test
     public void testExactTypeSubscription() throws InterruptedException, MessageBusException {
         MessageBusCloudEvents messageBus = new MessageBusCloudEvents();
-        messageBus.init(CoreConfig.DEFAULT, MessageBusCloudEventsConfig.builder().build(), mock(ServiceContext.class));
+        messageBus.init(CoreConfig.DEFAULT, MessageBusCloudEventsConfig.builder().host(String.format("tcp://localhost:%d", BROKER_PORT)).build(), mock(ServiceContext.class));
         messageBus.start();
         CountDownLatch condition = new CountDownLatch(1);
         final AtomicReference<EventMessage> response = new AtomicReference<>();
@@ -118,7 +120,7 @@ public class MessageBusCloudEventsTest {
     @Test
     public void testSuperTypeSubscription() throws InterruptedException, MessageBusException {
         MessageBusCloudEvents messageBus = new MessageBusCloudEvents();
-        messageBus.init(CoreConfig.DEFAULT, MessageBusCloudEventsConfig.builder().build(), mock(ServiceContext.class));
+        messageBus.init(CoreConfig.DEFAULT, MessageBusCloudEventsConfig.builder().host(String.format("tcp://localhost:%d", BROKER_PORT)).build(), mock(ServiceContext.class));
         messageBus.start();
         Set<EventMessage> messages = Set.of(valueChangeMessage, errorMessage);
         Set<EventMessage> responses = Collections.synchronizedSet(new HashSet<>());
@@ -146,7 +148,7 @@ public class MessageBusCloudEventsTest {
     @Test
     public void testDistinctTypesSubscription() throws InterruptedException, MessageBusException {
         MessageBusCloudEvents messageBus = new MessageBusCloudEvents();
-        messageBus.init(CoreConfig.DEFAULT, MessageBusCloudEventsConfig.builder().build(), mock(ServiceContext.class));
+        messageBus.init(CoreConfig.DEFAULT, MessageBusCloudEventsConfig.builder().host(String.format("tcp://localhost:%d", BROKER_PORT)).build(), mock(ServiceContext.class));
         messageBus.start();
         Map<Class<? extends EventMessage>, Set<EventMessage>> messages = Map.of(
                 ChangeEventMessage.class, Set.of(valueChangeMessage),
@@ -179,7 +181,7 @@ public class MessageBusCloudEventsTest {
     @Test
     public void testNotMatchingSubscription() throws InterruptedException, MessageBusException {
         MessageBusCloudEvents messageBus = new MessageBusCloudEvents();
-        messageBus.init(CoreConfig.DEFAULT, MessageBusCloudEventsConfig.builder().build(), mock(ServiceContext.class));
+        messageBus.init(CoreConfig.DEFAULT, MessageBusCloudEventsConfig.builder().host(String.format("tcp://localhost:%d", BROKER_PORT)).build(), mock(ServiceContext.class));
         messageBus.start();
         CountDownLatch condition = new CountDownLatch(1);
         messageBus.subscribe(SubscriptionInfo.create(
@@ -202,7 +204,7 @@ public class MessageBusCloudEventsTest {
     @Test
     public void testSubscribeUnsubscribe() throws InterruptedException, MessageBusException {
         MessageBusCloudEvents messageBus = new MessageBusCloudEvents();
-        messageBus.init(CoreConfig.DEFAULT, MessageBusCloudEventsConfig.builder().build(), mock(ServiceContext.class));
+        messageBus.init(CoreConfig.DEFAULT, MessageBusCloudEventsConfig.builder().host(String.format("tcp://localhost:%d", BROKER_PORT)).build(), mock(ServiceContext.class));
         messageBus.start();
         CountDownLatch condition = new CountDownLatch(1);
         final AtomicReference<EventMessage> response = new AtomicReference<>();

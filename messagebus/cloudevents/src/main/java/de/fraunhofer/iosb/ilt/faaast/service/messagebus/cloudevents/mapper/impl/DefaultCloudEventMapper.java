@@ -45,7 +45,7 @@ public class DefaultCloudEventMapper extends CloudEventMapper {
 
 
     @Override
-    protected List<Class<? extends EventMessage>> getHandleable() {
+    protected List<Class<? extends EventMessage>> getSupportedEventTypes() {
         return handleableEventTypes;
     }
 
@@ -53,7 +53,7 @@ public class DefaultCloudEventMapper extends CloudEventMapper {
     @Override
     protected byte[] getData(EventMessage message) throws JsonProcessingException {
         ElementChangeEventMessage m = (ElementChangeEventMessage) message;
-        return objectMapper.writeValueAsBytes(m.getValue());
+        return mapper.writeValueAsBytes(m.getValue());
     }
 
 

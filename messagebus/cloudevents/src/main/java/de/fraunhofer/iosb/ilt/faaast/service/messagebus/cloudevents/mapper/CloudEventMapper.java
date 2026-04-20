@@ -67,7 +67,7 @@ public abstract class CloudEventMapper {
             OperationInvokeEventMessage.class, "invoked",
             OperationFinishEventMessage.class, "finished");
     private final CloudEventMapperConfig config;
-    protected final ObjectMapper objectMapper;
+    protected final ObjectMapper mapper;
 
     /**
      * Class constructor.
@@ -76,7 +76,7 @@ public abstract class CloudEventMapper {
      */
     protected CloudEventMapper(CloudEventMapperConfig config) {
         this.config = config;
-        this.objectMapper = new ObjectMapper()
+        this.mapper = new ObjectMapper()
                 .enable(SerializationFeature.INDENT_OUTPUT)
                 .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
                 .setDefaultPropertyInclusion(JsonInclude.Include.NON_EMPTY)
@@ -92,15 +92,13 @@ public abstract class CloudEventMapper {
      */
 
     public boolean canHandle(EventMessage m) {
-        if (getHandleable().stream().noneMatch(c -> c.isAssignableFrom(m.getClass()))) {
+        if (getSupportedEventTypes().stream().noneMatch(c -> c.isAssignableFrom(m.getClass()))) {
             return false;
         }
 
-        KeyTypes rootType = Optional.ofNullable(ReferenceHelper.getRoot(m.getElement()))
-                .orElseThrow()
-                .getType();
+        Key rootKey = ReferenceHelper.getRoot(m.getElement());
 
-        return rootType == ASSET_ADMINISTRATION_SHELL || rootType == SUBMODEL;
+        return rootKey != null && (rootKey.getType() == ASSET_ADMINISTRATION_SHELL || rootKey.getType() == SUBMODEL);
     }
 
 
@@ -112,18 +110,20 @@ public abstract class CloudEventMapper {
      */
     public CloudEvent createCloudEvent(EventMessage message) {
         CloudEventBuilder cloudEventBuilder = createCloudEventBaseBuilder(message);
-        appendData(cloudEventBuilder, message);
-        cloudEventBuilder.withDataContentType(APPLICATION_JSON); // data content type
+        if (!config.slimEvents()) {
+            appendData(cloudEventBuilder, message);
+        }
+        cloudEventBuilder.withDataContentType(APPLICATION_JSON);
         return cloudEventBuilder.build();
     }
 
 
     /**
-     * Get event classes this concrete implementation can handle.
+     * Get event classes this concrete implementation supports.
      *
-     * @return The classes this implementation can handle.
+     * @return The event classes this implementation supports.
      */
-    protected abstract List<Class<? extends EventMessage>> getHandleable();
+    protected abstract List<Class<? extends EventMessage>> getSupportedEventTypes();
 
 
     /**
@@ -134,12 +134,12 @@ public abstract class CloudEventMapper {
      */
     protected CloudEventBuilder createCloudEventBaseBuilder(EventMessage message) {
         CloudEventBuilder builder = CloudEventBuilder
-                .v1() // spec version
-                .withId(UUID.randomUUID().toString()) // id
-                .withSource(getSourceUri(message.getElement())) // source
-                .withDataSchema(URI.create(config.dataSchemaPrefix() + getSpecificElementName(message.getElement()))) // dataschema
-                .withType(config.eventTypePrefix().concat(getEventType(message.getClass()))) // type
-                .withTime(OffsetDateTime.now()); // time
+                .v1()
+                .withId(UUID.randomUUID().toString())
+                .withSource(getSourceUri(message.getElement()))
+                .withDataSchema(URI.create(config.dataSchemaPrefix() + getSpecificElementName(message.getElement())))
+                .withType(config.eventTypePrefix().concat(getEventType(message.getClass())))
+                .withTime(OffsetDateTime.now());
 
         appendSemanticId(builder, message);
 
@@ -174,30 +174,19 @@ public abstract class CloudEventMapper {
 
 
     private String getEventType(Class<? extends EventMessage> messageClass) {
-        String eventType = internalToCloudEventMap.get(messageClass);
-
-        if (eventType == null) {
+        if (!internalToCloudEventMap.containsKey(messageClass)) {
             throw new IllegalArgumentException(String.format("EventMessage type not supported: %s", messageClass));
         }
-        return eventType;
+        return internalToCloudEventMap.get(messageClass);
     }
 
 
     private void appendData(CloudEventBuilder cloudEventBuilder, EventMessage message) {
-        if (config.slimEvents()) {
-            return;
-        }
-
-        byte[] data = new byte[0];
         try {
-            data = getData(message);
+            cloudEventBuilder.withData(getData(message));
         }
         catch (JsonProcessingException e) {
             LOGGER.warn("{} when trying to write cloud event data field: {}", e.getClass().getName(), e.getMessage());
-        }
-
-        if (data.length > 0) {
-            cloudEventBuilder.withData(data);
         }
     }
 
@@ -230,9 +219,9 @@ public abstract class CloudEventMapper {
 
     private URI getSourceUri(Reference reference) {
         // base
-        String uriString = config.eventCallbackAddress().endsWith("/")
-                ? config.eventCallbackAddress().substring(0, config.eventCallbackAddress().length() - 1)
-                : config.eventCallbackAddress();
+        String uriString = config.callbackAddress().endsWith("/")
+                ? config.callbackAddress().substring(0, config.callbackAddress().length() - 1)
+                : config.callbackAddress();
 
         Key root = ReferenceHelper.getRoot(reference);
         if (root == null || root.getValue() == null) {

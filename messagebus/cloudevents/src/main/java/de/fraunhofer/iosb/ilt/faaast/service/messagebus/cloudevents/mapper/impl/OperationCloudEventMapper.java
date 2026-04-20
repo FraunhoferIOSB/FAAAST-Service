@@ -50,7 +50,7 @@ public class OperationCloudEventMapper extends CloudEventMapper {
 
 
     @Override
-    protected List<Class<? extends EventMessage>> getHandleable() {
+    protected List<Class<? extends EventMessage>> getSupportedEventTypes() {
         return handleableEventTypes;
     }
 
@@ -59,15 +59,15 @@ public class OperationCloudEventMapper extends CloudEventMapper {
     protected byte[] getData(EventMessage message) throws JsonProcessingException {
         String serializedData = "{\"inoutputArguments\":{";
         if (message instanceof OperationInvokeEventMessage invoke) {
-            serializedData = serializedData.concat(objectMapper.writeValueAsString(invoke.getInoutput()));
+            serializedData = serializedData.concat(mapper.writeValueAsString(invoke.getInoutput()));
             serializedData = serializedData.concat("},\"inputArguments\":{");
-            serializedData = serializedData.concat(objectMapper.writeValueAsString(invoke.getInput()));
+            serializedData = serializedData.concat(mapper.writeValueAsString(invoke.getInput()));
             serializedData = serializedData.concat("}");
         }
         else if (message instanceof OperationFinishEventMessage finish) {
-            serializedData = serializedData.concat(objectMapper.writeValueAsString(finish.getInoutput()));
+            serializedData = serializedData.concat(mapper.writeValueAsString(finish.getInoutput()));
             serializedData = serializedData.concat("},\"outputArguments\":{");
-            serializedData = serializedData.concat(objectMapper.writeValueAsString(finish.getOutput()));
+            serializedData = serializedData.concat(mapper.writeValueAsString(finish.getOutput()));
             serializedData = serializedData.concat("}");
         }
 

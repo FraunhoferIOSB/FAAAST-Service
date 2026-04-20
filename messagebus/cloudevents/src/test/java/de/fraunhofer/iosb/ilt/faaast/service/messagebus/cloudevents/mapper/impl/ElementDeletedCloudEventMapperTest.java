@@ -14,10 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.messagebus.cloudevents.mapper.impl;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
+import de.fraunhofer.iosb.ilt.faaast.service.messagebus.cloudevents.mapper.AbstractCloudEventMapperTest;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.cloudevents.mapper.CloudEventMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.cloudevents.mapper.CloudEventMapperConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementDeleteEventMessage;
@@ -34,8 +31,6 @@ import org.junit.Test;
 
 public class ElementDeletedCloudEventMapperTest extends AbstractCloudEventMapperTest {
 
-    private final String deleted = "deleted";
-
     @Test
     public void testElementDeletedMappingValid() throws Exception {
         String submodelId = "hello-world";
@@ -47,10 +42,10 @@ public class ElementDeletedCloudEventMapperTest extends AbstractCloudEventMapper
                 .value("bar")
                 .build();
 
+        String deleted = "deleted";
         CloudEvent expected = expectedFrom(submodelId, property, "Property", deleted);
 
-        Function<Reference, Referable> referableSupplier = mock(Function.class);
-        when(referableSupplier.apply(any())).thenReturn(null);
+        Function<Reference, Referable> referableSupplier = r -> null;
 
         CloudEventMapper mapper = getCloudEventMapper(referableSupplier);
 

@@ -44,7 +44,6 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
         return new Builder();
     }
 
-    private String callbackAddress;
     private CertificateConfig certificate;
     private boolean corsEnabled;
     private boolean corsAllowCredentials;
@@ -78,16 +77,6 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
         port = DEFAULT_PORT;
         sniEnabled = DEFAULT_SNI_ENABLED;
         sslEnabled = DEFAULT_SSL_ENABLED;
-    }
-
-
-    public String getCallbackAddress() {
-        return callbackAddress;
-    }
-
-
-    public void setCallbackAddress(String callbackAddress) {
-        this.callbackAddress = callbackAddress;
     }
 
 
@@ -277,7 +266,6 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
         }
         HttpEndpointConfig that = (HttpEndpointConfig) o;
         return super.equals(o)
-                && Objects.equals(callbackAddress, that.callbackAddress)
                 && Objects.equals(certificate, that.certificate)
                 && Objects.equals(corsEnabled, that.corsEnabled)
                 && Objects.equals(corsAllowCredentials, that.corsAllowCredentials)
@@ -302,7 +290,6 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
     public int hashCode() {
         return Objects.hash(
                 super.hashCode(),
-                callbackAddress,
                 certificate,
                 corsEnabled,
                 corsAllowCredentials,
@@ -330,12 +317,6 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
     }
 
     private abstract static class AbstractBuilder<T extends HttpEndpointConfig, B extends AbstractBuilder<T, B>> extends EndpointConfig.AbstractBuilder<HttpEndpoint, T, B> {
-
-        public B callbackAddress(String value) {
-            getBuildingInstance().setCallbackAddress(value);
-            return getSelf();
-        }
-
 
         public B certificate(CertificateConfig value) {
             getBuildingInstance().setCertificate(value);

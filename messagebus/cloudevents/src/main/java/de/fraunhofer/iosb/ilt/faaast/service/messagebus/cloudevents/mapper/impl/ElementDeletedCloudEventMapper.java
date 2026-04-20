@@ -40,7 +40,7 @@ public class ElementDeletedCloudEventMapper extends CloudEventMapper {
 
 
     @Override
-    protected List<Class<? extends EventMessage>> getHandleable() {
+    protected List<Class<? extends EventMessage>> getSupportedEventTypes() {
         return List.of(ElementDeleteEventMessage.class);
     }
 

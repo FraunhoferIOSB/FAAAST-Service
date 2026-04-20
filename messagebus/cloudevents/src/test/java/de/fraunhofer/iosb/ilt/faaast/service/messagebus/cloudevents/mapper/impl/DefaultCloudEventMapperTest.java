@@ -14,10 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.messagebus.cloudevents.mapper.impl;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
+import de.fraunhofer.iosb.ilt.faaast.service.messagebus.cloudevents.mapper.AbstractCloudEventMapperTest;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.cloudevents.mapper.CloudEventMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.cloudevents.mapper.CloudEventMapperConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
@@ -38,7 +35,6 @@ import org.junit.Test;
 public class DefaultCloudEventMapperTest extends AbstractCloudEventMapperTest {
 
     private final String updated = "updated";
-    private final String created = "created";
 
     protected CloudEventMapper getCloudEventMapper(String callbackAddress, String dataSchemaPrefix, String eventTypePrefix, boolean slimEvents,
                                                    Function<Reference, Referable> referableSupplier) {
@@ -63,8 +59,7 @@ public class DefaultCloudEventMapperTest extends AbstractCloudEventMapperTest {
 
         CloudEvent expected = expectedFrom(submodelId, property, "Property", updated);
 
-        Function<Reference, Referable> referableSupplier = mock(Function.class);
-        when(referableSupplier.apply(any())).thenReturn(property);
+        Function<Reference, Referable> referableSupplier = r -> property;
 
         CloudEventMapper mapper = getCloudEventMapper(referableSupplier);
 
@@ -96,10 +91,10 @@ public class DefaultCloudEventMapperTest extends AbstractCloudEventMapperTest {
                 .value("bar")
                 .build();
 
+        String created = "created";
         CloudEvent expected = expectedFrom(submodelId, property, "Property", created);
 
-        Function<Reference, Referable> referableSupplier = mock(Function.class);
-        when(referableSupplier.apply(any())).thenReturn(property);
+        Function<Reference, Referable> referableSupplier = r -> property;
 
         CloudEventMapper mapper = getCloudEventMapper(referableSupplier);
 
@@ -133,8 +128,7 @@ public class DefaultCloudEventMapperTest extends AbstractCloudEventMapperTest {
 
         CloudEvent expected = expectedFrom(submodelId, property, "Property", updated);
 
-        Function<Reference, Referable> referableSupplier = mock(Function.class);
-        when(referableSupplier.apply(any())).thenReturn(property);
+        Function<Reference, Referable> referableSupplier = r -> property;
 
         CloudEventMapper mapper = getCloudEventMapper(true, referableSupplier);
 

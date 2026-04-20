@@ -12,30 +12,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.messagebus.cloudevents.mapper.impl;
+package de.fraunhofer.iosb.ilt.faaast.service.messagebus.cloudevents.mapper;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import de.fraunhofer.iosb.ilt.faaast.service.messagebus.cloudevents.mapper.CloudEventMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import io.cloudevents.CloudEvent;
 import io.cloudevents.core.builder.CloudEventBuilder;
 import io.cloudevents.jackson.JsonFormat;
 import java.net.URI;
-import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
 import org.eclipse.digitaltwin.aas4j.v3.model.HasSemantics;
-import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
 import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
-import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceTypes;
-import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey;
-import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.junit.Assert;
 
 
@@ -43,7 +38,7 @@ public abstract class AbstractCloudEventMapperTest {
     private final String eventTypePrefix = "my.prefix.test.";
     private final String callbackAddress = "https://localhost:12345/api/v3.0";
     private final String dataSchemaPrefix = "https://my-data-schema-prefix/path#";
-    protected final ObjectMapper objectMapper = new ObjectMapper()
+    protected final ObjectMapper mapper = new ObjectMapper()
             .enable(SerializationFeature.INDENT_OUTPUT)
             .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
             .setDefaultPropertyInclusion(JsonInclude.Include.NON_EMPTY)
@@ -71,7 +66,7 @@ public abstract class AbstractCloudEventMapperTest {
                 .withType(eventTypePrefix + eventTypeSuffix)
                 .withDataSchema(URI.create(dataSchemaPrefix + dataSchemaSuffix))
                 .withDataContentType("application/json")
-                .withData(objectMapper.writeValueAsBytes(referable));
+                .withData(mapper.writeValueAsBytes(referable));
 
         if (referable instanceof HasSemantics && ((HasSemantics) referable).getSemanticId() != null) {
             builder.withExtension("semanticid", ((HasSemantics) referable).getSemanticId().getKeys().get(0).getValue());
@@ -81,13 +76,8 @@ public abstract class AbstractCloudEventMapperTest {
     }
 
 
-    protected Reference asReference(String submodelId, Referable referable) {
-        return new DefaultReference.Builder()
-                .type(ReferenceTypes.MODEL_REFERENCE)
-                .keys(List.of(
-                        new DefaultKey.Builder().type(KeyTypes.SUBMODEL).value(submodelId).build(),
-                        new DefaultKey.Builder().type(ReferenceHelper.toKeyType(referable.getClass())).value(referable.getIdShort()).build()))
-                .build();
+    protected Reference asReference(String submodelId, SubmodelElement referable) {
+        return ReferenceBuilder.forSubmodel(submodelId, referable);
     }
 
 
