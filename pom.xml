@@ -50,6 +50,7 @@
         <module>assetconnection/mqtt</module>
         <module>assetconnection/opcua</module>
         <module>assetconnection/http</module>
+        <module>assetconnection/modbus</module>
         <module>dataformat/json</module>
         <module>starter</module>
         <module>submodeltemplate/asset-interfaces-mapping-configuration</module>
@@ -67,7 +68,7 @@
     <properties>
         <aas4j.version>1.0.5</aas4j.version>
         <awaitility.version>4.3.0</awaitility.version>
-        <bouncycastle.version>1.83</bouncycastle.version>
+        <bouncycastle.version>1.84</bouncycastle.version>
         <checkstyle.version>12.3.0</checkstyle.version>
         <classgraph.version>4.8.184</classgraph.version>
         <cloudevents.version>4.0.1</cloudevents.version>
@@ -80,10 +81,10 @@
         <container.image.tag>latest</container.image.tag>
         <de.flapdoodle.embed.version>4.24.0</de.flapdoodle.embed.version>
         <eclipse.jdt.version>4.32</eclipse.jdt.version>
-        <equalsverifier.version>4.4.1</equalsverifier.version>
+        <equalsverifier.version>4.5</equalsverifier.version>
         <glassfish.jaxb-runtime>4.0.5</glassfish.jaxb-runtime>
-        <guava.version>33.5.0-jre</guava.version>
-        <jackson-jq.version>1.6.0</jackson-jq.version>
+        <guava.version>33.6.0-jre</guava.version>
+        <jackson-jq.version>1.6.1</jackson-jq.version>
         <jackson.annotations.version>2.21</jackson.annotations.version>
         <jackson.databind.version>2.21.2</jackson.databind.version>
         <jackson.version>2.21.2</jackson.version>
@@ -92,7 +93,7 @@
         <janino.version>3.1.12</janino.version>
         <jaxb.api.version>2.3.1</jaxb.api.version>
         <jena.version>5.6.0</jena.version>
-        <jetty.version>12.1.7</jetty.version>
+        <jetty.version>12.1.8</jetty.version>
         <json-patch.version>1.13</json-patch.version>
         <json-smart.version>2.6.0</json-smart.version>
         <jsonassert.version>1.5.3</jsonassert.version>
@@ -109,13 +110,13 @@
         <maven.plugin.compiler.version>3.15.0</maven.plugin.compiler.version>
         <maven.plugin.dependency.version>3.10.0</maven.plugin.dependency.version>
         <maven.plugin.failsafe.version>3.5.5</maven.plugin.failsafe.version>
-        <maven.plugin.git.commit.id.version>9.1.0</maven.plugin.git.commit.id.version>
+        <maven.plugin.git.commit.id.version>10.0.0</maven.plugin.git.commit.id.version>
         <maven.plugin.gpg.version>3.2.8</maven.plugin.gpg.version>
         <maven.plugin.jacoco.version>0.8.14</maven.plugin.jacoco.version>
         <maven.plugin.jar.version>3.5.0</maven.plugin.jar.version>
         <maven.plugin.javadoc.version>3.12.0</maven.plugin.javadoc.version>
         <maven.plugin.license.version>2.0.0</maven.plugin.license.version>
-        <maven.plugin.owasp.version>12.2.0</maven.plugin.owasp.version>
+        <maven.plugin.owasp.version>12.2.1</maven.plugin.owasp.version>
         <maven.plugin.picocli.version>4.7.7</maven.plugin.picocli.version>
         <maven.plugin.proguard.version>2.7.0</maven.plugin.proguard.version>
         <maven.plugin.prosys.codegen.version>5.6.0-175</maven.plugin.prosys.codegen.version>
@@ -127,7 +128,7 @@
         <maven.plugin.surefire.version>3.5.5</maven.plugin.surefire.version>
         <milo.version>1.1.2</milo.version>
         <mockito.version>5.23.0</mockito.version>
-        <mongodb.version>5.6.4</mongodb.version>
+        <mongodb.version>5.6.5</mongodb.version>
         <moquette.version>0.18.3</moquette.version>
         <netty.version>4.2.12.Final</netty.version>
         <org.apache.httpcomponents.client5.version>5.6</org.apache.httpcomponents.client5.version>
@@ -137,9 +138,9 @@
         <picocli.version>4.7.7</picocli.version>
         <poi.ooxml.version>5.5.1</poi.ooxml.version>
         <proguard.core.version>9.3.2</proguard.core.version>
-        <proguard.version>7.9.0</proguard.version>
+        <proguard.version>7.9.1</proguard.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <prosys.sdk.version>5.6.0-221</prosys.sdk.version>
+        <prosys.sdk.version>5.6.2-227</prosys.sdk.version>
         <protobuf.version>4.34.1</protobuf.version>
         <rgxgen.version>3.1</rgxgen.version>
         <root.basedir>${project.basedir}</root.basedir>

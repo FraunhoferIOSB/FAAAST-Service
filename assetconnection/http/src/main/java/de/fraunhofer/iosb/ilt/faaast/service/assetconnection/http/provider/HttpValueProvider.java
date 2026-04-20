@@ -115,7 +115,7 @@ public class HttpValueProvider extends MultiFormatValueProvider<HttpValueProvide
             LOGGER.trace("Sending HTTP write request to asset (baseUrl: {}, path: {}, method: {}, headers: {})",
                     connectionConfig.getBaseUrl(),
                     config.getPath(),
-                    DEFAULT_READ_METHOD,
+                    DEFAULT_WRITE_METHOD,
                     headers);
             HttpResponse<String> response = HttpHelper.execute(
                     client,
@@ -131,7 +131,7 @@ public class HttpValueProvider extends MultiFormatValueProvider<HttpValueProvide
             LOGGER.trace("Response from asset (status code: {}, body{}, method: {}, headers: {})",
                     response.statusCode(),
                     response.body() != null ? response.body() : "[empty]",
-                    DEFAULT_READ_METHOD,
+                    DEFAULT_WRITE_METHOD,
                     headers);
             if (!HttpHelper.is2xxSuccessful(response)) {
                 throw new AssetConnectionException(String.format(BASE_ERROR_MESSAGE, ReferenceHelper.toString(reference)));

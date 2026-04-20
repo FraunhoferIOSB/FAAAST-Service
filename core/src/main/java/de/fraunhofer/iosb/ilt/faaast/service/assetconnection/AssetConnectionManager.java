@@ -26,8 +26,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationExcep
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.PatchSubmodelElementValueByPathRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ValueChangeEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
+import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.ReferenceCollector;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
@@ -37,22 +40,31 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.apache.commons.lang3.tuple.Pair;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
 import org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,10 +76,13 @@ import org.slf4j.LoggerFactory;
 public class AssetConnectionManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AssetConnectionManager.class);
+    private static final RejectedExecutionHandler DEFAULT_EXECUTOR_REJECTED_EXECUTION_POLICY = new ThreadPoolExecutor.CallerRunsPolicy();
     private final List<AssetConnection> connections;
     private final CoreConfig coreConfig;
     private final Service service;
-    private ExecutorService executorService;
+    private ThreadPoolExecutor executorConnect;
+    private ThreadPoolExecutor executorRead;
+    private ThreadPoolExecutor executorWrite;
     private LambdaAssetConnection lambdaAssetConnection;
     private volatile boolean active;
     private boolean started;
@@ -261,13 +276,9 @@ public class AssetConnectionManager {
      */
     public void stop() {
         active = false;
-        try {
-            executorService.awaitTermination(coreConfig.getAssetConnectionRetryInterval() * 2, TimeUnit.MILLISECONDS);
-        }
-        catch (InterruptedException ex) {
-            executorService.shutdownNow();
-            Thread.currentThread().interrupt();
-        }
+        gracefullyShutdownExecutor(executorRead, 1000, TimeUnit.MILLISECONDS);
+        gracefullyShutdownExecutor(executorWrite, 1000, TimeUnit.MILLISECONDS);
+        gracefullyShutdownExecutor(executorConnect, coreConfig.getAssetConnectionRetryInterval() * 2, TimeUnit.MILLISECONDS);
         lambdaAssetConnection.stop();
         connections.stream()
                 .filter(AssetConnection::isConnected)
@@ -282,6 +293,76 @@ public class AssetConnectionManager {
                     }
 
                 });
+    }
+
+
+    /**
+     * Checks if there a pending asset connection reads.
+     *
+     * @return true if there are pending reads, otherwise false
+     */
+    public boolean hasPendingReads() {
+        return executorRead.getActiveCount() > 0 || !executorRead.getQueue().isEmpty();
+    }
+
+
+    /**
+     * Checks if there a pending asset connection writes.
+     *
+     * @return true if there are pending writes, otherwise false
+     */
+    public boolean hasPendingWrites() {
+        return executorWrite.getActiveCount() > 0 || !executorWrite.getQueue().isEmpty();
+    }
+
+
+    /**
+     * Checks {@code element} recursively for any value providers present and for each reads the latest value from the
+     * asset.
+     * If the value is different from the current value, the value is updated (i.e. content of {@code root} modified) and an
+     * ElementChangeEvent is fired if {@code publishOnMessageBus} is true.
+     *
+     * @param reference the reference to {@code element}
+     * @param element the root element
+     * @param publishOnMessageBus if ElementChangeEvents should be fired or not
+     */
+    public void syncValueProvidersOnRead(Reference reference, Object element, boolean publishOnMessageBus) {
+        if (Objects.isNull(element)) {
+            return;
+        }
+        if (element instanceof DataElement dataElement && hasValueProvider(reference)) {
+            syncElementOnRead(reference, dataElement, false);
+        }
+        else {
+            Map<Reference, DataElement> children = findSynchronizableElements(reference, element);
+            Map<Reference, Future<?>> tasks = children.entrySet().stream()
+                    .collect(Collectors.toMap(
+                            Entry::getKey,
+                            x -> executorRead.submit(() -> syncElementOnRead(x.getKey(), x.getValue(), publishOnMessageBus))));
+            waitForTasks(tasks, coreConfig.getAssetConnectionReadTimeout(), "read from asset connection");
+        }
+    }
+
+
+    /**
+     * Checks {@code root} recursively for any value providers present and for each, if the value has changed, writes the
+     * latest value to the asset and fires an ElementChangeEvent if {@code publishOnMessageBus} is true.
+     *
+     * @param reference the reference to the root object
+     * @param oldElement the old element
+     * @param newElement the new element
+     * @param publishOnMessageBus if ElementChangeEvents should be fired or not
+     */
+    public void syncValueProvidersOnWrite(Reference reference, Object oldElement, Object newElement, boolean publishOnMessageBus) {
+        if (newElement instanceof DataElement dataElement && hasValueProvider(reference)) {
+            syncElementOnWrite(reference, Pair.of(oldElement instanceof DataElement temp ? temp : null, dataElement), false);
+        }
+        else {
+            Map<Reference, DataElement> oldChildren = findSynchronizableElements(reference, oldElement);
+            Map<Reference, DataElement> newChildren = findSynchronizableElements(reference, newElement);
+            newChildren.entrySet().stream()
+                    .forEach(x -> syncElementOnWrite(x.getKey(), Pair.of(oldChildren.get(x.getKey()), x.getValue()), publishOnMessageBus));
+        }
     }
 
 
@@ -355,7 +436,9 @@ public class AssetConnectionManager {
      *             fails
      */
     public void setValue(Reference reference, ElementValue value) throws AssetConnectionException {
-        if (hasValueProvider(reference) && ElementValueHelper.isValidDataElementValue(value)) {
+        if (hasValueProvider(reference)
+                && getValueProvider(reference).getReadWriteMode().supportsWrite()
+                && ElementValueHelper.isValidDataElementValue(value)) {
             try {
                 getValueProvider(reference).setValue((DataElementValue) value);
             }
@@ -377,7 +460,7 @@ public class AssetConnectionManager {
      *             reading fails
      */
     public Optional<DataElementValue> readValue(Reference reference) throws AssetConnectionException {
-        if (hasValueProvider(reference)) {
+        if (hasValueProvider(reference) && getValueProvider(reference).getReadWriteMode().supportsRead()) {
             return Optional.ofNullable(getValueProvider(reference).getValue());
         }
         return Optional.empty();
@@ -505,6 +588,22 @@ public class AssetConnectionManager {
 
 
     /**
+     * Returns whether the there is a value provider defined for the element referenced by the reference either directly or
+     * recursively or not.
+     *
+     * @param reference AAS element
+     * @return true if there is a value provider defined for the element referenced by the reference either directly or
+     *         recursively, otherwise false
+     */
+    public boolean hasValueProviderRecursive(Reference reference) {
+        return lambdaAssetConnection.hasValueProviderRecursive(reference)
+                || connections.stream()
+                        .flatMap(x -> (Stream<Reference>) x.getValueProviders().keySet().stream())
+                        .anyMatch(x -> ReferenceHelper.startsWith(x, reference));
+    }
+
+
+    /**
      * Returns if all connections are connected.
      *
      * @return true if all connections are connected, false otherwise
@@ -516,15 +615,9 @@ public class AssetConnectionManager {
 
     private void init() {
         lambdaAssetConnection = new LambdaAssetConnection();
-        ThreadFactory threadFactory = new ThreadFactory() {
-            AtomicLong count = new AtomicLong(0);
-
-            @Override
-            public Thread newThread(Runnable target) {
-                return new Thread(target, String.format("asset connection establisher - %d", count.getAndIncrement()));
-            }
-        };
-        executorService = Executors.newCachedThreadPool(threadFactory);
+        executorConnect = newExecutor(0, Integer.MAX_VALUE, "asset connection establish");
+        executorRead = newExecutor(0, coreConfig.getAssetConnectionReadMaxThreadPoolSize(), "asset connection read");
+        executorWrite = newExecutor(0, coreConfig.getAssetConnectionWriteMaxThreadPoolSize(), "asset connection write");
     }
 
 
@@ -1000,7 +1093,7 @@ public class AssetConnectionManager {
 
 
     private void setupConnectionAsync(AssetConnection connection) {
-        executorService.execute(() -> {
+        executorConnect.execute(() -> {
             tryConnectingUntilSuccess(connection);
             setupSubscriptions(connection);
         });
@@ -1067,6 +1160,137 @@ public class AssetConnectionManager {
                 .filter(Objects::nonNull)
                 .map(AssetConnectionConfig.class::cast)
                 .toList());
+    }
+
+
+    private Map<Reference, DataElement> findSynchronizableElements(Reference rootReference, Object root) {
+        return ReferenceCollector.collect(root, rootReference).entrySet().stream()
+                .filter(x -> x.getValue() instanceof DataElement)
+                .collect(Collectors.toMap(
+                        Entry::getKey,
+                        x -> (DataElement) x.getValue()));
+    }
+
+
+    private void gracefullyShutdownExecutor(ExecutorService executor, long timeout, TimeUnit unit) {
+        try {
+            executor.shutdown();
+            executor.awaitTermination(timeout, unit);
+        }
+        catch (Exception e) {
+            executor.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
+    }
+
+
+    private void syncElementOnRead(Reference reference, SubmodelElement element, boolean publishOnMessageBus) {
+        try {
+            Optional<DataElementValue> newValue = readValue(reference);
+            if (newValue.isPresent()) {
+                ElementValue oldValue = ElementValueMapper.toValue(element);
+                if (!Objects.equals(oldValue, newValue.get())) {
+                    ElementValueMapper.setValue(element, newValue.get());
+                    service.getPersistence().update(reference, element);
+                    if (publishOnMessageBus) {
+                        service.getMessageBus().publish(ValueChangeEventMessage.builder()
+                                .element(reference)
+                                .oldValue(oldValue)
+                                .newValue(newValue.get())
+                                .build());
+                    }
+                }
+            }
+        }
+        catch (Exception e) {
+            LOGGER.warn("failed to read from value provider (reference: {}, message: {})",
+                    ReferenceHelper.asString(reference),
+                    e.getMessage(),
+                    e);
+        }
+    }
+
+
+    private void syncElementOnWrite(Reference reference, Pair<DataElement, DataElement> values, boolean publishOnMessageBus) {
+        try {
+            ElementValue oldValue = Objects.nonNull(values.getKey())
+                    ? ElementValueMapper.toValue(values.getKey())
+                    : null;
+            ElementValue newValue = Objects.nonNull(values.getValue())
+                    ? ElementValueMapper.toValue(values.getValue())
+                    : null;
+            // Potential feature: check against latest value from asset vs current value in persistence?
+            // --> will be even slower as it doubles to calls to assets
+            if (Objects.isNull(oldValue) || !Objects.equals(oldValue, newValue)) {
+                setValue(reference, newValue);
+                if (publishOnMessageBus) {
+                    service.getMessageBus().publish(ValueChangeEventMessage.builder()
+                            .element(reference)
+                            .oldValue(oldValue)
+                            .newValue(newValue)
+                            .build());
+                }
+            }
+        }
+        catch (Exception e) {
+            LOGGER.warn("failed to write to value provider (reference: {}, message: {})",
+                    ReferenceHelper.asString(reference),
+                    e.getMessage(),
+                    e);
+        }
+    }
+
+
+    private static ThreadPoolExecutor newExecutor(int corePoolSize, int maxPoolSize, String name) {
+        ThreadPoolExecutor result = new ThreadPoolExecutor(
+                corePoolSize,
+                maxPoolSize,
+                60L,
+                TimeUnit.SECONDS,
+                new SynchronousQueue<>(),
+                new ThreadFactory() {
+                    AtomicLong count = new AtomicLong(0);
+
+                    @Override
+                    public Thread newThread(Runnable target) {
+                        return new Thread(target, name + count.getAndIncrement());
+                    }
+                });
+        result.setRejectedExecutionHandler((Runnable runnable, ThreadPoolExecutor executor) -> {
+            LOGGER.warn("{} - async task rejected because queue of execution handler is full. Try to increase the maxa thread pool size in the configuration.", name);
+            DEFAULT_EXECUTOR_REJECTED_EXECUTION_POLICY.rejectedExecution(runnable, executor);
+        });
+        return result;
+    }
+
+
+    private static void waitForTasks(Map<Reference, Future<?>> tasks, long timeout, String taskDescription) {
+        long start = System.currentTimeMillis();
+        boolean allDone = true;
+        for (var task: tasks.entrySet()) {
+            try {
+                long elapsed = System.currentTimeMillis() - start;
+                long remaining = timeout - elapsed;
+                if (remaining <= 0) {
+                    break;
+                }
+                task.getValue().get(remaining, TimeUnit.MILLISECONDS);
+            }
+            catch (TimeoutException e) {
+                LOGGER.warn("{} failed (reason: TimeoutException, reference: {})", taskDescription, ReferenceHelper.asString(task.getKey()), e);
+                allDone = false;
+            }
+            catch (InterruptedException | ExecutionException e) {
+                LOGGER.warn("{} failed (reason: InterreuptedException, reference: {})", taskDescription, ReferenceHelper.asString(task.getKey()), e);
+                Thread.currentThread().interrupt();
+                allDone = false;
+            }
+        }
+        if (!allDone) {
+            tasks.entrySet().stream()
+                    .filter(x -> !x.getValue().isDone())
+                    .forEach(x -> LOGGER.warn("{} failed (reason: maximum time elapsed, reference: {})", taskDescription, ReferenceHelper.asString(x.getKey())));
+        }
     }
 
     private static class ChangeSet {

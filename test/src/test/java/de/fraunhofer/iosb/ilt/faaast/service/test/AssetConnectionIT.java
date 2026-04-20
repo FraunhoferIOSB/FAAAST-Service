@@ -15,6 +15,19 @@
 package de.fraunhofer.iosb.ilt.faaast.service.test;
 
 import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper.toHttpStatusCode;
+import static de.fraunhofer.iosb.ilt.faaast.service.test.model.AssetConnectionModelSimple.ENVIRONMENT;
+import static de.fraunhofer.iosb.ilt.faaast.service.test.model.AssetConnectionModelSimple.INITIAL_VALUE;
+import static de.fraunhofer.iosb.ilt.faaast.service.test.model.AssetConnectionModelSimple.NODE_ID_SOURCE_1;
+import static de.fraunhofer.iosb.ilt.faaast.service.test.model.AssetConnectionModelSimple.NODE_ID_SOURCE_2;
+import static de.fraunhofer.iosb.ilt.faaast.service.test.model.AssetConnectionModelSimple.NODE_ID_SOURCE_3;
+import static de.fraunhofer.iosb.ilt.faaast.service.test.model.AssetConnectionModelSimple.REFERENCE_PROPERTY_1;
+import static de.fraunhofer.iosb.ilt.faaast.service.test.model.AssetConnectionModelSimple.REFERENCE_PROPERTY_2;
+import static de.fraunhofer.iosb.ilt.faaast.service.test.model.AssetConnectionModelSimple.REFERENCE_PROPERTY_3;
+import static de.fraunhofer.iosb.ilt.faaast.service.test.model.AssetConnectionModelSimple.REFERENCE_PROPERTY_4;
+import static de.fraunhofer.iosb.ilt.faaast.service.test.model.AssetConnectionModelSimple.REFERENCE_PROPERTY_SOURCE_1;
+import static de.fraunhofer.iosb.ilt.faaast.service.test.model.AssetConnectionModelSimple.REFERENCE_PROPERTY_SOURCE_2;
+import static de.fraunhofer.iosb.ilt.faaast.service.test.model.AssetConnectionModelSimple.REFERENCE_PROPERTY_SOURCE_3;
+import static de.fraunhofer.iosb.ilt.faaast.service.test.model.AssetConnectionModelSimple.REFERENCE_PROPERTY_SOURCE_4;
 import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -39,12 +52,15 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializati
 import de.fraunhofer.iosb.ilt.faaast.service.filestorage.memory.FileStorageInMemoryConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.internal.MessageBusInternalConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.model.SubmodelElementIdentifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.PatchSubmodelElementValueByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetSubmodelElementByPathRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetSubmodelRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.AbstractResponseWithPayload;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PatchSubmodelElementValueByPathResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetSubmodelElementByPathResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
@@ -54,12 +70,15 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatExceptio
 import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.AssetAdministrationShellElementWalker;
+import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.DefaultAssetAdministrationShellElementVisitor;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemoryConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.test.model.AssetConnectionModelRecursive;
 import de.fraunhofer.iosb.ilt.faaast.service.test.util.ApiPaths;
 import de.fraunhofer.iosb.ilt.faaast.service.test.util.HttpHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.PortHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.io.IOException;
 import java.net.URI;
@@ -69,19 +88,16 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
-import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
-import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
+import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
 import org.eclipse.digitaltwin.aas4j.v3.model.Property;
+import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
-import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
-import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetAdministrationShell;
-import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEnvironment;
-import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty;
-import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodel;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
 import org.eclipse.milo.opcua.stack.core.UaException;
 import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
@@ -96,87 +112,6 @@ import org.slf4j.LoggerFactory;
 public class AssetConnectionIT extends AbstractIntegrationTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AssetConnectionIT.class);
-    private static final String initialValue = "initial value";
-    private static final Property propertySource1 = new DefaultProperty.Builder()
-            .idShort("source1")
-            .value(initialValue)
-            .valueType(DataTypeDefXsd.STRING)
-            .build();
-    private static final Property propertySource2 = new DefaultProperty.Builder()
-            .idShort("source2")
-            .value(initialValue)
-            .valueType(DataTypeDefXsd.STRING)
-            .build();
-    private static final Property propertySource3 = new DefaultProperty.Builder()
-            .idShort("source3")
-            .value(initialValue)
-            .valueType(DataTypeDefXsd.STRING)
-            .build();
-    private static final Property propertySource4 = new DefaultProperty.Builder()
-            .idShort("source4")
-            .value(initialValue)
-            .valueType(DataTypeDefXsd.STRING)
-            .build();
-    private static final Submodel submodelSource = new DefaultSubmodel.Builder()
-            .idShort("SubmodelSource")
-            .id("http://example.org/submodel/source")
-            .submodelElements(propertySource1)
-            .submodelElements(propertySource2)
-            .submodelElements(propertySource3)
-            .submodelElements(propertySource4)
-            .build();
-    private static final Property propertyTarget1 = new DefaultProperty.Builder()
-            .idShort("target1")
-            .value(initialValue)
-            .valueType(DataTypeDefXsd.STRING)
-            .build();
-    private static final Property propertyTarget2 = new DefaultProperty.Builder()
-            .idShort("target2")
-            .value(initialValue)
-            .valueType(DataTypeDefXsd.STRING)
-            .build();
-    private static final Property propertyTarget3 = new DefaultProperty.Builder()
-            .idShort("target3")
-            .value(initialValue)
-            .valueType(DataTypeDefXsd.STRING)
-            .build();
-    private static final Property propertyTarget4 = new DefaultProperty.Builder()
-            .idShort("target4")
-            .value(initialValue)
-            .valueType(DataTypeDefXsd.STRING)
-            .build();
-    private static final Submodel submodelTarget = new DefaultSubmodel.Builder()
-            .idShort("SubmodelTarget")
-            .id("http://example.org/submodel/target")
-            .submodelElements(propertyTarget1)
-            .submodelElements(propertyTarget2)
-            .submodelElements(propertyTarget3)
-            .submodelElements(propertyTarget4)
-            .build();
-    private static final Reference referenceSubmodelSource = ReferenceBuilder.forSubmodel(submodelSource);
-    private static final Reference referenceSubmodelTarget = ReferenceBuilder.forSubmodel(submodelTarget);
-    private static final Reference referencePropertySource1 = ReferenceBuilder.forSubmodel(submodelSource, propertySource1);
-    private static final Reference referencePropertySource2 = ReferenceBuilder.forSubmodel(submodelSource, propertySource2);
-    private static final Reference referencePropertySource3 = ReferenceBuilder.forSubmodel(submodelSource, propertySource3);
-    private static final Reference referencePropertySource4 = ReferenceBuilder.forSubmodel(submodelSource, propertySource4);
-    private static final Reference referencePropertyTarget1 = ReferenceBuilder.forSubmodel(submodelTarget, propertyTarget1);
-    private static final Reference referencePropertyTarget2 = ReferenceBuilder.forSubmodel(submodelTarget, propertyTarget2);
-    private static final Reference referencePropertyTarget3 = ReferenceBuilder.forSubmodel(submodelTarget, propertyTarget3);
-    private static final Reference referencePropertyTarget4 = ReferenceBuilder.forSubmodel(submodelTarget, propertyTarget4);
-    private static final Environment environment = new DefaultEnvironment.Builder()
-            .assetAdministrationShells(new DefaultAssetAdministrationShell.Builder()
-                    .idShort("AAS1")
-                    .id("https://example.org/aas/1")
-                    .submodels(referenceSubmodelSource)
-                    .submodels(referenceSubmodelTarget)
-                    .build())
-            .submodels(submodelSource)
-            .submodels(submodelTarget)
-            .build();
-    private static final String nodeIdSource1 = "ns=3;s=1.Value";
-    private static final String nodeIdSource2 = "ns=3;s=2.Value";
-    private static final String nodeIdSource3 = "ns=3;s=3.Value";
-    private static final String nodeIdSource4 = "ns=3;s=4.Value";
 
     private static Service service;
     private static Path securityBaseDir;
@@ -198,7 +133,7 @@ public class AssetConnectionIT extends AbstractIntegrationTest {
         int portHttp = PortHelper.findFreePort();
         int portOpcUa = PortHelper.findFreePort();
         ServiceConfig config = serviceConfig(portHttp, portOpcUa);
-        config.getAssetConnections().add(connectionOpcUa(portOpcUa, referencePropertyTarget1, "invalid node id"));
+        config.getAssetConnections().add(connectionOpcUa(portOpcUa, REFERENCE_PROPERTY_1, "invalid node id"));
         service = new Service(config);
         service.start();
         assertServiceAvailabilityHttp(portHttp);
@@ -210,13 +145,13 @@ public class AssetConnectionIT extends AbstractIntegrationTest {
         int portHttp = PortHelper.findFreePort();
         int portOpcUa = PortHelper.findFreePort();
         ServiceConfig config = serviceConfig(portHttp, portOpcUa);
-        config.getAssetConnections().add(connectionOpcUa(portOpcUa, referencePropertyTarget1, nodeIdSource1));
+        config.getAssetConnections().add(connectionOpcUa(portOpcUa, REFERENCE_PROPERTY_1, NODE_ID_SOURCE_1));
         service = new Service(config);
         service.start();
         String newValue = "new value";
-        setValue(referencePropertySource1, newValue);
+        setValue(REFERENCE_PROPERTY_SOURCE_1, newValue);
         awaitAssetConnected(service);
-        assertValue(referencePropertyTarget1, newValue);
+        assertValue(REFERENCE_PROPERTY_1, newValue);
     }
 
 
@@ -227,14 +162,13 @@ public class AssetConnectionIT extends AbstractIntegrationTest {
         service = new Service(serviceConfig(portHttp, portOpcUa));
         service.start();
         assertServiceAvailabilityHttp(portHttp);
-        assertValue(referencePropertyTarget1, initialValue);
-        List<AssetConnectionConfig> newConnections = List.of(
-                connectionOpcUa(portOpcUa, referencePropertyTarget1, nodeIdSource1));
+        assertValue(REFERENCE_PROPERTY_1, INITIAL_VALUE);
+        List<AssetConnectionConfig> newConnections = List.of(connectionOpcUa(portOpcUa, REFERENCE_PROPERTY_1, NODE_ID_SOURCE_1));
         service.getAssetConnectionManager().updateConnections(null, newConnections);
         awaitAssetConnected(service);
         String newValue = "new value";
-        setValue(referencePropertySource1, newValue);
-        assertValue(referencePropertyTarget1, newValue);
+        setValue(REFERENCE_PROPERTY_SOURCE_1, newValue);
+        assertValue(REFERENCE_PROPERTY_1, newValue);
     }
 
 
@@ -245,86 +179,179 @@ public class AssetConnectionIT extends AbstractIntegrationTest {
         int portHttpAsset = PortHelper.findFreePort();
         int portOpcUaAsset = PortHelper.findFreePort();
         ServiceConfig config = serviceConfig(portHttp, portOpcUa);
-        config.getAssetConnections().add(
-                OpcUaAssetConnectionConfig.builder()
-                        .host("opc.tcp://localhost:" + portOpcUaAsset)
-                        .securityBaseDir(securityBaseDir)
-                        .valueProvider(referencePropertyTarget1,
-                                OpcUaValueProviderConfig.builder()
-                                        .nodeId(nodeIdSource1)
-                                        .build())
-                        .valueProvider(referencePropertyTarget2,
-                                OpcUaValueProviderConfig.builder()
-                                        .nodeId(nodeIdSource2)
-                                        .build())
-                        .build());
-        config.getAssetConnections().add(
-                OpcUaAssetConnectionConfig.builder()
-                        .host("opc.tcp://localhost:" + portOpcUaAsset)
-                        .securityBaseDir(securityBaseDir)
-                        .valueProvider(referencePropertyTarget3,
-                                OpcUaValueProviderConfig.builder()
-                                        .nodeId(nodeIdSource3)
-                                        .build())
-                        .build());
+        config.getAssetConnections().add(OpcUaAssetConnectionConfig.builder()
+                .host(getOpcUaHost(portOpcUaAsset))
+                .securityBaseDir(securityBaseDir)
+                .valueProvider(REFERENCE_PROPERTY_1,
+                        OpcUaValueProviderConfig.builder()
+                                .nodeId(NODE_ID_SOURCE_1)
+                                .build())
+                .valueProvider(REFERENCE_PROPERTY_2,
+                        OpcUaValueProviderConfig.builder()
+                                .nodeId(NODE_ID_SOURCE_2)
+                                .build())
+                .build());
+        config.getAssetConnections().add(OpcUaAssetConnectionConfig.builder()
+                .host(getOpcUaHost(portOpcUaAsset))
+                .securityBaseDir(securityBaseDir)
+                .valueProvider(REFERENCE_PROPERTY_3,
+                        OpcUaValueProviderConfig.builder()
+                                .nodeId(NODE_ID_SOURCE_3)
+                                .build())
+                .build());
         Service serviceAsset = new Service(serviceConfig(portHttpAsset, portOpcUaAsset));
         serviceAsset.start();
         assertServiceAvailabilityOpcUa(portOpcUaAsset);
         assertServiceAvailabilityHttp(portHttpAsset);
         String newValue1 = "new value 1";
-        setValue(serviceAsset, referencePropertySource1, newValue1);
-        setValue(serviceAsset, referencePropertySource2, newValue1);
-        setValue(serviceAsset, referencePropertySource3, newValue1);
-        setValue(serviceAsset, referencePropertySource4, newValue1);
+        setValue(serviceAsset, REFERENCE_PROPERTY_SOURCE_1, newValue1);
+        setValue(serviceAsset, REFERENCE_PROPERTY_SOURCE_2, newValue1);
+        setValue(serviceAsset, REFERENCE_PROPERTY_SOURCE_3, newValue1);
+        setValue(serviceAsset, REFERENCE_PROPERTY_SOURCE_4, newValue1);
 
         service = new Service(config);
         service.start();
         awaitAssetConnected(service);
-        assertValue(referencePropertyTarget1, newValue1);
-        assertValue(referencePropertyTarget2, newValue1);
-        assertValue(referencePropertyTarget3, newValue1);
-        assertValue(referencePropertyTarget4, initialValue);
+        assertValue(REFERENCE_PROPERTY_1, newValue1);
+        assertValue(REFERENCE_PROPERTY_2, newValue1);
+        assertValue(REFERENCE_PROPERTY_3, newValue1);
+        assertValue(REFERENCE_PROPERTY_4, INITIAL_VALUE);
 
-        List<AssetConnectionConfig> oldConfigs = List.of(
-                OpcUaAssetConnectionConfig.builder()
-                        .host("opc.tcp://localhost:" + portOpcUaAsset)
-                        .securityBaseDir(securityBaseDir)
-                        .valueProvider(referencePropertyTarget1,
-                                OpcUaValueProviderConfig.builder()
-                                        .nodeId(nodeIdSource1)
-                                        .build())
-                        .valueProvider(referencePropertyTarget2,
-                                OpcUaValueProviderConfig.builder()
-                                        .nodeId(nodeIdSource2)
-                                        .build())
-                        .build());
-        List<AssetConnectionConfig> newConfigs = List.of(
-                OpcUaAssetConnectionConfig.builder()
-                        .host("opc.tcp://localhost:" + portOpcUaAsset)
-                        .securityBaseDir(securityBaseDir)
-                        .valueProvider(referencePropertyTarget1,
-                                OpcUaValueProviderConfig.builder()
-                                        .nodeId(nodeIdSource1)
-                                        .build())
-                        .valueProvider(referencePropertyTarget3,
-                                OpcUaValueProviderConfig.builder()
-                                        .nodeId(nodeIdSource3)
-                                        .build())
-                        .build(),
-                connectionHttp(portHttpAsset, referencePropertyTarget4, referencePropertySource4));
+        List<AssetConnectionConfig> oldConfigs = List.of(OpcUaAssetConnectionConfig.builder()
+                .host(getOpcUaHost(portOpcUaAsset))
+                .securityBaseDir(securityBaseDir)
+                .valueProvider(REFERENCE_PROPERTY_1,
+                        OpcUaValueProviderConfig.builder()
+                                .nodeId(NODE_ID_SOURCE_1)
+                                .build())
+                .valueProvider(REFERENCE_PROPERTY_2,
+                        OpcUaValueProviderConfig.builder()
+                                .nodeId(NODE_ID_SOURCE_2)
+                                .build())
+                .build());
+        List<AssetConnectionConfig> newConfigs = List.of(OpcUaAssetConnectionConfig.builder()
+                .host(getOpcUaHost(portOpcUaAsset))
+                .securityBaseDir(securityBaseDir)
+                .valueProvider(REFERENCE_PROPERTY_1,
+                        OpcUaValueProviderConfig.builder()
+                                .nodeId(NODE_ID_SOURCE_1)
+                                .build())
+                .valueProvider(REFERENCE_PROPERTY_3,
+                        OpcUaValueProviderConfig.builder()
+                                .nodeId(NODE_ID_SOURCE_3)
+                                .build())
+                .build(),
+                connectionHttp(portHttpAsset, REFERENCE_PROPERTY_4, REFERENCE_PROPERTY_SOURCE_4));
         service.getAssetConnectionManager().updateConnections(oldConfigs, newConfigs);
         awaitAssetConnected(service);
         String newValue2 = "new value 2";
-        setValue(serviceAsset, referencePropertySource1, newValue2);
-        setValue(serviceAsset, referencePropertySource2, newValue2);
-        setValue(serviceAsset, referencePropertySource3, newValue2);
-        setValue(serviceAsset, referencePropertySource4, newValue2);
+        setValue(serviceAsset, REFERENCE_PROPERTY_SOURCE_1, newValue2);
+        setValue(serviceAsset, REFERENCE_PROPERTY_SOURCE_2, newValue2);
+        setValue(serviceAsset, REFERENCE_PROPERTY_SOURCE_3, newValue2);
+        setValue(serviceAsset, REFERENCE_PROPERTY_SOURCE_4, newValue2);
 
-        assertValue(referencePropertyTarget1, newValue2);
-        assertValue(referencePropertyTarget2, newValue1);
-        assertValue(referencePropertyTarget3, newValue2);
-        assertValue(referencePropertyTarget4, newValue2);
+        assertValue(REFERENCE_PROPERTY_1, newValue2);
+        assertValue(REFERENCE_PROPERTY_2, newValue1);
+        assertValue(REFERENCE_PROPERTY_3, newValue2);
+        assertValue(REFERENCE_PROPERTY_4, newValue2);
         serviceAsset.stop();
+        service.stop();
+    }
+
+
+    private void assertPropertyValuesRecursive(Reference reference, String expectedValue) throws URISyntaxException {
+        getPropertiesRecursive(reference).forEach(x -> assertEquals(
+                String.format("Property '%s' does not have expected value", x.getIdShort()),
+                expectedValue,
+                x.getValue()));
+    }
+
+
+    private List<Property> getPropertiesRecursive(Reference reference) throws URISyntaxException {
+        Referable element;
+        Request request = ReferenceHelper.getEffectiveKeyType(reference) == KeyTypes.SUBMODEL
+                ? GetSubmodelRequest.builder()
+                        .submodelId(SubmodelElementIdentifier.fromReference(reference).getSubmodelId())
+                        .build()
+                : GetSubmodelElementByPathRequest.builder()
+                        .submodelId(SubmodelElementIdentifier.fromReference(reference).getSubmodelId())
+                        .path(SubmodelElementIdentifier.fromReference(reference).getIdShortPath().toString())
+                        .build();
+        AbstractResponseWithPayload<? extends Referable> response = (AbstractResponseWithPayload<? extends Referable>) service.execute(request);
+        if (!response.getStatusCode().isSuccess()) {
+            throw new RuntimeException("failed to get value for reference " + ReferenceHelper.asString(reference));
+        }
+        element = response.getPayload();
+        final List<Property> result = new ArrayList<>();
+        AssetAdministrationShellElementWalker.builder()
+                .visitor(new DefaultAssetAdministrationShellElementVisitor() {
+                    @Override
+                    public void visit(Property property) {
+                        result.add(property);
+                    }
+                })
+                .build()
+                .walk(element);
+        return result;
+    }
+
+
+    @Test
+    public void testAssetConnectionUpdateRuntime_readValueProvidersRecursive() throws Exception {
+        int portHttp = PortHelper.findFreePort();
+        ServiceConfig config = ServiceConfig.builder()
+                .core(CoreConfig.DEFAULT)
+                .persistence(PersistenceInMemoryConfig.builder()
+                        .initialModel(DeepCopyHelper.deepCopy(ENVIRONMENT))
+                        .build())
+                .fileStorage(new FileStorageInMemoryConfig())
+                .endpoint(HttpEndpointConfig.builder()
+                        .port(portHttp)
+                        .certificate(CertificateConfig.builder()
+                                .keyStorePath(httpEndpointKeyStoreFile)
+                                .keyStoreType(HTTP_ENDPOINT_KEYSTORE_TYPE)
+                                .keyStorePassword(HTTP_ENDPOINT_KEYSTORE_PASSWORD)
+                                .build())
+                        .build())
+                .messageBus(MessageBusInternalConfig.builder()
+                        .build())
+                .build();
+        config.getPersistence().setInitialModel(DeepCopyHelper.deepCopy(AssetConnectionModelRecursive.ENVIRONMENT));
+        final HttpAssetConnectionConfig assetConnectionConfig = HttpAssetConnectionConfig.builder()
+                .baseUrl("https://localhost:" + portHttp)
+                .trustedCertificates(CertificateConfig.builder()
+                        .keyStorePath(httpEndpointKeyStoreFile)
+                        .keyStoreType(HTTP_ENDPOINT_KEYSTORE_TYPE)
+                        .keyStorePassword(HTTP_ENDPOINT_KEYSTORE_PASSWORD)
+                        .build())
+                .valueProviders(
+                        AssetConnectionModelRecursive.PROPERTY_REFERENCES.stream()
+                                .collect(Collectors.toMap(
+                                        x -> x,
+                                        x -> HttpValueProviderConfig.builder()
+                                                .format("JSON")
+                                                .path(String.format("https://localhost:%s/api/v3.0/submodels/%s/submodel-elements/%s/$value",
+                                                        portHttp,
+                                                        EncodingHelper.base64UrlEncode(AssetConnectionModelRecursive.SUBMODEL_SOURCE.getId()),
+                                                        EncodingHelper.urlEncode(AssetConnectionModelRecursive.PROPERTY_SOURCE.getIdShort())))
+                                                .query("$." + AssetConnectionModelRecursive.PROPERTY_SOURCE.getIdShort())
+                                                .build())))
+                .build();
+        config.getAssetConnections().add(assetConnectionConfig);
+
+        service = new Service(config);
+        service.start();
+        awaitAssetConnected(service);
+        assertPropertyValuesRecursive(AssetConnectionModelRecursive.REFERENCE_SUBMODEL, AssetConnectionModelRecursive.INITIAL_VALUE);
+        int count = 1;
+        for (var containerReference: AssetConnectionModelRecursive.CONTAINER_REFERENCES) {
+            String newValue = "newValue" + count;
+            setValue(AssetConnectionModelRecursive.REFERENCE_PROPERTY_SOURCE, newValue);
+            await().atMost(10000, TimeUnit.MILLISECONDS)
+                    .until(() -> !service.getAssetConnectionManager().hasPendingWrites());
+            assertPropertyValuesRecursive(containerReference, newValue);
+            count++;
+        }
         service.stop();
     }
 
@@ -336,25 +363,30 @@ public class AssetConnectionIT extends AbstractIntegrationTest {
         int portHttpAsset = PortHelper.findFreePort();
         int portOpcUaAsset = PortHelper.findFreePort();
         ServiceConfig config = serviceConfig(portHttp, portOpcUa);
-        config.getAssetConnections().add(connectionOpcUa(portOpcUaAsset, referencePropertyTarget1, nodeIdSource1));
+        config.getAssetConnections().add(connectionOpcUa(portOpcUaAsset, REFERENCE_PROPERTY_1, NODE_ID_SOURCE_1));
         service = new Service(config);
         service.start();
         assertServiceAvailabilityHttp(portHttp);
-        assertValue(referencePropertyTarget1, initialValue);
+        assertValue(REFERENCE_PROPERTY_1, INITIAL_VALUE);
         Service serviceAsset = new Service(serviceConfig(portHttpAsset, portOpcUaAsset));
         serviceAsset.start();
         assertServiceAvailabilityOpcUa(portOpcUaAsset);
         awaitAssetConnected(service);
         String newValue = "new value";
-        setValue(serviceAsset, referencePropertySource1, newValue);
-        assertValue(referencePropertyTarget1, newValue);
+        setValue(serviceAsset, REFERENCE_PROPERTY_SOURCE_1, newValue);
+        assertValue(REFERENCE_PROPERTY_1, newValue);
         serviceAsset.stop();
+    }
+
+
+    private static String getOpcUaHost(int port) {
+        return "opc.tcp://localhost:" + port;
     }
 
 
     private AssetConnectionConfig connectionOpcUa(int port, Reference reference, String nodeId) throws IOException {
         return OpcUaAssetConnectionConfig.builder()
-                .host("opc.tcp://localhost:" + port)
+                .host(getOpcUaHost(port))
                 .securityBaseDir(securityBaseDir)
                 .valueProvider(reference,
                         OpcUaValueProviderConfig.builder()
@@ -412,7 +444,7 @@ public class AssetConnectionIT extends AbstractIntegrationTest {
         return ServiceConfig.builder()
                 .core(CoreConfig.DEFAULT)
                 .persistence(PersistenceInMemoryConfig.builder()
-                        .initialModel(DeepCopyHelper.deepCopy(environment))
+                        .initialModel(DeepCopyHelper.deepCopy(ENVIRONMENT))
                         .build())
                 .fileStorage(new FileStorageInMemoryConfig())
                 .endpoint(OpcUaEndpointConfig.builder()
@@ -450,9 +482,9 @@ public class AssetConnectionIT extends AbstractIntegrationTest {
             AssetConnectionException, ConfigurationInitializationException, UaException, ExecutionException {
         OpcUaClient client = OpcUaHelper.connect(OpcUaAssetConnectionConfig.builder()
                 .securityBaseDir(securityBaseDir)
-                .host("opc.tcp://localhost:" + port)
+                .host(getOpcUaHost(port))
                 .build());
-        DataValue value = OpcUaHelper.readValue(client, nodeIdSource1);
+        DataValue value = OpcUaHelper.readValue(client, NODE_ID_SOURCE_1);
         assertTrue(value.getStatusCode().isGood());
     }
 

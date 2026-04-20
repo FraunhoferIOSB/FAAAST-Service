@@ -4,6 +4,9 @@
             {
                 "requestHandlerThreadPoolSize": 2,
                 "assetConnectionRetryInterval": 1000,
+                "assetConnectionReadMaxThreadPoolSize": 1000,
+                "assetConnectionWriteMaxThreadPoolSize": 1000,
+                "assetConnectionReadTimeout": 5000,
                 "validationOnLoad":
                         {
                             "validateConstraints": true,
@@ -31,6 +34,7 @@
                     {
                         "[ModelRef](Property)Temperature":
                                 {
+                                    "readWriteMode": "READ_WRITE",
                                     "property1": "some.opc.ua.node.id"
                                 }
                     },

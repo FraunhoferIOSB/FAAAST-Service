@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.provider;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.ReadWriteMode;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.provider.config.MultiFormatValueProviderConfig;
 
 
@@ -27,5 +28,11 @@ public abstract class MultiFormatValueProvider<T extends MultiFormatValueProvide
 
     protected MultiFormatValueProvider(T config) {
         super(config);
+    }
+
+
+    @Override
+    public ReadWriteMode getReadWriteMode() {
+        return config.getReadWriteMode();
     }
 }

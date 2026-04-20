@@ -20,4 +20,5 @@ package de.fraunhofer.iosb.ilt.faaast.service.assetconnection;
  */
 public interface AssetValueProviderConfig extends AssetProviderConfig {
 
+    public ReadWriteMode getReadWriteMode();
 }
