@@ -132,7 +132,7 @@ public class MessageBusCloudEvents implements MessageBus<MessageBusCloudEventsCo
 
         Function<Reference, Referable> referableSupplier = reference -> {
             try {
-                return EnvironmentHelper.resolve(reference, serviceContext.getAASEnvironment());
+                return EnvironmentHelper.resolve(reference, serviceContext.getPersistence().getEnvironment());
             }
             catch (PersistenceException | ResourceNotFoundException persistenceException) {
                 LOGGER.warn("A resource was not found after an event fired.", persistenceException);
