@@ -1,0 +1,23 @@
+{{- $root := . }}
+
+{{- range $i, $ep := $root.Values.endpoints }}
+{{- if $ep.aclFolder }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "faaast-service.fullname" $root }}-acl-{{ $i }}
+  labels:
+    app.kubernetes.io/name: {{ $root.Chart.Name }}
+    helm.sh/chart: {{ $root.Chart.Name }}-{{ $root.Chart.Version }}
+    app.kubernetes.io/managed-by: {{ $root.Release.Service }}
+    app.kubernetes.io/instance: {{ $root.Release.Name }}
+data:
+  {{- $folder := trimPrefix "/" $ep.aclFolder }}
+  {{- $pattern := printf "%s/*.json" $folder }}
+  {{- range $path, $_ := $root.Files.Glob $pattern }}
+  {{ base $path }}: |
+{{ $root.Files.Get $path | nindent 4 }}
+  {{- end }}
+---
+{{- end }}
+{{- end }}

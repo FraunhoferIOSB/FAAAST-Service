@@ -1,0 +1,145 @@
+{{- $root := . }}
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "faaast-service.fullname" . }}
+  labels:
+    {{- include "faaast-service.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "faaast-service.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "faaast-service.labels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "faaast-service.serviceAccountName" . }}
+      {{- with .Values.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      initContainers:
+      {{- with .Values.initContainers }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if and (hasSuffix .Values.persistence.@class "Mongo" )(hasKey .Values.persistence "connectionString" )}}
+        - name: wait-for-persistence
+          image: mongo:8.2.7
+          command: [ "/bin/sh", "-c" ]
+          args:
+            - |
+              CONNECTION_STRING="{{ .Values.persistence.connectionString }}"
+              DB="{{ .Values.persistence.database }}"
+              URI="${CONNECTION_STRING}/${DB}"
+              echo "Waiting for MongoDB at ${URI}..."
+              for i in $(seq 1 30); do
+                if mongosh "${URI}" --eval 'db.adminCommand({ ping: 1 })' --quiet >/dev/null 2>&1; then
+                  echo "MongoDB is reachable"
+                  exit 0
+                fi
+                echo "MongoDB not reachable yet, retry ${i}/30..."
+                sleep 2
+              done
+              echo "MongoDB is NOT reachable after timeout"
+              exit 1
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          {{- with .Values.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args:
+          {{- if hasKey .Values "cli" }}
+          {{- if hasKey .Values.cli "loglevel" }}
+            - "-{{ .Values.cli.loglevel }}"
+          {{- end }}
+          {{- if and (hasKey .Values.cli "empty") .Values.cli.empty }}
+            - "-e"
+          {{- end }}
+          {{- if and (hasKey .Values.cli "validation") (not .Values.cli.empty) }}
+            - "-no-validation"
+          {{- end }}
+          {{- if and (hasKey .Values.cli "quiet") (not .Values.cli.quiet) }}
+            - "-q"
+          {{- end }}
+          {{- if and (hasKey .Values.cli "showStacktrace") (not .Values.cli.showStacktrace) }}
+            - "-s"
+          {{- end }}
+          {{- end }}
+          ports:
+            {{- range $i, $endpoint := .Values.endpoints }}
+            - name: http
+              containerPort: {{ $endpoint.port }}
+              protocol: TCP
+            {{- end }}
+
+          {{- with .Values.livenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.readinessProbe }}
+          readinessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+          {{- with .Values.volumeMounts }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+            - name: config
+              mountPath: /app/config/config.json
+              subPath: config.json
+            {{- range $i, $ep := $root.Values.endpoints }}
+            {{- if $ep.aclFolder }}
+            - name: acl-{{ $i }}
+              mountPath: {{ printf "/app/resources/%s" $ep.aclFolder | quote }}
+            {{- end }}
+            {{- end }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ include "faaast-service.fullname" . }}-config
+      {{- with .Values.volumes }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- range $i, $ep := $root.Values.endpoints }}
+      {{- if $ep.aclFolder }}
+        - name: acl-{{ $i }}
+          configMap:
+            name: {{ include "faaast-service.fullname" $root }}-acl-{{ $i }}
+      {{- end }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

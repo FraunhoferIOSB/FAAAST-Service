@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "faaast-service.fullname" . }}-config
+  labels:
+    {{- include "faaast-service.labels" . | nindent 4 }}
+data:
+  data:
+    {{- /* build endpoints with adjusted aclFolder */ -}}
+    {{- $rawEndpoints := default list .Values.endpoints -}}
+    {{- $endpoints := list -}}
+    {{- range $_, $ep := $rawEndpoints }}
+      {{- $e := deepCopy $ep -}}
+      {{- if $ep.aclFolder }}
+        {{- $acl := printf "/app/resources/acl/%s" (trimPrefix "/" $ep.aclFolder) -}}
+        {{- $_ = set $e "aclFolder" $acl -}}
+      {{- end }}
+      {{- $endpoints = append $endpoints $e -}}
+    {{- end }}
+  config.json: |
+    {
+      "core": {{ toPrettyJson (default dict .Values.core) | nindent 6 | trim }},
+      "persistence": {{ toPrettyJson (default dict .Values.persistence) | nindent 6 | trim }},
+      "endpoints": {{ toPrettyJson $endpoints | nindent 6 | trim }},
+      "assetConnections": {{ toPrettyJson (default list .Values.assetConnections) | nindent 6 | trim }},
+      "messageBus": {{ toPrettyJson (default dict .Values.messageBus) | nindent 6 | trim }},
+      "submodelTemplateProcessors": {{ toPrettyJson (default dict .Values.submodelTemplateProcessors) | nindent 6 | trim }}
+    }

@@ -1,0 +1,215 @@
+# values.minimal.yaml
+
+image:
+  repository: ghcr.io/factory-x-contributions/fa3st-service
+  tag: 0.2.0
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 443
+  name: https
+
+fullnameOverride: faaast-service
+
+autoscaling:
+  enabled: false
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: false
+
+ingress:
+  enabled: true
+  className: "nginx"
+  tls:
+    - hosts: []
+      secretName: ""
+  hosts: []
+#    - host: ""
+#      paths:
+#        - path: /
+#          pathType: Prefix
+
+# An example to mount an external AAS model into the deployment
+#initContainers:
+#  - name: git
+#    image: alpine/git
+#    command: ["git", "clone"]
+#    args:
+#      - |
+#        https://{{ .Values.seeding.github.personalAccessToken }}@github.com/{{ .Values.seeding.github.repository }}
+#        /app/resources/model.json
+#    volumeMounts:
+#      - name: seeding
+#        mountPath: /app/resources/model.json
+#
+#volumeMounts:
+#  - name: seeding
+#    mountPath: /app/resources/model.json
+#    subPath: model.json
+#
+#volumes:
+#  - name: seeding
+#    emptyDir: { }
+
+# End of example
+
+core:
+  aasRegistries:
+    - http://example.com/MyAASRegistry
+  assetConnectionRetryInterval: 1000
+  assetConnectionReadMaxThreadPoolSize: 1000
+  assetConnectionReadTimeout: 5000
+  assetConnectionWriteMaxThreadPoolSize: 1000
+  callbackAddress: "https://invalid.local:443/mypath"
+  requestHandlerThreadPoolSize: 2
+  submodelRegistries:
+    - "http://example.com/MySubmodelRegistry"
+  validationOnLoad:
+    validateConstraints: true
+    idShortUniqueness: true
+    identifierUniqueness: true
+  validationOnCreate:
+    validateConstraints: false
+    idShortUniqueness: true
+    identifierUniqueness: true
+  validationOnUpdate:
+    validateConstraints: false
+    idShortUniqueness: true
+    identifierUniqueness: true
+  minInflateRatio: 0.01
+  operationTimeout: 3600000
+
+persistence:
+  "@class": "de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemory"
+
+#  "@class": "de.fraunhofer.iosb.ilt.faaast.service.persistence.mongo.PersistenceMongo"
+  #connectionString: "mongodb://localhost:27017"
+  database: "faaast-database"
+  override: true
+
+messageBus:
+  "@class": "de.fraunhofer.iosb.ilt.faaast.service.messagebus.mqtt.MessageBusMqtt"
+  useInternalServer: true
+  port: 1883
+  sslPort: 8883
+  host: "localhost"
+  websocketPort: 9001
+  sslWebsocketPort: 443
+  serverCertificate:
+    keyStoreType: "PKCS12"
+    keyStorePath: "C:\\faaast\\MyKeyStore.p12"
+    keyStorePassword: "changeit"
+    keyAlias: "server-key"
+    keyPassword: "changeit"
+  clientCertificate:
+    keyStoreType: "PKCS12"
+    keyStorePath: "C:\\faaast\\MyKeyStore.p12"
+    keyStorePassword: "changeit"
+    keyAlias: "client-key"
+    keyPassword: "changeit"
+  users:
+    user1: "password1"
+    user2: "password2"
+  username: "messagebus-user"
+  password: "messagebus-password"
+  clientId: "CustomClientId"
+  topicPrefix: "topicPrefix"
+
+endpoints:
+  - "@class": "de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpoint"
+    aclFolder: "acl/https" # acl folder must be stored in the scope of your helm chart
+    certificate:
+      keyStoreType: "PKCS12"
+      keyStorePath: "C:\\faaast\\MyKeyStore.p12"
+      keyStorePassword: "changeit"
+      keyAlias: "server-key"
+      keyPassword: "changeit"
+    corsAllowCredentials: false
+    corsAllowedHeaders: "X-Custom-Header"
+    corsAllowedMethods: "GET, PUT, POST, PATCH, DELETE, HEAD"
+    corsAllowedOrigin: "localhost"
+    corsEnabled: true
+    corsExposedHeaders: "X-Custom-Header"
+    corsMaxAge: 1000
+    hostname: "localhost"
+    httpVersion: "HTTP_2"
+    pathPrefix: "/api/v3.0"
+    includeErrorDetails: true
+    port: 443
+    profiles:
+      - "AAS_REPOSITORY_FULL"
+      - "AAS_FULL"
+      - "SUBMODEL_REPOSITORY_FULL"
+      - "SUBMODEL_FULL"
+    sniEnabled: true
+    sslEnabled: true
+    subprotocol: "DSP"
+    subprotocolBody: "asset-id=42;dspEndpoint=https://example.com"
+    subprotocolBodyEncoding: "plain"
+
+assetConnections:
+  - "@class": "de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.OpcUaAssetConnection"
+    host: "opc.tcp://localhost:4840"
+    securityPolicy: "None"
+    securityMode: "None"
+    applicationCertificate:
+      keyStoreType: "PKCS12"
+      keyStorePath: 'C:\faaast\MyKeyStore.p12'
+      keyStorePassword: "changeit"
+      keyAlias: "app-cert"
+      keyPassword: "changeit"
+    authenticationCertificate:
+      keyStoreType: "PKCS12"
+      keyStorePath: 'C:\faaast\MyKeyStore.p12'
+      keyStorePassword: "changeit"
+      keyAlias: "auth-cert"
+      keyPassword: "changeit"
+    valueProviders:
+      "[ModelRef](Submodel)urn:aas:id:example:submodel:1, (Property)Property1":
+        nodeId: "some.node.id.property.1"
+      "[ModelRef](Submodel)urn:aas:id:example:submodel:1, (Property)Property2":
+        nodeId: "some.node.id.property.2"
+    operationProviders:
+      "[ModelRef](Submodel)urn:aas:id:example:submodel:1, (Operation)Operation1":
+        nodeId: "some.node.id.operation.1"
+    subscriptionProviders:
+      "[ModelRef](Submodel)urn:aas:id:example:submodel:1, (Property)Property3":
+        nodeId: "some.node.id.property.3"
+        interval: 1000
+  - "@class": "de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.ModbusAssetConnection"
+    hostname: "localhost"
+    port: 502
+    connectTimeoutMillis: 10000
+    requestTimeoutMillis: 5000
+    connectPersistent: true
+    mostSignificantWord: "HIGH"
+    reconnectLazy: false
+    tlsEnabled: true
+    keyCertificateConfig:
+      keyStoreType: "PKCS12"
+      keyStorePath: 'C:\faaast\MyKeyStore.p12'
+      keyStorePassword: "changeit"
+      keyAlias: "app-cert"
+      keyPassword: "changeit"
+    trustCertificateConfig:
+      keyStoreType: "PKCS12"
+      keyStorePath: 'C:\faaast\MyTrustStore.p12'
+      keyStorePassword: "changeit"
+      keyAlias: "auth-cert"
+      keyPassword: "changeit"
+    valueProviders:
+      "[ModelRef](Submodel)urn:aas:id:example:submodel:1, (Property)Property1":
+        dataType: "HOLDING_REGISTER"
+        address: 42
+        quantity: 1
+      "[ModelRef](Submodel)urn:aas:id:example:submodel:1, (Property)Property2":
+        dataType: "COIL"
+        address: 10
+        quantity: 4
+    subscriptionProviders:
+      "[ModelRef](Submodel)urn:aas:id:example:submodel:1, (Property)Property3":
+        dataType: "COIL"
+        address: 1
+        quantity: 3
+        pollingRate: 1000

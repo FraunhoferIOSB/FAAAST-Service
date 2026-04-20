@@ -1,0 +1,45 @@
+# values.minimal.yaml
+
+image:
+  repository: ghcr.io/factory-x-contributions/fa3st-service
+  tag: 0.2.0
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 443
+  name: https
+
+fullnameOverride: faaast-service
+
+autoscaling:
+  enabled: false
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: false
+
+ingress:
+  enabled: true
+  className: "nginx"
+  tls:
+    - hosts: []
+      secretName: ""
+  hosts: []
+#    - host: ""
+#      paths:
+#        - path: /
+#          pathType: Prefix
+
+persistence:
+  "@class": "de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemory"
+  initialModel: "./misc/examples/model.json"
+
+messageBus:
+  "@class": "de.fraunhofer.iosb.ilt.faaast.service.messagebus.internal.MessageBusInternal"
+
+endpoints:
+  - "@class": "de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpoint"
+    corsEnabled: true
+    includeErrorDetails: true
+    port: 8080
+    sslEnabled: false
