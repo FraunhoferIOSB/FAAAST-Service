@@ -88,11 +88,10 @@ public class HttpValueProvider extends MultiFormatValueProvider<HttpValueProvide
                     BodyPublishers.noBody(),
                     BodyHandlers.ofByteArray(),
                     headers);
-            LOGGER.trace("Response from asset (status code: {}, body{}, method: {}, headers: {})",
+            LOGGER.trace("Response from asset (status code: {}, headers: {}, body{})",
                     response.statusCode(),
-                    response.body() != null ? new String(response.body()) : "[empty]",
-                    DEFAULT_READ_METHOD,
-                    headers);
+                    response.headers().map(),
+                    response.body() != null ? new String(response.body()) : "[empty]");
             if (!HttpHelper.is2xxSuccessful(response)) {
                 throw new AssetConnectionException(String.format(BASE_ERROR_MESSAGE, ReferenceHelper.toString(reference)));
             }
@@ -112,19 +111,20 @@ public class HttpValueProvider extends MultiFormatValueProvider<HttpValueProvide
     public void setRawValue(byte[] value) throws AssetConnectionException {
         try {
             Map<String, String> headers = HttpHelper.mergeHeaders(connectionConfig.getHeaders(), config.getHeaders());
+            String method = StringUtils.isBlank(config.getWriteMethod())
+                    ? DEFAULT_WRITE_METHOD
+                    : config.getWriteMethod();
             LOGGER.trace("Sending HTTP write request to asset (baseUrl: {}, path: {}, method: {}, headers: {})",
                     connectionConfig.getBaseUrl(),
                     config.getPath(),
-                    DEFAULT_WRITE_METHOD,
+                    method,
                     headers);
             HttpResponse<String> response = HttpHelper.execute(
                     client,
                     connectionConfig.getBaseUrl(),
                     config.getPath(),
                     config.getFormat(),
-                    StringUtils.isBlank(config.getWriteMethod())
-                            ? DEFAULT_WRITE_METHOD
-                            : config.getWriteMethod(),
+                    method,
                     BodyPublishers.ofByteArray(value),
                     BodyHandlers.ofString(),
                     headers);
@@ -137,8 +137,11 @@ public class HttpValueProvider extends MultiFormatValueProvider<HttpValueProvide
                 throw new AssetConnectionException(String.format(BASE_ERROR_MESSAGE, ReferenceHelper.toString(reference)));
             }
         }
-        catch (IOException | URISyntaxException | InterruptedException e) {
+        catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+            throw new AssetConnectionException("writing value via HTTP asset connection failed", e);
+        }
+        catch (IOException | URISyntaxException e) {
             throw new AssetConnectionException("writing value via HTTP asset connection failed", e);
         }
     }

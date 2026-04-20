@@ -45,6 +45,7 @@ The `core` configuration block contains properties not related to the implementa
 | assetConnectionRetryInterval<br>*(optional)*          | Long           | Interval in ms in which to retry establishing asset connections                                                                                                                    | 1000                            |
 | assetConnectionWriteMaxThreadPoolSize<br>*(optional)* | Integer        | Size of thread pool used to write to asset connections                                                                                                                             | 1000                            |
 | minInflateRatio<br>*(optional)*                       | Double         | Ratio between de- and inflated bytes to detect zipbomb when loading AASX files                                                                                                     | 0.001                           |
+| operationTimeout<br>*(optional)*                      | Long           | Timeout in ms for executing AAS operations. Set to 0 for no timeout.                                                                                                               | 3600000                         |
 | requestHandlerThreadPoolSize<br>*(optional)*          | Integer        | Number of concurrent thread that can execute API requests                                                                                                                          | 2                               |
 | registrySynchronization<br>*(optional)*               | Object         | Registry synchronization settings. Use `auth.header.name` and `auth.header.value` to add a static HTTP header to outgoing synchronization requests (only applied if both are set). | null                            |
 | submodelRegistries<br>*(optional)*                    | List<String>   | URLs of submodels registries to use (e.g., <https://example.com/api/v3.0>). If not set, no synchronization of submodels with registry happens.                                     | *empty*                         |
@@ -106,7 +107,8 @@ When FA³ST Service synchronizes its shells and submodels with AAS registries de
 			"idShortUniqueness": true,
 			"identifierUniqueness": true
 		},
-		"minInflateRatio": 0.01
+		"minInflateRatio": 0.01,
+		"operationTimeout": 3600000
 	},
 	// ...
 }

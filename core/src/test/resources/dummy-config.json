@@ -25,7 +25,8 @@
                             "idShortUniqueness": true,
                             "identifierUniqueness": true
                         },
-                "minInflateRatio": 0.001
+                "minInflateRatio": 0.001,
+                "operationTimeout": 3600000
             },
     "assetConnections": [
         {

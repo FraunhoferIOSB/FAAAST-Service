@@ -29,7 +29,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionCon
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -72,7 +71,8 @@ public class InvokeOperationSyncRequestHandler extends AbstractInvokeOperationRe
                             operation.getOutputVariables(),
                             result.getPayload().getOutputArguments(),
                             context.getAssetConnectionManager().getOperationOutputValidationMode(reference).get(),
-                            ArgumentType.OUTPUT));
+                            ArgumentType.OUTPUT,
+                            context));
         }
         return result;
     }
@@ -112,8 +112,16 @@ public class InvokeOperationSyncRequestHandler extends AbstractInvokeOperationRe
             }
         });
         OperationResult result;
+        long timeout = getEffectiveTimeout(request, context);
         try {
-            OperationVariable[] outputVariables = future.get(request.getTimeout().getTimeInMillis(Calendar.getInstance()), TimeUnit.MILLISECONDS);
+
+            OperationVariable[] outputVariables;
+            if (timeout > 0) {
+                outputVariables = future.get(timeout, TimeUnit.MILLISECONDS);
+            }
+            else {
+                outputVariables = future.get();
+            }
             result = new DefaultOperationResult.Builder()
                     .executionState(ExecutionState.COMPLETED)
                     .inoutputArguments(request.getInoutputArguments())
@@ -128,9 +136,15 @@ public class InvokeOperationSyncRequestHandler extends AbstractInvokeOperationRe
                     .executionState(ExecutionState.TIMEOUT)
                     .success(false)
                     .build();
-            Thread.currentThread().interrupt();
         }
-        catch (InterruptedException | ExecutionException e) {
+        catch (ExecutionException e) {
+            result = new DefaultOperationResult.Builder()
+                    .inoutputArguments(request.getInoutputArguments())
+                    .executionState(ExecutionState.FAILED)
+                    .success(false)
+                    .build();
+        }
+        catch (InterruptedException e) {
             result = new DefaultOperationResult.Builder()
                     .inoutputArguments(request.getInoutputArguments())
                     .executionState(ExecutionState.FAILED)
@@ -145,6 +159,7 @@ public class InvokeOperationSyncRequestHandler extends AbstractInvokeOperationRe
             try {
                 publishSafe(OperationFinishEventMessage.builder()
                         .element(reference)
+                        .success(result.getSuccess())
                         .inoutput(ElementValueHelper.toValueMap(result.getInoutputArguments()))
                         .output(ElementValueHelper.toValueMap(result.getOutputArguments()))
                         .build(),

@@ -66,7 +66,7 @@ public class ValueCollectionDeserializer extends CollectionDeserializer {
                     String.format("number of elements mismatch (expected: %d, actual: %d)", typeInfo.getElements().size(), node.size()));
         }
         for (int i = 0; i < node.size(); i++) {
-            context.setAttribute(ContextAwareElementValueDeserializer.VALUE_TYPE_CONTEXT, typeInfo.getElements().get(i));
+            context.setAttribute(ContextAwareElementValueDeserializer.CONTEXT_TYPE_INFO, typeInfo.getElements().get(i));
             Class<?> type = ((TypeInfo) typeInfo.getElements().get(i)).getType();
             Object element = context.readTreeAsValue(node.get(i), type);
             result.add(element);
