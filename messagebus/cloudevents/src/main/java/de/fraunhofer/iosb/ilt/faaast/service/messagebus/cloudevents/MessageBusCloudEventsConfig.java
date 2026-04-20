@@ -324,11 +324,6 @@ public class MessageBusCloudEventsConfig extends MessageBusConfig<MessageBusClou
         }
 
 
-        public B eventCallbackAddress(String value) {
-            return getSelf();
-        }
-
-
         public B eventTypePrefix(String value) {
             getBuildingInstance().setEventTypePrefix(value);
             return getSelf();
