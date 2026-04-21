@@ -160,13 +160,13 @@ public class MoquetteServer {
 
         @Override
         public void onSubscribe(InterceptSubscribeMessage msg) {
-            LOGGER.trace("subscribe (clientId: {}, topic: {})", msg.getClientID(), msg.getTopicFilter());
+            LOGGER.trace("subscribe (clientId: {}, topic: {})", msg.getClientID(), msg.getTopicFilterClient());
         }
 
 
         @Override
         public void onUnsubscribe(InterceptUnsubscribeMessage msg) {
-            LOGGER.trace("unsubscribe (clientId: {}, topic: {})", msg.getClientID(), msg.getTopicFilter());
+            LOGGER.trace("unsubscribe (clientId: {}, topic: {})", msg.getClientID(), msg.getTopicFilterClient());
         }
 
 

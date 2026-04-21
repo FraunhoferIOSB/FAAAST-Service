@@ -65,12 +65,6 @@ jobs:
         key: ${{ runner.os }}-maven-owasp-cvedb-${{ steps.get-date.outputs.date }}
         restore-keys: ${{ runner.os }}-maven-owasp-cvedb
 
-    - name: Fail if cache not restored
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: |
-          echo "Failed to restore OWASP CVE Database - run update manually"
-          exit 1
-
     - name: Dependency Vulnerability Check with OWASP
       env:
         OWASP_OSS_INDEX_USERNAME: ${{ secrets.OWASP_OSS_INDEX_USERNAME }}
