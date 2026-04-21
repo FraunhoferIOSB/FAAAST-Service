@@ -17,24 +17,29 @@ jobs:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
           const prefix = `${process.env.RUNNER_OS}-maven-owasp-cvedb`;
-          const { data: caches } = await github.actions.listCachesForRepo({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
+          const owner = context.repo.owner;
+          const repo = context.repo.repo;
+          // List all caches via REST API
+          const response = await octokit.request('GET /repos/{owner}/{repo}/actions/caches', {
+            owner,
+            repo,
           });
-          caches = caches.filter(c => c.key.startsWith(prefix));
-          if (caches.length <= 1) {
-            console.log('No caches found to delete.');
+          const caches = response.data;
+          // Filter caches with the specified prefix
+          const filteredCaches = caches.filter(c => c.key.startsWith(prefix));
+          if (filteredCaches.length <= 1) {
+            console.log('Zero or one cache matching the prefix. No caches to log.');
             return;
           }
-          // Find the cache with the newest creation date
-          const newestCache = caches.reduce((max, c) =>
+          // Find the newest cache by creation date
+          const newestCache = filteredCaches.reduce((max, c) =>
             new Date(c.created_at) > new Date(max.created_at) ? c : max,
-            caches[0]);
-          // Delete all caches except the newest
-          for (const cache of caches) {
-            if (cache.id !== newestCache.id) {
+            filteredCaches[0]
+          );
+          // Log details of caches to be "deleted"
+          for (const c of filteredCaches) {
+            if (c.id !== newestCache.id) {
               console.log(`Would delete cache: ID=${c.id}, Key=${c.key}, CreatedAt=${c.created_at}`);
-              //await github.actions.deleteCache({ cache_id: cache.id });
             }
           }
 
