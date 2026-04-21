@@ -193,7 +193,7 @@ The payload is a JSON serialization of a CloudEvent as specified in the async-aa
 :::
 
 ```{code-block} json
-:caption: Example configuration for MQTT MessageBus.
+:caption: Example configuration for CloudEvents MessageBus.
 :lineno-start: 1
 {
 	"messageBus": {
