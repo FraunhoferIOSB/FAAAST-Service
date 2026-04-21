@@ -38,7 +38,7 @@ ingress:
 #    command: ["git", "clone"]
 #    args:
 #      - |
-#        https://{{ .Values.seeding.github.personalAccessToken }}@github.com/{{ .Values.seeding.github.repository }}
+#        https://my-personal-access-token@github.com/my-repository
 #        /app/resources/model.json
 #    volumeMounts:
 #      - name: seeding
