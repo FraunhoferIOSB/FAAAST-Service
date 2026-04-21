@@ -30,6 +30,8 @@ Alternatively, directly append the resulting YAML configuration to your `values.
 
 `FILE=<path_to_your_file> && python3 -c "import yaml, json; print(yaml.dump(json.load(open(\"$FILE\"))))" >> values.noconfig.yaml`
 
+When manually configuring, note that the `@class` configurations need to be in quotations inside the values.yaml file (e.g., `'@class': "de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpoint"`).
+
 #### FA³ST Security (coming soon)
 
 <!--- To use FA³ST with AAS security enabled, `aclFolder` needs to be defined in the values.yaml (check the FA³ST docs for proper configuration). `aclFolder` needs to point to the place **within the chart directory importing the FA³ST service chart**, where the ACL rules (JSON-Files) are stored. For example, if your ACL rules are stored under `<your-chart>/acl/my-rules`, `.Values.endpoints[i].aclFolder` must be set to `acl/my-rules`. Next, `templates/acl.yaml.example` needs to be copied into the parent chart's template directory and renamed to `acl.yaml`. With this template, all ACL are registered as ConfigMaps in the deployment. The FA³ST Service will then find those ConfigMaps and mount them into the container at the appropriate location.-->
