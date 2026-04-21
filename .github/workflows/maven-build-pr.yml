@@ -20,7 +20,7 @@ jobs:
           const owner = context.repo.owner;
           const repo = context.repo.repo;
           // List all caches via REST API
-          const response = await octokit.request('GET /repos/{owner}/{repo}/actions/caches', {
+          const response = await github.request('GET /repos/{owner}/{repo}/actions/caches', {
             owner,
             repo,
           });
