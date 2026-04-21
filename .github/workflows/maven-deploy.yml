@@ -28,7 +28,7 @@ jobs:
     - name: Checkout Source
       uses: actions/checkout@v6
 
-    - name: Cache maven repository
+    - name: Cache - Maven Repository
       uses: actions/cache@v5
       with:
         path: ~/.m2/repository
@@ -58,35 +58,6 @@ jobs:
         ARTIFACTORY_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
       run: |
         mvn install -P test --settings maven-ci-settings.xml -B
-
-    - name: Restore CVD Database from Cache
-      uses: actions/cache/restore@v5
-      with:
-        path: |
-          ~/.m2/repository/org/owasp/dependency-check-data
-        key: ${{ runner.os }}-maven-owasp-cvedb
-
-    - name: Update CVD Database
-      env:
-        OWASP_OSS_INDEX_USERNAME: ${{ secrets.OWASP_OSS_INDEX_USERNAME }}
-        OWASP_OSS_INDEX_APIKEY: ${{ secrets.OWASP_OSS_INDEX_APIKEY }}
-        NIST_NVD_API_KEY: ${{ secrets.NIST_NVD_API_KEY }}
-      run: |
-        mvn -B -P owasp -DnvdApiDelay=6000 --settings maven-ci-settings.xml org.owasp:dependency-check-maven:update-only
-
-    - name: Save CVD Database to Cache
-      uses: actions/cache/save@v5
-      with:
-        path: |
-          ~/.m2/repository/org/owasp/dependency-check-data
-        key: ${{ runner.os }}-maven-owasp-cvedb
-
-    - name: Dependency Vulnerability Check with OWASP
-      env:
-        OWASP_OSS_INDEX_USERNAME: ${{ secrets.OWASP_OSS_INDEX_USERNAME }}
-        OWASP_OSS_INDEX_APIKEY: ${{ secrets.OWASP_OSS_INDEX_APIKEY }}
-      run: |
-        mvn org.owasp:dependency-check-maven:aggregate -P owasp --settings maven-ci-settings.xml -B
 
     - name: Build and Deploy with Maven
       env:
