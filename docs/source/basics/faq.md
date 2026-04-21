@@ -182,7 +182,9 @@ A registered shell descriptor could then look like this:
         "endpointProtocolVersion": ["1.1"]
         },
       "href": "https://my-faaast-service.example:443/mypath/shells"
-      "securityAttributes": ...,
+      "securityAttributes": {
+        // ...
+	  },
       "interface": "AAS-REPOSITORY-3.0"    
     },
     {
@@ -191,13 +193,15 @@ A registered shell descriptor could then look like this:
         "endpointProtocolVersion": ["1.1"]
       },
       "href": "https://my-faaast-service.example:443/mypath/shells/ZXhhbXBsZS1hYXMtaWQK"
-      "securityAttributes": ...,
+      "securityAttributes": {
+        // ...
+	  },
       "interface": "AAS-3.0"    
     }
   ],
   "id": "example-aas-id",
   "idShort": "ExampleIdShort",
-  ...
+  //...
 }
 ```
 
