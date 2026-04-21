@@ -11,6 +11,32 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+    - name: Delete all CVD Database caches but newest
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const prefix = `${process.env.RUNNER_OS}-maven-owasp-cvedb`;
+          const { data: caches } = await github.actions.listCachesForRepo({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+          });
+          caches = caches.filter(c => c.key.startsWith(prefix));
+          if (caches.length <= 1) {
+            console.log('No caches found to delete.');
+            return;
+          }
+          // Find the cache with the newest creation date
+          const newestCache = caches.reduce((max, c) =>
+            new Date(c.created_at) > new Date(max.created_at) ? c : max,
+            caches[0]);
+          // Delete all caches except the newest
+          for (const cache of caches) {
+            if (cache.id !== newestCache.id) {
+              console.log(`Would delete cache: ID=${c.id}, Key=${c.key}, CreatedAt=${c.created_at}`);
+              //await github.actions.deleteCache({ cache_id: cache.id });
+            }
+          }
+
     - name: Checkout Source
       uses: actions/checkout@v6
       with:
