@@ -33,3 +33,21 @@ Alternatively, directly append the resulting YAML configuration to your `values.
 #### FA³ST Security
 
 To use FA³ST with AAS security enabled, `aclFolder` needs to be defined in the values.yaml (check the FA³ST docs for proper configuration). `aclFolder` needs to point to the place **within the chart directory importing the FA³ST service chart**, where the ACL rules (JSON-Files) are stored. For example, if your ACL rules are stored under `<your-chart>/acl/my-rules`, `.Values.endpoints[i].aclFolder` must be set to `acl/my-rules`. The FA³ST Service chart will then find those files and mount them into the container at the appropriate location.
+
+#### FA³ST Endpoints, Kubernetes Service and Ingress
+
+In FA³ST Service, multiple (HTTP) endpoints can be defined. Every endpoint will also be registered at the Kubernetes `Service`. It can be exposed via an `Ingress` by configuring the `servicePort`:
+
+```yaml
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+  hosts:
+    - host: "localhost" <-- Your external URL
+      paths:
+        - path: / <-- The path which should map to this endpoint
+          pathType: Prefix
+          servicePort: 443 <-- The endpoint's port
+```
