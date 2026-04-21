@@ -64,4 +64,4 @@ jobs:
         git push origin master -fq
         cd ..
         rm -rf ./helm-charts-snapshot
-       echo "Helm chart pushed to snapshot repository"
+        echo "Helm chart pushed to snapshot repository"
