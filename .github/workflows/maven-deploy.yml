@@ -28,7 +28,7 @@ jobs:
     - name: Checkout Source
       uses: actions/checkout@v6
 
-    - name: Cache maven repository
+    - name: Cache - Maven Repository
       uses: actions/cache@v5
       with:
         path: ~/.m2/repository
@@ -59,12 +59,19 @@ jobs:
       run: |
         mvn install -P test --settings maven-ci-settings.xml -B
 
-    - name: Restore CVD Database from Cache
+    - name: Get Date
+      id: get-date
+      run: |
+        echo "date=$(/bin/date -u "+%Y-%m-%dT%H:%M:%S")" >> $GITHUB_OUTPUT
+      shell: bash
+
+    - name: Restore Cache - CVD Database
       uses: actions/cache/restore@v5
       with:
         path: |
           ~/.m2/repository/org/owasp/dependency-check-data
-        key: ${{ runner.os }}-maven-owasp-cvedb
+        key: ${{ runner.os }}-maven-owasp-cvedb-${{ steps.get-date.outputs.date }}
+        restore-keys: ${{ runner.os }}-maven-owasp-cvedb
 
     - name: Update CVD Database
       env:
@@ -74,12 +81,12 @@ jobs:
       run: |
         mvn -B -P owasp -DnvdApiDelay=6000 --settings maven-ci-settings.xml org.owasp:dependency-check-maven:update-only
 
-    - name: Save CVD Database to Cache
+    - name: Save Cache - CVD Database
       uses: actions/cache/save@v5
       with:
         path: |
           ~/.m2/repository/org/owasp/dependency-check-data
-        key: ${{ runner.os }}-maven-owasp-cvedb
+        key: ${{ runner.os }}-maven-owasp-cvedb-${{ steps.get-date.outputs.date }}
 
     - name: Dependency Vulnerability Check with OWASP
       env:
