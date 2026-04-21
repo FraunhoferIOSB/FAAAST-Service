@@ -19,10 +19,35 @@ data:
     {{- end }}
   config.json: |
     {
-      "core": {{ toPrettyJson (default dict .Values.core) | nindent 6 | trim }},
-      "persistence": {{ toPrettyJson (default dict .Values.persistence) | nindent 6 | trim }},
+      {{- with .Values.core }}
+      "core": {{ toPrettyJson . | nindent 6 | trim }},
+      {{- end }}
+
+      {{- with .Values.endpoints }}
       "endpoints": {{ toPrettyJson $endpoints | nindent 6 | trim }},
-      "assetConnections": {{ toPrettyJson (default list .Values.assetConnections) | nindent 6 | trim }},
-      "messageBus": {{ toPrettyJson (default dict .Values.messageBus) | nindent 6 | trim }},
-      "submodelTemplateProcessors": {{ toPrettyJson (default dict .Values.submodelTemplateProcessors) | nindent 6 | trim }}
+      {{- end }}
+
+      {{- with .Values.assetConnections }}
+      "assetConnections": {{ toPrettyJson . | nindent 6 | trim }},
+      {{- end }}
+
+      {{- with .Values.submodelTemplateProcessors }}
+      "submodelTemplateProcessors": {{ toPrettyJson . | nindent 6 | trim }}
+      {{- end }}
+
+      {{- if hasKey .Values "persistence" }}
+      "persistence": {{ toPrettyJson . | nindent 6 | trim }},
+      {{- else }}
+      "persistence": {
+        "@class": "de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemory"
+      },
+      {{- end }}
+
+      {{- if hasKey .Values "messageBus" }}
+      "messageBus": {{ toPrettyJson .Values.messageBus | nindent 6 | trim }},
+      {{- else }}
+      "messageBus": {
+        "@class": "de.fraunhofer.iosb.ilt.faaast.service.messagebus.internal.MessageBusInternal"
+      }
+      {{- end }}
     }

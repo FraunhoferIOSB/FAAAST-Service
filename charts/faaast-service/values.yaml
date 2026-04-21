@@ -1,0 +1,27 @@
+# values.yaml
+# With minimal configuration, the FA³ST Service runs on port 443 with a self-signed certificate.
+
+image:
+  repository: fraunhoferiosb/faaast-service
+  tag: 1.3.0
+  pullPolicy: IfNotPresent
+
+fullnameOverride: faaast-service
+
+autoscaling:
+  enabled: false
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: false
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+  hosts:
+    - host: "localhost"
+      paths:
+        - path: /
+          pathType: Prefix
+          servicePort: 443

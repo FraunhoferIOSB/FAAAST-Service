@@ -1,14 +1,14 @@
-# values.minimal.yaml
+# values.full.yaml
 
 image:
-  repository: ghcr.io/factory-x-contributions/fa3st-service
-  tag: 0.2.0
+  repository: fraunhoferiosb/faaast-service
+  tag: 1.3.0
   pullPolicy: IfNotPresent
 
 service:
   type: ClusterIP
-  port: 443
-  name: https
+  port: 80
+  name: http
 
 fullnameOverride: faaast-service
 
@@ -21,14 +21,15 @@ serviceAccount:
 ingress:
   enabled: true
   className: "nginx"
-  tls:
-    - hosts: []
-      secretName: ""
-  hosts: []
-#    - host: ""
-#      paths:
-#        - path: /
-#          pathType: Prefix
+#  tls:
+#    - hosts: []
+#      secretName: ""
+  hosts:
+    - host: "localhost"
+      paths:
+        - path: /
+          pathType: Prefix
+          servicePort: 80
 
 # An example to mount an external AAS model into the deployment
 #initContainers:
@@ -53,6 +54,10 @@ ingress:
 #    emptyDir: { }
 
 # End of example
+
+cli:
+  # showStacktrace: true
+  logLevel: "vvv"
 
 core:
   aasRegistries:
@@ -81,16 +86,14 @@ core:
   operationTimeout: 3600000
 
 persistence:
-  "@class": "de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemory"
-
-#  "@class": "de.fraunhofer.iosb.ilt.faaast.service.persistence.mongo.PersistenceMongo"
-  #connectionString: "mongodb://localhost:27017"
+  "@class": "de.fraunhofer.iosb.ilt.faaast.service.persistence.mongo.PersistenceMongo"
+  connectionString: "mongodb://localhost:27017"
   database: "faaast-database"
   override: true
 
 messageBus:
   "@class": "de.fraunhofer.iosb.ilt.faaast.service.messagebus.mqtt.MessageBusMqtt"
-  useInternalServer: true
+  useInternalServer: false
   port: 1883
   sslPort: 8883
   host: "localhost"
@@ -116,6 +119,8 @@ messageBus:
   clientId: "CustomClientId"
   topicPrefix: "topicPrefix"
 
+
+# It is recommended to do TLS at ingress level and use plain HTTP in the container
 endpoints:
   - "@class": "de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpoint"
     aclFolder: "acl/https" # acl folder must be stored in the scope of your helm chart
@@ -136,14 +141,14 @@ endpoints:
     httpVersion: "HTTP_2"
     pathPrefix: "/api/v3.0"
     includeErrorDetails: true
-    port: 443
+    port: 80
     profiles:
       - "AAS_REPOSITORY_FULL"
       - "AAS_FULL"
       - "SUBMODEL_REPOSITORY_FULL"
       - "SUBMODEL_FULL"
-    sniEnabled: true
-    sslEnabled: true
+    sniEnabled: false
+    sslEnabled: false
     subprotocol: "DSP"
     subprotocolBody: "asset-id=42;dspEndpoint=https://example.com"
     subprotocolBodyEncoding: "plain"
@@ -185,7 +190,7 @@ assetConnections:
     connectPersistent: true
     mostSignificantWord: "HIGH"
     reconnectLazy: false
-    tlsEnabled: true
+    tlsEnabled: false
     keyCertificateConfig:
       keyStoreType: "PKCS12"
       keyStorePath: 'C:\faaast\MyKeyStore.p12'
@@ -199,16 +204,16 @@ assetConnections:
       keyAlias: "auth-cert"
       keyPassword: "changeit"
     valueProviders:
-      "[ModelRef](Submodel)urn:aas:id:example:submodel:1, (Property)Property1":
+      "[ModelRef](Submodel)urn:aas:id:example:submodel:1, (Property)Property4":
         dataType: "HOLDING_REGISTER"
         address: 42
         quantity: 1
-      "[ModelRef](Submodel)urn:aas:id:example:submodel:1, (Property)Property2":
+      "[ModelRef](Submodel)urn:aas:id:example:submodel:1, (Property)Property5":
         dataType: "COIL"
         address: 10
         quantity: 4
     subscriptionProviders:
-      "[ModelRef](Submodel)urn:aas:id:example:submodel:1, (Property)Property3":
+      "[ModelRef](Submodel)urn:aas:id:example:submodel:1, (Property)Property6":
         dataType: "COIL"
         address: 1
         quantity: 3

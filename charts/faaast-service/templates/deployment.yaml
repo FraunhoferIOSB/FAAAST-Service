@@ -38,7 +38,7 @@ spec:
       {{- with .Values.initContainers }}
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- if and (hasSuffix .Values.persistence.@class "Mongo" )(hasKey .Values.persistence "connectionString" )}}
+      {{- if and (hasKey .Values "persistence") (and (hasSuffix "Mongo" (index .Values.persistence "@class")) (hasKey .Values.persistence "connectionString") )}}
         - name: wait-for-persistence
           image: mongo:8.2.7
           command: [ "/bin/sh", "-c" ]
@@ -78,10 +78,10 @@ spec:
           {{- if and (hasKey .Values.cli "validation") (not .Values.cli.empty) }}
             - "-no-validation"
           {{- end }}
-          {{- if and (hasKey .Values.cli "quiet") (not .Values.cli.quiet) }}
+          {{- if and (hasKey .Values.cli "quiet") .Values.cli.quiet }}
             - "-q"
           {{- end }}
-          {{- if and (hasKey .Values.cli "showStacktrace") (not .Values.cli.showStacktrace) }}
+          {{- if and (hasKey .Values.cli "showStacktrace") .Values.cli.showStacktrace }}
             - "-s"
           {{- end }}
           {{- end }}
@@ -109,7 +109,7 @@ spec:
             {{- toYaml . | nindent 12 }}
           {{- end }}
             - name: config
-              mountPath: /app/config/config.json
+              mountPath: /app/config.json
               subPath: config.json
             {{- range $i, $ep := $root.Values.endpoints }}
             {{- if $ep.aclFolder }}

@@ -13,73 +13,25 @@ Repository: https://github.com/FraunhoferIOSB/FAAAST-Service
 
 Dockerhub: https://hub.docker.com/r/fraunhoferiosb/faaast-service
 
-## Features
+# Resources
 
-### Registry Integration
+this chart contains two `values.yaml` files. 
 
-This Helm chart includes integration with **FA³ST Registry** following the **Plattform Industrie 4.0** specification.
+- `values.yaml`: The default values without any custom configuration. Any FA³ST / Kubernetes configuration can be dropped into this file (see also the next section on converting a FA³ST configuration from JSON to YAML).
+- `values.full.yaml`: A values file with most/all possible configuration values. This will not work out-of-the-box. For example, the certificate files need to be mounted from the importing chart directory into the deployment by defining volumes and volumeMounts in the `values.yaml`.
 
-The FA³ST Service automatically synchronizes Asset Administration Shells (AAS) and Submodels with a configured registry:
+## Configuring FA³ST
 
-- **Automatic Registration**: New AAS and Submodels are automatically registered when created
-- **Automatic Updates**: Changes to AAS and Submodels are automatically synchronized
-- **Automatic Cleanup**: AAS and Submodels are unregistered when deleted or on service shutdown
-- **Cloud Events**: Integration uses Cloud Events over MQTT for create and update events
+If you already have a FA³ST Service configuration in JSON format, you can convert it into YAML using this command:
 
-**The RegistryClient communicates with an AAS-Registry following Plattform Industrie 4.0 standards.**
+`FILE=<path_to_your_file> && python3 -c "import yaml, json; print(yaml.dump(json.load(open(\"$FILE\"))))"`
 
-For detailed testing instructions, see [TESTING_GUIDE.md](./TESTING_GUIDE.md).
+and paste the result into your `values.yaml`.
 
+Alternatively, directly append the resulting YAML configuration to your `values.yaml`:
 
-## Configuration
+`FILE=<path_to_your_file> && python3 -c "import yaml, json; print(yaml.dump(json.load(open(\"$FILE\"))))" >> values.noconfig.yaml`
 
+### FA³ST Security
 
-To configure the FA³ST Service, please refer to the [docs](https://faaast-service.readthedocs.io/). Configurations in
-helm are translated as in this example:
-```json
-{
-  "endpoints": [
-    {
-      "@class": "de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpoint",
-      "port": 443
-    },
-    {
-      "@class": "de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpoint",
-      "port": 8080,
-      "sslEnabled": false
-    }
-  ]
-}
-```
-```yaml
-endpoints:
-  - class: de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpoint
-    port: 443
-  - class: de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpoint
-    port: 8080
-    sslEnabled: false
-```
-
-### API Endpoints
-
-The registry integration uses the following standard APIs:
-
-- **AAS Registry**: `/api/v3.0/shell-descriptors`
-- **Submodel Registry**: `/api/v3.0/submodel-descriptors`
-
-For API documentation, see:
-- [AAS Repository API](https://factory-x-contributions.github.io/async-aas-helm/aas-repository/)
-- [Submodel Repository API](https://factory-x-contributions.github.io/async-aas-helm/submodel-repository/)
-
-## Installation
-
-```bash
-helm install faaast-service ./charts/faaast-service \
-  --set registry.aasRegistryBaseUrl="https://faaast-registry" \
-  --set registry.submodelRegistryBaseUrl="https://faaast-registry"
-
-# If you need to call the Registry via ingress instead, override to your ingress URL:
-helm install faaast-service ./charts/faaast-service \
-  --set registry.aasRegistryBaseUrl="https://faaast-registry.factory-x.catena-x.net" \
-  --set registry.submodelRegistryBaseUrl="https://faaast-registry.factory-x.catena-x.net"
-```
+To use FA³ST with AAS security enabled, `aclFolder` needs to be defined in the values.yaml (check the FA³ST docs for proper configuration). `aclFolder` needs to point to the place **within the chart directory importing the FA³ST service chart**, where the ACL rules (JSON-Files) are stored. For example, if your ACL rules are stored under `<your-chart>/acl/my-rules`, `.Values.endpoints[i].aclFolder` must be set to `acl/my-rules`. The FA³ST Service chart will then find those files and mount them into the container at the appropriate location.
