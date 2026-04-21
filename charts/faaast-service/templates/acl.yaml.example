@@ -1,3 +1,4 @@
+# Put this into your parent chart to automatically import aclFolders.
 {{- $root := . }}
 
 {{- range $i, $ep := $root.Values.endpoints }}

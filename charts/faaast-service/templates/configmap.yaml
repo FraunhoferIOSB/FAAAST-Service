@@ -12,7 +12,7 @@ data:
     {{- range $_, $ep := $rawEndpoints }}
       {{- $e := deepCopy $ep -}}
       {{- if $ep.aclFolder }}
-        {{- $acl := printf "/app/resources/acl/%s" (trimPrefix "/" $ep.aclFolder) -}}
+        {{- $acl := printf "/app/resources/%s" (trimPrefix "/" $ep.aclFolder) -}}
         {{- $_ = set $e "aclFolder" $acl -}}
       {{- end }}
       {{- $endpoints = append $endpoints $e -}}
@@ -44,7 +44,7 @@ data:
       {{- end }}
 
       {{- if hasKey .Values "messageBus" }}
-      "messageBus": {{ toPrettyJson .Values.messageBus | nindent 6 | trim }},
+      "messageBus": {{ toPrettyJson .Values.messageBus | nindent 6 | trim }}
       {{- else }}
       "messageBus": {
         "@class": "de.fraunhofer.iosb.ilt.faaast.service.messagebus.internal.MessageBusInternal"

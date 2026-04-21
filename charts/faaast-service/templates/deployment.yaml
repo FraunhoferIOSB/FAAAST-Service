@@ -128,7 +128,7 @@ spec:
       {{- if $ep.aclFolder }}
         - name: acl-{{ $i }}
           configMap:
-            name: {{ include "faaast-service.fullname" $root }}-acl-{{ $i }}
+            name: {{ printf "%s-acl-%d" $.Release.Name $i }}
       {{- end }}
       {{- end }}
       {{- with .Values.nodeSelector }}
