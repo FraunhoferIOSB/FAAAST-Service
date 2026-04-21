@@ -14,6 +14,7 @@ jobs:
     - name: Delete all CVD Database caches but newest
       uses: actions/github-script@v6
       with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
           const prefix = `${process.env.RUNNER_OS}-maven-owasp-cvedb`;
           const { data: caches } = await github.actions.listCachesForRepo({
