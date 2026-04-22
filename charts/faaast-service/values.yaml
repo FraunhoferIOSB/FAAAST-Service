@@ -28,3 +28,164 @@ ingress:
         - path: /
           pathType: Prefix
           servicePort: 443
+
+# core contains properties not related to the implementation of any interface.
+core:
+  # aasRegistries (list) define the URLs of AAS registries to use (e.g., https://example.com/api/v3.0). If not set, no synchronization of AASs with registry happens.
+  aasRegistries:
+  # assetConnectionReadMaxThreadPoolSize defines the size of thread pool used to read from asset connections
+  assetConnectionReadMaxThreadPoolSize:
+  # assetConnectionReadTimeout defines the timeout in ms for reading all asset connections for a single AAS command
+  assetConnectionReadTimeout:
+  # assetConnectionRetryInterval defines the interval in ms in which to retry establishing asset connections
+  assetConnectionRetryInterval:
+  # assetConnectionWriteMaxThreadPoolSize defines the size of thread pool used to write to asset connections
+  assetConnectionWriteMaxThreadPoolSize:
+  # callbackAddress defines the external URI the FA³ST Service is reachable from. Used in registry synchronization and cloud events message bus.
+  callbackAddress:
+  # minInflateRatio defines the ratio between de- and inflated bytes to detect zipbomb when loading AASX files
+  minInflateRatio:
+  # operationTimeout defines the timeout in ms for executing AAS operations. Set to 0 for no timeout.
+  operationTimeout:
+  # requestHandlerThreadPoolSize defines the number of concurrent thread that can execute API requests
+  requestHandlerThreadPoolSize:
+  # registrySynchronization defines the registry synchronization settings. Use auth.header.name and auth.header.value to add a static HTTP header to outgoing synchronization requests (only applied if both are set).
+  registrySynchronization:
+  # submodelRegistries (list) define the URLs of submodels registries to use (e.g., https://example.com/api/v3.0). If not set, no synchronization of submodels with registry happens.
+  submodelRegistries:
+  # validationOnLoad defines validation rules to use when loading the AAS model at startup
+  validationOnLoad:
+    # validateConstraints defines whether to validate constraints
+    validateConstraints:
+    # idShortUniqueness defines whether to validate id short uniqueness
+    idShortUniqueness:
+    # identifierUniqueness defines whether to validate identifier uniqueness
+    identifierUniqueness:
+  # validationOnCreate defines validation rules to use when creating new elements via API
+  validationOnCreate:
+    # validateConstraints defines whether to validate constraints
+    validateConstraints:
+    # idShortUniqueness defines whether to validate id short uniqueness
+    idShortUniqueness:
+    # identifierUniqueness defines whether to validate identifier uniqueness
+    identifierUniqueness:
+  # validationOnUpdate define validation rules to use when updating elements via API
+  validationOnUpdate:
+    # validateConstraints defines whether to validate constraints
+    validateConstraints:
+    # idShortUniqueness defines whether to validate id short uniqueness
+    idShortUniqueness:
+    # identifierUniqueness defines whether to validate identifier uniqueness
+    identifierUniqueness:
+
+# persistence defines how to store the AAS model.
+persistence:
+  # @class defines which interface to use. By default, the in-memory persistence is used
+  "@class": "de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemory"
+  # initialModelFile defines the path to a model file to load initially.
+  initialModelFile:
+  # dataDir defines, for file-based persistence, path where the model file created by the persistence should be saved
+  dataDir:
+  # dataformat defines, for file-based persistence,  the data format to use when storing. Ignored when keepInitial is set to true. Can be one of AASX, JSON or XML.
+  dataformat:
+  # keepInitial defines whether the initialModelFile will be modified (if true) or a copy will be created in dataDir where the changes will be saved (if false). Can be one of true or false.
+  keepInitial:
+  # connectionString defines, for mongoDB persistence, the connection string where the MongoDB is located.
+  connectionString:
+  # database defines, for mongoDB persistence, the name of the database to be used inside the MongoDB.
+  database:
+  # database defines, for mongoDB persistence, whether FA³ST persistence will always override the previous database (if true). This might result in data loss. Can be one of true or false.
+  override:
+
+# messageBus defines how the communication between different components is handled. Also, distributing events via MQTT/CloudEvents can be defined here.
+messageBus:
+  # @class defines which interface to use. By default, the internal message bus is used
+  "@class": "de.fraunhofer.iosb.ilt.faaast.service.messagebus.internal.MessageBusInternal"
+  # clientCertificate defines, for MQTT and CloudEvents message bus, the MQTT client certificate to use. If not set, SSL will be disabled. For configuration of this variable, please see the documentation.
+  clientCertificate:
+  # clientId defines, for MQTT and CloudEvents message bus, the clientId to use when connecting to the MQTT server. This clientId will only be used to identify as a MQTT publisher, not for oauth-flows or as a username.
+  clientId:
+  # host defines, for MQTT message bus, the host name of the MQTT server without prefix, e.g., 192.168.0.1. For CloudEvents message bus, defines the host name of the MQTT server with scheme, port and path segments if relevant.
+  host:
+  # username defines, for MQTT and CloudEvents message bus, the username used to connect to the MQTT server.
+  username:
+  # password defines, for MQTT and CloudEvents message bus, the (static) password used to connect to the MQTT server.
+  password:
+  # identityProviderUrl defines, for CloudEvents message bus, the Oauth2 IdP URL. Obtained tokens are placed as the MQTT broker password, the username is obtained from the username config. Token refresh happens automatically.
+  identityProviderUrl:
+  # oauth2ClientId defines, for CloudEvents message bus, the Oauth2 client id to use when retrieving an oauth2-token from the IdP.
+  oauth2ClientId:
+  # oauth2ClientSecret defines, for CloudEvents message bus, the Oauth2 client secret to use when retrieving an oauth2-token from the IdP.
+  oauth2ClientSecret:
+  # topicPrefix defines, for MQTT and CloudEvents message bus, the prefix to use for the topic names.
+  topicPrefix:
+  # slimEvents defines, for CloudEvents message bus, whether the full referable is sent in a CloudEvent’s data-field. If true, the data-field will be empty.
+  slimEvents:
+  # eventTypePrefix defines, for CloudEvents message bus, the prefix to use in the CloudEvents type-field. Should end with a “.”.
+  eventTypePrefix:
+  # dataSchemaPrefix defines, for CloudEvents message bus, the prefix to use in the CloudEvents dataschema-field. Should end with a “/”.
+  dataSchemaPrefix:
+  # port defines, for MQTT message bus, the port to use for TCP communication.
+  port:
+  # serverCertificate defines, for MQTT message bus, the server certificate to use. If not set, SSL will be disabled.
+  serverCertificate:
+  # sslPort defines, for MQTT message bus, the port to use for secure TCP communication.
+  sslPort:
+  # sslWebsocketPort defines, for MQTT message bus, the port to use for secure websocket communication.
+  sslWebsocketPort:
+  # useInternalServer defines, for MQTT message bus, whether FA³ST Service starts its own MQTT server (if true) or uses an external MQTT server (if false).
+  useInternalServer:
+  # users (dict) define, for MQTT message bus, a map of usernames and passwords of users that are allowed to connect to the MQTT server. This is only used when useInternalServer is true.
+  users:
+  # websocketPort defines, for MQTT message bus, the port to use for TCP communication
+  websocketPort:
+
+
+# endpoint (list) defines the endpoint interfaces. The Endpoint interface is responsible for communication with the AAS from the outside, e.g. users or external applications. An instance of FA³ST Service can serve multiple endpoints at the same time. Endpoints will be synchronized, meaning if a FA³ST Service offers multiple endpoint such as HTTP(S) and OPC UA at the same time, changes done via one of the endpoints like updating a value is reflected in the other. It is recommended to do TLS at ingress level and use plain HTTP in the container
+endpoints:
+  - "@class": "de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpoint"
+    # profiles defines the AAS Service Profiles that the endpoint should support. (empty means all profiles are supported)
+    profiles:
+    # certificate defines the HTTPS certificate to use.
+    certificate:
+    # corsAllowCredentials defines the Access-Control-Allow-Credentials response header.
+    corsAllowCredentials:
+    # corsAllowedHeaders defines the Access-Control-Allow-Headers response header.
+    corsAllowedHeaders:
+    # corsAllowedMethods defines the Access-Control-Allow-Methods response header.
+    corsAllowedMethods:
+    # corsAllowedOrigin defines the Access-Control-Allow-Origin response header.
+    corsAllowedOrigin:
+    # corsEnabled defines whether Cross-Origin Resource Sharing (CORS) should be enabled. Typically, required if you want to access the REST interface from any machine other than the one running FA³ST Service.
+    corsEnabled:
+    # corsExposedHeaders defines the Access-Control-Expose-Headers response header.
+    corsExposedHeaders:
+    # corsMaxAge defines the Access-Control-Max-Age response header.
+    corsMaxAge:
+    # hostname defines the hostname to be used for automated registration with registry. May be overridden by core.callbackAddress
+    hostname:
+    # httpVersion defines the HTTP version to use for the connection. If HTTP 2 is used but not supported by the server, the connection will automatically downgrade.
+    httpVersion:
+    # pathPrefix defines the path prefix to be used for requests to this endpoint. Must start with a “/” and not end with a “/”. Exceptions: “” and “/”. (regex: ^(?:$|/|/.*[^/])$)
+    pathPrefix:
+    # includeErrorDetails defines whether a stack trace is added to the HTTP responses in case of error.
+    includeErrorDetails:
+    # port defines the port to use
+    port:
+    # sniEnabled defines whether Server Name Identification (SNI) should be enabled.
+    sniEnabled:
+    # sslEnabled defines whether SSL/HTTPS should be enabled.
+    sslEnabled:
+    # subprotocol defines the subprotocol to be used for automatic registration with registry. Limited to a maximum of 128 characters.
+    subprotocol:
+    # subprotocolBody defines the subprotocol body to be used for automatic registration with registry. Limited to a maximum of 128 characters. Supports templating: any “${id}” in the given subprotocolBody will be replaced with the AAS/submodel identifier.
+    subprotocolBody:
+    # subprotocolBodyEncoding defines the subprotocol body encoding to be used for automatic registration with registry.
+    subprotocolBodyEncoding:
+    # aclFolder defines the folder where the ACLs for AAS security are defined. The folder must be stored in the scope of your helm chart. Additionally, the acl.yaml.example must be copied into the parent chart as acl.yaml.
+    aclFolder:
+
+# assetConnections (list) defines the asset connections. The AssetConnection interface is responsible for synchronizing values of the model with assets. Although asset synchronization is not part of the AAS specification, we believe this functionality is essential for digital twins, at least when located on edge-level, i.e., close to an actual machine/asset.
+assetConnections:
+  # For defining asset connections, please refer to the FA³ST Service documentation.
+  - "@class": "de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.OpcUaAssetConnection"
