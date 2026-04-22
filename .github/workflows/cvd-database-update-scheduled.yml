@@ -12,6 +12,21 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+    - name: Checkout Source
+      uses: actions/checkout@v6
+      with:
+        # Disabling shallow clone is recommended for improving relevancy of reporting
+        fetch-depth: 0
+
+    - name: Cache -  Maven Repository
+      uses: actions/cache@v5
+      with:
+        path: |
+          ~/.m2/repository
+          ~/.sonar/cache
+        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-maven
+
     - name: Get Date
       id: get-date
       run: |
@@ -28,8 +43,6 @@ jobs:
 
     - name: Update CVE Database
       env:
-        OWASP_OSS_INDEX_USERNAME: ${{ secrets.OWASP_OSS_INDEX_USERNAME }}
-        OWASP_OSS_INDEX_APIKEY: ${{ secrets.OWASP_OSS_INDEX_APIKEY }}
         NIST_NVD_API_KEY: ${{ secrets.NIST_NVD_API_KEY }}
       run: |
         mvn -B -DnvdApiDelay=6000 org.owasp:dependency-check-maven:update-only
