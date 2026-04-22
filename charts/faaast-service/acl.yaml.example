@@ -1,12 +1,13 @@
-# Put this into your parent chart to automatically import aclFolders.
 {{- $root := . }}
+{{- $seen := dict }}
+{{- range $i, $ep := index $root.Values "faaast-service" "endpoints" }}
+  {{- if and $ep.aclFolder (not (hasKey $seen $ep.aclFolder)) }}
+    {{- $_ := set $seen $ep.aclFolder true }}
 
-{{- range $i, $ep := $root.Values.endpoints }}
-{{- if $ep.aclFolder }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ include "faaast-service.fullname" $root }}-acl-{{ $i }}
+  name: {{ printf "%s-acl-%d" $.Release.Name $i }}
   labels:
     app.kubernetes.io/name: {{ $root.Chart.Name }}
     helm.sh/chart: {{ $root.Chart.Name }}-{{ $root.Chart.Version }}

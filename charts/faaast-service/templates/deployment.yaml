@@ -87,7 +87,7 @@ spec:
           {{- end }}
           ports:
             {{- range $i, $endpoint := .Values.endpoints }}
-            - name: http
+            - name: port-{{ $i }}
               containerPort: {{ $endpoint.port }}
               protocol: TCP
             {{- end }}
@@ -105,17 +105,19 @@ spec:
             {{- toYaml . | nindent 12 }}
           {{- end }}
           volumeMounts:
-          {{- with .Values.volumeMounts }}
+            {{- with .Values.volumeMounts }}
             {{- toYaml . | nindent 12 }}
-          {{- end }}
+            {{- end }}
             - name: config
               mountPath: /app/config.json
               subPath: config.json
+            {{- $seenVolumes := dict }}
             {{- range $i, $ep := $root.Values.endpoints }}
-            {{- if $ep.aclFolder }}
+              {{- if and $ep.aclFolder (not (hasKey $seenVolumes $ep.aclFolder)) }}
+                {{- $_ := set $seenVolumes $ep.aclFolder true }}
             - name: acl-{{ $i }}
               mountPath: {{ printf "/app/resources/%s" $ep.aclFolder | quote }}
-            {{- end }}
+              {{- end }}
             {{- end }}
       volumes:
         - name: config
@@ -124,8 +126,10 @@ spec:
       {{- with .Values.volumes }}
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- $seenMounts := dict }}
       {{- range $i, $ep := $root.Values.endpoints }}
-      {{- if $ep.aclFolder }}
+      {{- if and $ep.aclFolder (not (hasKey $seenMounts $ep.aclFolder)) }}
+        {{- $_ := set $seenMounts $ep.aclFolder true }}
         - name: acl-{{ $i }}
           configMap:
             name: {{ printf "%s-acl-%d" $.Release.Name $i }}

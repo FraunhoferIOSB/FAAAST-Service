@@ -1,19 +1,25 @@
+{{- $root := . }}
+{{- range $i, $ep := (default (list (dict "port" 443)) .Values.endpoints) }}
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "faaast-service.fullname" . }}
+  name: {{ printf "%s-%d" (include "faaast-service.fullname" $root) (int $ep.port) }}
   labels:
-    app.kubernetes.io/name: {{ include (printf "%s.name" .Chart.Name) . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/name: {{ include (printf "%s.name" $root.Chart.Name) $root }}
+    app.kubernetes.io/instance: {{ $root.Release.Name }}
+  {{- if eq (int $ep.port) 443 }}
+  annotations:
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+  {{- end }}
 spec:
-  type: {{ (index (index (default (dict "type" "ClusterIP") .Values "service")) "type") }}
+  type: {{ (index (index (default (dict "type" "ClusterIP") $root.Values "service")) "type") }}
   ports:
-    {{- range (default (list (dict "port" 443)) .Values.endpoints) }}
-    - name: https
-      port: {{ .port }}
-      targetPort: {{ .port }}
+    - name: svc-{{ $i }}
+      port: {{ $ep.port }}
+      targetPort: {{ $ep.port }}
       protocol: TCP
-    {{- end }}
   selector:
-    app.kubernetes.io/name: {{ include (printf "%s.name" .Chart.Name) . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/name: {{ include (printf "%s.name" $root.Chart.Name) $root }}
+    app.kubernetes.io/instance: {{ $root.Release.Name }}
+---
+{{- end }}
