@@ -171,7 +171,7 @@ endpoints:
     # includeErrorDetails defines whether a stack trace is added to the HTTP responses in case of error.
     includeErrorDetails:
     # port defines the port to use
-    port:
+    port: 8080
     # sniEnabled defines whether Server Name Identification (SNI) should be enabled.
     sniEnabled:
     # sslEnabled defines whether SSL/HTTPS should be enabled.
