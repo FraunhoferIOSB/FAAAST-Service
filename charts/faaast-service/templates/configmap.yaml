@@ -36,7 +36,7 @@ data:
       {{- end }}
 
       {{- if hasKey .Values "persistence" }}
-      "persistence": {{ toPrettyJson . | nindent 6 | trim }},
+      "persistence": {{ toPrettyJson .Values.persistence | nindent 6 | trim }},
       {{- else }}
       "persistence": {
         "@class": "de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemory"
