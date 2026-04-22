@@ -8,6 +8,11 @@ image:
 
 fullnameOverride: faaast-service
 
+debug:
+  enabled: false
+  port: 5500
+  suspendOnStart: true
+
 autoscaling:
   enabled: false
 serviceAccount:

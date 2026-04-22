@@ -53,3 +53,14 @@ ingress:
           pathType: Prefix
           servicePort: 443 <-- The endpoint's port
 ```
+
+#### Debugging
+
+Debugging can be enabled with the following values:
+
+```yaml
+debug:
+  enabled: true
+  port: <debug-port>
+  suspendOnStart: true # /false
+```

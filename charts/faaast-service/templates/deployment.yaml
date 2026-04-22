@@ -67,6 +67,17 @@ spec:
           {{- end }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+          {{- if .Values.debug.enabled }}
+            - name: "JAVA_TOOL_OPTIONS"
+            {{- if .Values.debug.suspendOnStart }}
+              value: >-
+                {{ printf "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=%v" .Values.debug.port }}
+            {{- else }}
+              value: >-
+                {{ printf "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=%v" .Values.debug.port }}
+            {{- end }}
+          {{- end }}
           args:
           {{- if hasKey .Values "cli" }}
           {{- if hasKey .Values.cli "loglevel" }}
