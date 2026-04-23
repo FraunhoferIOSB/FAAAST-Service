@@ -57,7 +57,7 @@ public abstract class AbstractInvokeOperationRequestHandler<T extends InvokeOper
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractInvokeOperationRequestHandler.class);
 
-    public static final Reference SEMANTIC_ID_QUALIFIER_VALUE_BY_REFERENCE = ReferenceBuilder.global("http://iosb.fraunhofer.de/faaaast/qualifier/operation-value-by-reference");
+    public static final Reference SEMANTIC_ID_QUALIFIER_VALUE_BY_REFERENCE = ReferenceBuilder.global("http://iosb.fraunhofer.de/faaast/qualifier/operation-value-by-reference");
 
     @Override
     public U doProcess(T request, RequestExecutionContext context) throws ResourceNotFoundException, InvalidRequestException, PersistenceException {
