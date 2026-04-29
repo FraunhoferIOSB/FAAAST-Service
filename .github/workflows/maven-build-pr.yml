@@ -70,4 +70,4 @@ jobs:
         OWASP_OSS_INDEX_USERNAME: ${{ secrets.OWASP_OSS_INDEX_USERNAME }}
         OWASP_OSS_INDEX_APIKEY: ${{ secrets.OWASP_OSS_INDEX_APIKEY }}
       run: |
-        mvn org.owasp:dependency-check-maven:aggregate -P owasp --settings maven-ci-settings.xml -Ddependency-check.autoUpdate=false -B 
+        mvn org.owasp:dependency-check-maven:aggregate -P owasp --settings maven-ci-settings.xml -Dmaven.plugin.dependency-check.autoUpdate=false -B 
