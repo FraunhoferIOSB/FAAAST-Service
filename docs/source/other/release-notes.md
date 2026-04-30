@@ -4,6 +4,7 @@
 
 **New Features & Major Changes**
 - General
+	- Now requires Java 21 (instead of Java 17)
 	- Added support for reading/writing operation arguments from/to referenced other AAS elements (by using Qualifiers)
 	- Added CLI argument --show-stacktrace
 	- Added new core config properties `operationTimeout` to set a global timeout for executing AAS operations
