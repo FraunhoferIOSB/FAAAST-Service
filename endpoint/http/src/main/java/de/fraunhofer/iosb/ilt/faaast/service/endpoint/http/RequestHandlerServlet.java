@@ -24,6 +24,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
+import de.fraunhofer.iosb.ilt.faaast.service.request.assetconnection.PostOperationProviderByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
@@ -108,6 +109,9 @@ public class RequestHandlerServlet extends HttpServlet {
 
     private void checkRequestSupportedByProfiles(de.fraunhofer.iosb.ilt.faaast.service.model.api.Request<? extends Response> apiRequest) throws InvalidRequestException {
         if (Objects.isNull(config.getProfiles()) || config.getProfiles().isEmpty()) {
+            return;
+        }
+        if (apiRequest.getClass().equals(PostOperationProviderByPathRequest.class)) {
             return;
         }
         config.getProfiles().stream()
