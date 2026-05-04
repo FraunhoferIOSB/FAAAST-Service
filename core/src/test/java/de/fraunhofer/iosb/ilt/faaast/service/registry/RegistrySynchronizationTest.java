@@ -373,7 +373,7 @@ public class RegistrySynchronizationTest {
     }
 
 
-    private String getAasDescriptorBody(AssetAdministrationShell aas) throws JsonProcessingException, SerializationException {
+    private String getAasDescriptorBody(AssetAdministrationShell aas) throws SerializationException {
         return mapper.write(new DefaultAssetAdministrationShellDescriptor.Builder()
                 .administration(aas.getAdministration())
                 .id(aas.getId())
@@ -390,14 +390,14 @@ public class RegistrySynchronizationTest {
     }
 
 
-    private String getSubmodelDescriptorBody(Submodel submodel) throws JsonProcessingException, SerializationException {
+    private String getSubmodelDescriptorBody(Submodel submodel) throws SerializationException {
         return mapper.write(new DefaultSubmodelDescriptor.Builder()
                 .administration(submodel.getAdministration())
                 .id(submodel.getId())
                 .idShort(submodel.getIdShort())
                 .description(submodel.getDescription())
                 .semanticId(submodel.getSemanticId())
-                .supplementalSemanticId(submodel.getSupplementalSemanticIds())
+                .supplementalSemanticIds(submodel.getSupplementalSemanticIds())
                 .displayName(submodel.getDisplayName())
                 .extensions(submodel.getExtensions())
                 .endpoints(endpoint.getSubmodelEndpointInformation(submodel.getId()))
@@ -416,7 +416,7 @@ public class RegistrySynchronizationTest {
                         .idShort(x.getIdShort())
                         .description(x.getDescription())
                         .semanticId(x.getSemanticId())
-                        .supplementalSemanticId(x.getSupplementalSemanticIds())
+                        .supplementalSemanticIds(x.getSupplementalSemanticIds())
                         .displayName(x.getDisplayName())
                         .extensions(x.getExtensions())
                         .endpoints(endpoint.getSubmodelEndpointInformation(x.getId()))
