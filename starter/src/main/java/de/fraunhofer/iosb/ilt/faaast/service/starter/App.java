@@ -312,7 +312,7 @@ public class App implements Runnable {
                             COMMAND_NO_VALIDATION));
         }
         catch (Exception e) {
-            throw new InitializationException("Error loading model file. Ensure that the model is valid and conformant to v3 of the AAS specficiation.", e);
+            throw new InitializationException("Error loading model file. Ensure that the model is valid and conformant to v3 of the AAS specification.", e);
         }
 
     }
