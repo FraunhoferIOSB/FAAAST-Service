@@ -14,12 +14,18 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler.assetconnection;
 
+import static org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum.ERROR;
+import static org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum.EXCEPTION;
+import static org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum.INFO;
+import static org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum.WARNING;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.request.assetconnection.PostOperationProviderByPathRequest;
@@ -28,7 +34,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionCon
 import de.fraunhofer.iosb.ilt.faaast.service.response.assetconnection.PostOperationProviderByPathResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.slf4j.Logger;
@@ -56,13 +64,14 @@ public class PostOperationProviderByPathRequestHandler extends AbstractSubmodelI
                 .submodel(request.getSubmodelId())
                 .idShortPath(request.getPath())
                 .build();
-        AssetConnectionConfig config = convertBody(request.getBody(), reference);
         if (context.getAssetConnectionManager().hasOperationProvider(reference)) {
             throw new IllegalArgumentException(String.format(
                     "operation provider already defined for reference '%s'",
                     ReferenceHelper.toString(reference)));
         }
 
+        AssetConnectionConfig config = convertBody(request.getBody(), reference);
+        log(context.getAssetConnectionManager().updateConnections(new ArrayList<>(), List.of(config)));
         return PostOperationProviderByPathResponse.builder()
                 .statusCode(StatusCode.SUCCESS_NO_CONTENT)
                 .build();
@@ -143,6 +152,19 @@ public class PostOperationProviderByPathRequestHandler extends AbstractSubmodelI
         op.propertyStream().forEach(x -> LOGGER.info("Key: ", x.getKey()));
         for (var entry: op.properties()) {
             LOGGER.info("Key: {}; value: {}", entry.getKey(), entry.getValue());
+        }
+    }
+
+
+    private void log(List<Message> messages) {
+        for (var message: messages) {
+            switch (message.getMessageType()) {
+                case ERROR -> LOGGER.error(message.getText());
+                case EXCEPTION -> LOGGER.error(message.getText());
+                case INFO -> LOGGER.info(message.getText());
+                case WARNING -> LOGGER.warn(message.getText());
+                default -> LOGGER.debug(message.getText());
+            }
         }
     }
 }
