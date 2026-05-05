@@ -227,7 +227,7 @@ public class RegistrySynchronizationTest {
             String aasId = invocation.getArgument(0);
             return List.of(
                     new org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEndpoint.Builder()
-                            ._interface("AAS-REPOSITORY-3.0")
+                            ._interface("AAS-REPOSITORY-3.1")
                             .protocolInformation(new DefaultProtocolInformation.Builder()
                                     .href(serviceUri.toASCIIString())
                                     .endpointProtocol("HTTP")
@@ -243,7 +243,7 @@ public class RegistrySynchronizationTest {
                                     .build())
                             .build(),
                     new org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEndpoint.Builder()
-                            ._interface("AAS-3.0")
+                            ._interface("AAS-3.1")
                             .protocolInformation(new DefaultProtocolInformation.Builder()
                                     .href(serviceUri.toASCIIString() + "/shells/" + EncodingHelper.base64UrlEncode(aasId))
                                     .endpointProtocol("HTTP")
@@ -264,7 +264,7 @@ public class RegistrySynchronizationTest {
             String submodelId = invocation.getArgument(0);
             return List.of(
                     new DefaultEndpoint.Builder()
-                            ._interface("SUBMODEL-REPOSITORY-3.0")
+                            ._interface("SUBMODEL-REPOSITORY-3.1")
                             .protocolInformation(new DefaultProtocolInformation.Builder()
                                     .href(serviceUri.toASCIIString())
                                     .endpointProtocol("HTTP")
@@ -280,7 +280,7 @@ public class RegistrySynchronizationTest {
                                     .build())
                             .build(),
                     new DefaultEndpoint.Builder()
-                            ._interface("SUBMODEL-3.0")
+                            ._interface("SUBMODEL-3.1")
                             .protocolInformation(new DefaultProtocolInformation.Builder()
                                     .href(serviceUri.toASCIIString() + "/submodels/" + EncodingHelper.base64UrlEncode(submodelId))
                                     .endpointProtocol("HTTP")

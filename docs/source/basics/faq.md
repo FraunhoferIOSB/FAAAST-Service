@@ -185,7 +185,7 @@ A registered shell descriptor could then look like this:
       "securityAttributes": {
         // ...
 	  },
-      "interface": "AAS-REPOSITORY-3.0"    
+      "interface": "AAS-REPOSITORY-3.1"    
     },
     {
       "protocolInformation": {
@@ -196,7 +196,7 @@ A registered shell descriptor could then look like this:
       "securityAttributes": {
         // ...
 	  },
-      "interface": "AAS-3.0"    
+      "interface": "AAS-3.1"    
     }
   ],
   "id": "example-aas-id",
