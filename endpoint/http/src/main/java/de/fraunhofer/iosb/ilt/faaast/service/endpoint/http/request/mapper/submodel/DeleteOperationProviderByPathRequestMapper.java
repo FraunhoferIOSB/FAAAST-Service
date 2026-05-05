@@ -20,31 +20,31 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.Abstra
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
-import de.fraunhofer.iosb.ilt.faaast.service.request.assetconnection.PostOperationProviderByPathRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.response.assetconnection.PostOperationProviderByPathResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.request.assetconnection.DeleteOperationProviderByPathRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.response.assetconnection.DeleteOperationProviderByPathResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
 import java.util.Map;
 
 
 /**
- * class to map HTTP-POST-Request paths: submodels/{submodelIdentifier}/submodel-elements/{idShortPath},
+ * class to map HTTP-DELETE-Request paths: submodels/{submodelIdentifier}/submodel-elements/{idShortPath},
  * shells/{aasIdentifier}/submodels/{submodelIdentifier}/submodel-elements/{idShortPath}.
  */
-public class PostOperationProviderByPathRequestMapper extends AbstractSubmodelInterfaceRequestMapper<PostOperationProviderByPathRequest, PostOperationProviderByPathResponse> {
+public class DeleteOperationProviderByPathRequestMapper
+        extends AbstractSubmodelInterfaceRequestMapper<DeleteOperationProviderByPathRequest, DeleteOperationProviderByPathResponse> {
 
     private static final String OPERATION_PATH = RegExHelper.uniqueGroupName();
     private static final String PATTERN = String.format("submodel-elements/%s/connection", pathElement(OPERATION_PATH));
 
-    public PostOperationProviderByPathRequestMapper(ServiceContext serviceContext) {
-        super(serviceContext, HttpMethod.POST, PATTERN);
+    public DeleteOperationProviderByPathRequestMapper(ServiceContext serviceContext) {
+        super(serviceContext, HttpMethod.DELETE, PATTERN);
     }
 
 
     @Override
-    public PostOperationProviderByPathRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) throws InvalidRequestException {
-        // Can't parse body here, because submodelId is not yet available
-        return PostOperationProviderByPathRequest.builder()
+    public DeleteOperationProviderByPathRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) throws InvalidRequestException {
+        return DeleteOperationProviderByPathRequest.builder()
                 .path(EncodingHelper.urlDecode(urlParameters.get(OPERATION_PATH)))
                 .body(httpRequest.getBodyAsString())
                 .build();
