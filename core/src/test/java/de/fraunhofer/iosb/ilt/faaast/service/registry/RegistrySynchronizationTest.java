@@ -27,7 +27,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.config.RegistrySynchronizationConfig;
@@ -115,7 +114,7 @@ public class RegistrySynchronizationTest {
 
 
     @Test
-    public void testAddsAuthHeaderWhenConfigured() throws Exception {
+    public void testAddsAuthHeaderWhenConfigured() {
         registrySynchronization.start();
         registrySynchronization.stop();
 
@@ -148,7 +147,7 @@ public class RegistrySynchronizationTest {
 
 
     @Test
-    public void testAasCreation() throws MessageBusException, JsonProcessingException, SerializationException {
+    public void testAasCreation() throws MessageBusException, SerializationException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(0);
         registrySynchronization.start();
         messageBus.publish(ElementCreateEventMessage.builder()
@@ -160,7 +159,7 @@ public class RegistrySynchronizationTest {
 
 
     @Test
-    public void testAasUpdate() throws MessageBusException, JsonProcessingException, SerializationException {
+    public void testAasUpdate() throws MessageBusException, SerializationException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(0);
         aas.setIdShort("Changed Id Short");
         registrySynchronization.start();
@@ -184,7 +183,7 @@ public class RegistrySynchronizationTest {
 
 
     @Test
-    public void testSubmodelCreation() throws MessageBusException, JsonProcessingException, SerializationException {
+    public void testSubmodelCreation() throws MessageBusException, SerializationException {
         Submodel submodel = environment.getSubmodels().get(0);
         registrySynchronization.start();
         messageBus.publish(ElementCreateEventMessage.builder()
@@ -196,7 +195,7 @@ public class RegistrySynchronizationTest {
 
 
     @Test
-    public void testSubmodelUpdate() throws MessageBusException, JsonProcessingException, SerializationException {
+    public void testSubmodelUpdate() throws MessageBusException, SerializationException {
         Submodel submodel = environment.getSubmodels().get(0);
         String oldIdShort = submodel.getIdShort();
         submodel.setIdShort("Changed Id Short");

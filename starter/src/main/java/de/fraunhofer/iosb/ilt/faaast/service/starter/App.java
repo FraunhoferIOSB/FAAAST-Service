@@ -594,7 +594,7 @@ public class App implements Runnable {
 
     private void printEndpointInfo(ServiceConfig config) {
         if (LOGGER.isInfoEnabled()) {
-            config.getEndpoints().stream().forEach(x -> {
+            config.getEndpoints().forEach(x -> {
                 if (HttpEndpointConfig.class.isAssignableFrom(x.getClass())) {
                     LOGGER.info("HTTP endpoint available on port {}", ((HttpEndpointConfig) x).getPort());
                 }

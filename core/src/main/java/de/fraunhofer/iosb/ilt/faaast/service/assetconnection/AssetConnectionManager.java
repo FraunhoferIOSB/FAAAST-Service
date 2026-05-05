@@ -110,7 +110,7 @@ public class AssetConnectionManager {
      */
     public void cleanupDanglingConnectionsAfterModify(Reference modifiedElement) {
         Predicate<Reference> condition = x -> ReferenceHelper.startsWith(x, modifiedElement) && !service.getPersistence().submodelElementExists(x);
-        connections.stream()
+        connections
                 .forEach(LambdaExceptionHelper.rethrowConsumer(connection -> {
                     for (var providerType: AssetProviderType.values()) {
                         providerType.getProvidersFromConnectionAccessor().apply(connection).keySet().stream()
@@ -360,8 +360,7 @@ public class AssetConnectionManager {
         else {
             Map<Reference, DataElement> oldChildren = findSynchronizableElements(reference, oldElement);
             Map<Reference, DataElement> newChildren = findSynchronizableElements(reference, newElement);
-            newChildren.entrySet().stream()
-                    .forEach(x -> syncElementOnWrite(x.getKey(), Pair.of(oldChildren.get(x.getKey()), x.getValue()), publishOnMessageBus));
+            newChildren.forEach((key, value) -> syncElementOnWrite(key, Pair.of(oldChildren.get(key), value), publishOnMessageBus));
         }
     }
 
