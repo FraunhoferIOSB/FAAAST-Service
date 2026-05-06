@@ -57,8 +57,8 @@ public class ImportRequestHandler extends AbstractRequestHandler<ImportRequest, 
                 .read(new ByteArrayInputStream(request.getContent()));
         ImportResult.Builder result = ImportResult.builder();
         StreamHelper.concat(
-                environmentContext.getEnvironment().getAssetAdministrationShells().stream(),
                 environmentContext.getEnvironment().getSubmodels().stream(),
+                environmentContext.getEnvironment().getAssetAdministrationShells().stream(),
                 environmentContext.getEnvironment().getConceptDescriptions().stream())
                 .forEach(x -> {
                     try {
