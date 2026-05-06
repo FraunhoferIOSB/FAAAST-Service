@@ -97,6 +97,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestExcep
 import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
+import de.fraunhofer.iosb.ilt.faaast.service.request.assetconnection.DeleteOperationProviderByPathRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.request.assetconnection.PostOperationProviderByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeExtractor;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
@@ -1206,6 +1208,64 @@ public class RequestMappingManagerTest {
                 .path("reset")
                 .header(HttpConstants.HEADER_CONTENT_TYPE, "application/json")
                 .body(json.getBytes())
+                .build());
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testPostOperationProviderByPathRequest() throws InvalidRequestException {
+        String body = """
+                {
+                  "connection": {
+                    "@class": "de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.OpcUaAssetConnection",
+                    "host": "opc.tcp://lovalhost:12345"
+                  },
+                  "provider": {
+                    "nodeId": "ns=2;i=55555"
+                  }
+                }
+                """;
+        Request expected = PostOperationProviderByPathRequest.builder()
+                .submodelId(SUBMODEL.getId())
+                .path(ReferenceHelper.toPath(OPERATION_REF))
+                .body(body)
+                .build();
+        Request actual = mappingManager.map(HttpRequest.builder()
+                .method(HttpMethod.POST)
+                .path("submodels/" + EncodingHelper.base64UrlEncode(SUBMODEL.getId()) + "/submodel-elements/"
+                        + ReferenceHelper.toPath(OPERATION_REF)
+                        + "/connection")
+                .body(body)
+                .build());
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testDeleteOperationProviderByPathRequest() throws InvalidRequestException {
+        String body = """
+                {
+                  "connection": {
+                    "@class": "de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.OpcUaAssetConnection",
+                    "host": "opc.tcp://lovalhost:12345"
+                  },
+                  "provider": {
+                    "nodeId": "ns=2;i=55555"
+                  }
+                }
+                """;
+        Request expected = DeleteOperationProviderByPathRequest.builder()
+                .submodelId(SUBMODEL.getId())
+                .path(ReferenceHelper.toPath(OPERATION_REF))
+                .body(body)
+                .build();
+        Request actual = mappingManager.map(HttpRequest.builder()
+                .method(HttpMethod.DELETE)
+                .path("submodels/" + EncodingHelper.base64UrlEncode(SUBMODEL.getId()) + "/submodel-elements/"
+                        + ReferenceHelper.toPath(OPERATION_REF)
+                        + "/connection")
+                .body(body)
                 .build());
         Assert.assertEquals(expected, actual);
     }
