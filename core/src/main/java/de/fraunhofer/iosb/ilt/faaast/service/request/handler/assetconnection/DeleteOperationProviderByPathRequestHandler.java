@@ -50,7 +50,7 @@ public class DeleteOperationProviderByPathRequestHandler
                     ReferenceHelper.toString(reference)));
         }
 
-        AssetConnectionConfig config = OperationProviderHelper.convertBodyToAssetConnectionConfig(request.getBody(), reference);
+        AssetConnectionConfig<?, ?, ?, ?> config = OperationProviderHelper.convertBodyToAssetConnectionConfig(request.getBody(), reference);
         OperationProviderHelper.logMessages(context.getAssetConnectionManager().updateConnections(List.of(config), new ArrayList<>()));
         return DeleteOperationProviderByPathResponse.builder()
                 .statusCode(StatusCode.SUCCESS_NO_CONTENT)

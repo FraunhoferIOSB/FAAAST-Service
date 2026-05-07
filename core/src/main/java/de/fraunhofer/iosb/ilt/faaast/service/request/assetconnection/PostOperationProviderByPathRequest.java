@@ -26,7 +26,6 @@ public class PostOperationProviderByPathRequest extends AbstractSubmodelInterfac
 
     private String path;
     private String body;
-    //private AssetConnectionConfig assetConnectionConfig;
 
     public String getPath() {
         return path;
@@ -36,14 +35,6 @@ public class PostOperationProviderByPathRequest extends AbstractSubmodelInterfac
     public void setPath(String key) {
         this.path = key;
     }
-
-    //public AssetConnectionConfig getAssetConnectionConfig() {
-    //    return assetConnectionConfig;
-    //}
-
-    //public void setAssetConnectionConfig(AssetConnectionConfig assetConnectionConfig) {
-    //    this.assetConnectionConfig = assetConnectionConfig;
-    //}
 
 
     public String getBody() {
@@ -94,11 +85,6 @@ public class PostOperationProviderByPathRequest extends AbstractSubmodelInterfac
             getBuildingInstance().setBody(value);
             return getSelf();
         }
-
-        //public B assetConnectionConfig(AssetConnectionConfig value) {
-        //    getBuildingInstance().setAssetConnectionConfig(value);
-        //    return getSelf();
-        //}
     }
 
     public static class Builder extends AbstractBuilder<PostOperationProviderByPathRequest, Builder> {

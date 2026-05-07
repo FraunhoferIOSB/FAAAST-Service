@@ -1880,7 +1880,6 @@ public class RequestHandlerManagerTest {
                 .build();
 
         AssetConnectionConfig expectedConfig = BarConnectionConfig.builder()
-                //.property1("Test")
                 .operationProvider(operationReference, BarOperationProviderConfig.builder().property1("Test").build())
                 .build();
 

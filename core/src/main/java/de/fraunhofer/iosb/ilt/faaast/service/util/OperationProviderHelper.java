@@ -14,11 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.util;
 
-import static org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum.ERROR;
-import static org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum.EXCEPTION;
-import static org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum.INFO;
-import static org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum.WARNING;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -44,6 +39,9 @@ public class OperationProviderHelper {
     private static final ObjectMapper MAPPER = new ObjectMapper()
             .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 
+    private OperationProviderHelper() {}
+
+
     /**
      * Converts the given body to an AssetConnectionConfig.
      *
@@ -53,44 +51,27 @@ public class OperationProviderHelper {
      * @throws JsonProcessingException error serializing or deserializing data.
      * @throws InvalidRequestException of conversion fails.
      */
-    public static AssetConnectionConfig convertBodyToAssetConnectionConfig(String body, Reference operationReference) throws JsonProcessingException, InvalidRequestException {
+    public static AssetConnectionConfig<?, ?, ?, ?> convertBodyToAssetConnectionConfig(String body, Reference operationReference)
+            throws JsonProcessingException, InvalidRequestException {
         JsonNode rootNode = MAPPER.readTree(body);
-        //if (json.getNodeType() == JsonNodeType.OBJECT) {
-        //ObjectNode rootNode = (ObjectNode) json;
         JsonNode connection = rootNode.get("connection");
         if (connection == null) {
             throw new InvalidRequestException("invalid JSON: connection not found");
         }
-        //var iterator = connection.values();
-        //while (iterator.hasNext()) {
-        //    LOGGER.info("value: {}", iterator.next());
-        //}
-        //connection.propertyStream().forEach(x -> LOGGER.info("Key: ", x.getKey()));
-        //for (var entry: connection.properties()) {
-        //    LOGGER.info("Key: {}; value: {}", entry.getKey(), entry.getValue());
-        //}
-        //createConfig();
-        ObjectNode newNode = (ObjectNode) MAPPER.createObjectNode();
-        //if (connection.getNodeType() == JsonNodeType.OBJECT) {
-        //    ObjectNode connObj = (ObjectNode) connection;
+
+        ObjectNode newNode = MAPPER.createObjectNode();
         Map<String, JsonNode> map = new HashMap<>();
-        connection.properties().stream().forEach(x -> map.put(x.getKey(), x.getValue()));
+        connection.properties().forEach(x -> map.put(x.getKey(), x.getValue()));
         newNode.setAll(map);
 
         JsonNode op = rootNode.get("provider");
-        ObjectNode operationProviders = (ObjectNode) MAPPER.createObjectNode();
+        ObjectNode operationProviders = MAPPER.createObjectNode();
 
         operationProviders.set(ReferenceHelper.asString(operationReference), op);
         newNode.set("operationProviders", operationProviders);
-        //rootNode.remove("connection");
         String txt = newNode.toPrettyString();
         LOGGER.info("New JSON: {}", txt);
-        AssetConnectionConfig result = MAPPER.readValue(txt, AssetConnectionConfig.class);
-        return result;
-        //connObj.setA
-        //}
-        //}
-        //return null;
+        return MAPPER.readValue(txt, AssetConnectionConfig.class);
     }
 
 
