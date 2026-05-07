@@ -14,11 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.util;
 
-import static org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum.ERROR;
-import static org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum.EXCEPTION;
-import static org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum.INFO;
-import static org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum.WARNING;
-
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
 import java.util.List;
 import org.slf4j.Logger;
