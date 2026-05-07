@@ -31,8 +31,11 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.ArgumentValidationMode;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.fixtures.bar.BarConnectionConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.fixtures.bar.BarOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
@@ -154,6 +157,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.persistence.ConceptDescriptionSearc
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.SubmodelSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.request.RequestHandlerManager;
+import de.fraunhofer.iosb.ilt.faaast.service.request.assetconnection.DeleteOperationProviderByPathRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.request.assetconnection.PostOperationProviderByPathRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.response.assetconnection.DeleteOperationProviderByPathResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.response.assetconnection.PostOperationProviderByPathResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
@@ -163,6 +170,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
@@ -1794,6 +1802,98 @@ public class RequestHandlerManagerTest {
         manager.executeAsync(request, x -> response.set(x), context);
         condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
         Assert.assertEquals(environment.getAssetAdministrationShells(), response.get().getPayload().getContent());
+    }
+
+
+    @Test
+    public void testPostOperationProviderByPathRequest() throws Exception {
+        String submodelId = "http://example.org";
+        Operation operation = getTestOperation();
+        String body = """
+                {
+                  "connection": {
+                    "@class": "de.fraunhofer.iosb.ilt.faaast.service.assetconnection.fixtures.bar.BarConnection"
+                  },
+                  "provider": {
+                    "property1": "Test"
+                  }
+                }
+                """;
+
+        doReturn(false)
+                .when(assetConnectionManager)
+                .hasOperationProvider(any());
+
+        doReturn(new ArrayList<Message>())
+                .when(assetConnectionManager)
+                .updateConnections(any(), any());
+
+        Reference operationReference = new ReferenceBuilder()
+                .submodel(submodelId)
+                .element(operation.getIdShort())
+                .build();
+
+        AssetConnectionConfig expectedConfig = BarConnectionConfig.builder()
+                //.property1("Test")
+                .operationProvider(operationReference, BarOperationProviderConfig.builder().property1("Test").build())
+                .build();
+
+        List<AssetConnectionConfig> newList = List.of(expectedConfig);
+
+        PostOperationProviderByPathRequest postOperationProviderByPathRequest = new PostOperationProviderByPathRequest.Builder()
+                .submodelId(submodelId)
+                .path(operation.getIdShort())
+                .body(body)
+                .build();
+        PostOperationProviderByPathResponse response = manager.execute(postOperationProviderByPathRequest, context);
+        Assert.assertEquals(StatusCode.SUCCESS_NO_CONTENT, response.getStatusCode());
+        verify(assetConnectionManager).updateConnections(eq(new ArrayList<>()), eq(newList));
+    }
+
+
+    @Test
+    public void testDeleteOperationProviderByPathRequest() throws Exception {
+        String submodelId = "http://example.org";
+        Operation operation = getTestOperation();
+        String body = """
+                {
+                  "connection": {
+                    "@class": "de.fraunhofer.iosb.ilt.faaast.service.assetconnection.fixtures.bar.BarConnection"
+                  },
+                  "provider": {
+                    "property1": "Test"
+                  }
+                }
+                """;
+
+        doReturn(true)
+                .when(assetConnectionManager)
+                .hasOperationProvider(any());
+
+        doReturn(new ArrayList<Message>())
+                .when(assetConnectionManager)
+                .updateConnections(any(), any());
+
+        Reference operationReference = new ReferenceBuilder()
+                .submodel(submodelId)
+                .element(operation.getIdShort())
+                .build();
+
+        AssetConnectionConfig expectedConfig = BarConnectionConfig.builder()
+                //.property1("Test")
+                .operationProvider(operationReference, BarOperationProviderConfig.builder().property1("Test").build())
+                .build();
+
+        List<AssetConnectionConfig> newList = List.of(expectedConfig);
+
+        DeleteOperationProviderByPathRequest deleteOperationProviderByPathRequest = new DeleteOperationProviderByPathRequest.Builder()
+                .submodelId(submodelId)
+                .path(operation.getIdShort())
+                .body(body)
+                .build();
+        DeleteOperationProviderByPathResponse response = manager.execute(deleteOperationProviderByPathRequest, context);
+        Assert.assertEquals(StatusCode.SUCCESS_NO_CONTENT, response.getStatusCode());
+        verify(assetConnectionManager).updateConnections(eq(newList), eq(new ArrayList<>()));
     }
 
 
