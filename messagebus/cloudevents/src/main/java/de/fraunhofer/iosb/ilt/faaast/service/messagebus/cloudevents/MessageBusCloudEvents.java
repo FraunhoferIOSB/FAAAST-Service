@@ -41,6 +41,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EnvironmentHelper;
 import io.cloudevents.CloudEvent;
 import io.cloudevents.jackson.JsonFormat;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Function;
@@ -57,6 +58,7 @@ import org.slf4j.LoggerFactory;
 public class MessageBusCloudEvents implements MessageBus<MessageBusCloudEventsConfig> {
 
     private static final String PUBLISH_ERROR_MSG = "{} publishing event via CloudEvents MQTT message bus for message type {}";
+    private static final String DEFAULT_CALLBACK_ADDRESS = "localhost";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MessageBusCloudEvents.class);
 
@@ -140,7 +142,13 @@ public class MessageBusCloudEvents implements MessageBus<MessageBusCloudEventsCo
             }
         };
 
-        mapperRegistry = defaultRegistry(CloudEventMapperConfig.from(config, coreConfig.getCallbackAddress()), referableSupplier);
+        String callbackAddress = Optional.ofNullable(coreConfig.getCallbackAddress())
+                .orElseGet(() -> {
+                    LOGGER.warn("No callbackAddress configured in the core configuration. Using '{}' as CloudEvent 'source' URL", DEFAULT_CALLBACK_ADDRESS);
+                    return DEFAULT_CALLBACK_ADDRESS;
+                });
+
+        mapperRegistry = defaultRegistry(CloudEventMapperConfig.from(config, callbackAddress), referableSupplier);
     }
 
 

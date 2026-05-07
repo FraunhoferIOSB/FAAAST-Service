@@ -16,7 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.messagebus.cloudevents.mqtt.client
 
 import de.fraunhofer.iosb.ilt.faaast.service.config.CertificateConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.cloudevents.MessageBusCloudEventsConfig;
-import java.util.Objects;
+import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 
 
 /**
@@ -43,7 +43,7 @@ public record MqttClientConfig(
      * Record constructor.
      */
     public MqttClientConfig {
-        Objects.requireNonNull(host);
+        Ensure.requireNonNull(host, "CloudEvents MQTT broker host cannot be empty.");
     }
 
 
