@@ -51,7 +51,7 @@ public class OperationProviderHelper {
      * @throws JsonProcessingException error serializing or deserializing data.
      * @throws InvalidRequestException of conversion fails.
      */
-    public static AssetConnectionConfig<?, ?, ?, ?> convertBodyToAssetConnectionConfig(String body, Reference operationReference)
+    public static AssetConnectionConfig convertBodyToAssetConnectionConfig(String body, Reference operationReference)
             throws JsonProcessingException, InvalidRequestException {
         JsonNode rootNode = MAPPER.readTree(body);
         JsonNode connection = rootNode.get("connection");

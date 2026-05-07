@@ -1847,7 +1847,7 @@ public class RequestHandlerManagerTest {
                 .build();
         PostOperationProviderByPathResponse response = manager.execute(postOperationProviderByPathRequest, context);
         Assert.assertEquals(StatusCode.SUCCESS_NO_CONTENT, response.getStatusCode());
-        verify(assetConnectionManager).updateConnections(eq(new ArrayList<>()), eq(newList));
+        verify(assetConnectionManager).updateConnections(new ArrayList<>(), newList);
     }
 
 
@@ -1892,7 +1892,7 @@ public class RequestHandlerManagerTest {
                 .build();
         DeleteOperationProviderByPathResponse response = manager.execute(deleteOperationProviderByPathRequest, context);
         Assert.assertEquals(StatusCode.SUCCESS_NO_CONTENT, response.getStatusCode());
-        verify(assetConnectionManager).updateConnections(eq(newList), eq(new ArrayList<>()));
+        verify(assetConnectionManager).updateConnections(newList, new ArrayList<>());
     }
 
 
