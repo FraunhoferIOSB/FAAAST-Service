@@ -20,10 +20,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.slf4j.Logger;
@@ -74,21 +72,4 @@ public class OperationProviderHelper {
         return MAPPER.readValue(txt, AssetConnectionConfig.class);
     }
 
-
-    /**
-     * Logs the given messages.
-     *
-     * @param messages The desired messages.
-     */
-    public static void logMessages(List<Message> messages) {
-        for (var message: messages) {
-            switch (message.getMessageType()) {
-                case ERROR -> LOGGER.error(message.getText());
-                case EXCEPTION -> LOGGER.error(message.getText());
-                case INFO -> LOGGER.info(message.getText());
-                case WARNING -> LOGGER.warn(message.getText());
-                default -> LOGGER.debug(message.getText());
-            }
-        }
-    }
 }

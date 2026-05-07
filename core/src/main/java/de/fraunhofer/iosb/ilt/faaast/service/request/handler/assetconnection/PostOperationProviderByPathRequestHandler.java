@@ -20,6 +20,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.request.assetconnection.PostOperati
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractSubmodelInterfaceRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.response.assetconnection.PostOperationProviderByPathResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.util.LogHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.OperationProviderHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
@@ -50,7 +51,7 @@ public class PostOperationProviderByPathRequestHandler extends AbstractSubmodelI
         }
 
         AssetConnectionConfig<?, ?, ?, ?> config = OperationProviderHelper.convertBodyToAssetConnectionConfig(request.getBody(), reference);
-        OperationProviderHelper.logMessages(context.getAssetConnectionManager().updateConnections(new ArrayList<>(), List.of(config)));
+        LogHelper.logMessages(context.getAssetConnectionManager().updateConnections(new ArrayList<>(), List.of(config)));
         return PostOperationProviderByPathResponse.builder()
                 .statusCode(StatusCode.SUCCESS_NO_CONTENT)
                 .build();

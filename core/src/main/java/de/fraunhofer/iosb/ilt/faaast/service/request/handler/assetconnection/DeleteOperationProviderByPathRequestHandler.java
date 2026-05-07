@@ -20,6 +20,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.request.assetconnection.DeleteOpera
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractSubmodelInterfaceRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.response.assetconnection.DeleteOperationProviderByPathResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.util.LogHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.OperationProviderHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
@@ -51,7 +52,7 @@ public class DeleteOperationProviderByPathRequestHandler
         }
 
         AssetConnectionConfig<?, ?, ?, ?> config = OperationProviderHelper.convertBodyToAssetConnectionConfig(request.getBody(), reference);
-        OperationProviderHelper.logMessages(context.getAssetConnectionManager().updateConnections(List.of(config), new ArrayList<>()));
+        LogHelper.logMessages(context.getAssetConnectionManager().updateConnections(List.of(config), new ArrayList<>()));
         return DeleteOperationProviderByPathResponse.builder()
                 .statusCode(StatusCode.SUCCESS_NO_CONTENT)
                 .build();
