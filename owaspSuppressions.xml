@@ -48,4 +48,12 @@
 		<notes><![CDATA[Ignore until Apache libthrift 0.23.0 is released on maven central]]></notes>
 		<cve>CVE-2026-41636</cve>
 	</suppress>
+	<suppress>
+		<notes><![CDATA[Ignore until Apache libthrift 0.23.0 is released on maven central]]></notes>
+		<cve>CVE-2026-43870</cve>
+	</suppress>
+	<suppress>
+		<notes><![CDATA[Ignore until Apache libthrift 0.23.0 is released on maven central]]></notes>
+		<cve>CVE-2026-43869</cve>
+	</suppress>
 </suppressions>
