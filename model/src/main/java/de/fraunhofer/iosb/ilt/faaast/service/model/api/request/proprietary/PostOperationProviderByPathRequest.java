@@ -12,17 +12,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.request.assetconnection;
+package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.proprietary;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractSubmodelInterfaceRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.response.assetconnection.DeleteOperationProviderByPathResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.proprietary.PostOperationProviderByPathResponse;
 import java.util.Objects;
 
 
 /**
- * Request class for DeleteOperationProviderByPath requests.
+ * Request class for PostOperationProviderByPath requests.
  */
-public class DeleteOperationProviderByPathRequest extends AbstractSubmodelInterfaceRequest<DeleteOperationProviderByPathResponse> {
+public class PostOperationProviderByPathRequest extends AbstractSubmodelInterfaceRequest<PostOperationProviderByPathResponse> {
 
     private String path;
     private String body;
@@ -55,7 +55,7 @@ public class DeleteOperationProviderByPathRequest extends AbstractSubmodelInterf
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        DeleteOperationProviderByPathRequest that = (DeleteOperationProviderByPathRequest) o;
+        PostOperationProviderByPathRequest that = (PostOperationProviderByPathRequest) o;
         return super.equals(that)
                 && Objects.equals(path, that.path)
                 && Objects.equals(body, that.body);
@@ -72,7 +72,7 @@ public class DeleteOperationProviderByPathRequest extends AbstractSubmodelInterf
         return new Builder();
     }
 
-    public abstract static class AbstractBuilder<T extends DeleteOperationProviderByPathRequest, B extends AbstractBuilder<T, B>>
+    public abstract static class AbstractBuilder<T extends PostOperationProviderByPathRequest, B extends AbstractBuilder<T, B>>
             extends AbstractSubmodelInterfaceRequest.AbstractBuilder<T, B> {
 
         public B path(String value) {
@@ -87,7 +87,7 @@ public class DeleteOperationProviderByPathRequest extends AbstractSubmodelInterf
         }
     }
 
-    public static class Builder extends AbstractBuilder<DeleteOperationProviderByPathRequest, Builder> {
+    public static class Builder extends AbstractBuilder<PostOperationProviderByPathRequest, Builder> {
 
         @Override
         protected Builder getSelf() {
@@ -96,8 +96,8 @@ public class DeleteOperationProviderByPathRequest extends AbstractSubmodelInterf
 
 
         @Override
-        protected DeleteOperationProviderByPathRequest newBuildingInstance() {
-            return new DeleteOperationProviderByPathRequest();
+        protected PostOperationProviderByPathRequest newBuildingInstance() {
+            return new PostOperationProviderByPathRequest();
         }
     }
 }

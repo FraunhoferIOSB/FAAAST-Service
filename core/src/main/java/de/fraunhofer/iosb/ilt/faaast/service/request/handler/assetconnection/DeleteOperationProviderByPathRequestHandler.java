@@ -16,10 +16,10 @@ package de.fraunhofer.iosb.ilt.faaast.service.request.handler.assetconnection;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
-import de.fraunhofer.iosb.ilt.faaast.service.request.assetconnection.DeleteOperationProviderByPathRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.proprietary.DeleteOperationProviderByPathRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.proprietary.DeleteOperationProviderByPathResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractSubmodelInterfaceRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
-import de.fraunhofer.iosb.ilt.faaast.service.response.assetconnection.DeleteOperationProviderByPathResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LogHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.OperationProviderHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
@@ -31,9 +31,11 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
 /**
  * Class to handle a
- * {@link de.fraunhofer.iosb.ilt.faaast.service.request.assetconnection.DeleteOperationProviderByPathRequest} in the
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.request.proprietary.DeleteOperationProviderByPathRequest} in
+ * the
  * service and to send the corresponding response
- * {@link de.fraunhofer.iosb.ilt.faaast.service.response.assetconnection.DeleteOperationProviderByPathResponse}. Is
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.proprietary.DeleteOperationProviderByPathResponse}.
+ * Is
  * responsible for communication with the persistence and sends the corresponding events to the message bus.
  */
 public class DeleteOperationProviderByPathRequestHandler
