@@ -1,0 +1,20 @@
+apiVersion: v2
+name: faaast-service
+description: The **F**raunhofer **A**dvanced **A**sset **A**dministration **S**hell **T**ools (**FA³ST**) Service enables you to create digital twins based on the Asset Administration Shell (AAS) specification with ease.
+home: https://github.com/FraunhoferIOSB/FAAAST-Service
+icon: https://raw.githubusercontent.com/FraunhoferIOSB/FAAAST-Service/main/docs/source/images/logo-positiv.png
+sources:
+  - https://github.com/FraunhoferIOSB/FAAAST-Service
+
+type: application
+
+# This is the chart version. This version number should be incremented each time you make changes
+# to the chart and its templates, including the app version.
+# Versions are expected to follow Semantic Versioning (https://semver.org/)
+version: 0.1.0
+
+# This is the version number of the application being deployed. This version number should be
+# incremented each time you make changes to the application. Versions are not expected to
+# follow Semantic Versioning. They should reflect the version the application is using.
+# It is recommended to use it with quotes.
+appVersion: "1.0.0"
