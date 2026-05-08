@@ -21,8 +21,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.RequestMappin
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.response.ResponseMappingManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.proprietary.DeleteOperationProviderByPathRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.proprietary.PostOperationProviderByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
@@ -110,9 +108,6 @@ public class RequestHandlerServlet extends HttpServlet {
 
     private void checkRequestSupportedByProfiles(de.fraunhofer.iosb.ilt.faaast.service.model.api.Request<? extends Response> apiRequest) throws InvalidRequestException {
         if (Objects.isNull(config.getProfiles()) || config.getProfiles().isEmpty()) {
-            return;
-        }
-        if (apiRequest.getClass().equals(PostOperationProviderByPathRequest.class) || apiRequest.getClass().equals(DeleteOperationProviderByPathRequest.class)) {
             return;
         }
         config.getProfiles().stream()

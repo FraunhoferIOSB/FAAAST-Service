@@ -67,9 +67,10 @@ public class OperationProviderHelper {
 
         operationProviders.set(ReferenceHelper.asString(operationReference), op);
         newNode.set("operationProviders", operationProviders);
-        String txt = newNode.toPrettyString();
-        LOGGER.info("New JSON: {}", txt);
-        return MAPPER.readValue(txt, AssetConnectionConfig.class);
+        //String txt = newNode.toPrettyString();
+        //LOGGER.info("New JSON: {}", txt);
+        //return MAPPER.readValue(txt, AssetConnectionConfig.class);
+        return MAPPER.treeToValue(newNode, AssetConnectionConfig.class);
     }
 
 }
