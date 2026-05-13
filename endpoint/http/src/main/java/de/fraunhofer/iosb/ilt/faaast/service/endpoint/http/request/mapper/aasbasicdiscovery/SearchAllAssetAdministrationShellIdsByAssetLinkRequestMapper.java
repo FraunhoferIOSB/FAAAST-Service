@@ -23,9 +23,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasbasicdiscovery
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasbasicdiscovery.SearchAllAssetAdministrationShellIdsByAssetLinkResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
-import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
-
 import java.util.Map;
+import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
 
 
 /**
