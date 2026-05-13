@@ -14,26 +14,20 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler.aasbasicdiscovery;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasbasicdiscovery.GetAllAssetAdministrationShellIdsByAssetLinkRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasbasicdiscovery.SearchAllAssetAdministrationShellIdsByAssetLinkRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasbasicdiscovery.GetAllAssetAdministrationShellIdsByAssetLinkResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasbasicdiscovery.SearchAllAssetAdministrationShellIdsByAssetLinkResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.AssetAdministrationShellSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
-import java.util.List;
-import java.util.stream.Collectors;
-import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
-import org.eclipse.digitaltwin.aas4j.v3.model.Identifiable;
 
 
 /**
- * Class to handle a
- * {@link GetAllAssetAdministrationShellIdsByAssetLinkRequest}
- * in the service and to send the corresponding response
- * {@link GetAllAssetAdministrationShellIdsByAssetLinkResponse}.
- * Is responsible for communication with the persistence and sends the corresponding events to the message bus.
+ * Class to handle a {@link GetAllAssetAdministrationShellIdsByAssetLinkRequest} in the service and to send the
+ * corresponding response
+ * {@link GetAllAssetAdministrationShellIdsByAssetLinkResponse}. Is responsible for communication with the persistence
+ * and sends the corresponding events to the message bus.
  */
 @Deprecated(since = "1.4")
 public class GetAllAssetAdministrationShellIdsByAssetLinkRequestHandler
@@ -42,23 +36,15 @@ public class GetAllAssetAdministrationShellIdsByAssetLinkRequestHandler
     @Override
     public GetAllAssetAdministrationShellIdsByAssetLinkResponse process(GetAllAssetAdministrationShellIdsByAssetLinkRequest request, RequestExecutionContext context)
             throws PersistenceException {
-        Page<AssetAdministrationShell> aass = context.getPersistence().findAssetAdministrationShells(
-                AssetAdministrationShellSearchCriteria.builder()
-                        .assetIds(parseSpecificAssetIds(request.getAssetIdentifierPairs()))
-                        .build(),
-                QueryModifier.DEFAULT,
-                request.getPagingInfo());
+        // Since this request is deprecated and has the same functionality as SearchAllAssetAdministrationShellIdsByAssetLink, use its handler
+        // If the functionality of SearchAllAssetAdministrationShellIdsByAssetLink changes, roll back
+        SearchAllAssetAdministrationShellIdsByAssetLinkRequest searchAllAssetAdministrationShellIdsByAssetLinkRequest = request
+                .asSearchAllAssetAdministrationShellIdsByAssetLinkRequest();
 
-        List<String> result = aass.getContent()
-                .stream()
-                .map(Identifiable::getId)
-                .collect(Collectors.toList());
-        return GetAllAssetAdministrationShellIdsByAssetLinkResponse.builder()
-                .payload(Page.<String> builder()
-                        .metadata(aass.getMetadata())
-                        .result(result)
-                        .build())
-                .success()
-                .build();
+        SearchAllAssetAdministrationShellIdsByAssetLinkResponse searchAllAssetAdministrationShellIdsByAssetLinkResponse = new SearchAllAssetAdministrationShellIdsByAssetLinkRequestHandler()
+                .process(
+                        searchAllAssetAdministrationShellIdsByAssetLinkRequest, context);
+
+        return GetAllAssetAdministrationShellIdsByAssetLinkResponse.from(searchAllAssetAdministrationShellIdsByAssetLinkResponse);
     }
 }
