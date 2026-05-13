@@ -15,14 +15,12 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasbasicdiscovery;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithPaging;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasbasicdiscovery.GetAllAssetAdministrationShellIdsByAssetLinkResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasbasicdiscovery.SearchAllAssetAdministrationShellIdsByAssetLinkResponse;
-import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
-import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
 /**
@@ -71,7 +69,8 @@ public class SearchAllAssetAdministrationShellIdsByAssetLinkRequest extends Abst
         return new Builder();
     }
 
-    public abstract static class AbstractBuilder<T extends SearchAllAssetAdministrationShellIdsByAssetLinkRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends SearchAllAssetAdministrationShellIdsByAssetLinkRequest, B extends AbstractBuilder<T, B>>
+            extends ExtendableBuilder<T, B> {
 
         public B assetIdentifierPair(SpecificAssetId value) {
             getBuildingInstance().getAssetIdentifierPairs().add(value);
