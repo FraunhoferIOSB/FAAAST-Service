@@ -82,7 +82,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
 import org.eclipse.digitaltwin.aas4j.v3.model.Endpoint;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.eclipse.digitaltwin.aas4j.v3.model.ExecutionState;
-import org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum;
+import org.eclipse.digitaltwin.aas4j.v3.model.MessageType;
 import org.eclipse.digitaltwin.aas4j.v3.model.ProtocolInformation;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.Result;
@@ -785,7 +785,7 @@ public abstract class AbstractHttpEndpointTest {
     public void testResultServerError() throws Exception {
         Result expected = new DefaultResult.Builder()
                 .messages(Message.builder()
-                        .messageType(MessageTypeEnum.ERROR)
+                        .messageType(MessageType.ERROR)
                         .text(HttpStatus.getMessage(500))
                         .build())
                 .build();
@@ -804,7 +804,7 @@ public abstract class AbstractHttpEndpointTest {
     public void testResultBadRequest() throws Exception {
         Result expected = new DefaultResult.Builder()
                 .messages(Message.builder()
-                        .messageType(MessageTypeEnum.ERROR)
+                        .messageType(MessageType.ERROR)
                         .text("no matching request mapper found for URL 'shellsX'")
                         .build())
                 .build();
@@ -818,7 +818,7 @@ public abstract class AbstractHttpEndpointTest {
     public void testMethodNotAllowed() throws Exception {
         Result expected = new DefaultResult.Builder()
                 .messages(Message.builder()
-                        .messageType(MessageTypeEnum.ERROR)
+                        .messageType(MessageType.ERROR)
                         .text("method 'PUT' not allowed for URL 'shells' (allowed methods: GET, POST)")
                         .build())
                 .build();
@@ -832,7 +832,7 @@ public abstract class AbstractHttpEndpointTest {
     public void testResultNotFound() throws Exception {
         Result expected = new DefaultResult.Builder()
                 .messages(Message.builder()
-                        .messageType(MessageTypeEnum.ERROR)
+                        .messageType(MessageType.ERROR)
                         .text(HttpStatus.getMessage(404))
                         .build())
                 .build();
@@ -844,7 +844,7 @@ public abstract class AbstractHttpEndpointTest {
         String id = "foo";
         ContentResponse response = execute(HttpMethod.GET, "/submodels/" + EncodingHelper.base64UrlEncode(id) + "/submodel-elements/Invalid");
         Result actual = deserializer.read(new String(response.getContent()), Result.class);
-        Assert.assertEquals(MessageTypeEnum.ERROR, actual.getMessages().get(0).getMessageType());
+        Assert.assertEquals(MessageType.ERROR, actual.getMessages().get(0).getMessageType());
     }
 
 

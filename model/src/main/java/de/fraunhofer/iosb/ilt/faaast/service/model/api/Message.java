@@ -16,7 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.api;
 
 import de.fraunhofer.iosb.ilt.faaast.service.util.TimeFormatHelper;
 import java.util.Date;
-import org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum;
+import org.eclipse.digitaltwin.aas4j.v3.model.MessageType;
 import org.eclipse.digitaltwin.aas4j.v3.model.builder.MessageBuilder;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultMessage;
 
@@ -32,7 +32,7 @@ public class Message extends DefaultMessage {
         this.timestamp = TimeFormatHelper.asISO8601(date);
         this.text = "";
         this.code = "";
-        this.messageType = MessageTypeEnum.INFO;
+        this.messageType = MessageType.INFO;
     }
 
 
