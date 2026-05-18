@@ -75,7 +75,7 @@ public class RegistrySynchronizationTest {
     @Rule
     public WireMockClassRule instanceRule = wireMockRule;
 
-    private static final String API_PREFIX = "/api/v3.0";
+    private static final String API_PREFIX = "/api/v3.1";
     private static final String AAS_URL_PATH = "/shell-descriptors";
     private static final String SUBMODEL_URL_PATH = "/submodel-descriptors";
     private static final String AUTH_HEADER_NAME = "Authorization";

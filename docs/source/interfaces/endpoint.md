@@ -58,7 +58,7 @@ The HTTP Endpoint is based on the document [Details of the Asset Administration 
 | corsMaxAge<br>*(optional)*              | Long                                                        | Sets the `Access-Control-Max-Age` response header.                                                                                                                                                                                    | 3600                                        |
 | hostname<br>*(optional)*                | String                                                      | The hostname to be used for automated registration with registry.                                                                                                                                                                     | auto-detect (typically IP address)          |
 | httpVersion<br>*(optional)*             | HTTP_1_1<br>HTTP_2                                          | The HTTP version to use for the connection. If HTTP 2 is used but not supported by the server, the connection will automatically downgrade.                                                                                           | HTTP_2                                      |
-| pathPrefix<br>*(optional)*              | String                                                      | The path prefix to be used for automatic registration with registry. Must start with a "/" and not end with a "/". Exceptions: "" and "/". (regex: `^(?:$\|/\|/.*[^/])$`)                                                             | /api/v3.0                                   |
+| pathPrefix<br>*(optional)*              | String                                                      | The path prefix to be used for automatic registration with registry. Must start with a "/" and not end with a "/". Exceptions: "" and "/". (regex: `^(?:$\|/\|/.*[^/])$`)                                                             | /api/v3.1                                   |
 | includeErrorDetails<br>*(optional)*     | Boolean                                                     | If set, stack trace is added to the HTTP responses incase of error.                                                                                                                                                                   | false                                       |
 | port<br>*(optional)*                    | Integer                                                     | The port to use.                                                                                                                                                                                                                      | 443                                         |
 | sniEnabled<br>*(optional)*              | Boolean                                                     | If Server Name Identification (SNI) should be enabled.<br>**This should only be disabled for testing purposes as it may present a security risk!**                                                                                    | true                                        |
@@ -90,7 +90,7 @@ The HTTP Endpoint is based on the document [Details of the Asset Administration 
 		"corsMaxAge": 1000,
 		"hostname": "localhost",
 		"httpVersion": "HTTP_2",
-		"pathPrefix": "/api/v3.0",
+		"pathPrefix": "/api/v3.1",
 		"includeErrorDetails": true,
 		"port": 443,
 		"profiles": [ "AAS_REPOSITORY_FULL", "AAS_FULL", "SUBMODEL_REPOSITORY_FULL", "SUBMODEL_FULL" ],
