@@ -25,7 +25,9 @@ public class GetAllAssetAdministrationShellIdsByAssetLinkResponse extends Abstra
     /**
      * Transform a {@link SearchAllAssetAdministrationShellIdsByAssetLinkResponse} into a
      * {@link GetAllAssetAdministrationShellIdsByAssetLinkResponse}.
-     * 
+     *
+     * @param response The response to transform.
+     *
      * @return An equal {@link GetAllAssetAdministrationShellIdsByAssetLinkResponse}.
      */
     public static GetAllAssetAdministrationShellIdsByAssetLinkResponse from(SearchAllAssetAdministrationShellIdsByAssetLinkResponse response) {
