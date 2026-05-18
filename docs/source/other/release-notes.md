@@ -22,6 +22,7 @@
 		- Add new ocnfig property `httpVersion`
 		- Treat headers case-insenstive (see RFC 2616)
 		- OperationProvider now supports use of input arguments via variables in headers
+		- Add support for runtime update of OperationProvider
 
 **Internal changes & bugfixes**
 - General
