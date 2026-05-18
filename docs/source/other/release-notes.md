@@ -20,6 +20,7 @@
 - Endpoint
 	- HTTP
 		- URL prefix /api/v3.x is now optional
+        - Default URL prefix is now /api/v3.1
 		- Add new ocnfig property `httpVersion`
 		- Treat headers case-insenstive (see RFC 2616)
 		- OperationProvider now supports use of input arguments via variables in headers
