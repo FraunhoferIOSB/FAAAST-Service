@@ -170,16 +170,18 @@ This implementation of the `MessageBus` interface publishes CloudEvent messages 
 
 ### Topics & Payload
 
-Each message type is published on its own topic in the form of `[topicPrefix]`.
-The payload is a JSON serialization of a CloudEvent as specified in the async-aas specification: https://factory-x-contributions.github.io/async-aas-helm
+Each message is published under the topic defined in `[topicPrefix]`.
+The payload is a JSON serialization of a CloudEvent as specified in the async-aas specification: [https://factory-x-contributions.github.io/async-aas-helm](https://factory-x-contributions.github.io/async-aas-helm)
+
+Note: To modify the URL in a CloudEvent's `source` field, the configuration `core.callbackAddress` needs to be added. Else, `localhost` will be used.
 
 ### Configuration
 
-:::{table} Configuration properties of MQTT MessageBus.
+:::{table} Configuration properties of CloudEvents MessageBus.
 | Name                                | Allowed Value                                               | Description                                                                                                                                                     | Default Value                                                                                        |
 | ----------------------------------- | ----------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
 | host<br>                            | String                                                      | The host name of the MQTT server with scheme, port and path segments if relevant.                                                                               |                                                                                                      |
-| clientId<br>*(optional)*            | String                                                      | ClientId to use when connecting to the MQTT server. This clientId will only be used to identify as a MQTT publisher, not for oauth-flows or as a username.      | FA3ST MQTT MessageBus                                                                                |
+| clientId<br>*(optional)*            | String                                                      | ClientId to use when connecting to the MQTT server. This clientId will only be used to identify as a MQTT publisher, not for oauth-flows or as a username.      | A randomized identifier                                                                                |
 | username<br>*(optional)*            | String                                                      | Username used to connect to the MQTT server.                                                                                                                    |                                                                                                      |
 | password<br>*(optional)*            | String                                                      | Password used to connect to the MQTT server.                                                                                                                    |                                                                                                      |
 | identityProviderUrl<br>*(optional)* | String                                                      | Oauth2 IdP URL. Obtained tokens are placed as the MQTT broker password, the username is obtained from the username config. Token refresh happens automatically. |                                                                                                      |
@@ -197,8 +199,7 @@ The payload is a JSON serialization of a CloudEvent as specified in the async-aa
 :lineno-start: 1
 {
 	"messageBus": {
-		"@class": "de.fraunhofer.iosb.ilt.faaast.service.messagebus.mqtt.MessageBusMqtt",
-		"useInternalServer": true,
+		"@class": "de.fraunhofer.iosb.ilt.faaast.service.messagebus.cloudevents.MessageBusCloudEvents",
 		"host": "tcp://localhost:1883",
 		"clientCertificate": {
 			"keyStoreType": "PKCS12",
