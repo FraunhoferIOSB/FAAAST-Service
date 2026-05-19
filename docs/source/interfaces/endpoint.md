@@ -131,10 +131,10 @@ It consists of two main objects: `connection` and `provider`.
 ```{code-block} json
 {
   "connection": {
-    <Connection-Level configuration>
+    // Connection-Level configuration
   },
   "provider": {
-    <OperationProvider Configuration>
+    // OperationProvider Configuration
   }
 }
 ```
