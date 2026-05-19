@@ -15,7 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasbasicdiscovery;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithPaging;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasbasicdiscovery.GetAllAssetAdministrationShellIdsByAssetLinkResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasbasicdiscovery.SearchAllAssetAdministrationShellIdsByAssetLinkResponse;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -26,11 +26,11 @@ import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 /**
  * Request class for GetAllAssetAdministrationShellIdsByAssetLink requests.
  */
-public class GetAllAssetAdministrationShellIdsByAssetLinkRequest extends AbstractRequestWithPaging<GetAllAssetAdministrationShellIdsByAssetLinkResponse> {
+public class SearchAllAssetAdministrationShellIdsByAssetLinkRequest extends AbstractRequestWithPaging<SearchAllAssetAdministrationShellIdsByAssetLinkResponse> {
 
     private List<SpecificAssetId> assetIdentifierPairs;
 
-    public GetAllAssetAdministrationShellIdsByAssetLinkRequest() {
+    public SearchAllAssetAdministrationShellIdsByAssetLinkRequest() {
         this.assetIdentifierPairs = new ArrayList<>();
     }
 
@@ -53,7 +53,7 @@ public class GetAllAssetAdministrationShellIdsByAssetLinkRequest extends Abstrac
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        GetAllAssetAdministrationShellIdsByAssetLinkRequest that = (GetAllAssetAdministrationShellIdsByAssetLinkRequest) o;
+        SearchAllAssetAdministrationShellIdsByAssetLinkRequest that = (SearchAllAssetAdministrationShellIdsByAssetLinkRequest) o;
         return super.equals(that)
                 && Objects.equals(assetIdentifierPairs, that.assetIdentifierPairs);
     }
@@ -65,30 +65,12 @@ public class GetAllAssetAdministrationShellIdsByAssetLinkRequest extends Abstrac
     }
 
 
-    /**
-     * Transform this {@link GetAllAssetAdministrationShellIdsByAssetLinkRequest} into a
-     * {@link SearchAllAssetAdministrationShellIdsByAssetLinkRequest}.
-     * 
-     * @return An equal {@link SearchAllAssetAdministrationShellIdsByAssetLinkRequest}.
-     */
-    public SearchAllAssetAdministrationShellIdsByAssetLinkRequest asSearchAllAssetAdministrationShellIdsByAssetLinkRequest() {
-        SearchAllAssetAdministrationShellIdsByAssetLinkRequest searchAllAssetAdministrationShellIdsByAssetLinkRequest = SearchAllAssetAdministrationShellIdsByAssetLinkRequest
-                .builder()
-                .assetIdentifierPairs(this.getAssetIdentifierPairs())
-                .build();
-
-        searchAllAssetAdministrationShellIdsByAssetLinkRequest.setPagingInfo(this.getPagingInfo());
-        searchAllAssetAdministrationShellIdsByAssetLinkRequest.setInternal(this.isInternal());
-
-        return searchAllAssetAdministrationShellIdsByAssetLinkRequest;
-    }
-
-
     public static Builder builder() {
         return new Builder();
     }
 
-    public abstract static class AbstractBuilder<T extends GetAllAssetAdministrationShellIdsByAssetLinkRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends SearchAllAssetAdministrationShellIdsByAssetLinkRequest, B extends AbstractBuilder<T, B>>
+            extends ExtendableBuilder<T, B> {
 
         public B assetIdentifierPair(SpecificAssetId value) {
             getBuildingInstance().getAssetIdentifierPairs().add(value);
@@ -102,7 +84,7 @@ public class GetAllAssetAdministrationShellIdsByAssetLinkRequest extends Abstrac
         }
     }
 
-    public static class Builder extends AbstractBuilder<GetAllAssetAdministrationShellIdsByAssetLinkRequest, Builder> {
+    public static class Builder extends AbstractBuilder<SearchAllAssetAdministrationShellIdsByAssetLinkRequest, Builder> {
 
         @Override
         protected Builder getSelf() {
@@ -111,8 +93,8 @@ public class GetAllAssetAdministrationShellIdsByAssetLinkRequest extends Abstrac
 
 
         @Override
-        protected GetAllAssetAdministrationShellIdsByAssetLinkRequest newBuildingInstance() {
-            return new GetAllAssetAdministrationShellIdsByAssetLinkRequest();
+        protected SearchAllAssetAdministrationShellIdsByAssetLinkRequest newBuildingInstance() {
+            return new SearchAllAssetAdministrationShellIdsByAssetLinkRequest();
         }
     }
 }

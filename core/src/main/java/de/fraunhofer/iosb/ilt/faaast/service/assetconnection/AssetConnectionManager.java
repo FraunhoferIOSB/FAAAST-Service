@@ -61,7 +61,7 @@ import java.util.stream.Stream;
 import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
-import org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum;
+import org.eclipse.digitaltwin.aas4j.v3.model.MessageType;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
@@ -110,7 +110,7 @@ public class AssetConnectionManager {
      */
     public void cleanupDanglingConnectionsAfterModify(Reference modifiedElement) {
         Predicate<Reference> condition = x -> ReferenceHelper.startsWith(x, modifiedElement) && !service.getPersistence().submodelElementExists(x);
-        connections.stream()
+        connections
                 .forEach(LambdaExceptionHelper.rethrowConsumer(connection -> {
                     for (var providerType: AssetProviderType.values()) {
                         providerType.getProvidersFromConnectionAccessor().apply(connection).keySet().stream()
@@ -169,7 +169,7 @@ public class AssetConnectionManager {
         }
         catch (ConfigurationException e) {
             return List.of(Message.builder()
-                    .messageType(MessageTypeEnum.EXCEPTION)
+                    .messageType(MessageType.EXCEPTION)
                     .text(e.getMessage())
                     .build());
         }
@@ -360,8 +360,7 @@ public class AssetConnectionManager {
         else {
             Map<Reference, DataElement> oldChildren = findSynchronizableElements(reference, oldElement);
             Map<Reference, DataElement> newChildren = findSynchronizableElements(reference, newElement);
-            newChildren.entrySet().stream()
-                    .forEach(x -> syncElementOnWrite(x.getKey(), Pair.of(oldChildren.get(x.getKey()), x.getValue()), publishOnMessageBus));
+            newChildren.forEach((key, value) -> syncElementOnWrite(key, Pair.of(oldChildren.get(key), value), publishOnMessageBus));
         }
     }
 
@@ -728,7 +727,7 @@ public class AssetConnectionManager {
                 }
                 catch (ConfigurationException e) {
                     result.add(Message.builder()
-                            .messageType(MessageTypeEnum.EXCEPTION)
+                            .messageType(MessageType.EXCEPTION)
                             .text(String.format("Adding asset connection failed (reason: %s)",
                                     e.getMessage()))
                             .build());
@@ -796,12 +795,12 @@ public class AssetConnectionManager {
             }
             else {
                 messages.add(Message.builder()
-                        .messageType(MessageTypeEnum.INFO)
+                        .messageType(MessageType.INFO)
                         .text("Deleting asset connection skipped (reason: connection does not exist)")
                         .build());
             }
         }
-        if (messages.stream().anyMatch(x -> x.getMessageType() == MessageTypeEnum.ERROR || x.getMessageType() == MessageTypeEnum.EXCEPTION)) {
+        if (messages.stream().anyMatch(x -> x.getMessageType() == MessageType.ERROR || x.getMessageType() == MessageType.EXCEPTION)) {
             throw new ExceptionWithDetails("failed to apply changes in asset connections", messages);
         }
         return result;
@@ -819,7 +818,7 @@ public class AssetConnectionManager {
                     }
                     else {
                         result.add(Message.builder()
-                                .messageType(MessageTypeEnum.WARNING)
+                                .messageType(MessageType.WARNING)
                                 .text(String.format(
                                         "Failed to unregister %s provider (reference: %s, reason: existing provider details for reference differs from expected provider)",
                                         providerType.toString().toLowerCase(),
@@ -829,7 +828,7 @@ public class AssetConnectionManager {
                 }
                 else {
                     result.add(Message.builder()
-                            .messageType(MessageTypeEnum.INFO)
+                            .messageType(MessageType.INFO)
                             .text(String.format("Failed to unregister %s provider (reference: %s, reason: provider does not exist)",
                                     providerType.toString().toLowerCase(),
                                     ReferenceHelper.asString(reference)))
@@ -861,7 +860,7 @@ public class AssetConnectionManager {
                             }
                             catch (AssetConnectionException e) {
                                 result.add(Message.builder()
-                                        .messageType(MessageTypeEnum.WARNING)
+                                        .messageType(MessageType.WARNING)
                                         .text(String.format("Failed to unsubscribe subscription (reference: %s, reason: %s)",
                                                 ReferenceHelper.asString(reference),
                                                 e.getMessage()))
@@ -881,7 +880,7 @@ public class AssetConnectionManager {
                     }
                     catch (AssetConnectionException e) {
                         result.add(Message.builder()
-                                .messageType(MessageTypeEnum.EXCEPTION)
+                                .messageType(MessageType.EXCEPTION)
                                 .text(String.format("Failed to register %s provider (reference: %s, reason: %s)",
                                         providerType.toString().toLowerCase(),
                                         ReferenceHelper.asString(reference),
@@ -899,7 +898,7 @@ public class AssetConnectionManager {
                     }
                     catch (AssetConnectionException e) {
                         result.add(Message.builder()
-                                .messageType(MessageTypeEnum.EXCEPTION)
+                                .messageType(MessageType.EXCEPTION)
                                 .text(String.format("Failed to unregister %s provider (reference: %s, reason: %s)",
                                         providerType.toString().toLowerCase(),
                                         ReferenceHelper.asString(reference),
@@ -921,7 +920,7 @@ public class AssetConnectionManager {
                 if (Objects.nonNull(reference)
                         && provider.getValue().equals(providerType.getProvidersFromConfigAccessor().apply(target).get(reference))) {
                     result.add(Message.builder()
-                            .messageType(MessageTypeEnum.INFO)
+                            .messageType(MessageType.INFO)
                             .text(String.format("Skipped adding %s provider (reference: %s, reason: already exists)",
                                     providerType.toString().toLowerCase(),
                                     ReferenceHelper.asString(reference)))

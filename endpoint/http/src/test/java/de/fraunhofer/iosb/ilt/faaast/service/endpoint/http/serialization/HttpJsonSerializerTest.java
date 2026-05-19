@@ -20,7 +20,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.UnsupportedModifier
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.TimeZone;
-import org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum;
+import org.eclipse.digitaltwin.aas4j.v3.model.MessageType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Result;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultResult;
 import org.eclipse.jetty.http.HttpStatus;
@@ -37,7 +37,7 @@ public class HttpJsonSerializerTest {
 
     @Test
     public void testEnumsWithCustomNaming() throws SerializationException, UnsupportedModifierException {
-        Assert.assertEquals("\"Error\"", serializer.write(MessageTypeEnum.ERROR));
+        Assert.assertEquals("\"Error\"", serializer.write(MessageType.ERROR));
     }
 
 
@@ -48,7 +48,7 @@ public class HttpJsonSerializerTest {
         Result result = new DefaultResult.Builder()
                 .messages(Message.builder()
                         .text(HttpStatus.getMessage(404))
-                        .messageType(MessageTypeEnum.ERROR)
+                        .messageType(MessageType.ERROR)
                         .code(HttpStatus.getMessage(404))
                         .timestamp("2022-01-01T00:00:00.000+00:00")
                         .build())

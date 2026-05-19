@@ -36,7 +36,7 @@ import org.junit.Assert;
 
 public abstract class AbstractCloudEventMapperTest {
     private final String eventTypePrefix = "my.prefix.test.";
-    private final String callbackAddress = "https://localhost:12345/api/v3.0";
+    private final String callbackAddress = "https://localhost:12345/api/v3.1";
     private final String dataSchemaPrefix = "https://my-data-schema-prefix/path#";
     protected final ObjectMapper mapper = new ObjectMapper()
             .enable(SerializationFeature.INDENT_OUTPUT)

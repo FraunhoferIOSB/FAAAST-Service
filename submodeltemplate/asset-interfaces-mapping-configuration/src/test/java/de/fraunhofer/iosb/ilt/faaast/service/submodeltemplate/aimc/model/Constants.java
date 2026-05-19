@@ -58,7 +58,7 @@ public class Constants {
     public static final String SEMANTIC_ID_PROPERTY_DEFINITION_NAME = "https://www.w3.org/2019/wot/td#name";
     public static final String SEMANTIC_ID_PROPERTY_TYPE = "https://www.w3.org/1999/02/22-rdf-syntax-ns#type";
     public static final String SEMANTIC_ID_PROPERTY_OBSERVABLE = "https://www.w3.org/2019/wot/td#isObservable";
-    public static final String SEMANTIC_ID_PROPERTY_UNIT = "http://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/3/0";
+    public static final String SEMANTIC_ID_PROPERTY_UNIT = "http://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/3/1";
     public static final String SEMANTIC_ID_PROPERTY_FORMS = "https://www.w3.org/2019/wot/td#hasForm";
     public static final String SEMANTIC_ID_PROPERTY_HREF = "https://www.w3.org/2019/wot/hypermedia#hasTarget";
 }

@@ -20,31 +20,14 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.AbstractPagedRes
 /**
  * Response class for GetAllAssetAdministrationShellIdsByAssetLink requests.
  */
-public class GetAllAssetAdministrationShellIdsByAssetLinkResponse extends AbstractPagedResponse<String> {
-
-    /**
-     * Transform a {@link SearchAllAssetAdministrationShellIdsByAssetLinkResponse} into a
-     * {@link GetAllAssetAdministrationShellIdsByAssetLinkResponse}.
-     *
-     * @param response The response to transform.
-     *
-     * @return An equal {@link GetAllAssetAdministrationShellIdsByAssetLinkResponse}.
-     */
-    public static GetAllAssetAdministrationShellIdsByAssetLinkResponse from(SearchAllAssetAdministrationShellIdsByAssetLinkResponse response) {
-        return GetAllAssetAdministrationShellIdsByAssetLinkResponse.builder()
-                .payload(response.getPayload())
-                .result(response.getResult())
-                .statusCode(response.getStatusCode())
-                .build();
-    }
-
+public class SearchAllAssetAdministrationShellIdsByAssetLinkResponse extends AbstractPagedResponse<String> {
 
     public static Builder builder() {
         return new Builder();
     }
 
     public static class Builder
-            extends AbstractBuilder<String, GetAllAssetAdministrationShellIdsByAssetLinkResponse, Builder> {
+            extends AbstractBuilder<String, SearchAllAssetAdministrationShellIdsByAssetLinkResponse, Builder> {
 
         @Override
         protected Builder getSelf() {
@@ -53,8 +36,8 @@ public class GetAllAssetAdministrationShellIdsByAssetLinkResponse extends Abstra
 
 
         @Override
-        protected GetAllAssetAdministrationShellIdsByAssetLinkResponse newBuildingInstance() {
-            return new GetAllAssetAdministrationShellIdsByAssetLinkResponse();
+        protected SearchAllAssetAdministrationShellIdsByAssetLinkResponse newBuildingInstance() {
+            return new SearchAllAssetAdministrationShellIdsByAssetLinkResponse();
         }
     }
 }

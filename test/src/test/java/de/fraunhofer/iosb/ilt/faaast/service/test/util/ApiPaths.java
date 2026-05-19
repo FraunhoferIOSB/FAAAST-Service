@@ -49,7 +49,7 @@ public class ApiPaths {
     public ApiPaths(String host, int port) {
         this.host = host;
         this.port = port;
-        this.pathPrefix = "/api/v3.0";
+        this.pathPrefix = "/api/v3.1";
     }
 
 

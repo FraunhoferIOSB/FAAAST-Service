@@ -330,7 +330,7 @@ public class AssetConnectionIT extends AbstractIntegrationTest {
                                         x -> x,
                                         x -> HttpValueProviderConfig.builder()
                                                 .format("JSON")
-                                                .path(String.format("https://localhost:%s/api/v3.0/submodels/%s/submodel-elements/%s/$value",
+                                                .path(String.format("https://localhost:%s/api/v3.1/submodels/%s/submodel-elements/%s/$value",
                                                         portHttp,
                                                         EncodingHelper.base64UrlEncode(AssetConnectionModelRecursive.SUBMODEL_SOURCE.getId()),
                                                         EncodingHelper.urlEncode(AssetConnectionModelRecursive.PROPERTY_SOURCE.getIdShort())))
