@@ -12,14 +12,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.submodel;
+package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.proprietary;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractSubmodelInterfaceRequestMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.proprietary.DeleteOperationProviderByPathRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.proprietary.DeleteOperationProviderByPathResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.proprietary.PostOperationProviderByPathRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.proprietary.PostOperationProviderByPathResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
@@ -28,23 +28,23 @@ import java.util.Map;
 
 
 /**
- * class to map HTTP-DELETE-Request paths: submodels/{submodelIdentifier}/submodel-elements/{idShortPath},
+ * class to map HTTP-POST-Request paths: submodels/{submodelIdentifier}/submodel-elements/{idShortPath},
  * shells/{aasIdentifier}/submodels/{submodelIdentifier}/submodel-elements/{idShortPath}.
  */
-public class DeleteOperationProviderByPathRequestMapper
-        extends AbstractSubmodelInterfaceRequestMapper<DeleteOperationProviderByPathRequest, DeleteOperationProviderByPathResponse> {
+public class PostOperationProviderByPathRequestMapper extends AbstractSubmodelInterfaceRequestMapper<PostOperationProviderByPathRequest, PostOperationProviderByPathResponse> {
 
     private static final String OPERATION_PATH = RegExHelper.uniqueGroupName();
     private static final String PATTERN = String.format("submodel-elements/%s/connection", pathElement(OPERATION_PATH));
 
-    public DeleteOperationProviderByPathRequestMapper(ServiceContext serviceContext) {
-        super(serviceContext, HttpMethod.DELETE, PATTERN);
+    public PostOperationProviderByPathRequestMapper(ServiceContext serviceContext) {
+        super(serviceContext, HttpMethod.POST, PATTERN);
     }
 
 
     @Override
-    public DeleteOperationProviderByPathRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) throws InvalidRequestException {
-        return DeleteOperationProviderByPathRequest.builder()
+    public PostOperationProviderByPathRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) throws InvalidRequestException {
+        // Can't parse body here, because submodelId is not yet available
+        return PostOperationProviderByPathRequest.builder()
                 .path(EncodingHelper.urlDecode(urlParameters.get(OPERATION_PATH)))
                 .body(httpRequest.getBodyAsString())
                 .build();

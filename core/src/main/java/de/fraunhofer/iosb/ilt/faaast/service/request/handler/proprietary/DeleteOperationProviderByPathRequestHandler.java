@@ -12,12 +12,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.request.handler.assetconnection;
+package de.fraunhofer.iosb.ilt.faaast.service.request.handler.proprietary;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.proprietary.PostOperationProviderByPathRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.proprietary.PostOperationProviderByPathResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.proprietary.DeleteOperationProviderByPathRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.proprietary.DeleteOperationProviderByPathResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractSubmodelInterfaceRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LogHelper;
@@ -31,28 +31,31 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
 /**
  * Class to handle a
- * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.request.proprietary.PostOperationProviderByPathRequest} in the
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.request.proprietary.DeleteOperationProviderByPathRequest} in
+ * the
  * service and to send the corresponding response
- * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.proprietary.PostOperationProviderByPathResponse}. Is
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.proprietary.DeleteOperationProviderByPathResponse}.
+ * Is
  * responsible for communication with the persistence and sends the corresponding events to the message bus.
  */
-public class PostOperationProviderByPathRequestHandler extends AbstractSubmodelInterfaceRequestHandler<PostOperationProviderByPathRequest, PostOperationProviderByPathResponse> {
+public class DeleteOperationProviderByPathRequestHandler
+        extends AbstractSubmodelInterfaceRequestHandler<DeleteOperationProviderByPathRequest, DeleteOperationProviderByPathResponse> {
 
     @Override
-    protected PostOperationProviderByPathResponse doProcess(PostOperationProviderByPathRequest request, RequestExecutionContext context) throws Exception {
+    protected DeleteOperationProviderByPathResponse doProcess(DeleteOperationProviderByPathRequest request, RequestExecutionContext context) throws Exception {
         Reference reference = new ReferenceBuilder()
                 .submodel(request.getSubmodelId())
                 .idShortPath(request.getPath())
                 .build();
-        if (context.getAssetConnectionManager().hasOperationProvider(reference)) {
+        if (!context.getAssetConnectionManager().hasOperationProvider(reference)) {
             throw new IllegalArgumentException(String.format(
-                    "operation provider already defined for reference '%s'",
+                    "no operation provider available for reference '%s'",
                     ReferenceHelper.toString(reference)));
         }
 
         AssetConnectionConfig<?, ?, ?, ?> config = OperationProviderHelper.convertBodyToAssetConnectionConfig(request.getBody(), reference);
-        LogHelper.logMessages(context.getAssetConnectionManager().updateConnections(new ArrayList<>(), List.of(config)));
-        return PostOperationProviderByPathResponse.builder()
+        LogHelper.logMessages(context.getAssetConnectionManager().updateConnections(List.of(config), new ArrayList<>()));
+        return DeleteOperationProviderByPathResponse.builder()
                 .statusCode(StatusCode.SUCCESS_NO_CONTENT)
                 .build();
     }
