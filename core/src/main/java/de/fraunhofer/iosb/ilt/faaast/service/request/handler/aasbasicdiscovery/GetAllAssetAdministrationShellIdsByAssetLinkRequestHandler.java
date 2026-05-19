@@ -28,6 +28,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionCon
  * corresponding response
  * {@link GetAllAssetAdministrationShellIdsByAssetLinkResponse}. Is responsible for communication with the persistence
  * and sends the corresponding events to the message bus.
+ *
+ * @deprecated GetAllAssetAdministrationShellIdsByAssetLinkRequest was replaced by
+ *             SearchAllAssetAdministrationShellIdsByAssetLinkRequest from AAS API v3.1
  */
 @Deprecated(since = "1.4")
 public class GetAllAssetAdministrationShellIdsByAssetLinkRequestHandler

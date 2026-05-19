@@ -23,7 +23,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.persistence.AssetAdministrationShel
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.Identifiable;
 
@@ -51,7 +50,7 @@ public class SearchAllAssetAdministrationShellIdsByAssetLinkRequestHandler
         List<String> result = aass.getContent()
                 .stream()
                 .map(Identifiable::getId)
-                .collect(Collectors.toList());
+                .toList();
         return SearchAllAssetAdministrationShellIdsByAssetLinkResponse.builder()
                 .payload(Page.<String> builder()
                         .metadata(aass.getMetadata())
