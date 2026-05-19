@@ -118,9 +118,56 @@ Additionally, FA³ST Service offers the following proprietary API calls:
 
 | HTTP Method | URL Path | Description                                                                                                                                                                                                | Payload             | Response                                                                 |
 |-------------| -------- |------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------| ------------------- | ------------------------------------------------------------------------ |
-| DELETE      | /reset   | Resets the server which includes deleting all AASs, submodels, concept descriptions, files, asset connections, and pending operations.                                                                     | -                   | `204 No Content`                                                         |
-| POST        | /import  | Imports an AAS file in any supported data format. Set the `Content-Type` header accordingly so that the server can parse the document. For AASX, it is application/asset-administration-shell-package+xml. | The file to upload. | `200 Ok` with body containing list of errors that happend during import. |
+| DELETE      | /reset   | Resets the server which includes deleting all AASs, submodels,<br>concept descriptions, files, asset connections, and pending operations.                                                                     | -                   | `204 No Content`                                                         |
+| POST        | /import  | Imports an AAS file in any supported data format. Set the<br> `Content-Type` header accordingly so that the server can parse the document. For AASX, it is application/asset-administration-shell-package+xml. | The file to upload. | `200 Ok` with body containing list of errors that happend during import. |
+| POST        | /submodel/submodel-elements/{idShortPath}/connection | Adds an Asset Connection to the operation at the specified path.                                                                     | Asset Operation Configuration | `204 No Content`                                                         |
+| DELETE      | /submodel/submodel-elements/{idShortPath}/connection | Removes an Asset Connection from the operation at the specified path.                                   | Asset Operation Configuration | `204 No Content`                                                         |
 
+#### Asset Operation Configuration
+
+As explained in the previous table, there's the possibility to add or remove an Asset Connection from an operation during runtime. For both calls, a specific method body is required, called `Asset Operation Configuration` in the table.
+It consists of two main objects: `connection` and `provider`.
+
+```{code-block} json
+{
+  "connection": {
+    <Connection-Level configuration>
+  },
+  "provider": {
+    <OperationProvider Configuration>
+  }
+}
+```
+
+The `connection` object contains the Connection-Level configuration, and `provider` the OperationProvider Configuration.
+You can refer to the AssetConnection Configuration section to get details about the corresponding configuration options.
+
+In the following section you can find an example configuration.
+
+```{code-block} json
+{
+  "connection": {
+    "@class": "de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.OpcUaAssetConnection",
+    "host": "opc.tcp://example.com:4840"
+  },
+  "provider": {
+    "nodeId": "nsu=com:example;s=foo",
+    "parentNodeId": "nsu=com:example;s=fooObject",
+    "inputArgumentMapping": [
+      {
+        "idShort": "ExampleInputId",
+        "argumentName": "ExampleInputArgument"
+      }
+    ],
+    "outputArgumentMapping": [
+      {
+        "idShort": "ExampleOutputId",
+        "argumentName": "ExampleOutputArgument"
+      }
+    ]
+  }
+}
+```
 
 #### Using HTTP PATCH
 
