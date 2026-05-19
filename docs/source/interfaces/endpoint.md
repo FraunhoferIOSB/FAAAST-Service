@@ -125,7 +125,7 @@ Additionally, FA³ST Service offers the following proprietary API calls:
 
 #### Asset Operation Configuration
 
-As explained in the previous table, there's the possibility to add or remove an Asset Connection from an operation during runtime. For both calls, a specific method body is required, called `Asset Operation Configuration` in the table.
+As can be seen in the previous table, there's the possibility to add or remove an Asset Connection from an operation during runtime. For both calls, a specific method body is required, called `Asset Operation Configuration` in the table.
 It consists of two main objects: `connection` and `provider`.
 
 ```{code-block} json
