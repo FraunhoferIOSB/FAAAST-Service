@@ -92,7 +92,7 @@ public class ResponseHelper {
      */
     public static Result asResult(List<Message> messages) {
         Result result = new DefaultResult();
-        if (Objects.nonNull(result)) {
+        if (Objects.nonNull(messages)) {
             result.setMessages(messages.stream().map(x -> (org.eclipse.digitaltwin.aas4j.v3.model.Message) new DefaultMessage.Builder().build()).toList());
         }
         return result;
