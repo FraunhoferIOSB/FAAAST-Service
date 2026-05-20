@@ -288,9 +288,6 @@
                             </includes>
                             <importOrder/>
                             <removeUnusedImports/>
-                            <licenseHeader>
-                                <file>${root.basedir}/license-header</file>
-                            </licenseHeader>
                             <eclipse>
                                 <version>${eclipse.jdt.version}</version>
                                 <file>${root.basedir}/misc/codestyle/formatter.xml</file>
