@@ -15,17 +15,22 @@
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler.proprietary;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.proprietary.PostOperationProviderByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.proprietary.PostOperationProviderByPathResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceAlreadyExistsException;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractSubmodelInterfaceRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LogHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.OperationProviderHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
-import java.util.ArrayList;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ResponseHelper;
 import java.util.List;
+import org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum;
+import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
 
@@ -44,17 +49,23 @@ public class PostOperationProviderByPathRequestHandler extends AbstractSubmodelI
                 .submodel(request.getSubmodelId())
                 .idShortPath(request.getPath())
                 .build();
+        context.getPersistence().getSubmodelElement(reference, QueryModifier.MINIMAL, Operation.class);
         if (context.getAssetConnectionManager().hasOperationProvider(reference)) {
-            throw new IllegalArgumentException(String.format(
+            throw new ResourceAlreadyExistsException(String.format(
                     "operation provider already defined for reference '%s'",
-                    ReferenceHelper.toString(reference)));
+                    ReferenceHelper.asString(reference)));
         }
 
         AssetConnectionConfig<?, ?, ?, ?> config = OperationProviderHelper.convertBodyToAssetConnectionConfig(request.getBody(), reference);
-        LogHelper.logMessages(context.getAssetConnectionManager().updateConnections(new ArrayList<>(), List.of(config)));
+        List<Message> result = context.getAssetConnectionManager().updateConnections(List.of(), List.of(config)).stream()
+                .filter(x -> x.getMessageType() == MessageTypeEnum.ERROR || x.getMessageType() == MessageTypeEnum.EXCEPTION)
+                .toList();
+        LogHelper.logMessages(result);
         return PostOperationProviderByPathResponse.builder()
-                .statusCode(StatusCode.SUCCESS_NO_CONTENT)
+                .statusCode(result.isEmpty()
+                        ? StatusCode.SUCCESS_NO_CONTENT
+                        : StatusCode.CLIENT_ERROR_BAD_REQUEST)
+                .result(ResponseHelper.asResult(result))
                 .build();
     }
-
 }

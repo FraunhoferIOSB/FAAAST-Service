@@ -170,7 +170,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
@@ -1824,7 +1823,7 @@ public class RequestHandlerManagerTest {
                 .when(assetConnectionManager)
                 .hasOperationProvider(any());
 
-        doReturn(new ArrayList<Message>())
+        doReturn(List.of())
                 .when(assetConnectionManager)
                 .updateConnections(any(), any());
 
@@ -1834,11 +1833,8 @@ public class RequestHandlerManagerTest {
                 .build();
 
         AssetConnectionConfig expectedConfig = BarConnectionConfig.builder()
-                //.property1("Test")
                 .operationProvider(operationReference, BarOperationProviderConfig.builder().property1("Test").build())
                 .build();
-
-        List<AssetConnectionConfig> newList = List.of(expectedConfig);
 
         PostOperationProviderByPathRequest postOperationProviderByPathRequest = new PostOperationProviderByPathRequest.Builder()
                 .submodelId(submodelId)
@@ -1847,7 +1843,7 @@ public class RequestHandlerManagerTest {
                 .build();
         PostOperationProviderByPathResponse response = manager.execute(postOperationProviderByPathRequest, context);
         Assert.assertEquals(StatusCode.SUCCESS_NO_CONTENT, response.getStatusCode());
-        verify(assetConnectionManager).updateConnections(new ArrayList<>(), newList);
+        verify(assetConnectionManager).updateConnections(List.of(), List.of(expectedConfig));
     }
 
 
@@ -1870,7 +1866,7 @@ public class RequestHandlerManagerTest {
                 .when(assetConnectionManager)
                 .hasOperationProvider(any());
 
-        doReturn(new ArrayList<Message>())
+        doReturn(List.of())
                 .when(assetConnectionManager)
                 .updateConnections(any(), any());
 
@@ -1883,8 +1879,6 @@ public class RequestHandlerManagerTest {
                 .operationProvider(operationReference, BarOperationProviderConfig.builder().property1("Test").build())
                 .build();
 
-        List<AssetConnectionConfig> newList = List.of(expectedConfig);
-
         DeleteOperationProviderByPathRequest deleteOperationProviderByPathRequest = new DeleteOperationProviderByPathRequest.Builder()
                 .submodelId(submodelId)
                 .path(operation.getIdShort())
@@ -1892,7 +1886,7 @@ public class RequestHandlerManagerTest {
                 .build();
         DeleteOperationProviderByPathResponse response = manager.execute(deleteOperationProviderByPathRequest, context);
         Assert.assertEquals(StatusCode.SUCCESS_NO_CONTENT, response.getStatusCode());
-        verify(assetConnectionManager).updateConnections(newList, new ArrayList<>());
+        verify(assetConnectionManager).updateConnections(List.of(expectedConfig), List.of());
     }
 
 
