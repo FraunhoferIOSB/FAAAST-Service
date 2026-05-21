@@ -201,6 +201,7 @@
                                 <configLocation>${root.basedir}/checkstyle.xml</configLocation>
                                 <consoleOutput>true</consoleOutput>
                                 <failsOnError>true</failsOnError>
+                                <propertyExpansion>basedir=${root.basedir}</propertyExpansion>
                             </configuration>
                         </execution>
                     </executions>

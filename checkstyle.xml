@@ -21,8 +21,8 @@
         <module name="JavadocContentLocationCheck"/>
         <module name="RequireEmptyLineBeforeBlockTagGroup"/>
         <module name="de.fraunhofer.iosb.ilt.faaast.service.checks.ApacheLicenseHeaderCheck">
-            <property name="licenseFile" value="license-header"/>
-            <property name="contributorsFile" value="CONTRIBUTORS.txt"/>
+            <property name="licenseFile" value="${basedir}/license-header"/>
+            <property name="contributorsFile" value="${basedir}/CONTRIBUTORS.txt"/>
         </module>
     </module>
 </module>
