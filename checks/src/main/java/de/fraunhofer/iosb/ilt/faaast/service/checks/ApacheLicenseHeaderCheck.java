@@ -136,19 +136,18 @@ public class ApacheLicenseHeaderCheck extends AbstractCheck {
     private boolean validateLicense(String[] sourceLicense, String[] license) {
         int i = 0;
         for (; i < license.length; i++) {
-            if (!normalize(sourceLicense[i]).equals(normalize(license[i]))) {
+            if (!normalize(sourceLicense[i]).equals(license[i])) {
                 return false;
             }
         }
         // Add end-of-header check to not allow any additional text
-        return i < sourceLicense.length
-                && sourceLicense[i].trim().equals("*/");
+        return i < sourceLicense.length && sourceLicense[i].trim().equals("*/");
     }
 
 
     private boolean loadContributors() {
         try (Stream<String> lines = Files.lines(contributorsFile)) {
-            cachedContributors = lines.collect(Collectors.toSet());
+            cachedContributors = lines.map(this::normalize).collect(Collectors.toSet());
         }
         catch (IOException e) {
             return false;
@@ -159,7 +158,7 @@ public class ApacheLicenseHeaderCheck extends AbstractCheck {
 
     private boolean loadLicense() {
         try (Stream<String> licenseLines = Files.lines(licenseFile)) {
-            cachedLicense = licenseLines.toArray(String[]::new);
+            cachedLicense = licenseLines.map(this::normalize).toArray(String[]::new);
         }
         catch (IOException e) {
             return false;
