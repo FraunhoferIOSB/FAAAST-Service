@@ -8,7 +8,7 @@ on:
       - "v*"
   pull_request:
     branches:
-      - feature/helm-chart
+      - main
 
   workflow_dispatch:
 
