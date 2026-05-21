@@ -26,8 +26,8 @@ import java.util.stream.Stream;
 
 
 /**
- * Checkstyle check that verifies the presence of the Apache 2.0 license header in Java source files.
- * Also checks the contributors of a file are in the CONTRIBUTORS.txt file
+ * Checkstyle check that verifies the presence of the Apache 2.0 license header in Java source files. Also checks the
+ * contributors of a file are in the CONTRIBUTORS.txt file
  */
 @FileStatefulCheck
 public class ApacheLicenseHeaderCheck extends AbstractCheck {
@@ -48,25 +48,14 @@ public class ApacheLicenseHeaderCheck extends AbstractCheck {
         String[] sourceFileLines = getLines();
 
         // Get license lines from source file
-        if (cachedLicense == null) {
-            if (!loadLicense()) {
-                log(rootAST, MSG_MISSING_RESOURCES);
-                return;
-            }
-        }
-
-        if (cachedContributors == null) {
-            if (!loadContributors()) {
-                log(rootAST, MSG_MISSING_RESOURCES);
-                return;
-            }
+        if (cachedLicense == null && !loadLicense()
+                || cachedContributors == null && !loadContributors()) {
+            log(rootAST, MSG_MISSING_RESOURCES);
+            return;
         }
 
         // When does the apache license start?
-        int sourceFileLicenseStart = 0;
-        while (sourceFileLicenseStart < sourceFileLines.length && !normalize(sourceFileLines[sourceFileLicenseStart]).equals(normalize(cachedLicense[0]))) {
-            sourceFileLicenseStart++;
-        }
+        int sourceFileLicenseStart = getSourceFileLicenseStart(sourceFileLines);
         if (sourceFileLicenseStart >= sourceFileLines.length) {
             log(rootAST, MSG_MISSING_LICENSE);
             return;
@@ -114,6 +103,15 @@ public class ApacheLicenseHeaderCheck extends AbstractCheck {
 
     public void setLicenseFile(String path) {
         this.licenseFile = Paths.get(path);
+    }
+
+
+    private int getSourceFileLicenseStart(String[] sourceFileLines) {
+        int start = 0;
+        while (start < sourceFileLines.length && !normalize(sourceFileLines[start]).equals(normalize(cachedLicense[0]))) {
+            start++;
+        }
+        return start;
     }
 
 
