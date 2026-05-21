@@ -64,6 +64,7 @@ public class GetAllAssetAdministrationShellIdsByAssetLinkRequest extends Abstrac
         return Objects.hash(super.hashCode(), assetIdentifierPairs);
     }
 
+
     public static Builder builder() {
         return new Builder();
     }

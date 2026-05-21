@@ -22,18 +22,20 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceExceptio
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.AssetAdministrationShellSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.Identifiable;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 
 /**
- * Class to handle a {@link GetAllAssetAdministrationShellIdsByAssetLinkRequest} in the service and to send the corresponding response
- * {@link GetAllAssetAdministrationShellIdsByAssetLinkResponse}. Is responsible for communication with the persistence and sends the corresponding events to the message bus.
+ * Class to handle a {@link GetAllAssetAdministrationShellIdsByAssetLinkRequest} in the service and to send the
+ * corresponding response
+ * {@link GetAllAssetAdministrationShellIdsByAssetLinkResponse}. Is responsible for communication with the persistence
+ * and sends the corresponding events to the message bus.
  *
- * @deprecated GetAllAssetAdministrationShellIdsByAssetLinkRequest was replaced by SearchAllAssetAdministrationShellIdsByAssetLinkRequest from AAS API v3.1
+ * @deprecated GetAllAssetAdministrationShellIdsByAssetLinkRequest was replaced by
+ *             SearchAllAssetAdministrationShellIdsByAssetLinkRequest from AAS API v3.1
  */
 @Deprecated(since = "1.4")
 public class GetAllAssetAdministrationShellIdsByAssetLinkRequestHandler
