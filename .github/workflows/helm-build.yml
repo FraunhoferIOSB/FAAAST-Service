@@ -2,13 +2,13 @@ name: Helm Build
 
 on:
   push:
+    # (push to main AND charts changed) OR (push a tag WITHOUT restriction of path)
     branches:
       - main
+    paths:
+      - charts
     tags:
       - "v*"
-  pull_request:
-    branches:
-      - main
 
   workflow_dispatch:
 
