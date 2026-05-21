@@ -64,26 +64,6 @@ public class GetAllAssetAdministrationShellIdsByAssetLinkRequest extends Abstrac
         return Objects.hash(super.hashCode(), assetIdentifierPairs);
     }
 
-
-    /**
-     * Transform this {@link GetAllAssetAdministrationShellIdsByAssetLinkRequest} into a
-     * {@link SearchAllAssetAdministrationShellIdsByAssetLinkRequest}.
-     * 
-     * @return An equal {@link SearchAllAssetAdministrationShellIdsByAssetLinkRequest}.
-     */
-    public SearchAllAssetAdministrationShellIdsByAssetLinkRequest asSearchAllAssetAdministrationShellIdsByAssetLinkRequest() {
-        SearchAllAssetAdministrationShellIdsByAssetLinkRequest searchAllAssetAdministrationShellIdsByAssetLinkRequest = SearchAllAssetAdministrationShellIdsByAssetLinkRequest
-                .builder()
-                .assetIdentifierPairs(this.getAssetIdentifierPairs())
-                .build();
-
-        searchAllAssetAdministrationShellIdsByAssetLinkRequest.setPagingInfo(this.getPagingInfo());
-        searchAllAssetAdministrationShellIdsByAssetLinkRequest.setInternal(this.isInternal());
-
-        return searchAllAssetAdministrationShellIdsByAssetLinkRequest;
-    }
-
-
     public static Builder builder() {
         return new Builder();
     }

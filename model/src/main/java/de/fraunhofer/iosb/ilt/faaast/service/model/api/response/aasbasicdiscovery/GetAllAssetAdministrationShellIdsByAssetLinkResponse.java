@@ -22,23 +22,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.AbstractPagedRes
  */
 public class GetAllAssetAdministrationShellIdsByAssetLinkResponse extends AbstractPagedResponse<String> {
 
-    /**
-     * Transform a {@link SearchAllAssetAdministrationShellIdsByAssetLinkResponse} into a
-     * {@link GetAllAssetAdministrationShellIdsByAssetLinkResponse}.
-     *
-     * @param response The response to transform.
-     *
-     * @return An equal {@link GetAllAssetAdministrationShellIdsByAssetLinkResponse}.
-     */
-    public static GetAllAssetAdministrationShellIdsByAssetLinkResponse from(SearchAllAssetAdministrationShellIdsByAssetLinkResponse response) {
-        return GetAllAssetAdministrationShellIdsByAssetLinkResponse.builder()
-                .payload(response.getPayload())
-                .result(response.getResult())
-                .statusCode(response.getStatusCode())
-                .build();
-    }
-
-
     public static Builder builder() {
         return new Builder();
     }
