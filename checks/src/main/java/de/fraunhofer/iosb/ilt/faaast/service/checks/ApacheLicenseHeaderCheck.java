@@ -26,9 +26,8 @@ import java.util.stream.Stream;
 
 
 /**
- * Checkstyle check that verifies the presence of the Apache 2.0 license header in Java source files. It only validates
- * that the required Apache license block exists somewhere in
- * the file header region (not full structural header matching).
+ * Checkstyle check that verifies the presence of the Apache 2.0 license header in Java source files.
+ * Also checks the contributors of a file are in the CONTRIBUTORS.txt file
  */
 @FileStatefulCheck
 public class ApacheLicenseHeaderCheck extends AbstractCheck {
@@ -48,8 +47,6 @@ public class ApacheLicenseHeaderCheck extends AbstractCheck {
     public void beginTree(DetailAST rootAST) {
         String[] sourceFileLines = getLines();
 
-        int sourceFileLicenseStartIndex = 0;
-
         // Get license lines from source file
         if (cachedLicense == null) {
             if (!loadLicense()) {
@@ -66,16 +63,17 @@ public class ApacheLicenseHeaderCheck extends AbstractCheck {
         }
 
         // When does the apache license start?
-        while (sourceFileLicenseStartIndex < sourceFileLines.length && !normalize(sourceFileLines[sourceFileLicenseStartIndex]).equals(normalize(cachedLicense[0]))) {
-            sourceFileLicenseStartIndex++;
+        int sourceFileLicenseStart = 0;
+        while (sourceFileLicenseStart < sourceFileLines.length && !normalize(sourceFileLines[sourceFileLicenseStart]).equals(normalize(cachedLicense[0]))) {
+            sourceFileLicenseStart++;
         }
-        if (sourceFileLicenseStartIndex >= sourceFileLines.length) {
+        if (sourceFileLicenseStart >= sourceFileLines.length) {
             log(rootAST, MSG_MISSING_LICENSE);
             return;
         }
 
-        String[] preLicenseSourceLines = Arrays.stream(sourceFileLines, 1, sourceFileLicenseStartIndex).toArray(String[]::new);
-        String[] sourceLicense = Arrays.stream(sourceFileLines, sourceFileLicenseStartIndex, sourceFileLines.length).toArray(String[]::new);
+        String[] preLicenseSourceLines = Arrays.stream(sourceFileLines, 1, sourceFileLicenseStart).toArray(String[]::new);
+        String[] sourceLicense = Arrays.stream(sourceFileLines, sourceFileLicenseStart, sourceFileLines.length).toArray(String[]::new);
 
         if (!validateBlockCommentStarts(sourceFileLines[0])) {
             log(rootAST, MSG_MISSING_START_OF_COMMENT);
@@ -91,6 +89,34 @@ public class ApacheLicenseHeaderCheck extends AbstractCheck {
     }
 
 
+    @Override
+    public int[] getDefaultTokens() {
+        return new int[0];
+    }
+
+
+    @Override
+    public int[] getAcceptableTokens() {
+        return new int[0];
+    }
+
+
+    @Override
+    public int[] getRequiredTokens() {
+        return new int[0];
+    }
+
+
+    public void setContributorsFile(String path) {
+        this.contributorsFile = Paths.get(path);
+    }
+
+
+    public void setLicenseFile(String path) {
+        this.licenseFile = Paths.get(path);
+    }
+
+
     private boolean validateBlockCommentStarts(String firstLine) {
         return firstLine.trim().startsWith("/*");
     }
@@ -100,24 +126,17 @@ public class ApacheLicenseHeaderCheck extends AbstractCheck {
         // At least one contributor's copyright must exist
         boolean foundContributor = false;
 
-        String merged = String.join("", preLicenseSourceLines);
+        String[] sourceFileContributors = Arrays.stream(preLicenseSourceLines)
+                .map(line -> line.replace(" *", ""))
+                .collect(Collectors.joining(""))
+                .split("Copyright \\(c\\) \\d{4}(-\\d{4})?");
 
-        merged = merged.replace(" *", "");
-
-        String[] sourceContributors = merged.split("Copyright \\(c\\) \\d{4}(-\\d{4})?");
-
-        for (String sourceContributor: sourceContributors) {
-            // Splitting creates empty first element
-            if (sourceContributor.trim().isEmpty()) {
-                continue;
-            }
-
-            if (!cachedContributors.contains(normalize(sourceContributor))) {
+        // Split creates one empty element at the beginning, skip it
+        for (int i = 1; i < sourceFileContributors.length; i++) {
+            if (!cachedContributors.contains(normalize(sourceFileContributors[i]))) {
                 return false;
             }
-            else {
-                foundContributor = true;
-            }
+            foundContributor = true;
         }
 
         return foundContributor;
@@ -164,33 +183,5 @@ public class ApacheLicenseHeaderCheck extends AbstractCheck {
                 .replaceFirst("^\\s*\\*\\s?", "")
                 .trim()
                 .replaceAll("\\s+", " ");
-    }
-
-
-    @Override
-    public int[] getDefaultTokens() {
-        return new int[0];
-    }
-
-
-    @Override
-    public int[] getAcceptableTokens() {
-        return new int[0];
-    }
-
-
-    @Override
-    public int[] getRequiredTokens() {
-        return new int[0];
-    }
-
-
-    public void setContributorsFile(String path) {
-        this.contributorsFile = Paths.get(path);
-    }
-
-
-    public void setLicenseFile(String path) {
-        this.licenseFile = Paths.get(path);
     }
 }
