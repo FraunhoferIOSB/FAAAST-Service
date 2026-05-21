@@ -293,8 +293,7 @@
                                 <!-- if no header exists (package x.y.z; is the first content -->
                                 <searchRegex>(?s)\A(\s*package\s+)</searchRegex>
                                 <!-- default header followed by file content -->
-                                <replacement>
-                                    /*
+                                <replacement>/*
                                     * Copyright (c) 2021 Fraunhofer IOSB, eine rechtlich nicht selbstaendige
                                     * Einrichtung der Fraunhofer-Gesellschaft zur Foerderung der angewandten
                                     * Forschung e.V.
@@ -309,8 +308,7 @@
                                     * See the License for the specific language governing permissions and
                                     * limitations under the License.
                                     */
-                                    $1
-                                </replacement>
+                                    $1</replacement>
                             </replaceRegex>
                             <eclipse>
                                 <version>${eclipse.jdt.version}</version>
