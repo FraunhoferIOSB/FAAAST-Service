@@ -48,6 +48,7 @@ jobs:
         chmod 600 ~/.ssh/id_rsa
         git clone --quiet --branch master https://github.com/FraunhoferIOSB/helm-charts.git
         cp packaged/* helm-charts
+        helm repo index --url https://fraunhoferiosb.github.io/helm-charts/ ./helm-charts
         cd helm-charts
         git add .
         git remote rm origin
@@ -64,6 +65,7 @@ jobs:
         chmod 600 ~/.ssh/id_rsa
         git clone --quiet --branch master https://github.com/FraunhoferIOSB/helm-charts-snapshot.git
         cp packaged/* helm-charts-snapshot
+        helm repo index --url https://fraunhoferiosb.github.io/helm-charts-snapshot/ ./helm-charts-snapshot
         cd helm-charts-snapshot
         git add .
         git remote rm origin
