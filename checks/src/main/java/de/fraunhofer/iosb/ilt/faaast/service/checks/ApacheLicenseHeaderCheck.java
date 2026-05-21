@@ -121,23 +121,15 @@ public class ApacheLicenseHeaderCheck extends AbstractCheck {
 
 
     private boolean validateCopyrightSection(String[] preLicenseSourceLines) {
-        // At least one contributor's copyright must exist
-        boolean foundContributor = false;
-
-        String[] sourceFileContributors = Arrays.stream(preLicenseSourceLines)
-                .map(line -> line.replace(" *", ""))
-                .collect(Collectors.joining(""))
+        String[] preprocessed = Arrays.stream(preLicenseSourceLines)
+                .map(this::normalize)
+                .collect(Collectors.joining(" "))
                 .split("Copyright \\(c\\) \\d{4}(-\\d{4})?");
 
-        // Split creates one empty element at the beginning, skip it
-        for (int i = 1; i < sourceFileContributors.length; i++) {
-            if (!cachedContributors.contains(normalize(sourceFileContributors[i]))) {
-                return false;
-            }
-            foundContributor = true;
-        }
-
-        return foundContributor;
+        return Arrays.stream(preprocessed)
+                .skip(1) // Remove element before first occurrence of "Copyright"
+                .map(String::trim)
+                .allMatch(cachedContributors::contains);
     }
 
 
