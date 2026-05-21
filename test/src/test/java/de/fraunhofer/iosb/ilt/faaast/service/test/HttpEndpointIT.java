@@ -2760,10 +2760,6 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
         new Random().nextBytes(fileContent);
 
         for (var dataFormat: DataFormat.values()) {
-            // TODO remove once JSONLD support is implemented
-            if (dataFormat == DataFormat.JSONLD) {
-                continue;
-            }
             String filename = String.format("/dummy-file-%s.bin", dataFormat);
             String fileIdShort = String.format("dummy-file-%s", dataFormat);
             DefaultAssetAdministrationShell aas = new DefaultAssetAdministrationShell.Builder()
