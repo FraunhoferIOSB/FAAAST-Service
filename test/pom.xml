@@ -94,6 +94,12 @@
             </exclusions>
         </dependency>
         <dependency>
+            <groupId>com.apicatalog</groupId>
+            <artifactId>titanium-json-ld</artifactId>
+            <version>${titanium.jsonld.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <version>${jackson.databind.version}</version>
