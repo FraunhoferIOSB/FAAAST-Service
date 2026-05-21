@@ -30,25 +30,8 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 @SupportedDataformat(DataFormat.JSONLD)
 public class JsonLDEnvironmentSerializer implements EnvironmentSerializer {
 
-    // private static final Logger LOGGER = LoggerFactory.getLogger(JsonLDEnvironmentSerializer.class);
-    // private final Serializer serializer;
-
-    public JsonLDEnvironmentSerializer() {
-        // this.serializer = new Serializer();
-    }
-
-
     @Override
     public byte[] write(Charset charset, Environment environment, Collection<InMemoryFile> files) throws SerializationException {
-        throw new UnsupportedOperationException("Current version of AAS4j library does not support RDF/JSON-LD de-/serialization");
-        // if (Objects.nonNull(files) && !files.isEmpty()) {
-        //     LOGGER.debug("embedded files are ignored when serializing to JSON-LD");
-        // }
-        // try {
-        //     return serializer.write(environment, Lang.JSONLD).getBytes(charset);
-        // }
-        // catch (org.eclipse.digitaltwin.aas4j.v3.dataformat.SerializationException e) {
-        //     throw new SerializationException("RDF serialization failed", e);
-        // }
+        throw new UnsupportedOperationException("Current version of AAS4j library does not support JSON-LD de-/serialization");
     }
 }

@@ -29,24 +29,9 @@ import java.nio.charset.Charset;
 @SupportedDataformat(DataFormat.JSONLD)
 public class JsonLDEnvironmentDeserializer implements EnvironmentDeserializer {
 
-    //private final Serializer deserializer;
-
-    public JsonLDEnvironmentDeserializer() {
-        //this.deserializer = new Serializer();        
-    }
-
-
     @Override
     public EnvironmentContext read(InputStream in, Charset charset) throws DeserializationException {
-        throw new UnsupportedOperationException("Current version of AAS4j library does not support RDF/JSON-LD de-/serialization");
-        // try {
-        //     return EnvironmentContext.builder()
-        //             .environment(deserializer.read(IOUtils.toString(in, charset), Lang.JSONLD))
-        //             .build();
-        // }
-        // catch (org.eclipse.digitaltwin.aas4j.v3.dataformat.DeserializationException | IOException e) {
-        //     throw new DeserializationException("JSON deserialization failed", e);
-        // }
+        throw new UnsupportedOperationException("Current version of AAS4j library does not support JSON-LD de-/serialization");
     }
 
 }
