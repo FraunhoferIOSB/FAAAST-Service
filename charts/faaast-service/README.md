@@ -1,4 +1,4 @@
-FA³ST Service [![Documentation Status](https://readthedocs.org/projects/faaast-service/badge/?version=latest)](https://faaast-service.readthedocs.io/en/latest/?badge=latest)
+# FA³ST Service [![Documentation Status](https://readthedocs.org/projects/faaast-service/badge/?version=latest)](https://faaast-service.readthedocs.io/en/latest/?badge=latest)
 
 ![FA³ST Service Logo Light](https://github.com/FraunhoferIOSB/FAAAST-Service/blob/main/docs/source/images/logo-positiv.png/#gh-light-mode-only "FA³ST Service Logo")
 ![FA³ST Service Logo Dark](https://github.com/FraunhoferIOSB/FAAAST-Service/blob/main/docs/source/images/logo-negativ.png/#gh-dark-mode-only "FA³ST Service Logo")
