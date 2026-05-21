@@ -22,7 +22,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.SemanticIdPath;
 import de.fraunhofer.iosb.ilt.faaast.service.model.SubmodelElementIdentifier;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetSubmodelElementByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetSubmodelRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
@@ -34,6 +33,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.util.MqttHelp
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.util.Util;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.LogHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.net.MalformedURLException;
@@ -217,22 +217,9 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
         if (connectionsCurrent.containsKey(submodel.getId())) {
             old = connectionsCurrent.get(submodel.getId());
         }
-        log(serviceContext.getAssetConnectionManager().updateConnections(old, configs));
+        LogHelper.logMessages(serviceContext.getAssetConnectionManager().updateConnections(old, configs));
 
         connectionsCurrent.put(submodel.getId(), configs);
-    }
-
-
-    private void log(List<Message> messages) {
-        for (var message: messages) {
-            switch (message.getMessageType()) {
-                case ERROR -> LOGGER.error(message.getText());
-                case EXCEPTION -> LOGGER.error(message.getText());
-                case INFO -> LOGGER.info(message.getText());
-                case WARNING -> LOGGER.warn(message.getText());
-                default -> LOGGER.debug(message.getText());
-            }
-        }
     }
 
 

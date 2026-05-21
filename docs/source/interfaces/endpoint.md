@@ -32,7 +32,7 @@ All endpoint implementations share the following common configuration properties
 :::{table} Configuration properties of all Endpoint implementations.
 | Name                                 | Allowed Value                                                                                                                                                                                                                                                                                               | Description                                                | Default Value                               |
 | ------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- | ------------------------------------------- |
-| profiles<br>*(optional)*             | List, allowed values:<br>AAS_FULL<br>AAS_READ<br>AAS_REPOSITORY_FULL<br>AAS_REPOSITORY_READ<br>AASX_FILE_SERVER_FULL<br>CONCEPT_DESCRIPTION_FULL<br>DISCOVERY_FULL<br>FAAAST_IMPORT<br>FAAAST_RESET<br>SUBMODEL_FULL<br>SUBMODEL_READ<br>SUBMODEL_VALUE<br>SUBMODEL_REPOSITORY_FULL<br>SUBMODEL_REPOSITORY_READ | The AAS Service Profiles that the endpoint should support. | (empty, meaning all profiles are supported) |
+| profiles<br>*(optional)*             | List, allowed values:<br>AAS_FULL<br>AAS_READ<br>AAS_REPOSITORY_FULL<br>AAS_REPOSITORY_READ<br>AASX_FILE_SERVER_FULL<br>CONCEPT_DESCRIPTION_FULL<br>DISCOVERY_FULL<br>FAAAST_IMPORT<br>FAAAST_RESET<br>FAAAST_OPERATION_PROVIDER_RUNTIME<br>SUBMODEL_FULL<br>SUBMODEL_READ<br>SUBMODEL_VALUE<br>SUBMODEL_REPOSITORY_FULL<br>SUBMODEL_REPOSITORY_READ | The AAS Service Profiles<br>that the endpoint should support. | (empty, meaning all profiles are supported) |
 :::
 
 (endpoint-http)=
@@ -116,11 +116,58 @@ FA³ST Service supports the following APIs as defined by the [OpenAPI documentat
 
 Additionally, FA³ST Service offers the following proprietary API calls:
 
-| HTTP Method | URL Path | Description                                                                                                                                                                                                | Payload             | Response                                                                 |
-|-------------| -------- |------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------| ------------------- | ------------------------------------------------------------------------ |
-| DELETE      | /reset   | Resets the server which includes deleting all AASs, submodels, concept descriptions, files, asset connections, and pending operations.                                                                     | -                   | `204 No Content`                                                         |
-| POST        | /import  | Imports an AAS file in any supported data format. Set the `Content-Type` header accordingly so that the server can parse the document. For AASX, it is application/asset-administration-shell-package+xml. | The file to upload. | `200 Ok` with body containing list of errors that happend during import. |
+| HTTP Method | URL Path                                                 | Description                                                                                                                                                                                                      | Payload                       | Response                                                                 |
+|-------------| -------------------------------------------------------- |------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------| ----------------------------- | ------------------------------------------------------------------------ |
+| DELETE      | /reset                                                   | Resets the server which includes deleting all AASs, submodels,<br>concept descriptions, files, asset connections, and pending operations.                                                                        | -                             | `204 No Content`                                                         |
+| POST        | /import                                                  | Imports an AAS file in any supported data format. Set the `Content-Type`<br>header accordingly so that the server can parse the document.<br>For AASX, it is application/asset-administration-shell-package+xml. | The file to upload.           | `200 Ok` with body containing list<br>of errors that happend during import. |
+| POST        | /submodel/submodel-elements<br>/{idShortPath}/connection | Adds an Asset Connection to the operation at the specified path.                                                                                                                                                 | Asset Operation Configuration | `204 No Content`                                                         |
+| DELETE      | /submodel/submodel-elements<br>/{idShortPath}/connection | Removes an Asset Connection from the operation at the specified path.                                                                                                                                            | Asset Operation Configuration | `204 No Content`                                                         |
 
+#### Asset Operation Configuration
+
+As can be seen in the previous table, there's the possibility to add or remove an Asset Connection from an operation during runtime. For both calls, a specific method body is required, called `Asset Operation Configuration` in the table.
+It consists of two main objects: `connection` and `provider`.
+
+```{code-block} json
+{
+  "connection": {
+    // Connection-Level configuration
+  },
+  "provider": {
+    // OperationProvider Configuration
+  }
+}
+```
+
+The `connection` object contains the Connection-Level configuration, and `provider` the OperationProvider Configuration.
+You can refer to the AssetConnection Configuration section to get details about the corresponding configuration options.
+
+In the following section you can find an example configuration.
+
+```{code-block} json
+{
+  "connection": {
+    "@class": "de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.OpcUaAssetConnection",
+    "host": "opc.tcp://example.com:4840"
+  },
+  "provider": {
+    "nodeId": "nsu=com:example;s=foo",
+    "parentNodeId": "nsu=com:example;s=fooObject",
+    "inputArgumentMapping": [
+      {
+        "idShort": "ExampleInputId",
+        "argumentName": "ExampleInputArgument"
+      }
+    ],
+    "outputArgumentMapping": [
+      {
+        "idShort": "ExampleOutputId",
+        "argumentName": "ExampleOutputArgument"
+      }
+    ]
+  }
+}
+```
 
 #### Using HTTP PATCH
 

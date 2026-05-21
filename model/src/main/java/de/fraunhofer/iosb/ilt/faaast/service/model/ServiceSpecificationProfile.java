@@ -49,7 +49,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescriptio
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.PostConceptDescriptionRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.PutConceptDescriptionByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.description.GetSelfDescriptionRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.proprietary.DeleteOperationProviderByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.proprietary.ImportRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.proprietary.PostOperationProviderByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.proprietary.ResetRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.DeleteFileByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.DeleteSubmodelElementByPathRequest;
@@ -433,7 +435,12 @@ public enum ServiceSpecificationProfile {
     FAAAST_RESET(
             "https://github.com/FraunhoferIOSB/FAAAST-Service/API/1/4/Reset",
             List.of(),
-            List.of(ResetRequest.class));
+            List.of(ResetRequest.class)),
+    FAAAST_OPERATION_PROVIDER_RUNTIME("https://github.com/FraunhoferIOSB/FAAAST-Service/API/1/4/OperationProviderRuntime",
+            List.of(),
+            List.of(
+                    PostOperationProviderByPathRequest.class,
+                    DeleteOperationProviderByPathRequest.class));
 
     public static List<ServiceSpecificationProfile> ALL = Arrays.asList(ServiceSpecificationProfile.values());
 
