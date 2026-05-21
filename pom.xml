@@ -155,7 +155,7 @@
         <sonar.organization>fraunhofer-iosb</sonar.organization>
         <systemstubs.version>2.1.8</systemstubs.version>
         <titanium.jsonld.version>1.7.0</titanium.jsonld.version>
-        <wiremock.version>3.0.3</wiremock.version>
+        <wiremock.version>3.13.2</wiremock.version>
         <woodstox.version>7.2.0</woodstox.version>
     </properties>
     <dependencies>
