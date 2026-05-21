@@ -7,6 +7,7 @@
 	- Added support for reading/writing operation arguments from/to referenced other AAS elements (by using Qualifiers)
 	- Added CLI argument --show-stacktrace
 	- Added new core config properties `operationTimeout` to set a global timeout for executing AAS operations
+	- Removed support for RDF and JSON-LD format
 - Persistence
 	- MongoDB is now deprecated and will be remove in v2.0.
 - Asset Connection
