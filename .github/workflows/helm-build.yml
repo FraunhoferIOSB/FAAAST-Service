@@ -28,6 +28,11 @@ jobs:
         mkdir packaged
         helm package charts/faaast-service -d packaged
 
+    - name: Prepare git
+      run: |
+        git config --global user.email "noReply@local"
+        git config --global user.name "Workflow Build"
+
     - name: Set up SSH
       run: |
         mkdir -p ~/.ssh
