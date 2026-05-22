@@ -80,10 +80,10 @@ helm repo add fraunhofer-iosb https://fraunhoferiosb.github.io/helm-charts
 
 In your parent chart, add FA³ST:
 
-```yaml
+```yml
 - name: faaast-service
-  version: 1.3.0
-  repository: "https://fraunhoferiosb.github.io/helm-charts/"
+version: 1.3.0
+repository: "https://fraunhoferiosb.github.io/helm-charts/"
 ```
 
 ## Contributing
