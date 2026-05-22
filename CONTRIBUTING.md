@@ -7,14 +7,10 @@ Don't forget to rate the project! Thanks again!
 2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
 3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
 4. Add your copyright statement into changed/added source files (.java).
-
-   - For files where you made additions/modifications, add your copyright statement below the existing ones.
-
-   - For new source files, add your copyright statement and the Apache 2.0 license text that you can find in any other .java file.
-
-   - Additionally, add your name or the name of your organization as a one-liner to the `CONTRIBUTORS.txt` file in the root directory of this project.
-
-   - For reference, you can check any other source file. The structure of your copyright statement must be: `Copyright (c) <year> <org-name>`. It may span multiple lines, like the Fraunhofer IOSB statement.
+	- For files where you made additions/modifications, add your copyright statement below the existing ones.
+	- For new source files, add your copyright statement and the Apache 2.0 license text that you can find in any other .java file.
+	- Additionally, add your name or the name of your organization as a one-liner to the `CONTRIBUTORS.txt` file in the root directory of this project.
+	- For reference, you can check any other source file. The structure of your copyright statement must be: `Copyright (c) <year> <org-name>`. It may span multiple lines, like the Fraunhofer IOSB statement.
 5. Push to the Branch (`git push origin feature/AmazingFeature`)
 6. Open a Pull Request
 
