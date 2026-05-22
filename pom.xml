@@ -92,7 +92,6 @@
         <jakarta.xml.bind-api.version>4.0.5</jakarta.xml.bind-api.version>
         <janino.version>3.1.12</janino.version>
         <jaxb.api.version>2.3.1</jaxb.api.version>
-        <jena.version>5.6.0</jena.version>
         <jetty.version>12.1.9</jetty.version>
         <json-patch.version>1.13</json-patch.version>
         <json-smart.version>2.6.0</json-smart.version>
@@ -120,7 +119,7 @@
         <maven.plugin.owasp.version>12.2.2</maven.plugin.owasp.version>
         <maven.plugin.picocli.version>4.7.7</maven.plugin.picocli.version>
         <maven.plugin.proguard.version>2.7.0</maven.plugin.proguard.version>
-        <maven.plugin.prosys.codegen.version>5.6.0-175</maven.plugin.prosys.codegen.version>
+        <maven.plugin.prosys.codegen.version>5.7.0-186</maven.plugin.prosys.codegen.version>
         <maven.plugin.release.version>2.5.3</maven.plugin.release.version>
         <maven.plugin.shade.version>3.6.2</maven.plugin.shade.version>
         <maven.plugin.sonar.version>5.6.0.6792</maven.plugin.sonar.version>
@@ -131,7 +130,7 @@
         <mockito.version>5.23.0</mockito.version>
         <mongodb.version>5.7.0</mongodb.version>
         <moquette.version>0.18.4</moquette.version>
-        <netty.version>4.2.13.Final</netty.version>
+        <netty.version>4.2.14.Final</netty.version>
         <org.apache.httpcomponents.client5.version>5.6.1</org.apache.httpcomponents.client5.version>
         <org.apache.log4j-to-slf4j>2.26.0</org.apache.log4j-to-slf4j>
         <paho.version>1.2.5</paho.version>
@@ -141,8 +140,8 @@
         <proguard.core.version>9.3.2</proguard.core.version>
         <proguard.version>7.9.1</proguard.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <prosys.sdk.version>5.6.2-227</prosys.sdk.version>
-        <protobuf.version>4.34.1</protobuf.version>
+        <prosys.sdk.version>5.7.0-248</prosys.sdk.version>
+        <protobuf.version>4.35.0</protobuf.version>
         <rgxgen.version>3.1</rgxgen.version>
         <root.basedir>${project.basedir}</root.basedir>
         <slf4j.ext.version>1.0.0-jdk6</slf4j.ext.version>
@@ -155,8 +154,9 @@
         <sonar.language>java</sonar.language>
         <sonar.organization>fraunhofer-iosb</sonar.organization>
         <systemstubs.version>2.1.8</systemstubs.version>
-        <wiremock.version>2.35.2</wiremock.version>
-        <woodstox.version>7.1.1</woodstox.version>
+        <titanium.jsonld.version>1.7.0</titanium.jsonld.version>
+        <wiremock.version>3.13.2</wiremock.version>
+        <woodstox.version>7.2.0</woodstox.version>
     </properties>
     <dependencies>
         <dependency>

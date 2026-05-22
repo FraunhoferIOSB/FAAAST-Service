@@ -14,9 +14,13 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.util;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
+import java.util.List;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.Result;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultMessage;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultResult;
 
 
 /**
@@ -77,5 +81,20 @@ public class ResponseHelper {
         if (result != null && result.getMessages() != null) {
             result.getMessages().forEach(x -> x.setTimestamp(null));
         }
+    }
+
+
+    /**
+     * Creates an result object based on a list of messages.
+     *
+     * @param messages the messages
+     * @return the result object
+     */
+    public static Result asResult(List<Message> messages) {
+        Result result = new DefaultResult();
+        if (Objects.nonNull(messages)) {
+            result.setMessages(messages.stream().map(x -> (org.eclipse.digitaltwin.aas4j.v3.model.Message) new DefaultMessage.Builder().build()).toList());
+        }
+        return result;
     }
 }

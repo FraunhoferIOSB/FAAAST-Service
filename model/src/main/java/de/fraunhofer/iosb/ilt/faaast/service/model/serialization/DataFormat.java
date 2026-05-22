@@ -30,8 +30,6 @@ public enum DataFormat {
 
     JSON(MediaType.JSON_UTF_8, false, 0, "json"),
     XML(MediaType.APPLICATION_XML_UTF_8, false, 1, "xml"),
-    RDF(MediaType.create("text", "turtle"), false, 2, "rdf", "xml", "ttl", "n3", "nt", "nq"),
-    JSONLD(MediaType.create("application", "ld+json"), false, 3, "jsonld", "json-ld"),
     AASX(MediaType.create("application", "asset-administration-shell-package+xml"), true, 4, "aasx");
 
     private final MediaType contentType;

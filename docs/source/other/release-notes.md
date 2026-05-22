@@ -7,6 +7,7 @@
 	- Added support for reading/writing operation arguments from/to referenced other AAS elements (by using Qualifiers)
 	- Added CLI argument --show-stacktrace
 	- Added new core config properties `operationTimeout` to set a global timeout for executing AAS operations
+	- Removed support for RDF and JSON-LD format
 - Persistence
 	- MongoDB is now deprecated and will be remove in v2.0.
 - Asset Connection
@@ -19,9 +20,10 @@
 - Endpoint
 	- HTTP
 		- URL prefix /api/v3.x is now optional
-		- Add new ocnfig property `httpVersion`
+		- Add new config property `httpVersion`
 		- Treat headers case-insenstive (see RFC 2616)
 		- OperationProvider now supports use of input arguments via variables in headers
+		- Add support for runtime update of OperationProvider
 
 **Internal changes & bugfixes**
 - General
