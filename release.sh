@@ -65,6 +65,8 @@ function replaceVersion()
 	replaceValue "$file" "$TAG_VERSION" "$new_version"
 	sed -r -z 's/(<artifactId>starter<\/artifactId>[\r\n]+\s*<version>)[^<]+(<\/version>)/\1'"${new_version}"'\2/g' -i "$file"
 	sed -r -z 's/(\x27de.fraunhofer.iosb.ilt.faaast.service:starter:)[^\x27]*\x27/\1'"${new_version}"'\x27/g' -i "$file"
+  sed -r -i 's@(fraunhoferiosb/faaast-service:)[^[:space:]]*@\1'"${new_version}"'@g' "$file"
+	sed -r -i '/^- name: faaast-service\r?$/ {n; s/^([[:space:]]*version:[[:space:]]*).*/\1'"${new_version}"'/;}' "$file"
 }
 
 # argument: newVersion
