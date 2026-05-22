@@ -60,6 +60,36 @@ spec:
               echo "MongoDB is NOT reachable after timeout"
               exit 1
       {{- end }}
+      {{- if eq (index .Values.messageBus "@class") "de.fraunhofer.iosb.ilt.faaast.service.messagebus.cloudevents.MessageBusCloudevents" }}
+        - name: wait-for-cloudevents-mqtt
+          image: busybox:1.35
+          {{- $hp := splitList ":" .Values.messageBus.host }}
+          command:
+            - sh
+            - -c
+            - |
+              echo "Waiting for CloudEvents MQTT broker to be ready..."
+              until nc -z {{ index $hp 1 | trimPrefix "//" }} {{ index $hp 2 }}; do
+                echo "CloudEvents MQTT broker not ready, waiting..."
+                sleep 5
+              done
+              echo "CloudEvents MQTT broker is ready!"
+      {{- end }}
+      {{- if eq (index .Values.messageBus "@class") "de.fraunhofer.iosb.ilt.faaast.service.messagebus.mqtt.MessageBusMqtt" }}
+        - name: wait-for-mqtt
+          image: busybox:1.35
+          {{- $hp := splitList ":" .Values.messageBus.host }}
+          command:
+            - sh
+            - -c
+            - |
+              echo "Waiting for MQTT broker to be ready..."
+              until nc -z {{ .Values.messageBus.host }} .{{ Values.messageBus.port }}; do
+                echo "MQTT broker not ready, waiting..."
+                sleep 5
+              done
+              echo "MQTT broker is ready!"
+      {{- end }}
       containers:
         - name: {{ .Chart.Name }}
           {{- with .Values.securityContext }}
