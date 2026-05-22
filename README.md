@@ -76,6 +76,8 @@ docker run -v /path/to/your/model.aasx:/app/model.aasx fraunhoferiosb/faaast-ser
 
 ```sh
 helm repo add fraunhofer-iosb https://fraunhoferiosb.github.io/helm-charts
+# for snapshots:
+helm repo add fraunhofer-iosb-snapshot https://fraunhoferiosb.github.io/helm-charts-snapshot
 ```
 
 In your parent chart, add FA³ST:
