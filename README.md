@@ -66,7 +66,7 @@ mvn clean install
 
 ### As Docker Process
 
-FA³ST is hosted on https://hub.docker.com/u/fraunhoferiosb
+FA³ST docker images are hosted on <https://hub.docker.com/u/fraunhoferiosb>
 
 ```sh
 docker run -v /path/to/your/model.aasx:/app/model.aasx fraunhoferiosb/faaast-service:1.3.0
