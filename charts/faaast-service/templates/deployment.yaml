@@ -48,11 +48,9 @@ spec:
           args:
             - |
               CONNECTION_STRING="{{ .Values.persistence.connectionString }}"
-              DB="{{ .Values.persistence.database }}"
-              URI="${CONNECTION_STRING}/${DB}"
-              echo "Waiting for MongoDB at ${URI}..."
+              echo "Waiting for MongoDB at ${CONNECTION_STRING}..."
               for i in $(seq 1 30); do
-                if mongosh "${URI}" --eval 'db.adminCommand({ ping: 1 })' --quiet >/dev/null 2>&1; then
+                if mongosh "${CONNECTION_STRING}" --eval 'db.adminCommand({ ping: 1 })' --quiet >/dev/null 2>&1; then
                   echo "MongoDB is reachable"
                   exit 0
                 fi
