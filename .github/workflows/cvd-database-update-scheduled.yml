@@ -1,0 +1,48 @@
+name: CVE Database Update Scheduled
+
+on:
+  schedule:
+    # Every day at 4 AM UTC
+    - cron: '42 3 * * *'
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Source
+      uses: actions/checkout@v6
+      with:
+        # Disabling shallow clone is recommended for improving relevancy of reporting
+        fetch-depth: 0
+
+    - name: Cache -  Maven Repository
+      uses: actions/cache@v5
+      with:
+        path: |
+          ~/.m2/repository
+          ~/.sonar/cache
+        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-maven
+
+    - name: Get Date
+      id: get-date
+      run: |
+        echo "date=$(/bin/date -u "+%Y-%m-%dT%H:%M:%S")" >> $GITHUB_OUTPUT
+      shell: bash
+
+    - name: Restore Cache - CVE Database
+      uses: actions/cache@v5
+      with:
+        path: |
+          ~/.m2/repository/org/owasp/dependency-check-data
+        key: ${{ runner.os }}-maven-owasp-cvedb-${{ steps.get-date.outputs.date }}
+        restore-keys: ${{ runner.os }}-maven-owasp-cvedb
+
+    - name: Update CVE Database
+      env:
+        NIST_NVD_API_KEY: ${{ secrets.NIST_NVD_API_KEY }}
+      run: |
+        mvn -B -DnvdApiDelay=6000 org.owasp:dependency-check-maven:update-only

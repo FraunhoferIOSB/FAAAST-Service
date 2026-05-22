@@ -1177,9 +1177,12 @@ public class AssetConnectionManager {
             executor.shutdown();
             executor.awaitTermination(timeout, unit);
         }
-        catch (Exception e) {
+        catch (InterruptedException e) {
             executor.shutdownNow();
             Thread.currentThread().interrupt();
+        }
+        catch (Exception e) {
+            executor.shutdownNow();
         }
     }
 
@@ -1280,10 +1283,14 @@ public class AssetConnectionManager {
                 LOGGER.warn("{} failed (reason: TimeoutException, reference: {})", taskDescription, ReferenceHelper.asString(task.getKey()), e);
                 allDone = false;
             }
-            catch (InterruptedException | ExecutionException e) {
-                LOGGER.warn("{} failed (reason: InterreuptedException, reference: {})", taskDescription, ReferenceHelper.asString(task.getKey()), e);
-                Thread.currentThread().interrupt();
+            catch (ExecutionException e) {
+                LOGGER.warn("{} failed (reason: ExecutionException, reference: {})", taskDescription, ReferenceHelper.asString(task.getKey()), e);
                 allDone = false;
+            }
+            catch (InterruptedException e) {
+                LOGGER.warn("{} failed (reason: InterruptedException, reference: {})", taskDescription, ReferenceHelper.asString(task.getKey()), e);
+                allDone = false;
+                Thread.currentThread().interrupt();
             }
         }
         if (!allDone) {

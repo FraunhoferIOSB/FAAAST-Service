@@ -18,7 +18,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
-import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.filestorage.FileStorage;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
@@ -50,9 +49,9 @@ public class HttpEndpointWithExtendedEndpointInformationTest extends AbstractHtt
         scheme = HttpScheme.HTTP.toString();
         endpoint = new HttpEndpoint();
         server = new Server();
-        service = spy(new Service(CoreConfig.DEFAULT, persistence, fileStorage, mock(MessageBus.class), List.of(endpoint), List.of(), List.of()));
+        service = spy(new Service(coreConfig, persistence, fileStorage, mock(MessageBus.class), List.of(endpoint), List.of(), List.of()));
         endpoint.init(
-                CoreConfig.DEFAULT,
+                coreConfig,
                 HttpEndpointConfig.builder()
                         .port(port)
                         .cors(true)

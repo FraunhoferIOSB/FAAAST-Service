@@ -494,16 +494,22 @@ public class RegistrySynchronization {
                             responseMessages,
                             response.statusCode()));
                 }
-                catch (IOException | InterruptedException | KeyManagementException | NoSuchAlgorithmException | SerializationException | DeserializationException e) {
+                catch (IOException | KeyManagementException | NoSuchAlgorithmException | SerializationException | DeserializationException e) {
                     LOGGER.warn(String.format(
                             errorMsg,
                             id,
                             registry,
                             e.getClass().getSimpleName().concat(": ").concat(Optional.ofNullable(e.getMessage()).orElse(MSG_NO_EXCEPTION_MESSAGE))),
                             e);
-                    if (e instanceof InterruptedException) {
-                        Thread.currentThread().interrupt();
-                    }
+                }
+                catch (InterruptedException e) {
+                    LOGGER.warn(String.format(
+                            errorMsg,
+                            id,
+                            registry,
+                            e.getClass().getSimpleName().concat(": ").concat(Optional.ofNullable(e.getMessage()).orElse(MSG_NO_EXCEPTION_MESSAGE))),
+                            e);
+                    Thread.currentThread().interrupt();
                 }
             });
         }

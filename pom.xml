@@ -38,6 +38,7 @@
         <module>core</module>
         <module>model</module>
         <module>endpoint/http</module>
+        <module>messagebus/cloudevents</module>
         <module>messagebus/internal</module>
         <module>messagebus/mqtt</module>
         <module>persistence/memory</module>
@@ -70,10 +71,11 @@
         <bouncycastle.version>1.84</bouncycastle.version>
         <checkstyle.version>12.3.0</checkstyle.version>
         <classgraph.version>4.8.184</classgraph.version>
-        <commons.codec.version>1.21.0</commons.codec.version>
+        <cloudevents.version>4.0.2</cloudevents.version>
+        <commons.codec.version>1.22.0</commons.codec.version>
         <commons.compress.version>1.28.0</commons.compress.version>
         <commons.fileupload.version>1.6.0</commons.fileupload.version>
-        <commons.io.version>2.21.0</commons.io.version>
+        <commons.io.version>2.22.0</commons.io.version>
         <commons.lang3.version>3.20.0</commons.lang3.version>
         <container.image.name>fraunhoferiosb/faaast-service</container.image.name>
         <container.image.tag>latest</container.image.tag>
@@ -84,20 +86,20 @@
         <guava.version>33.6.0-jre</guava.version>
         <jackson-jq.version>1.6.1</jackson-jq.version>
         <jackson.annotations.version>2.21</jackson.annotations.version>
-        <jackson.databind.version>2.21.2</jackson.databind.version>
-        <jackson.version>2.21.2</jackson.version>
+        <jackson.databind.version>2.21.3</jackson.databind.version>
+        <jackson.version>2.21.3</jackson.version>
         <jakarta.json-api.version>2.1.2</jakarta.json-api.version>
         <jakarta.xml.bind-api.version>4.0.5</jakarta.xml.bind-api.version>
         <janino.version>3.1.12</janino.version>
         <jaxb.api.version>2.3.1</jaxb.api.version>
         <jena.version>5.6.0</jena.version>
-        <jetty.version>12.1.8</jetty.version>
+        <jetty.version>12.1.9</jetty.version>
         <json-patch.version>1.13</json-patch.version>
         <json-smart.version>2.6.0</json-smart.version>
         <jsonassert.version>1.5.3</jsonassert.version>
         <jsonpath.version>3.0.0</jsonpath.version>
         <junit.version>4.13.2</junit.version>
-        <log4j.api.version>2.25.4</log4j.api.version>
+        <log4j.api.version>2.26.0</log4j.api.version>
         <logback.version>1.5.32</logback.version>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
@@ -106,6 +108,7 @@
         <maven.plugin.central-publishing.version>0.10.0</maven.plugin.central-publishing.version>
         <maven.plugin.checkstyle.version>3.6.0</maven.plugin.checkstyle.version>
         <maven.plugin.compiler.version>3.15.0</maven.plugin.compiler.version>
+        <maven.plugin.dependency-check.autoUpdate>true</maven.plugin.dependency-check.autoUpdate>
         <maven.plugin.dependency.version>3.10.0</maven.plugin.dependency.version>
         <maven.plugin.failsafe.version>3.5.5</maven.plugin.failsafe.version>
         <maven.plugin.git.commit.id.version>10.0.0</maven.plugin.git.commit.id.version>
@@ -114,23 +117,23 @@
         <maven.plugin.jar.version>3.5.0</maven.plugin.jar.version>
         <maven.plugin.javadoc.version>3.12.0</maven.plugin.javadoc.version>
         <maven.plugin.license.version>2.0.0</maven.plugin.license.version>
-        <maven.plugin.owasp.version>12.2.1</maven.plugin.owasp.version>
+        <maven.plugin.owasp.version>12.2.2</maven.plugin.owasp.version>
         <maven.plugin.picocli.version>4.7.7</maven.plugin.picocli.version>
         <maven.plugin.proguard.version>2.7.0</maven.plugin.proguard.version>
-        <maven.plugin.prosys.codegen.version>5.6.0-175</maven.plugin.prosys.codegen.version>
+        <maven.plugin.prosys.codegen.version>5.7.0-186</maven.plugin.prosys.codegen.version>
         <maven.plugin.release.version>2.5.3</maven.plugin.release.version>
         <maven.plugin.shade.version>3.6.2</maven.plugin.shade.version>
-        <maven.plugin.sonar.version>5.5.0.6356</maven.plugin.sonar.version>
+        <maven.plugin.sonar.version>5.6.0.6792</maven.plugin.sonar.version>
         <maven.plugin.source.version>3.4.0</maven.plugin.source.version>
-        <maven.plugin.spotless.version>3.4.0</maven.plugin.spotless.version>
+        <maven.plugin.spotless.version>3.5.1</maven.plugin.spotless.version>
         <maven.plugin.surefire.version>3.5.5</maven.plugin.surefire.version>
-        <milo.version>1.1.2</milo.version>
+        <milo.version>1.1.3</milo.version>
         <mockito.version>5.23.0</mockito.version>
-        <mongodb.version>5.6.5</mongodb.version>
-        <moquette.version>0.18.3</moquette.version>
-        <netty.version>4.2.12.Final</netty.version>
-        <org.apache.httpcomponents.client5.version>5.6</org.apache.httpcomponents.client5.version>
-        <org.apache.log4j-to-slf4j>2.25.4</org.apache.log4j-to-slf4j>
+        <mongodb.version>5.7.0</mongodb.version>
+        <moquette.version>0.18.4</moquette.version>
+        <netty.version>4.2.13.Final</netty.version>
+        <org.apache.httpcomponents.client5.version>5.6.1</org.apache.httpcomponents.client5.version>
+        <org.apache.log4j-to-slf4j>2.26.0</org.apache.log4j-to-slf4j>
         <paho.version>1.2.5</paho.version>
         <parsson.version>1.1.7</parsson.version>
         <picocli.version>4.7.7</picocli.version>
@@ -138,13 +141,13 @@
         <proguard.core.version>9.3.2</proguard.core.version>
         <proguard.version>7.9.1</proguard.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <prosys.sdk.version>5.6.2-227</prosys.sdk.version>
-        <protobuf.version>4.34.1</protobuf.version>
+        <prosys.sdk.version>5.7.0-248</prosys.sdk.version>
+        <protobuf.version>4.35.0</protobuf.version>
         <rgxgen.version>3.1</rgxgen.version>
         <root.basedir>${project.basedir}</root.basedir>
         <slf4j.ext.version>1.0.0-jdk6</slf4j.ext.version>
         <slf4j.test.version>3.0.3</slf4j.test.version>
-        <slf4j.version>2.0.17</slf4j.version>
+        <slf4j.version>2.0.18</slf4j.version>
         <sonar.coverage.jacoco.xmlReportPaths>${maven.multiModuleProjectDirectory}/test/target/site/jacoco-aggregate/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
         <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
@@ -152,8 +155,8 @@
         <sonar.language>java</sonar.language>
         <sonar.organization>fraunhofer-iosb</sonar.organization>
         <systemstubs.version>2.1.8</systemstubs.version>
-        <wiremock.version>2.35.2</wiremock.version>
-        <woodstox.version>7.1.1</woodstox.version>
+        <wiremock.version>3.0.1</wiremock.version>
+        <woodstox.version>7.2.0</woodstox.version>
     </properties>
     <dependencies>
         <dependency>
@@ -224,6 +227,7 @@
                     <configuration>
                         <nvdApiKey>${env.NIST_NVD_API_KEY}</nvdApiKey>
                         <failBuildOnCVSS>6</failBuildOnCVSS>
+                        <autoUpdate>${maven.plugin.dependency-check.autoUpdate}</autoUpdate>
                         <suppressionFiles>
                             <suppressionFile>owaspSuppressions.xml</suppressionFile>
                         </suppressionFiles>

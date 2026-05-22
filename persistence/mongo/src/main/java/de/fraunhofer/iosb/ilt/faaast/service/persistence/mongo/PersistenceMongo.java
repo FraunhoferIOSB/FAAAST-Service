@@ -100,7 +100,10 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Persistence implementation for a mongo database.
+ *
+ * @deprecated MongoDB support will be removed in v2.0
  */
+@Deprecated(since = "1.4", forRemoval = true)
 public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PersistenceMongo.class);

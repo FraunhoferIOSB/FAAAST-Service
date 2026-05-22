@@ -1934,6 +1934,7 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
                                 .element(reference)
                                 .inoutput(ElementValueHelper.toValueMap(expectedResult.getInoutputArguments()))
                                 .output(ElementValueHelper.toValueMap(expectedResult.getOutputArguments()))
+                                .success()
                                 .build()),
                 LambdaExceptionHelper.wrap(x -> assertExecuteSingle(
                         HttpMethod.POST,
@@ -1965,6 +1966,7 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
                                 .element(reference)
                                 .inoutput(ElementValueHelper.toValueMap(expectedResult.getInoutputArguments()))
                                 .output(ElementValueHelper.toValueMap(expectedResult.getOutputArguments()))
+                                .success()
                                 .build()),
                 LambdaExceptionHelper.wrap(x -> {
                     var response = assertExecuteSingle(

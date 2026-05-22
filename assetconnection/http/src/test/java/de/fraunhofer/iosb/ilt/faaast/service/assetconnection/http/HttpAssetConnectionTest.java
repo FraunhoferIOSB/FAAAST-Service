@@ -65,6 +65,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.http.HttpClient;
 import java.nio.file.Files;
 import java.security.GeneralSecurityException;
 import java.util.Arrays;
@@ -321,7 +322,7 @@ public class HttpAssetConnectionTest {
             throws AssetConnectionException, ConfigurationInitializationException, ValueFormatException, ResourceNotFoundException, PersistenceException {
         assertOperationProviderPropertyJson(
                 RequestMethod.POST,
-                "{ \"parameters\": { \"in1\": ${in1} }}",
+                "{ \"parameters\": { \"in1\": \"${in1}\" }}",
                 "{ \"parameters\": { \"in1\": \"foo\" }}",
                 null,
                 null,
@@ -514,6 +515,7 @@ public class HttpAssetConnectionTest {
         HttpAssetConnectionConfig result = HttpAssetConnectionConfig.builder()
                 .headers(connectionHeaders != null ? connectionHeaders : Map.of())
                 .baseUrl(httpUrl)
+                .httpVersion(HttpClient.Version.HTTP_1_1)
                 .build();
         if (useHttps) {
             result.setBaseUrl(httpsUrl);
