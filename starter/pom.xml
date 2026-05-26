@@ -156,6 +156,11 @@
             </exclusions>
         </dependency>
         <dependency>
+            <groupId>eu.bi0space.dt</groupId>
+            <artifactId>smt-process</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
             <groupId>info.picocli</groupId>
             <artifactId>picocli</artifactId>
             <version>${picocli.version}</version>

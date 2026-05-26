@@ -279,7 +279,7 @@ public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
         }
 
         return new DefaultEndpoint.Builder()
-                ._interface(String.format("%s-%d.%d", iface, API_VERSION.getMajor(), API_VERSION.getMinor()))
+                ._interface(String.format("%s-%d.%d", iface.getName(), API_VERSION.getMajor(), API_VERSION.getMinor()))
                 .protocolInformation(new DefaultProtocolInformation.Builder()
                         .href(endpointUri.toASCIIString())
                         .endpointProtocol(ENDPOINT_PROTOCOL)
@@ -325,6 +325,9 @@ public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
                         result.getPath().concat(config.getPathPrefix()),
                         result.getQuery(),
                         result.getFragment());
+            }
+            else {
+                result = result.resolve(config.getPathPrefix());
             }
         }
         catch (URISyntaxException e) {
