@@ -134,7 +134,7 @@
         <org.apache.httpcomponents.client5.version>5.6.1</org.apache.httpcomponents.client5.version>
         <org.apache.log4j-to-slf4j>2.26.0</org.apache.log4j-to-slf4j>
         <paho.version>1.2.5</paho.version>
-        <parsson.version>1.1.7</parsson.version>
+        <parsson.version>1.1.9</parsson.version>
         <picocli.version>4.7.7</picocli.version>
         <poi.ooxml.version>5.5.1</poi.ooxml.version>
         <proguard.core.version>9.3.2</proguard.core.version>
