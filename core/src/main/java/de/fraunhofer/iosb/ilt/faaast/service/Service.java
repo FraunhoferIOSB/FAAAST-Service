@@ -199,6 +199,12 @@ public class Service implements ServiceContext {
         return assetConnectionManager;
     }
 
+    
+    @Override
+    public List<Endpoint> getEndpoints() {
+        return endpoints;
+    }
+
 
     public ServiceConfig getConfig() {
         return config;

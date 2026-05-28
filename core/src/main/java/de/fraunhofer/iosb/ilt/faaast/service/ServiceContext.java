@@ -26,6 +26,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
+import java.util.List;
+
 
 /**
  * Abstraction of Service to be used in other components to limit their access to the service.
@@ -98,4 +100,12 @@ public interface ServiceContext {
      * @return the AssetConnectionManager of the service
      */
     public AssetConnectionManager getAssetConnectionManager();
+
+
+    /**
+     * Returns the endpoints of the service.
+     *
+     * @return the endpoints of the service
+     */
+    public List<Endpoint> getEndpoints();
 }
