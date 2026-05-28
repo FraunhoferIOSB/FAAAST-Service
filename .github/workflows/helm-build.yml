@@ -1,0 +1,79 @@
+name: Helm Build
+
+on:
+  push:
+    # (push to main AND charts changed) OR (push a tag WITHOUT restriction of path)
+    branches:
+      - main
+    paths:
+      - charts
+    tags:
+      - "v*"
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Source
+      uses: actions/checkout@v6
+      with:
+        fetch-depth: 0
+
+    - name: Set up Helm
+      uses: azure/setup-helm@v5.0.0
+      with:
+        version: v3.18.4
+
+    - name: Package chart
+      run: |
+        mkdir packaged
+        helm package charts/faaast-service -d packaged
+
+    - name: Prepare git
+      run: |
+        git config --global user.email "noReply@local"
+        git config --global user.name "Workflow Build"
+
+    - name: Set up SSH
+      run: |
+        mkdir -p ~/.ssh
+        ssh-keyscan -H github.com >> ~/.ssh/known_hosts
+
+    - name: Build and upload chart (release)
+      if: github.ref == 'refs/tags/v*'
+      run: |
+        echo -e "${{ secrets.HELM_SSH_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        git clone --quiet --branch master https://github.com/FraunhoferIOSB/helm-charts.git
+        cp packaged/* helm-charts
+        helm repo index --url https://fraunhoferiosb.github.io/helm-charts/ ./helm-charts
+        cd helm-charts
+        git add .
+        git remote rm origin
+        git remote add origin git@github.com:FraunhoferIOSB/helm-charts.git
+        git commit -m "${GITHUB_REPOSITORY} pushed, build ${GITHUB_RUN_NUMBER}"
+        git push origin master -fq
+        cd ..
+        rm -rf ./helm-charts
+        echo "Helm chart pushed to release repository"
+
+    - name: Build and upload chart (snapshot)
+      run: |
+        echo -e "${{ secrets.HELM_SSH_KEY_SNAPSHOT }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        git clone --quiet --branch master https://github.com/FraunhoferIOSB/helm-charts-snapshot.git
+        cp packaged/* helm-charts-snapshot
+        helm repo index --url https://fraunhoferiosb.github.io/helm-charts-snapshot/ ./helm-charts-snapshot
+        cd helm-charts-snapshot
+        git add .
+        git remote rm origin
+        git remote add origin git@github.com:FraunhoferIOSB/helm-charts-snapshot.git
+        git commit -m "${GITHUB_REPOSITORY} pushed, build ${GITHUB_RUN_NUMBER}"
+        git push origin master -fq
+        cd ..
+        rm -rf ./helm-charts-snapshot
+        echo "Helm chart pushed to snapshot repository"
