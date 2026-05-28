@@ -162,7 +162,6 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -681,19 +680,6 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
                 true,
                 MediaType.APPLICATION_XML_UTF_8,
                 DataFormat.XML);
-    }
-
-
-    @Ignore("Failing because of charset issues, probably caused by admin-shell.io library not respecting charset for de-/serialization")
-    @Test
-    public void testAASSerializationRDF()
-            throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException, ResourceNotFoundException,
-            NoSuchAlgorithmException, KeyManagementException {
-        assertSerialization(
-                List.of(environment.getAssetAdministrationShells().get(0)),
-                true,
-                DataFormat.RDF.getContentType(),
-                DataFormat.RDF);
     }
 
 
@@ -2774,10 +2760,6 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
         new Random().nextBytes(fileContent);
 
         for (var dataFormat: DataFormat.values()) {
-            // TODO remove once RDF support is implemented
-            if (dataFormat == DataFormat.RDF || dataFormat == DataFormat.JSONLD) {
-                continue;
-            }
             String filename = String.format("/dummy-file-%s.bin", dataFormat);
             String fileIdShort = String.format("dummy-file-%s", dataFormat);
             DefaultAssetAdministrationShell aas = new DefaultAssetAdministrationShell.Builder()

@@ -1,0 +1,153 @@
+# values.yaml
+# Minimal configuration for FA³ST Service in Kubernetes.
+# TLS is expected to be terminated at the ingress; the service itself listens on plain HTTP.
+
+image:
+  repository: fraunhoferiosb/faaast-service
+  tag: latest
+  pullPolicy: IfNotPresent
+
+fullnameOverride: faaast-service
+
+debug:
+  enabled: false
+  port: 5500
+  suspendOnStart: true
+
+autoscaling:
+  enabled: false
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: false
+
+ingress:
+  enabled: true
+  className: "nginx"
+  hosts:
+    - host: "localhost"
+      paths:
+        - path: /
+          pathType: Prefix
+          # This should match your Service port name/number in the chart’s templates
+          servicePort: 443
+
+
+# -------------------------------------------------------------------
+# FA³ST configuration (used by configmap.yaml → config.json)
+# -------------------------------------------------------------------
+
+# core: keep empty by default so FA³ST internal defaults apply.
+# Your configmap uses:
+#   {{- with .Values.core }} "core": ... {{- end }}
+# Since {} is “empty”, "core" will not be rendered.
+core: {}
+# Example (uncomment + adapt when needed):
+# core:
+#   operationTimeout: 60000           # ms, 0 = no timeout
+#   assetConnectionReadTimeout: 30000 # ms
+#   callbackAddress: "https://faaast.example.com"
+#   validationOnLoad:
+#     validateConstraints: true
+#     idShortUniqueness: true
+#     identifierUniqueness: true
+#   validationOnCreate:
+#     validateConstraints: true
+#     idShortUniqueness: true
+#     identifierUniqueness: true
+#   validationOnUpdate:
+#     validateConstraints: true
+#     idShortUniqueness: true
+#     identifierUniqueness: true
+
+# endpoints: empty by default → config.json does NOT contain "endpoints"
+# and FA³ST uses its own default HTTP endpoint (443, HTTPS, self‑signed).
+endpoints: []
+# Example HTTP endpoint (TLS terminated by FA³ST itself):
+# endpoints:
+#   - "@class": "de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpoint"
+#     port: 443
+#     sslEnabled: true
+#     # Optional CORS and other settings:
+#     # corsEnabled: true
+#     # corsAllowedOrigin: "*"
+#     # pathPrefix: "/api/v3.0"
+#     # includeErrorDetails: false
+#     # profiles: []           # empty = all profiles
+#     # aclFolder: "acl"       # will become /app/resources/acl via template
+
+# Example HTTP endpoint if you want plain HTTP in the container
+# and TLS only at ingress:
+# endpoints:
+#   - "@class": "de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpoint"
+#     port: 8080
+#     sslEnabled: false
+#     # adjust your Service/Ingress accordingly
+
+# No asset connections by default.
+assetConnections: []
+# Example HTTP asset connection:
+# assetConnections:
+#   - "@class": "de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.HttpAssetConnection"
+#     baseUrl: "http://example.com"
+#     headers:
+#       Authorization: "Bearer <token>"
+#     valueProviders:
+#       "[ModelRef](Submodel)urn:aas:id:example:submodel:1, (Property)Property1":
+#         format: "JSON"
+#         path: "/foo"
+#         query: "$.foo"
+#         template: "{\"foo\" : \"${value}\"}"
+#         writeMethod: "POST"
+
+# No SubmodelTemplate Processors by default.
+submodelTemplateProcessors: []
+# Example AID + AIMC processor:
+# submodelTemplateProcessors:
+#   - "@class": "de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.AimcSubmodelTemplateProcessor"
+#     credentials:
+#       "http://myserver.example.com:8088":
+#         - username: "user1"
+#           password: "pw1"
+#         - username: "user2"
+#           password: "pw2"
+
+# persistence and messageBus:
+# Your configmap already provides sane defaults when these keys are
+# NOT present in values.yaml:
+#
+#   "persistence": {
+#     "@class": "de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemory"
+#   }
+#
+#   "messageBus": {
+#     "@class": "de.fraunhofer.iosb.ilt.faaast.service.messagebus.internal.MessageBusInternal"
+#   }
+#
+# So they are deliberately omitted here. Override only when needed.
+
+# Example persistence override (file-based):
+# persistence:
+#   "@class": "de.fraunhofer.iosb.ilt.faaast.service.persistence.file.PersistenceFile"
+#   initialModelFile: "/config/model.json"
+#   dataDir: "."
+#   keepInitial: true
+#   dataformat: "JSON"    # AASX | JSON | XML
+
+# Example messageBus override (MQTT):
+# messageBus:
+#   "@class": "de.fraunhofer.iosb.ilt.faaast.service.messagebus.mqtt.MessageBusMqtt"
+#   useInternalServer: true
+#   host: "0.0.0.0"
+#   port: 1883
+#   sslPort: 8883
+#   websocketPort: 9001
+#   sslWebsocketPort: 443
+#   topicPrefix: "events/"
+#   # serverCertificate: { ... CertificateInfo ... }
+#   # clientCertificate: { ... CertificateInfo ... }
+#   # username: "messagebus-user"
+#   # password: "messagebus-password"
+#   # clientId: "CustomClientId"
+#   # users:
+#   #   user1: "password1"

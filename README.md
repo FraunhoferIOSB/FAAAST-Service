@@ -52,16 +52,40 @@ The features of FA³ST Service include
 ```
 
 ### As Gradle Dependency
-```kotlin
+```groovy
 implementation 'de.fraunhofer.iosb.ilt.faaast.service:starter:1.3.0'
 ```
 
-## Building from Source
+### Building from Source
 
 ```sh
 git clone https://github.com/FraunhoferIOSB/FAAAST-Service
 cd FAAAST-Service
 mvn clean install
+```
+
+### As Docker Process
+
+FA³ST docker images are hosted on <https://hub.docker.com/u/fraunhoferiosb>
+
+```sh
+docker run -v /path/to/your/model.aasx:/app/model.aasx fraunhoferiosb/faaast-service:1.3.0
+```
+
+### As Kubernetes Deployment (Helm Chart)
+
+```sh
+helm repo add fraunhofer-iosb https://fraunhoferiosb.github.io/helm-charts
+# for snapshots:
+helm repo add fraunhofer-iosb-snapshot https://fraunhoferiosb.github.io/helm-charts-snapshot
+```
+
+In your parent chart, add FA³ST:
+
+```yml
+- name: faaast-service
+version: 1.3.0
+repository: "https://fraunhoferiosb.github.io/helm-charts/"
 ```
 
 ## Contributing

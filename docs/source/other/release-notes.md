@@ -7,7 +7,8 @@
 	- Added support for reading/writing operation arguments from/to referenced other AAS elements (by using Qualifiers)
 	- Added CLI argument --show-stacktrace
 	- Added new core config properties `operationTimeout` to set a global timeout for executing AAS operations
-    - Updated to AAS metamodel v3.1.
+  - Updated to AAS metamodel v3.1.
+	- Removed support for RDF and JSON-LD format
 - Persistence
 	- MongoDB is now deprecated and will be remove in v2.0.
 - Asset Connection
@@ -36,6 +37,7 @@
     - Fix ElementDelete events not being triggered on DELETE /reset.
 	- Removed duplicate requests that have not been mapped to any API (`GetAssetAdministrationShellByIdRequest`, `PutAssetAdministrationShellById`, `GetSubmodelByIdRequest`, `PatchSubmodelByIdRequest`, `PutSubmodelByIdRequest`)
 	- Update `ServiceContext` interface to now allow access to persistence, file storage, and asset connection manager
+    - Allow more flexibility in license header: Owners registered in CONTRIBUTORS.txt may add their Copyright statement to source files
 - Asset Connection
 	- Fixed bug that reading a SubmodelElement container, like a `SubmodelElementCollection`, didn't trigger the asset connection value providers of underlying elements recursively.
 	- Fixed asset connection JSON serialization not including blob values in serialization
