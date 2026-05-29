@@ -161,7 +161,7 @@ public class MessageBusCloudEvents implements MessageBus<MessageBusCloudEventsCo
     }
 
 
-    private String getSourceUri(List<Endpoint<?>> httpEndpoints) throws ConfigurationInitializationException {
+    private String getSourceUri(List<Endpoint> httpEndpoints) throws ConfigurationInitializationException {
         List<URI> endpointUri = httpEndpoints.stream()
                 .filter(HttpEndpoint.class::isInstance)
                 .map(ep -> (HttpEndpoint) ep)

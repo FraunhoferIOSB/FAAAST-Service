@@ -106,5 +106,5 @@ public interface ServiceContext {
      *
      * @return the endpoints of the service
      */
-    public List<Endpoint<?>> getEndpoints();
+    public List<Endpoint> getEndpoints();
 }
