@@ -36,9 +36,9 @@ public class DefaultCloudEventMapperTest extends AbstractCloudEventMapperTest {
 
     private final String updated = "updated";
 
-    protected CloudEventMapper getCloudEventMapper(String callbackAddress, String dataSchemaPrefix, String eventTypePrefix, boolean slimEvents,
+    protected CloudEventMapper getCloudEventMapper(String sourceUri, String dataSchemaPrefix, String eventTypePrefix, boolean slimEvents,
                                                    Function<Reference, Referable> referableSupplier) {
-        return new DefaultCloudEventMapper(new CloudEventMapperConfig(callbackAddress, dataSchemaPrefix, eventTypePrefix, slimEvents));
+        return new DefaultCloudEventMapper(new CloudEventMapperConfig(sourceUri, dataSchemaPrefix, eventTypePrefix, slimEvents));
     }
 
 

@@ -35,9 +35,9 @@ public class ValueChangeCloudEventMapperTest extends AbstractCloudEventMapperTes
     private final String valueChanged = "valueChanged";
 
     @Override
-    protected CloudEventMapper getCloudEventMapper(String callbackAddress, String dataSchemaPrefix, String eventTypePrefix, boolean slimEvents,
+    protected CloudEventMapper getCloudEventMapper(String sourceUri, String dataSchemaPrefix, String eventTypePrefix, boolean slimEvents,
                                                    Function<Reference, Referable> referableSupplier) {
-        return new ValueChangedCloudEventMapper(new CloudEventMapperConfig(callbackAddress, dataSchemaPrefix, eventTypePrefix, slimEvents), referableSupplier);
+        return new ValueChangedCloudEventMapper(new CloudEventMapperConfig(sourceUri, dataSchemaPrefix, eventTypePrefix, slimEvents), referableSupplier);
     }
 
 

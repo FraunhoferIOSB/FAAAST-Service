@@ -66,7 +66,6 @@ core:
   assetConnectionReadMaxThreadPoolSize: 1000
   assetConnectionReadTimeout: 5000
   assetConnectionWriteMaxThreadPoolSize: 1000
-  callbackAddress: "https://invalid.local:443/mypath"
   requestHandlerThreadPoolSize: 2
   submodelRegistries:
     - "http://example.com/MySubmodelRegistry"
@@ -137,7 +136,7 @@ endpoints:
     corsEnabled: true
     corsExposedHeaders: "X-Custom-Header"
     corsMaxAge: 1000
-    hostname: "localhost"
+    hostname: "https://example.invalid"
     httpVersion: "HTTP_2"
     pathPrefix: "/api/v3.0"
     includeErrorDetails: true

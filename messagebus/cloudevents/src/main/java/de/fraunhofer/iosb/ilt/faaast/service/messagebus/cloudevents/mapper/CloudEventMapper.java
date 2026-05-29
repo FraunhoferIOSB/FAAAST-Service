@@ -219,9 +219,9 @@ public abstract class CloudEventMapper {
 
     private URI getSourceUri(Reference reference) {
         // base
-        String uriString = config.callbackAddress().endsWith("/")
-                ? config.callbackAddress().substring(0, config.callbackAddress().length() - 1)
-                : config.callbackAddress();
+        String uriString = config.sourceUri().endsWith("/")
+                ? config.sourceUri().substring(0, config.sourceUri().length() - 1)
+                : config.sourceUri();
 
         Key root = ReferenceHelper.getRoot(reference);
         if (root == null || root.getValue() == null) {
