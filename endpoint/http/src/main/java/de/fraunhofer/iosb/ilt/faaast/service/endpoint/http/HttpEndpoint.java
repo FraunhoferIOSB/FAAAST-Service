@@ -124,12 +124,6 @@ public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
     }
 
 
-    @Override
-    public void init(CoreConfig coreConfig, HttpEndpointConfig config, ServiceContext serviceContext) {
-        super.init(coreConfig, config, serviceContext);
-    }
-
-
     private void configureHttpServer() throws EndpointException {
         HttpConfiguration httpConfig = new HttpConfiguration();
         httpConfig.setSendServerVersion(false);
