@@ -16,11 +16,9 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http;
 
 import static de.fraunhofer.iosb.ilt.faaast.service.certificate.util.KeyStoreHelper.DEFAULT_ALIAS;
 
-import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.certificate.CertificateData;
 import de.fraunhofer.iosb.ilt.faaast.service.certificate.CertificateInformation;
 import de.fraunhofer.iosb.ilt.faaast.service.certificate.util.KeyStoreHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.AbstractEndpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException;
