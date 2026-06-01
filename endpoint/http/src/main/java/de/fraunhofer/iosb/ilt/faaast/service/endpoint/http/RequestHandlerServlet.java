@@ -23,6 +23,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.RequestMappin
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.response.ResponseMappingManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.ApiGateway;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiSerializer;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.AclFileMonitoringHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasrepository.GetAllAssetAdministrationShellsResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetSubmodelResponse;
@@ -58,7 +59,7 @@ public class RequestHandlerServlet extends HttpServlet {
     private final HttpJsonApiSerializer serializer;
     private final ApiGateway apiGateway;
 
-    public RequestHandlerServlet(HttpEndpoint endpoint, HttpEndpointConfig config, ServiceContext serviceContext) {
+    public RequestHandlerServlet(HttpEndpoint endpoint, HttpEndpointConfig config, ServiceContext serviceContext, AclFileMonitoringHelper aclFileMonitoringHelper) {
         Ensure.requireNonNull(endpoint, "endpoint must be non-null");
         Ensure.requireNonNull(config, "config must be non-null");
         Ensure.requireNonNull(serviceContext, "serviceContext must be non-null");
@@ -68,7 +69,7 @@ public class RequestHandlerServlet extends HttpServlet {
         this.requestMappingManager = new RequestMappingManager(serviceContext);
         this.responseMappingManager = new ResponseMappingManager(serviceContext);
         this.serializer = new HttpJsonApiSerializer();
-        this.apiGateway = Objects.nonNull(config.getAclFolder()) ? new ApiGateway(config.getAclFolder()) : null;
+        this.apiGateway = Optional.ofNullable(aclFileMonitoringHelper).map(ApiGateway::new).orElse(null);
     }
 
 

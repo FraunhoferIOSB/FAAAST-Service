@@ -25,6 +25,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.AclFileMonitoringHelper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import java.nio.charset.StandardCharsets;
@@ -68,7 +69,7 @@ public class ApiGatewayFilterTest extends JwtAuthorizationFilterTest {
     public void anonymousAccessDependsOnAclFile() throws Exception {
 
         Path aclDir = tmp.newFolder("acl").toPath();
-        apiGateway = new ApiGateway(aclDir.toString());
+        apiGateway = new ApiGateway(new AclFileMonitoringHelper(aclDir.toString()));
 
         HttpServletRequest request = req("GET", "/api/v3.0/submodels");
         FilterChain filter = mockFilterChain();

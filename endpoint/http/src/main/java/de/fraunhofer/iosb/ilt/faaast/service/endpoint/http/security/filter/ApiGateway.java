@@ -15,13 +15,13 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter;
 
 import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod.POST;
+import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.auth.AuthState.ANONYMOUS;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.FormulaEvaluator;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.AclFileMonitoringHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasrepository.GetAllAssetAdministrationShellsResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetSubmodelResponse;
@@ -39,18 +39,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.ObjectItem;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.RightsEnum;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import jakarta.servlet.http.HttpServletRequest;
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardWatchEventKinds;
-import java.nio.file.WatchEvent;
-import java.nio.file.WatchKey;
-import java.nio.file.WatchService;
+
 import java.time.Clock;
 import java.time.LocalTime;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -59,6 +51,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
@@ -67,16 +60,13 @@ import org.slf4j.LoggerFactory;
  */
 public class ApiGateway {
 
-    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(ApiGateway.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ApiGateway.class);
     private static final String BEARER_KWD = "Bearer";
 
-    private Map<Path, AllAccessPermissionRules> aclList;
-    private final String abortMessage = "Invalid ACL folder path, AAS Security will not enforce rules.)";
-    private final String errorMessage = "Invalid ACL rule, skipping.";
+    private final AclFileMonitoringHelper aclFileMonitoringHelper;
 
-    public ApiGateway(String aclFolder) {
-        initializeAclList(aclFolder);
-        monitorAclRules(aclFolder);
+    public ApiGateway(AclFileMonitoringHelper aclFileMonitoringHelper) {
+        this.aclFileMonitoringHelper = aclFileMonitoringHelper;
     }
 
 
@@ -87,16 +77,11 @@ public class ApiGateway {
      * @return true if authorized and ACL exists
      */
     public boolean isAuthorized(HttpServletRequest request) {
-        String token = request.getHeader("Authorization");
-        if (token == null) {
-            return AuthServer.filterRules(this.aclList, null, request);
+        if (ANONYMOUS == request.getAttribute("auth.state")) {
+            return AuthServer.filterRules(aclFileMonitoringHelper.getAll(), null, request);
         }
         else {
-            if (token.startsWith(BEARER_KWD + " ")) {
-                token = token.substring(BEARER_KWD.length() + 1).trim();
-            }
-            DecodedJWT jwt = JWT.decode(token);
-            return AuthServer.filterRules(this.aclList, jwt.getClaims(), request);
+            return AuthServer.filterRules(aclFileMonitoringHelper.getAll(), (Map<String,Claim>) request.getAttribute("claims"), request);
         }
     }
 
@@ -110,7 +95,7 @@ public class ApiGateway {
      */
     public Response filterAas(HttpServletRequest request, GetAllAssetAdministrationShellsResponse response) {
         response.getPayload().getContent()
-                .removeIf(aas -> aclList.values().stream()
+                .removeIf(aas -> aclFileMonitoringHelper.getAll().stream()
                         .noneMatch(a -> a.getRules().stream()
                                 .anyMatch(r -> AuthServer.evaluateRule(r, "/shells/" + EncodingHelper.base64Encode(aas.getId()),
                                         request.getMethod(), extractClaims(request), a))));
@@ -136,7 +121,7 @@ public class ApiGateway {
                 fieldCtx.put("$sm#semanticId", submodel.getSemanticId().getKeys().get(0).getValue());
             }
 
-            return aclList.values().stream()
+            return aclFileMonitoringHelper.getAll().stream()
                     .noneMatch(allAccess -> allAccess.getRules().stream().anyMatch(rule -> AuthServer.evaluateRule(rule, path, method, claims, allAccess, fieldCtx)));
         });
         return response;
@@ -164,7 +149,7 @@ public class ApiGateway {
             fieldCtx.put("$sm#semanticId", submodel.getSemanticId().getKeys().get(0).getValue());
         }
 
-        return aclList.values().stream()
+        return aclFileMonitoringHelper.getAll().stream()
                 .anyMatch(allAccess -> allAccess.getRules().stream().anyMatch(rule -> AuthServer.evaluateRule(rule, path, method, claims, allAccess, fieldCtx)));
     }
 
@@ -202,11 +187,11 @@ public class ApiGateway {
          * @param request the request coming in
          * @return true if there is a valid rule
          */
-        private static boolean filterRules(Map<Path, AllAccessPermissionRules> aclList, Map<String, Claim> claims, HttpServletRequest request) {
+        private static boolean filterRules(Collection<AllAccessPermissionRules> aclList, Map<String, Claim> claims, HttpServletRequest request) {
             String requestPath = request.getRequestURI();
             String path = requestPath.startsWith(apiPrefix) ? requestPath.substring(apiPrefix.length()) : requestPath;
             String method = request.getMethod();
-            List<AllAccessPermissionRules> relevantRules = aclList.values().stream()
+            List<AllAccessPermissionRules> relevantRules = aclList.stream()
                     .filter(a -> a.getRules().stream()
                             .anyMatch(r -> evaluateRule(r, path, method, claims, a)))
                     .toList();
@@ -359,118 +344,6 @@ public class ApiGateway {
                         }
                     }) && "ALLOW".equals(acl.getAccess().value()) && evaluateRights(acl.getRights(), method, path) && verifyAllClaims(claims, rule, allAccess, fieldCtx);
         }
-    }
-
-    private void initializeAclList(String aclFolder) {
-        this.aclList = new HashMap<>();
-        if (aclFolder == null
-                || aclFolder.trim().isEmpty()
-                || !new File(aclFolder.trim()).isDirectory()) {
-            LOGGER.error(abortMessage);
-            return;
-        }
-        File folder = new File(aclFolder.trim());
-        File[] jsonFiles = folder.listFiles((dir, name) -> name.toLowerCase().endsWith(".json"));
-        ObjectMapper mapper = new ObjectMapper();
-        if (jsonFiles != null) {
-            for (File file: jsonFiles) {
-                Path filePath = file.toPath();
-                try {
-                    String jsonContent = Files.readString(filePath);
-                    JsonNode rootNode = mapper.readTree(jsonContent);
-                    AllAccessPermissionRules allRules;
-                    if (rootNode.has("AllAccessPermissionRules")) {
-                        allRules = mapper.treeToValue(rootNode.get("AllAccessPermissionRules"), AllAccessPermissionRules.class);
-                    }
-                    else {
-                        allRules = mapper.readValue(jsonContent, AllAccessPermissionRules.class);
-                    }
-                    aclList.put(filePath, allRules);
-                }
-                catch (IOException e) {
-                    LOGGER.error(errorMessage);
-                }
-            }
-        }
-    }
-
-
-    private void monitorAclRules(String aclFolder) {
-        if (aclFolder == null
-                || aclFolder.trim().isEmpty()
-                || !new File(aclFolder.trim()).isDirectory()) {
-            LOGGER.error(abortMessage);
-            return;
-        }
-        Path folderToWatch = Paths.get(aclFolder);
-        WatchService watchService;
-        try {
-            watchService = FileSystems.getDefault().newWatchService();
-            // Register the folder with the WatchService for CREATE and DELETE events
-            folderToWatch.register(
-                    watchService,
-                    StandardWatchEventKinds.ENTRY_CREATE,
-                    StandardWatchEventKinds.ENTRY_DELETE);
-            monitorLoop(watchService, folderToWatch);
-        }
-        catch (IOException e) {
-            LOGGER.error(errorMessage);
-        }
-
-    }
-
-
-    private void monitorLoop(WatchService watchService, Path folderToWatch) {
-        ObjectMapper mapper = new ObjectMapper();
-        Thread monitoringThread = new Thread(() -> {
-            while (!Thread.currentThread().isInterrupted()) {
-                WatchKey watchKey;
-                try {
-                    watchKey = watchService.take();
-                }
-                catch (InterruptedException e) {
-                    Thread.currentThread().interrupt(); // restore interrupt status
-                    LOGGER.warn("ACL monitoring thread interrupted", e);
-                    break; // exit loop
-                }
-                for (WatchEvent<?> event: watchKey.pollEvents()) {
-                    WatchEvent.Kind<?> kind = event.kind();
-                    Path filePath = (Path) event.context();
-                    Path absolutePath = folderToWatch.resolve(filePath).toAbsolutePath();
-                    // Check if the file is a JSON file
-                    if (filePath.toString().toLowerCase().endsWith(".json")) {
-                        if (kind == StandardWatchEventKinds.ENTRY_CREATE) {
-                            try {
-                                String jsonContent = Files.readString(absolutePath);
-                                JsonNode rootNode = mapper.readTree(jsonContent);
-                                AllAccessPermissionRules allRules;
-                                if (rootNode.has("AllAccessPermissionRules")) {
-                                    allRules = mapper.treeToValue(rootNode.get("AllAccessPermissionRules"), AllAccessPermissionRules.class);
-                                }
-                                else {
-                                    allRules = mapper.readValue(jsonContent, AllAccessPermissionRules.class);
-                                }
-                                aclList.put(absolutePath, allRules);
-                            }
-                            catch (IOException e) {
-                                LOGGER.error(errorMessage);
-                            }
-                            LOGGER.info("Added new ACL rule.");
-                        }
-                        else if (kind == StandardWatchEventKinds.ENTRY_DELETE) {
-                            aclList.remove(absolutePath);
-                            LOGGER.info("Removed ACL rule.");
-                        }
-                    }
-                }
-                boolean valid = watchKey.reset();
-                if (!valid) {
-                    LOGGER.info("WatchKey no longer valid; exiting.");
-                    break;
-                }
-            }
-        });
-        monitoringThread.start();
     }
 
 

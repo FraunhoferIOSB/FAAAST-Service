@@ -23,6 +23,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.certificate.CertificateInformation;
 import de.fraunhofer.iosb.ilt.faaast.service.certificate.util.KeyStoreHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.AbstractEndpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.JwtValidationFilter;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.AclFileMonitoringHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.Interface;
@@ -88,6 +89,7 @@ public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
 
     private ServletContextHandler context;
 
+
     @Override
     public void start() throws EndpointException {
         if (server != null && server.isStarted()) {
@@ -102,10 +104,11 @@ public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
         context.setContextPath("/");
         crossOriginHandler.setHandler(context);
 
-        RequestHandlerServlet handler = new RequestHandlerServlet(this, config, serviceContext);
-        context.addServlet(handler, "/*");
+        AclFileMonitoringHelper aclFileMonitoringHelper = null;
 
         if (Objects.nonNull(config.getJwkProvider())) {
+            aclFileMonitoringHelper = new AclFileMonitoringHelper(config.getAclFolder());
+
             URL jwkProviderUrl;
             try {
                 jwkProviderUrl = new URL(config.getJwkProvider());
@@ -115,10 +118,14 @@ public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
             }
             JwkProvider jwkProvider = new UrlJwkProvider(jwkProviderUrl);
 
-            context.addFilter(new JwtValidationFilter(jwkProvider),
-                    "*", EnumSet.allOf(DispatcherType.class));
+            context.addFilter(new JwtValidationFilter(jwkProvider), "*", EnumSet.allOf(DispatcherType.class));
         }
+
+        RequestHandlerServlet handler = new RequestHandlerServlet(this, config, serviceContext, aclFileMonitoringHelper);
+        context.addServlet(handler, "/*");
+
         server.setErrorHandler(new HttpErrorHandler(config));
+
         try {
             server.start();
         }

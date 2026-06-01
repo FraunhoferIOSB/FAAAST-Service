@@ -24,7 +24,8 @@ import jakarta.servlet.http.HttpServletRequest;
  * Abstract filter for HTTP requests with JWT headers.
  */
 public abstract class JwtAuthorizationFilter implements Filter {
-    private static final String BEARER_KWD = "Bearer";
+    protected static final String AUTHORIZATION = "Authorization";
+    private static final String BEARER = "Bearer";
 
     /**
      * Extracts a JWT from an HTTP request by reading its Authorization header,
@@ -35,14 +36,14 @@ public abstract class JwtAuthorizationFilter implements Filter {
      * @return The decoded JWT if present, else null
      */
     protected DecodedJWT extractAndDecodeJwt(HttpServletRequest request) {
-        var authHeaderValue = request.getHeader("Authorization");
+        var authHeaderValue = request.getHeader(AUTHORIZATION);
 
-        if (authHeaderValue == null || !authHeaderValue.startsWith(BEARER_KWD.concat(" "))) {
+        if (authHeaderValue == null || !authHeaderValue.startsWith(BEARER.concat(" "))) {
             return null;
         }
 
         // Remove "Bearer "
-        String token = authHeaderValue.substring(BEARER_KWD.length()).trim();
+        String token = authHeaderValue.substring(BEARER.length()).trim();
 
         return JWT.decode(token);
     }

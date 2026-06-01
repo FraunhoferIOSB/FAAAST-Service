@@ -43,7 +43,6 @@ import org.slf4j.LoggerFactory;
  */
 public class JwtValidationFilter extends JwtAuthorizationFilter {
 
-    private static final String AUTHORIZATION_KWD = "Authorization";
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(JwtValidationFilter.class);
 
     private final JwkProvider jwkProvider;
@@ -69,7 +68,7 @@ public class JwtValidationFilter extends JwtAuthorizationFilter {
         HttpServletResponse httpResponse = (HttpServletResponse) servletResponse;
 
         // If multiple Authorization headers are present, attackers could maybe use one for auth and one for claims
-        var authHeaders = httpRequest.getHeaders(AUTHORIZATION_KWD);
+        var authHeaders = httpRequest.getHeaders(AUTHORIZATION);
         var authHeaderList = Collections.list(authHeaders);
         if (authHeaderList.size() > 1) {
             LOGGER.debug("Multiple authorization headers present! Not authorizing request.");
@@ -77,7 +76,7 @@ public class JwtValidationFilter extends JwtAuthorizationFilter {
             return;
         }
 
-        if (httpRequest.getHeader(AUTHORIZATION_KWD) == null) {
+        if (httpRequest.getHeader(AUTHORIZATION) == null) {
             // No JWT in request, anonymous requestor
             servletRequest.setAttribute("auth.state", AuthState.ANONYMOUS);
             filterChain.doFilter(servletRequest, servletResponse);
@@ -93,6 +92,7 @@ public class JwtValidationFilter extends JwtAuthorizationFilter {
         else {
             // Continue with the request as authenticated
             servletRequest.setAttribute("auth.state", AuthState.AUTHENTICATED);
+            servletRequest.setAttribute("claims", jwt.getClaims());
             filterChain.doFilter(servletRequest, servletResponse);
         }
     }
