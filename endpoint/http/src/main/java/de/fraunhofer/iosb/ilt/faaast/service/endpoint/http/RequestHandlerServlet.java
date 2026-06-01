@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.acl.repository.AclRepository;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.MethodNotAllowedException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.UnauthorizedException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
@@ -23,7 +24,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.RequestMappin
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.response.ResponseMappingManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.ApiGateway;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiSerializer;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.AclFileMonitoringHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasrepository.GetAllAssetAdministrationShellsResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetSubmodelResponse;
@@ -35,19 +35,21 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.eclipse.digitaltwin.aas4j.v3.model.Message;
+import org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum;
+import org.eclipse.jetty.server.Response;
+
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum;
-import org.eclipse.jetty.server.Response;
 
 
 /**
- * HTTP handler that actually handles all requests to the endpoint by finding the matching request class, deserializing
- * the request, executing it using the serviceContext and serializing the result.
+ * HTTP handler that actually handles all requests to the endpoint by finding the matching request class, deserializing the request, executing it using the serviceContext and
+ * serializing the result.
  */
 public class RequestHandlerServlet extends HttpServlet {
 
@@ -59,7 +61,8 @@ public class RequestHandlerServlet extends HttpServlet {
     private final HttpJsonApiSerializer serializer;
     private final ApiGateway apiGateway;
 
-    public RequestHandlerServlet(HttpEndpoint endpoint, HttpEndpointConfig config, ServiceContext serviceContext, AclFileMonitoringHelper aclFileMonitoringHelper) {
+
+    public RequestHandlerServlet(HttpEndpoint endpoint, HttpEndpointConfig config, ServiceContext serviceContext, AclRepository aclRepository) {
         Ensure.requireNonNull(endpoint, "endpoint must be non-null");
         Ensure.requireNonNull(config, "config must be non-null");
         Ensure.requireNonNull(serviceContext, "serviceContext must be non-null");
@@ -69,7 +72,7 @@ public class RequestHandlerServlet extends HttpServlet {
         this.requestMappingManager = new RequestMappingManager(serviceContext);
         this.responseMappingManager = new ResponseMappingManager(serviceContext);
         this.serializer = new HttpJsonApiSerializer();
-        this.apiGateway = Optional.ofNullable(aclFileMonitoringHelper).map(ApiGateway::new).orElse(null);
+        this.apiGateway = Optional.ofNullable(aclRepository).map(ApiGateway::new).orElse(null);
     }
 
 
@@ -159,10 +162,10 @@ public class RequestHandlerServlet extends HttpServlet {
                 && response.getStatusCode().isSuccess()
                 && Objects.nonNull(response.getResult())
                 && Optional.ofNullable(response.getResult().getMessages())
-                        .orElse(List.of())
-                        .stream()
-                        .map(message -> message.getMessageType())
-                        .noneMatch(x -> Objects.equals(x, MessageTypeEnum.ERROR) || Objects.equals(x, MessageTypeEnum.EXCEPTION));
+                .orElse(List.of())
+                .stream()
+                .map(Message::getMessageType)
+                .noneMatch(x -> Objects.equals(x, MessageTypeEnum.ERROR) || Objects.equals(x, MessageTypeEnum.EXCEPTION));
     }
 
 
@@ -170,21 +173,24 @@ public class RequestHandlerServlet extends HttpServlet {
                                                                                            de.fraunhofer.iosb.ilt.faaast.service.model.api.Request<? extends Response> apiRequest)
             throws ServletException {
         String url = request.getRequestURI();
-        if ((url.equals("/shells") || url.equals("/shells/")) && request.getMethod().equals("GET")) {
-            GetAllAssetAdministrationShellsResponse aasResponse = (GetAllAssetAdministrationShellsResponse) serviceContext.execute(endpoint, apiRequest);;
-            return apiGateway.filterAas(request, aasResponse);
-        }
-        else if ((url.equals("/submodels/") || url.equals("/submodels")) && request.getMethod().equals("GET")) {
-            GetAllSubmodelsResponse submodelsResponse = (GetAllSubmodelsResponse) serviceContext.execute(endpoint, apiRequest);;
-            return apiGateway.filterSubmodels(request, submodelsResponse);
-        }
-        else if ((url.matches("^/submodels/[^/]+$")) && request.getMethod().equals("GET")) {
-            GetSubmodelResponse submodelResponse = (GetSubmodelResponse) serviceContext.execute(endpoint, apiRequest);;
-            if (!apiGateway.filterSubmodel(request, submodelResponse)) {
-                doThrow(new UnauthorizedException(
-                        String.format("User not authorized '%s'", request.getRequestURI())));
+
+        if (request.getMethod().equals("GET")) {
+            if ((url.equals("/shells") || url.equals("/shells/"))) {
+                GetAllAssetAdministrationShellsResponse aasResponse = (GetAllAssetAdministrationShellsResponse) serviceContext.execute(endpoint, apiRequest);
+                return apiGateway.filterAas(request, aasResponse);
             }
-            return submodelResponse;
+            else if ((url.equals("/submodels") || url.equals("/submodels/"))) {
+                GetAllSubmodelsResponse submodelsResponse = (GetAllSubmodelsResponse) serviceContext.execute(endpoint, apiRequest);
+                return apiGateway.filterSubmodels(request, submodelsResponse);
+            }
+            else if ((url.matches("^/submodels/[A-Za-z][A-Za-z0-9]*(?:\\.[A-Za-z][A-Za-z0-9]*)*$"))) {
+                GetSubmodelResponse submodelResponse = (GetSubmodelResponse) serviceContext.execute(endpoint, apiRequest);
+                if (!apiGateway.filterSubmodel(request, submodelResponse)) {
+                    doThrow(new UnauthorizedException(
+                            String.format("User not authorized '%s'", request.getRequestURI())));
+                }
+                return submodelResponse;
+            }
         }
         else if (!apiGateway.isAuthorized(request)) {
             doThrow(new UnauthorizedException(
