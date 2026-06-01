@@ -9,10 +9,6 @@ on:
       - charts
     tags:
       - "v*"
-  pull_request:
-    # If PR and charts/** was modified, release snapshot
-    paths:
-      - 'charts/**'
   workflow_dispatch:
 
 jobs:
