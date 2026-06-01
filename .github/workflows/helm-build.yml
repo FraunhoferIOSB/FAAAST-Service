@@ -12,7 +12,7 @@ on:
   pull_request:
     # If PR and charts/** was modified, release snapshot
     paths:
-      - "charts"
+      - 'charts/**'
   workflow_dispatch:
 
 jobs:
