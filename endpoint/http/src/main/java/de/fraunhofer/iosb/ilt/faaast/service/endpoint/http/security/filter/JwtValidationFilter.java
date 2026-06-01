@@ -36,6 +36,9 @@ import java.security.interfaces.RSAPublicKey;
 import java.util.Collections;
 import org.slf4j.LoggerFactory;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.auth.SharedAttributes.AUTH_STATE;
+import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.auth.SharedAttributes.CLAIMS;
+
 
 /**
  * Filters any incoming request by verifying its JWT if available.
@@ -78,7 +81,7 @@ public class JwtValidationFilter extends JwtAuthorizationFilter {
 
         if (httpRequest.getHeader(AUTHORIZATION) == null) {
             // No JWT in request, anonymous requestor
-            servletRequest.setAttribute("auth.state", AuthState.ANONYMOUS);
+            servletRequest.setAttribute(AUTH_STATE.getName(), AuthState.ANONYMOUS);
             filterChain.doFilter(servletRequest, servletResponse);
             return;
         }
@@ -91,8 +94,8 @@ public class JwtValidationFilter extends JwtAuthorizationFilter {
         }
         else {
             // Continue with the request as authenticated
-            servletRequest.setAttribute("auth.state", AuthState.AUTHENTICATED);
-            servletRequest.setAttribute("claims", jwt.getClaims());
+            servletRequest.setAttribute(AUTH_STATE.getName(), AuthState.AUTHENTICATED);
+            servletRequest.setAttribute(CLAIMS.getName(), jwt.getClaims());
             filterChain.doFilter(servletRequest, servletResponse);
         }
     }
