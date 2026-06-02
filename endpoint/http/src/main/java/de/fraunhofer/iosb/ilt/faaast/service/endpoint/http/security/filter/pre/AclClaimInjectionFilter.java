@@ -15,44 +15,36 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.pre;
 
 import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.auth.SharedAttributes.ACL;
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.util.AccessControlListHelper.getAcl;
+import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.util.AccessControlListHelper.getFormula;
+import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.util.ExpressionInjectionHelper.injectLogicalExpression;
 
-import com.auth0.jwt.interfaces.Claim;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AllAccessPermissionRules;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AttributeItem;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.util.AbstractMap;
 import java.util.Map;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 /**
- * Filters applicable AAS ACL rules using the incoming request's bearer token claims.
+ * Inject claims into ACL formula.
  */
-public class AclAttributeFilter extends JwtAuthorizationFilter {
-
+public class AclClaimInjectionFilter extends JwtAuthorizationFilter {
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws ServletException, IOException {
-        Map<String, Claim> claims = Optional.ofNullable(extractAndDecodeJwt(((HttpServletRequest) request)).getClaims()).orElse(Map.of());
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         AllAccessPermissionRules acl = (AllAccessPermissionRules) request.getAttribute(ACL.getName());
+        Map<String, String> claims = extractAndDecodeJwt((HttpServletRequest) request).getClaims().entrySet().stream()
+                .map(entry -> new AbstractMap.SimpleEntry<>(entry.getKey(), entry.getValue().asString()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-        acl.getRules().removeIf(rule -> getAcl(rule, acl).getAttributes().stream()
-                .noneMatch(attributeItem -> {
-                    // claim, global and reference should be subtypes of AttributeItem...
-                    if (AttributeItem.Global.ANONYMOUS == attributeItem.getGlobal()) {
-                        return true;
-                    }
-                    else if (attributeItem.getClaim() != null) {
-                        return claims.containsKey(attributeItem.getClaim());
-                    }
-                    return true;
-                }));
+        acl.getRules().forEach(rule -> injectLogicalExpression(getFormula(rule, acl), claims));
 
         request.setAttribute(ACL.getName(), acl);
         chain.doFilter(request, response);
     }
+
 }

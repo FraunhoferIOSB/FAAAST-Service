@@ -25,6 +25,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.AbstractEndpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.acl.repository.file.FileAclRepository;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.pre.AclAttributeFilter;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.pre.AclClaimInjectionFilter;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.pre.AclDisabledFilter;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.pre.AclObjectsFilter;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.pre.AclRightsFilter;
@@ -133,6 +134,7 @@ public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
             context.addFilter(new AclRightsFilter(), "*", EnumSet.allOf(DispatcherType.class));
             context.addFilter(new AclObjectsFilter(), "*", EnumSet.allOf(DispatcherType.class));
             context.addFilter(new AclAttributeFilter(), "*", EnumSet.allOf(DispatcherType.class));
+            context.addFilter(new AclClaimInjectionFilter(), "*", EnumSet.allOf(DispatcherType.class));
         }
 
         context.addServlet(handler, "/*");

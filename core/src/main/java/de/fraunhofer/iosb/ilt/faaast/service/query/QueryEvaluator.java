@@ -522,7 +522,7 @@ public class QueryEvaluator {
         }
 
         List<Object> values = resolveValuesForPrefix(field, PREFIX_AAS, identifiable, AssetAdministrationShell.class,
-                (aas, attr) -> getAasFieldValues(aas, attr));
+                this::getAasFieldValues);
         if (values != null) {
             return values;
         }
@@ -539,7 +539,7 @@ public class QueryEvaluator {
         }
 
         values = resolveValuesForPrefix(field, PREFIX_CD, identifiable, ConceptDescription.class,
-                (cd, attr) -> getConceptDescriptionValues(cd, attr));
+                this::getConceptDescriptionValues);
         if (values != null) {
             return values;
         }
