@@ -29,6 +29,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.pre.A
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.pre.AclObjectsFilter;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.pre.AclRightsFilter;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.pre.AclRulesInceptionFilter;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.pre.AclValidationFilter;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.pre.JwtValidationFilter;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException;
@@ -137,6 +138,7 @@ public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
             // Anonymous access filter, Identification Filter
             context.addFilter(new JwtValidationFilter(new UrlJwkProvider(jwkProviderUrl)), "*", EnumSet.allOf(DispatcherType.class));
             context.addFilter(new AclRulesInceptionFilter(FileAclRepository.createNewInstance(config.getAclFolder())), "*", EnumSet.allOf(DispatcherType.class));
+            context.addFilter(new AclValidationFilter(), "*", EnumSet.allOf(DispatcherType.class));
             context.addFilter(new AclDisabledFilter(), "*", EnumSet.allOf(DispatcherType.class));
             context.addFilter(new AclRightsFilter(), "*", EnumSet.allOf(DispatcherType.class));
             context.addFilter(new AclObjectsFilter(), "*", EnumSet.allOf(DispatcherType.class));
