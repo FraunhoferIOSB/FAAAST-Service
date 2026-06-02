@@ -14,6 +14,13 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.auth.SharedAttributes.ACL;
+import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.pre.JwtAuthorizationFilter.AUTHORIZATION;
+import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.pre.JwtAuthorizationFilter.BEARER;
+import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.AccessControlListHelper.getAcl;
+import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.AccessControlListHelper.getAttributes;
+import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.AccessControlListHelper.getFormula;
+
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.Claim;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.FormulaEvaluator;
@@ -25,24 +32,15 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AccessPermissionRu
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.Acl;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AllAccessPermissionRules;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AttributeItem;
-import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import jakarta.servlet.http.HttpServletRequest;
-import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
-
 import java.time.Clock;
 import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.auth.SharedAttributes.ACL;
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.pre.JwtAuthorizationFilter.AUTHORIZATION;
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.pre.JwtAuthorizationFilter.BEARER;
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.AccessControlListHelper.getAcl;
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.AccessControlListHelper.getAttributes;
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.AccessControlListHelper.getFormula;
+import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 
 
 /**
@@ -140,9 +138,9 @@ public class ApiGateway {
         return JWT.decode(token).getClaims();
     }
 
-
     /**
-     * Simple whitelist AuthServer implementation that supports ANONYMOUS access, claims with simple eq formulas and route authorization. Access must be explicitly defined,
+     * Simple whitelist AuthServer implementation that supports ANONYMOUS access, claims with simple eq formulas and route
+     * authorization. Access must be explicitly defined,
      * otherwise it is blocked.
      */
     public static class AuthServer {
@@ -169,7 +167,6 @@ public class ApiGateway {
             return verifyAllClaims(claims, rule, allAccess, fieldCtx);
         }
     }
-
 
     private static boolean verifyAllClaims(Map<String, Claim> claims, AccessPermissionRule rule, AllAccessPermissionRules allAccess, Map<String, Object> fieldCtx) {
         Acl acl = getAcl(rule, allAccess);
