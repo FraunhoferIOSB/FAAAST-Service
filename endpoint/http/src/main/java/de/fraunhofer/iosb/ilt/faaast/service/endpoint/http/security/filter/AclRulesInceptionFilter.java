@@ -22,6 +22,8 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import java.io.IOException;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.auth.SharedAttributes.ACL;
+
 
 /**
  * Helper filter to inject the current ACL rules into a request.
@@ -42,7 +44,7 @@ public class AclRulesInceptionFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        // Intentionally empty
+        request.setAttribute(ACL.getName(), aclRepository.getAllAccessPermissionRules());
         chain.doFilter(request, response);
     }
 }

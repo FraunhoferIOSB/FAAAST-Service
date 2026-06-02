@@ -36,7 +36,7 @@ public class FormulaEvaluatorTest {
 
     /* ------------------------------------------------------------------ */
     @Test
-    public void complexFormula_withMatchingClaims() throws Exception {
+    public void complexFormulaWithMatchingClaims() throws Exception {
         String json = """
                 {
                   "$and": [
@@ -89,7 +89,7 @@ public class FormulaEvaluatorTest {
 
     /* ------------------------------------------------------------------ */
     @Test
-    public void regexFormula_withNonMatchingEmail() throws Exception {
+    public void regexFormulaWithNonMatchingEmail() throws Exception {
         String json = """
                 {
                   "$and": [
@@ -130,7 +130,7 @@ public class FormulaEvaluatorTest {
 
     /* ------------------------------------------------------------------ */
     @Test
-    public void fullFormula_allConditionsMet() throws Exception {
+    public void fullFormulaAllConditionsMet() throws Exception {
         String json = """
                 {
                   "$and": [
@@ -190,7 +190,7 @@ public class FormulaEvaluatorTest {
 
 
     @Test
-    public void testFormula_ConditionsNotMet() throws JsonProcessingException {
+    public void testFormulaConditionsNotMet() throws JsonProcessingException {
         String json = """
                 {
                                     "$and": [

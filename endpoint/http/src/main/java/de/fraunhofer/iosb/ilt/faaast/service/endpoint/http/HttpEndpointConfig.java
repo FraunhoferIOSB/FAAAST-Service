@@ -44,6 +44,7 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
         return new Builder();
     }
 
+    private String aclFolder;
     private CertificateConfig certificate;
     private boolean corsEnabled;
     private boolean corsAllowCredentials;
@@ -53,16 +54,15 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
     private String corsExposedHeaders;
     private long corsMaxAge;
     private String hostname;
-    private String pathPrefix;
     private boolean includeErrorDetails;
+    private String jwkProvider;
+    private String pathPrefix;
     private int port;
     private boolean sniEnabled;
     private boolean sslEnabled;
     private String subprotocol;
     private String subprotocolBody;
     private String subprotocolBodyEncoding;
-    private String jwkProvider;
-    private String aclFolder;
 
     public HttpEndpointConfig() {
         certificate = CertificateConfig.builder()
