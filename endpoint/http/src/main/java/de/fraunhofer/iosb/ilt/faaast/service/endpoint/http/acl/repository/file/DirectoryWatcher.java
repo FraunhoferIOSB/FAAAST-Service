@@ -31,25 +31,39 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.BiConsumer;
 
 
-public class DirectoryWatcher implements AutoCloseable {
+/**
+ * Keeps track of added, modified and deleted files within a file system directory.
+ */
+public class DirectoryWatcher {
 
+    private static final String DOT_JSON = ".json";
     private final Path dir;
     private final WatchService watchService;
     private final List<DirectoryWatcherListener> listeners = new CopyOnWriteArrayList<>();
-    private final Thread workerThread;
     private volatile boolean running = true;
 
+    /**
+     * Class constructor.
+     *
+     * @param dir Directory to keep track of
+     * @throws IOException Registering WatchService on directory failed
+     */
     public DirectoryWatcher(Path dir) throws IOException {
         this.dir = dir.toAbsolutePath().normalize();
         this.watchService = FileSystems.getDefault().newWatchService();
         this.dir.register(watchService, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY);
 
-        workerThread = new Thread(this::processEvents, "DirectoryWatcher-" + dir);
+        Thread workerThread = new Thread(this::processEvents, "DirectoryWatcher-" + dir);
         workerThread.setDaemon(true);
         workerThread.start();
     }
 
 
+    /**
+     * Add a listener to the watcher service.
+     *
+     * @param listener Listener to be added
+     */
     public void addListener(DirectoryWatcherListener listener) {
         listeners.add(listener);
     }
@@ -72,11 +86,12 @@ public class DirectoryWatcher implements AutoCloseable {
 
                 for (WatchEvent<?> event: key.pollEvents()) {
                     WatchEvent.Kind<?> kind = event.kind();
-                    if (kind == StandardWatchEventKinds.OVERFLOW) {
+                    Path relative = (Path) event.context();
+
+                    if (kind == StandardWatchEventKinds.OVERFLOW || !isJsonFileEnding(relative)) {
                         continue;
                     }
 
-                    Path relative = (Path) event.context();
                     Path full = dir.resolve(relative);
 
                     if (kind == ENTRY_CREATE) {
@@ -102,11 +117,9 @@ public class DirectoryWatcher implements AutoCloseable {
     }
 
 
-    @Override
-    public void close() throws IOException {
-        running = false;
-        watchService.close();
-        workerThread.interrupt();
+    private boolean isJsonFileEnding(Path path) {
+        String pathString = path.toString();
+        return pathString.substring(pathString.length() - DOT_JSON.length()).equalsIgnoreCase(DOT_JSON);
     }
 
 

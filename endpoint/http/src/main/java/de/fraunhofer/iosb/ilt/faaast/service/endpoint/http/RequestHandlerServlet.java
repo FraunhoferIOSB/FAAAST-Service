@@ -35,20 +35,20 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.eclipse.digitaltwin.aas4j.v3.model.Message;
-import org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum;
-import org.eclipse.jetty.server.Response;
-
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.eclipse.digitaltwin.aas4j.v3.model.Message;
+import org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum;
+import org.eclipse.jetty.server.Response;
 
 
 /**
- * HTTP handler that actually handles all requests to the endpoint by finding the matching request class, deserializing the request, executing it using the serviceContext and
+ * HTTP handler that actually handles all requests to the endpoint by finding the matching request class, deserializing
+ * the request, executing it using the serviceContext and
  * serializing the result.
  */
 public class RequestHandlerServlet extends HttpServlet {
@@ -60,7 +60,6 @@ public class RequestHandlerServlet extends HttpServlet {
     private final ResponseMappingManager responseMappingManager;
     private final HttpJsonApiSerializer serializer;
     private final ApiGateway apiGateway;
-
 
     public RequestHandlerServlet(HttpEndpoint endpoint, HttpEndpointConfig config, ServiceContext serviceContext, AclRepository aclRepository) {
         Ensure.requireNonNull(endpoint, "endpoint must be non-null");
@@ -162,10 +161,10 @@ public class RequestHandlerServlet extends HttpServlet {
                 && response.getStatusCode().isSuccess()
                 && Objects.nonNull(response.getResult())
                 && Optional.ofNullable(response.getResult().getMessages())
-                .orElse(List.of())
-                .stream()
-                .map(Message::getMessageType)
-                .noneMatch(x -> Objects.equals(x, MessageTypeEnum.ERROR) || Objects.equals(x, MessageTypeEnum.EXCEPTION));
+                        .orElse(List.of())
+                        .stream()
+                        .map(Message::getMessageType)
+                        .noneMatch(x -> Objects.equals(x, MessageTypeEnum.ERROR) || Objects.equals(x, MessageTypeEnum.EXCEPTION));
     }
 
 

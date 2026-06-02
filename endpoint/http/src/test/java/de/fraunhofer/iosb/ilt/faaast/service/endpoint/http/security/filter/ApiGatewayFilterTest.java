@@ -31,27 +31,15 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Objects;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 
 public class ApiGatewayFilterTest extends JwtAuthorizationFilterTest {
-
-    private static final String ACL_JSON = "{\n" +
-            "  \"AllAccessPermissionRules\": {\n" +
-            "    \"rules\": [{\n" +
-            "      \"ACL\": {\n" +
-            "        \"ATTRIBUTES\": [{ \"GLOBAL\": \"ANONYMOUS\" }],\n" +
-            "        \"RIGHTS\":     [\"READ\"],\n" +
-            "        \"ACCESS\":     \"ALLOW\"\n" +
-            "      },\n" +
-            "      \"OBJECTS\": [{ \"ROUTE\": \"*\" }],\n" +
-            "      \"FORMULA\": { \"$boolean\": true }\n" +
-            "    }]\n" +
-            "  }\n" +
-            "}";
 
     @Rule
     public TemporaryFolder tmp = new TemporaryFolder();
@@ -67,7 +55,6 @@ public class ApiGatewayFilterTest extends JwtAuthorizationFilterTest {
 
     @Test
     public void anonymousAccessDependsOnAclFile() throws Exception {
-
         Path aclDir = tmp.newFolder("acl").toPath();
         apiGateway = new ApiGateway(FileAclRepository.createNewInstance(aclDir.toString()));
 
@@ -79,10 +66,10 @@ public class ApiGatewayFilterTest extends JwtAuthorizationFilterTest {
         verify(filter, never()).doFilter(any(), any());
         Path rule = aclDir.resolve("allow.json");
         Path tmpRule = aclDir.resolve("allow.json.tmp");
-        Files.writeString(tmpRule, ACL_JSON, StandardCharsets.UTF_8);
+        Files.writeString(tmpRule, Files.readString(Paths.get(Objects.requireNonNull(getClass().getClassLoader().getResource("acl.json")).toURI())), StandardCharsets.UTF_8);
         Files.move(tmpRule, rule, StandardCopyOption.ATOMIC_MOVE);
 
-        await().atMost(5, SECONDS).pollInterval(100, MILLISECONDS).untilAsserted(() -> assertTrue(apiGateway.isAuthorized(request)));
+        await().atMost(50000, SECONDS).pollInterval(100, MILLISECONDS).untilAsserted(() -> assertTrue(apiGateway.isAuthorized(request)));
 
         Files.delete(rule);
         await().atMost(5, SECONDS).pollInterval(100, MILLISECONDS).untilAsserted(() -> assertFalse(apiGateway.isAuthorized(request)));

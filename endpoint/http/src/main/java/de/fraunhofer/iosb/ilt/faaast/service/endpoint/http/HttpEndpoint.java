@@ -93,7 +93,6 @@ public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
 
     private ServletContextHandler context;
 
-
     @Override
     public void start() throws EndpointException {
         if (server != null && server.isStarted()) {

@@ -14,9 +14,10 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.JwtAuthorizationFilter.AUTHORIZATION;
+
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.Claim;
-import com.auth0.jwt.interfaces.DecodedJWT;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.acl.repository.AclRepository;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.FormulaEvaluator;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
@@ -33,13 +34,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.Defformula;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.Defobject;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.LogicalExpression;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.ObjectItem;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.RightsEnum;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import jakarta.servlet.http.HttpServletRequest;
-import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.time.Clock;
 import java.time.LocalTime;
 import java.util.HashMap;
@@ -49,10 +45,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod.POST;
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.auth.AuthState.ANONYMOUS;
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.auth.SharedAttributes.CLAIMS;
+import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -63,7 +58,6 @@ public class ApiGateway {
     private static final Logger LOGGER = LoggerFactory.getLogger(ApiGateway.class);
 
     private final AclRepository aclRepository;
-
 
     public ApiGateway(AclRepository aclRepository) {
         this.aclRepository = aclRepository;
@@ -93,9 +87,8 @@ public class ApiGateway {
 
         response.getPayload().getContent()
                 .removeIf(aas -> aclRepository.getAllAccessPermissionRules().getRules()
-                        .stream().noneMatch(r ->
-                                AuthServer.evaluateRule(r, "/shells/" + EncodingHelper.base64Encode(aas.getId()),
-                                        extractClaims(request), aclRepository.getAllAccessPermissionRules())));
+                        .stream().noneMatch(r -> AuthServer.evaluateRule(r, "/shells/" + EncodingHelper.base64Encode(aas.getId()),
+                                extractClaims(request), aclRepository.getAllAccessPermissionRules())));
         return response;
     }
 
@@ -145,23 +138,30 @@ public class ApiGateway {
         }
 
         return aclRepository.getAllAccessPermissionRules().getRules().stream()
-                        .anyMatch(rule -> AuthServer.evaluateRule(rule, path, claims, aclRepository.getAllAccessPermissionRules(), fieldCtx));
+                .anyMatch(rule -> AuthServer.evaluateRule(rule, path, claims, aclRepository.getAllAccessPermissionRules(), fieldCtx));
     }
 
 
-    @SuppressWarnings("unchecked")
     private Map<String, Claim> extractClaims(HttpServletRequest request) {
-        return (Map<String, Claim>) request.getAttribute(CLAIMS.getName());
-    }
+        var authHeaderValue = request.getHeader(AUTHORIZATION);
 
+        if (authHeaderValue == null || !authHeaderValue.startsWith("Bearer".concat(" "))) {
+            return null;
+        }
+
+        // Remove "Bearer "
+        String token = authHeaderValue.substring("Bearer".length()).trim();
+
+        return JWT.decode(token).getClaims();
+    }
 
     /**
-     * Simple whitelist AuthServer implementation that supports ANONYMOUS access, claims with simple eq formulas and route authorization. Access must be explicitly defined,
+     * Simple whitelist AuthServer implementation that supports ANONYMOUS access, claims with simple eq formulas and route
+     * authorization. Access must be explicitly defined,
      * otherwise it is blocked.
      */
     public static class AuthServer {
         private static final String apiPrefix = "/api/v3.0/";
-
 
         /**
          * Check all rules that explicitly allows the request. If a rule exists after all filters, true is returned
@@ -171,8 +171,6 @@ public class ApiGateway {
          * @return true if there is a valid rule
          */
         private static boolean filterRules(AllAccessPermissionRules aclList, Map<String, Claim> claims, HttpServletRequest request) {
-            // Filter ACL rules (Claims, Global Attributes, maybe ReferenceAttribute
-
             String requestPath = request.getRequestURI();
             String path = requestPath.startsWith(apiPrefix) ? requestPath.substring(apiPrefix.length()) : requestPath;
             aclList.getRules().removeIf(r -> !evaluateRule(r, path, claims, aclList));
@@ -278,22 +276,21 @@ public class ApiGateway {
             Acl acl = getAcl(rule, allAccess);
             return acl != null && getAttributes(acl, allAccess) != null && acl.getRights() != null && getObjects(rule, allAccess) != null
                     && getObjects(rule, allAccess).stream().anyMatch(attr -> {
-                if (attr.getRoute() != null) {
-                    return "*".equals(attr.getRoute()) || attr.getRoute().contains(path);
-                }
-                else if (attr.getIdentifiable() != null) {
-                    return checkIdentifiable(path, attr.getIdentifiable());
-                }
-                else if (attr.getDescriptor() != null) {
-                    return checkDescriptor(path, attr.getDescriptor());
-                }
-                else {
-                    return false;
-                }
-            }) && "ALLOW".equals(acl.getAccess().value()) && verifyAllClaims(claims, rule, allAccess, fieldCtx);
+                        if (attr.getRoute() != null) {
+                            return "*".equals(attr.getRoute()) || attr.getRoute().contains(path);
+                        }
+                        else if (attr.getIdentifiable() != null) {
+                            return checkIdentifiable(path, attr.getIdentifiable());
+                        }
+                        else if (attr.getDescriptor() != null) {
+                            return checkDescriptor(path, attr.getDescriptor());
+                        }
+                        else {
+                            return false;
+                        }
+                    }) && "ALLOW".equals(acl.getAccess().value()) && verifyAllClaims(claims, rule, allAccess, fieldCtx);
         }
     }
-
 
     private static Acl getAcl(AccessPermissionRule rule, AllAccessPermissionRules allAccess) {
         if (rule.getAcl() != null) {

@@ -17,12 +17,31 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.acl.repository.file;
 import java.nio.file.Path;
 
 
+/**
+ * Functionality to listen to a directory watcher, being notified of added, modified and deleted events.
+ */
 public interface DirectoryWatcherListener {
-    void onFileCreated(Path file);
+
+    /**
+     * Called when a file in a file system directory has been created.
+     *
+     * @param path The path to the file that has been created
+     */
+    void onFileCreated(Path path);
 
 
-    void onFileDeleted(Path file);
+    /**
+     * Called when a file in a file system directory has been deleted.
+     *
+     * @param path The path to the file that has been deleted
+     */
+    void onFileDeleted(Path path);
 
 
-    void onFileModified(Path file);
+    /**
+     * Called when a file in a file system directory has been modified.
+     *
+     * @param path The path to the file that has been modified
+     */
+    void onFileModified(Path path);
 }

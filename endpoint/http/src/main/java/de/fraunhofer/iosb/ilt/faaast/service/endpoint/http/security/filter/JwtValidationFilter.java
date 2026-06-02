@@ -24,7 +24,6 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.SignatureVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.auth.AuthState;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
@@ -35,9 +34,6 @@ import java.io.IOException;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Collections;
 import org.slf4j.LoggerFactory;
-
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.auth.SharedAttributes.AUTH_STATE;
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.auth.SharedAttributes.CLAIMS;
 
 
 /**
@@ -81,7 +77,6 @@ public class JwtValidationFilter extends JwtAuthorizationFilter {
 
         if (httpRequest.getHeader(AUTHORIZATION) == null) {
             // No JWT in request, anonymous requestor
-            servletRequest.setAttribute(AUTH_STATE.getName(), AuthState.ANONYMOUS);
             filterChain.doFilter(servletRequest, servletResponse);
             return;
         }
@@ -93,9 +88,6 @@ public class JwtValidationFilter extends JwtAuthorizationFilter {
             respondForbidden(httpResponse);
         }
         else {
-            // Continue with the request as authenticated
-            servletRequest.setAttribute(AUTH_STATE.getName(), AuthState.AUTHENTICATED);
-            servletRequest.setAttribute(CLAIMS.getName(), jwt.getClaims());
             filterChain.doFilter(servletRequest, servletResponse);
         }
     }

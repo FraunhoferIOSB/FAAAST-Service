@@ -22,5 +22,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AllAccessPermissio
  * its own state accordingly.
  */
 public interface AclRepository {
+    /**
+     * Get the AllAccessPermissionRules state. For file-based repositories, this is the merged versions of all ACL files.
+     * 
+     * @return The AllAccessPermissionRules.
+     */
     AllAccessPermissionRules getAllAccessPermissionRules();
 }

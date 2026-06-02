@@ -22,12 +22,16 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AllAccessPermissio
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
+/**
+ * File implementation of an ACL Repository. Connected to a file system monitoring service.
+ */
 public class FileAclRepository implements AclRepository, DirectoryWatcherListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(FileAclRepository.class);
     private final Map<Path, AllAccessPermissionRules> aclList;
@@ -48,7 +52,9 @@ public class FileAclRepository implements AclRepository, DirectoryWatcherListene
      */
     public static FileAclRepository createNewInstance(String aclFolder) throws EndpointException {
         FileAclRepository instance = new FileAclRepository();
-        try (DirectoryWatcher watcher = new DirectoryWatcher(Paths.get(aclFolder))) {
+        DirectoryWatcher watcher;
+        try {
+            watcher = new DirectoryWatcher(Paths.get(aclFolder));
             watcher.addListener(instance);
             return instance;
         }
@@ -65,12 +71,12 @@ public class FileAclRepository implements AclRepository, DirectoryWatcherListene
      */
     public AllAccessPermissionRules getAllAccessPermissionRules() {
         var rules = new AllAccessPermissionRules();
-        for(AllAccessPermissionRules fileRules : aclList.values()) {
-            rules.setRules(fileRules.getRules());
-            rules.setDefacls(fileRules.getDefacls());
-            rules.setDefattributes(fileRules.getDefattributes());
-            rules.setDefformulas(fileRules.getDefformulas());
-            rules.setDefobjects(fileRules.getDefobjects());
+        for (AllAccessPermissionRules fileRules: aclList.values()) {
+            rules.setRules(new ArrayList<>(fileRules.getRules()));
+            rules.setDefacls(new ArrayList<>(fileRules.getDefacls()));
+            rules.setDefattributes(new ArrayList<>(fileRules.getDefattributes()));
+            rules.setDefformulas(new ArrayList<>(fileRules.getDefformulas()));
+            rules.setDefobjects(new ArrayList<>(fileRules.getDefobjects()));
         }
 
         return rules;
