@@ -16,7 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.pre;
 
 import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.auth.SharedAttributes.ACL;
 
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.acl.repository.AclRepository;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.acl.repository.AclRepository;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

@@ -23,13 +23,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.certificate.CertificateInformation;
 import de.fraunhofer.iosb.ilt.faaast.service.certificate.util.KeyStoreHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.AbstractEndpoint;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.acl.repository.file.FileAclRepository;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.acl.repository.file.FileAclRepository;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.pre.AclAttributeFilter;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.pre.AclDisabledFilter;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.pre.AclObjectsFilter;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.pre.AclRightsFilter;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.pre.AclRulesInceptionFilter;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.pre.AclValidationFilter;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.pre.JwtValidationFilter;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException;
@@ -128,17 +127,8 @@ public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
         RequestHandlerServlet handler = new RequestHandlerServlet(this, config, serviceContext);
 
         if (Objects.nonNull(config.getJwkProvider())) {
-            URL jwkProviderUrl;
-            try {
-                jwkProviderUrl = new URL(config.getJwkProvider());
-            }
-            catch (MalformedURLException malformedJwkProviderUrl) {
-                throw new EndpointException("Could not parse JWK provider URL", malformedJwkProviderUrl);
-            }
-            // Anonymous access filter, Identification Filter
-            context.addFilter(new JwtValidationFilter(new UrlJwkProvider(jwkProviderUrl)), "*", EnumSet.allOf(DispatcherType.class));
+            context.addFilter(new JwtValidationFilter(new UrlJwkProvider(parseJwkProviderUrl(config.getJwkProvider()))), "*", EnumSet.allOf(DispatcherType.class));
             context.addFilter(new AclRulesInceptionFilter(FileAclRepository.createNewInstance(config.getAclFolder())), "*", EnumSet.allOf(DispatcherType.class));
-            context.addFilter(new AclValidationFilter(), "*", EnumSet.allOf(DispatcherType.class));
             context.addFilter(new AclDisabledFilter(), "*", EnumSet.allOf(DispatcherType.class));
             context.addFilter(new AclRightsFilter(), "*", EnumSet.allOf(DispatcherType.class));
             context.addFilter(new AclObjectsFilter(), "*", EnumSet.allOf(DispatcherType.class));
@@ -160,6 +150,16 @@ public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
     public void init(CoreConfig coreConfig, HttpEndpointConfig config, ServiceContext serviceContext) {
         callbackAddress = coreConfig.getCallbackAddress();
         super.init(coreConfig, config, serviceContext);
+    }
+
+
+    private URL parseJwkProviderUrl(String urlString) throws EndpointException {
+        try {
+            return new URL(urlString);
+        }
+        catch (MalformedURLException malformedJwkProviderUrl) {
+            throw new EndpointException("Could not parse JWK provider URL", malformedJwkProviderUrl);
+        }
     }
 
 

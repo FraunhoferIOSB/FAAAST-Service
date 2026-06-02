@@ -17,9 +17,9 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter;
 import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.auth.SharedAttributes.ACL;
 import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.pre.JwtAuthorizationFilter.AUTHORIZATION;
 import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.pre.JwtAuthorizationFilter.BEARER;
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.AccessControlListHelper.getAcl;
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.AccessControlListHelper.getAttributes;
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.AccessControlListHelper.getFormula;
+import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.util.AccessControlListHelper.getAcl;
+import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.util.AccessControlListHelper.getAttributes;
+import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.util.AccessControlListHelper.getFormula;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.Claim;

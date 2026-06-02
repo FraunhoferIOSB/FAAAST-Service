@@ -12,11 +12,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.acl.repository.file;
+package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.acl.repository.file;
+
+import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.util.AccessControlListRulesValidator.validate;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.acl.repository.AclRepository;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.acl.repository.AclRepository;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AllAccessPermissionRules;
 import java.io.IOException;
@@ -85,22 +87,33 @@ public class FileAclRepository implements AclRepository, DirectoryWatcherListene
 
     @Override
     public void onFileCreated(Path path) {
-        LOGGER.debug("Added ACL {}", path);
-        aclList.put(path, readFile(path));
+        LOGGER.debug("Adding ACL {}", path);
+        update(path);
+    }
+
+
+    private void update(Path path) {
+        AllAccessPermissionRules rules = readFile(path);
+        if (rules.getRules().stream().allMatch(rule -> validate(rule, rules))) {
+            aclList.put(path, rules);
+        }
+        else {
+            LOGGER.warn("Tried to load invalid ACL: {}.", path);
+        }
     }
 
 
     @Override
     public void onFileDeleted(Path path) {
-        LOGGER.debug("Removed ACL {}", path);
+        LOGGER.debug("Removing ACL {}", path);
         aclList.remove(path);
     }
 
 
     @Override
     public void onFileModified(Path path) {
-        LOGGER.debug("Changed ACL {}", path);
-        aclList.put(path, readFile(path));
+        LOGGER.debug("Changing ACL {}", path);
+        update(path);
     }
 
 

@@ -26,8 +26,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.acl.repository.AclRepository;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.acl.repository.file.FileAclRepository;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.acl.repository.AclRepository;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.acl.repository.file.FileAclRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import java.nio.charset.StandardCharsets;

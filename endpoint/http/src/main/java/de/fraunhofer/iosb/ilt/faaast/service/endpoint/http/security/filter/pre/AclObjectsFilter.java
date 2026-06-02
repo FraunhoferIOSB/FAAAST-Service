@@ -15,7 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.pre;
 
 import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.auth.SharedAttributes.ACL;
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.AccessControlListHelper.getObjects;
+import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.util.AccessControlListHelper.getObjects;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AccessPermissionRule;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AllAccessPermissionRules;
