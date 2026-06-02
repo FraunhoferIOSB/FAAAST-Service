@@ -30,6 +30,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAnnotatedRelationshipE
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultBasicEventElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultBlob;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultCapability;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEntity;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultFile;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultMultiLanguageProperty;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperation;
@@ -403,10 +404,19 @@ public class PathJsonSerializerTest {
                                 .idShort("ExampleReferenceElement")
                                 .build())
                         .build())
+                .submodelElements(new DefaultEntity.Builder()
+                        .idShort("ExampleEntity")
+                        .statements(new DefaultProperty.Builder()
+                                .idShort("EntityProperty")
+                                .build())
+                        .build())
                 .build();
         Path expected = Path.builder()
                 .child("ExampleRelationshipElement")
-                .child("ExampleAnnotatedRelationshipElement")
+                .child(Path.builder()
+                        .id("ExampleAnnotatedRelationshipElement")
+                        .child("ExampleProperty3")
+                        .build())
                 .child("ExampleOperation")
                 .child("ExampleCapability")
                 .child("ExampleBasicEvent")
@@ -421,6 +431,10 @@ public class PathJsonSerializerTest {
                         .child("ExampleBlob")
                         .child("ExampleFile")
                         .child("ExampleReferenceElement")
+                        .build())
+                .child(Path.builder()
+                        .id("ExampleEntity")
+                        .child("EntityProperty")
                         .build())
                 .build();
         assertEquals(null, input, expected);

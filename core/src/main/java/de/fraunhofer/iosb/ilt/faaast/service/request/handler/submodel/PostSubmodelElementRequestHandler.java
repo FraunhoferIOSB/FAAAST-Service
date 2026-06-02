@@ -26,10 +26,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValidationException
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.validation.ModelValidator;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractSubmodelInterfaceRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
@@ -56,9 +54,7 @@ public class PostSubmodelElementRequestHandler extends AbstractSubmodelInterface
             throw new ResourceAlreadyExistsException(childReference);
         }
         context.getPersistence().insert(parentReference, request.getSubmodelElement());
-        if (ElementValueHelper.isSerializableAsValue(request.getSubmodelElement().getClass())) {
-            context.getAssetConnectionManager().setValue(childReference, ElementValueMapper.toValue(request.getSubmodelElement()));
-        }
+        context.getAssetConnectionManager().syncValueProvidersOnWrite(childReference, null, request.getSubmodelElement(), !request.isInternal());
         if (!request.isInternal()) {
             context.getMessageBus().publish(ElementCreateEventMessage.builder()
                     .element(childReference)

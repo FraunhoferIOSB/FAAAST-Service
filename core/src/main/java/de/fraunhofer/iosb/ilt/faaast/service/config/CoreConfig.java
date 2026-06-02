@@ -2,6 +2,7 @@
  * Copyright (c) 2021 Fraunhofer IOSB, eine rechtlich nicht selbstaendige
  * Einrichtung der Fraunhofer-Gesellschaft zur Foerderung der angewandten
  * Forschung e.V.
+ * Copyright (c) 2026 Hilscher Gesellschaft fuer Systemautomation mbH
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +16,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.config;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.validation.ModelValidatorConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -31,20 +33,35 @@ public class CoreConfig {
 
     private static final long DEFAULT_ASSET_CONNECTION_RETRY_INTERVAL = 1000;
     private static final int DEFAULT_REQUEST_HANDLER_THREADPOOL_SIZE = 1;
+    private static final int DEFAULT_ASSET_CONNECTION_READ_MAX_THREADPOOL_SIZE = 1000;
+    private static final int DEFAULT_ASSET_CONNECTION_WRITE_MAX_THREADPOOL_SIZE = 1000;
+    private static final long DEFAULT_ASSET_CONNECTION_READ_TIMEOUT = 5000;
     private static final double DEFAULT_MIN_INFLATE_RATIO = 0.001;
+    private static final long DEFAULT_OPERATION_TIMEOUT = 3600000;
+
+    private static final String ALLOWED_URL_PREFIX_REGEX = "https?://.*";
 
     private long assetConnectionRetryInterval;
+    private int assetConnectionReadMaxThreadPoolSize;
+    private int assetConnectionWriteMaxThreadPoolSize;
+    private long assetConnectionReadTimeout;
     private int requestHandlerThreadPoolSize;
     private ModelValidatorConfig validationOnLoad;
     private ModelValidatorConfig validationOnCreate;
     private ModelValidatorConfig validationOnUpdate;
     private List<String> aasRegistries;
     private List<String> submodelRegistries;
+    private RegistrySynchronizationConfig registrySynchronization;
     private double minInflateRatio;
+    private long operationTimeout;
+    private String callbackAddress;
 
     public CoreConfig() {
         this.assetConnectionRetryInterval = DEFAULT_ASSET_CONNECTION_RETRY_INTERVAL;
         this.requestHandlerThreadPoolSize = DEFAULT_REQUEST_HANDLER_THREADPOOL_SIZE;
+        this.assetConnectionReadMaxThreadPoolSize = DEFAULT_ASSET_CONNECTION_READ_MAX_THREADPOOL_SIZE;
+        this.assetConnectionWriteMaxThreadPoolSize = DEFAULT_ASSET_CONNECTION_WRITE_MAX_THREADPOOL_SIZE;
+        this.assetConnectionReadTimeout = DEFAULT_ASSET_CONNECTION_READ_TIMEOUT;
         this.validationOnLoad = ModelValidatorConfig.builder()
                 .validateConstraints(true)
                 .validateIdShortUniqueness(true)
@@ -63,6 +80,7 @@ public class CoreConfig {
         this.aasRegistries = new ArrayList<>();
         this.submodelRegistries = new ArrayList<>();
         this.minInflateRatio = DEFAULT_MIN_INFLATE_RATIO;
+        this.operationTimeout = DEFAULT_OPERATION_TIMEOUT;
     }
 
 
@@ -83,6 +101,21 @@ public class CoreConfig {
 
     public int getRequestHandlerThreadPoolSize() {
         return requestHandlerThreadPoolSize;
+    }
+
+
+    public int getAssetConnectionReadMaxThreadPoolSize() {
+        return assetConnectionReadMaxThreadPoolSize;
+    }
+
+
+    public int getAssetConnectionWriteMaxThreadPoolSize() {
+        return assetConnectionWriteMaxThreadPoolSize;
+    }
+
+
+    public long getAssetConnectionReadTimeout() {
+        return assetConnectionReadTimeout;
     }
 
 
@@ -121,12 +154,33 @@ public class CoreConfig {
     }
 
 
+    public void setAssetConnectionReadMaxThreadPoolSize(int assetConnectionReadMaxThreadPoolSize) {
+        this.assetConnectionReadMaxThreadPoolSize = assetConnectionReadMaxThreadPoolSize;
+    }
+
+
+    public void setAssetConnectionWriteMaxThreadPoolSize(int assetConnectionWriteMaxThreadPoolSize) {
+        this.assetConnectionWriteMaxThreadPoolSize = assetConnectionWriteMaxThreadPoolSize;
+    }
+
+
+    public void setAssetConnectionReadTimeout(long assetConnectionReadTimeout) {
+        this.assetConnectionReadTimeout = assetConnectionReadTimeout;
+    }
+
+
     public List<String> getAasRegistries() {
         return aasRegistries;
     }
 
 
+    /**
+     * Sets the AAS registries. Each URL must start with either http:// or https://.
+     *
+     * @param aasRegistries The aasRegistries URL list as a list of strings.
+     */
     public void setAasRegistries(List<String> aasRegistries) {
+        validateRegistryUrl(aasRegistries);
         this.aasRegistries = aasRegistries;
     }
 
@@ -136,8 +190,32 @@ public class CoreConfig {
     }
 
 
+    /**
+     * Sets the submodel registries. Each URL must start with either http:// or https://.
+     *
+     * @param submodelRegistries The submodelRegistries URL list as a list of strings.
+     */
     public void setSubmodelRegistries(List<String> submodelRegistries) {
+        validateRegistryUrl(submodelRegistries);
         this.submodelRegistries = submodelRegistries;
+    }
+
+
+    private void validateRegistryUrl(List<String> registryUrls) {
+        for (String url: registryUrls) {
+            Ensure.require(url.matches(ALLOWED_URL_PREFIX_REGEX), String.format("URLs in %s.%s must start with https:// or http://, but one of them is: %s",
+                    this.getClass().getSimpleName(), "(aas|submodel)Registries", url));
+        }
+    }
+
+
+    public RegistrySynchronizationConfig getRegistrySynchronization() {
+        return registrySynchronization;
+    }
+
+
+    public void setRegistrySynchronization(RegistrySynchronizationConfig registrySynchronization) {
+        this.registrySynchronization = registrySynchronization;
     }
 
 
@@ -151,16 +229,42 @@ public class CoreConfig {
     }
 
 
+    public long getOperationTimeout() {
+        return operationTimeout;
+    }
+
+
+    public void setOperationTimeout(long operationTimeout) {
+        this.operationTimeout = operationTimeout;
+    }
+
+
+    public String getCallbackAddress() {
+        return callbackAddress;
+    }
+
+
+    public void setCallbackAddress(String callbackAddress) {
+        this.callbackAddress = callbackAddress;
+    }
+
+
     @Override
     public int hashCode() {
         return Objects.hash(assetConnectionRetryInterval,
                 requestHandlerThreadPoolSize,
+                assetConnectionReadMaxThreadPoolSize,
+                assetConnectionWriteMaxThreadPoolSize,
+                assetConnectionReadTimeout,
                 validationOnLoad,
                 validationOnCreate,
                 validationOnUpdate,
                 aasRegistries,
                 submodelRegistries,
-                minInflateRatio);
+                registrySynchronization,
+                minInflateRatio,
+                operationTimeout,
+                callbackAddress);
     }
 
 
@@ -178,18 +282,42 @@ public class CoreConfig {
         final CoreConfig other = (CoreConfig) obj;
         return Objects.equals(this.assetConnectionRetryInterval, other.assetConnectionRetryInterval)
                 && Objects.equals(this.requestHandlerThreadPoolSize, other.requestHandlerThreadPoolSize)
+                && Objects.equals(this.assetConnectionReadMaxThreadPoolSize, other.assetConnectionReadMaxThreadPoolSize)
+                && Objects.equals(this.assetConnectionReadTimeout, other.assetConnectionReadTimeout)
+                && Objects.equals(this.assetConnectionWriteMaxThreadPoolSize, other.assetConnectionWriteMaxThreadPoolSize)
                 && Objects.equals(this.validationOnLoad, other.validationOnLoad)
                 && Objects.equals(this.validationOnCreate, other.validationOnCreate)
                 && Objects.equals(this.validationOnUpdate, other.validationOnUpdate)
                 && Objects.equals(this.aasRegistries, other.aasRegistries)
                 && Objects.equals(this.submodelRegistries, other.submodelRegistries)
-                && Objects.equals(this.minInflateRatio, other.minInflateRatio);
+                && Objects.equals(this.registrySynchronization, other.registrySynchronization)
+                && Objects.equals(this.minInflateRatio, other.minInflateRatio)
+                && Objects.equals(this.operationTimeout, other.operationTimeout)
+                && Objects.equals(callbackAddress, other.callbackAddress);
     }
 
     public static class Builder extends ExtendableBuilder<CoreConfig, Builder> {
 
         public Builder requestHandlerThreadPoolSize(int value) {
             getBuildingInstance().setRequestHandlerThreadPoolSize(value);
+            return getSelf();
+        }
+
+
+        public Builder assetConnectionReadThreadPoolSize(int value) {
+            getBuildingInstance().setAssetConnectionReadMaxThreadPoolSize(value);
+            return getSelf();
+        }
+
+
+        public Builder assetConnectionWriteThreadPoolSize(int value) {
+            getBuildingInstance().setAssetConnectionWriteMaxThreadPoolSize(value);
+            return getSelf();
+        }
+
+
+        public Builder assetConnectionReadTimeout(long value) {
+            getBuildingInstance().setAssetConnectionReadTimeout(value);
             return getSelf();
         }
 
@@ -266,8 +394,26 @@ public class CoreConfig {
         }
 
 
+        public Builder registrySynchronization(RegistrySynchronizationConfig value) {
+            getBuildingInstance().setRegistrySynchronization(value);
+            return getSelf();
+        }
+
+
         public Builder minInflateRatio(double value) {
             getBuildingInstance().setMinInflateRatio(value);
+            return getSelf();
+        }
+
+
+        public Builder operationTimeout(long value) {
+            getBuildingInstance().setOperationTimeout(value);
+            return getSelf();
+        }
+
+
+        public Builder callbackAddress(String value) {
+            getBuildingInstance().setCallbackAddress(value);
             return getSelf();
         }
 

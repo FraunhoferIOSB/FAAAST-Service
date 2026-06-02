@@ -25,6 +25,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.config.CertificateConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.util.StringHelper;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.http.HttpClient;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -40,6 +41,7 @@ public class HttpAssetConnectionConfig extends AssetConnectionConfig<HttpAssetCo
     private String password;
     private Map<String, String> headers;
     private CertificateConfig trustedCertificates;
+    private String httpVersion;
 
     public HttpAssetConnectionConfig() {
         this.headers = new HashMap<>();
@@ -97,9 +99,19 @@ public class HttpAssetConnectionConfig extends AssetConnectionConfig<HttpAssetCo
     }
 
 
+    public String getHttpVersion() {
+        return httpVersion;
+    }
+
+
+    public void setHttpVersion(String httpVersion) {
+        this.httpVersion = httpVersion;
+    }
+
+
     @Override
     public int hashCode() {
-        return Objects.hash(baseUrl, username, password, headers, trustedCertificates);
+        return Objects.hash(baseUrl, username, password, headers, trustedCertificates, httpVersion);
     }
 
 
@@ -119,7 +131,8 @@ public class HttpAssetConnectionConfig extends AssetConnectionConfig<HttpAssetCo
                 && StringHelper.equalsNullOrEmpty(this.username, other.username)
                 && StringHelper.equalsNullOrEmpty(this.password, other.password)
                 && Objects.equals(this.headers, other.headers)
-                && Objects.equals(this.trustedCertificates, other.trustedCertificates);
+                && Objects.equals(this.trustedCertificates, other.trustedCertificates)
+                && Objects.equals(this.httpVersion, other.httpVersion);
     }
 
 
@@ -184,6 +197,12 @@ public class HttpAssetConnectionConfig extends AssetConnectionConfig<HttpAssetCo
 
         public B header(String name, String value) {
             getBuildingInstance().getHeaders().put(name, value);
+            return getSelf();
+        }
+
+
+        public B httpVersion(HttpClient.Version value) {
+            getBuildingInstance().setHttpVersion(value.name());
             return getSelf();
         }
 

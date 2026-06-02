@@ -17,6 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.ReadWriteMode;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.conversion.ValueConversionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.conversion.ValueConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config.OpcUaValueProviderConfig;
@@ -31,10 +32,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.ElementValueTypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
+import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.ExecutionException;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
+import org.eclipse.milo.opcua.stack.core.UaException;
 import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
 import org.eclipse.milo.opcua.stack.core.types.builtin.StatusCode;
 import org.eclipse.milo.opcua.stack.core.types.builtin.Variant;
@@ -55,6 +57,12 @@ public class OpcUaValueProvider extends AbstractOpcUaProviderWithArray<OpcUaValu
             ValueConverter valueConverter) throws AssetConnectionException, InvalidConfigurationException {
         super(serviceContext, client, reference, providerConfig, valueConverter);
         init();
+    }
+
+
+    @Override
+    public ReadWriteMode getReadWriteMode() {
+        return providerConfig.getReadWriteMode();
     }
 
 
@@ -101,11 +109,11 @@ public class OpcUaValueProvider extends AbstractOpcUaProviderWithArray<OpcUaValu
     @Override
     public DataElementValue getValue() throws AssetConnectionException {
         try {
-            DataValue dataValue = client.readValue(0, TimestampsToReturn.Neither, node.getNodeId()).get();
+            DataValue dataValue = client.readValue(0, TimestampsToReturn.Neither, node.getNodeId());
             OpcUaHelper.checkStatusCode(dataValue.getStatusCode(), "error reading value from asset conenction");
             return new PropertyValue(valueConverter.convert(ArrayHelper.unwrapValue(dataValue, arrayIndex), datatype));
         }
-        catch (InterruptedException | ExecutionException | ValueConversionException e) {
+        catch (UaException | ValueConversionException e) {
             Thread.currentThread().interrupt();
             throw new AssetConnectionException(String.format("error reading value from asset conenction (reference: %s)", ReferenceHelper.toString(reference)), e);
         }
@@ -127,17 +135,17 @@ public class OpcUaValueProvider extends AbstractOpcUaProviderWithArray<OpcUaValu
             Variant valueToWrite = valueConverter.convert(((PropertyValue) value).getValue(), node.getDataType());
             if (ArrayHelper.isValidArrayIndex(providerConfig.getArrayIndex())) {
                 valueToWrite = ArrayHelper.wrapValue(
-                        client.readValue(0, TimestampsToReturn.Neither, node.getNodeId()).get(),
+                        client.readValue(0, TimestampsToReturn.Neither, node.getNodeId()),
                         valueToWrite,
                         arrayIndex);
             }
-            StatusCode result = client.writeValue(node.getNodeId(), new DataValue(
-                    valueToWrite,
-                    null,
-                    null)).get();
+            // explicitly creating DataValue with timestamp=null because if not set explicitly to null milo will use current time and handling time is often not supported by OPC UA servers.
+            List<StatusCode> results = client.writeValues(List.of(node.getNodeId()), List.of(new DataValue(
+                    valueToWrite, StatusCode.GOOD, null)));
+            StatusCode result = results.get(0);
             OpcUaHelper.checkStatusCode(result, "error setting value on asset connection");
         }
-        catch (InterruptedException | ExecutionException e) {
+        catch (UaException e) {
             Thread.currentThread().interrupt();
             throw new AssetConnectionException("error writing asset connection value", e);
         }
@@ -166,4 +174,5 @@ public class OpcUaValueProvider extends AbstractOpcUaProviderWithArray<OpcUaValu
                 && Objects.equals(node, that.node)
                 && Objects.equals(datatype, that.datatype);
     }
+
 }

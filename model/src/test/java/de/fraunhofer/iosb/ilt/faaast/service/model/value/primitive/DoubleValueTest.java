@@ -27,7 +27,7 @@ public class DoubleValueTest {
     @Test
     public void testNegative() throws ValueFormatException {
         String value = "-1.0";
-        double expected = -1.0d;
+        Double expected = -1.0d;
         TypedValue actual = TypedValueFactory.create(Datatype.DOUBLE, value);
         Assert.assertEquals(expected, actual.getValue());
         Assert.assertEquals(value, actual.asString());
@@ -37,7 +37,7 @@ public class DoubleValueTest {
     @Test
     public void testExplicitPlusPrefix() throws ValueFormatException {
         String value = "+100000";
-        double expected = 100000d;
+        Double expected = 100000d;
         TypedValue actual = TypedValueFactory.create(Datatype.DOUBLE, value);
         Assert.assertEquals(expected, actual.getValue());
         Assert.assertEquals("100000.0", actual.asString());
@@ -47,7 +47,7 @@ public class DoubleValueTest {
     @Test
     public void testPositiveZero() throws ValueFormatException {
         String value = "+0.0";
-        double expected = 0.0d;
+        Double expected = 0.0d;
         TypedValue actual = TypedValueFactory.create(Datatype.DOUBLE, value);
         Assert.assertEquals(expected, actual.getValue());
         Assert.assertEquals("0.0", actual.asString());
@@ -57,7 +57,7 @@ public class DoubleValueTest {
     @Test
     public void testNegativeZero() throws ValueFormatException {
         String value = "-0.0";
-        double expected = -0.0d;
+        Double expected = -0.0d;
         TypedValue actual = TypedValueFactory.create(Datatype.DOUBLE, value);
         Assert.assertEquals(expected, actual.getValue());
         Assert.assertEquals("-0.0", actual.asString());
@@ -67,7 +67,7 @@ public class DoubleValueTest {
     @Test
     public void testE() throws ValueFormatException {
         String value = "234.567e8";
-        double expected = 234.567e8;
+        Double expected = 234.567e8;
         TypedValue actual = TypedValueFactory.create(Datatype.DOUBLE, value);
         Assert.assertEquals(expected, actual.getValue());
     }
@@ -76,7 +76,7 @@ public class DoubleValueTest {
     @Test
     public void testNegativeInf() throws ValueFormatException {
         String value = "-INF";
-        double expected = Double.NEGATIVE_INFINITY;
+        Double expected = Double.NEGATIVE_INFINITY;
         TypedValue actual = TypedValueFactory.create(Datatype.DOUBLE, value);
         Assert.assertEquals(expected, actual.getValue());
         Assert.assertEquals(value, actual.asString());
@@ -86,10 +86,17 @@ public class DoubleValueTest {
     @Test
     public void testNaN() throws ValueFormatException {
         String value = "NaN";
-        double expected = Double.NaN;
+        Double expected = Double.NaN;
         TypedValue actual = TypedValueFactory.create(Datatype.DOUBLE, value);
         Assert.assertEquals(expected, actual.getValue());
         Assert.assertEquals(value, actual.asString());
     }
 
+
+    @Test
+    public void testNullAsString() throws ValueFormatException {
+        String value = null;
+        TypedValue actual = TypedValueFactory.create(Datatype.DOUBLE, value);
+        Assert.assertNull(actual.asString());
+    }
 }

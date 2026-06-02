@@ -23,6 +23,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
+import org.eclipse.digitaltwin.aas4j.v3.model.AnnotatedRelationshipElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.Entity;
 import org.eclipse.digitaltwin.aas4j.v3.model.HasSemantics;
 import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
@@ -72,6 +74,12 @@ public class PersistenceHelper {
         }
         else if (SubmodelElementList.class.isAssignableFrom(parent.getClass())) {
             submodelElementCollection.addAll(((SubmodelElementList) parent).getValue());
+        }
+        else if (Entity.class.isAssignableFrom(parent.getClass())) {
+            submodelElementCollection.addAll(((Entity) parent).getStatements());
+        }
+        else if (AnnotatedRelationshipElement.class.isAssignableFrom(parent.getClass())) {
+            submodelElementCollection.addAll(((AnnotatedRelationshipElement) parent).getAnnotations());
         }
     }
 

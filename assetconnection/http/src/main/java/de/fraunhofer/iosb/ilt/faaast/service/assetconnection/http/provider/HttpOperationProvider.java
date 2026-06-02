@@ -20,6 +20,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.provider.Mul
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.HttpAssetConnectionConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.HttpOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.util.HttpHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
@@ -29,16 +30,26 @@ import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.function.UnaryOperator;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
  * Provides the capability to execute operation via HTTP.
  */
 public class HttpOperationProvider extends MultiFormatOperationProvider<HttpOperationProviderConfig> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(HttpOperationProvider.class);
 
     public static final String DEFAULT_EXECUTE_METHOD = "POST";
     private final ServiceContext serviceContext;
@@ -65,8 +76,20 @@ public class HttpOperationProvider extends MultiFormatOperationProvider<HttpOper
 
     @Override
     protected OperationVariable[] getOutputParameters() {
+        if (reference == null) {
+            throw new IllegalArgumentException("reference must be non-null");
+        }
         try {
-            return serviceContext.getOperationOutputVariables(reference);
+            SubmodelElement element = serviceContext.getPersistence().getSubmodelElement(reference, QueryModifier.DEFAULT);
+            if (element == null) {
+                throw new ResourceNotFoundException(String.format("reference could not be resolved (reference: %s)", ReferenceHelper.toString(reference)));
+            }
+            if (!Operation.class.isAssignableFrom(element.getClass())) {
+                throw new IllegalArgumentException(String.format("reference points to invalid type (reference: %s, expected type: Operation, actual type: %s)",
+                        ReferenceHelper.toString(reference),
+                        element.getClass()));
+            }
+            return ((Operation) element).getOutputVariables().toArray(new OperationVariable[0]);
         }
         catch (ResourceNotFoundException | PersistenceException e) {
             throw new IllegalStateException(
@@ -81,24 +104,41 @@ public class HttpOperationProvider extends MultiFormatOperationProvider<HttpOper
     @Override
     protected byte[] invoke(byte[] input, UnaryOperator<String> variableReplacer) throws AssetConnectionException {
         try {
+            String path = variableReplacer.apply(config.getPath());
+            String method = StringUtils.isBlank(config.getMethod())
+                    ? DEFAULT_EXECUTE_METHOD
+                    : config.getMethod();
+            Map<String, String> headers = HttpHelper.mergeHeaders(connectionConfig.getHeaders(), config.getHeaders());
+            headers = headers.entrySet().stream().collect(Collectors.toMap(Entry::getKey, x -> variableReplacer.apply(x.getValue())));
+            LOGGER.trace("Sending HTTP request to asset (baseUrl: {}, path: {}, method: {}, headers: {}, body: {})",
+                    connectionConfig.getBaseUrl(),
+                    config.getPath(),
+                    method,
+                    headers,
+                    Objects.nonNull(input) ? new String(input) : "");
             HttpResponse<byte[]> response = HttpHelper.execute(
                     client,
                     connectionConfig.getBaseUrl(),
-                    variableReplacer.apply(config.getPath()),
+                    path,
                     config.getFormat(),
-                    StringUtils.isBlank(config.getMethod())
-                            ? DEFAULT_EXECUTE_METHOD
-                            : config.getMethod(),
+                    method,
                     HttpRequest.BodyPublishers.ofByteArray(input),
                     HttpResponse.BodyHandlers.ofByteArray(),
-                    HttpHelper.mergeHeaders(connectionConfig.getHeaders(), config.getHeaders()));
+                    headers);
+            LOGGER.trace("Response from asset (status code: {}, headers: {}, body: {})",
+                    response.statusCode(),
+                    response.headers().map(),
+                    response.body() != null ? new String(response.body()) : "[empty]");
             if (!HttpHelper.is2xxSuccessful(response)) {
                 throw new AssetConnectionException(String.format("executing operation via HTTP asset connection failed (reference: %s)", ReferenceHelper.toString(reference)));
             }
             return response.body();
         }
-        catch (IOException | URISyntaxException | InterruptedException e) {
+        catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+            throw new AssetConnectionException(String.format("executing operation via HTTP asset connection failed (reference: %s)", ReferenceHelper.toString(reference)), e);
+        }
+        catch (IOException | URISyntaxException e) {
             throw new AssetConnectionException(String.format("executing operation via HTTP asset connection failed (reference: %s)", ReferenceHelper.toString(reference)), e);
         }
     }

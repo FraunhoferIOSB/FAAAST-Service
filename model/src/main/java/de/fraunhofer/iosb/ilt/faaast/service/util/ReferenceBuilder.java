@@ -176,32 +176,30 @@ public class ReferenceBuilder extends AbstractBuilder<Reference> {
 
 
     /**
-     * Creates a reference by concatenating a parent reference with submodel element ids. Only leading keys pointing to
-     * an identifiable are kept from the parent reference.
+     * Creates a reference by concatenating a parent reference with submodel element ids.
      *
      * @param parent the parent reference
      * @param elementIds the submodel element Ids
      * @return the new reference
      */
     public static Reference forParent(Reference parent, String... elementIds) {
-        return new ReferenceBuilder()
-                .identifiables(parent)
+        return ReferenceBuilder
+                .with(parent)
                 .elements(elementIds)
                 .build();
     }
 
 
     /**
-     * Creates a reference by concatenating a parent reference with submodel element ids. Only leading keys pointing to
-     * an identifiable are kept from the parent reference.
+     * Creates a reference by concatenating a parent reference with submodel element ids.
      *
      * @param parent the parent reference
      * @param elements the submodel elements
      * @return the new reference
      */
     public static Reference forParent(Reference parent, SubmodelElement... elements) {
-        return new ReferenceBuilder()
-                .identifiables(parent)
+        return ReferenceBuilder
+                .with(parent)
                 .elements(elements)
                 .build();
     }
@@ -341,32 +339,6 @@ public class ReferenceBuilder extends AbstractBuilder<Reference> {
             return this;
         }
         return identifiable(identifiable.getId(), ReferenceHelper.toKeyType(identifiable.getClass()));
-    }
-
-
-    /**
-     * Extracts the leading keys pointing to an identifiable from the reference and adds them.
-     *
-     * @param reference the reference
-     * @return the builder
-     */
-    public ReferenceBuilder identifiables(Reference reference) {
-        if (Objects.isNull(reference)
-                || Objects.isNull(reference.getKeys())
-                || reference.getKeys().isEmpty()) {
-            return this;
-        }
-        for (int i = 0; i < reference.getKeys().size(); i++) {
-            if (Objects.isNull(reference.getKeys().get(i))) {
-                return this;
-            }
-            KeyTypes currentType = reference.getKeys().get(i).getType();
-            if (!isIdentifiable(currentType)) {
-                return this;
-            }
-            getBuildingInstance().getKeys().add(ReferenceHelper.newKey(currentType, reference.getKeys().get(i).getValue()));
-        }
-        return this;
     }
 
 
@@ -536,19 +508,6 @@ public class ReferenceBuilder extends AbstractBuilder<Reference> {
     public ReferenceBuilder referredSemanticId(Reference referredSemanticId) {
         getBuildingInstance().setReferredSemanticId(referredSemanticId);
         return this;
-    }
-
-
-    private static boolean isIdentifiable(KeyTypes type) {
-        switch (type) {
-            case IDENTIFIABLE:
-            case CONCEPT_DESCRIPTION:
-            case ASSET_ADMINISTRATION_SHELL:
-            case SUBMODEL:
-                return true;
-            default:
-                return false;
-        }
     }
 
 

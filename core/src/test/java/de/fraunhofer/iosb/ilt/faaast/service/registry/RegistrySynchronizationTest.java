@@ -2,6 +2,7 @@
  * Copyright (c) 2021 Fraunhofer IOSB, eine rechtlich nicht selbstaendige
  * Einrichtung der Fraunhofer-Gesellschaft zur Foerderung der angewandten
  * Forschung e.V.
+ * Copyright (c) 2026 Hilscher Gesellschaft fuer Systemautomation mbH
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +16,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.registry;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.deleteRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
 import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.putRequestedFor;
@@ -26,13 +28,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.config.RegistrySynchronizationConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.Endpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
@@ -50,14 +49,16 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.net.URI;
 import java.util.List;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.SerializationException;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.JsonSerializer;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
-import org.eclipse.digitaltwin.aas4j.v3.model.SecurityAttributeObject;
 import org.eclipse.digitaltwin.aas4j.v3.model.SecurityTypeEnum;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelDescriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetAdministrationShellDescriptor;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEndpoint;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProtocolInformation;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSecurityAttributeObject;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelDescriptor;
@@ -79,7 +80,9 @@ public class RegistrySynchronizationTest {
     private static final String API_PREFIX = "/api/v3.0";
     private static final String AAS_URL_PATH = "/shell-descriptors";
     private static final String SUBMODEL_URL_PATH = "/submodel-descriptors";
-    private ObjectMapper mapper;
+    private static final String AUTH_HEADER_NAME = "Authorization";
+    private static final String AUTH_HEADER_VALUE = "Basic dXNlcjpwYXNz";
+    private JsonSerializer mapper;
     private MessageBus messageBus;
     private Endpoint endpoint;
     private Persistence persistence;
@@ -90,24 +93,35 @@ public class RegistrySynchronizationTest {
     @Before
     public void init() throws Exception {
         serviceUri = new URI("https://example.org/service/");
-        mapper = new ObjectMapper()
-                .enable(SerializationFeature.INDENT_OUTPUT)
-                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-                .setSerializationInclusion(JsonInclude.Include.NON_EMPTY)
-                .addMixIn(SecurityAttributeObject.class, SecurityAttributeObjectMixin.class)
-                .addMixIn(org.eclipse.digitaltwin.aas4j.v3.model.Endpoint.class, EndpointMixin.class);
+        mapper = new JsonSerializer();
         mockEndpoint();
         mockMessageBus();
         mockPersistence();
         // Trying shell registry with and submodel registry without path prefix.
+        CoreConfig coreConfig = CoreConfig.builder()
+                .aasRegistry("http://localhost:" + wireMockRule.port() + API_PREFIX)
+                .submodelRegistry("http://localhost:" + wireMockRule.port())
+                .build();
+        RegistrySynchronizationConfig registrySynchronizationConfig = new RegistrySynchronizationConfig();
+        registrySynchronizationConfig.getAuth().getHeader().setName(AUTH_HEADER_NAME);
+        registrySynchronizationConfig.getAuth().getHeader().setValue(AUTH_HEADER_VALUE);
+        coreConfig.setRegistrySynchronization(registrySynchronizationConfig);
+
         registrySynchronization = new RegistrySynchronization(
-                CoreConfig.builder()
-                        .aasRegistry("http://localhost:" + wireMockRule.port() + API_PREFIX)
-                        .submodelRegistry("http://localhost:" + wireMockRule.port())
-                        .build(),
+                coreConfig,
                 persistence,
                 messageBus,
                 List.of(endpoint));
+    }
+
+
+    @Test
+    public void testAddsAuthHeaderWhenConfigured() throws Exception {
+        registrySynchronization.start();
+        registrySynchronization.stop();
+
+        verify(postRequestedFor(urlEqualTo(API_PREFIX + AAS_URL_PATH))
+                .withHeader(AUTH_HEADER_NAME, equalTo(AUTH_HEADER_VALUE)));
     }
 
 
@@ -135,7 +149,7 @@ public class RegistrySynchronizationTest {
 
 
     @Test
-    public void testAasCreation() throws MessageBusException, JsonProcessingException {
+    public void testAasCreation() throws MessageBusException, JsonProcessingException, SerializationException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(0);
         registrySynchronization.start();
         messageBus.publish(ElementCreateEventMessage.builder()
@@ -147,7 +161,7 @@ public class RegistrySynchronizationTest {
 
 
     @Test
-    public void testAasUpdate() throws MessageBusException, JsonProcessingException {
+    public void testAasUpdate() throws MessageBusException, JsonProcessingException, SerializationException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(0);
         aas.setIdShort("Changed Id Short");
         registrySynchronization.start();
@@ -171,7 +185,7 @@ public class RegistrySynchronizationTest {
 
 
     @Test
-    public void testSubmodelCreation() throws MessageBusException, JsonProcessingException {
+    public void testSubmodelCreation() throws MessageBusException, JsonProcessingException, SerializationException {
         Submodel submodel = environment.getSubmodels().get(0);
         registrySynchronization.start();
         messageBus.publish(ElementCreateEventMessage.builder()
@@ -183,7 +197,7 @@ public class RegistrySynchronizationTest {
 
 
     @Test
-    public void testSubmodelUpdate() throws MessageBusException, JsonProcessingException {
+    public void testSubmodelUpdate() throws MessageBusException, JsonProcessingException, SerializationException {
         Submodel submodel = environment.getSubmodels().get(0);
         String oldIdShort = submodel.getIdShort();
         submodel.setIdShort("Changed Id Short");
@@ -225,6 +239,9 @@ public class RegistrySynchronizationTest {
                                             .key("")
                                             .value("")
                                             .build())
+                                    .subprotocol("MyTestSubprotocol")
+                                    .subprotocolBody("id: ${id}. again: ${id}.MyTestSubprotocolBody")
+                                    .subprotocolBodyEncoding("MyTestSubprotocolBodyEncoding")
                                     .build())
                             .build(),
                     new org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEndpoint.Builder()
@@ -238,6 +255,9 @@ public class RegistrySynchronizationTest {
                                             .key("")
                                             .value("")
                                             .build())
+                                    .subprotocol("MyTestSubprotocol")
+                                    .subprotocolBody("id: ${id}. again: ${id}.MyTestSubprotocolBody")
+                                    .subprotocolBodyEncoding("MyTestSubprotocolBodyEncoding")
                                     .build())
                             .build());
         }).when(endpoint).getAasEndpointInformation(any(String.class));
@@ -245,7 +265,7 @@ public class RegistrySynchronizationTest {
         doAnswer((InvocationOnMock invocation) -> {
             String submodelId = invocation.getArgument(0);
             return List.of(
-                    new org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEndpoint.Builder()
+                    new DefaultEndpoint.Builder()
                             ._interface("SUBMODEL-REPOSITORY-3.0")
                             .protocolInformation(new DefaultProtocolInformation.Builder()
                                     .href(serviceUri.toASCIIString())
@@ -256,9 +276,12 @@ public class RegistrySynchronizationTest {
                                             .key("")
                                             .value("")
                                             .build())
+                                    .subprotocol("MyTestSubprotocol")
+                                    .subprotocolBody(String.format("id: %s. again: %s.MyTestSubprotocolBody", submodelId, submodelId))
+                                    .subprotocolBodyEncoding("MyTestSubprotocolBodyEncoding")
                                     .build())
                             .build(),
-                    new org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEndpoint.Builder()
+                    new DefaultEndpoint.Builder()
                             ._interface("SUBMODEL-3.0")
                             .protocolInformation(new DefaultProtocolInformation.Builder()
                                     .href(serviceUri.toASCIIString() + "/submodels/" + EncodingHelper.base64UrlEncode(submodelId))
@@ -269,6 +292,9 @@ public class RegistrySynchronizationTest {
                                             .key("")
                                             .value("")
                                             .build())
+                                    .subprotocol("MyTestSubprotocol")
+                                    .subprotocolBody(String.format("id: %s. again: %s.MyTestSubprotocolBody", submodelId, submodelId))
+                                    .subprotocolBodyEncoding("MyTestSubprotocolBodyEncoding")
                                     .build())
                             .build());
         }).when(endpoint).getSubmodelEndpointInformation(any(String.class));
@@ -348,8 +374,8 @@ public class RegistrySynchronizationTest {
     }
 
 
-    private String getAasDescriptorBody(AssetAdministrationShell aas) throws JsonProcessingException {
-        return mapper.writeValueAsString(new DefaultAssetAdministrationShellDescriptor.Builder()
+    private String getAasDescriptorBody(AssetAdministrationShell aas) throws JsonProcessingException, SerializationException {
+        return mapper.write(new DefaultAssetAdministrationShellDescriptor.Builder()
                 .administration(aas.getAdministration())
                 .id(aas.getId())
                 .idShort(aas.getIdShort())
@@ -365,8 +391,8 @@ public class RegistrySynchronizationTest {
     }
 
 
-    private String getSubmodelDescriptorBody(Submodel submodel) throws JsonProcessingException {
-        return mapper.writeValueAsString(new DefaultSubmodelDescriptor.Builder()
+    private String getSubmodelDescriptorBody(Submodel submodel) throws JsonProcessingException, SerializationException {
+        return mapper.write(new DefaultSubmodelDescriptor.Builder()
                 .administration(submodel.getAdministration())
                 .id(submodel.getId())
                 .idShort(submodel.getIdShort())

@@ -18,6 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatExceptio
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
 import java.util.Base64;
+import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
 
 
@@ -38,6 +39,9 @@ public class Base64BinaryValue extends TypedValue<byte[]> {
 
     @Override
     public String asString() {
+        if (Objects.isNull(value)) {
+            return super.asString();
+        }
         return Base64.getEncoder().encodeToString(value);
     }
 

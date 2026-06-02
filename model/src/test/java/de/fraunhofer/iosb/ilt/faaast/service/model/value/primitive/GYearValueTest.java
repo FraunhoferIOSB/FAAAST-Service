@@ -75,4 +75,11 @@ public class GYearValueTest {
         Assert.assertEquals(value, actual.asString());
     }
 
+
+    @Test
+    public void testNullAsString() throws ValueFormatException {
+        String value = null;
+        TypedValue actual = TypedValueFactory.create(Datatype.GYEAR, value);
+        Assert.assertNull(actual.asString());
+    }
 }

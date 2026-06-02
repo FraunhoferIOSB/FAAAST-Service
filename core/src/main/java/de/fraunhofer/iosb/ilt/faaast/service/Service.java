@@ -32,14 +32,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.InternalErrorResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.AssetAdministrationShellSearchCriteria;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.ConceptDescriptionSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.SubmodelSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.registry.RegistrySynchronization;
 import de.fraunhofer.iosb.ilt.faaast.service.request.RequestHandlerManager;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.DynamicRequestExecutionContext;
@@ -51,18 +47,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeExtractor;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.FileHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 import org.apache.poi.openxml4j.util.ZipSecureFile;
-import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
-import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
-import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
-import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
-import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -131,7 +121,7 @@ public class Service implements ServiceContext {
         this.requestHandler = new RequestHandlerManager(config.getCore());
         this.requestExecutionContext = new DynamicRequestExecutionContext(this);
         this.registrySynchronization = new RegistrySynchronization(config.getCore(), persistence, messageBus, endpoints);
-        this.submodelTemplateManager = new SubmodelTemplateManager(persistence, messageBus, assetConnectionManager, submodelTemplateProcessors);
+        this.submodelTemplateManager = new SubmodelTemplateManager(this, submodelTemplateProcessors);
     }
 
 
@@ -166,57 +156,8 @@ public class Service implements ServiceContext {
 
 
     @Override
-    public OperationVariable[] getOperationOutputVariables(Reference reference) throws ResourceNotFoundException, PersistenceException {
-        if (reference == null) {
-            throw new IllegalArgumentException("reference must be non-null");
-        }
-        SubmodelElement element = persistence.getSubmodelElement(reference, QueryModifier.DEFAULT);
-        if (element == null) {
-            throw new ResourceNotFoundException(String.format("reference could not be resolved (reference: %s)", ReferenceHelper.toString(reference)));
-        }
-        if (!Operation.class.isAssignableFrom(element.getClass())) {
-            throw new IllegalArgumentException(String.format("reference points to invalid type (reference: %s, expected type: Operation, actual type: %s)",
-                    ReferenceHelper.toString(reference),
-                    element.getClass()));
-        }
-        return ((Operation) element).getOutputVariables().toArray(new OperationVariable[0]);
-    }
-
-
-    @Override
     public TypeInfo getTypeInfo(Reference reference) throws ResourceNotFoundException, PersistenceException {
         return TypeExtractor.extractTypeInfo(persistence.getSubmodelElement(reference, QueryModifier.DEFAULT));
-    }
-
-
-    @Override
-    public boolean hasValueProvider(Reference reference) {
-        return assetConnectionManager.hasValueProvider(reference);
-    }
-
-
-    @Override
-    public Environment getAASEnvironment() throws PersistenceException {
-        return new DefaultEnvironment.Builder()
-                .assetAdministrationShells(
-                        persistence.findAssetAdministrationShells(
-                                AssetAdministrationShellSearchCriteria.NONE,
-                                QueryModifier.DEFAULT,
-                                PagingInfo.ALL)
-                                .getContent())
-                .submodels(
-                        persistence.findSubmodels(
-                                SubmodelSearchCriteria.NONE,
-                                QueryModifier.DEFAULT,
-                                PagingInfo.ALL)
-                                .getContent())
-                .conceptDescriptions(
-                        persistence.findConceptDescriptions(
-                                ConceptDescriptionSearchCriteria.NONE,
-                                QueryModifier.DEFAULT,
-                                PagingInfo.ALL)
-                                .getContent())
-                .build();
     }
 
 
@@ -241,23 +182,26 @@ public class Service implements ServiceContext {
     }
 
 
-    public AssetConnectionManager getAssetConnectionManager() {
-        return assetConnectionManager;
+    @Override
+    public Persistence getPersistence() {
+        return persistence;
     }
 
 
+    @Override
     public FileStorage getFileStorage() {
         return fileStorage;
     }
 
 
-    public ServiceConfig getConfig() {
-        return config;
+    @Override
+    public AssetConnectionManager getAssetConnectionManager() {
+        return assetConnectionManager;
     }
 
 
-    public Persistence getPersistence() {
-        return persistence;
+    public ServiceConfig getConfig() {
+        return config;
     }
 
 
@@ -329,7 +273,7 @@ public class Service implements ServiceContext {
             for (SubmodelTemplateProcessorConfig submodelTemplateProcessorConfig: config.getSubmodelTemplateProcessors()) {
                 submodelTemplateProcessors.add((SubmodelTemplateProcessor) submodelTemplateProcessorConfig.newInstance(config.getCore(), this));
             }
-            submodelTemplateManager = new SubmodelTemplateManager(persistence, messageBus, assetConnectionManager, submodelTemplateProcessors);
+            submodelTemplateManager = new SubmodelTemplateManager(this, submodelTemplateProcessors);
         }
         endpoints = new ArrayList<>();
         if (config.getEndpoints() == null || config.getEndpoints().isEmpty()) {

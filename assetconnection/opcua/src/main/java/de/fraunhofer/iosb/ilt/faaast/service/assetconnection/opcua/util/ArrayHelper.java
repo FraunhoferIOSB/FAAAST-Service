@@ -21,6 +21,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
+import org.eclipse.milo.opcua.stack.core.types.builtin.Matrix;
 import org.eclipse.milo.opcua.stack.core.types.builtin.Variant;
 
 
@@ -111,7 +112,11 @@ public class ArrayHelper {
                         indexToString(index),
                         indexToString(i + 1, index)));
             }
-            if (!result.getClass().isArray()) {
+            if (result instanceof Matrix matrix) {
+                // unwrap matrix object
+                result = matrix.nestedArrayValue();
+            }
+            else if (!result.getClass().isArray()) {
                 throw new ClassCastException(String.format(
                         "error accessing array at given index - intermediate element not an array (requested index: %s, index with non-array object: %s)",
                         indexToString(index),
@@ -200,7 +205,15 @@ public class ArrayHelper {
      */
     public static Variant wrapValue(DataValue arrayValue, Variant elementValue, int... index) {
         if (isValidArrayIndex(index)) {
-            setArrayElement(arrayValue.getValue().getValue(), elementValue.getValue(), index);
+            Object value = arrayValue.getValue().getValue();
+            if (value instanceof Matrix matrix) {
+                Object unwrapped = matrix.nestedArrayValue();
+                setArrayElement(unwrapped, elementValue.getValue(), index);
+                return Variant.ofMatrix(new Matrix(unwrapped));
+            }
+            else {
+                setArrayElement(value, elementValue.getValue(), index);
+            }
             return arrayValue.getValue();
         }
         return elementValue;

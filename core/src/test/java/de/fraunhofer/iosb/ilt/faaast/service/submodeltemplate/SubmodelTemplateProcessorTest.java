@@ -17,7 +17,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -66,9 +65,9 @@ public class SubmodelTemplateProcessorTest {
         submodel1 = environment.getSubmodels().get(1);
         ArgumentMatcher<Submodel> isSubmodel0 = submodel -> Objects.equals(submodel, submodel0);
         when(processor.accept(argThat(isSubmodel0))).thenReturn(true);
-        when(processor.add(eq(submodel0), any())).thenReturn(true);
-        when(processor.update(eq(submodel0), any())).thenReturn(true);
-        when(processor.delete(eq(submodel0), any())).thenReturn(true);
+        when(processor.add(submodel0)).thenReturn(true);
+        when(processor.update(submodel0)).thenReturn(true);
+        when(processor.delete(submodel0)).thenReturn(true);
     }
 
 
@@ -77,9 +76,9 @@ public class SubmodelTemplateProcessorTest {
         List<Submodel> submodels = environment.getSubmodels();
         createService(submodels);
         verify(processor, times(submodels.size())).accept(any());
-        verify(processor, times(1)).add(eq(submodel0), any());
-        verify(processor, times(0)).add(eq(submodel1), any());
-        verify(processor, times(0)).update(any(), any());
+        verify(processor, times(1)).add(submodel0);
+        verify(processor, times(0)).add(submodel1);
+        verify(processor, times(0)).update(any());
         Assert.assertNotNull(service);
     }
 
@@ -96,7 +95,7 @@ public class SubmodelTemplateProcessorTest {
         service.getMessageBus().publish(msg);
         // called for every Submodel in createService and for the Submodel to update
         verify(processor, times(submodels.size() + 1)).accept(any());
-        verify(processor, times(1)).update(eq(submodel0), any());
+        verify(processor, times(1)).update(submodel0);
         Assert.assertNotNull(service);
     }
 
@@ -113,7 +112,7 @@ public class SubmodelTemplateProcessorTest {
         service.getMessageBus().publish(msg);
         // called for every Submodel in createService and for the Submodel to delete
         verify(processor, times(submodels.size() + 1)).accept(any());
-        verify(processor, times(1)).delete(eq(submodel0), any());
+        verify(processor, times(1)).delete(submodel0);
         Assert.assertNotNull(service);
     }
 
@@ -130,7 +129,7 @@ public class SubmodelTemplateProcessorTest {
         service.getMessageBus().publish(msg);
         // called for every Submodel in createService and for the Submodel to delete
         verify(processor, times(submodels.size() + 1)).accept(any());
-        verify(processor, times(1)).add(eq(submodel0), any());
+        verify(processor, times(1)).add(submodel0);
         Assert.assertNotNull(service);
     }
 

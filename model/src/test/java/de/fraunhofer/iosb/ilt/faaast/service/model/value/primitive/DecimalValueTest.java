@@ -54,4 +54,11 @@ public class DecimalValueTest {
         Assert.assertEquals("100000.00", actual.asString());
     }
 
+
+    @Test
+    public void testNullAsString() throws ValueFormatException {
+        String value = null;
+        TypedValue actual = TypedValueFactory.create(Datatype.DECIMAL, value);
+        Assert.assertNull(actual.asString());
+    }
 }

@@ -17,6 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda.provider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.ReadWriteMode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -33,6 +34,12 @@ public class LambdaValueProvider implements AssetValueProvider {
     private Consumer<DataElementValue> writer;
 
     private LambdaValueProvider() {}
+
+
+    @Override
+    public ReadWriteMode getReadWriteMode() {
+        return ReadWriteMode.from(Objects.nonNull(reader), Objects.nonNull(writer));
+    }
 
 
     /**

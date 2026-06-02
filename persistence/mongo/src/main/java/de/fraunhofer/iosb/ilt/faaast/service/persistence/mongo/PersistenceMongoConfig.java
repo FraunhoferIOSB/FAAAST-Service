@@ -20,7 +20,10 @@ import java.util.Objects;
 
 /**
  * Configuration for a persistence with a mongo database.
+ *
+ * @deprecated MongoDB support will be removed in v2.0
  */
+@Deprecated(since = "1.4", forRemoval = true)
 public class PersistenceMongoConfig extends PersistenceConfig<PersistenceMongo> {
     private String connectionString;
     private String database = "faaast";

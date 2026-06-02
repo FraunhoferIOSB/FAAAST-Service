@@ -24,22 +24,22 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.util.ArrayHel
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.util.OpcUaHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.ElementValueTypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
-import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
-import org.eclipse.milo.opcua.sdk.client.subscriptions.ManagedDataItem;
-import org.eclipse.milo.opcua.sdk.client.subscriptions.ManagedSubscription;
-import org.eclipse.milo.opcua.stack.core.UaException;
+import org.eclipse.milo.opcua.sdk.client.subscriptions.MonitoredItemSynchronizationException;
+import org.eclipse.milo.opcua.sdk.client.subscriptions.OpcUaMonitoredItem;
+import org.eclipse.milo.opcua.sdk.client.subscriptions.OpcUaSubscription;
 import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,15 +57,15 @@ public class SubscriptionMultiplexer {
     private final Set<NewDataListener> listeners;
     private final ValueConverter valueConverter;
     private OpcUaClient client;
-    private ManagedSubscription opcUaSubscription;
-    private ManagedDataItem dataItem;
+    private OpcUaSubscription opcUaSubscription;
+    private OpcUaMonitoredItem dataItem;
     private Datatype datatype;
 
     public SubscriptionMultiplexer(ServiceContext serviceContext,
             Reference reference,
             OpcUaSubscriptionProviderConfig providerConfig,
             OpcUaClient client,
-            ManagedSubscription opcUaSubscription,
+            OpcUaSubscription opcUaSubscription,
             ValueConverter valueConverter) throws AssetConnectionException {
         Ensure.requireNonNull(serviceContext, "serviceContext must be non-null");
         Ensure.requireNonNull(reference, "reference must be non-null");
@@ -115,13 +115,15 @@ public class SubscriptionMultiplexer {
             throw new AssetConnectionException(String.format("Missing datatype (reference: %s)",
                     ReferenceHelper.toString(reference)));
         }
+        dataItem = OpcUaMonitoredItem.newDataItem(OpcUaHelper.parseNodeId(client, providerConfig.getNodeId()));
+        dataItem.setDataValueListener(this::notify);
+        opcUaSubscription.addMonitoredItem(dataItem);
         try {
-            dataItem = opcUaSubscription.createDataItem(
-                    OpcUaHelper.parseNodeId(client, providerConfig.getNodeId()),
-                    LambdaExceptionHelper.rethrowConsumer(
-                            x -> x.addDataValueListener(LambdaExceptionHelper.rethrowConsumer(this::notify))));
+            // Synchronize the MonitoredItems with the server.
+            // This will create, modify, and delete items as necessary.
+            opcUaSubscription.synchronizeMonitoredItems();
         }
-        catch (UaException e) {
+        catch (MonitoredItemSynchronizationException e) {
             LOGGER.warn("Could not create subscrption item (reference: {}, nodeId: {})",
                     ReferenceHelper.toString(reference),
                     providerConfig.getNodeId(),
@@ -137,26 +139,40 @@ public class SubscriptionMultiplexer {
      * @param opcUaSubscription the new underlying OPC UA subscription
      * @throws AssetConnectionException if reconnecting fails
      */
-    public void reconnect(OpcUaClient client, ManagedSubscription opcUaSubscription) throws AssetConnectionException {
+    public void reconnect(OpcUaClient client, OpcUaSubscription opcUaSubscription) throws AssetConnectionException {
         this.client = client;
         this.opcUaSubscription = opcUaSubscription;
         init();
     }
 
 
-    private void notify(DataValue value) {
+    private void notify(@SuppressWarnings("unused") OpcUaMonitoredItem item, DataValue value) {
         try {
-            DataElementValue newValue = new PropertyValue(valueConverter.convert(ArrayHelper.unwrapValue(value, providerConfig.getArrayIndex()), datatype));
-            listeners.forEach(x -> {
-                try {
-                    x.newDataReceived(newValue);
+            if (value == null) {
+                LOGGER.warn("notify: value is null");
+            }
+            else if (value.getStatusCode().isBad()) {
+                LOGGER.warn("notify: StatusCode error: {}", value.getStatusCode());
+            }
+            else {
+                DataElementValue newValue;
+                if (value.getValue().isNull()) {
+                    newValue = PropertyValue.of(datatype, null);
                 }
-                catch (Exception e) {
-                    LOGGER.warn("Unexpected exception while invoking newDataReceived handler", e);
+                else {
+                    newValue = new PropertyValue(valueConverter.convert(ArrayHelper.unwrapValue(value, providerConfig.getArrayIndex()), datatype));
                 }
-            });
+                listeners.forEach(x -> {
+                    try {
+                        x.newDataReceived(newValue);
+                    }
+                    catch (Exception e) {
+                        LOGGER.warn("Unexpected exception while invoking newDataReceived handler", e);
+                    }
+                });
+            }
         }
-        catch (ValueConversionException e) {
+        catch (ValueConversionException | ValueFormatException e) {
             LOGGER.warn("received illegal value via OPC UA subscription - type conversion failed (value: {}, target type: {}, nodeId: {})",
                     value.getValue(),
                     datatype,
@@ -209,9 +225,10 @@ public class SubscriptionMultiplexer {
      */
     public void close() throws AssetConnectionException {
         try {
-            dataItem.delete();
+            opcUaSubscription.removeMonitoredItem(dataItem);
+            opcUaSubscription.synchronizeMonitoredItems();
         }
-        catch (UaException e) {
+        catch (MonitoredItemSynchronizationException e) {
             throw new AssetConnectionException(
                     String.format("Removing subscription failed (reference: %s, nodeId: %s)",
                             ReferenceHelper.toString(reference),

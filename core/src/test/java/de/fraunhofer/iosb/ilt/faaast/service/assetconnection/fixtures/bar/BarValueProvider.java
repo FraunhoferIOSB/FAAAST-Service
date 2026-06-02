@@ -16,8 +16,8 @@ package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.fixtures.bar;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AbstractAssetValueProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
@@ -28,13 +28,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class BarValueProvider implements AssetValueProvider {
+public class BarValueProvider extends AbstractAssetValueProvider<BarValueProviderConfig> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BarValueProvider.class);
     private final Reference reference;
     private final BarValueProviderConfig providerConfig;
 
     public BarValueProvider(Reference reference, BarValueProviderConfig providerConfig) {
+        super(providerConfig);
         this.reference = reference;
         this.providerConfig = providerConfig;
     }

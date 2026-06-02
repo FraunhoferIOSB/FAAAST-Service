@@ -14,15 +14,16 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service;
 
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.Endpoint;
+import de.fraunhofer.iosb.ilt.faaast.service.filestorage.FileStorage;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
-import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
-import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
 
@@ -68,14 +69,6 @@ public interface ServiceContext {
 
 
     /**
-     * Get a copied version of the Environment instance of the service.
-     *
-     * @return a deep copied Environment instance of the service
-     */
-    public Environment getAASEnvironment() throws PersistenceException;
-
-
-    /**
      * Returns the message bus of the service.
      *
      * @return the message bus of the service
@@ -84,24 +77,25 @@ public interface ServiceContext {
 
 
     /**
-     * Returns the output variables of an operation identified by a reference.
+     * Returns the persistence of the service.
      *
-     * @param reference the reference identifying the operation
-     * @return output variables of the operation identified by the reference
-     * @throws ResourceNotFoundException if reference cannot be resolved or does not point to an operation
-     * @throws IllegalArgumentException if reference is null
-     * @throws IllegalArgumentException if reference cannot be resolved
-     * @throws IllegalArgumentException if reference does not point to an operation
+     * @return the persistence of the service
      */
-    public OperationVariable[] getOperationOutputVariables(Reference reference) throws ResourceNotFoundException, PersistenceException;
+    public Persistence getPersistence();
 
 
     /**
-     * Checks if an element is backed by a {@link de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider}.
+     * Returns the file storage of the service.
      *
-     * @param reference the reference to the element
-     * @return true if element is backed by a
-     *         {@link de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider}, otherwise false
+     * @return the file storage of the service
      */
-    public boolean hasValueProvider(Reference reference);
+    public FileStorage getFileStorage();
+
+
+    /**
+     * Returns the AssetConnectionManager of the service.
+     *
+     * @return the AssetConnectionManager of the service
+     */
+    public AssetConnectionManager getAssetConnectionManager();
 }

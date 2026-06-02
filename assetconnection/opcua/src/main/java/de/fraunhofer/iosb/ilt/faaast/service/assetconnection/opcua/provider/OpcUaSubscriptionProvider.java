@@ -26,7 +26,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
-import org.eclipse.milo.opcua.sdk.client.subscriptions.ManagedSubscription;
+import org.eclipse.milo.opcua.sdk.client.subscriptions.OpcUaSubscription;
+import org.eclipse.milo.opcua.stack.core.UaException;
 
 
 /**
@@ -34,14 +35,14 @@ import org.eclipse.milo.opcua.sdk.client.subscriptions.ManagedSubscription;
  */
 public class OpcUaSubscriptionProvider extends AbstractOpcUaProviderWithArray<OpcUaSubscriptionProviderConfig> implements AssetSubscriptionProvider {
 
-    private ManagedSubscription opcUaSubscription;
+    private OpcUaSubscription opcUaSubscription;
     private SubscriptionMultiplexer multiplexer = null;
 
     public OpcUaSubscriptionProvider(ServiceContext serviceContext,
             Reference reference,
             OpcUaSubscriptionProviderConfig providerConfig,
             OpcUaClient client,
-            ManagedSubscription opcUaSubscription,
+            OpcUaSubscription opcUaSubscription,
             ValueConverter valueConverter) throws InvalidConfigurationException, AssetConnectionException {
         super(serviceContext, client, reference, providerConfig, valueConverter);
         Ensure.requireNonNull(opcUaSubscription, "opcUaSubscription must be non-null");
@@ -66,7 +67,7 @@ public class OpcUaSubscriptionProvider extends AbstractOpcUaProviderWithArray<Op
      * @param opcUaSubscription the new underlying OPC UA subscription
      * @throws AssetConnectionException if reconnecting fails
      */
-    public void reconnect(OpcUaClient client, ManagedSubscription opcUaSubscription) throws AssetConnectionException {
+    public void reconnect(OpcUaClient client, OpcUaSubscription opcUaSubscription) throws AssetConnectionException {
         this.client = client;
         this.opcUaSubscription = opcUaSubscription;
         if (multiplexer != null) {
@@ -98,6 +99,18 @@ public class OpcUaSubscriptionProvider extends AbstractOpcUaProviderWithArray<Op
     public void close() throws AssetConnectionException {
         if (multiplexer != null) {
             multiplexer.close();
+        }
+        if (opcUaSubscription != null) {
+            try {
+                opcUaSubscription.delete();
+            }
+            catch (UaException e) {
+                throw new AssetConnectionException(
+                        String.format("Removing subscription failed (reference: %s, nodeId: %s)",
+                                ReferenceHelper.toString(reference),
+                                providerConfig.getNodeId()),
+                        e);
+            }
         }
     }
 

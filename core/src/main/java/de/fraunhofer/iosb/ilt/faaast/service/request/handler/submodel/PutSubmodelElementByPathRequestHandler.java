@@ -27,13 +27,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValidationException
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
-import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ValueChangeEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.validation.ModelValidator;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractSubmodelInterfaceRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
@@ -60,35 +56,22 @@ public class PutSubmodelElementByPathRequestHandler extends AbstractSubmodelInte
                 .build();
         SubmodelElement oldSubmodelElement = context.getPersistence().getSubmodelElement(reference, QueryModifier.DEFAULT);
         SubmodelElement newSubmodelElement = request.getSubmodelElement();
+        context.getAssetConnectionManager().syncValueProvidersOnWrite(reference, oldSubmodelElement, newSubmodelElement, !request.isInternal());
         context.getPersistence().update(reference, newSubmodelElement);
-        if (Objects.isNull(oldSubmodelElement)) {
-            if (!request.isInternal()) {
+
+        if (!request.isInternal()) {
+            if (Objects.isNull(oldSubmodelElement)) {
                 context.getMessageBus().publish(ElementCreateEventMessage.builder()
                         .element(reference)
                         .value(newSubmodelElement)
                         .build());
             }
-        }
-        else if (Objects.equals(oldSubmodelElement.getClass(), newSubmodelElement.getClass())
-                && ElementValueHelper.isSerializableAsValue(oldSubmodelElement.getClass())) {
-            ElementValue oldValue = ElementValueMapper.toValue(oldSubmodelElement);
-            ElementValue newValue = ElementValueMapper.toValue(newSubmodelElement);
-            if (!Objects.equals(oldValue, newValue)) {
-                context.getAssetConnectionManager().setValue(reference, newValue);
-                if (!request.isInternal()) {
-                    context.getMessageBus().publish(ValueChangeEventMessage.builder()
-                            .element(reference)
-                            .oldValue(oldValue)
-                            .newValue(newValue)
-                            .build());
-                }
+            else {
+                context.getMessageBus().publish(ElementUpdateEventMessage.builder()
+                        .element(reference)
+                        .value(newSubmodelElement)
+                        .build());
             }
-        }
-        if (!request.isInternal()) {
-            context.getMessageBus().publish(ElementUpdateEventMessage.builder()
-                    .element(reference)
-                    .value(newSubmodelElement)
-                    .build());
         }
         return PutSubmodelElementByPathResponse.builder()
                 .statusCode(StatusCode.SUCCESS_NO_CONTENT)

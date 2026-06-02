@@ -128,7 +128,7 @@ public class MqttHelper {
     private static void processRelations(RelationData data, Map<Reference, MqttSubscriptionProviderConfig> subscriptionProviders)
             throws PersistenceException, ResourceNotFoundException {
         for (var r: data.getRelations()) {
-            if (EnvironmentHelper.resolve(r.getFirst(), data.getServiceContext().getAASEnvironment()) instanceof SubmodelElementCollection property) {
+            if (EnvironmentHelper.resolve(r.getFirst(), data.getServiceContext().getPersistence().getEnvironment()) instanceof SubmodelElementCollection property) {
                 LOGGER.atDebug().log("processRelations: createSubscriptionProvider for: {}", ReferenceHelper.asString(r.getSecond()));
                 subscriptionProviders.put(r.getSecond(), createSubscriptionProvider(property, data, r.getFirst()));
             }

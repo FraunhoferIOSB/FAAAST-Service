@@ -21,6 +21,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetProviderConfig
 import de.fraunhofer.iosb.ilt.faaast.service.example.assetconnection.custom.provider.config.CustomOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.example.assetconnection.custom.util.RandomValueGenerator;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
@@ -28,9 +29,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.internal.util.ReflectionHelper;
+import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Property;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperationVariable;
 
 
@@ -50,7 +53,7 @@ public class CustomOperationProvider implements AssetOperationProvider<CustomOpe
         this.reference = reference;
         this.serviceContext = serviceContext;
         try {
-            outputVariables = serviceContext.getOperationOutputVariables(reference);
+            outputVariables = getOperationOutputVariables(reference);
         }
         catch (ResourceNotFoundException | PersistenceException e) {
             throw new ConfigurationInitializationException(
@@ -97,6 +100,23 @@ public class CustomOperationProvider implements AssetOperationProvider<CustomOpe
     @Override
     public AssetProviderConfig asConfig() {
         return config;
+    }
+
+
+    private OperationVariable[] getOperationOutputVariables(Reference reference) throws ResourceNotFoundException, PersistenceException {
+        if (reference == null) {
+            throw new IllegalArgumentException("reference must be non-null");
+        }
+        SubmodelElement element = serviceContext.getPersistence().getSubmodelElement(reference, QueryModifier.DEFAULT);
+        if (element == null) {
+            throw new ResourceNotFoundException(String.format("reference could not be resolved (reference: %s)", ReferenceHelper.toString(reference)));
+        }
+        if (!Operation.class.isAssignableFrom(element.getClass())) {
+            throw new IllegalArgumentException(String.format("reference points to invalid type (reference: %s, expected type: Operation, actual type: %s)",
+                    ReferenceHelper.toString(reference),
+                    element.getClass()));
+        }
+        return ((Operation) element).getOutputVariables().toArray(new OperationVariable[0]);
     }
 
 }

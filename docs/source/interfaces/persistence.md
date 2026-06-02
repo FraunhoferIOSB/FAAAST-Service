@@ -73,14 +73,15 @@ Each modification of the model results in writing the whole model to the file wh
 ```
 
 
-## Mongo
+## Mongo (deprecated)
+
+:::{warning}
+**MongoDB persistence is deprecated and will be remove in v2.0.**
+:::
 
 The Mongo Persistence stores the AAS model in a MongoDB according to the AAS specification.
 Therefore, changes are stored permanently even when FA³ST Service is stopped or crashes.
 
-:::{important}
-Each modification of the model results in only writing the specific part to the MongoDB document which should improve performance
-:::
 
 ### Configuration
 

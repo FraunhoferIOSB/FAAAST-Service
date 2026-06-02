@@ -24,10 +24,13 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContain
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ValueChangeEventMessage;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractSubmodelInterfaceRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import java.io.IOException;
+import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.File;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
@@ -47,12 +50,17 @@ public class PutFileByPathRequestHandler extends AbstractSubmodelInterfaceReques
                 .build();
         File file = context.getPersistence().getSubmodelElement(reference, request.getOutputModifier(), File.class);
         file.setContentType(request.getContent().getContentTypeSimple());
+        ElementValue oldValue = ElementValueMapper.toValue(file);
+
         file.setValue(request.getContent().getPath());
         context.getPersistence().update(reference, file);
         context.getFileStorage().save(file.getValue(), request.getContent().getContent());
-        if (!request.isInternal()) {
+        ElementValue newValue = ElementValueMapper.toValue(file);
+        if (!request.isInternal() && !Objects.equals(oldValue, newValue)) {
             context.getMessageBus().publish(ValueChangeEventMessage.builder()
                     .element(reference)
+                    .oldValue(oldValue)
+                    .newValue(newValue)
                     .build());
         }
         return PutFileByPathResponse.builder()

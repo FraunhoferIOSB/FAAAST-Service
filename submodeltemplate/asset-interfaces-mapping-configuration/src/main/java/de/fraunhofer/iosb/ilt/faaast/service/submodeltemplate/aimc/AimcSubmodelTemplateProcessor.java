@@ -14,20 +14,16 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc;
 
-import static org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum.ERROR;
-
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.SemanticIdPath;
 import de.fraunhofer.iosb.ilt.faaast.service.model.SubmodelElementIdentifier;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetSubmodelElementByPathRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.GetSubmodelByIdRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetSubmodelRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.SubmodelTemplateProcessor;
@@ -37,6 +33,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.util.MqttHelp
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.util.Util;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.LogHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.net.MalformedURLException;
@@ -101,17 +98,16 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
 
 
     @Override
-    public boolean add(Submodel submodel, AssetConnectionManager assetConnectionManager) {
+    public boolean add(Submodel submodel) {
         Ensure.requireNonNull(submodel);
-        Ensure.requireNonNull(assetConnectionManager);
         if (Util.semanticIdEquals(submodel, Constants.AID_SUBMODEL_SEMANTIC_ID)) {
-            handleAidChange(submodel, assetConnectionManager, ProcessingMode.ADD);
+            handleAidChange(submodel, ProcessingMode.ADD);
             return false;
         }
         updateAidToAimcRelations(submodel, ProcessingMode.ADD);
         try {
             LOGGER.atInfo().log("process submodel {} ({})", submodel.getIdShort(), ReferenceHelper.asString(ReferenceBuilder.forSubmodel(submodel)));
-            processSubmodel(submodel, assetConnectionManager, ProcessingMode.ADD);
+            processSubmodel(submodel, ProcessingMode.ADD);
         }
         catch (Exception e) {
             LOGGER.error("error processing SMT AIMC (submodel: {})", ReferenceHelper.asString(ReferenceBuilder.forSubmodel(submodel)), e);
@@ -121,17 +117,16 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
 
 
     @Override
-    public boolean update(Submodel submodel, AssetConnectionManager assetConnectionManager) {
+    public boolean update(Submodel submodel) {
         Ensure.requireNonNull(submodel);
-        Ensure.requireNonNull(assetConnectionManager);
         if (Util.semanticIdEquals(submodel, Constants.AID_SUBMODEL_SEMANTIC_ID)) {
-            handleAidChange(submodel, assetConnectionManager, ProcessingMode.UPDATE);
+            handleAidChange(submodel, ProcessingMode.UPDATE);
             return false;
         }
         updateAidToAimcRelations(submodel, ProcessingMode.UPDATE);
         try {
             LOGGER.atInfo().log("update submodel {} ({})", submodel.getIdShort(), ReferenceHelper.asString(ReferenceBuilder.forSubmodel(submodel)));
-            processSubmodel(submodel, assetConnectionManager, ProcessingMode.UPDATE);
+            processSubmodel(submodel, ProcessingMode.UPDATE);
         }
         catch (Exception e) {
             LOGGER.error("error updating SMT AIMC (submodel: {})", ReferenceHelper.asString(ReferenceBuilder.forSubmodel(submodel)), e);
@@ -141,17 +136,16 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
 
 
     @Override
-    public boolean delete(Submodel submodel, AssetConnectionManager assetConnectionManager) {
+    public boolean delete(Submodel submodel) {
         Ensure.requireNonNull(submodel);
-        Ensure.requireNonNull(assetConnectionManager);
         if (Util.semanticIdEquals(submodel, Constants.AID_SUBMODEL_SEMANTIC_ID)) {
-            handleAidChange(submodel, assetConnectionManager, ProcessingMode.DELETE);
+            handleAidChange(submodel, ProcessingMode.DELETE);
             return false;
         }
         updateAidToAimcRelations(submodel, ProcessingMode.DELETE);
         try {
             LOGGER.atInfo().log("delete submodel {} ({})", submodel.getIdShort(), ReferenceHelper.asString(ReferenceBuilder.forSubmodel(submodel)));
-            processSubmodel(submodel, assetConnectionManager, ProcessingMode.DELETE);
+            processSubmodel(submodel, ProcessingMode.DELETE);
         }
         catch (Exception e) {
             LOGGER.error("error deleting SMT AIMC (submodel: {})", ReferenceHelper.asString(ReferenceBuilder.forSubmodel(submodel)), e);
@@ -160,7 +154,7 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
     }
 
 
-    private void handleAidChange(Submodel submodel, AssetConnectionManager assetConnectionManager, ProcessingMode mode) {
+    private void handleAidChange(Submodel submodel, ProcessingMode mode) {
         String aidSubmodelId = submodel.getId();
         if (!aidToAimcRelations.containsKey(aidSubmodelId)) {
             if (mode == ProcessingMode.ADD) {
@@ -171,7 +165,7 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
         aidToAimcRelations.get(aidSubmodelId).forEach(x -> {
             try {
                 // if an AID Submodel is deleted, we process this like an update
-                processSubmodel(getSubmodel(x), assetConnectionManager, mode == ProcessingMode.DELETE ? ProcessingMode.UPDATE : mode);
+                processSubmodel(getSubmodel(x), mode == ProcessingMode.DELETE ? ProcessingMode.UPDATE : mode);
             }
             catch (Exception e) {
                 LOGGER.warn("Failed to update AIMC submodel (submodelId: {})", x);
@@ -207,7 +201,7 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
     }
 
 
-    private void processSubmodel(Submodel submodel, AssetConnectionManager assetConnectionManager, ProcessingMode mode)
+    private void processSubmodel(Submodel submodel, ProcessingMode mode)
             throws PersistenceException, ResourceNotFoundException, MalformedURLException, ConfigurationException, AssetConnectionException, URISyntaxException, Exception {
         List<AssetConnectionConfig> configs = new ArrayList<>();
         if (mode != ProcessingMode.DELETE) {
@@ -223,22 +217,9 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
         if (connectionsCurrent.containsKey(submodel.getId())) {
             old = connectionsCurrent.get(submodel.getId());
         }
-        log(assetConnectionManager.updateConnections(old, configs));
+        LogHelper.logMessages(serviceContext.getAssetConnectionManager().updateConnections(old, configs));
 
         connectionsCurrent.put(submodel.getId(), configs);
-    }
-
-
-    private void log(List<Message> messages) {
-        for (var message: messages) {
-            switch (message.getMessageType()) {
-                case ERROR -> LOGGER.error(message.getText());
-                case EXCEPTION -> LOGGER.error(message.getText());
-                case INFO -> LOGGER.info(message.getText());
-                case WARNING -> LOGGER.warn(message.getText());
-                default -> LOGGER.debug(message.getText());
-            }
-        }
     }
 
 
@@ -266,9 +247,9 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
 
 
     private Submodel getSubmodel(String submodelId) {
-        return serviceContext.execute(GetSubmodelByIdRequest.builder()
+        return serviceContext.execute(GetSubmodelRequest.builder()
                 .internal()
-                .id(submodelId)
+                .submodelId(submodelId)
                 .build()).getPayload();
     }
 

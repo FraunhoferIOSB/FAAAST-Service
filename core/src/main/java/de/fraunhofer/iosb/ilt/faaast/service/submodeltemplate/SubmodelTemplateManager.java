@@ -14,9 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate;
 
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
+import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
-import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.SubmodelElementIdentifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
@@ -27,7 +26,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementDeleteEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,18 +42,13 @@ public class SubmodelTemplateManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SubmodelTemplateManager.class);
 
-    private final Persistence persistence;
-    private final MessageBus messageBus;
-    private final AssetConnectionManager assetConnectionManager;
-    private final List<SubscriptionId> subscriptions = new ArrayList<>();
+    private final ServiceContext serviceContext;
     private List<SubmodelTemplateProcessor> submodelTemplateProcessors = new ArrayList<>();
+    private final List<SubscriptionId> subscriptions = new ArrayList<>();
 
-    public SubmodelTemplateManager(Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager,
-            List<SubmodelTemplateProcessor> submodelTemplateProcessors) {
+    public SubmodelTemplateManager(ServiceContext serviceContext, List<SubmodelTemplateProcessor> submodelTemplateProcessors) {
         Ensure.requireNonNull(submodelTemplateProcessors, "submodelTemplateProcessors must be non-null");
-        this.persistence = persistence;
-        this.messageBus = messageBus;
-        this.assetConnectionManager = assetConnectionManager;
+        this.serviceContext = serviceContext;
         this.submodelTemplateProcessors = submodelTemplateProcessors;
     }
 
@@ -70,7 +63,7 @@ public class SubmodelTemplateManager {
         if (submodelTemplateProcessors.isEmpty()) {
             return;
         }
-        List<Submodel> submodels = persistence.getAllSubmodels(QueryModifier.MAXIMAL, PagingInfo.ALL).getContent();
+        List<Submodel> submodels = serviceContext.getPersistence().getAllSubmodels(QueryModifier.MAXIMAL, PagingInfo.ALL).getContent();
         for (var submodel: submodels) {
             addSubmodel(submodel);
         }
@@ -99,7 +92,7 @@ public class SubmodelTemplateManager {
             // if a SubmodelElement changed, we use updateSubodel
             SubmodelElementIdentifier submodelElementIdentifier = SubmodelElementIdentifier.fromReference(event.getElement());
             try {
-                updateSubmodel(persistence.getSubmodel(submodelElementIdentifier.getSubmodelId(), QueryModifier.DEFAULT));
+                updateSubmodel(serviceContext.getPersistence().getSubmodel(submodelElementIdentifier.getSubmodelId(), QueryModifier.DEFAULT));
             }
             catch (ResourceNotFoundException | PersistenceException e) {
                 LOGGER.warn("Failed to read submodel (submodelId: {})", submodelElementIdentifier.getSubmodelId(), e);
@@ -121,7 +114,7 @@ public class SubmodelTemplateManager {
             // if a SubmodelElement changed, we use updateSubodel
             SubmodelElementIdentifier submodelElementIdentifier = SubmodelElementIdentifier.fromReference(event.getElement());
             try {
-                updateSubmodel(persistence.getSubmodel(submodelElementIdentifier.getSubmodelId(), QueryModifier.DEFAULT));
+                updateSubmodel(serviceContext.getPersistence().getSubmodel(submodelElementIdentifier.getSubmodelId(), QueryModifier.DEFAULT));
             }
             catch (ResourceNotFoundException | PersistenceException e) {
                 LOGGER.warn("Failed to read submodel (submodelId: {})", submodelElementIdentifier.getSubmodelId(), e);
@@ -143,7 +136,7 @@ public class SubmodelTemplateManager {
             // if a SubmodelElement changed, we use updateSubodel
             SubmodelElementIdentifier submodelElementIdentifier = SubmodelElementIdentifier.fromReference(event.getElement());
             try {
-                updateSubmodel(persistence.getSubmodel(submodelElementIdentifier.getSubmodelId(), QueryModifier.DEFAULT));
+                updateSubmodel(serviceContext.getPersistence().getSubmodel(submodelElementIdentifier.getSubmodelId(), QueryModifier.DEFAULT));
             }
             catch (ResourceNotFoundException | PersistenceException e) {
                 LOGGER.warn("Failed to read submodel (submodelId: {})", submodelElementIdentifier.getSubmodelId(), e);
@@ -154,10 +147,10 @@ public class SubmodelTemplateManager {
 
     private void addSubmodel(Submodel submodel) {
         for (var submodelTemplateProcessor: submodelTemplateProcessors) {
-            if (submodelTemplateProcessor.accept(submodel) && submodelTemplateProcessor.add(submodel, assetConnectionManager)) {
+            if (submodelTemplateProcessor.accept(submodel) && submodelTemplateProcessor.add(submodel)) {
                 LOGGER.debug("addSubmodel: submodelTemplate processed successfully");
                 try {
-                    persistence.save(submodel);
+                    serviceContext.getPersistence().save(submodel);
                 }
                 catch (PersistenceException e) {
                     LOGGER.warn("Failed to save submodel added by SMT processor (submodelId: {}, SMT processor type: {})",
@@ -172,10 +165,10 @@ public class SubmodelTemplateManager {
 
     private void updateSubmodel(Submodel submodel) {
         for (var submodelTemplateProcessor: submodelTemplateProcessors) {
-            if (submodelTemplateProcessor.accept(submodel) && submodelTemplateProcessor.update(submodel, assetConnectionManager)) {
+            if (submodelTemplateProcessor.accept(submodel) && submodelTemplateProcessor.update(submodel)) {
                 LOGGER.debug("updateSubmodel: submodelTemplate processed successfully");
                 try {
-                    persistence.save(submodel);
+                    serviceContext.getPersistence().save(submodel);
                 }
                 catch (PersistenceException e) {
                     LOGGER.warn("Failed to save submodel updated by SMT processor (submodelId: {}, SMT processor type: {})",
@@ -190,7 +183,7 @@ public class SubmodelTemplateManager {
 
     private void deleteSubmodel(Submodel submodel) {
         for (var submodelTemplateProcessor: submodelTemplateProcessors) {
-            if (submodelTemplateProcessor.accept(submodel) && submodelTemplateProcessor.delete(submodel, assetConnectionManager)) {
+            if (submodelTemplateProcessor.accept(submodel) && submodelTemplateProcessor.delete(submodel)) {
                 LOGGER.debug("deleteSubmodel: submodelTemplate processed successfully");
             }
         }
@@ -198,9 +191,9 @@ public class SubmodelTemplateManager {
 
 
     private void subscribeMessageBus() throws MessageBusException {
-        subscriptions.add(messageBus.subscribe(SubscriptionInfo.create(ElementCreateEventMessage.class, this::handleCreateEvent)));
-        subscriptions.add(messageBus.subscribe(SubscriptionInfo.create(ElementUpdateEventMessage.class, this::handleUpdateEvent)));
-        subscriptions.add(messageBus.subscribe(SubscriptionInfo.create(ElementDeleteEventMessage.class, this::handleDeleteEvent)));
+        subscriptions.add(serviceContext.getMessageBus().subscribe(SubscriptionInfo.create(ElementCreateEventMessage.class, this::handleCreateEvent)));
+        subscriptions.add(serviceContext.getMessageBus().subscribe(SubscriptionInfo.create(ElementUpdateEventMessage.class, this::handleUpdateEvent)));
+        subscriptions.add(serviceContext.getMessageBus().subscribe(SubscriptionInfo.create(ElementDeleteEventMessage.class, this::handleDeleteEvent)));
         // ValueChangeEventMessage
     }
 
@@ -208,7 +201,7 @@ public class SubmodelTemplateManager {
     private void unsubscribeMessageBus() {
         for (var subscription: subscriptions) {
             try {
-                messageBus.unsubscribe(subscription);
+                serviceContext.getMessageBus().unsubscribe(subscription);
             }
             catch (MessageBusException e) {
                 LOGGER.warn("failed to unsubscribe from message bus (subscriptionId: {})", subscription.getValue(), e);

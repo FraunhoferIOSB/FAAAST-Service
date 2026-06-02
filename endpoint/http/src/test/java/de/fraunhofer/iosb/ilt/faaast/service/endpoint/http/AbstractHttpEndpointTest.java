@@ -17,12 +17,11 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
-import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
+import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.QueryParameters;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiDeserializer;
@@ -56,11 +55,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetAllS
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetOperationAsyncResultResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetOperationAsyncStatusResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetSubmodelElementByPathResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetSubmodelResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.InvokeOperationAsyncResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.PostSubmodelElementResponse;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodelrepository.GetSubmodelByIdResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodelrepository.PostSubmodelResponse;
-import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
@@ -75,14 +73,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.apache.hc.core5.http.ContentType;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
+import org.eclipse.digitaltwin.aas4j.v3.model.Endpoint;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.eclipse.digitaltwin.aas4j.v3.model.ExecutionState;
 import org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum;
+import org.eclipse.digitaltwin.aas4j.v3.model.ProtocolInformation;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.Result;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
@@ -132,6 +133,7 @@ public abstract class AbstractHttpEndpointTest {
     protected static HttpJsonApiDeserializer deserializer;
     protected static HttpJsonApiSerializer serializer;
     protected static Server server;
+    protected static CoreConfig coreConfig = CoreConfig.builder().callbackAddress("http://invalid.local").build();
 
     @Before
     public void setUp() {
@@ -251,7 +253,7 @@ public abstract class AbstractHttpEndpointTest {
     @Test
     public void testNonExistentId() throws Exception {
         String idShort = AASFull.SUBMODEL_3.getIdShort() + "123";
-        when(service.execute(any(), any())).thenReturn(GetSubmodelByIdResponse.builder()
+        when(service.execute(any(), any())).thenReturn(GetSubmodelResponse.builder()
                 .statusCode(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND)
                 .payload(null)
                 .build());
@@ -263,7 +265,7 @@ public abstract class AbstractHttpEndpointTest {
     @Test
     public void testDoubleQueryValue() throws Exception {
         String idShort = AASFull.SUBMODEL_3.getIdShort() + "123";
-        when(service.execute(any(), any())).thenReturn(GetSubmodelByIdResponse.builder()
+        when(service.execute(any(), any())).thenReturn(GetSubmodelResponse.builder()
                 .statusCode(StatusCode.SUCCESS)
                 .payload(null)
                 .build());
@@ -276,7 +278,7 @@ public abstract class AbstractHttpEndpointTest {
     @Test
     public void testMissingQueryValue() throws Exception {
         String idShort = AASFull.SUBMODEL_3.getIdShort() + "123";
-        when(service.execute(any(), any())).thenReturn(GetSubmodelByIdResponse.builder()
+        when(service.execute(any(), any())).thenReturn(GetSubmodelResponse.builder()
                 .statusCode(StatusCode.SUCCESS)
                 .payload(null)
                 .build());
@@ -289,13 +291,28 @@ public abstract class AbstractHttpEndpointTest {
     @Test
     public void testBogusAndMissingQueryValue() throws Exception {
         String idShort = AASFull.SUBMODEL_3.getIdShort() + "123";
-        when(service.execute(any(), any())).thenReturn(GetSubmodelByIdResponse.builder()
+        when(service.execute(any(), any())).thenReturn(GetSubmodelResponse.builder()
                 .statusCode(StatusCode.SUCCESS)
                 .payload(null)
                 .build());
         ContentResponse response = execute(HttpMethod.GET, "/submodels/" + EncodingHelper.base64UrlEncode(idShort)
                 + "/submodel-elements/ExampleRelationshipElement?level=normal&bogus");
         Assert.assertEquals(HttpStatus.BAD_REQUEST_400, response.getStatus());
+    }
+
+
+    @Test
+    public void testGetAasEndpointInformationWithCallbackAddress() {
+        List<Endpoint> actual = endpoint.getAasEndpointInformation(UUID.randomUUID().toString());
+
+        ProtocolInformation protocolInformation = actual.get(0).getProtocolInformation();
+
+        HttpEndpointConfig config = endpoint.asConfig();
+
+        Assert.assertEquals(coreConfig.getCallbackAddress().concat(endpoint.getPathPrefix()).concat("/shells"), protocolInformation.getHref());
+        Assert.assertEquals(config.getSubprotocol(), protocolInformation.getSubprotocol());
+        Assert.assertEquals(config.getSubprotocolBody(), protocolInformation.getSubprotocolBody());
+        Assert.assertEquals(config.getSubprotocolBodyEncoding(), protocolInformation.getSubprotocolBodyEncoding());
     }
 
 
@@ -630,7 +647,6 @@ public abstract class AbstractHttpEndpointTest {
                         .level(Level.CORE)
                         .build()))
                 .thenReturn(aas);
-        mockAasContext(service, aasId);
         ContentResponse response = execute(
                 HttpMethod.GET,
                 String.format("/shells/%s/submodels/%s/submodel-elements",
@@ -762,17 +778,6 @@ public abstract class AbstractHttpEndpointTest {
         ContentResponse responseResult = execute(HttpMethod.GET, urlResult.toString(), operationRequest);
         Assert.assertEquals(HttpStatus.OK_200, responseResult.getStatus());
         // assert state == COMPLETED
-    }
-
-
-    private void mockAasContext(ServiceContext serviceContext, String aasId) throws PersistenceException {
-        doReturn(new DefaultEnvironment.Builder()
-                .assetAdministrationShells(new DefaultAssetAdministrationShell.Builder()
-                        .id(aasId)
-                        .build())
-                .build())
-                .when(serviceContext)
-                .getAASEnvironment();
     }
 
 

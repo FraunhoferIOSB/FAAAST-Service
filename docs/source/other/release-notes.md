@@ -2,19 +2,55 @@
 <!--start:changelog-header-->
 ## 1.4.0-SNAPSHOT (current development version)<!--end:changelog-header-->
 
-**Internal changes & bugfixes**
+**New Features & Major Changes**
 - General
-	- Fixed bug that incorrectly removed submodel reference from AAS when updating a submodel via PUT /submodels/{submodelId}
+	- Added support for reading/writing operation arguments from/to referenced other AAS elements (by using Qualifiers)
+	- Added CLI argument --show-stacktrace
+	- Added new core config properties `operationTimeout` to set a global timeout for executing AAS operations
+	- Removed support for RDF and JSON-LD format
+- Persistence
+	- MongoDB is now deprecated and will be remove in v2.0.
 - Asset Connection
+	- Modbus TCP asset connection added
+	- Synchronization with asset now happens asynchronously in multiple threads. This can be configured via new config properties `assetConnectionReadMaxThreadPoolSize`, `assetConnectionWriteMaxThreadPoolSize`, and `assetConnectionReadTimeout`.
+	- Value providers now support configuring a read/write mode to explicitly tell FA³ST to use it for read-only, write-only, or both.
+	- Improves parsing of JSON payload for operations so that if no mappings are provided it tries to use the variable name (if there are multiple parameters) or the whole object if there is only one parameter
 	- OPC UA
 		- When connecting to an OPC UA asset and the discovery service returns mutliple URLs to use, the ones with a reachable host are preferred.
 - Endpoint
 	- HTTP
 		- URL prefix /api/v3.x is now optional
+		- Add new config property `httpVersion`
+		- Treat headers case-insenstive (see RFC 2616)
+		- OperationProvider now supports use of input arguments via variables in headers
+		- Add support for runtime update of OperationProvider
+
+**Internal changes & bugfixes**
+- General
+	- Fixed bug that incorrectly removed submodel reference from AAS when updating a submodel via PUT /submodels/{submodelId}
+	- Better failure logging in the registry synchronization component: Log error responses from AAS/Submodel registries
+	- Fix idShortPaths to support Entity and AnnotatedRelationshipElement
+    - Fix inconsistencies between docs and proprietary API: DELETE /reset resets the server, POST /import imports an AAS file, /upload was removed from docs
+    - Fix incorrect triggering of ValueChanged events when a value did in fact not change.
+    - Fix ElementDelete events not being triggered on DELETE /reset.
+	- Removed duplicate requests that have not been mapped to any API (`GetAssetAdministrationShellByIdRequest`, `PutAssetAdministrationShellById`, `GetSubmodelByIdRequest`, `PatchSubmodelByIdRequest`, `PutSubmodelByIdRequest`)
+	- Update `ServiceContext` interface to now allow access to persistence, file storage, and asset connection manager
+    - Allow more flexibility in license header: Owners registered in CONTRIBUTORS.txt may add their Copyright statement to source files
+- Asset Connection
+	- Fixed bug that reading a SubmodelElement container, like a `SubmodelElementCollection`, didn't trigger the asset connection value providers of underlying elements recursively.
+	- Fixed asset connection JSON serialization not including blob values in serialization
+	- HTTP
+		- Add logging of raw HTTP requests & responses with level `TRACE`
+- MessageBus
+    - CloudEventsMessageBus now available implementing the async-aas specification in https://factory-x-contributions.github.io/async-aas-helm/
+	- MQTT
+		- Changed default value for `host` from localhost to 0.0.0.0
 - SMT Processor
 	- AID/AIMC
 		- Fixed bug that prevented to update asset connection providers are runtime
 		- Fixed bug that prevented subscription providers to not be properly stopped
+- Serialization
+	- Fixed valueOnly serialization for some edge cases with nested `SubmodelElementCollections`s
 
 ## 1.3.0
 
@@ -55,7 +91,7 @@
 	- HTTP
 		- Improved CORS support by introducing additional config properties `corsAllowCredentials`, `corsAllowedHeaders`, `corsAllowedMethods`, `corsAllowedOrigin`, `corsExposedHeaders`, and `corsMaxAge`
 		- Improved error messages; stack trace may now be returned in HTTP responses via config property `includeErrorDetails`
-		- New API calls: PUT on /upload will now accept JSON/AASX model files. DELETE on /reset will erase everything including AAS, Submodels and ConceptDescriptions.
+		- New API calls: POST on /import will now accept JSON/AASX model files. DELETE on /reset will erase everything including AAS, Submodels and ConceptDescriptions.
 	- OPC UA
 		- Added support for all datatypes of the AAS specification
 

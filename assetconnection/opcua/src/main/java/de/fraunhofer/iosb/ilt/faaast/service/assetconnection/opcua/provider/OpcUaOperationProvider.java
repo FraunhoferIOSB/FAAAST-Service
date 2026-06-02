@@ -14,6 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider;
 
+import static java.util.Objects.requireNonNull;
+
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider;
@@ -22,6 +24,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.conf
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config.OpcUaOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.util.OpcUaHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
@@ -43,6 +46,7 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Property;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
@@ -93,12 +97,12 @@ public class OpcUaOperationProvider extends AbstractOpcUaProvider<OpcUaOperation
 
     private UaMethodNode getMethodNode(NodeId nodeId) throws AssetConnectionException {
         try {
-            UaNode node = client.getAddressSpace().getNode(nodeId);
-            if (!UaMethodNode.class.isAssignableFrom(node.getClass())) {
+            UaNode methodNode = client.getAddressSpace().getNode(nodeId);
+            if (!UaMethodNode.class.isAssignableFrom(methodNode.getClass())) {
                 throw new AssetConnectionException(String.format("Provided node must be a method (nodeId: %s",
                         providerConfig.getNodeId()));
             }
-            return (UaMethodNode) node;
+            return (UaMethodNode) methodNode;
         }
         catch (UaException e) {
             throw new AssetConnectionException(String.format("Could not resolve nodeId (nodeId: %s)",
@@ -180,7 +184,7 @@ public class OpcUaOperationProvider extends AbstractOpcUaProvider<OpcUaOperation
         methodArguments = getInputArguments(methodNode);
         methodOutputArguments = getOutputArguments(methodNode);
         try {
-            outputVariables = serviceContext.getOperationOutputVariables(reference);
+            outputVariables = getOperationOutputVariables(reference);
         }
         catch (ResourceNotFoundException | PersistenceException e) {
             throw new AssetConnectionException(
@@ -205,6 +209,23 @@ public class OpcUaOperationProvider extends AbstractOpcUaProvider<OpcUaOperation
                         providerConfig.getNodeId()));
             }
         }
+    }
+
+
+    private OperationVariable[] getOperationOutputVariables(Reference reference) throws ResourceNotFoundException, PersistenceException {
+        if (reference == null) {
+            throw new IllegalArgumentException("reference must be non-null");
+        }
+        SubmodelElement element = serviceContext.getPersistence().getSubmodelElement(reference, QueryModifier.DEFAULT);
+        if (element == null) {
+            throw new ResourceNotFoundException(String.format("reference could not be resolved (reference: %s)", ReferenceHelper.toString(reference)));
+        }
+        if (!Operation.class.isAssignableFrom(element.getClass())) {
+            throw new IllegalArgumentException(String.format("reference points to invalid type (reference: %s, expected type: Operation, actual type: %s)",
+                    ReferenceHelper.toString(reference),
+                    element.getClass()));
+        }
+        return ((Operation) element).getOutputVariables().toArray(new OperationVariable[0]);
     }
 
 
@@ -341,16 +362,20 @@ public class OpcUaOperationProvider extends AbstractOpcUaProvider<OpcUaOperation
         Variant[] actualParameters = convertParameters(inputParameter, inoutputParameter);
         CallMethodResult methodResult;
         try {
-            methodResult = client.call(new CallMethodRequest(
+            methodResult = client.callAsync(List.of(new CallMethodRequest(
                     parentNodeId,
                     nodeId,
-                    actualParameters)).get();
+                    actualParameters))).thenApply(r -> requireNonNull(r.getResults())[0]).get();
         }
         catch (InterruptedException | ExecutionException e) {
             Thread.currentThread().interrupt();
             throw new AssetConnectionException(String.format("Executing OPC UA method failed (nodeId: %s)",
                     providerConfig.getNodeId()),
                     e);
+        }
+        if (methodResult.getStatusCode().isBad()) {
+            throw new AssetConnectionException(String.format("Executing OPC UA method failed (nodeId: %s): %s",
+                    providerConfig.getNodeId(), methodResult.getStatusCode()));
         }
         return convertResult(methodResult, inoutputParameter, inoutput);
     }

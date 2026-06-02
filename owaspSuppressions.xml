@@ -12,4 +12,48 @@
 		<notes><![CDATA[Does not apply because Glassfish management endpoint is not exposed (see https://gitlab.eclipse.org/security/vulnerability-reports/-/issues/232)]]></notes>
 		<cve>CVE-2024-9329</cve>
 	</suppress>
+	<suppress>
+		<notes><![CDATA[False positive]]></notes>
+		<cve>CVE-2025-10543</cve>
+	</suppress>
+	<suppress>
+		<notes><![CDATA[Does not apply because it only affects Nu Html Checker (validator.nu) (see https://github.com/advisories/GHSA-fccg-7w3p-w66f)]]></notes>
+		<cve>CVE-2025-15104</cve>
+	</suppress>
+	<suppress>
+		<notes><![CDATA[Ignore until Apache libthrift 0.23.0 is released on maven central]]></notes>
+		<cve>CVE-2026-41607</cve>
+	</suppress>
+	<suppress>
+		<notes><![CDATA[Ignore until Apache libthrift 0.23.0 is released on maven central]]></notes>
+		<cve>CVE-2026-41605</cve>
+	</suppress>
+	<suppress>
+		<notes><![CDATA[Ignore until Apache libthrift 0.23.0 is released on maven central]]></notes>
+		<cve>CVE-2026-41604</cve>
+	</suppress>
+	<suppress>
+		<notes><![CDATA[Ignore until Apache libthrift 0.23.0 is released on maven central]]></notes>
+		<cve>CVE-2026-41603</cve>
+	</suppress>
+	<suppress>
+		<notes><![CDATA[Ignore until Apache libthrift 0.23.0 is released on maven central]]></notes>
+		<cve>CVE-2026-41602</cve>
+	</suppress>
+	<suppress>
+		<notes><![CDATA[Ignore until Apache libthrift 0.23.0 is released on maven central]]></notes>
+		<cve>CVE-2025-48431</cve>
+	</suppress>
+	<suppress>
+		<notes><![CDATA[Ignore until Apache libthrift 0.23.0 is released on maven central]]></notes>
+		<cve>CVE-2026-41636</cve>
+	</suppress>
+	<suppress>
+		<notes><![CDATA[Ignore until Apache libthrift 0.23.0 is released on maven central]]></notes>
+		<cve>CVE-2026-43870</cve>
+	</suppress>
+	<suppress>
+		<notes><![CDATA[Ignore until Apache libthrift 0.23.0 is released on maven central]]></notes>
+		<cve>CVE-2026-43869</cve>
+	</suppress>
 </suppressions>

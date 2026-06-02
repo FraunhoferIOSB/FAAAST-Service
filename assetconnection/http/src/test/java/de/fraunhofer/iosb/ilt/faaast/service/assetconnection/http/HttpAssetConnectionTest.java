@@ -24,6 +24,8 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static org.awaitility.Awaitility.await;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
@@ -54,6 +56,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValueFactory;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.ElementValueTypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeExtractor;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
@@ -62,8 +65,10 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.http.HttpClient;
 import java.nio.file.Files;
 import java.security.GeneralSecurityException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -78,6 +83,7 @@ import javax.net.ssl.SSLHandshakeException;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperation;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty;
 import org.junit.After;
@@ -316,7 +322,7 @@ public class HttpAssetConnectionTest {
             throws AssetConnectionException, ConfigurationInitializationException, ValueFormatException, ResourceNotFoundException, PersistenceException {
         assertOperationProviderPropertyJson(
                 RequestMethod.POST,
-                "{ \"parameters\": { \"in1\": ${in1} }}",
+                "{ \"parameters\": { \"in1\": \"${in1}\" }}",
                 "{ \"parameters\": { \"in1\": \"foo\" }}",
                 null,
                 null,
@@ -509,6 +515,7 @@ public class HttpAssetConnectionTest {
         HttpAssetConnectionConfig result = HttpAssetConnectionConfig.builder()
                 .headers(connectionHeaders != null ? connectionHeaders : Map.of())
                 .baseUrl(httpUrl)
+                .httpVersion(HttpClient.Version.HTTP_1_1)
                 .build();
         if (useHttps) {
             result.setBaseUrl(httpsUrl);
@@ -667,8 +674,7 @@ public class HttpAssetConnectionTest {
     }
 
 
-    private void assertOperationProviderPropertyJson(
-                                                     RequestMethod method,
+    private void assertOperationProviderPropertyJson(RequestMethod method,
                                                      String template,
                                                      String expectedRequestToAsset,
                                                      String assetResponse,
@@ -680,10 +686,16 @@ public class HttpAssetConnectionTest {
                                                      boolean useHttps)
             throws AssetConnectionException, ResourceNotFoundException, ConfigurationInitializationException, PersistenceException {
         ServiceContext serviceContext = mock(ServiceContext.class);
-        OperationVariable[] output = toOperationVariables(expectedOutput);
-        doReturn(output)
+        Persistence persistence = mock(Persistence.class);
+        doReturn(persistence)
                 .when(serviceContext)
-                .getOperationOutputVariables(REFERENCE);
+                .getPersistence();
+        OperationVariable[] output = toOperationVariables(expectedOutput);
+        doReturn(new DefaultOperation.Builder()
+                .outputVariables(Arrays.asList(output))
+                .build())
+                .when(persistence)
+                .getSubmodelElement(eq(REFERENCE), any());
         if (output != null) {
             Stream.of(output).forEach(x -> {
                 try {

@@ -17,6 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
+import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
 
 
@@ -37,6 +38,9 @@ public class IntValue extends TypedValue<Integer> {
 
     @Override
     public String asString() {
+        if (Objects.isNull(value)) {
+            return super.asString();
+        }
         return Integer.toString(value);
     }
 
@@ -48,7 +52,7 @@ public class IntValue extends TypedValue<Integer> {
             return;
         }
         try {
-            this.setValue(Integer.parseInt(value));
+            this.setValue(Integer.valueOf(value));
         }
         catch (NumberFormatException e) {
             throw new ValueFormatException(e);
