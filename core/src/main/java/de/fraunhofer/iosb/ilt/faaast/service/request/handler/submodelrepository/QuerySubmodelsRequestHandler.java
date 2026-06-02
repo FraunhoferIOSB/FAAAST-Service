@@ -53,7 +53,7 @@ public class QuerySubmodelsRequestHandler extends AbstractRequestHandler<QuerySu
         if (Objects.nonNull(page.getContent())) {
             for (Submodel submodel: page.getContent()) {
                 Reference reference = AasUtils.toReference(submodel);
-                syncWithAsset(reference, submodel.getSubmodelElements(), !request.isInternal(), context);
+                context.getAssetConnectionManager().syncValueProvidersOnRead(reference, page, !request.isInternal());
                 if (!request.isInternal()) {
                     context.getMessageBus().publish(ElementReadEventMessage.builder()
                             .element(reference)

@@ -14,9 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter;
 
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod.POST;
 import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.auth.SharedAttributes.ACL;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AllAccessPermissionRules;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.RightsEnum;
 import jakarta.servlet.Filter;
@@ -61,7 +61,7 @@ public class HttpMethodFilter implements Filter {
             cleanPath = pathParts[pathParts.length - 1];
         }
 
-        return POST.name().equals(method) && ("invoke".equals(cleanPath) || "invoke-async".equals(cleanPath));
+        return HttpMethod.POST.name().equals(method) && ("invoke".equals(cleanPath) || "invoke-async".equals(cleanPath));
     }
 
 
