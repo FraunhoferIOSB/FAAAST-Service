@@ -94,7 +94,7 @@ public class FileAclRepository implements AclRepository, DirectoryWatcherListene
 
     private void update(Path path) {
         AllAccessPermissionRules rules = readFile(path);
-        if (rules.getRules().stream().allMatch(rule -> validate(rule, rules))) {
+        if (rules != null && rules.getRules().stream().allMatch(rule -> validate(rule, rules))) {
             aclList.put(path, rules);
         }
         else {
@@ -128,8 +128,8 @@ public class FileAclRepository implements AclRepository, DirectoryWatcherListene
             }
         }
         catch (IOException e) {
-            throw new IllegalStateException(String.format("Could not parse latest addition to ACL folder: %s", path), e);
+            LOGGER.warn("Could not parse latest addition to ACL folder: {}", path, e);
+            return null;
         }
     }
-
 }

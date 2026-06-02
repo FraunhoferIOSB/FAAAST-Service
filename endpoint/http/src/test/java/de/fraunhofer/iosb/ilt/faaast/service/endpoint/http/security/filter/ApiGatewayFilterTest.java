@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter;
 
 import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.auth.SharedAttributes.ACL;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AttributeItem.Global.ANONYMOUS;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
@@ -26,16 +27,16 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.acl.repository.AclRepository;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.acl.repository.file.FileAclRepository;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AccessPermissionRule;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.Acl;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AllAccessPermissionRules;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AttributeItem;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.LogicalExpression;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.ObjectItem;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.RightsEnum;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.util.Objects;
+import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -43,8 +44,6 @@ import org.junit.rules.TemporaryFolder;
 
 public class ApiGatewayFilterTest extends JwtAuthorizationFilterTest {
 
-    @Rule
-    public TemporaryFolder tmp = new TemporaryFolder();
     private ApiGateway apiGateway;
 
     private static HttpServletRequest req(String method, String uri) {
@@ -57,25 +56,44 @@ public class ApiGatewayFilterTest extends JwtAuthorizationFilterTest {
 
     @Test
     public void anonymousAccessDependsOnAclFile() throws Exception {
-        Path aclDir = tmp.newFolder("acl").toPath();
-        AclRepository aclRepo = FileAclRepository.createNewInstance(aclDir.toString());
         apiGateway = new ApiGateway();
 
         HttpServletRequest request = req("GET", "/api/v3.0/submodels");
-        request.setAttribute(ACL.getName(), aclRepo);
+        when(request.getAttribute(ACL.getName())).thenReturn(new AllAccessPermissionRules());
+
         FilterChain filter = mockFilterChain();
 
         assertFalse(apiGateway.isAuthorized(request));
         // Verify that request was blocked off
         verify(filter, never()).doFilter(any(), any());
-        Path rule = aclDir.resolve("allow.json");
-        Path tmpRule = aclDir.resolve("allow.json.tmp");
-        Files.writeString(tmpRule, Files.readString(Paths.get(Objects.requireNonNull(getClass().getClassLoader().getResource("acl.json")).toURI())), StandardCharsets.UTF_8);
-        Files.move(tmpRule, rule, StandardCopyOption.ATOMIC_MOVE);
 
-        await().atMost(50000, SECONDS).pollInterval(100, MILLISECONDS).untilAsserted(() -> assertTrue(apiGateway.isAuthorized(request)));
+        AllAccessPermissionRules env = mockEnvironment();
 
-        Files.delete(rule);
+        when(request.getAttribute(ACL.getName())).thenReturn(env);
+        await().atMost(5, SECONDS).pollInterval(100, MILLISECONDS).untilAsserted(() -> assertTrue(apiGateway.isAuthorized(request)));
+
+        when(request.getAttribute(ACL.getName())).thenReturn(new AllAccessPermissionRules());
         await().atMost(5, SECONDS).pollInterval(100, MILLISECONDS).untilAsserted(() -> assertFalse(apiGateway.isAuthorized(request)));
+    }
+
+
+    private AllAccessPermissionRules mockEnvironment() {
+        var env = new AllAccessPermissionRules();
+        AccessPermissionRule rule = new AccessPermissionRule();
+        Acl acl = new Acl();
+        AttributeItem attributeItem = new AttributeItem();
+        attributeItem.setGlobal(ANONYMOUS);
+        acl.setAttributes(List.of(attributeItem));
+        acl.setRights(List.of(RightsEnum.READ));
+        acl.setAccess(Acl.Access.ALLOW);
+        rule.setAcl(acl);
+        ObjectItem object = new ObjectItem();
+        object.setRoute("*");
+        rule.setObjects(List.of(object));
+        LogicalExpression formula = new LogicalExpression();
+        formula.set$boolean(true);
+        rule.setFormula(formula);
+        env.setRules(List.of(rule));
+        return env;
     }
 }

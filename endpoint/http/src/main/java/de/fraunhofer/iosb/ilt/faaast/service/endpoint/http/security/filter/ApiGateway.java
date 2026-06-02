@@ -55,7 +55,8 @@ public class ApiGateway {
      * @return true if authorized and ACL exists
      */
     public boolean isAuthorized(HttpServletRequest request) {
-        return AuthServer.filterRules((AllAccessPermissionRules) request.getAttribute(ACL.getName()), extractClaims(request));
+        return ((AllAccessPermissionRules) request.getAttribute(ACL.getName())).getRules().stream()
+                .anyMatch(r -> verifyAllClaims(extractClaims(request), r, (AllAccessPermissionRules) request.getAttribute(ACL.getName()), null));
     }
 
 
@@ -72,7 +73,7 @@ public class ApiGateway {
 
         response.getPayload().getContent()
                 .removeIf(aas -> allAccessPermissionRules.getRules()
-                        .stream().noneMatch(r -> AuthServer.evaluateRule(r, extractClaims(request), allAccessPermissionRules)));
+                        .stream().noneMatch(r -> verifyAllClaims(extractClaims(request), r, allAccessPermissionRules, null)));
         return response;
     }
 
@@ -94,7 +95,7 @@ public class ApiGateway {
             }
 
             return ((AllAccessPermissionRules) request.getAttribute(ACL.getName())).getRules().stream()
-                    .noneMatch(rule -> AuthServer.evaluateRule(rule, claims, (AllAccessPermissionRules) request.getAttribute(ACL.getName()), fieldCtx));
+                    .noneMatch(rule -> verifyAllClaims(claims, rule, (AllAccessPermissionRules) request.getAttribute(ACL.getName()), fieldCtx));
         });
         return response;
     }
@@ -121,7 +122,7 @@ public class ApiGateway {
         }
 
         return acl.getRules().stream()
-                .anyMatch(rule -> AuthServer.evaluateRule(rule, claims, (AllAccessPermissionRules) request.getAttribute(ACL.getName()), fieldCtx));
+                .anyMatch(rule -> verifyAllClaims(claims, rule, (AllAccessPermissionRules) request.getAttribute(ACL.getName()), fieldCtx));
     }
 
 
@@ -138,35 +139,6 @@ public class ApiGateway {
         return JWT.decode(token).getClaims();
     }
 
-    /**
-     * Simple whitelist AuthServer implementation that supports ANONYMOUS access, claims with simple eq formulas and route
-     * authorization. Access must be explicitly defined,
-     * otherwise it is blocked.
-     */
-    public static class AuthServer {
-
-        /**
-         * Check that at least one rule exists that allows access to the resource.
-         *
-         * @param aclList the applying ACL rules
-         * @param claims the claims found in the token
-         * @return true if there is an allowing rule
-         */
-        private static boolean filterRules(AllAccessPermissionRules aclList, Map<String, Claim> claims) {
-            return aclList.getRules().stream().anyMatch(r -> evaluateRule(r, claims, aclList));
-        }
-
-
-        private static boolean evaluateRule(AccessPermissionRule rule, Map<String, Claim> claims, AllAccessPermissionRules allAccess) {
-            return evaluateRule(rule, claims, allAccess, null);
-        }
-
-
-        private static boolean evaluateRule(AccessPermissionRule rule, Map<String, Claim> claims, AllAccessPermissionRules allAccess,
-                                            Map<String, Object> fieldCtx) {
-            return verifyAllClaims(claims, rule, allAccess, fieldCtx);
-        }
-    }
 
     private static boolean verifyAllClaims(Map<String, Claim> claims, AccessPermissionRule rule, AllAccessPermissionRules allAccess, Map<String, Object> fieldCtx) {
         Acl acl = getAcl(rule, allAccess);
