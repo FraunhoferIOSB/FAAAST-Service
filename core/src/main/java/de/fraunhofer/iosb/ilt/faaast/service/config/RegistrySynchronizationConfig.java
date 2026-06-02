@@ -2,6 +2,7 @@
  * Copyright (c) 2021 Fraunhofer IOSB, eine rechtlich nicht selbstaendige
  * Einrichtung der Fraunhofer-Gesellschaft zur Foerderung der angewandten
  * Forschung e.V.
+ * Copyright (c) 2026 Hilscher Gesellschaft fuer Systemautomation mbH
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
