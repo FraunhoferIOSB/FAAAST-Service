@@ -15,7 +15,6 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.acl.repository.AclRepository;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.MethodNotAllowedException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.UnauthorizedException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
@@ -61,7 +60,7 @@ public class RequestHandlerServlet extends HttpServlet {
     private final HttpJsonApiSerializer serializer;
     private final ApiGateway apiGateway;
 
-    public RequestHandlerServlet(HttpEndpoint endpoint, HttpEndpointConfig config, ServiceContext serviceContext, AclRepository aclRepository) {
+    public RequestHandlerServlet(HttpEndpoint endpoint, HttpEndpointConfig config, ServiceContext serviceContext) {
         Ensure.requireNonNull(endpoint, "endpoint must be non-null");
         Ensure.requireNonNull(config, "config must be non-null");
         Ensure.requireNonNull(serviceContext, "serviceContext must be non-null");
@@ -71,7 +70,7 @@ public class RequestHandlerServlet extends HttpServlet {
         this.requestMappingManager = new RequestMappingManager(serviceContext);
         this.responseMappingManager = new ResponseMappingManager(serviceContext);
         this.serializer = new HttpJsonApiSerializer();
-        this.apiGateway = Optional.ofNullable(aclRepository).map(ApiGateway::new).orElse(null);
+        this.apiGateway = Objects.nonNull(config.getJwkProvider()) ? new ApiGateway() : null;
     }
 
 
@@ -182,7 +181,7 @@ public class RequestHandlerServlet extends HttpServlet {
                 GetAllSubmodelsResponse submodelsResponse = (GetAllSubmodelsResponse) serviceContext.execute(endpoint, apiRequest);
                 return apiGateway.filterSubmodels(request, submodelsResponse);
             }
-            else if ((url.matches("^/submodels/[A-Za-z][A-Za-z0-9]*(?:\\.[A-Za-z][A-Za-z0-9]*)*$"))) {
+            else if ((url.matches("^/submodels/[^/]+$"))) {
                 GetSubmodelResponse submodelResponse = (GetSubmodelResponse) serviceContext.execute(endpoint, apiRequest);
                 if (!apiGateway.filterSubmodel(request, submodelResponse)) {
                     doThrow(new UnauthorizedException(
@@ -191,10 +190,12 @@ public class RequestHandlerServlet extends HttpServlet {
                 return submodelResponse;
             }
         }
-        else if (!apiGateway.isAuthorized(request)) {
+
+        if (!apiGateway.isAuthorized(request)) {
             doThrow(new UnauthorizedException(
                     String.format("User not authorized '%s'", request.getRequestURI())));
         }
+
         return serviceContext.execute(endpoint, apiRequest);
     }
 

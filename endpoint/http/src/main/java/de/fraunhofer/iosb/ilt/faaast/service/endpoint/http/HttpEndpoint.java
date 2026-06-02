@@ -16,7 +16,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http;
 
 import static de.fraunhofer.iosb.ilt.faaast.service.certificate.util.KeyStoreHelper.DEFAULT_ALIAS;
 
-import com.auth0.jwk.JwkProvider;
 import com.auth0.jwk.UrlJwkProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.certificate.CertificateData;
@@ -24,12 +23,13 @@ import de.fraunhofer.iosb.ilt.faaast.service.certificate.CertificateInformation;
 import de.fraunhofer.iosb.ilt.faaast.service.certificate.util.KeyStoreHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.AbstractEndpoint;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.acl.repository.AclRepository;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.acl.repository.file.FileAclRepository;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.AclRulesInceptionFilter;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.AttributeClaimFilter;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.HttpMethodFilter;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.JwtValidationFilter;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.pre.AclAttributeFilter;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.pre.AclDisabledFilter;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.pre.AclObjectsFilter;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.pre.AclRightsFilter;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.pre.AclRulesInceptionFilter;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.pre.JwtValidationFilter;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.Interface;
@@ -124,11 +124,9 @@ public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
         context.setContextPath("/");
         crossOriginHandler.setHandler(context);
 
-        AclRepository aclRepository = null;
+        RequestHandlerServlet handler = new RequestHandlerServlet(this, config, serviceContext);
 
         if (Objects.nonNull(config.getJwkProvider())) {
-            aclRepository = FileAclRepository.createNewInstance(config.getAclFolder());
-
             URL jwkProviderUrl;
             try {
                 jwkProviderUrl = new URL(config.getJwkProvider());
@@ -136,15 +134,15 @@ public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
             catch (MalformedURLException malformedJwkProviderUrl) {
                 throw new EndpointException("Could not parse JWK provider URL", malformedJwkProviderUrl);
             }
-            JwkProvider jwkProvider = new UrlJwkProvider(jwkProviderUrl);
-
-            context.addFilter(new JwtValidationFilter(jwkProvider), "*", EnumSet.allOf(DispatcherType.class));
-            context.addFilter(new AclRulesInceptionFilter(aclRepository), "*", EnumSet.allOf(DispatcherType.class));
-            context.addFilter(new HttpMethodFilter(), "*", EnumSet.allOf(DispatcherType.class));
-            context.addFilter(new AttributeClaimFilter(), "*", EnumSet.allOf(DispatcherType.class));
+            // Anonymous access filter, Identification Filter
+            context.addFilter(new JwtValidationFilter(new UrlJwkProvider(jwkProviderUrl)), "*", EnumSet.allOf(DispatcherType.class));
+            context.addFilter(new AclRulesInceptionFilter(FileAclRepository.createNewInstance(config.getAclFolder())), "*", EnumSet.allOf(DispatcherType.class));
+            context.addFilter(new AclDisabledFilter(), "*", EnumSet.allOf(DispatcherType.class));
+            context.addFilter(new AclRightsFilter(), "*", EnumSet.allOf(DispatcherType.class));
+            context.addFilter(new AclObjectsFilter(), "*", EnumSet.allOf(DispatcherType.class));
+            context.addFilter(new AclAttributeFilter(), "*", EnumSet.allOf(DispatcherType.class));
         }
 
-        RequestHandlerServlet handler = new RequestHandlerServlet(this, config, serviceContext, aclRepository);
         context.addServlet(handler, "/*");
         server.setErrorHandler(new HttpErrorHandler(config));
         try {

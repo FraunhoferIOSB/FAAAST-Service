@@ -12,9 +12,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter;
+package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.pre;
 
 import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.auth.SharedAttributes.ACL;
+import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.AccessControlListHelper.getAcl;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AllAccessPermissionRules;
@@ -31,20 +32,20 @@ import java.io.IOException;
 /**
  * Filters applicable AAS ACL rules using the incoming request's HTTP method.
  */
-public class HttpMethodFilter implements Filter {
+public class AclRightsFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws ServletException, IOException {
         String method = ((HttpServletRequest) request).getMethod();
 
-        AllAccessPermissionRules filteredAcl = (AllAccessPermissionRules) request.getAttribute(ACL.getName());
+        AllAccessPermissionRules acl = (AllAccessPermissionRules) request.getAttribute(ACL.getName());
 
         String requiredRight = isOperationRequest(method, ((HttpServletRequest) request).getContextPath()) ? "EXECUTE" : getRequiredRight(method);
 
-        filteredAcl.getRules().removeIf(
-                rules -> rules.getAcl().getRights().contains(RightsEnum.ALL) || rules.getAcl().getRights().contains(RightsEnum.valueOf(requiredRight)));
+        acl.getRules().removeIf(
+                rule -> getAcl(rule, acl).getRights().contains(RightsEnum.ALL) || getAcl(rule, acl).getRights().contains(RightsEnum.valueOf(requiredRight)));
 
-        request.setAttribute(ACL.getName(), filteredAcl);
+        request.setAttribute(ACL.getName(), acl);
         chain.doFilter(request, response);
     }
 

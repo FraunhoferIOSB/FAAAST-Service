@@ -12,9 +12,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter;
+package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.pre;
 
 import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.auth.SharedAttributes.ACL;
+import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.AccessControlListHelper.getAcl;
 
 import com.auth0.jwt.interfaces.Claim;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AllAccessPermissionRules;
@@ -32,26 +33,26 @@ import java.util.Optional;
 /**
  * Filters applicable AAS ACL rules using the incoming request's bearer token claims.
  */
-public class AttributeClaimFilter extends JwtAuthorizationFilter {
+public class AclAttributeFilter extends JwtAuthorizationFilter {
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws ServletException, IOException {
         Map<String, Claim> claims = Optional.ofNullable(extractAndDecodeJwt(((HttpServletRequest) request)).getClaims()).orElse(Map.of());
-        AllAccessPermissionRules filteredAcl = (AllAccessPermissionRules) request.getAttribute(ACL.getName());
+        AllAccessPermissionRules acl = (AllAccessPermissionRules) request.getAttribute(ACL.getName());
 
-        filteredAcl.getRules().removeIf(rule -> rule.getAcl().getAttributes().stream()
-                .anyMatch(attributeItem -> {
+        acl.getRules().removeIf(rule -> getAcl(rule, acl).getAttributes().stream()
+                .noneMatch(attributeItem -> {
                     // claim, global and reference should be subtypes of AttributeItem...
-                    if (attributeItem.getGlobal().equals(AttributeItem.Global.ANONYMOUS)) {
-                        return false;
+                    if (AttributeItem.Global.ANONYMOUS == attributeItem.getGlobal()) {
+                        return true;
                     }
                     else if (attributeItem.getClaim() != null) {
-                        return !claims.containsKey(attributeItem.getClaim());
+                        return claims.containsKey(attributeItem.getClaim());
                     }
-                    return false;
+                    return true;
                 }));
 
-        request.setAttribute(ACL.getName(), filteredAcl);
+        request.setAttribute(ACL.getName(), acl);
 
         chain.doFilter(request, response);
     }

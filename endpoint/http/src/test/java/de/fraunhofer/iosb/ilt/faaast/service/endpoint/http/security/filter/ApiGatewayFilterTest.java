@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.auth.SharedAttributes.ACL;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
@@ -25,6 +26,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.acl.repository.AclRepository;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.acl.repository.file.FileAclRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
@@ -56,9 +58,11 @@ public class ApiGatewayFilterTest extends JwtAuthorizationFilterTest {
     @Test
     public void anonymousAccessDependsOnAclFile() throws Exception {
         Path aclDir = tmp.newFolder("acl").toPath();
-        apiGateway = new ApiGateway(FileAclRepository.createNewInstance(aclDir.toString()));
+        AclRepository aclRepo = FileAclRepository.createNewInstance(aclDir.toString());
+        apiGateway = new ApiGateway();
 
         HttpServletRequest request = req("GET", "/api/v3.0/submodels");
+        request.setAttribute(ACL.getName(), aclRepo);
         FilterChain filter = mockFilterChain();
 
         assertFalse(apiGateway.isAuthorized(request));

@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter;
+package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.pre;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
@@ -24,8 +24,8 @@ import jakarta.servlet.http.HttpServletRequest;
  * Abstract filter for HTTP requests with JWT headers.
  */
 public abstract class JwtAuthorizationFilter implements Filter {
-    protected static final String AUTHORIZATION = "Authorization";
-    private static final String BEARER = "Bearer";
+    public static final String AUTHORIZATION = "Authorization";
+    public static final String BEARER = "Bearer";
 
     /**
      * Extracts a JWT from an HTTP request by reading its Authorization header,
