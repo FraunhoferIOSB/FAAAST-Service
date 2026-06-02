@@ -37,9 +37,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.RightsEnum;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 
 
 public class ApiGatewayFilterTest extends JwtAuthorizationFilterTest {
