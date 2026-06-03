@@ -42,6 +42,7 @@ public abstract class AbstractAclRepository implements AclRepository {
         return allAccessPermissionRules.getRules();
     }
 
+
     @Override
     public final void addAndResolve(AllAccessPermissionRules acl) {
         allAccessPermissionRules.getRules().addAll(acl.getRules());
@@ -52,6 +53,7 @@ public abstract class AbstractAclRepository implements AclRepository {
 
         allAccessPermissionRules = resolve(allAccessPermissionRules);
     }
+
 
     @Override
     public final void remove(AllAccessPermissionRules acl) {

@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.util;
 
+import com.auth0.jwt.interfaces.Claim;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AttributeItem;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.LogicalExpression;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.MatchExpression;
@@ -41,7 +42,7 @@ public class ExpressionInjectionHelper {
      * @param formula The formula to inject into.
      * @param claims The claims to inject.
      */
-    public static void injectLogicalExpression(LogicalExpression formula, Map<String, String> claims) {
+    public static void injectLogicalExpression(LogicalExpression formula, Map<String, Claim> claims) {
         if (!formula.get$and().isEmpty()) {
             // It is an AND expression
             formula.get$and().forEach(op -> injectLogicalExpression(op, claims));
@@ -91,7 +92,7 @@ public class ExpressionInjectionHelper {
     }
 
 
-    private static void injectMatchExpression(MatchExpression formula, Map<String, String> claims) {
+    private static void injectMatchExpression(MatchExpression formula, Map<String, Claim> claims) {
         if (!formula.get$match().isEmpty()) {
             // It is an AND expression
             formula.get$match().forEach(op -> injectMatchExpression(op, claims));
@@ -129,10 +130,10 @@ public class ExpressionInjectionHelper {
     }
 
 
-    private static void injectStringValue(StringValue stringValue, Map<String, String> claims) {
+    private static void injectStringValue(StringValue stringValue, Map<String, Claim> claims) {
         if (stringValue.get$attribute() != null) {
             if (stringValue.get$attribute().getClaim() != null) {
-                stringValue.set$strVal(claims.get(stringValue.get$attribute().getClaim()));
+                stringValue.set$strVal(claims.get(stringValue.get$attribute().getClaim()).asString());
             }
         }
         else if (stringValue.get$strCast() != null) {
@@ -143,12 +144,12 @@ public class ExpressionInjectionHelper {
     }
 
 
-    private static void injectValue(Value value, Map<String, String> claims) {
+    private static void injectValue(Value value, Map<String, Claim> claims) {
         if (value.get$attribute() == null) {
             return;
         }
         if (value.get$attribute().getClaim() != null) {
-            value.set$strVal(claims.get(value.get$attribute().getClaim()));
+            value.set$strVal(claims.get(value.get$attribute().getClaim()).asString());
         }
         else if (value.get$attribute().getGlobal() != null) {
             AttributeItem.Global global = value.get$attribute().getGlobal();

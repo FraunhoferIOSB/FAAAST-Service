@@ -12,30 +12,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter;
+package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.post;
 
 import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.auth.SharedAttributes.ACL;
 
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.FormulaEvaluator;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AccessPermissionRule;
-import jakarta.servlet.http.HttpServletRequest;
-import java.util.HashMap;
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import java.io.IOException;
 import java.util.List;
 
 
 /**
- * Filters any incoming request with respect to the given ACL rules.
+ * Applies post-persistence filtering of responses according to AAS Security Filter.
  */
-public class ApiGateway {
+public class AclFilterFilter implements Filter {
 
-    /**
-     * Checks if the user is authorized to receive the response of the request.
-     *
-     * @param request the HttpRequest
-     * @return true if authorized and ACL exists
-     */
-    public boolean isAuthorized(HttpServletRequest request) {
-        return ((List<AccessPermissionRule>) request.getAttribute(ACL.getName())).stream()
-                .anyMatch(rule -> FormulaEvaluator.evaluate(rule.getFormula(), new HashMap<>()));
+    @Override
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+        doFilter(request, response, chain);
+        List<AccessPermissionRule> acl = ((List<AccessPermissionRule>) request.getAttribute(ACL.getName()));
+
+        // TODO apply filters post-query
     }
+
 }

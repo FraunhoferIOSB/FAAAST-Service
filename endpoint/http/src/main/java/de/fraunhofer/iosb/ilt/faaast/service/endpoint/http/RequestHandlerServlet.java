@@ -14,34 +14,54 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.auth.SharedAttributes.ACL;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod.GET;
+
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.MethodNotAllowedException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.UnauthorizedException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.RequestMappingManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.response.ResponseMappingManager;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.FormulaEvaluator;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.ApiGateway;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasrepository.GetAllAssetAdministrationShellsResponse;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetSubmodelResponse;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodelrepository.GetAllSubmodelsResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.GetAssetAdministrationShellRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository.GetAllAssetAdministrationShellsByIdShortRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository.GetAllAssetAdministrationShellsRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.GetAllConceptDescriptionsByIdShortRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.GetAllConceptDescriptionsRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.GetConceptDescriptionByIdRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetSubmodelRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.GetAllSubmodelsByIdShortRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.GetAllSubmodelsBySemanticIdRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.GetAllSubmodelsRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.UnsupportedModifierException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AccessPermissionRule;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.LogicalExpression;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.Value;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.eclipse.digitaltwin.aas4j.v3.model.Key;
 import org.eclipse.digitaltwin.aas4j.v3.model.Message;
 import org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.jetty.server.Response;
 
 
@@ -105,13 +125,75 @@ public class RequestHandlerServlet extends HttpServlet {
                                 x -> x,
                                 request::getHeader)))
                 .build();
+
         try {
+            if (Objects.nonNull(apiGateway) && GET == httpRequest.getMethod()) {
+                modifyRequest(request, httpRequest);
+            }
             executeAndSend(request, response, requestMappingManager.map(httpRequest));
         }
         catch (Exception e) {
             doThrow(e);
         }
+    }
 
+
+    private void modifyRequest(HttpServletRequest servletRequest, HttpRequest request)
+            throws SerializationException, InvalidRequestException {
+        var wouldHaveBeen = requestMappingManager.map(request);
+        List<AccessPermissionRule> acl = (List<AccessPermissionRule>) servletRequest.getAttribute(ACL.getName());
+        if (acl.isEmpty()) {
+            throw new UnauthorizedException("unauthorized. TODO decide if 404 or 403");
+        }
+        List<LogicalExpression> formulas = acl.stream().map(AccessPermissionRule::getFormula).toList();
+        LogicalExpression formulasOr = new LogicalExpression();
+        formulasOr.set$or(formulas);
+
+        if (wouldHaveBeen instanceof GetAllAssetAdministrationShellsRequest) {
+            request.setPath("query/shells");
+            request.setBody(serializer.write(formulasOr));
+        }
+        else if (wouldHaveBeen instanceof GetAllSubmodelsRequest) {
+            request.setPath("query/submodels");
+            request.setBody(serializer.write(formulasOr));
+        }
+        else if (wouldHaveBeen instanceof GetAllConceptDescriptionsRequest) {
+            request.setPath("query/concept-descriptions");
+            request.setBody(serializer.write(formulasOr));
+        }
+
+        else if (wouldHaveBeen instanceof GetAssetAdministrationShellRequest getAssetAdministrationShellRequest) {
+            setQuery(request, "aas", "shells", "id", getAssetAdministrationShellRequest.getId(), formulasOr);
+        }
+        else if (wouldHaveBeen instanceof GetAllAssetAdministrationShellsByIdShortRequest getAllAssetAdministrationShellsByIdShortRequest) {
+            setQuery(request, "aas", "shells", "idShort", getAllAssetAdministrationShellsByIdShortRequest.getIdShort(), formulasOr);
+        }
+
+        else if (wouldHaveBeen instanceof GetSubmodelRequest getSubmodelRequest) {
+            setQuery(request, "sm", "submodels", "id", getSubmodelRequest.getSubmodelId(), formulasOr);
+        }
+        else if (wouldHaveBeen instanceof GetAllSubmodelsByIdShortRequest getAllSubmodelsByIdShortRequest) {
+            setQuery(request, "sm", "submodels", "idShort", getAllSubmodelsByIdShortRequest.getIdShort(), formulasOr);
+        }
+        else if (wouldHaveBeen instanceof GetAllSubmodelsBySemanticIdRequest getAllSubmodelsBySemanticIdRequest) {
+            setQuery(request, "sm", "submodels", "semanticId", getSemanticIdString(getAllSubmodelsBySemanticIdRequest.getSemanticId()), formulasOr);
+        }
+
+        else if (wouldHaveBeen instanceof GetConceptDescriptionByIdRequest getConceptDescriptionByIdRequest) {
+            setQuery(request, "cd", "concept-descriptions", "id", getConceptDescriptionByIdRequest.getId(), formulasOr);
+        }
+        else if (wouldHaveBeen instanceof GetAllConceptDescriptionsByIdShortRequest getAllConceptDescriptionsByIdShortRequest) {
+            setQuery(request, "cd", "concept-descriptions", "idShort", getAllConceptDescriptionsByIdShortRequest.getIdShort(), formulasOr);
+        }
+    }
+
+
+    private void setQuery(HttpRequest request, String res, String resource, String pattern, String id, LogicalExpression formula)
+            throws SerializationException, UnsupportedModifierException {
+        request.setPath(String.format("query/%s", resource));
+        LogicalExpression parentFormula = new LogicalExpression();
+        parentFormula.set$and(List.of(formEq(String.format("$%s#%s", res, pattern), id), formula));
+        request.setBody(serializer.write(parentFormula));
     }
 
 
@@ -170,28 +252,8 @@ public class RequestHandlerServlet extends HttpServlet {
     private de.fraunhofer.iosb.ilt.faaast.service.model.api.Response handleResponseWithAcl(HttpServletRequest request,
                                                                                            de.fraunhofer.iosb.ilt.faaast.service.model.api.Request<? extends Response> apiRequest)
             throws ServletException {
-        String url = request.getRequestURI();
-
-        if (request.getMethod().equals("GET")) {
-            if ((url.equals("/shells") || url.equals("/shells/"))) {
-                GetAllAssetAdministrationShellsResponse aasResponse = (GetAllAssetAdministrationShellsResponse) serviceContext.execute(endpoint, apiRequest);
-                return apiGateway.filterAas(request, aasResponse);
-            }
-            else if ((url.equals("/submodels") || url.equals("/submodels/"))) {
-                GetAllSubmodelsResponse submodelsResponse = (GetAllSubmodelsResponse) serviceContext.execute(endpoint, apiRequest);
-                return apiGateway.filterSubmodels(request, submodelsResponse);
-            }
-            else if ((url.matches("^/submodels/[^/]+$"))) {
-                GetSubmodelResponse submodelResponse = (GetSubmodelResponse) serviceContext.execute(endpoint, apiRequest);
-                if (!apiGateway.filterSubmodel(request, submodelResponse)) {
-                    doThrow(new UnauthorizedException(
-                            String.format("User not authorized '%s'", request.getRequestURI())));
-                }
-                return submodelResponse;
-            }
-        }
-
-        if (!apiGateway.isAuthorized(request)) {
+        List<AccessPermissionRule> rules = ((List<AccessPermissionRule>) request.getAttribute(ACL.getName()));
+        if (rules.stream().noneMatch(rule -> FormulaEvaluator.evaluate(rule.getFormula(), new HashMap<>()))) {
             doThrow(new UnauthorizedException(
                     String.format("User not authorized '%s'", request.getRequestURI())));
         }
@@ -199,4 +261,22 @@ public class RequestHandlerServlet extends HttpServlet {
         return serviceContext.execute(endpoint, apiRequest);
     }
 
+
+    private String getSemanticIdString(Reference semanticId) {
+        return Optional.ofNullable(ReferenceHelper.getRoot(semanticId))
+                .map(Key::getValue)
+                .orElse(null);
+    }
+
+
+    private LogicalExpression formEq(String left, String right) {
+        LogicalExpression eqFormula = new LogicalExpression();
+        Value smId = new Value();
+        smId.set$strVal(left);
+        Value identifier = new Value();
+        identifier.set$strVal(right);
+
+        eqFormula.set$eq(List.of(smId, identifier));
+        return eqFormula;
+    }
 }

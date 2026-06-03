@@ -21,10 +21,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AccessPermissionRule;
@@ -34,7 +31,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AttributeItem;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.LogicalExpression;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.ObjectItem;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.RightsEnum;
-import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import org.junit.Test;
@@ -53,24 +49,20 @@ public class ApiGatewayFilterTest extends JwtAuthorizationFilterTest {
 
 
     @Test
-    public void anonymousAccessDependsOnAclFile() throws Exception {
+    public void anonymousAccessDependsOnAclFile() {
         apiGateway = new ApiGateway();
 
         HttpServletRequest request = req("GET", "/api/v3.0/submodels");
-        when(request.getAttribute(ACL.getName())).thenReturn(new AllAccessPermissionRules());
-
-        FilterChain filter = mockFilterChain();
+        when(request.getAttribute(ACL.getName())).thenReturn(List.of());
 
         assertFalse(apiGateway.isAuthorized(request));
-        // Verify that request was blocked off
-        verify(filter, never()).doFilter(any(), any());
 
         AllAccessPermissionRules env = mockEnvironment();
 
-        when(request.getAttribute(ACL.getName())).thenReturn(env);
+        when(request.getAttribute(ACL.getName())).thenReturn(env.getRules());
         await().atMost(5, SECONDS).pollInterval(100, MILLISECONDS).untilAsserted(() -> assertTrue(apiGateway.isAuthorized(request)));
 
-        when(request.getAttribute(ACL.getName())).thenReturn(new AllAccessPermissionRules());
+        when(request.getAttribute(ACL.getName())).thenReturn(List.of());
         await().atMost(5, SECONDS).pollInterval(100, MILLISECONDS).untilAsserted(() -> assertFalse(apiGateway.isAuthorized(request)));
     }
 

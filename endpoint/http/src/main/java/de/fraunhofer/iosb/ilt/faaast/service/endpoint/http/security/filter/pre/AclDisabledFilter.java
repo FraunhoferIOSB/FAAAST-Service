@@ -27,7 +27,7 @@ import java.util.List;
 public class AclDisabledFilter extends AbstractAclFilter {
     @Override
     protected List<AccessPermissionRule> doFilter(HttpServletRequest request, List<AccessPermissionRule> acl) {
-        acl.removeIf(rule -> rule.getAcl().getAccess() == Acl.Access.DISABLED);
+        acl.removeIf(rule -> Acl.Access.DISABLED == rule.getAcl().getAccess());
         return acl;
     }
 }

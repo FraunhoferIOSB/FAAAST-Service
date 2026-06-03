@@ -14,6 +14,11 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.pre.JwtAuthorizationFilter.AUTHORIZATION;
+import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.pre.JwtAuthorizationFilter.BEARER;
+
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.interfaces.Claim;
 import com.google.common.net.MediaType;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiSerializer;
@@ -23,6 +28,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestExcep
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.UnsupportedModifierException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.StringHelper;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.IllegalCharsetNameException;
@@ -126,6 +132,26 @@ public class HttpHelper {
             return MessageTypeEnum.EXCEPTION;
         }
         return MessageTypeEnum.INFO;
+    }
+
+
+    /**
+     * Extract the claims out of an HTTP request with a bearer token.
+     *
+     * @param request The request containing a bearer token header.
+     * @return The claims contained in the bearer token of the request's header.
+     */
+    public static Map<String, Claim> extractClaims(HttpServletRequest request) {
+        var authHeaderValue = request.getHeader(AUTHORIZATION);
+
+        if (authHeaderValue == null || !authHeaderValue.startsWith(BEARER.concat(" "))) {
+            return null;
+        }
+
+        // Remove "Bearer "
+        String token = authHeaderValue.substring(BEARER.length()).trim();
+
+        return JWT.decode(token).getClaims();
     }
 
 
