@@ -32,21 +32,17 @@ import java.io.IOException;
 /**
  * Filters applicable AAS ACL rules using the incoming request's HTTP method.
  */
-public class AclRightsFilter implements Filter {
+public class AclRightsFilter extends AbstractAclFilter {
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws ServletException, IOException {
-        String method = ((HttpServletRequest) request).getMethod();
-
-        AllAccessPermissionRules acl = (AllAccessPermissionRules) request.getAttribute(ACL.getName());
-
-        String requiredRight = isOperationRequest(method, ((HttpServletRequest) request).getContextPath()) ? "EXECUTE" : getRequiredRight(method);
+    public AllAccessPermissionRules doFilter(HttpServletRequest request, AllAccessPermissionRules acl) {
+        String method = request.getMethod();
+        String requiredRight = isOperationRequest(method, request.getContextPath()) ? "EXECUTE" : getRequiredRight(method);
 
         acl.getRules().removeIf(
                 rule -> getAcl(rule, acl).getRights().contains(RightsEnum.ALL) || getAcl(rule, acl).getRights().contains(RightsEnum.valueOf(requiredRight)));
 
-        request.setAttribute(ACL.getName(), acl);
-        chain.doFilter(request, response);
+        return acl;
     }
 
 

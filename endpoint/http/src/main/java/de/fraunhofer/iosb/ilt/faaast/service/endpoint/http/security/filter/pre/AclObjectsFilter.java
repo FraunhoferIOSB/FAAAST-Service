@@ -14,40 +14,31 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.pre;
 
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.auth.SharedAttributes.ACL;
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.util.AccessControlListHelper.getObjects;
-
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AccessPermissionRule;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AllAccessPermissionRules;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
-import jakarta.servlet.Filter;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
-import java.io.IOException;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.util.AccessControlListHelper.getObjects;
 
 
 /**
  * Filters applicable AAS ACL rules using the incoming request's path.
  */
-public class AclObjectsFilter implements Filter {
+public class AclObjectsFilter extends AbstractAclFilter {
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        String path = ((HttpServletRequest) request).getRequestURI();
-
-        AllAccessPermissionRules filteredAcl = (AllAccessPermissionRules) request.getAttribute(ACL.getName());
-
+    public AllAccessPermissionRules doFilter(HttpServletRequest request, AllAccessPermissionRules acl) {
+        String path = (request).getRequestURI();
         List<AccessPermissionRule> filteredRules = new ArrayList<>();
 
-        for (AccessPermissionRule rule: filteredAcl.getRules()) {
+        for (AccessPermissionRule rule: acl.getRules()) {
 
-            boolean anyMatch = getObjects(rule, filteredAcl).stream().anyMatch(objectItem -> {
+            boolean anyMatch = getObjects(rule, acl).stream().anyMatch(objectItem -> {
                 if (objectItem.getRoute() != null) {
                     String route = objectItem.getRoute();
                     // Warning: potentially does not allow trailing slash at requests.
@@ -73,10 +64,9 @@ public class AclObjectsFilter implements Filter {
             }
         }
 
-        filteredAcl.setRules(filteredRules);
+        acl.setRules(filteredRules);
 
-        request.setAttribute(ACL.getName(), filteredAcl);
-        chain.doFilter(request, response);
+        return acl;
     }
 
 

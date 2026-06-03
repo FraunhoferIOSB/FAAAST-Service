@@ -14,23 +14,18 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.pre;
 
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.auth.SharedAttributes.ACL;
-
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.acl.repository.AclRepository;
-import jakarta.servlet.Filter;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
-import java.io.IOException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AllAccessPermissionRules;
+import jakarta.servlet.http.HttpServletRequest;
 
 
 /**
  * Helper filter to inject the current ACL rules into a request.
  */
-public class AclRulesInceptionFilter implements Filter {
+public class AclRulesInceptionFilter extends AbstractAclFilter {
 
     private final AclRepository aclRepository;
+
 
     /**
      * Class constructor.
@@ -43,8 +38,7 @@ public class AclRulesInceptionFilter implements Filter {
 
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        request.setAttribute(ACL.getName(), aclRepository.getAllAccessPermissionRules());
-        chain.doFilter(request, response);
+    public AllAccessPermissionRules doFilter(HttpServletRequest request, AllAccessPermissionRules acl) {
+        return aclRepository.getAllAccessPermissionRules();
     }
 }

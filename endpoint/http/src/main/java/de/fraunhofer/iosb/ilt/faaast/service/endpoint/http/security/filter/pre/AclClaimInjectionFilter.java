@@ -14,37 +14,30 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.pre;
 
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.auth.SharedAttributes.ACL;
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.util.AccessControlListHelper.getFormula;
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.util.ExpressionInjectionHelper.injectLogicalExpression;
-
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AllAccessPermissionRules;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
-import java.io.IOException;
+
 import java.util.AbstractMap;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.util.AccessControlListHelper.getFormula;
+import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.util.ExpressionInjectionHelper.injectLogicalExpression;
 
 
 /**
  * Inject claims into ACL formula.
  */
-public class AclClaimInjectionFilter extends JwtAuthorizationFilter {
+public class AclClaimInjectionFilter extends AbstractAclFilter {
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        AllAccessPermissionRules acl = (AllAccessPermissionRules) request.getAttribute(ACL.getName());
-        Map<String, String> claims = extractAndDecodeJwt((HttpServletRequest) request).getClaims().entrySet().stream()
+    public AllAccessPermissionRules doFilter(HttpServletRequest request, AllAccessPermissionRules acl) {
+        Map<String, String> claims = extractAndDecodeJwt(request).getClaims().entrySet().stream()
                 .map(entry -> new AbstractMap.SimpleEntry<>(entry.getKey(), entry.getValue().asString()))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         acl.getRules().forEach(rule -> injectLogicalExpression(getFormula(rule, acl), claims));
 
-        request.setAttribute(ACL.getName(), acl);
-        chain.doFilter(request, response);
+        return acl;
     }
 
 }

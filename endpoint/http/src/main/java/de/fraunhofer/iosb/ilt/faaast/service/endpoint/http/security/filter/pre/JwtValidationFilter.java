@@ -71,7 +71,7 @@ public class JwtValidationFilter extends JwtAuthorizationFilter {
         var authHeaderList = Collections.list(authHeaders);
         if (authHeaderList.size() > 1) {
             LOGGER.debug("Multiple authorization headers present! Not authorizing request.");
-            respondForbidden(httpResponse);
+            respondUnauthorized(httpResponse);
             return;
         }
 
@@ -85,7 +85,7 @@ public class JwtValidationFilter extends JwtAuthorizationFilter {
         DecodedJWT jwt = extractAndDecodeJwt(httpRequest);
         if (jwt == null || !validateJWT(jwt)) {
             LOGGER.debug("Could not extract and validate JWT");
-            respondForbidden(httpResponse);
+            respondUnauthorized(httpResponse);
         }
         else {
             filterChain.doFilter(servletRequest, servletResponse);
@@ -93,8 +93,8 @@ public class JwtValidationFilter extends JwtAuthorizationFilter {
     }
 
 
-    private static void respondForbidden(HttpServletResponse httpResponse) throws IOException {
-        httpResponse.setStatus(HttpServletResponse.SC_FORBIDDEN);
+    private static void respondUnauthorized(HttpServletResponse httpResponse) throws IOException {
+        httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         httpResponse.getWriter().write("Invalid token");
     }
 

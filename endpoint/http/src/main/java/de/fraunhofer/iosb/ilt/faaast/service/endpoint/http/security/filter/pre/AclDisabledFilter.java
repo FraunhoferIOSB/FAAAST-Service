@@ -14,30 +14,20 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.pre;
 
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.auth.SharedAttributes.ACL;
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.util.AccessControlListHelper.getAcl;
-
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.Acl;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AllAccessPermissionRules;
-import jakarta.servlet.Filter;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
-import java.io.IOException;
+import jakarta.servlet.http.HttpServletRequest;
+
+import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.util.AccessControlListHelper.getAcl;
 
 
 /**
  * Filters applicable AAS ACL rules using the rules' "Access" field.
  */
-public class AclDisabledFilter implements Filter {
+public class AclDisabledFilter extends AbstractAclFilter {
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        AllAccessPermissionRules acl = (AllAccessPermissionRules) request.getAttribute(ACL.getName());
-
+    public AllAccessPermissionRules doFilter(HttpServletRequest request, AllAccessPermissionRules acl) {
         acl.getRules().removeIf(rule -> getAcl(rule, acl).getAccess() == Acl.Access.DISABLED);
-
-        request.setAttribute(ACL.getName(), acl);
-        chain.doFilter(request, response);
+        return acl;
     }
 }
