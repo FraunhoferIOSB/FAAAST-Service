@@ -15,8 +15,10 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.pre;
 
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.acl.repository.AclRepository;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AllAccessPermissionRules;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AccessPermissionRule;
 import jakarta.servlet.http.HttpServletRequest;
+
+import java.util.List;
 
 
 /**
@@ -25,7 +27,6 @@ import jakarta.servlet.http.HttpServletRequest;
 public class AclRulesInceptionFilter extends AbstractAclFilter {
 
     private final AclRepository aclRepository;
-
 
     /**
      * Class constructor.
@@ -38,7 +39,7 @@ public class AclRulesInceptionFilter extends AbstractAclFilter {
 
 
     @Override
-    public AllAccessPermissionRules doFilter(HttpServletRequest request, AllAccessPermissionRules acl) {
-        return aclRepository.getAllAccessPermissionRules();
+    protected List<AccessPermissionRule> doFilter(HttpServletRequest request, List<AccessPermissionRule> acl) {
+        return aclRepository.getAccessPermissionRules();
     }
 }

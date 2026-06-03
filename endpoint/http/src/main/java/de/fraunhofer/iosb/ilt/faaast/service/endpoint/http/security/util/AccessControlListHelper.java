@@ -41,6 +41,8 @@ public class AccessControlListHelper {
     private static final Object USEATTRIBUTES = "USEATTRIBUTES";
     private static final String DEFFORMULA = "DEFFORUMLA";
     private static final Object USEFORUMLA = "USEFORUMLA";
+    private static final String DEFFILTER = "DEFFILTER";
+    private static final Object USEFILTER = "USEFILTER";
     private static final String DEFOBJECTS = "DEFOBJECTS";
     private static final Object USEOBJECTS = "USEOBJECTS";
 
@@ -130,6 +132,35 @@ public class AccessControlListHelper {
         }
         else {
             throw new IllegalArgumentException(String.format("Invalid rule: FORMULA or %s must be specified", USEFORUMLA));
+        }
+    }
+
+
+    /**
+     * returns the FILTER of the AccessPermissionRule. If FILTER is not directly defined, returns the DEFFORMULA defined
+     * by USEFILTER.
+     *
+     * @param rule Rule to get FILTER from
+     * @param allAccess Rule environment
+     * @return The FILTER.
+     */
+    public static LogicalExpression getFilter(AccessPermissionRule rule, AllAccessPermissionRules allAccess) {
+        if (rule.getFilter() != null) {
+            return rule.getFilter();
+        }
+        else if (rule.getUsefilter() != null) {
+            Optional<Defformula> formula = allAccess.getDefformulas().stream()
+                    .filter(a -> Objects.equals(a.getName(), rule.getUsefilter()))
+                    .findAny();
+            if (formula.isPresent()) {
+                return formula.get().getFormula();
+            }
+            else {
+                throw new IllegalArgumentException(String.format("%s not found for %s: %s", DEFFILTER, USEFILTER, rule.getUseformula()));
+            }
+        }
+        else {
+            throw new IllegalArgumentException(String.format("Invalid rule: FILTER or %s must be specified", USEFILTER));
         }
     }
 

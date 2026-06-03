@@ -14,15 +14,14 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.pre;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AllAccessPermissionRules;
-import jakarta.servlet.http.HttpServletRequest;
+import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.util.ExpressionInjectionHelper.injectLogicalExpression;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AccessPermissionRule;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.AbstractMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.util.AccessControlListHelper.getFormula;
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.util.ExpressionInjectionHelper.injectLogicalExpression;
 
 
 /**
@@ -30,12 +29,12 @@ import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.util.
  */
 public class AclClaimInjectionFilter extends AbstractAclFilter {
     @Override
-    public AllAccessPermissionRules doFilter(HttpServletRequest request, AllAccessPermissionRules acl) {
+    protected List<AccessPermissionRule> doFilter(HttpServletRequest request, List<AccessPermissionRule> acl) {
         Map<String, String> claims = extractAndDecodeJwt(request).getClaims().entrySet().stream()
                 .map(entry -> new AbstractMap.SimpleEntry<>(entry.getKey(), entry.getValue().asString()))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-        acl.getRules().forEach(rule -> injectLogicalExpression(getFormula(rule, acl), claims));
+        acl.forEach(rule -> injectLogicalExpression(rule.getFormula(), claims));
 
         return acl;
     }

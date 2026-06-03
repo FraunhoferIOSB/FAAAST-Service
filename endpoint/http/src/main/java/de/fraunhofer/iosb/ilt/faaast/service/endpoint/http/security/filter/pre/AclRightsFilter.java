@@ -14,19 +14,12 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.pre;
 
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.auth.SharedAttributes.ACL;
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.util.AccessControlListHelper.getAcl;
-
 import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AllAccessPermissionRules;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AccessPermissionRule;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.RightsEnum;
-import jakarta.servlet.Filter;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
-import java.io.IOException;
+
+import java.util.List;
 
 
 /**
@@ -35,12 +28,13 @@ import java.io.IOException;
 public class AclRightsFilter extends AbstractAclFilter {
 
     @Override
-    public AllAccessPermissionRules doFilter(HttpServletRequest request, AllAccessPermissionRules acl) {
+    protected List<AccessPermissionRule> doFilter(HttpServletRequest request, List<AccessPermissionRule> acl) {
         String method = request.getMethod();
         String requiredRight = isOperationRequest(method, request.getContextPath()) ? "EXECUTE" : getRequiredRight(method);
 
-        acl.getRules().removeIf(
-                rule -> getAcl(rule, acl).getRights().contains(RightsEnum.ALL) || getAcl(rule, acl).getRights().contains(RightsEnum.valueOf(requiredRight)));
+        acl.removeIf(
+                rule -> rule.getAcl().getRights().contains(RightsEnum.ALL) ||
+                        rule.getAcl().getRights().contains(RightsEnum.valueOf(requiredRight)));
 
         return acl;
     }

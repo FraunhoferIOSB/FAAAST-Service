@@ -15,10 +15,11 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.pre;
 
 import com.auth0.jwt.interfaces.Claim;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AllAccessPermissionRules;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AccessPermissionRule;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AttributeItem;
 import jakarta.servlet.http.HttpServletRequest;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -29,10 +30,10 @@ import java.util.Optional;
 public class AclAttributeFilter extends AbstractAclFilter {
 
     @Override
-    protected AllAccessPermissionRules doFilter(HttpServletRequest request, AllAccessPermissionRules acl) {
+    protected List<AccessPermissionRule> doFilter(HttpServletRequest request, List<AccessPermissionRule> acl) {
         Map<String, Claim> claims = Optional.ofNullable(extractAndDecodeJwt(request).getClaims()).orElse(Map.of());
 
-        acl.getRules().removeIf(rule -> {
+        acl.removeIf(rule -> {
             for (AttributeItem item: rule.getAcl().getAttributes()) {
                 if (AttributeItem.Global.ANONYMOUS == item.getGlobal()) {
                     return false;

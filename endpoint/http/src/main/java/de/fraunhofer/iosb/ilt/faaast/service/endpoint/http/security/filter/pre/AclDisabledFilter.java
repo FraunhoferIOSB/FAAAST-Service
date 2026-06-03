@@ -14,11 +14,11 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.pre;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AccessPermissionRule;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.Acl;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AllAccessPermissionRules;
 import jakarta.servlet.http.HttpServletRequest;
 
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.util.AccessControlListHelper.getAcl;
+import java.util.List;
 
 
 /**
@@ -26,8 +26,8 @@ import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.util.
  */
 public class AclDisabledFilter extends AbstractAclFilter {
     @Override
-    public AllAccessPermissionRules doFilter(HttpServletRequest request, AllAccessPermissionRules acl) {
-        acl.getRules().removeIf(rule -> getAcl(rule, acl).getAccess() == Acl.Access.DISABLED);
+    protected List<AccessPermissionRule> doFilter(HttpServletRequest request, List<AccessPermissionRule> acl) {
+        acl.removeIf(rule -> rule.getAcl().getAccess() == Acl.Access.DISABLED);
         return acl;
     }
 }

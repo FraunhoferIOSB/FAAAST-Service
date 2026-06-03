@@ -15,15 +15,12 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.pre;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AccessPermissionRule;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AllAccessPermissionRules;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.util.AccessControlListHelper.getObjects;
 
 
 /**
@@ -32,13 +29,13 @@ import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.util.
 public class AclObjectsFilter extends AbstractAclFilter {
 
     @Override
-    public AllAccessPermissionRules doFilter(HttpServletRequest request, AllAccessPermissionRules acl) {
+    protected List<AccessPermissionRule> doFilter(HttpServletRequest request, List<AccessPermissionRule> acl) {
         String path = (request).getRequestURI();
         List<AccessPermissionRule> filteredRules = new ArrayList<>();
 
-        for (AccessPermissionRule rule: acl.getRules()) {
+        for (AccessPermissionRule rule: acl) {
 
-            boolean anyMatch = getObjects(rule, acl).stream().anyMatch(objectItem -> {
+            boolean anyMatch = rule.getObjects().stream().anyMatch(objectItem -> {
                 if (objectItem.getRoute() != null) {
                     String route = objectItem.getRoute();
                     // Warning: potentially does not allow trailing slash at requests.
@@ -64,9 +61,7 @@ public class AclObjectsFilter extends AbstractAclFilter {
             }
         }
 
-        acl.setRules(filteredRules);
-
-        return acl;
+        return filteredRules;
     }
 
 

@@ -18,13 +18,12 @@ import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.util.
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.acl.repository.AclRepository;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.acl.repository.AbstractAclRepository;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AllAccessPermissionRules;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -34,7 +33,7 @@ import org.slf4j.LoggerFactory;
 /**
  * File implementation of an ACL Repository. Connected to a file system monitoring service.
  */
-public class FileAclRepository implements AclRepository, DirectoryWatcherListener {
+public class FileAclRepository extends AbstractAclRepository implements DirectoryWatcherListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(FileAclRepository.class);
     private final Map<Path, AllAccessPermissionRules> aclList;
     private final ObjectMapper mapper;
@@ -66,25 +65,6 @@ public class FileAclRepository implements AclRepository, DirectoryWatcherListene
     }
 
 
-    /**
-     * Get all currently observed rules.
-     *
-     * @return All access control rules.
-     */
-    public AllAccessPermissionRules getAllAccessPermissionRules() {
-        var rules = new AllAccessPermissionRules();
-        for (AllAccessPermissionRules fileRules: aclList.values()) {
-            rules.setRules(new ArrayList<>(fileRules.getRules()));
-            rules.setDefacls(new ArrayList<>(fileRules.getDefacls()));
-            rules.setDefattributes(new ArrayList<>(fileRules.getDefattributes()));
-            rules.setDefformulas(new ArrayList<>(fileRules.getDefformulas()));
-            rules.setDefobjects(new ArrayList<>(fileRules.getDefobjects()));
-        }
-
-        return rules;
-    }
-
-
     @Override
     public void onFileCreated(Path path) {
         LOGGER.debug("Adding ACL {}", path);
@@ -92,21 +72,10 @@ public class FileAclRepository implements AclRepository, DirectoryWatcherListene
     }
 
 
-    private void update(Path path) {
-        AllAccessPermissionRules rules = readFile(path);
-        if (rules != null && rules.getRules().stream().allMatch(rule -> validate(rule, rules))) {
-            aclList.put(path, rules);
-        }
-        else {
-            LOGGER.warn("Tried to load invalid ACL: {}.", path);
-        }
-    }
-
-
     @Override
     public void onFileDeleted(Path path) {
         LOGGER.debug("Removing ACL {}", path);
-        aclList.remove(path);
+        remove(aclList.get(path));
     }
 
 
@@ -114,6 +83,18 @@ public class FileAclRepository implements AclRepository, DirectoryWatcherListene
     public void onFileModified(Path path) {
         LOGGER.debug("Changing ACL {}", path);
         update(path);
+    }
+
+
+    private void update(Path path) {
+        AllAccessPermissionRules acl = readFile(path);
+        if (acl != null && acl.getRules().stream().allMatch(rule -> validate(rule, acl))) {
+            aclList.put(path, acl);
+            addAndResolve(acl);
+        }
+        else {
+            LOGGER.warn("Tried to load invalid ACL: {}.", path);
+        }
     }
 
 
