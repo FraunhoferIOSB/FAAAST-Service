@@ -85,21 +85,21 @@
         <glassfish.jaxb-runtime>4.0.5</glassfish.jaxb-runtime>
         <guava.version>33.6.0-jre</guava.version>
         <jackson-jq.version>1.6.2</jackson-jq.version>
-        <jackson.annotations.version>2.21</jackson.annotations.version>
-        <jackson.databind.version>2.21.4</jackson.databind.version>
+        <jackson.annotations.version>2.22</jackson.annotations.version>
+        <jackson.databind.version>2.22.0</jackson.databind.version>
         <jackson.version>2.21.4</jackson.version>
         <jakarta.json-api.version>2.1.2</jakarta.json-api.version>
         <jakarta.xml.bind-api.version>4.0.5</jakarta.xml.bind-api.version>
         <janino.version>3.1.12</janino.version>
         <jaxb.api.version>2.3.1</jaxb.api.version>
-        <jetty.version>12.1.9</jetty.version>
+        <jetty.version>12.1.10</jetty.version>
         <json-patch.version>1.13</json-patch.version>
         <json-smart.version>2.6.0</json-smart.version>
         <jsonassert.version>1.5.3</jsonassert.version>
         <jsonpath.version>3.0.0</jsonpath.version>
         <junit.version>4.13.2</junit.version>
         <log4j.api.version>2.26.0</log4j.api.version>
-        <logback.version>1.5.33</logback.version>
+        <logback.version>1.5.34</logback.version>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <maven.plugin.assembly.version>3.8.0</maven.plugin.assembly.version>
@@ -130,7 +130,7 @@
         <mockito.version>5.23.0</mockito.version>
         <mongodb.version>5.8.0</mongodb.version>
         <moquette.version>0.18.4</moquette.version>
-        <netty.version>4.2.14.Final</netty.version>
+        <netty.version>4.2.15.Final</netty.version>
         <org.apache.httpcomponents.client5.version>5.6.1</org.apache.httpcomponents.client5.version>
         <org.apache.log4j-to-slf4j>2.26.0</org.apache.log4j-to-slf4j>
         <paho.version>1.2.5</paho.version>
