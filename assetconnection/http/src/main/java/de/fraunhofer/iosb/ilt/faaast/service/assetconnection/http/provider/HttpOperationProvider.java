@@ -18,6 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.provider.MultiFormatOperationProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.HttpAssetConnectionConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.AsyncOperationMode;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.HttpOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.util.HttpHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
@@ -116,23 +117,32 @@ public class HttpOperationProvider extends MultiFormatOperationProvider<HttpOper
                     method,
                     headers,
                     Objects.nonNull(input) ? new String(input) : "");
-            HttpResponse<byte[]> response = HttpHelper.execute(
-                    client,
-                    connectionConfig.getBaseUrl(),
-                    path,
-                    config.getFormat(),
-                    method,
-                    HttpRequest.BodyPublishers.ofByteArray(input),
-                    HttpResponse.BodyHandlers.ofByteArray(),
-                    headers);
-            LOGGER.trace("Response from asset (status code: {}, headers: {}, body: {})",
-                    response.statusCode(),
-                    response.headers().map(),
-                    response.body() != null ? new String(response.body()) : "[empty]");
-            if (!HttpHelper.is2xxSuccessful(response)) {
-                throw new AssetConnectionException(String.format("executing operation via HTTP asset connection failed (reference: %s)", ReferenceHelper.toString(reference)));
+            byte[] retval = null;
+            if (config.getMode() == AsyncOperationMode.DIRECT) {
+                HttpResponse<byte[]> response = HttpHelper.execute(
+                        client,
+                        connectionConfig.getBaseUrl(),
+                        path,
+                        config.getFormat(),
+                        method,
+                        HttpRequest.BodyPublishers.ofByteArray(input),
+                        HttpResponse.BodyHandlers.ofByteArray(),
+                        headers);
+                LOGGER.trace("Response from asset (status code: {}, headers: {}, body: {})",
+                        response.statusCode(),
+                        response.headers().map(),
+                        response.body() != null ? new String(response.body()) : "[empty]");
+                if (!HttpHelper.is2xxSuccessful(response)) {
+                    throw new AssetConnectionException(String.format("executing operation via HTTP asset connection failed (reference: %s)", ReferenceHelper.toString(reference)));
+                }
+                retval = response.body();
             }
-            return response.body();
+            if (config.getMode() == AsyncOperationMode.ASYNC_AAS) {
+                // TODO 
+            }
+
+            //return response.body();
+            return retval;
         }
         catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -142,4 +152,5 @@ public class HttpOperationProvider extends MultiFormatOperationProvider<HttpOper
             throw new AssetConnectionException(String.format("executing operation via HTTP asset connection failed (reference: %s)", ReferenceHelper.toString(reference)), e);
         }
     }
+
 }
