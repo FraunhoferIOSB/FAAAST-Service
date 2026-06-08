@@ -14,21 +14,25 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.pre;
 
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.auth.SharedAttributes.ACL;
-
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AccessPermissionRule;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.Acl;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
+
+import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.SharedAttributes.ACL;
 
 
 /**
- * Contains common logic for extracting and storing the AAS ACL in a request.
+ * Contains common logic for extracting and storing the AAS ACL in a request. If the ACL is empty as a result of the AclFilter, the request will be denied.
  */
 public abstract class AbstractAclFilter extends JwtAuthorizationFilter implements Filter {
 
@@ -36,8 +40,16 @@ public abstract class AbstractAclFilter extends JwtAuthorizationFilter implement
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         List<AccessPermissionRule> acl = ((List<AccessPermissionRule>) request.getAttribute(ACL.getName()));
-        request.setAttribute(ACL.getName(), doFilter((HttpServletRequest) request, acl));
-        chain.doFilter(request, response);
+
+        List<AccessPermissionRule> filtered = doFilter((HttpServletRequest) request, acl);
+        Objects.requireNonNull(filtered, "Filters need to return empty rule lists if none apply");
+
+        if (!acl.isEmpty()) {
+            request.setAttribute(ACL.getName(), filtered);
+            chain.doFilter(request, response);
+        }
+
+        respondForbidden((HttpServletResponse) response);
     }
 
 
@@ -49,4 +61,10 @@ public abstract class AbstractAclFilter extends JwtAuthorizationFilter implement
      * @return Filtered ACL list
      */
     protected abstract List<AccessPermissionRule> doFilter(HttpServletRequest request, List<AccessPermissionRule> acl);
+
+
+    private static void respondForbidden(HttpServletResponse httpResponse) throws IOException {
+        httpResponse.setStatus(HttpServletResponse.SC_FORBIDDEN);
+        httpResponse.getWriter().write("forbidden");
+    }
 }

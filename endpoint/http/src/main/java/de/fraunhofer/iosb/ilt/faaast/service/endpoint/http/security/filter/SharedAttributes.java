@@ -12,12 +12,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.auth;
+package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter;
 
 /**
- * Shows the current state of an incoming HTTP request.
+ * Shared attributes during servlet request filtering.
  */
-public enum AuthState {
-    ANONYMOUS,
-    AUTHENTICATED
+public enum SharedAttributes {
+    /**
+     * Shared AAS "All Access Control List" attribute.
+     */
+    ACL("acl");
+
+    private final String name;
+
+    /**
+     * Serialization of an attribute.
+     *
+     * @return String version of an attribute.
+     */
+    public String getName() {
+        return name;
+    }
+
+
+    SharedAttributes(String name) {
+        this.name = name;
+    }
 }
