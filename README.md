@@ -20,10 +20,10 @@ The features of FA³ST Service include
 
 ## Implemented AAS Specifications
 
-- AAS Part 1: Metamodel v3.1 [Specification](https://industrialdigitaltwin.org/wp-content/uploads/2025/11/IDTA-01001-3-1-2_AAS-Specification_Part1_Metamodel.pdf)
-- AAS Part 2: API v3.0.1 [Specification](https://industrialdigitaltwin.org/wp-content/uploads/2023/06/IDTA-01002-3-0_SpecificationAssetAdministrationShell_Part2_API_.pdf), [OpenAPI](https://app.swaggerhub.com/apis/Plattform_i40/Entire-API-Collection/V3.0.1)
-- AAS Part 3a: Data Specification – IEC 61360 v3.0 [Specification](https://industrialdigitaltwin.org/en/wp-content/uploads/sites/2/2024/07/IDTA-01003-a-3-0-2_SpecificationAssetAdministrationShell_Part3a_DataSpecification_IEC613601.pdf)
-- AAS Part 5: Package File Format (AASX) v3.0 [Specification](https://industrialdigitaltwin.org/en/wp-content/uploads/sites/2/2024/06/IDTA-01005-3-0-1_SpecificationAssetAdministrationShell_Part5_AASXPackageFileFormat.pdf)
+- AAS Part 1: Metamodel v3.1.2 [Specification](https://industrialdigitaltwin.org/wp-content/uploads/2025/11/IDTA-01001-3-1-2_AAS-Specification_Part1_Metamodel.pdf)
+- AAS Part 2: API v3.1.2 [Specification](https://industrialdigitaltwin.org/wp-content/uploads/2026/04/IDTA-01002-3-1-2_AAS-Specification_Part2_API.pdf), [OpenAPI](https://app.swaggerhub.com/apis/Plattform_i40/Entire-API-Collection/V3.1.2)
+- AAS Part 3a: Data Specification – IEC 61360 v3.1.1 [Specification](https://industrialdigitaltwin.org/wp-content/uploads/2025/08/IDTA-01003-a-3-1-1_AAS-Specification_Part3a_DataSpecification.pdf)
+- AAS Part 5: Package File Format (AASX) v3.1 [Specification](https://industrialdigitaltwin.org/wp-content/uploads/2025/06/IDTA_01005-25-01_AAS-Specification_Part5_AASXPackageFileFormat.pdf)
 
 
 ## Usage
