@@ -269,7 +269,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
         Ensure.requireNonNull(criteria, MSG_CRITERIA_NOT_NULL);
         Ensure.requireNonNull(modifier, MSG_MODIFIER_NOT_NULL);
         Ensure.requireNonNull(paging, MSG_PAGING_NOT_NULL);
-        Environment filteredEnvironment = getFilteredEnvironment(formula);
+        Environment filteredEnvironment = getFilteredEnvironment(formula, modifier);
 
         final Collection<SubmodelElement> elements = new ArrayList<>();
         if (criteria.isParentSet()) {
@@ -376,7 +376,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
     public SubmodelElement getSubmodelElement(SubmodelElementIdentifier identifier, QueryModifier modifier, LogicalExpression formula)
             throws ResourceNotFoundException, PersistenceException {
         return prepareResult(
-                EnvironmentHelper.resolve(identifier.toReference(), getFilteredEnvironment(formula), SubmodelElement.class),
+                EnvironmentHelper.resolve(identifier.toReference(), getFilteredEnvironment(formula, modifier), SubmodelElement.class),
                 modifier);
     }
 
@@ -706,11 +706,11 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
     }
 
 
-    private Environment getFilteredEnvironment(LogicalExpression formula) {
+    private Environment getFilteredEnvironment(LogicalExpression formula, QueryModifier queryModifier) {
         return new DefaultEnvironment.Builder()
-                .assetAdministrationShells(findAssetAdministrationShells(AssetAdministrationShellSearchCriteria.NONE, QueryModifier.DEFAULT, PagingInfo.ALL, formula).getContent())
-                .submodels(findSubmodels(SubmodelSearchCriteria.NONE, QueryModifier.DEFAULT, PagingInfo.ALL, formula).getContent())
-                .conceptDescriptions(findConceptDescriptions(ConceptDescriptionSearchCriteria.NONE, QueryModifier.DEFAULT, PagingInfo.ALL, formula).getContent())
+                .assetAdministrationShells(findAssetAdministrationShells(AssetAdministrationShellSearchCriteria.NONE, queryModifier, PagingInfo.ALL, formula).getContent())
+                .submodels(findSubmodels(SubmodelSearchCriteria.NONE, queryModifier, PagingInfo.ALL, formula).getContent())
+                .conceptDescriptions(findConceptDescriptions(ConceptDescriptionSearchCriteria.NONE, queryModifier, PagingInfo.ALL, formula).getContent())
                 .build();
     }
 
