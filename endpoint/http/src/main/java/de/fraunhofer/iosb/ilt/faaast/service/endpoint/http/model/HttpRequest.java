@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model;
 
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AccessPermissionRule;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,6 +36,7 @@ public class HttpRequest extends HttpMessage {
     private String path;
     private Map<String, String> queryParameters;
     private List<String> pathElements;
+    private List<AccessPermissionRule> accessPermissionRules;
 
     public static Builder builder() {
         return new Builder();
@@ -45,6 +47,7 @@ public class HttpRequest extends HttpMessage {
         method = HttpMethod.GET;
         queryParameters = new HashMap<>();
         pathElements = new ArrayList<>();
+        accessPermissionRules = new ArrayList<>();
     }
 
 
@@ -159,6 +162,26 @@ public class HttpRequest extends HttpMessage {
     }
 
 
+    /**
+     * Gets this request's applying Access Permission Rules according to AAS Security.
+     *
+     * @return List of access permission rules.
+     */
+    public List<AccessPermissionRule> getAccessPermissionRules() {
+        return accessPermissionRules;
+    }
+
+
+    /**
+     * Sets this request's applying Access Permission Rules according to AAS Security.
+     *
+     * @param accessPermissionRules the applying access permission rules.
+     */
+    public void setAccessPermissionRules(List<AccessPermissionRule> accessPermissionRules) {
+        this.accessPermissionRules = accessPermissionRules;
+    }
+
+
     private String[] splitKeyValue(String x, String regex) {
         String[] split = x.split(regex);
         if (split.length == 2) {
@@ -211,6 +234,12 @@ public class HttpRequest extends HttpMessage {
 
         public B query(String value) {
             getBuildingInstance().setQueryParametersFromQueryString(value);
+            return getSelf();
+        }
+
+
+        public B accessPermissionRules(List<AccessPermissionRule> value) {
+            getBuildingInstance().setAccessPermissionRules(value);
             return getSelf();
         }
     }

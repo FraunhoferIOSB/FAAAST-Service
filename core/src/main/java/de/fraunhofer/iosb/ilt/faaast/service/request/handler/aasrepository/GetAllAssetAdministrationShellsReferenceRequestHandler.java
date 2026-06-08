@@ -48,7 +48,8 @@ public class GetAllAssetAdministrationShellsReferenceRequestHandler
         Page<AssetAdministrationShell> page = context.getPersistence().findAssetAdministrationShells(
                 AssetAdministrationShellSearchCriteria.NONE,
                 request.getOutputModifier(),
-                request.getPagingInfo());
+                request.getPagingInfo(),
+                request.getFormula());
         if (!request.isInternal() && Objects.nonNull(page.getContent())) {
             page.getContent().forEach(LambdaExceptionHelper.rethrowConsumer(
                     x -> context.getMessageBus().publish(ElementReadEventMessage.builder()

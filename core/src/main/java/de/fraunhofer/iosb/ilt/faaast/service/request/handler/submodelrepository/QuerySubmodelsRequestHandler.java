@@ -24,9 +24,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContain
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ElementReadEventMessage;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.LogicalExpression;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.SubmodelSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
+
+import java.util.List;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
@@ -45,11 +48,14 @@ public class QuerySubmodelsRequestHandler extends AbstractRequestHandler<QuerySu
     @Override
     public QuerySubmodelsResponse process(QuerySubmodelsRequest request, RequestExecutionContext context)
             throws MessageBusException, PersistenceException, ResourceNotAContainerElementException, ValueMappingException, ResourceNotFoundException, AssetConnectionException {
-        Page<Submodel> page = context.getPersistence().findSubmodelsWithQuery(
+        LogicalExpression queryAndAccessControl = new LogicalExpression();
+        queryAndAccessControl.set$and(List.of(request.getQuery().get$condition(), request.getFormula()));
+
+        Page<Submodel> page = context.getPersistence().findSubmodels(
                 SubmodelSearchCriteria.NONE,
                 request.getOutputModifier(),
                 request.getPagingInfo(),
-                request.getQuery());
+                queryAndAccessControl);
         if (Objects.nonNull(page.getContent())) {
             for (Submodel submodel: page.getContent()) {
                 Reference reference = AasUtils.toReference(submodel);

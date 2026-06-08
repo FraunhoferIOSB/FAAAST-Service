@@ -44,7 +44,8 @@ public class GetAllSubmodelsRequestHandler extends AbstractRequestHandler<GetAll
         Page<Submodel> page = context.getPersistence().findSubmodels(
                 SubmodelSearchCriteria.NONE,
                 request.getOutputModifier(),
-                request.getPagingInfo());
+                request.getPagingInfo(),
+                request.getFormula());
         context.getAssetConnectionManager().syncValueProvidersOnRead(null, page, !request.isInternal());
         return GetAllSubmodelsResponse.builder()
                 .payload(page)

@@ -20,10 +20,13 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescriptio
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.conceptdescription.QueryConceptDescriptionsResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ElementReadEventMessage;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.LogicalExpression;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.ConceptDescriptionSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
+
+import java.util.List;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
 
@@ -40,11 +43,14 @@ public class QueryConceptDescriptionsRequestHandler extends AbstractRequestHandl
     @Override
     public QueryConceptDescriptionsResponse process(QueryConceptDescriptionsRequest request, RequestExecutionContext context)
             throws MessageBusException, PersistenceException {
-        Page<ConceptDescription> page = context.getPersistence().findConceptDescriptionsWithQuery(
+        LogicalExpression queryAndAccessControl = new LogicalExpression();
+        queryAndAccessControl.set$and(List.of(request.getQuery().get$condition(), request.getFormula()));
+
+        Page<ConceptDescription> page = context.getPersistence().findConceptDescriptions(
                 ConceptDescriptionSearchCriteria.NONE,
                 request.getOutputModifier(),
                 request.getPagingInfo(),
-                request.getQuery());
+                queryAndAccessControl);
         if (!request.isInternal() && Objects.nonNull(page.getContent())) {
             page.getContent().forEach(LambdaExceptionHelper.rethrowConsumer(
                     x -> context.getMessageBus().publish(ElementReadEventMessage.builder()

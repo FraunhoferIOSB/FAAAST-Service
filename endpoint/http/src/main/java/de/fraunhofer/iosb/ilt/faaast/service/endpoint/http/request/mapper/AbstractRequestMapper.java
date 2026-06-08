@@ -26,6 +26,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.TypedInMemoryFile;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AccessPermissionRule;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.LogicalExpression;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
@@ -134,7 +136,9 @@ public abstract class AbstractRequestMapper {
         Ensure.requireNonNull(httpRequest, "httpRequest must be non-null");
         Matcher matcher = Pattern.compile(urlPattern).matcher(httpRequest.getPath());
         if (matcher.matches()) {
-            return doParse(httpRequest, RegExHelper.getGroupValues(urlPattern, httpRequest.getPath()));
+            Request request = doParse(httpRequest, RegExHelper.getGroupValues(urlPattern, httpRequest.getPath()));
+            request.setFormula(rulesToFormula(httpRequest.getAccessPermissionRules()));
+            return request;
         }
         throw new IllegalStateException(String.format("request was matched but no suitable parser found (HTTP method: %s, URL pattern: %s", method, urlPattern));
     }
@@ -292,6 +296,19 @@ public abstract class AbstractRequestMapper {
         catch (DeserializationException e) {
             throw new InvalidRequestException(MSG_ERROR_PARSING_BODY, e);
         }
+    }
+
+
+    /**
+     * Transforms a list of resolved access permission rules to a LogicalExpression, using OR to combine them.
+     *
+     * @param rules The rules to OR-ify
+     * @return The LogicalExpression formula
+     */
+    protected LogicalExpression rulesToFormula(List<AccessPermissionRule> rules) {
+        LogicalExpression condition = new LogicalExpression();
+        condition.set$or(rules.stream().map(AccessPermissionRule::getFormula).toList());
+        return condition;
     }
 
 

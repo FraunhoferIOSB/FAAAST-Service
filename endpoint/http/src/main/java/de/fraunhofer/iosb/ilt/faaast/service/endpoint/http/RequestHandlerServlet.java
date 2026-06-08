@@ -14,39 +14,23 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http;
 
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.auth.SharedAttributes.ACL;
+import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.SharedAttributes.ACL;
 import static de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod.GET;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
-import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.MethodNotAllowedException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.UnauthorizedException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.RequestMappingManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.response.ResponseMappingManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.FormulaEvaluator;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.ApiGateway;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.GetAssetAdministrationShellRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository.GetAllAssetAdministrationShellsByIdShortRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository.GetAllAssetAdministrationShellsRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.GetAllConceptDescriptionsByIdShortRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.GetAllConceptDescriptionsRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.GetConceptDescriptionByIdRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetSubmodelRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.GetAllSubmodelsByIdShortRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.GetAllSubmodelsBySemanticIdRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.GetAllSubmodelsRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.exception.UnsupportedModifierException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AccessPermissionRule;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.LogicalExpression;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.Value;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -58,10 +42,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.eclipse.digitaltwin.aas4j.v3.model.Key;
 import org.eclipse.digitaltwin.aas4j.v3.model.Message;
 import org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum;
-import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.jetty.server.Response;
 
 
@@ -78,7 +60,6 @@ public class RequestHandlerServlet extends HttpServlet {
     private final RequestMappingManager requestMappingManager;
     private final ResponseMappingManager responseMappingManager;
     private final HttpJsonApiSerializer serializer;
-    private final ApiGateway apiGateway;
 
     public RequestHandlerServlet(HttpEndpoint endpoint, HttpEndpointConfig config, ServiceContext serviceContext) {
         Ensure.requireNonNull(endpoint, "endpoint must be non-null");
@@ -90,7 +71,6 @@ public class RequestHandlerServlet extends HttpServlet {
         this.requestMappingManager = new RequestMappingManager(serviceContext);
         this.responseMappingManager = new ResponseMappingManager(serviceContext);
         this.serializer = new HttpJsonApiSerializer();
-        this.apiGateway = Objects.nonNull(config.getJwkProvider()) ? new ApiGateway() : null;
     }
 
 
@@ -124,76 +104,15 @@ public class RequestHandlerServlet extends HttpServlet {
                         .collect(Collectors.toMap(
                                 x -> x,
                                 request::getHeader)))
+                .accessPermissionRules((List<AccessPermissionRule>) request.getAttribute(ACL.getName()))
                 .build();
 
         try {
-            if (Objects.nonNull(apiGateway) && GET == httpRequest.getMethod()) {
-                modifyRequest(request, httpRequest);
-            }
-            executeAndSend(request, response, requestMappingManager.map(httpRequest));
+            executeAndSend(httpRequest, response, requestMappingManager.map(httpRequest));
         }
         catch (Exception e) {
             doThrow(e);
         }
-    }
-
-
-    private void modifyRequest(HttpServletRequest servletRequest, HttpRequest request)
-            throws SerializationException, InvalidRequestException {
-        var wouldHaveBeen = requestMappingManager.map(request);
-        List<AccessPermissionRule> acl = (List<AccessPermissionRule>) servletRequest.getAttribute(ACL.getName());
-        if (acl.isEmpty()) {
-            throw new UnauthorizedException("unauthorized. TODO decide if 404 or 403");
-        }
-        List<LogicalExpression> formulas = acl.stream().map(AccessPermissionRule::getFormula).toList();
-        LogicalExpression formulasOr = new LogicalExpression();
-        formulasOr.set$or(formulas);
-
-        if (wouldHaveBeen instanceof GetAllAssetAdministrationShellsRequest) {
-            request.setPath("query/shells");
-            request.setBody(serializer.write(formulasOr));
-        }
-        else if (wouldHaveBeen instanceof GetAllSubmodelsRequest) {
-            request.setPath("query/submodels");
-            request.setBody(serializer.write(formulasOr));
-        }
-        else if (wouldHaveBeen instanceof GetAllConceptDescriptionsRequest) {
-            request.setPath("query/concept-descriptions");
-            request.setBody(serializer.write(formulasOr));
-        }
-
-        else if (wouldHaveBeen instanceof GetAssetAdministrationShellRequest getAssetAdministrationShellRequest) {
-            setQuery(request, "aas", "shells", "id", getAssetAdministrationShellRequest.getId(), formulasOr);
-        }
-        else if (wouldHaveBeen instanceof GetAllAssetAdministrationShellsByIdShortRequest getAllAssetAdministrationShellsByIdShortRequest) {
-            setQuery(request, "aas", "shells", "idShort", getAllAssetAdministrationShellsByIdShortRequest.getIdShort(), formulasOr);
-        }
-
-        else if (wouldHaveBeen instanceof GetSubmodelRequest getSubmodelRequest) {
-            setQuery(request, "sm", "submodels", "id", getSubmodelRequest.getSubmodelId(), formulasOr);
-        }
-        else if (wouldHaveBeen instanceof GetAllSubmodelsByIdShortRequest getAllSubmodelsByIdShortRequest) {
-            setQuery(request, "sm", "submodels", "idShort", getAllSubmodelsByIdShortRequest.getIdShort(), formulasOr);
-        }
-        else if (wouldHaveBeen instanceof GetAllSubmodelsBySemanticIdRequest getAllSubmodelsBySemanticIdRequest) {
-            setQuery(request, "sm", "submodels", "semanticId", getSemanticIdString(getAllSubmodelsBySemanticIdRequest.getSemanticId()), formulasOr);
-        }
-
-        else if (wouldHaveBeen instanceof GetConceptDescriptionByIdRequest getConceptDescriptionByIdRequest) {
-            setQuery(request, "cd", "concept-descriptions", "id", getConceptDescriptionByIdRequest.getId(), formulasOr);
-        }
-        else if (wouldHaveBeen instanceof GetAllConceptDescriptionsByIdShortRequest getAllConceptDescriptionsByIdShortRequest) {
-            setQuery(request, "cd", "concept-descriptions", "idShort", getAllConceptDescriptionsByIdShortRequest.getIdShort(), formulasOr);
-        }
-    }
-
-
-    private void setQuery(HttpRequest request, String res, String resource, String pattern, String id, LogicalExpression formula)
-            throws SerializationException, UnsupportedModifierException {
-        request.setPath(String.format("query/%s", resource));
-        LogicalExpression parentFormula = new LogicalExpression();
-        parentFormula.set$and(List.of(formEq(String.format("$%s#%s", res, pattern), id), formula));
-        request.setBody(serializer.write(parentFormula));
     }
 
 
@@ -211,20 +130,17 @@ public class RequestHandlerServlet extends HttpServlet {
     }
 
 
-    private void executeAndSend(HttpServletRequest request, HttpServletResponse response,
+    private void executeAndSend(HttpRequest request, HttpServletResponse response,
                                 de.fraunhofer.iosb.ilt.faaast.service.model.api.Request<? extends Response> apiRequest)
             throws Exception {
         if (Objects.isNull(apiRequest)) {
             throw new InvalidRequestException("empty API request");
         }
         checkRequestSupportedByProfiles(apiRequest);
-        de.fraunhofer.iosb.ilt.faaast.service.model.api.Response apiResponse = null;
-        if (Objects.nonNull(apiGateway)) {
-            apiResponse = handleResponseWithAcl(request, apiRequest);
-        }
-        else {
-            apiResponse = serviceContext.execute(endpoint, apiRequest);
-        }
+        checkAccess(request);
+
+        de.fraunhofer.iosb.ilt.faaast.service.model.api.Response apiResponse = serviceContext.execute(endpoint, apiRequest);
+
         if (Objects.isNull(apiResponse)) {
             throw new ServletException("empty API response");
         }
@@ -233,6 +149,21 @@ public class RequestHandlerServlet extends HttpServlet {
         }
         else {
             HttpHelper.sendJson(response, apiResponse.getStatusCode(), serializer.write(apiResponse.getResult()));
+        }
+    }
+
+
+    private void checkAccess(HttpRequest request)
+            throws ServletException {
+        List<AccessPermissionRule> rules = request.getAccessPermissionRules();
+
+        if (rules == null || request.getMethod() == GET) {
+            return;
+        }
+
+        if (rules.stream().noneMatch(rule -> FormulaEvaluator.evaluate(rule.getFormula(), new HashMap<>()))) {
+            doThrow(new UnauthorizedException(
+                    String.format("User not authorized '%s'", request.getPath())));
         }
     }
 
@@ -248,35 +179,4 @@ public class RequestHandlerServlet extends HttpServlet {
                         .noneMatch(x -> Objects.equals(x, MessageTypeEnum.ERROR) || Objects.equals(x, MessageTypeEnum.EXCEPTION));
     }
 
-
-    private de.fraunhofer.iosb.ilt.faaast.service.model.api.Response handleResponseWithAcl(HttpServletRequest request,
-                                                                                           de.fraunhofer.iosb.ilt.faaast.service.model.api.Request<? extends Response> apiRequest)
-            throws ServletException {
-        List<AccessPermissionRule> rules = ((List<AccessPermissionRule>) request.getAttribute(ACL.getName()));
-        if (rules.stream().noneMatch(rule -> FormulaEvaluator.evaluate(rule.getFormula(), new HashMap<>()))) {
-            doThrow(new UnauthorizedException(
-                    String.format("User not authorized '%s'", request.getRequestURI())));
-        }
-
-        return serviceContext.execute(endpoint, apiRequest);
-    }
-
-
-    private String getSemanticIdString(Reference semanticId) {
-        return Optional.ofNullable(ReferenceHelper.getRoot(semanticId))
-                .map(Key::getValue)
-                .orElse(null);
-    }
-
-
-    private LogicalExpression formEq(String left, String right) {
-        LogicalExpression eqFormula = new LogicalExpression();
-        Value smId = new Value();
-        smId.set$strVal(left);
-        Value identifier = new Value();
-        identifier.set$strVal(right);
-
-        eqFormula.set$eq(List.of(smId, identifier));
-        return eqFormula;
-    }
 }
