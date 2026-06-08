@@ -21,9 +21,13 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.MatchExpression;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.StringValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.Value;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.time.Clock;
 import java.time.LocalTime;
+import java.util.Date;
 import java.util.Map;
+import java.util.TimeZone;
 
 
 /**
@@ -154,20 +158,34 @@ public class ExpressionInjectionHelper {
         else if (value.get$attribute().getGlobal() != null) {
             AttributeItem.Global global = value.get$attribute().getGlobal();
             if (global == AttributeItem.Global.UTCNOW) {
-                // TODO might be a bug. Have to consider how ACL creator defined UTC w.r.t. format
                 value.set$timeVal(LocalTime.now(Clock.systemUTC()).toString());
             }
             else if (global == AttributeItem.Global.LOCALNOW) {
-                // TODO see UTCNOW
-                value.set$timeVal(LocalTime.now().toString());
+                TimeZone tz = TimeZone.getTimeZone("UTC");
+                DateFormat df = new SimpleDateFormat("HH:mm:ss");
+                df.setTimeZone(tz);
+                String nowAsISO = df.format(new Date());
+                value.set$timeVal(nowAsISO);
             }
             else if (global == AttributeItem.Global.CLIENTNOW) {
-                value.set$timeVal(null);
-                // TODO how to get client time?
-                value.set$boolean(false);
+                if (claims.containsKey("iat")) {
+                    TimeZone tz = TimeZone.getDefault();
+                    DateFormat df = new SimpleDateFormat("HH:mm:ss");
+                    df.setTimeZone(tz);
+                    String nowAsISO = df.format(claims.get("iat").asDate());
+                    value.set$timeVal(nowAsISO);
+                }
+                else {
+                    value.set$boolean(false);
+                    value.set$attribute(null);
+                }
+
+            }
+            else if (global == AttributeItem.Global.ANONYMOUS) {
+                value.set$boolean(true);
             }
             else {
-                return;
+                throw new IllegalArgumentException(String.format("Unknown attribute: %s", global));
             }
         }
         else if (value.get$strCast() != null) {

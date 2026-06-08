@@ -14,9 +14,11 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence.identity;
+
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AccessPermissionRule;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.LogicalExpression;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,7 +38,7 @@ public class HttpRequest extends HttpMessage {
     private String path;
     private Map<String, String> queryParameters;
     private List<String> pathElements;
-    private List<AccessPermissionRule> accessPermissionRules;
+    private LogicalExpression formula;
 
     public static Builder builder() {
         return new Builder();
@@ -47,7 +49,7 @@ public class HttpRequest extends HttpMessage {
         method = HttpMethod.GET;
         queryParameters = new HashMap<>();
         pathElements = new ArrayList<>();
-        accessPermissionRules = new ArrayList<>();
+        formula = identity();
     }
 
 
@@ -163,22 +165,22 @@ public class HttpRequest extends HttpMessage {
 
 
     /**
-     * Gets this request's applying Access Permission Rules according to AAS Security.
+     * Gets this request's applying formula according to AAS Security.
      *
-     * @return List of access permission rules.
+     * @return List of formula.
      */
-    public List<AccessPermissionRule> getAccessPermissionRules() {
-        return accessPermissionRules;
+    public LogicalExpression getFormula() {
+        return formula;
     }
 
 
     /**
-     * Sets this request's applying Access Permission Rules according to AAS Security.
+     * Sets this request's applying formula according to AAS Security.
      *
-     * @param accessPermissionRules the applying access permission rules.
+     * @param formula the applying formula.
      */
-    public void setAccessPermissionRules(List<AccessPermissionRule> accessPermissionRules) {
-        this.accessPermissionRules = accessPermissionRules;
+    public void setFormula(LogicalExpression formula) {
+        this.formula = formula;
     }
 
 
@@ -238,8 +240,8 @@ public class HttpRequest extends HttpMessage {
         }
 
 
-        public B accessPermissionRules(List<AccessPermissionRule> value) {
-            getBuildingInstance().setAccessPermissionRules(value);
+        public B formula(LogicalExpression value) {
+            getBuildingInstance().setFormula(value);
             return getSelf();
         }
     }

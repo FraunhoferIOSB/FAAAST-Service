@@ -31,6 +31,8 @@ public abstract class Request<T extends Response> {
 
     protected Request() {
         this.internal = false;
+        this.formula = new LogicalExpression();
+        this.formula.set$boolean(true);
     }
 
 

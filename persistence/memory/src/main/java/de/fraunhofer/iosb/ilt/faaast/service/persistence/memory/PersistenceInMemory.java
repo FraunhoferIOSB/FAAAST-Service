@@ -219,12 +219,6 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
 
 
     @Override
-    public Page<AssetAdministrationShell> findAssetAdministrationShells(AssetAdministrationShellSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) {
-        return findAssetAdministrationShells(criteria, modifier, paging, null);
-    }
-
-
-    @Override
     public Page<AssetAdministrationShell> findAssetAdministrationShells(AssetAdministrationShellSearchCriteria criteria, QueryModifier modifier, PagingInfo paging,
                                                                         LogicalExpression formula) {
         Ensure.requireNonNull(criteria, MSG_CRITERIA_NOT_NULL);
@@ -247,27 +241,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
 
 
     @Override
-    public Page<ConceptDescription> findConceptDescriptions(ConceptDescriptionSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) {
-        Ensure.requireNonNull(criteria, MSG_CRITERIA_NOT_NULL);
-        Ensure.requireNonNull(modifier, MSG_MODIFIER_NOT_NULL);
-        Ensure.requireNonNull(paging, MSG_PAGING_NOT_NULL);
-        Stream<ConceptDescription> result = environment.getConceptDescriptions().stream();
-        if (criteria.isIdShortSet()) {
-            result = filterByIdShort(result, criteria.getIdShort());
-        }
-        if (criteria.isIsCaseOfSet()) {
-            result = filterByIsCaseOf(result, criteria.getIsCaseOf());
-        }
-        if (criteria.isDataSpecificationSet()) {
-            result = filterByDataSpecification(result, criteria.getDataSpecification());
-        }
-        return preparePagedResult(result, modifier, paging);
-    }
-
-
-    @Override
-    public Page<ConceptDescription> findConceptDescriptions(ConceptDescriptionSearchCriteria criteria, QueryModifier modifier, PagingInfo paging, LogicalExpression formula)
-            throws PersistenceException {
+    public Page<ConceptDescription> findConceptDescriptions(ConceptDescriptionSearchCriteria criteria, QueryModifier modifier, PagingInfo paging, LogicalExpression formula) {
         Ensure.requireNonNull(criteria, MSG_CRITERIA_NOT_NULL);
         Ensure.requireNonNull(modifier, MSG_MODIFIER_NOT_NULL);
         Ensure.requireNonNull(paging, MSG_PAGING_NOT_NULL);
@@ -290,13 +264,16 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
 
 
     @Override
-    public Page<SubmodelElement> findSubmodelElements(SubmodelElementSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) throws ResourceNotFoundException {
+    public Page<SubmodelElement> findSubmodelElements(SubmodelElementSearchCriteria criteria, QueryModifier modifier, PagingInfo paging, LogicalExpression formula)
+            throws ResourceNotFoundException, PersistenceException {
         Ensure.requireNonNull(criteria, MSG_CRITERIA_NOT_NULL);
         Ensure.requireNonNull(modifier, MSG_MODIFIER_NOT_NULL);
         Ensure.requireNonNull(paging, MSG_PAGING_NOT_NULL);
+        Environment filteredEnvironment = getFilteredEnvironment(formula);
+
         final Collection<SubmodelElement> elements = new ArrayList<>();
         if (criteria.isParentSet()) {
-            Referable parent = EnvironmentHelper.resolve(criteria.getParent().toReference(), environment);
+            Referable parent = EnvironmentHelper.resolve(criteria.getParent().toReference(), filteredEnvironment);
             if (Submodel.class.isAssignableFrom(parent.getClass())) {
                 elements.addAll(((Submodel) parent).getSubmodelElements());
             }
@@ -322,7 +299,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
                         }
                     })
                     .build()
-                    .walk(environment);
+                    .walk(filteredEnvironment);
         }
         Stream<SubmodelElement> result = elements.stream();
         if (criteria.isSemanticIdSet()) {
@@ -331,28 +308,13 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
         if (criteria.getValueOnly()) {
             result = filterByHasValueOnlySerialization(result);
         }
+
         return preparePagedResult(result, modifier, paging);
     }
 
 
     @Override
-    public Page<Submodel> findSubmodels(SubmodelSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) {
-        Ensure.requireNonNull(criteria, MSG_CRITERIA_NOT_NULL);
-        Ensure.requireNonNull(modifier, MSG_MODIFIER_NOT_NULL);
-        Ensure.requireNonNull(paging, MSG_PAGING_NOT_NULL);
-        Stream<Submodel> result = environment.getSubmodels().stream();
-        if (criteria.isIdShortSet()) {
-            result = filterByIdShort(result, criteria.getIdShort());
-        }
-        if (criteria.isSemanticIdSet()) {
-            result = filterBySemanticId(result, criteria.getSemanticId());
-        }
-        return preparePagedResult(result, modifier, paging);
-    }
-
-
-    @Override
-    public Page<Submodel> findSubmodels(SubmodelSearchCriteria criteria, QueryModifier modifier, PagingInfo paging, LogicalExpression formula) throws PersistenceException {
+    public Page<Submodel> findSubmodels(SubmodelSearchCriteria criteria, QueryModifier modifier, PagingInfo paging, LogicalExpression formula) {
         Ensure.requireNonNull(criteria, MSG_CRITERIA_NOT_NULL);
         Ensure.requireNonNull(modifier, MSG_MODIFIER_NOT_NULL);
         Ensure.requireNonNull(paging, MSG_PAGING_NOT_NULL);
@@ -372,9 +334,9 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
 
 
     @Override
-    public AssetAdministrationShell getAssetAdministrationShell(String id, QueryModifier modifier) throws ResourceNotFoundException {
+    public AssetAdministrationShell getAssetAdministrationShell(String id, QueryModifier modifier, LogicalExpression formula) throws ResourceNotFoundException {
         return prepareResult(
-                filterById(environment.getAssetAdministrationShells().stream(), id)
+                filterById(findAssetAdministrationShells(AssetAdministrationShellSearchCriteria.NONE, modifier, PagingInfo.ALL, formula).getContent().stream(), id)
                         .findFirst()
                         .orElseThrow(() -> new ResourceNotFoundException(String.format(MSG_RESOURCE_NOT_FOUND_BY_ID, id))),
                 modifier);
@@ -382,9 +344,9 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
 
 
     @Override
-    public ConceptDescription getConceptDescription(String id, QueryModifier modifier) throws ResourceNotFoundException {
+    public ConceptDescription getConceptDescription(String id, QueryModifier modifier, LogicalExpression formula) throws ResourceNotFoundException {
         return prepareResult(
-                filterById(environment.getConceptDescriptions().stream(), id)
+                filterById(findConceptDescriptions(ConceptDescriptionSearchCriteria.NONE, modifier, PagingInfo.ALL, formula).getContent().stream(), id)
                         .findFirst()
                         .orElseThrow(() -> new ResourceNotFoundException(String.format(MSG_RESOURCE_NOT_FOUND_BY_ID, id))),
                 modifier);
@@ -401,9 +363,9 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
 
 
     @Override
-    public Submodel getSubmodel(String id, QueryModifier modifier) throws ResourceNotFoundException {
+    public Submodel getSubmodel(String id, QueryModifier modifier, LogicalExpression formula) throws ResourceNotFoundException, PersistenceException {
         return prepareResult(
-                filterById(environment.getSubmodels().stream(), id)
+                filterById(findSubmodels(SubmodelSearchCriteria.NONE, modifier, PagingInfo.ALL, formula).getContent().stream(), id)
                         .findFirst()
                         .orElseThrow(() -> new ResourceNotFoundException(String.format(MSG_RESOURCE_NOT_FOUND_BY_ID, id))),
                 modifier);
@@ -411,17 +373,18 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
 
 
     @Override
-    public SubmodelElement getSubmodelElement(SubmodelElementIdentifier identifier, QueryModifier modifier) throws ResourceNotFoundException {
+    public SubmodelElement getSubmodelElement(SubmodelElementIdentifier identifier, QueryModifier modifier, LogicalExpression formula)
+            throws ResourceNotFoundException, PersistenceException {
         return prepareResult(
-                EnvironmentHelper.resolve(identifier.toReference(), environment, SubmodelElement.class),
+                EnvironmentHelper.resolve(identifier.toReference(), getFilteredEnvironment(formula), SubmodelElement.class),
                 modifier);
     }
 
 
     @Override
-    public Page<Reference> getSubmodelRefs(String aasId, PagingInfo paging) throws ResourceNotFoundException {
+    public Page<Reference> getSubmodelRefs(String aasId, PagingInfo paging, LogicalExpression formula) throws ResourceNotFoundException {
         return preparePagedResult(
-                getAssetAdministrationShell(aasId, QueryModifier.MINIMAL).getSubmodels().stream(),
+                getAssetAdministrationShell(aasId, QueryModifier.MINIMAL, formula).getSubmodels().stream(),
                 paging);
     }
 
@@ -511,10 +474,10 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
 
 
     @Override
-    public void update(SubmodelElementIdentifier identifier, SubmodelElement submodelElement) throws ResourceNotFoundException {
+    public void update(SubmodelElementIdentifier identifier, SubmodelElement submodelElement) throws ResourceNotFoundException, PersistenceException {
         Ensure.requireNonNull(identifier, "identifier must be non-null");
         Ensure.requireNonNull(submodelElement, "submodelElement must be non-null");
-        SubmodelElement oldElement = getSubmodelElement(identifier, QueryModifier.DEFAULT);
+        SubmodelElement oldElement = getSubmodelElement(identifier, QueryModifier.DEFAULT, Persistence.identity());
         Referable parent = EnvironmentHelper.resolve(ReferenceHelper.getParent(identifier.toReference()), environment);
 
         if (SubmodelElementList.class.isAssignableFrom(parent.getClass())) {
@@ -628,8 +591,8 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
         List<String> globalAssetIdentificators = assetIds.stream()
                 .filter(x -> GlobalAssetIdentification.class.isAssignableFrom(x.getClass()))
                 .map(GlobalAssetIdentification.class::cast)
-                .map(x -> x.getValue())
-                .collect(Collectors.toList());
+                .map(AssetIdentification::getValue)
+                .toList();
         List<SpecificAssetId> specificAssetIdentificators = assetIds.stream()
                 .filter(x -> SpecificAssetIdentification.class.isAssignableFrom(x.getClass()))
                 .map(x -> new DefaultSpecificAssetId.Builder()
@@ -710,7 +673,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
         if (paging.hasLimit()) {
             result = result.limit(paging.getLimit() + 1);
         }
-        List<T> temp = result.collect(Collectors.toList());
+        List<T> temp = result.toList();
         return Page.<T> builder()
                 .result(temp.stream()
                         .limit(paging.hasLimit() ? paging.getLimit() : temp.size())
@@ -741,4 +704,14 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
                         .orElse(null),
                 element);
     }
+
+
+    private Environment getFilteredEnvironment(LogicalExpression formula) {
+        return new DefaultEnvironment.Builder()
+                .assetAdministrationShells(findAssetAdministrationShells(AssetAdministrationShellSearchCriteria.NONE, QueryModifier.DEFAULT, PagingInfo.ALL, formula).getContent())
+                .submodels(findSubmodels(SubmodelSearchCriteria.NONE, QueryModifier.DEFAULT, PagingInfo.ALL, formula).getContent())
+                .conceptDescriptions(findConceptDescriptions(ConceptDescriptionSearchCriteria.NONE, QueryModifier.DEFAULT, PagingInfo.ALL, formula).getContent())
+                .build();
+    }
+
 }

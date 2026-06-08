@@ -137,7 +137,7 @@ public class SubmodelTemplateProcessorTest {
     private void createService(List<Submodel> submodels) throws Exception {
         Persistence persistence = mock(Persistence.class);
         FileStorage fileStorage = mock(FileStorage.class);
-        when(persistence.getAllSubmodels(any(), any())).thenReturn(Page.of(submodels));
+        when(persistence.getAllSubmodels(any(), any(), any())).thenReturn(Page.of(submodels));
         service = new Service(CoreConfig.DEFAULT, persistence, fileStorage, messageBus, List.of(), List.of(), List.of(processor));
         service.start();
     }

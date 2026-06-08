@@ -111,6 +111,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
     private static final int RANDOM_VALUE_LENGTH = 100;
     private static final String SERIALIZATION_ERROR = "Serialization of document with id %s failed!";
+    private static final String MONGODB_UNSUPPORTED = "Security and query are not supported with mongoDB. This FA³ST Service is not secure and queries won't work!";
     private static final String HANDLE = "handle";
 
     private static final String MSG_RESOURCE_NOT_FOUND_BY_ID = "resource not found (id %s)";
@@ -246,8 +247,10 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
 
     @Override
-    public Page<AssetAdministrationShell> findAssetAdministrationShells(AssetAdministrationShellSearchCriteria criteria, QueryModifier modifier, PagingInfo paging)
+    public Page<AssetAdministrationShell> findAssetAdministrationShells(AssetAdministrationShellSearchCriteria criteria, QueryModifier modifier, PagingInfo paging,
+                                                                        LogicalExpression formula)
             throws PersistenceException {
+        LOGGER.warn(MONGODB_UNSUPPORTED);
         Ensure.requireNonNull(criteria, MSG_CRITERIA_NOT_NULL);
         Ensure.requireNonNull(modifier, MSG_MODIFIER_NOT_NULL);
         Ensure.requireNonNull(paging, MSG_PAGING_NOT_NULL);
@@ -261,15 +264,9 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
 
     @Override
-    public Page<AssetAdministrationShell> findAssetAdministrationShells(AssetAdministrationShellSearchCriteria criteria, QueryModifier modifier, PagingInfo paging,
-                                                                        LogicalExpression formula)
+    public Page<ConceptDescription> findConceptDescriptions(ConceptDescriptionSearchCriteria criteria, QueryModifier modifier, PagingInfo paging, LogicalExpression formula)
             throws PersistenceException {
-        throw new PersistenceException("Query not supported with mongoDB.");
-    }
-
-
-    @Override
-    public Page<ConceptDescription> findConceptDescriptions(ConceptDescriptionSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) throws PersistenceException {
+        LOGGER.warn(MONGODB_UNSUPPORTED);
         Ensure.requireNonNull(criteria, MSG_CRITERIA_NOT_NULL);
         Ensure.requireNonNull(modifier, MSG_MODIFIER_NOT_NULL);
         Ensure.requireNonNull(paging, MSG_PAGING_NOT_NULL);
@@ -285,14 +282,8 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
 
     @Override
-    public Page<ConceptDescription> findConceptDescriptions(ConceptDescriptionSearchCriteria criteria, QueryModifier modifier, PagingInfo paging, LogicalExpression formula)
-            throws PersistenceException {
-        throw new PersistenceException("Query not supported with mongoDB.");
-    }
-
-
-    @Override
-    public Page<Submodel> findSubmodels(SubmodelSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) throws PersistenceException {
+    public Page<Submodel> findSubmodels(SubmodelSearchCriteria criteria, QueryModifier modifier, PagingInfo paging, LogicalExpression formula) throws PersistenceException {
+        LOGGER.warn(MONGODB_UNSUPPORTED);
         Ensure.requireNonNull(criteria, MSG_CRITERIA_NOT_NULL);
         Ensure.requireNonNull(modifier, MSG_MODIFIER_NOT_NULL);
         Ensure.requireNonNull(paging, MSG_PAGING_NOT_NULL);
@@ -306,14 +297,9 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
 
     @Override
-    public Page<Submodel> findSubmodels(SubmodelSearchCriteria criteria, QueryModifier modifier, PagingInfo paging, LogicalExpression formula) throws PersistenceException {
-        throw new PersistenceException("Query not supported with mongoDB.");
-    }
-
-
-    @Override
-    public Page<SubmodelElement> findSubmodelElements(SubmodelElementSearchCriteria criteria, QueryModifier modifier, PagingInfo paging)
-            throws ResourceNotFoundException, PersistenceException {
+    public Page<SubmodelElement> findSubmodelElements(SubmodelElementSearchCriteria criteria, QueryModifier modifier, PagingInfo paging, LogicalExpression formula)
+            throws PersistenceException, ResourceNotFoundException {
+        LOGGER.warn(MONGODB_UNSUPPORTED);
         Ensure.requireNonNull(criteria, MSG_CRITERIA_NOT_NULL);
         Ensure.requireNonNull(modifier, MSG_MODIFIER_NOT_NULL);
         Ensure.requireNonNull(paging, MSG_PAGING_NOT_NULL);
@@ -331,7 +317,9 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
 
     @Override
-    public AssetAdministrationShell getAssetAdministrationShell(String id, QueryModifier modifier) throws ResourceNotFoundException, PersistenceException {
+    public AssetAdministrationShell getAssetAdministrationShell(String id, QueryModifier modifier, LogicalExpression formula)
+            throws ResourceNotFoundException, PersistenceException {
+        LOGGER.warn(MONGODB_UNSUPPORTED);
         return prepareResult(
                 fetch(aasCollection, id, AssetAdministrationShell.class),
                 modifier);
@@ -339,7 +327,8 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
 
     @Override
-    public ConceptDescription getConceptDescription(String id, QueryModifier modifier) throws ResourceNotFoundException, PersistenceException {
+    public ConceptDescription getConceptDescription(String id, QueryModifier modifier, LogicalExpression formula) throws PersistenceException, ResourceNotFoundException {
+        LOGGER.warn(MONGODB_UNSUPPORTED);
         return prepareResult(
                 fetch(cdCollection, id, ConceptDescription.class),
                 modifier);
@@ -347,7 +336,8 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
 
     @Override
-    public Submodel getSubmodel(String id, QueryModifier modifier) throws ResourceNotFoundException, PersistenceException {
+    public Submodel getSubmodel(String id, QueryModifier modifier, LogicalExpression formula) throws PersistenceException, ResourceNotFoundException {
+        LOGGER.warn(MONGODB_UNSUPPORTED);
         return prepareResult(
                 fetch(submodelCollection, id, Submodel.class),
                 modifier);
@@ -355,7 +345,8 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
 
     @Override
-    public SubmodelElement getSubmodelElement(SubmodelElementIdentifier identifier, QueryModifier modifier) throws ResourceNotFoundException, PersistenceException {
+    public SubmodelElement getSubmodelElement(SubmodelElementIdentifier identifier, QueryModifier modifier, LogicalExpression formula)
+            throws PersistenceException, ResourceNotFoundException {
         return prepareResult(
                 fetch(identifier, SubmodelElement.class),
                 modifier);
@@ -363,9 +354,10 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
 
     @Override
-    public Page<Reference> getSubmodelRefs(String aasId, PagingInfo paging) throws ResourceNotFoundException, PersistenceException {
+    public Page<Reference> getSubmodelRefs(String aasId, PagingInfo paging, LogicalExpression formula) throws ResourceNotFoundException, PersistenceException {
+        LOGGER.warn(MONGODB_UNSUPPORTED);
         return preparePagedResult(
-                getAssetAdministrationShell(aasId, QueryModifier.MINIMAL)
+                getAssetAdministrationShell(aasId, QueryModifier.MINIMAL, formula)
                         .getSubmodels()
                         .stream(),
                 paging);
@@ -401,10 +393,10 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
         Ensure.requireNonNull(submodelElement, "submodelElement must be non-null");
         Referable parent;
         if (parentIdentifier.getIdShortPath().isEmpty()) {
-            parent = getSubmodel(parentIdentifier.getSubmodelId(), QueryModifier.MINIMAL);
+            parent = getSubmodel(parentIdentifier.getSubmodelId(), QueryModifier.MINIMAL, Persistence.identity());
         }
         else {
-            parent = getSubmodelElement(parentIdentifier, QueryModifier.MINIMAL);
+            parent = getSubmodelElement(parentIdentifier, QueryModifier.MINIMAL, Persistence.identity());
         }
         if (!SubmodelElementCollection.class.isAssignableFrom(parent.getClass())
                 && !SubmodelElementList.class.isAssignableFrom(parent.getClass())

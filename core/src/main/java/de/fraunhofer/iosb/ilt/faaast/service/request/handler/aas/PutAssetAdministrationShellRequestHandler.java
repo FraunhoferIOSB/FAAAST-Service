@@ -41,7 +41,7 @@ public class PutAssetAdministrationShellRequestHandler extends AbstractRequestHa
     public PutAssetAdministrationShellResponse process(PutAssetAdministrationShellRequest request, RequestExecutionContext context)
             throws ResourceNotFoundException, MessageBusException, ValidationException, PersistenceException {
         ModelValidator.validate(request.getAas(), context.getCoreConfig().getValidationOnUpdate());
-        context.getPersistence().getAssetAdministrationShell(request.getId(), QueryModifier.DEFAULT);
+        context.getPersistence().getAssetAdministrationShell(request.getId(), QueryModifier.DEFAULT, request.getFormula());
         context.getPersistence().deleteAssetAdministrationShell(request.getId());
         context.getPersistence().save(request.getAas());
         if (!request.isInternal()) {

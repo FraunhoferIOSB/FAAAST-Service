@@ -41,12 +41,11 @@ import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEnvironment;
 
 /**
  * Interface used for managing AAS-related data, i.e. everything that is part of a
- * {@code org.eclipse.digitaltwin.aas4j.v3.model.Environment}. Additionally manages to storing of oepration execution
- * states and results.
+ * {@code org.eclipse.digitaltwin.aas4j.v3.model.Environment}. Additionally manages to storing of
+ * operation execution states and results.
  *
  * <p>Implement this interface if you wish to create a custom persistence, e.g. backed by a specific database or to
- * connect
- * to legacy systems.
+ * connect to legacy systems.
  *
  * @param <C> type of the corresponding configuration class
  */
@@ -67,16 +66,18 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
 
 
     /**
-     * Gets an {@code org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell} by id.
+     * Gets an {@code org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell} by id and query.
      *
      * @param id the id
      * @param modifier the modifier
+     * @param formula a query or access rule or both
      * @return the {@code org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell} with the given id
      * @throws ResourceNotFoundException if there is no
      *             {@code org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell} with the given id
      * @throws PersistenceException if there was an error with the storage.
      */
-    public AssetAdministrationShell getAssetAdministrationShell(String id, QueryModifier modifier) throws ResourceNotFoundException, PersistenceException;
+    public AssetAdministrationShell getAssetAdministrationShell(String id, QueryModifier modifier, LogicalExpression formula) throws ResourceNotFoundException,
+            PersistenceException;
 
 
     /**
@@ -85,13 +86,14 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      *
      * @param aasId the id of the AAS
      * @param paging paging information
+     * @param formula a query or access rule or both
      * @return the referenced {@code org.eclipse.digitaltwin.aas4j.v3.model.Submodel}s of an
      *         {@code org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell}
      * @throws ResourceNotFoundException if there is no
      *             {@code org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell} with the given id
      * @throws PersistenceException if there was an error with the storage.
      */
-    public Page<Reference> getSubmodelRefs(String aasId, PagingInfo paging) throws ResourceNotFoundException, PersistenceException;
+    public Page<Reference> getSubmodelRefs(String aasId, PagingInfo paging, LogicalExpression formula) throws ResourceNotFoundException, PersistenceException;
 
 
     /**
@@ -99,13 +101,13 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      *
      * @param id the id
      * @param modifier the modifier
+     * @param formula a query or access rule or both
      * @return the {@code org.eclipse.digitaltwin.aas4j.v3.model.Submodel} with the given id
-     * @throws ResourceNotFoundException if there is no
-     *             {@code org.eclipse.digitaltwin.aas4j.v3.model.Submodel} with the
+     * @throws ResourceNotFoundException if there is no {@code org.eclipse.digitaltwin.aas4j.v3.model.Submodel} with the
      *             given id
      * @throws PersistenceException if there was an error with the storage.
      */
-    public Submodel getSubmodel(String id, QueryModifier modifier) throws ResourceNotFoundException, PersistenceException;
+    public Submodel getSubmodel(String id, QueryModifier modifier, LogicalExpression formula) throws ResourceNotFoundException, PersistenceException;
 
 
     /**
@@ -113,12 +115,13 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      *
      * @param id the id
      * @param modifier the modifier
+     * @param formula a query or access rule or both
      * @return the {@code org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription} with the given id
-     * @throws ResourceNotFoundException if there is no
-     *             {@code org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription} with the given id
+     * @throws ResourceNotFoundException if there is no {@code org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription}
+     *             with the given id
      * @throws PersistenceException if there was an error with the storage.
      */
-    public ConceptDescription getConceptDescription(String id, QueryModifier modifier) throws ResourceNotFoundException, PersistenceException;
+    public ConceptDescription getConceptDescription(String id, QueryModifier modifier, LogicalExpression formula) throws ResourceNotFoundException, PersistenceException;
 
 
     /**
@@ -126,13 +129,14 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      *
      * @param identifier the identifier of the SubmodelElement
      * @param modifier the modifier
+     * @param formula a query or access rule or both
      * @return the {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement} identified by the given path
-     * @throws ResourceNotFoundException if there is no
-     *             {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}
-     *             with the given path
+     * @throws ResourceNotFoundException if there is no {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement} with
+     *             the given path
      * @throws PersistenceException if there was an error with the storage.
      */
-    public SubmodelElement getSubmodelElement(SubmodelElementIdentifier identifier, QueryModifier modifier) throws ResourceNotFoundException, PersistenceException;
+    public SubmodelElement getSubmodelElement(SubmodelElementIdentifier identifier, QueryModifier modifier, LogicalExpression formula) throws ResourceNotFoundException,
+            PersistenceException;
 
 
     /**
@@ -146,21 +150,23 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      * @param identifier the identifier of the SubmodelElement
      * @param modifier the modifier
      * @param paging paging information
-     * @return a list of all child {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}s of the element
-     *         identified by path
+     * @param formula a query or access rule or both
+     * @return a list of all child {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}s of the element identified
+     *         by path
      * @throws ResourceNotFoundException if there is no element with the given path
-     * @throws ResourceNotAContainerElementException if the element identified by the path is not a container element,
-     *             i.e. cannot have any child elements
+     * @throws ResourceNotAContainerElementException if the element identified by the path is not a container element, i.e.
+     *             cannot have any child elements
      * @throws PersistenceException if there was an error with the storage.
      */
-    public default Page<SubmodelElement> getSubmodelElements(SubmodelElementIdentifier identifier, QueryModifier modifier, PagingInfo paging)
+    public default Page<SubmodelElement> getSubmodelElements(SubmodelElementIdentifier identifier, QueryModifier modifier, PagingInfo paging, LogicalExpression formula)
             throws ResourceNotFoundException, PersistenceException, ResourceNotAContainerElementException {
         return findSubmodelElements(
                 SubmodelElementSearchCriteria.builder()
                         .parent(identifier)
                         .build(),
                 modifier,
-                paging);
+                paging,
+                formula);
     }
 
 
@@ -170,20 +176,21 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      * {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection}, or
      * {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList} or
      * {@code org.eclipse.digitaltwin.aas4j.v3.model.Entity} or
-     * {@code org.eclipse.digitaltwin.aas4j.v3.model.AnnotatedRelationshipElement}
-     * that are supported by valueOnly serialization.
+     * {@code org.eclipse.digitaltwin.aas4j.v3.model.AnnotatedRelationshipElement} that are supported by valueOnly
+     * serialization.
      *
      * @param identifier the identifier of the SubmodelElement
      * @param modifier the modifier
      * @param paging paging information
+     * @param formula a query or access rule or both
      * @return a list of all child {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}s that are supported by
      *         valueOnly serialization of the element identified by path
      * @throws ResourceNotFoundException if there is no element with the given path
-     * @throws ResourceNotAContainerElementException if the element identified by the path is not a container element,
-     *             i.e. cannot have any child elements
+     * @throws ResourceNotAContainerElementException if the element identified by the path is not a container element, i.e.
+     *             cannot have any child elements
      * @throws PersistenceException if there was an error with the storage.
      */
-    public default Page<SubmodelElement> getSubmodelElementsValueOnly(SubmodelElementIdentifier identifier, QueryModifier modifier, PagingInfo paging)
+    public default Page<SubmodelElement> getSubmodelElementsValueOnly(SubmodelElementIdentifier identifier, QueryModifier modifier, PagingInfo paging, LogicalExpression formula)
             throws ResourceNotFoundException, PersistenceException, ResourceNotAContainerElementException {
         return findSubmodelElements(
                 SubmodelElementSearchCriteria.builder()
@@ -191,7 +198,8 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
                         .valueOnly()
                         .build(),
                 modifier,
-                paging);
+                paging,
+                formula);
     }
 
 
@@ -201,22 +209,24 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      * {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection}, or
      * {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList} or
      * {@code org.eclipse.digitaltwin.aas4j.v3.model.Entity} or
-     * {@code org.eclipse.digitaltwin.aas4j.v3.model.AnnotatedRelationshipElement}
-     * that are supported by valueOnly serialization.
+     * {@code org.eclipse.digitaltwin.aas4j.v3.model.AnnotatedRelationshipElement} that are supported by valueOnly
+     * serialization.
      *
      * @param reference the reference to the parent/container element
      * @param modifier the modifier
      * @param paging paging information
+     * @param formula a query or access rule or both
      * @return a list of all child {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}s that are supported by
-     *         valueOnly serialization of the element identified by reference
+     *         valueOnly serialization of the element identified by
+     *         reference
      * @throws ResourceNotFoundException if there is no element with the given reference
-     * @throws ResourceNotAContainerElementException if the element identified by the reference is not a container
-     *             element, i.e. cannot have any child elements
+     * @throws ResourceNotAContainerElementException if the element identified by the reference is not a container element,
+     *             i.e. cannot have any child elements
      * @throws PersistenceException if there was an error with the storage.
      */
-    public default Page<SubmodelElement> getSubmodelElementsValueOnly(Reference reference, QueryModifier modifier, PagingInfo paging)
+    public default Page<SubmodelElement> getSubmodelElementsValueOnly(Reference reference, QueryModifier modifier, PagingInfo paging, LogicalExpression formula)
             throws ResourceNotFoundException, PersistenceException, ResourceNotAContainerElementException {
-        return getSubmodelElementsValueOnly(SubmodelElementIdentifier.fromReference(reference), modifier, paging);
+        return getSubmodelElementsValueOnly(SubmodelElementIdentifier.fromReference(reference), modifier, paging, formula);
     }
 
 
@@ -228,9 +238,9 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      */
     public default Environment getEnvironment() throws PersistenceException {
         return new DefaultEnvironment.Builder()
-                .assetAdministrationShells(getAllAssetAdministrationShells(QueryModifier.MAXIMAL, PagingInfo.ALL).getContent())
-                .submodels(getAllSubmodels(QueryModifier.MAXIMAL, PagingInfo.ALL).getContent())
-                .conceptDescriptions(getAllConceptDescriptions(QueryModifier.MAXIMAL, PagingInfo.ALL).getContent())
+                .assetAdministrationShells(getAllAssetAdministrationShells(QueryModifier.MAXIMAL, PagingInfo.ALL, identity()).getContent())
+                .submodels(getAllSubmodels(QueryModifier.MAXIMAL, PagingInfo.ALL, identity()).getContent())
+                .conceptDescriptions(getAllConceptDescriptions(QueryModifier.MAXIMAL, PagingInfo.ALL, identity()).getContent())
                 .build();
     }
 
@@ -247,25 +257,12 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
 
 
     /**
-     * Finds {@code org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell}s by search criteria.
-     *
-     * @param criteria the search criteria
-     * @param modifier the modifier
-     * @param paging paging information
-     * @return the found {@code org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell}s
-     * @throws PersistenceException if there was an error with the storage.
-     */
-    public Page<AssetAdministrationShell> findAssetAdministrationShells(AssetAdministrationShellSearchCriteria criteria, QueryModifier modifier, PagingInfo paging)
-            throws PersistenceException;
-
-
-    /**
      * Finds {@code org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell}s by search criteria and query.
      *
      * @param criteria the search criteria
      * @param modifier the modifier
      * @param paging paging information
-     * @param formula the formula of the query to be executed
+     * @param formula a query or access rule or both
      * @return the found {@code org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell}s
      * @throws PersistenceException if there was an error with the storage.
      */
@@ -275,24 +272,12 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
 
 
     /**
-     * Finds {@code org.eclipse.digitaltwin.aas4j.v3.model.Submodel}s by search criteria.
-     *
-     * @param criteria the search criteria
-     * @param modifier the modifier
-     * @param paging paging information
-     * @return the found {@code org.eclipse.digitaltwin.aas4j.v3.model.Submodel}s
-     * @throws PersistenceException if there was an error with the storage.
-     */
-    public Page<Submodel> findSubmodels(SubmodelSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) throws PersistenceException;
-
-
-    /**
      * Finds {@code org.eclipse.digitaltwin.aas4j.v3.model.Submodel}s by search criteria and query.
      *
      * @param criteria the search criteria
      * @param modifier the modifier
      * @param paging paging information
-     * @param formula the formula of the query to be executed
+     * @param formula a query or access rule or both
      * @return the found {@code org.eclipse.digitaltwin.aas4j.v3.model.Submodel}s
      * @throws PersistenceException if there was an error with the storage.
      */
@@ -305,24 +290,13 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      * @param criteria the search criteria
      * @param modifier the modifier
      * @param paging paging information
+     * @param formula a query or access rule or both (only applies to parent submodels)
      * @return the found {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}s
      * @throws ResourceNotFoundException if the parent does not exist
      * @throws PersistenceException if there was an error with the storage.
      */
-    public Page<SubmodelElement> findSubmodelElements(SubmodelElementSearchCriteria criteria, QueryModifier modifier, PagingInfo paging)
+    public Page<SubmodelElement> findSubmodelElements(SubmodelElementSearchCriteria criteria, QueryModifier modifier, PagingInfo paging, LogicalExpression formula)
             throws ResourceNotFoundException, PersistenceException;
-
-
-    /**
-     * Finds {@code org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription}s by search criteria.
-     *
-     * @param criteria the search criteria
-     * @param modifier the modifier
-     * @param paging paging information
-     * @return the found {@code org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription}s
-     * @throws PersistenceException if there was an error with the storage.
-     */
-    public Page<ConceptDescription> findConceptDescriptions(ConceptDescriptionSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) throws PersistenceException;
 
 
     /**
@@ -331,7 +305,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      * @param criteria the search criteria
      * @param modifier the modifier
      * @param paging paging information
-     * @param formula the formula of the query to be executed
+     * @param formula a query or access rule or both
      * @return the found {@code org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription}s
      * @throws PersistenceException if there was an error with the storage.
      */
@@ -342,8 +316,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
     /**
      * Save an {@code org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell}.
      *
-     * @param assetAdministrationShell the {@code org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell} to
-     *            insert
+     * @param assetAdministrationShell the {@code org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell} to insert
      * @throws PersistenceException if there was an error with the storage.
      */
     public void save(AssetAdministrationShell assetAdministrationShell) throws PersistenceException;
@@ -454,8 +427,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
     /**
      * Deletes an {@code org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell}.
      *
-     * @param assetAdministrationShell the {@code org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell} to
-     *            delete
+     * @param assetAdministrationShell the {@code org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell} to delete
      * @throws ResourceNotFoundException if the resource does not exist
      * @throws PersistenceException if there was an error with the storage.
      */
@@ -540,18 +512,18 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      * @param identifier the identifier of the SubmodelElement
      * @param modifier the modifier
      * @param type the concrete subtype of {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}
+     * @param formula a query or access rule or both
      * @return the {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement} identified by the given path
-     * @throws ResourceNotFoundException if there is no
-     *             {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}
-     *             with the given path
+     * @throws ResourceNotFoundException if there is no {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement} with
+     *             the given path
      * @throws IllegalArgumentException if type is null
      * @throws ClassCastException if casting fails
      * @throws PersistenceException if there was an error with the storage.
      */
-    public default <T extends SubmodelElement> T getSubmodelElement(SubmodelElementIdentifier identifier, QueryModifier modifier, Class<T> type)
+    public default <T extends SubmodelElement> T getSubmodelElement(SubmodelElementIdentifier identifier, QueryModifier modifier, Class<T> type, LogicalExpression formula)
             throws ResourceNotFoundException, PersistenceException {
         Ensure.requireNonNull(type, "type must be non-null");
-        return type.cast(getSubmodelElement(identifier, modifier));
+        return type.cast(getSubmodelElement(identifier, modifier, formula));
     }
 
 
@@ -560,18 +532,19 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      *
      * @param reference the reference
      * @param modifier the modifier
+     * @param formula a query or access rule or both
      * @return the {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement} identified by the given path
-     * @throws ResourceNotFoundException if there is no
-     *             {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}
-     *             with the given path
+     * @throws ResourceNotFoundException if there is no {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement} with
+     *             the given path
      * @throws PersistenceException if there was an error with the storage.
      */
-    public default SubmodelElement getSubmodelElement(Reference reference, QueryModifier modifier) throws ResourceNotFoundException, PersistenceException {
+    public default SubmodelElement getSubmodelElement(Reference reference, QueryModifier modifier, LogicalExpression formula) throws ResourceNotFoundException,
+            PersistenceException {
         String submodelId = ReferenceHelper.findFirstKeyType(reference, KeyTypes.SUBMODEL);
         if (Objects.isNull(submodelId)) {
             throw new ResourceNotFoundException(reference);
         }
-        return getSubmodelElement(SubmodelElementIdentifier.fromReference(reference), modifier);
+        return getSubmodelElement(SubmodelElementIdentifier.fromReference(reference), modifier, formula);
     }
 
 
@@ -582,19 +555,19 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      * @param reference the reference
      * @param modifier the modifier
      * @param type the concrete subtype of {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}
+     * @param formula a query or access rule or both
      * @return the {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement} identified by the given path
-     * @throws ResourceNotFoundException if there is no
-     *             {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}
-     *             with the given reference
+     * @throws ResourceNotFoundException if there is no {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement} with
+     *             the given reference
      * @throws PersistenceException if there was an error with the storage.
      */
-    public default <T extends SubmodelElement> T getSubmodelElement(Reference reference, QueryModifier modifier, Class<T> type)
+    public default <T extends SubmodelElement> T getSubmodelElement(Reference reference, QueryModifier modifier, Class<T> type, LogicalExpression formula)
             throws ResourceNotFoundException, PersistenceException {
         String submodelId = ReferenceHelper.findFirstKeyType(reference, KeyTypes.SUBMODEL);
         if (Objects.isNull(submodelId)) {
             throw new ResourceNotFoundException(reference);
         }
-        return getSubmodelElement(SubmodelElementIdentifier.fromReference(reference), modifier, type);
+        return getSubmodelElement(SubmodelElementIdentifier.fromReference(reference), modifier, type, formula);
     }
 
 
@@ -609,16 +582,17 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      * @param reference the reference to the parent/container element
      * @param modifier the modifier
      * @param paging paging information
-     * @return a list of all child {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}s of the element
-     *         identified by reference
+     * @param formula a query or access rule or both
+     * @return a list of all child {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}s of the element identified
+     *         by reference
      * @throws ResourceNotFoundException if there is no element with the given reference
-     * @throws ResourceNotAContainerElementException if the element identified by the reference is not a container
-     *             element, i.e. cannot have any child elements
+     * @throws ResourceNotAContainerElementException if the element identified by the reference is not a container element,
+     *             i.e. cannot have any child elements
      * @throws PersistenceException if there was an error with the storage.
      */
-    public default Page<SubmodelElement> getSubmodelElements(Reference reference, QueryModifier modifier, PagingInfo paging)
+    public default Page<SubmodelElement> getSubmodelElements(Reference reference, QueryModifier modifier, PagingInfo paging, LogicalExpression formula)
             throws ResourceNotFoundException, PersistenceException, ResourceNotAContainerElementException {
-        return getSubmodelElements(SubmodelElementIdentifier.fromReference(reference), modifier, paging);
+        return getSubmodelElements(SubmodelElementIdentifier.fromReference(reference), modifier, paging, formula);
     }
 
 
@@ -627,11 +601,13 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      *
      * @param modifier the modifier
      * @param paging paging information
+     * @param formula a query or access rule or both
      * @return all {@code org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell}s
      * @throws PersistenceException if there was an error with the storage.
      */
-    public default Page<AssetAdministrationShell> getAllAssetAdministrationShells(QueryModifier modifier, PagingInfo paging) throws PersistenceException {
-        return findAssetAdministrationShells(AssetAdministrationShellSearchCriteria.NONE, modifier, paging);
+    public default Page<AssetAdministrationShell> getAllAssetAdministrationShells(QueryModifier modifier, PagingInfo paging, LogicalExpression formula)
+            throws PersistenceException {
+        return findAssetAdministrationShells(AssetAdministrationShellSearchCriteria.NONE, modifier, paging, formula);
     }
 
 
@@ -640,11 +616,12 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      *
      * @param modifier the modifier
      * @param paging paging information
+     * @param formula a query or access rule or both
      * @return all {@code org.eclipse.digitaltwin.aas4j.v3.model.Submodel}s
      * @throws PersistenceException if there was an error with the storage.
      */
-    public default Page<Submodel> getAllSubmodels(QueryModifier modifier, PagingInfo paging) throws PersistenceException {
-        return findSubmodels(SubmodelSearchCriteria.NONE, modifier, paging);
+    public default Page<Submodel> getAllSubmodels(QueryModifier modifier, PagingInfo paging, LogicalExpression formula) throws PersistenceException {
+        return findSubmodels(SubmodelSearchCriteria.NONE, modifier, paging, formula);
     }
 
 
@@ -653,11 +630,12 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      *
      * @param modifier the modifier
      * @param paging paging information
+     * @param formula a query or access rule or both
      * @return all {@code org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription}s
      * @throws PersistenceException if there was an error with the storage.
      */
-    public default Page<ConceptDescription> getAllConceptDescriptions(QueryModifier modifier, PagingInfo paging) throws PersistenceException {
-        return findConceptDescriptions(ConceptDescriptionSearchCriteria.NONE, modifier, paging);
+    public default Page<ConceptDescription> getAllConceptDescriptions(QueryModifier modifier, PagingInfo paging, LogicalExpression formula) throws PersistenceException {
+        return findConceptDescriptions(ConceptDescriptionSearchCriteria.NONE, modifier, paging, formula);
     }
 
 
@@ -666,12 +644,13 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      *
      * @param modifier the modifier
      * @param paging paging information
+     * @param formula a query or access rule or both
      * @return all {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}s
      * @throws PersistenceException if there was an error with the storage.
      */
-    public default Page<SubmodelElement> getAllSubmodelElements(QueryModifier modifier, PagingInfo paging) throws PersistenceException {
+    public default Page<SubmodelElement> getAllSubmodelElements(QueryModifier modifier, PagingInfo paging, LogicalExpression formula) throws PersistenceException {
         try {
-            return findSubmodelElements(SubmodelElementSearchCriteria.NONE, modifier, paging);
+            return findSubmodelElements(SubmodelElementSearchCriteria.NONE, modifier, paging, formula);
         }
         catch (ResourceNotFoundException e) {
             throw new PersistenceException("unexpected persistence exception", e);
@@ -687,7 +666,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      */
     public default boolean assetAdministrationShellExists(String id) {
         try {
-            return Objects.nonNull(getAssetAdministrationShell(id, QueryModifier.MINIMAL));
+            return Objects.nonNull(getAssetAdministrationShell(id, QueryModifier.MINIMAL, identity()));
         }
         catch (ResourceNotFoundException | PersistenceException e) {
             return false;
@@ -703,7 +682,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      */
     public default boolean conceptDescriptionExists(String id) {
         try {
-            return Objects.nonNull(getConceptDescription(id, QueryModifier.DEFAULT));
+            return Objects.nonNull(getConceptDescription(id, QueryModifier.DEFAULT, identity()));
         }
         catch (ResourceNotFoundException | PersistenceException e) {
             return false;
@@ -719,7 +698,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      */
     public default boolean submodelExists(String id) {
         try {
-            return Objects.nonNull(getSubmodel(id, QueryModifier.DEFAULT));
+            return Objects.nonNull(getSubmodel(id, QueryModifier.DEFAULT, identity()));
         }
         catch (ResourceNotFoundException | PersistenceException e) {
             return false;
@@ -735,7 +714,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      */
     public default boolean submodelElementExists(Reference reference) {
         try {
-            return Objects.nonNull(getSubmodelElement(reference, QueryModifier.DEFAULT));
+            return Objects.nonNull(getSubmodelElement(reference, QueryModifier.DEFAULT, identity()));
         }
         catch (ResourceNotFoundException | PersistenceException e) {
             return false;
@@ -751,10 +730,22 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      */
     public default boolean submodelElementExists(SubmodelElementIdentifier identifier) {
         try {
-            return Objects.nonNull(getSubmodelElement(identifier, QueryModifier.DEFAULT));
+            return Objects.nonNull(getSubmodelElement(identifier, QueryModifier.DEFAULT, identity()));
         }
         catch (ResourceNotFoundException | PersistenceException e) {
             return false;
         }
+    }
+
+
+    /**
+     * Get an identity ("True") formula.
+     *
+     * @return "True" as a formula
+     */
+    public static LogicalExpression identity() {
+        LogicalExpression identity = new LogicalExpression();
+        identity.set$boolean(true);
+        return identity;
     }
 }

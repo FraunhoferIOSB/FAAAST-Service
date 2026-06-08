@@ -44,7 +44,7 @@ public class PatchSubmodelRequestHandler extends AbstractRequestHandler<PatchSub
     public PatchSubmodelResponse process(PatchSubmodelRequest request, RequestExecutionContext context)
             throws ResourceNotFoundException, AssetConnectionException, ValueMappingException, MessageBusException, ValidationException, ResourceNotAContainerElementException,
             InvalidRequestException, PersistenceException {
-        Submodel current = context.getPersistence().getSubmodel(request.getSubmodelId(), QueryModifier.DEFAULT);
+        Submodel current = context.getPersistence().getSubmodel(request.getSubmodelId(), QueryModifier.DEFAULT, request.getFormula());
         Submodel updated = applyMergePatch(request.getChanges(), current, Submodel.class);
         ModelValidator.validate(updated, context.getCoreConfig().getValidationOnUpdate());
         context.getPersistence().save(updated);

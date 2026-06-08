@@ -14,6 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence.identity;
+
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnection;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
@@ -157,7 +159,7 @@ public class Service implements ServiceContext {
 
     @Override
     public TypeInfo getTypeInfo(Reference reference) throws ResourceNotFoundException, PersistenceException {
-        return TypeExtractor.extractTypeInfo(persistence.getSubmodelElement(reference, QueryModifier.DEFAULT));
+        return TypeExtractor.extractTypeInfo(persistence.getSubmodelElement(reference, QueryModifier.DEFAULT, identity()));
     }
 
 

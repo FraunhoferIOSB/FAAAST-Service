@@ -103,7 +103,7 @@ public class LambdaAssetConnectionTest {
                 .element(propertyId)
                 .build();
 
-        when(persistence.getSubmodelElement(eq(propertyRef), any())).thenReturn(property);
+        when(persistence.getSubmodelElement(eq(propertyRef), any(), any())).thenReturn(property);
 
         AtomicInteger value = new AtomicInteger(initialValueAsset);
         service.getAssetConnectionManager().registerLambdaValueProvider(
@@ -169,7 +169,7 @@ public class LambdaAssetConnectionTest {
                 .element(propertyId)
                 .build();
 
-        when(persistence.getSubmodelElement(eq(propertyRef), any())).thenReturn(property);
+        when(persistence.getSubmodelElement(eq(propertyRef), any(), any())).thenReturn(property);
 
         List<Integer> values = List.of(1, 2, 3, 4);
         Semaphore canUpdate = new Semaphore(1);
@@ -255,7 +255,7 @@ public class LambdaAssetConnectionTest {
                 .element(operationId)
                 .build();
 
-        when(persistence.getSubmodelElement(eq(reference), any(), eq(Operation.class))).thenReturn(operation);
+        when(persistence.getSubmodelElement(eq(reference), any(), eq(Operation.class), any())).thenReturn(operation);
         service.getAssetConnectionManager().registerLambdaOperationProvider(
                 reference,
                 LambdaOperationProvider.builder()

@@ -15,21 +15,20 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http;
 
 import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.SharedAttributes.ACL;
-import static de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod.GET;
+import static de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence.identity;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.MethodNotAllowedException;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.UnauthorizedException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.RequestMappingManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.response.ResponseMappingManager;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.FormulaEvaluator;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AccessPermissionRule;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.LogicalExpression;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
@@ -37,7 +36,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -104,11 +102,10 @@ public class RequestHandlerServlet extends HttpServlet {
                         .collect(Collectors.toMap(
                                 x -> x,
                                 request::getHeader)))
-                .accessPermissionRules((List<AccessPermissionRule>) request.getAttribute(ACL.getName()))
+                .formula(rulesToFormula((List<AccessPermissionRule>) request.getAttribute(ACL.getName())))
                 .build();
-
         try {
-            executeAndSend(httpRequest, response, requestMappingManager.map(httpRequest));
+            executeAndSend(response, requestMappingManager.map(httpRequest));
         }
         catch (Exception e) {
             doThrow(e);
@@ -130,14 +127,11 @@ public class RequestHandlerServlet extends HttpServlet {
     }
 
 
-    private void executeAndSend(HttpRequest request, HttpServletResponse response,
-                                de.fraunhofer.iosb.ilt.faaast.service.model.api.Request<? extends Response> apiRequest)
-            throws Exception {
+    private void executeAndSend(HttpServletResponse response, de.fraunhofer.iosb.ilt.faaast.service.model.api.Request<? extends Response> apiRequest) throws Exception {
         if (Objects.isNull(apiRequest)) {
             throw new InvalidRequestException("empty API request");
         }
         checkRequestSupportedByProfiles(apiRequest);
-        checkAccess(request);
 
         de.fraunhofer.iosb.ilt.faaast.service.model.api.Response apiResponse = serviceContext.execute(endpoint, apiRequest);
 
@@ -153,21 +147,6 @@ public class RequestHandlerServlet extends HttpServlet {
     }
 
 
-    private void checkAccess(HttpRequest request)
-            throws ServletException {
-        List<AccessPermissionRule> rules = request.getAccessPermissionRules();
-
-        if (rules == null || request.getMethod() == GET) {
-            return;
-        }
-
-        if (rules.stream().noneMatch(rule -> FormulaEvaluator.evaluate(rule.getFormula(), new HashMap<>()))) {
-            doThrow(new UnauthorizedException(
-                    String.format("User not authorized '%s'", request.getPath())));
-        }
-    }
-
-
     private static boolean isSuccessful(de.fraunhofer.iosb.ilt.faaast.service.model.api.Response response) {
         return Objects.nonNull(response)
                 && response.getStatusCode().isSuccess()
@@ -177,6 +156,23 @@ public class RequestHandlerServlet extends HttpServlet {
                         .stream()
                         .map(Message::getMessageType)
                         .noneMatch(x -> Objects.equals(x, MessageTypeEnum.ERROR) || Objects.equals(x, MessageTypeEnum.EXCEPTION));
+    }
+
+
+    /**
+     * Transforms a list of resolved access permission rules to a LogicalExpression, using OR to combine them.
+     *
+     * @param rules The rules to OR-ify
+     * @return The LogicalExpression formula
+     */
+    protected LogicalExpression rulesToFormula(List<AccessPermissionRule> rules) {
+        // Security turned off
+        if (rules == null) {
+            return identity();
+        }
+        LogicalExpression condition = new LogicalExpression();
+        condition.set$or(rules.stream().map(AccessPermissionRule::getFormula).toList());
+        return condition;
     }
 
 }

@@ -110,7 +110,7 @@ public class QueryEvaluator {
             new StringValueKindCheck(StringValueKind.STR_CAST, v -> v.get$strCast() != null));
 
     /**
-     * Used to decide whether to filter out the Identifiable.
+     * Used to decide whether to filter out an Identifiable.
      *
      * @param expr logical expression (tree)
      * @param identifiable AAS | Submodel | ConceptDescription
@@ -122,14 +122,19 @@ public class QueryEvaluator {
             return false;
         }
 
-        Boolean directBoolean = evaluateBooleanLiteral(expr);
+        Boolean directBoolean = expr.get$boolean();
         if (directBoolean != null) {
             return directBoolean;
         }
 
-        Boolean logical = evaluateLogicalExpression(expr, identifiable);
-        if (logical != null) {
-            return logical;
+        if (expr.get$and() != null && !expr.get$and().isEmpty()) {
+            return expr.get$and().stream().allMatch(e -> matches(e, identifiable));
+        }
+        if (expr.get$or() != null && !expr.get$or().isEmpty()) {
+            return expr.get$or().stream().anyMatch(e -> matches(e, identifiable));
+        }
+        if (expr.get$not() != null) {
+            return !matches(expr.get$not(), identifiable);
         }
 
         if (hasMatchExpression(expr)) {
@@ -141,25 +146,6 @@ public class QueryEvaluator {
         }
 
         return evaluateFirstStringOperator(expr, identifiable);
-    }
-
-
-    private Boolean evaluateBooleanLiteral(LogicalExpression expr) {
-        return expr.get$boolean();
-    }
-
-
-    private Boolean evaluateLogicalExpression(LogicalExpression expr, Identifiable identifiable) {
-        if (expr.get$and() != null && !expr.get$and().isEmpty()) {
-            return expr.get$and().stream().allMatch(e -> matches(e, identifiable));
-        }
-        if (expr.get$or() != null && !expr.get$or().isEmpty()) {
-            return expr.get$or().stream().anyMatch(e -> matches(e, identifiable));
-        }
-        if (expr.get$not() != null) {
-            return !matches(expr.get$not(), identifiable);
-        }
-        return null;
     }
 
 

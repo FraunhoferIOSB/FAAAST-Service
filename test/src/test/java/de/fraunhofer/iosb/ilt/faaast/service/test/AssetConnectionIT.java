@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.test;
 
 import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper.toHttpStatusCode;
+import static de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence.identity;
 import static de.fraunhofer.iosb.ilt.faaast.service.test.model.AssetConnectionModelSimple.ENVIRONMENT;
 import static de.fraunhofer.iosb.ilt.faaast.service.test.model.AssetConnectionModelSimple.INITIAL_VALUE;
 import static de.fraunhofer.iosb.ilt.faaast.service.test.model.AssetConnectionModelSimple.NODE_ID_SOURCE_1;
@@ -429,7 +430,7 @@ public class AssetConnectionIT extends AbstractIntegrationTest {
 
 
     private void setValue(Service service, Reference reference, String value) throws ResourceNotFoundException, PersistenceException, ValueFormatException {
-        Property property = (Property) service.getPersistence().getSubmodelElement(reference, QueryModifier.MINIMAL, Property.class);
+        Property property = (Property) service.getPersistence().getSubmodelElement(reference, QueryModifier.MINIMAL, Property.class, identity());
         property.setValue(value);
         PatchSubmodelElementValueByPathResponse response = service.execute(PatchSubmodelElementValueByPathRequest.builder()
                 .submodelId(SubmodelElementIdentifier.fromReference(reference).getSubmodelId())

@@ -14,6 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.persistence.file;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence.identity;
+
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
@@ -155,7 +157,7 @@ public class PersistenceFileTest extends AbstractPersistenceTest<PersistenceFile
                         .map(Path::toString)
                         .filter(x -> x.endsWith(".json"))
                         .count());
-        Assert.assertThrows(ResourceNotFoundException.class, () -> newPersistence.getAssetAdministrationShell(identifier, QueryModifier.DEFAULT));
+        Assert.assertThrows(ResourceNotFoundException.class, () -> newPersistence.getAssetAdministrationShell(identifier, QueryModifier.DEFAULT, identity()));
     }
 
 

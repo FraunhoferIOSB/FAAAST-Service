@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence.identity;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
@@ -645,7 +646,8 @@ public abstract class AbstractHttpEndpointTest {
                 aas.getId(),
                 new OutputModifier.Builder()
                         .level(Level.CORE)
-                        .build()))
+                        .build(),
+                identity()))
                 .thenReturn(aas);
         ContentResponse response = execute(
                 HttpMethod.GET,

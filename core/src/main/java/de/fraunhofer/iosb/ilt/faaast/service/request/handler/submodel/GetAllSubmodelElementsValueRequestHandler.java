@@ -47,7 +47,7 @@ public class GetAllSubmodelElementsValueRequestHandler extends AbstractSubmodelI
     public GetAllSubmodelElementsValueResponse doProcess(GetAllSubmodelElementsValueRequest request, RequestExecutionContext context)
             throws AssetConnectionException, ValueMappingException, ResourceNotFoundException, MessageBusException, ResourceNotAContainerElementException, PersistenceException {
         Reference reference = ReferenceBuilder.forSubmodel(request.getSubmodelId());
-        Page<SubmodelElement> page = context.getPersistence().getSubmodelElementsValueOnly(reference, request.getOutputModifier(), request.getPagingInfo());
+        Page<SubmodelElement> page = context.getPersistence().getSubmodelElementsValueOnly(reference, request.getOutputModifier(), request.getPagingInfo(), request.getFormula());
         context.getAssetConnectionManager().syncValueProvidersOnRead(reference, page, !request.isInternal());
         if (!request.isInternal() && Objects.nonNull(page.getContent())) {
             page.getContent().forEach(LambdaExceptionHelper.rethrowConsumer(
