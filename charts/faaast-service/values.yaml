@@ -46,7 +46,6 @@ core: {}
 # core:
 #   operationTimeout: 60000           # ms, 0 = no timeout
 #   assetConnectionReadTimeout: 30000 # ms
-#   callbackAddress: "https://faaast.example.com"
 #   validationOnLoad:
 #     validateConstraints: true
 #     idShortUniqueness: true

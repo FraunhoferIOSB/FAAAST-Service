@@ -16,17 +16,16 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http;
 
 import static de.fraunhofer.iosb.ilt.faaast.service.certificate.util.KeyStoreHelper.DEFAULT_ALIAS;
 
-import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.certificate.CertificateData;
 import de.fraunhofer.iosb.ilt.faaast.service.certificate.CertificateInformation;
 import de.fraunhofer.iosb.ilt.faaast.service.certificate.util.KeyStoreHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.AbstractEndpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.Interface;
 import de.fraunhofer.iosb.ilt.faaast.service.model.Version;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.HostnameUtil;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -79,7 +78,6 @@ public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
     private static final String ENDPOINT_PROTOCOL = "HTTP";
     private static final String ENDPOINT_PROTOCOL_VERSION = "1.1";
     private Server server;
-    private String callbackAddress;
 
     @Override
     public HttpEndpointConfig asConfig() {
@@ -121,13 +119,6 @@ public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
         catch (Exception e) {
             throw new EndpointException("error starting HTTP endpoint", e);
         }
-    }
-
-
-    @Override
-    public void init(CoreConfig coreConfig, HttpEndpointConfig config, ServiceContext serviceContext) {
-        callbackAddress = coreConfig.getCallbackAddress();
-        super.init(coreConfig, config, serviceContext);
     }
 
 
@@ -271,6 +262,42 @@ public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
     }
 
 
+    /**
+     * Return the address this endpoint is reachable from. Consists of hostname + pathPrefix if hostname is defined, else
+     * HostnameUtil.getHostname() + port + path
+     *
+     * @return the internet address of this endpoint
+     */
+    public URI getEndpointUri() {
+        URI result = server.getURI();
+        try {
+            if (Objects.nonNull(config.getHostname())) {
+                result = buildUri(
+                        config.getHostname(),
+                        // server URI path comes before configured prefix
+                        result.getPath(),
+                        config.getPathPrefix());
+            }
+            else {
+                result = new URI(
+                        result.getScheme(),
+                        result.getUserInfo(),
+                        HostnameUtil.getHostname(),
+                        result.getPort(),
+                        // server URI path comes before configured prefix
+                        result.getPath().concat(config.getPathPrefix()),
+                        result.getQuery(),
+                        result.getFragment());
+            }
+        }
+        catch (URISyntaxException e) {
+            LOGGER.error("error creating endpoint URI for HTTP endpoint based on hostname from configuration (hostname: {}): {}",
+                    config.getHostname(), e.getMessage());
+        }
+        return result;
+    }
+
+
     private org.eclipse.digitaltwin.aas4j.v3.model.Endpoint endpointFor(Interface iface, String path, String identifiableId) {
         URI endpointUri = buildUri(getEndpointUri().toString(), path);
 
@@ -279,7 +306,7 @@ public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
         }
 
         return new DefaultEndpoint.Builder()
-                ._interface(String.format("%s-%d.%d", iface, API_VERSION.getMajor(), API_VERSION.getMinor()))
+                ._interface(String.format("%s-%d.%d", iface.getName(), API_VERSION.getMajor(), API_VERSION.getMinor()))
                 .protocolInformation(new DefaultProtocolInformation.Builder()
                         .href(endpointUri.toASCIIString())
                         .endpointProtocol(ENDPOINT_PROTOCOL)
@@ -302,36 +329,6 @@ public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
             return null;
         }
         return subprotocolBodyTemplate.replace("${id}", Optional.ofNullable(identifiableId).orElse(""));
-    }
-
-
-    private URI getEndpointUri() {
-        URI result = server.getURI();
-        try {
-            if (Objects.nonNull(callbackAddress)) {
-                result = buildUri(
-                        callbackAddress,
-                        // server URI path comes before configured prefix
-                        result.getPath(),
-                        config.getPathPrefix());
-            }
-            else if (Objects.nonNull(config.getHostname())) {
-                result = new URI(
-                        result.getScheme(),
-                        result.getUserInfo(),
-                        config.getHostname(),
-                        result.getPort(),
-                        // server URI path comes before configured prefix
-                        result.getPath().concat(config.getPathPrefix()),
-                        result.getQuery(),
-                        result.getFragment());
-            }
-        }
-        catch (URISyntaxException e) {
-            LOGGER.error("error creating endpoint URI for HTTP endpoint based on hostname from configuration (callbackAddress: {}, hostname: {}): {}",
-                    callbackAddress, config.getHostname(), e.getMessage());
-        }
-        return result;
     }
 
 

@@ -36,7 +36,7 @@ import org.junit.Assert;
 
 public abstract class AbstractCloudEventMapperTest {
     private final String eventTypePrefix = "my.prefix.test.";
-    private final String callbackAddress = "https://localhost:12345/api/v3.1";
+    private final String sourceUri = "https://localhost:12345/api/v3.1";
     private final String dataSchemaPrefix = "https://my-data-schema-prefix/path#";
     protected final ObjectMapper mapper = new ObjectMapper()
             .enable(SerializationFeature.INDENT_OUTPUT)
@@ -50,17 +50,17 @@ public abstract class AbstractCloudEventMapperTest {
 
 
     protected CloudEventMapper getCloudEventMapper(boolean slimEvents, Function<Reference, Referable> referableSupplier) {
-        return getCloudEventMapper(callbackAddress, dataSchemaPrefix, eventTypePrefix, slimEvents, referableSupplier);
+        return getCloudEventMapper(sourceUri, dataSchemaPrefix, eventTypePrefix, slimEvents, referableSupplier);
     }
 
 
-    protected abstract CloudEventMapper getCloudEventMapper(String callbackAddress, String dataSchemaPrefix, String eventTypePrefix, boolean slimEvents,
+    protected abstract CloudEventMapper getCloudEventMapper(String sourceUri, String dataSchemaPrefix, String eventTypePrefix, boolean slimEvents,
                                                             Function<Reference, Referable> referableSupplier);
 
 
     protected CloudEvent expectedFrom(String identifiableId, Referable referable, String dataSchemaSuffix, String eventTypeSuffix) throws JsonProcessingException {
         CloudEventBuilder builder = CloudEventBuilder.v1()
-                .withSource(URI.create(String.format("%s/submodels/%s/submodel-elements/%s", callbackAddress, EncodingHelper.base64UrlEncode(identifiableId),
+                .withSource(URI.create(String.format("%s/submodels/%s/submodel-elements/%s", sourceUri, EncodingHelper.base64UrlEncode(identifiableId),
                         referable.getIdShort())))
                 .withId(UUID.randomUUID().toString())
                 .withType(eventTypePrefix + eventTypeSuffix)

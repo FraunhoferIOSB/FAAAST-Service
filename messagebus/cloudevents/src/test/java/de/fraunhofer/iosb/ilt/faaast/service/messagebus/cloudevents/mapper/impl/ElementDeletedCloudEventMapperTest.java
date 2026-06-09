@@ -62,9 +62,9 @@ public class ElementDeletedCloudEventMapperTest extends AbstractCloudEventMapper
 
 
     @Override
-    protected CloudEventMapper getCloudEventMapper(String callbackAddress, String dataSchemaPrefix, String eventTypePrefix, boolean slimEvents,
+    protected CloudEventMapper getCloudEventMapper(String sourceUri, String dataSchemaPrefix, String eventTypePrefix, boolean slimEvents,
                                                    Function<Reference, Referable> referableSupplier) {
-        return new ElementDeletedCloudEventMapper(new CloudEventMapperConfig(callbackAddress, dataSchemaPrefix, eventTypePrefix, slimEvents));
+        return new ElementDeletedCloudEventMapper(new CloudEventMapperConfig(sourceUri, dataSchemaPrefix, eventTypePrefix, slimEvents));
     }
 
 
