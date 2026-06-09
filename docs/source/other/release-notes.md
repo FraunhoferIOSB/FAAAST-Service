@@ -4,10 +4,10 @@
 
 **New Features & Major Changes**
 - General
+	- Updated to AAS metamodel v3.1.
 	- Added support for reading/writing operation arguments from/to referenced other AAS elements (by using Qualifiers)
 	- Added CLI argument --show-stacktrace
 	- Added new core config properties `operationTimeout` to set a global timeout for executing AAS operations
-  - Updated to AAS metamodel v3.1.
 	- Removed support for RDF and JSON-LD format
 - Persistence
 	- MongoDB is now deprecated and will be remove in v2.0.
