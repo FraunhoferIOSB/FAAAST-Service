@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithModifierAndPaging;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasrepository.QueryAssetAdministrationShellsResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.Query;
@@ -62,7 +62,8 @@ public class QueryAssetAdministrationShellsRequest extends AbstractRequestWithMo
         return new Builder();
     }
 
-    public abstract static class AbstractBuilder<T extends QueryAssetAdministrationShellsRequest, B extends AbstractBuilder<T, B>> extends Request.AbstractBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends QueryAssetAdministrationShellsRequest, B extends AbstractBuilder<T, B>>
+            extends AbstractRequestWithModifier.AbstractBuilder<T, B> {
 
         public B query(Query value) {
             getBuildingInstance().setQuery(value);
