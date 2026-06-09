@@ -14,12 +14,22 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.pre;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod.CONNECT;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod.DELETE;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod.GET;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod.HEAD;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod.OPTIONS;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod.PATCH;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod.POST;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod.PUT;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod.TRACE;
+
 import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AccessPermissionRule;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.RightsEnum;
 import jakarta.servlet.http.HttpServletRequest;
-
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -27,43 +37,42 @@ import java.util.List;
  */
 public class AclRightsFilter extends AbstractAclFilter {
 
+    private static final Map<RightsEnum, List<HttpMethod>> RIGHT_TO_HTTP_METHOD_MAPPING = Map.of(
+            RightsEnum.CREATE, List.of(POST, PUT),
+            RightsEnum.READ, List.of(GET),
+            RightsEnum.UPDATE, List.of(PATCH, PUT),
+            RightsEnum.DELETE, List.of(DELETE),
+            RightsEnum.EXECUTE, List.of(POST),
+            RightsEnum.VIEW, List.of(GET),
+            RightsEnum.ALL, List.of(GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD, TRACE, CONNECT));
+
     @Override
-    protected List<AccessPermissionRule> doFilter(HttpServletRequest request, List<AccessPermissionRule> acl) {
+    protected List<AccessPermissionRule> doFilter(HttpServletRequest request, List<AccessPermissionRule> rules) {
         String method = request.getMethod();
-        String requiredRight = isOperationRequest(method, request.getContextPath()) ? "EXECUTE" : getRequiredRight(method);
+        boolean isOperation = isOperationRequest(method, request.getContextPath());
 
-        acl.removeIf(
-                rule -> rule.getAcl().getRights().contains(RightsEnum.ALL) ||
-                        rule.getAcl().getRights().contains(RightsEnum.valueOf(requiredRight)));
-
-        return acl;
+        rules.removeIf(
+                rule -> rule.getAcl().getRights().stream()
+                        .noneMatch(right -> isOperation && right == RightsEnum.EXECUTE ||
+                                RIGHT_TO_HTTP_METHOD_MAPPING.get(right).stream()
+                                        .map(Enum::name)
+                                        .anyMatch(m -> m.equalsIgnoreCase(method))));
+        return rules;
     }
 
 
     private static boolean isOperationRequest(String method, String path) {
         // Requirements: POST and URL suffix: invoke, invoke-async, invoke/$value, invoke-async/$value
-        String cleanPath;
+        String maybeInvokeKeyword;
         String[] pathParts = path.split("/");
 
         if (pathParts.length > 1 && "$value".equals(pathParts[pathParts.length - 1])) {
-            cleanPath = pathParts[pathParts.length - 2];
+            maybeInvokeKeyword = pathParts[pathParts.length - 2];
         }
         else {
-            cleanPath = pathParts[pathParts.length - 1];
+            maybeInvokeKeyword = pathParts[pathParts.length - 1];
         }
 
-        return HttpMethod.POST.name().equals(method) && ("invoke".equals(cleanPath) || "invoke-async".equals(cleanPath));
+        return POST.name().equalsIgnoreCase(method) && ("invoke".equals(maybeInvokeKeyword) || "invoke-async".equals(maybeInvokeKeyword));
     }
-
-
-    private static String getRequiredRight(String method) {
-        return switch (method) {
-            case "GET" -> "READ";
-            case "POST" -> "CREATE";
-            case "PUT" -> "UPDATE";
-            case "DELETE" -> "DELETE";
-            default -> throw new IllegalArgumentException("Unsupported method: " + method);
-        };
-    }
-
 }

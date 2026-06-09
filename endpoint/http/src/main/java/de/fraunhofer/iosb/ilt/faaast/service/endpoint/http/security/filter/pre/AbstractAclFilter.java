@@ -38,17 +38,24 @@ public abstract class AbstractAclFilter extends JwtAuthorizationFilter implement
     @SuppressWarnings("unchecked")
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        List<AccessPermissionRule> acl = ((List<AccessPermissionRule>) request.getAttribute(ACL.getName()));
+        Object maybeAcl = request.getAttribute(ACL.getName());
+        List<AccessPermissionRule> filtered;
+        if (maybeAcl != null) {
+            filtered = doFilter((HttpServletRequest) request, (List<AccessPermissionRule>) maybeAcl);
+        }
+        else {
+            filtered = doFilter((HttpServletRequest) request, null);
+        }
 
-        List<AccessPermissionRule> filtered = doFilter((HttpServletRequest) request, acl);
-        Objects.requireNonNull(filtered, "Filters need to return empty rule lists if none apply");
+        Objects.requireNonNull(filtered, "AclFilters may not return null");
 
-        if (!acl.isEmpty()) {
+        if (!filtered.isEmpty()) {
             request.setAttribute(ACL.getName(), filtered);
             chain.doFilter(request, response);
         }
-
-        respondForbidden((HttpServletResponse) response);
+        else {
+            respondForbidden((HttpServletResponse) response);
+        }
     }
 
 
@@ -56,10 +63,10 @@ public abstract class AbstractAclFilter extends JwtAuthorizationFilter implement
      * Perform filtering of the ACL dependent on the HTTP request at hand.
      *
      * @param request The request to filter with
-     * @param acl The ACL to filter
+     * @param rules The ACL to filter
      * @return Filtered ACL list
      */
-    protected abstract List<AccessPermissionRule> doFilter(HttpServletRequest request, List<AccessPermissionRule> acl);
+    protected abstract List<AccessPermissionRule> doFilter(HttpServletRequest request, List<AccessPermissionRule> rules);
 
 
     private static void respondForbidden(HttpServletResponse httpResponse) throws IOException {

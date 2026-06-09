@@ -27,8 +27,8 @@ import java.util.List;
  */
 public class AclAttributeInjectionInterceptor extends AbstractAclFilter {
     @Override
-    protected List<AccessPermissionRule> doFilter(HttpServletRequest request, List<AccessPermissionRule> acl) {
-        acl.forEach(rule -> injectLogicalExpression(rule.getFormula(), extractClaims(request)));
-        return acl;
+    protected List<AccessPermissionRule> doFilter(HttpServletRequest request, List<AccessPermissionRule> rules) {
+        rules.forEach(rule -> injectLogicalExpression(rule.getFormula(), extractClaims(request)));
+        return rules;
     }
 }

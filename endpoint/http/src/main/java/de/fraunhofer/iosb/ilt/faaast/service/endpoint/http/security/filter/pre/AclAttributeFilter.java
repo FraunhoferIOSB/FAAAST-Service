@@ -30,10 +30,10 @@ import java.util.Optional;
 public class AclAttributeFilter extends AbstractAclFilter {
 
     @Override
-    protected List<AccessPermissionRule> doFilter(HttpServletRequest request, List<AccessPermissionRule> acl) {
+    protected List<AccessPermissionRule> doFilter(HttpServletRequest request, List<AccessPermissionRule> rules) {
         Map<String, Claim> claims = Optional.ofNullable(extractAndDecodeJwt(request).getClaims()).orElse(Map.of());
 
-        acl.removeIf(rule -> {
+        rules.removeIf(rule -> {
             for (AttributeItem item: rule.getAcl().getAttributes()) {
                 if (AttributeItem.Global.ANONYMOUS == item.getGlobal()) {
                     return false;
@@ -48,6 +48,6 @@ public class AclAttributeFilter extends AbstractAclFilter {
             }
             return false;
         });
-        return acl;
+        return rules;
     }
 }

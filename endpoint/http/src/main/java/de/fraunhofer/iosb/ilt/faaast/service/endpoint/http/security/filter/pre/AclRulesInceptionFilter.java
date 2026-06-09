@@ -39,7 +39,7 @@ public class AclRulesInceptionFilter extends AbstractAclFilter {
 
 
     @Override
-    protected List<AccessPermissionRule> doFilter(HttpServletRequest request, List<AccessPermissionRule> acl) {
+    protected List<AccessPermissionRule> doFilter(HttpServletRequest request, List<AccessPermissionRule> rules) {
         return aclRepository.getAccessPermissionRules();
     }
 }
