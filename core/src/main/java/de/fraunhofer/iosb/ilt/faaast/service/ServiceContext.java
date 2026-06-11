@@ -24,6 +24,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceExceptio
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
+import java.util.List;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
 
@@ -98,4 +99,12 @@ public interface ServiceContext {
      * @return the AssetConnectionManager of the service
      */
     public AssetConnectionManager getAssetConnectionManager();
+
+
+    /**
+     * Returns the endpoints of the service.
+     *
+     * @return the endpoints of the service
+     */
+    public List<Endpoint> getEndpoints();
 }

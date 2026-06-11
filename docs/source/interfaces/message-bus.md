@@ -173,7 +173,9 @@ This implementation of the `MessageBus` interface publishes CloudEvent messages 
 Each message is published under the topic defined in `[topicPrefix]`.
 The payload is a JSON serialization of a CloudEvent as specified in the async-aas specification: [https://factory-x-contributions.github.io/async-aas-helm](https://factory-x-contributions.github.io/async-aas-helm)
 
-Note: To modify the URL in a CloudEvent's `source` field, the configuration `core.callbackAddress` needs to be added. Else, `localhost` will be used.
+Note: To modify the URL in a CloudEvent's `source` field, `HttpEndpointConfig.hostname` needs to be configured. Else, `http(s)://(localhost|127.0.0.1|local-ip-address):(port)` will be used, depending on the rest of the HttpEndpoint's config and your system. If multiple HttpEndpoints are defined, the MessageBus will try to select one with a non-local hostname.
+
+Note: MessageBusCloudEvents requires the definition of a HttpEndpoint in the FA³ST configuration. 
 
 ### Configuration
 

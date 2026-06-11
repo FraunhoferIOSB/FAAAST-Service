@@ -202,6 +202,12 @@ public class Service implements ServiceContext {
     }
 
 
+    @Override
+    public List<Endpoint> getEndpoints() {
+        return endpoints;
+    }
+
+
     public ServiceConfig getConfig() {
         return config;
     }

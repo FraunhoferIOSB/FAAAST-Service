@@ -20,22 +20,22 @@ import de.fraunhofer.iosb.ilt.faaast.service.messagebus.cloudevents.MessageBusCl
 /**
  * Configuration for a FA³ST event message to CloudEvent mapper.
  *
- * @param callbackAddress Callback address for subscribers of the CloudEvents
+ * @param sourceUri URI to use in the "source" field of a CloudEvent
  * @param dataSchemaPrefix Data schema prefix used to assign semantic information to data elements
  * @param eventTypePrefix Prefix for event types
  * @param slimEvents If true, the data field in CloudEvents will be empty
  */
-public record CloudEventMapperConfig(String callbackAddress, String dataSchemaPrefix, String eventTypePrefix, boolean slimEvents) {
+public record CloudEventMapperConfig(String sourceUri, String dataSchemaPrefix, String eventTypePrefix, boolean slimEvents) {
 
     /**
      * Build a CloudEventMapperConfig from MessageBusCloudEventsConfig and a referable supplier.
      *
      * @param messageBusConfig The MessageBusCloudEventsConfig
-     * @param callbackAddress The callback address for event subscribers.
+     * @param sourceUri URI to use in the "source" field of a CloudEvent.
      * @return The CloudEventMapperConfig
      */
-    public static CloudEventMapperConfig from(MessageBusCloudEventsConfig messageBusConfig, String callbackAddress) {
-        return new CloudEventMapperConfig(callbackAddress,
+    public static CloudEventMapperConfig from(MessageBusCloudEventsConfig messageBusConfig, String sourceUri) {
+        return new CloudEventMapperConfig(sourceUri,
                 messageBusConfig.getDataSchemaPrefix(),
                 messageBusConfig.getEventTypePrefix(),
                 messageBusConfig.isSlimEvents());

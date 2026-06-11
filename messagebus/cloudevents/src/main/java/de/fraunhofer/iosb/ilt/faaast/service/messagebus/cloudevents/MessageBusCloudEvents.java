@@ -23,6 +23,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.Endpoint;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpoint;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.cloudevents.mapper.CloudEventMapperConfig;
@@ -39,9 +42,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.EventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionId;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EnvironmentHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.HostnameUtil;
 import io.cloudevents.CloudEvent;
 import io.cloudevents.jackson.JsonFormat;
-import java.util.Optional;
+import java.net.URI;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Function;
@@ -58,7 +63,7 @@ import org.slf4j.LoggerFactory;
 public class MessageBusCloudEvents implements MessageBus<MessageBusCloudEventsConfig> {
 
     private static final String PUBLISH_ERROR_MSG = "{} publishing event via CloudEvents MQTT message bus for message type {}";
-    private static final String DEFAULT_CALLBACK_ADDRESS = "localhost";
+    private static final String NO_HTTP_ENDPOINT_FOUND_MESSAGE = "No HTTP Endpoint found but one is required for MessageBusCloudEvents";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MessageBusCloudEvents.class);
 
@@ -121,7 +126,7 @@ public class MessageBusCloudEvents implements MessageBus<MessageBusCloudEventsCo
 
 
     @Override
-    public void init(CoreConfig coreConfig, MessageBusCloudEventsConfig config, ServiceContext serviceContext) {
+    public void init(CoreConfig coreConfig, MessageBusCloudEventsConfig config, ServiceContext serviceContext) throws ConfigurationInitializationException {
         messageBusInternal.init(coreConfig, MessageBusInternalConfig.builder().build(), serviceContext);
 
         this.config = config;
@@ -142,13 +147,9 @@ public class MessageBusCloudEvents implements MessageBus<MessageBusCloudEventsCo
             }
         };
 
-        String callbackAddress = Optional.ofNullable(coreConfig.getCallbackAddress())
-                .orElseGet(() -> {
-                    LOGGER.warn("No callbackAddress configured in the core configuration. Using '{}' as CloudEvent 'source' URL", DEFAULT_CALLBACK_ADDRESS);
-                    return DEFAULT_CALLBACK_ADDRESS;
-                });
+        String sourceUri = getSourceUri(serviceContext.getEndpoints());
 
-        mapperRegistry = defaultRegistry(CloudEventMapperConfig.from(config, callbackAddress), referableSupplier);
+        mapperRegistry = defaultRegistry(CloudEventMapperConfig.from(config, sourceUri), referableSupplier);
     }
 
 
@@ -157,6 +158,28 @@ public class MessageBusCloudEvents implements MessageBus<MessageBusCloudEventsCo
         messageBusInternal.publish(message);
 
         executor.submit(() -> distributeCloudEvent(message));
+    }
+
+
+    private String getSourceUri(List<Endpoint> httpEndpoints) throws ConfigurationInitializationException {
+        List<URI> endpointUri = httpEndpoints.stream()
+                .filter(HttpEndpoint.class::isInstance)
+                .map(ep -> (HttpEndpoint) ep)
+                .map(HttpEndpoint::getEndpointUri)
+                .toList();
+
+        if (endpointUri.isEmpty()) {
+            throw new ConfigurationInitializationException(NO_HTTP_ENDPOINT_FOUND_MESSAGE);
+        }
+
+        // Try to get a sourceUri which is not localhost/127.0.0.1, else take any one
+        return endpointUri.stream()
+                .filter(uri -> !uri.getHost().equals(HostnameUtil.getHostname()))
+                .findAny()
+                .map(URI::toString)
+                .orElse(endpointUri.stream()
+                        .findAny().get()
+                        .toString());
     }
 
 

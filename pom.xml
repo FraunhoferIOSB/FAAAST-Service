@@ -71,7 +71,7 @@
         <bouncycastle.version>1.84</bouncycastle.version>
         <checkstyle.version>12.3.0</checkstyle.version>
         <classgraph.version>4.8.184</classgraph.version>
-        <cloudevents.version>4.1.0</cloudevents.version>
+        <cloudevents.version>4.1.1</cloudevents.version>
         <commons.codec.version>1.22.0</commons.codec.version>
         <commons.compress.version>1.28.0</commons.compress.version>
         <commons.fileupload.version>1.6.0</commons.fileupload.version>
@@ -116,7 +116,7 @@
         <maven.plugin.failsafe.version>3.5.6</maven.plugin.failsafe.version>
         <maven.plugin.git.commit.id.version>10.0.0</maven.plugin.git.commit.id.version>
         <maven.plugin.gpg.version>3.2.8</maven.plugin.gpg.version>
-        <maven.plugin.jacoco.version>0.8.14</maven.plugin.jacoco.version>
+        <maven.plugin.jacoco.version>0.8.15</maven.plugin.jacoco.version>
         <maven.plugin.jar.version>3.5.0</maven.plugin.jar.version>
         <maven.plugin.javadoc.version>3.12.0</maven.plugin.javadoc.version>
         <maven.plugin.license.version>2.0.0</maven.plugin.license.version>
@@ -130,7 +130,7 @@
         <maven.plugin.source.version>3.4.0</maven.plugin.source.version>
         <maven.plugin.spotless.version>3.6.0</maven.plugin.spotless.version>
         <maven.plugin.surefire.version>3.5.6</maven.plugin.surefire.version>
-        <milo.version>1.1.3</milo.version>
+        <milo.version>1.1.4</milo.version>
         <mockito.version>5.23.0</mockito.version>
         <mongodb.version>5.8.0</mongodb.version>
         <moquette.version>0.18.4</moquette.version>
@@ -160,7 +160,7 @@
         <systemstubs.version>2.1.8</systemstubs.version>
         <titanium.jsonld.version>1.7.0</titanium.jsonld.version>
         <wiremock.version>3.13.2</wiremock.version>
-        <woodstox.version>7.2.0</woodstox.version>
+        <woodstox.version>7.2.1</woodstox.version>
     </properties>
     <dependencies>
         <dependency>

@@ -22,7 +22,6 @@ import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
-import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.QueryParameters;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiDeserializer;
@@ -134,7 +133,6 @@ public abstract class AbstractHttpEndpointTest {
     protected static HttpJsonApiDeserializer deserializer;
     protected static HttpJsonApiSerializer serializer;
     protected static Server server;
-    protected static CoreConfig coreConfig = CoreConfig.builder().callbackAddress("http://invalid.local").build();
 
     @Before
     public void setUp() {
@@ -303,14 +301,14 @@ public abstract class AbstractHttpEndpointTest {
 
 
     @Test
-    public void testGetAasEndpointInformationWithCallbackAddress() {
+    public void testGetAasEndpointInformationWithCustomHostname() {
         List<Endpoint> actual = endpoint.getAasEndpointInformation(UUID.randomUUID().toString());
 
         ProtocolInformation protocolInformation = actual.get(0).getProtocolInformation();
 
         HttpEndpointConfig config = endpoint.asConfig();
 
-        Assert.assertEquals(coreConfig.getCallbackAddress().concat(endpoint.getPathPrefix()).concat("/shells"), protocolInformation.getHref());
+        Assert.assertEquals(config.getHostname().concat(endpoint.getPathPrefix()).concat("/shells"), protocolInformation.getHref());
         Assert.assertEquals(config.getSubprotocol(), protocolInformation.getSubprotocol());
         Assert.assertEquals(config.getSubprotocolBody(), protocolInformation.getSubprotocolBody());
         Assert.assertEquals(config.getSubprotocolBodyEncoding(), protocolInformation.getSubprotocolBodyEncoding());

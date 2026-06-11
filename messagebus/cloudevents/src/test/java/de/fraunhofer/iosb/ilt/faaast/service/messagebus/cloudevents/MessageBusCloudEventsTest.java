@@ -15,9 +15,12 @@
 package de.fraunhofer.iosb.ilt.faaast.service.messagebus.cloudevents;
 
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpoint;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.EventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionInfo;
@@ -32,8 +35,10 @@ import io.moquette.broker.Server;
 import io.moquette.broker.config.IConfig;
 import io.moquette.broker.config.MemoryConfig;
 import java.io.IOException;
+import java.net.URI;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -98,9 +103,9 @@ public class MessageBusCloudEventsTest {
 
 
     @Test
-    public void testExactTypeSubscription() throws InterruptedException, MessageBusException {
+    public void testExactTypeSubscription() throws InterruptedException, MessageBusException, ConfigurationInitializationException {
         MessageBusCloudEvents messageBus = new MessageBusCloudEvents();
-        messageBus.init(CoreConfig.DEFAULT, MessageBusCloudEventsConfig.builder().host(String.format("tcp://localhost:%d", BROKER_PORT)).build(), mock(ServiceContext.class));
+        messageBus.init(CoreConfig.DEFAULT, MessageBusCloudEventsConfig.builder().host(String.format("tcp://localhost:%d", BROKER_PORT)).build(), mockServiceContext());
         messageBus.start();
         CountDownLatch condition = new CountDownLatch(1);
         final AtomicReference<EventMessage> response = new AtomicReference<>();
@@ -118,9 +123,9 @@ public class MessageBusCloudEventsTest {
 
 
     @Test
-    public void testSuperTypeSubscription() throws InterruptedException, MessageBusException {
+    public void testSuperTypeSubscription() throws InterruptedException, MessageBusException, ConfigurationInitializationException {
         MessageBusCloudEvents messageBus = new MessageBusCloudEvents();
-        messageBus.init(CoreConfig.DEFAULT, MessageBusCloudEventsConfig.builder().host(String.format("tcp://localhost:%d", BROKER_PORT)).build(), mock(ServiceContext.class));
+        messageBus.init(CoreConfig.DEFAULT, MessageBusCloudEventsConfig.builder().host(String.format("tcp://localhost:%d", BROKER_PORT)).build(), mockServiceContext());
         messageBus.start();
         Set<EventMessage> messages = Set.of(valueChangeMessage, errorMessage);
         Set<EventMessage> responses = Collections.synchronizedSet(new HashSet<>());
@@ -146,9 +151,9 @@ public class MessageBusCloudEventsTest {
 
 
     @Test
-    public void testDistinctTypesSubscription() throws InterruptedException, MessageBusException {
+    public void testDistinctTypesSubscription() throws InterruptedException, MessageBusException, ConfigurationInitializationException {
         MessageBusCloudEvents messageBus = new MessageBusCloudEvents();
-        messageBus.init(CoreConfig.DEFAULT, MessageBusCloudEventsConfig.builder().host(String.format("tcp://localhost:%d", BROKER_PORT)).build(), mock(ServiceContext.class));
+        messageBus.init(CoreConfig.DEFAULT, MessageBusCloudEventsConfig.builder().host(String.format("tcp://localhost:%d", BROKER_PORT)).build(), mockServiceContext());
         messageBus.start();
         Map<Class<? extends EventMessage>, Set<EventMessage>> messages = Map.of(
                 ChangeEventMessage.class, Set.of(valueChangeMessage),
@@ -179,9 +184,9 @@ public class MessageBusCloudEventsTest {
 
 
     @Test
-    public void testNotMatchingSubscription() throws InterruptedException, MessageBusException {
+    public void testNotMatchingSubscription() throws InterruptedException, MessageBusException, ConfigurationInitializationException {
         MessageBusCloudEvents messageBus = new MessageBusCloudEvents();
-        messageBus.init(CoreConfig.DEFAULT, MessageBusCloudEventsConfig.builder().host(String.format("tcp://localhost:%d", BROKER_PORT)).build(), mock(ServiceContext.class));
+        messageBus.init(CoreConfig.DEFAULT, MessageBusCloudEventsConfig.builder().host(String.format("tcp://localhost:%d", BROKER_PORT)).build(), mockServiceContext());
         messageBus.start();
         CountDownLatch condition = new CountDownLatch(1);
         messageBus.subscribe(SubscriptionInfo.create(
@@ -202,9 +207,9 @@ public class MessageBusCloudEventsTest {
 
 
     @Test
-    public void testSubscribeUnsubscribe() throws InterruptedException, MessageBusException {
+    public void testSubscribeUnsubscribe() throws InterruptedException, MessageBusException, ConfigurationInitializationException {
         MessageBusCloudEvents messageBus = new MessageBusCloudEvents();
-        messageBus.init(CoreConfig.DEFAULT, MessageBusCloudEventsConfig.builder().host(String.format("tcp://localhost:%d", BROKER_PORT)).build(), mock(ServiceContext.class));
+        messageBus.init(CoreConfig.DEFAULT, MessageBusCloudEventsConfig.builder().host(String.format("tcp://localhost:%d", BROKER_PORT)).build(), mockServiceContext());
         messageBus.start();
         CountDownLatch condition = new CountDownLatch(1);
         final AtomicReference<EventMessage> response = new AtomicReference<>();
@@ -222,5 +227,15 @@ public class MessageBusCloudEventsTest {
         }
         Assert.assertFalse(condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS));
         messageBus.stop();
+    }
+
+
+    private ServiceContext mockServiceContext() {
+        ServiceContext mock = mock(ServiceContext.class);
+        HttpEndpoint mockEndpoint = mock(HttpEndpoint.class);
+        when(mockEndpoint.getEndpointUri()).thenReturn(URI.create("http://invalid.local/path/api/v3.1"));
+        when(mock.getEndpoints()).thenReturn(List.of(mockEndpoint));
+
+        return mock;
     }
 }
