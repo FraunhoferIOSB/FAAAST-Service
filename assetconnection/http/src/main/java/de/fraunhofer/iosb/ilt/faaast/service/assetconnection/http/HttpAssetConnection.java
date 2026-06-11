@@ -106,6 +106,8 @@ public class HttpAssetConnection extends
         try {
             HttpClient.Builder builder = HttpClient.newBuilder();
             builder = setHttpVersion(builder);
+            // always follow Redirects (necessary for Async Operstion API
+            builder.followRedirects(HttpClient.Redirect.ALWAYS);
             if (PROTOCOL_HTTPS.equalsIgnoreCase(config.getBaseUrl().getProtocol())) {
                 builder = builder.sslContext(SslHelper.newContextAcceptingCertificates(config.getTrustedCertificates()));
             }
