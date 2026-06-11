@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.pre;
+package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter;
 
 import static de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod.GET;
 
@@ -59,8 +59,10 @@ public class AclObjectsFilter extends AbstractAclFilter {
                     return checkReferable(path, objectItem.getReferable(), method);
                 }
                 else if (objectItem.getFragment() != null) {
-                    // TODO Objects to be protected are either API Routes, Identifiables (e.g. AAS or Submodel), Referables (e.g. SubmodelElements), Descriptors or
-                    //      Fragments of all those (e.g. AssetId, SemanticId, SpecificAssetId).
+                    // TODO Objects to be protected are either
+                    //  API Routes, Identifiables, Referables, Descriptors
+                    //                                  or
+                    //  Fragments of all those (e.g. AssetId, SemanticId, SpecificAssetId).
                     //      -> What to do
                     return false;
                 }

@@ -12,22 +12,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.pre;
+package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter;
+
+import static de.fraunhofer.iosb.ilt.faaast.service.model.query.json.Acl.Access.DISABLED;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AccessPermissionRule;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.Acl;
 import jakarta.servlet.http.HttpServletRequest;
-
 import java.util.List;
 
 
 /**
  * Filters applicable AAS ACL rules using the rules' "Access" field.
  */
-public class AclDisabledFilter extends AbstractAclFilter {
+public class AclAccessFilter extends AbstractAclFilter {
     @Override
     protected List<AccessPermissionRule> doFilter(HttpServletRequest request, List<AccessPermissionRule> rules) {
-        rules.removeIf(rule -> Acl.Access.DISABLED == rule.getAcl().getAccess());
-        return rules;
+        return rules.stream()
+                .filter(rule -> DISABLED != rule.getAcl().getAccess())
+                .toList();
     }
 }

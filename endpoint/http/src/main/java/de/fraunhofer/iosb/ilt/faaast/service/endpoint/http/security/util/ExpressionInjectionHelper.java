@@ -177,7 +177,6 @@ public class ExpressionInjectionHelper {
                 }
                 else {
                     value.set$boolean(false);
-                    value.set$attribute(null);
                 }
 
             }

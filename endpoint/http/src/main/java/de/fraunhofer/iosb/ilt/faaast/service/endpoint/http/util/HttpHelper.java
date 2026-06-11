@@ -14,8 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util;
 
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.pre.JwtAuthorizationFilter.AUTHORIZATION;
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.pre.JwtAuthorizationFilter.BEARER;
+import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.JwtAuthorizationFilter.AUTHORIZATION;
+import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.JwtAuthorizationFilter.BEARER;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.Claim;

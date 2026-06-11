@@ -12,13 +12,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.pre;
+package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter;
+
+import static de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AttributeItem.Global.ANONYMOUS;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AttributeItem.Global.CLIENTNOW;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AttributeItem.Global.LOCALNOW;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AttributeItem.Global.UTCNOW;
 
 import com.auth0.jwt.interfaces.Claim;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AccessPermissionRule;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AttributeItem;
 import jakarta.servlet.http.HttpServletRequest;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -29,25 +33,27 @@ import java.util.Optional;
  */
 public class AclAttributeFilter extends AbstractAclFilter {
 
+    private static final List<AttributeItem.Global> PERMISSIBLE_ATTRIBUTES = List.of(ANONYMOUS, UTCNOW, CLIENTNOW, LOCALNOW);
+
     @Override
     protected List<AccessPermissionRule> doFilter(HttpServletRequest request, List<AccessPermissionRule> rules) {
         Map<String, Claim> claims = Optional.ofNullable(extractAndDecodeJwt(request).getClaims()).orElse(Map.of());
 
-        rules.removeIf(rule -> {
+        return rules.stream().filter(rule -> {
             for (AttributeItem item: rule.getAcl().getAttributes()) {
-                if (AttributeItem.Global.ANONYMOUS == item.getGlobal()) {
-                    return false;
-                }
-                else if (item.getReference() != null) {
-                    return true;
+                if (item.getGlobal() != null && PERMISSIBLE_ATTRIBUTES.contains(item.getGlobal())) {
+                    continue;
                 }
                 else if (item.getClaim() != null && claims.containsKey(item.getClaim())) {
                     continue;
                 }
-                return true;
+                else if (item.getReference() != null) {
+                    continue;
+                }
+                return false;
             }
-            return false;
-        });
-        return rules;
+            return true;
+        })
+                .toList();
     }
 }

@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.pre;
+package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter;
 
 import static de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod.CONNECT;
 import static de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod.DELETE;
@@ -37,27 +37,28 @@ import java.util.Map;
  */
 public class AclRightsFilter extends AbstractAclFilter {
 
+    // EXECUTE is handled via isOperationRequest.
     private static final Map<RightsEnum, List<HttpMethod>> RIGHT_TO_HTTP_METHOD_MAPPING = Map.of(
             RightsEnum.CREATE, List.of(POST, PUT),
             RightsEnum.READ, List.of(GET),
             RightsEnum.UPDATE, List.of(PATCH, PUT),
             RightsEnum.DELETE, List.of(DELETE),
-            RightsEnum.EXECUTE, List.of(POST),
             RightsEnum.VIEW, List.of(GET),
+            RightsEnum.EXECUTE, List.of(),
             RightsEnum.ALL, List.of(GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD, TRACE, CONNECT));
 
     @Override
     protected List<AccessPermissionRule> doFilter(HttpServletRequest request, List<AccessPermissionRule> rules) {
         String method = request.getMethod();
-        boolean isOperation = isOperationRequest(method, request.getContextPath());
+        boolean isOperation = isOperationRequest(method, request.getServletPath());
 
-        rules.removeIf(
+        return rules.stream().filter(
                 rule -> rule.getAcl().getRights().stream()
-                        .noneMatch(right -> isOperation && right == RightsEnum.EXECUTE ||
+                        .anyMatch(right -> isOperation && right == RightsEnum.EXECUTE ||
                                 RIGHT_TO_HTTP_METHOD_MAPPING.get(right).stream()
                                         .map(Enum::name)
-                                        .anyMatch(m -> m.equalsIgnoreCase(method))));
-        return rules;
+                                        .anyMatch(m -> m.equalsIgnoreCase(method))))
+                .toList();
     }
 
 
@@ -66,7 +67,11 @@ public class AclRightsFilter extends AbstractAclFilter {
         String maybeInvokeKeyword;
         String[] pathParts = path.split("/");
 
-        if (pathParts.length > 1 && "$value".equals(pathParts[pathParts.length - 1])) {
+        if (pathParts.length <= 1) {
+            return false;
+        }
+
+        if ("$value".equals(pathParts[pathParts.length - 1])) {
             maybeInvokeKeyword = pathParts[pathParts.length - 2];
         }
         else {

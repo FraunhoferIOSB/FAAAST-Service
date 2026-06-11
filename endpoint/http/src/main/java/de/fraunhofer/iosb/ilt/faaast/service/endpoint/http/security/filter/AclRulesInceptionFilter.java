@@ -12,23 +12,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.pre;
+package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter;
 
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.util.ExpressionInjectionHelper.injectLogicalExpression;
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper.extractClaims;
-
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.acl.repository.AclRepository;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AccessPermissionRule;
 import jakarta.servlet.http.HttpServletRequest;
+
 import java.util.List;
 
 
 /**
- * Inject claims and global attributes into the remaining ACL rules.
+ * Helper filter to inject the current ACL rules into a request.
  */
-public class AclAttributeInjectionInterceptor extends AbstractAclFilter {
+public class AclRulesInceptionFilter extends AbstractAclFilter {
+
+    private final AclRepository aclRepository;
+
+    /**
+     * Class constructor.
+     *
+     * @param aclRepository Retrieval of ACL
+     */
+    public AclRulesInceptionFilter(AclRepository aclRepository) {
+        this.aclRepository = aclRepository;
+    }
+
+
     @Override
     protected List<AccessPermissionRule> doFilter(HttpServletRequest request, List<AccessPermissionRule> rules) {
-        rules.forEach(rule -> injectLogicalExpression(rule.getFormula(), extractClaims(request)));
-        return rules;
+        return aclRepository.getAccessPermissionRules();
     }
 }

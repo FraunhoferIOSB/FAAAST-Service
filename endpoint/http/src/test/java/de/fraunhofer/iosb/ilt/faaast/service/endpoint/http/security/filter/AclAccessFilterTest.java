@@ -15,39 +15,35 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter;
 
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AccessPermissionRule;
 import jakarta.servlet.FilterChain;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import java.util.Collections;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import java.io.IOException;
 import java.util.List;
+import org.junit.Test;
 
 
-public class JwtAuthorizationFilterTest {
+public class AclAccessFilterTest extends AbstractAclFilterTest {
 
-    /**
-     * @Test
-     *       public void testExtractAndDecodeJwt() {
-     *       }
-     **/
-
-    protected FilterChain mockFilterChain() {
-        return mock(FilterChain.class);
+    protected AbstractAclFilter createFilter() {
+        return new AclAccessFilter();
     }
 
 
-    protected static HttpServletRequest mockRequest(String jwt) {
-        HttpServletRequest r = mock(HttpServletRequest.class);
-        when(r.getHeader("Authorization")).thenReturn("Bearer " + jwt);
-        when(r.getHeaders("Authorization")).thenReturn(Collections.enumeration(List.of("Bearer " + jwt)));
+    @Test
+    public void testRemovesAllDisabledRules() throws ServletException, IOException {
+        AccessPermissionRule unfilteredRule = rule();
+        List<AccessPermissionRule> rules = List.of(unfilteredRule, rule(true));
 
-        return r;
+        List<AccessPermissionRule> expected = List.of(unfilteredRule);
+
+        ServletRequest mockRequest = mockRequestWith(rules);
+
+        filter.doFilter(mockRequest, mock(ServletResponse.class), mock(FilterChain.class));
+
+        verifyReturn(mockRequest, expected);
     }
-
-
-    protected static HttpServletResponse mockResponse() {
-        return mock(HttpServletResponse.class);
-    }
-
 }
