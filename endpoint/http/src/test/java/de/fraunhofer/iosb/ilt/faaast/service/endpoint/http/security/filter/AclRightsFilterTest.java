@@ -14,19 +14,13 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter;
 
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.SharedAttributes.ACL;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AccessPermissionRule;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.RightsEnum;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
-import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import org.junit.Test;
 
@@ -39,75 +33,67 @@ public class AclRightsFilterTest extends AbstractAclFilterTest {
 
 
     @Test
-    public void testDetectsOperationRequest() throws ServletException, IOException {
+    public void testDetectsOperationRequest() {
         AccessPermissionRule unfilteredRule = rule(RightsEnum.EXECUTE);
         List<AccessPermissionRule> rules = List.of(unfilteredRule);
 
         List<AccessPermissionRule> expected = List.of(unfilteredRule);
 
-        ServletRequest mockRequest = mockRequestWith(rules, HttpMethod.POST, "/api/v3.0/submodels/imaginary/submodel-elements/1234.5678/invoke");
+        HttpServletRequest mockRequest = mockRequestWith(rules, HttpMethod.POST, "/api/v3.0/submodels/imaginary/submodel-elements/1234.5678/invoke");
 
-        filter.doFilter(mockRequest, mock(ServletResponse.class), mock(FilterChain.class));
-
-        verify(mockRequest).setAttribute(ACL.getName(), expected);
+        List<AccessPermissionRule> actual = filter.doFilter(mockRequest, rules);
+        assertEquals(expected, actual);
     }
 
 
     @Test
-    public void testDetectsOperationAsyncValueOnlyRequest() throws ServletException, IOException {
+    public void testDetectsOperationAsyncValueOnlyRequest() {
         AccessPermissionRule unfilteredRule = rule(RightsEnum.EXECUTE);
         List<AccessPermissionRule> rules = List.of(unfilteredRule);
 
         List<AccessPermissionRule> expected = List.of(unfilteredRule);
 
-        ServletRequest mockRequest = mockRequestWith(rules, HttpMethod.POST, "/api/v3.0/submodels/imaginary/submodel-elements/1234.5678/invoke-async/$value");
+        HttpServletRequest mockRequest = mockRequestWith(rules, HttpMethod.POST, "/api/v3.0/submodels/imaginary/submodel-elements/1234.5678/invoke-async/$value");
 
-        filter.doFilter(mockRequest, mock(ServletResponse.class), mock(FilterChain.class));
-
-        verifyReturn(mockRequest, expected);
+        List<AccessPermissionRule> actual = filter.doFilter(mockRequest, rules);
+        assertEquals(expected, actual);
     }
 
 
     @Test
-    public void testDetectsNonOperationRequest() throws ServletException, IOException {
+    public void testDetectsNonOperationRequest() {
         AccessPermissionRule unfilteredRule = rule(RightsEnum.EXECUTE);
         List<AccessPermissionRule> rules = List.of(unfilteredRule);
 
-        ServletRequest mockRequest = mockRequestWith(rules, HttpMethod.POST, "/api/v3.0/submodels/imaginary/submodel-elements/1234.5678");
-        HttpServletResponse mockResponse = mockResponse();
+        HttpServletRequest mockRequest = mockRequestWith(rules, HttpMethod.POST, "/api/v3.0/submodels/imaginary/submodel-elements/1234.5678");
 
-        filter.doFilter(mockRequest, mockResponse, mock(FilterChain.class));
-
-        verifyEmptyRules(mockRequest, mockResponse);
+        List<AccessPermissionRule> actual = filter.doFilter(mockRequest, rules);
+        assertTrue(actual.isEmpty());
     }
 
 
     @Test
-    public void testDeleteRequest() throws ServletException, IOException {
+    public void testDeleteRequest() {
         AccessPermissionRule unfilteredRule = rule(RightsEnum.DELETE);
         List<AccessPermissionRule> rules = List.of(unfilteredRule);
         List<AccessPermissionRule> expected = List.of(unfilteredRule);
 
-        ServletRequest mockRequest = mockRequestWith(rules, HttpMethod.DELETE, "/api/v3.0/submodels/imaginary/submodel-elements/1234.5678");
-        HttpServletResponse mockResponse = mockResponse();
+        HttpServletRequest mockRequest = mockRequestWith(rules, HttpMethod.DELETE, "/api/v3.0/submodels/imaginary/submodel-elements/1234.5678");
 
-        filter.doFilter(mockRequest, mockResponse, mock(FilterChain.class));
-
-        verifyReturn(mockRequest, expected);
+        List<AccessPermissionRule> actual = filter.doFilter(mockRequest, rules);
+        assertEquals(expected, actual);
     }
 
 
     @Test
-    public void testEmptyPathRequest() throws ServletException, IOException {
+    public void testEmptyPathRequest() {
         AccessPermissionRule unfilteredRule = rule(RightsEnum.DELETE);
         List<AccessPermissionRule> rules = List.of(unfilteredRule);
 
-        ServletRequest mockRequest = mockRequestWith(rules, HttpMethod.GET, "/");
-        HttpServletResponse mockResponse = mockResponse();
+        HttpServletRequest mockRequest = mockRequestWith(rules, HttpMethod.GET, "/");
 
-        filter.doFilter(mockRequest, mockResponse, mock(FilterChain.class));
-
-        verifyEmptyRules(mockRequest, mockResponse);
+        List<AccessPermissionRule> actual = filter.doFilter(mockRequest, rules);
+        assertTrue(actual.isEmpty());
     }
 
 }

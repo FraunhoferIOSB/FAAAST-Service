@@ -42,12 +42,16 @@ public class AclObjectsFilter extends AbstractAclFilter {
 
     @Override
     protected List<AccessPermissionRule> doFilter(HttpServletRequest request, List<AccessPermissionRule> rules) {
-        String path = request.getRequestURI();
+        String path = request.getServletPath();
         String method = request.getMethod();
+
         List<AccessPermissionRule> filteredRules = new ArrayList<>();
 
         for (AccessPermissionRule rule: rules) {
-
+            if (rule.getObjects() == null || rule.getObjects().isEmpty()) {
+                filteredRules.add(rule);
+                continue;
+            }
             boolean anyMatch = rule.getObjects().stream().anyMatch(objectItem -> {
                 if (objectItem.getRoute() != null) {
                     return checkRoute(objectItem.getRoute(), path);
@@ -86,9 +90,21 @@ public class AclObjectsFilter extends AbstractAclFilter {
         if (route == null) {
             return false;
         }
-        // Escape all regex metacharacters, then turn '*' into '.*'
-        String regex = "^" + Pattern.quote(route).replace("\\*", ".*") + "$";
-        return Pattern.compile(regex).matcher(requestPath).matches();
+        return toRegex(route).matcher(requestPath).matches();
+    }
+
+
+    private static Pattern toRegex(String routePattern) {
+        String[] parts = routePattern.split("\\*", -1);
+        StringBuilder regex = new StringBuilder("^");
+        for (int i = 0; i < parts.length; i++) {
+            regex.append(Pattern.quote(parts[i]));
+            if (i < parts.length - 1) {
+                regex.append(".*");
+            }
+        }
+        regex.append("$");
+        return Pattern.compile(regex.toString());
     }
 
 

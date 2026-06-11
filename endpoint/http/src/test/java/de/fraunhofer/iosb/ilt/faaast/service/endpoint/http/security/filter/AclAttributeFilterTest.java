@@ -14,15 +14,11 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter;
 
-import static org.mockito.Mockito.mock;
+import static org.junit.Assert.assertEquals;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AccessPermissionRule;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AttributeItem;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
-import java.io.IOException;
 import java.util.List;
 import org.junit.Test;
 
@@ -35,19 +31,18 @@ public class AclAttributeFilterTest extends AbstractAclFilterTest {
 
 
     @Test
-    public void testKeepsAttributes() throws ServletException, IOException {
+    public void testKeepsAttributes() {
         AccessPermissionRule unfilteredRule = rule();
         AttributeItem nonExistentClaim = new AttributeItem();
         nonExistentClaim.setClaim("non-existent");
-        AccessPermissionRule filteredRule = rule(false, null, List.of(nonExistentClaim), null);
+        AccessPermissionRule filteredRule = rule(List.of(nonExistentClaim));
         List<AccessPermissionRule> rules = List.of(unfilteredRule, filteredRule);
 
         List<AccessPermissionRule> expected = List.of(unfilteredRule);
 
         HttpServletRequest mockRequest = mockRequestWith(rules);
 
-        filter.doFilter(mockRequest, mock(ServletResponse.class), mock(FilterChain.class));
-
-        verifyReturn(mockRequest, expected);
+        List<AccessPermissionRule> actual = filter.doFilter(mockRequest, rules);
+        assertEquals(expected, actual);
     }
 }

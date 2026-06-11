@@ -14,18 +14,14 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter;
 
+import static org.junit.Assert.assertEquals;
+
+import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AccessPermissionRule;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AttributeItem;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.ObjectItem;
 import jakarta.servlet.http.HttpServletRequest;
-import org.junit.Test;
-
-import java.io.IOException;
 import java.util.List;
-
-import static org.mockito.Mockito.mock;
+import org.junit.Test;
 
 
 public class AclObjectsFilterTest extends AbstractAclFilterTest {
@@ -36,19 +32,20 @@ public class AclObjectsFilterTest extends AbstractAclFilterTest {
 
 
     @Test
-    public void testKeepsObjects() throws ServletException, IOException {
+    public void testKeepsObjects() {
         AccessPermissionRule unfilteredRule = rule();
-        AttributeItem nonExistentClaim = new AttributeItem();
-        nonExistentClaim.setClaim("non-existent");
-        AccessPermissionRule filteredRule = rule(false, null, List.of(nonExistentClaim), null);
+
+        ObjectItem[] invalidObjects = new ObjectItem[] {
+                objectRoute("/api/v3.2/*")
+        };
+        AccessPermissionRule filteredRule = rule(invalidObjects);
         List<AccessPermissionRule> rules = List.of(unfilteredRule, filteredRule);
 
         List<AccessPermissionRule> expected = List.of(unfilteredRule);
 
-        HttpServletRequest mockRequest = mockRequestWith(rules);
+        HttpServletRequest mockRequest = mockRequestWith(rules, HttpMethod.GET, "/api/v3.1/shells/12345/submodels/67890/submodel-elements/Abc.Def.Ghi/invoke-async/$value");
 
-        filter.doFilter(mockRequest, mock(ServletResponse.class), mock(FilterChain.class));
-
-        verifyReturn(mockRequest, expected);
+        List<AccessPermissionRule> actual = filter.doFilter(mockRequest, rules);
+        assertEquals(expected, actual);
     }
 }

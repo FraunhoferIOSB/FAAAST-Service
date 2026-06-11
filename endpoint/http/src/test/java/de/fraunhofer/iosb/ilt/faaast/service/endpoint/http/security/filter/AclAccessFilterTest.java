@@ -14,14 +14,10 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter;
 
-import static org.mockito.Mockito.mock;
+import static org.junit.Assert.assertEquals;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AccessPermissionRule;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
-import java.io.IOException;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import org.junit.Test;
 
@@ -34,16 +30,15 @@ public class AclAccessFilterTest extends AbstractAclFilterTest {
 
 
     @Test
-    public void testRemovesAllDisabledRules() throws ServletException, IOException {
+    public void testRemovesAllDisabledRules() {
         AccessPermissionRule unfilteredRule = rule();
         List<AccessPermissionRule> rules = List.of(unfilteredRule, rule(true));
 
         List<AccessPermissionRule> expected = List.of(unfilteredRule);
 
-        ServletRequest mockRequest = mockRequestWith(rules);
+        HttpServletRequest mockRequest = mockRequestWith(rules);
 
-        filter.doFilter(mockRequest, mock(ServletResponse.class), mock(FilterChain.class));
-
-        verifyReturn(mockRequest, expected);
+        List<AccessPermissionRule> actual = filter.doFilter(mockRequest, rules);
+        assertEquals(expected, actual);
     }
 }
