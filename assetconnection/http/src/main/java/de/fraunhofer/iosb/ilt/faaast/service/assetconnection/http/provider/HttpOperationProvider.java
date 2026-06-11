@@ -61,12 +61,12 @@ public class HttpOperationProvider extends MultiFormatOperationProvider<HttpOper
 
     public static final String DEFAULT_EXECUTE_METHOD = "POST";
     private static final int HTTP_ACCEPTED = 202;
-    private static final int HTTP_REDIRECT = 302;
     private static final String LOCATION_HEADER = "location";
     private static final String STATUS_INITIATED = "Initiated";
     private static final String STATUS_RUNNING = "Running";
     private static final String STATUS_COMPLETED = "Completed";
     private static final String EXECUTION_STATE_QUERY = "$.executionState";
+    private static final long ASYNC_POLL_INTERVAL = 500;
     private final ServiceContext serviceContext;
     private final Reference reference;
     private final HttpClient client;
@@ -185,12 +185,7 @@ public class HttpOperationProvider extends MultiFormatOperationProvider<HttpOper
                                     responseStatus.statusCode(),
                                     responseStatus.headers().map(),
                                     responseStatus.body() != null ? new String(responseStatus.body()) : "[empty]");
-                            //if (responseStatus.statusCode() == HTTP_REDIRECT) {
-                            // Operation is finished and we are redirected to the result
-                            //locationUri = extractLocationUri(responseStatus, path);
-                            //break;
-                            //}
-                            if ((!HttpHelper.is2xxSuccessful(responseStatus)) && ((responseStatus.statusCode() != HTTP_REDIRECT))) {
+                            if (!HttpHelper.is2xxSuccessful(responseStatus)) {
                                 throw new AssetConnectionException(
                                         String.format("executing operation via HTTP asset connection failed (reference: %s)", ReferenceHelper.toString(reference)));
                             }
@@ -226,22 +221,8 @@ public class HttpOperationProvider extends MultiFormatOperationProvider<HttpOper
                                 throw new AssetConnectionException(
                                         String.format("executing operation via HTTP asset connection failed (reference: %s)", ReferenceHelper.toString(reference)));
                             }
+                            Thread.sleep(ASYNC_POLL_INTERVAL);
                         }
-
-                        // Get result from asset
-                        HttpResponse<byte[]> responseStatus = HttpHelper.execute(
-                                client,
-                                locationUri.toURL(),
-                                "",
-                                config.getFormat(),
-                                "GET",
-                                HttpRequest.BodyPublishers.noBody(),
-                                HttpResponse.BodyHandlers.ofByteArray(),
-                                headers);
-                        LOGGER.debug("Response from asset status (status code: {}, headers: {}, body: {})",
-                                responseStatus.statusCode(),
-                                responseStatus.headers().map(),
-                                responseStatus.body() != null ? new String(responseStatus.body()) : "[empty]");
                     }
                     else {
                         throw new AssetConnectionException(
