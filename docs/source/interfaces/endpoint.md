@@ -90,7 +90,7 @@ The HTTP Endpoint is based on the document [Details of the Asset Administration 
 		"corsMaxAge": 1000,
 		"hostname": "https://my-domain.example/path",
 		"httpVersion": "HTTP_2",
-		"pathPrefix": "/api/v3.0",
+		"pathPrefix": "/api/v3.1",
 		"includeErrorDetails": true,
 		"port": 443,
 		"profiles": [ "AAS_REPOSITORY_FULL", "AAS_FULL", "SUBMODEL_REPOSITORY_FULL", "SUBMODEL_FULL" ],

@@ -190,7 +190,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.eclipse.digitaltwin.aas4j.v3.model.ExecutionState;
 import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
-import org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum;
+import org.eclipse.digitaltwin.aas4j.v3.model.MessageType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Property;
@@ -1743,7 +1743,7 @@ public class RequestHandlerManagerTest {
         GetSubmodelResponse expected = new GetSubmodelResponse.Builder()
                 .result(new DefaultResult.Builder()
                         .messages(Message.builder()
-                                .messageType(MessageTypeEnum.ERROR)
+                                .messageType(MessageType.ERROR)
                                 .text("Resource not found with id")
                                 .build())
                         .build())
@@ -1764,7 +1764,7 @@ public class RequestHandlerManagerTest {
         GetSubmodelElementByPathResponse expected = new GetSubmodelElementByPathResponse.Builder()
                 .result(new DefaultResult.Builder()
                         .messages(Message.builder()
-                                .messageType(MessageTypeEnum.ERROR)
+                                .messageType(MessageType.ERROR)
                                 .text("Resource not found with id")
                                 .build())
                         .build())
@@ -1997,7 +1997,7 @@ public class RequestHandlerManagerTest {
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
         assertValueProviderSetValueCalled(updatedProperties);
         if (Objects.nonNull(eventMatcherBuilder)) {
-            updatedProperties.entrySet().stream().forEach(LambdaExceptionHelper.rethrowConsumer(
+            updatedProperties.entrySet().forEach(LambdaExceptionHelper.rethrowConsumer(
                     x -> verify(messageBus).publish(argThat(eventMatcherBuilder.apply(x.getKey(), x.getValue())))));
         }
     }
@@ -2033,13 +2033,13 @@ public class RequestHandlerManagerTest {
 
 
     private void assertPersistenceUpdateCalled(Map<Reference, Property> updatedProperties) throws Exception {
-        updatedProperties.entrySet().stream().forEach(LambdaExceptionHelper.rethrowConsumer(
+        updatedProperties.entrySet().forEach(LambdaExceptionHelper.rethrowConsumer(
                 x -> verify(persistence).update(x.getKey(), x.getValue())));
     }
 
 
     private void assertValueChangeEventsSent(Map<Reference, Property> updatedProperties) throws Exception {
-        updatedProperties.entrySet().stream().forEach(LambdaExceptionHelper.rethrowConsumer(
+        updatedProperties.entrySet().forEach(LambdaExceptionHelper.rethrowConsumer(
                 x -> verify(messageBus).publish(argThat(msg -> {
                     if (!(msg instanceof ValueChangeEventMessage)) {
                         return false;
@@ -2058,7 +2058,7 @@ public class RequestHandlerManagerTest {
 
 
     private void assertValueProviderSetValueCalled(Map<Reference, Property> updatedProperties) throws Exception {
-        updatedProperties.entrySet().stream().forEach(LambdaExceptionHelper.rethrowConsumer(
+        updatedProperties.entrySet().forEach(LambdaExceptionHelper.rethrowConsumer(
                 x -> verify(assetConnectionManager).setValue(x.getKey(), ElementValueMapper.toValue(x.getValue()))));
     }
 

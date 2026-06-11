@@ -34,7 +34,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum;
+import org.eclipse.digitaltwin.aas4j.v3.model.MessageType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Result;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultResult;
 import org.eclipse.jetty.http.HttpStatus;
@@ -113,19 +113,19 @@ public class HttpHelper {
 
     /**
      * Converts a {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode} to a
-     * {@link org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum}.
+     * {@link org.eclipse.digitaltwin.aas4j.v3.model.MessageType}.
      *
      * @param statusCode the input {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode}
-     * @return the resulting {@link org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum}
+     * @return the resulting {@link org.eclipse.digitaltwin.aas4j.v3.model.MessageType}
      */
-    public static MessageTypeEnum messageTypeFromstatusCode(StatusCode statusCode) {
+    public static MessageType messageTypeFromstatusCode(StatusCode statusCode) {
         if (statusCode.isError()) {
-            return MessageTypeEnum.ERROR;
+            return MessageType.ERROR;
         }
         if (statusCode.isException()) {
-            return MessageTypeEnum.EXCEPTION;
+            return MessageType.EXCEPTION;
         }
-        return MessageTypeEnum.INFO;
+        return MessageType.INFO;
     }
 
 
@@ -255,7 +255,7 @@ public class HttpHelper {
                     StatusCode.SERVER_INTERNAL_ERROR,
                     new DefaultResult.Builder()
                             .messages(Message.builder()
-                                    .messageType(MessageTypeEnum.EXCEPTION)
+                                    .messageType(MessageType.EXCEPTION)
                                     .text(exception.getMessage())
                                     .build())
                             .build());

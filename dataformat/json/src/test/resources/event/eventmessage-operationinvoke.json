@@ -202,7 +202,7 @@
                 ],
                 "type": "ModelReference"
             },
-            "annotation": [
+            "annotations": [
                 {
                     "exampleAnnotation": {
                         "modelType": "Property",
@@ -402,7 +402,7 @@
                 ],
                 "type": "ModelReference"
             },
-            "annotation": [
+            "annotations": [
                 {
                     "exampleAnnotation": {
                         "modelType": "Property",
