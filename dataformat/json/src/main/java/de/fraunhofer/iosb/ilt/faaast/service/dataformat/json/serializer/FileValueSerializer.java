@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonFieldNames;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.FileValue;
+
 import java.io.IOException;
 
 
@@ -42,8 +43,12 @@ public class FileValueSerializer extends StdSerializer<FileValue> {
     public void serialize(FileValue value, JsonGenerator generator, SerializerProvider provider) throws IOException, JsonProcessingException {
         if (value != null) {
             generator.writeStartObject();
-            generator.writeStringField(JsonFieldNames.FILE_VALUE_CONTENT_TYPE, value.getContentType());
-            generator.writeStringField(JsonFieldNames.FILE_VALUE_VALUE, value.getValue());
+            if (value.getContentType() != null) {
+                generator.writeStringField(JsonFieldNames.FILE_VALUE_CONTENT_TYPE, value.getContentType());
+            }
+            if (value.getValue() != null) {
+                generator.writeStringField(JsonFieldNames.FILE_VALUE_VALUE, value.getValue());
+            }
             generator.writeEndObject();
         }
     }

@@ -49,12 +49,14 @@ public class EntityValueSerializer extends StdSerializer<EntityValue> {
     public void serialize(EntityValue value, JsonGenerator generator, SerializerProvider provider) throws IOException, JsonProcessingException {
         if (value != null) {
             generator.writeStartObject();
-            generator.writeFieldName(JsonFieldNames.ENTITY_VALUE_STATEMENTS);
-            generator.writeStartObject();
-            for (Map.Entry<String, ElementValue> annotation: value.getStatements().entrySet()) {
-                provider.defaultSerializeField(annotation.getKey(), annotation.getValue(), generator);
+            if (value.getStatements() != null && !value.getStatements().isEmpty()) {
+                generator.writeFieldName(JsonFieldNames.ENTITY_VALUE_STATEMENTS);
+                generator.writeStartObject();
+                for (Map.Entry<String, ElementValue> annotation: value.getStatements().entrySet()) {
+                    provider.defaultSerializeField(annotation.getKey(), annotation.getValue(), generator);
+                }
+                generator.writeEndObject();
             }
-            generator.writeEndObject();
             generator.writeStringField(JsonFieldNames.ENTITY_VALUE_ENTITY_TYPE, EnumSerializer.serializeEnumName(value.getEntityType().name()));
             provider.defaultSerializeField(JsonFieldNames.ENTITY_VALUE_GLOBAL_ASSET_ID, new DefaultReference.Builder()
                     .type(ReferenceTypes.EXTERNAL_REFERENCE)

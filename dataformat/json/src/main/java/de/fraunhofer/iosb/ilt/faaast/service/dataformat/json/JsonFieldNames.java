@@ -19,7 +19,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json;
  */
 public class JsonFieldNames {
 
-    public static final String ANNOTATED_RELATIONSHIP_ELEMENT_VALUE_ANNOTATION = "annotation";
+    public static final String ANNOTATED_RELATIONSHIP_ELEMENT_VALUE_ANNOTATIONS = "annotations";
 
     public static final String ANNOTATED_RELATIONSHIP_ELEMENT_VALUE_FIRST = "first";
     public static final String ANNOTATED_RELATIONSHIP_ELEMENT_VALUE_SECOND = "second";
