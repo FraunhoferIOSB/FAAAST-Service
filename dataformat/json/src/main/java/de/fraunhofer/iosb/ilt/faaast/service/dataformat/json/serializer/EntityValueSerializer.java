@@ -15,7 +15,6 @@
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonFieldNames;
@@ -46,7 +45,7 @@ public class EntityValueSerializer extends StdSerializer<EntityValue> {
 
 
     @Override
-    public void serialize(EntityValue value, JsonGenerator generator, SerializerProvider provider) throws IOException, JsonProcessingException {
+    public void serialize(EntityValue value, JsonGenerator generator, SerializerProvider provider) throws IOException {
         if (value != null) {
             generator.writeStartObject();
             if (value.getStatements() != null && !value.getStatements().isEmpty()) {

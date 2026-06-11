@@ -15,7 +15,6 @@
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonFieldNames;
@@ -41,7 +40,7 @@ public class AnnotatedRelationshipElementValueSerializer extends StdSerializer<A
 
 
     @Override
-    public void serialize(AnnotatedRelationshipElementValue value, JsonGenerator generator, SerializerProvider provider) throws IOException, JsonProcessingException {
+    public void serialize(AnnotatedRelationshipElementValue value, JsonGenerator generator, SerializerProvider provider) throws IOException {
         if (value != null) {
             generator.writeStartObject();
             if (value.getFirst() != null) {
