@@ -35,7 +35,15 @@ import java.util.List;
  */
 public abstract class AbstractAclRepository implements AclRepository {
 
-    protected AllAccessPermissionRules allAccessPermissionRules;
+    private AllAccessPermissionRules allAccessPermissionRules;
+
+    /**
+     * Initialize repository
+     */
+    protected AbstractAclRepository() {
+        this.allAccessPermissionRules = new AllAccessPermissionRules();
+    }
+
 
     @Override
     public List<AccessPermissionRule> getAccessPermissionRules() {

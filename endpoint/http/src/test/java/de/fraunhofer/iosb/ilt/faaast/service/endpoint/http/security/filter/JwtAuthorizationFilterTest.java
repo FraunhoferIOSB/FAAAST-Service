@@ -14,40 +14,39 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.JwtAuthorizationFilter.AUTHORIZATION;
+import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.JwtAuthorizationFilter.BEARER;
+import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.SharedAttributes.ACL;
+import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.util.JwtTestHelper.JOHN_DOE;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import jakarta.servlet.FilterChain;
+import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AccessPermissionRule;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import java.util.Collections;
 import java.util.List;
 
 
 public class JwtAuthorizationFilterTest {
 
-    /**
-     * @Test
-     *       public void testExtractAndDecodeJwt() {
-     *       }
-     **/
-
-    protected FilterChain mockFilterChain() {
-        return mock(FilterChain.class);
+    protected static HttpServletRequest mockRequest(List<AccessPermissionRule> rules) {
+        return mockRequest(rules, HttpMethod.GET, "/");
     }
 
 
-    protected static HttpServletRequest mockRequest(String jwt) {
-        HttpServletRequest r = mock(HttpServletRequest.class);
-        when(r.getHeader("Authorization")).thenReturn("Bearer " + jwt);
-        when(r.getHeaders("Authorization")).thenReturn(Collections.enumeration(List.of("Bearer " + jwt)));
-
-        return r;
+    protected static HttpServletRequest mockRequest(List<AccessPermissionRule> rules, HttpMethod method, String path) {
+        return mockRequest(rules, method, path, JOHN_DOE.jwtString());
     }
 
 
-    protected static HttpServletResponse mockResponse() {
-        return mock(HttpServletResponse.class);
-    }
+    protected static HttpServletRequest mockRequest(List<AccessPermissionRule> rules, HttpMethod method, String path, String jwtString) {
+        HttpServletRequest mockRequest = mock(HttpServletRequest.class);
+        when(mockRequest.getAttribute(ACL.getName())).thenReturn(rules);
+        when(mockRequest.getMethod()).thenReturn(method.name());
+        when(mockRequest.getServletPath()).thenReturn(path);
+        when(mockRequest.getHeader(AUTHORIZATION)).thenReturn(BEARER.concat(" ")
+                .concat(jwtString));
 
+        return mockRequest;
+    }
 }

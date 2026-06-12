@@ -14,6 +14,12 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.util;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTCreator;
+import com.auth0.jwt.algorithms.Algorithm;
+
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
 import java.util.Map;
 
 
@@ -26,6 +32,15 @@ public class JwtTestHelper {
                     "name", "John Doe",
                     "admin", "true",
                     "iat", "02:30:22"));
+
+    public static String from(Map<String, String> claims, RSAPublicKey pubKey, RSAPrivateKey privKey, String keyId) {
+        JWTCreator.Builder builder = JWT.create();
+
+        claims.forEach(builder::withClaim);
+        return builder
+                .withKeyId(keyId)
+                .sign(Algorithm.RSA256(pubKey, privKey));
+    }
 
     public record JWTMock(String jwtString, Map<String, String> claims) {
 

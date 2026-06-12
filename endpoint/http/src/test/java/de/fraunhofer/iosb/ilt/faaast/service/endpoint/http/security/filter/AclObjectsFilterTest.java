@@ -43,7 +43,7 @@ public class AclObjectsFilterTest extends AbstractAclFilterTest {
 
         List<AccessPermissionRule> expected = List.of(unfilteredRule);
 
-        HttpServletRequest mockRequest = mockRequestWith(rules, HttpMethod.GET, "/api/v3.1/shells/12345/submodels/67890/submodel-elements/Abc.Def.Ghi/invoke-async/$value");
+        HttpServletRequest mockRequest = mockRequest(rules, HttpMethod.GET, "/api/v3.1/shells/12345/submodels/67890/submodel-elements/Abc.Def.Ghi/invoke-async/$value");
 
         List<AccessPermissionRule> actual = filter.doFilter(mockRequest, rules);
         assertEquals(expected, actual);

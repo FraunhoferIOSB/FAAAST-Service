@@ -18,6 +18,7 @@ import com.auth0.jwk.InvalidPublicKeyException;
 import com.auth0.jwk.Jwk;
 import com.auth0.jwk.JwkException;
 import com.auth0.jwk.JwkProvider;
+import com.auth0.jwk.SigningKeyNotFoundException;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -33,16 +34,17 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Collections;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 /**
- * Filters any incoming request by verifying its JWT if available.
- * If no Authorization: Bearer <...> header is available, assumes an anonymous request.
+ * Filters any incoming request by verifying its JWT if available. If no Authorization: Bearer <...> header is
+ * available, assumes an anonymous request.
  */
 public class JwtValidationFilter extends JwtAuthorizationFilter {
 
-    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(JwtValidationFilter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(JwtValidationFilter.class);
 
     private final JwkProvider jwkProvider;
 
@@ -51,41 +53,29 @@ public class JwtValidationFilter extends JwtAuthorizationFilter {
     }
 
 
-    /**
-     * If a bearer token (JWT) is passed as header, validates this token and blocks the request as unauthenticated.
-     *
-     * @param servletRequest the <code>ServletRequest</code> object contains the client's request
-     * @param servletResponse the <code>ServletResponse</code> object contains the filter's response
-     * @param filterChain the <code>FilterChain</code> for invoking the next filter or the resource
-     * @throws IOException could not write HttpResponse body OR exception in next filter steps
-     * @throws ServletException exception in next filter steps
-     */
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException,
             ServletException {
         HttpServletRequest httpRequest = (HttpServletRequest) servletRequest;
-        HttpServletResponse httpResponse = (HttpServletResponse) servletResponse;
 
-        // If multiple Authorization headers are present, attackers could maybe use one for auth and one for claims
-        var authHeaders = httpRequest.getHeaders(AUTHORIZATION);
-        var authHeaderList = Collections.list(authHeaders);
-        if (authHeaderList.size() > 1) {
+        // Do not allow multiple auth headers
+        if (httpRequest.getHeaders(AUTHORIZATION) != null && Collections.list(httpRequest.getHeaders(AUTHORIZATION)).size() > 1) {
             LOGGER.debug("Multiple authorization headers present! Not authorizing request.");
-            respondUnauthorized(httpResponse);
+            respondUnauthorized((HttpServletResponse) servletResponse);
             return;
         }
 
-        if (httpRequest.getHeader(AUTHORIZATION) == null) {
+        String authHeader = httpRequest.getHeader(AUTHORIZATION);
+        if (authHeader == null) {
             // No JWT in request, anonymous requestor
             filterChain.doFilter(servletRequest, servletResponse);
             return;
         }
 
         // Extract JWT
-        DecodedJWT jwt = extractAndDecodeJwt(httpRequest);
-        if (jwt == null || !validateJWT(jwt)) {
-            LOGGER.debug("Could not extract and validate JWT");
-            respondUnauthorized(httpResponse);
+        DecodedJWT jwt = extractAndDecodeJwt(authHeader);
+        if (!validateJWT(jwt)) {
+            respondUnauthorized((HttpServletResponse) servletResponse);
         }
         else {
             filterChain.doFilter(servletRequest, servletResponse);
@@ -95,18 +85,21 @@ public class JwtValidationFilter extends JwtAuthorizationFilter {
 
     private static void respondUnauthorized(HttpServletResponse httpResponse) throws IOException {
         httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        httpResponse.getWriter().write("Invalid token");
+        httpResponse.getWriter().write("Invalid or expired token.");
     }
 
 
-    private boolean validateJWT(DecodedJWT decodedJWT) {
-        // Your JWT validation logic here
+    private boolean validateJWT(DecodedJWT decodedJWT) throws IllegalArgumentException {
         Jwk jwk;
         try {
             jwk = jwkProvider.get(decodedJWT.getKeyId());
         }
-        catch (JwkException getJwkException) {
-            LOGGER.debug("Could not get JWK from JWT. Not authorizing request.", getJwkException);
+        catch (SigningKeyNotFoundException getJwkException) {
+            LOGGER.debug("No jwk can be found using the given kid: {}", decodedJWT.getKeyId(), getJwkException);
+            return false;
+        }
+        catch (JwkException jwkException) {
+            LOGGER.info("General exception thrown", jwkException);
             return false;
         }
         Algorithm algorithm;
@@ -114,7 +107,7 @@ public class JwtValidationFilter extends JwtAuthorizationFilter {
             algorithm = Algorithm.RSA256((RSAPublicKey) jwk.getPublicKey(), null);
         }
         catch (InvalidPublicKeyException invalidPublicKeyException) {
-            LOGGER.debug("InvalidPublicKeyException when reading public key from JWT. Not authorizing request", invalidPublicKeyException);
+            LOGGER.debug("JWK's public key could not be built.", invalidPublicKeyException);
             return false;
         }
 
@@ -134,7 +127,6 @@ public class JwtValidationFilter extends JwtAuthorizationFilter {
             LOGGER.debug("Could not verify JWT");
             return false;
         }
-
         return true;
     }
 }

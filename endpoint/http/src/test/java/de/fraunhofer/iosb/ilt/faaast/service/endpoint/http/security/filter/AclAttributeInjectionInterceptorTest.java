@@ -39,7 +39,7 @@ public class AclAttributeInjectionInterceptorTest extends AbstractAclFilterTest 
         AccessPermissionRule uninjectedRule = rule();
         List<AccessPermissionRule> rules = List.of(uninjectedRule);
 
-        HttpServletRequest mockRequest = mockRequestWith(rules);
+        HttpServletRequest mockRequest = mockRequest(rules);
 
         List<AccessPermissionRule> actual = filter.doFilter(mockRequest, rules);
 

@@ -37,7 +37,9 @@ public class AclAttributeFilter extends AbstractAclFilter {
 
     @Override
     protected List<AccessPermissionRule> doFilter(HttpServletRequest request, List<AccessPermissionRule> rules) {
-        Map<String, Claim> claims = Optional.ofNullable(extractAndDecodeJwt(request).getClaims()).orElse(Map.of());
+        Map<String, Claim> claims = Optional
+                .ofNullable(request.getHeader(AUTHORIZATION)).map(header -> extractAndDecodeJwt(header).getClaims())
+                .orElse(Map.of());
 
         return rules.stream().filter(rule -> {
             for (AttributeItem item: rule.getAcl().getAttributes()) {

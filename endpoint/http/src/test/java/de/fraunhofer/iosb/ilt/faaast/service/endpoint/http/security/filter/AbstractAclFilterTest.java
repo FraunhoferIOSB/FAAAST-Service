@@ -14,17 +14,11 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter;
 
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.JwtAuthorizationFilter.AUTHORIZATION;
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.JwtAuthorizationFilter.BEARER;
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.SharedAttributes.ACL;
 import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.util.JwtTestHelper.JOHN_DOE;
 import static de.fraunhofer.iosb.ilt.faaast.service.model.query.json.RightsEnum.ALL;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.util.JwtTestHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AccessPermissionRule;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.Acl;
@@ -41,7 +35,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 
-public abstract class AbstractAclFilterTest {
+public abstract class AbstractAclFilterTest extends JwtAuthorizationFilterTest {
 
     protected AbstractAclFilter filter;
 
@@ -61,7 +55,7 @@ public abstract class AbstractAclFilterTest {
     public void testEmptyListRemovesNone() {
         List<AccessPermissionRule> rules = List.of();
 
-        HttpServletRequest mockRequest = mockRequestWith(rules);
+        HttpServletRequest mockRequest = mockRequest(rules);
 
         List<AccessPermissionRule> actual = filter.doFilter(mockRequest, rules);
         assertTrue(actual.isEmpty());
@@ -75,7 +69,7 @@ public abstract class AbstractAclFilterTest {
 
         List<AccessPermissionRule> expected = List.of(unfilteredRule, unfilteredRule);
 
-        HttpServletRequest mockRequest = mockRequestWith(rules, HttpMethod.GET, "/api/v3.1/shells/12345/submodels/");
+        HttpServletRequest mockRequest = mockRequest(rules, HttpMethod.GET, "/api/v3.1/shells/12345/submodels/");
 
         List<AccessPermissionRule> actual = filter.doFilter(mockRequest, rules);
         assertEquals(expected.size(), actual.size());
@@ -168,25 +162,4 @@ public abstract class AbstractAclFilterTest {
         return item;
     }
 
-
-    protected static HttpServletRequest mockRequestWith(List<AccessPermissionRule> rules) {
-        return mockRequestWith(rules, HttpMethod.GET, "/");
-    }
-
-
-    protected static HttpServletRequest mockRequestWith(List<AccessPermissionRule> rules, HttpMethod method, String path) {
-        return mockRequestWith(rules, method, path, JOHN_DOE);
-    }
-
-
-    protected static HttpServletRequest mockRequestWith(List<AccessPermissionRule> rules, HttpMethod method, String path, JwtTestHelper.JWTMock jwtMock) {
-        HttpServletRequest mockRequest = mock(HttpServletRequest.class);
-        when(mockRequest.getAttribute(ACL.getName())).thenReturn(rules);
-        when(mockRequest.getMethod()).thenReturn(method.name());
-        when(mockRequest.getServletPath()).thenReturn(path);
-        when(mockRequest.getHeader(AUTHORIZATION)).thenReturn(BEARER.concat(" ")
-                .concat(jwtMock.getJwt()));
-
-        return mockRequest;
-    }
 }

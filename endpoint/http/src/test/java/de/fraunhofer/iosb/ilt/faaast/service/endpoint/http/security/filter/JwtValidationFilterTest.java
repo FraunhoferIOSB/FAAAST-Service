@@ -14,31 +14,47 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter;
 
-import static org.mockito.ArgumentMatchers.any;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod.GET;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.auth0.jwk.Jwk;
+import com.auth0.jwk.JwkException;
 import com.auth0.jwk.JwkProvider;
 import com.auth0.jwk.UrlJwkProvider;
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.util.JwtTestHelper;
 import jakarta.servlet.FilterChain;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
+import java.util.Map;
 import org.junit.Test;
 
 
 public class JwtValidationFilterTest extends JwtAuthorizationFilterTest {
 
     @Test
-    public void jwtIsVerified() throws Exception {
+    public void testJwtIsValidated() throws Exception {
+        // Test whether the JWK Provider is called with the correct values
+        String keyId = "kid";
+        JwkJwt jwkJwt = mockJwkProvider(keyId);
+
+        JwtValidationFilter filter = new JwtValidationFilter(jwkJwt.jwkProvider());
+
+        ServletRequest mockRequest = mockRequest(null, GET, "/", jwkJwt.jwt());
+
+        filter.doFilter(mockRequest, mock(ServletResponse.class), mock(FilterChain.class));
+        verify(jwkJwt.jwkProvider(), times(1)).get(keyId);
+    }
+
+
+    private JwkJwt mockJwkProvider(String keyId) throws NoSuchAlgorithmException, JwkException {
         KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
         kpg.initialize(2048);
         KeyPair kp = kpg.generateKeyPair();
@@ -46,32 +62,17 @@ public class JwtValidationFilterTest extends JwtAuthorizationFilterTest {
         RSAPublicKey pub = (RSAPublicKey) kp.getPublic();
         RSAPrivateKey priv = (RSAPrivateKey) kp.getPrivate();
 
-        String kid = "unit-test-kid";
-
-        String jwt = JWT.create()
-                .withKeyId(kid)
-                .sign(Algorithm.RSA256(pub, priv));
+        String jwt = JwtTestHelper.from(Map.of(), pub, priv, keyId);
 
         Jwk jwk = mock(Jwk.class);
         when(jwk.getPublicKey()).thenReturn(pub);
-        when(jwk.getId()).thenReturn(kid);
+        when(jwk.getId()).thenReturn(keyId);
 
         JwkProvider mockJwkProvider = mock(UrlJwkProvider.class);
 
-        when(mockJwkProvider.get(kid)).thenReturn(jwk);
-
-        JwtValidationFilter filter = new JwtValidationFilter(mockJwkProvider);
-
-        HttpServletRequest request = mockRequest(jwt);
-        HttpServletResponse response = mockResponse();
-        FilterChain filterChain = mockFilterChain();
-
-        filter.doFilter(request, response, filterChain);
-
-        // The filter passed this request onto the next filter -> Did not block
-        verify(filterChain, times(1)).doFilter(any(), any());
-        // The filter called the JWK provider to verify the request
-        verify(mockJwkProvider, times(1)).get(kid);
+        when(mockJwkProvider.get(keyId)).thenReturn(jwk);
+        return new JwkJwt(mockJwkProvider, jwt);
     }
 
+    private record JwkJwt(JwkProvider jwkProvider, String jwt) {}
 }

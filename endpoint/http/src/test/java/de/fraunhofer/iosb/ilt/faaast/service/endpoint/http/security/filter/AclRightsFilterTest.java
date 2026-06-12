@@ -39,7 +39,7 @@ public class AclRightsFilterTest extends AbstractAclFilterTest {
 
         List<AccessPermissionRule> expected = List.of(unfilteredRule);
 
-        HttpServletRequest mockRequest = mockRequestWith(rules, HttpMethod.POST, "/api/v3.0/submodels/imaginary/submodel-elements/1234.5678/invoke");
+        HttpServletRequest mockRequest = mockRequest(rules, HttpMethod.POST, "/api/v3.0/submodels/imaginary/submodel-elements/1234.5678/invoke");
 
         List<AccessPermissionRule> actual = filter.doFilter(mockRequest, rules);
         assertEquals(expected, actual);
@@ -53,7 +53,7 @@ public class AclRightsFilterTest extends AbstractAclFilterTest {
 
         List<AccessPermissionRule> expected = List.of(unfilteredRule);
 
-        HttpServletRequest mockRequest = mockRequestWith(rules, HttpMethod.POST, "/api/v3.0/submodels/imaginary/submodel-elements/1234.5678/invoke-async/$value");
+        HttpServletRequest mockRequest = mockRequest(rules, HttpMethod.POST, "/api/v3.0/submodels/imaginary/submodel-elements/1234.5678/invoke-async/$value");
 
         List<AccessPermissionRule> actual = filter.doFilter(mockRequest, rules);
         assertEquals(expected, actual);
@@ -65,7 +65,7 @@ public class AclRightsFilterTest extends AbstractAclFilterTest {
         AccessPermissionRule unfilteredRule = rule(RightsEnum.EXECUTE);
         List<AccessPermissionRule> rules = List.of(unfilteredRule);
 
-        HttpServletRequest mockRequest = mockRequestWith(rules, HttpMethod.POST, "/api/v3.0/submodels/imaginary/submodel-elements/1234.5678");
+        HttpServletRequest mockRequest = mockRequest(rules, HttpMethod.POST, "/api/v3.0/submodels/imaginary/submodel-elements/1234.5678");
 
         List<AccessPermissionRule> actual = filter.doFilter(mockRequest, rules);
         assertTrue(actual.isEmpty());
@@ -78,7 +78,7 @@ public class AclRightsFilterTest extends AbstractAclFilterTest {
         List<AccessPermissionRule> rules = List.of(unfilteredRule);
         List<AccessPermissionRule> expected = List.of(unfilteredRule);
 
-        HttpServletRequest mockRequest = mockRequestWith(rules, HttpMethod.DELETE, "/api/v3.0/submodels/imaginary/submodel-elements/1234.5678");
+        HttpServletRequest mockRequest = mockRequest(rules, HttpMethod.DELETE, "/api/v3.0/submodels/imaginary/submodel-elements/1234.5678");
 
         List<AccessPermissionRule> actual = filter.doFilter(mockRequest, rules);
         assertEquals(expected, actual);
@@ -90,7 +90,7 @@ public class AclRightsFilterTest extends AbstractAclFilterTest {
         AccessPermissionRule unfilteredRule = rule(RightsEnum.DELETE);
         List<AccessPermissionRule> rules = List.of(unfilteredRule);
 
-        HttpServletRequest mockRequest = mockRequestWith(rules, HttpMethod.GET, "/");
+        HttpServletRequest mockRequest = mockRequest(rules, HttpMethod.GET, "/");
 
         List<AccessPermissionRule> actual = filter.doFilter(mockRequest, rules);
         assertTrue(actual.isEmpty());

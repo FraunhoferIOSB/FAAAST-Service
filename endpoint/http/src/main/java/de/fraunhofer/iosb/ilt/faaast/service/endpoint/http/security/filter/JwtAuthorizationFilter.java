@@ -17,7 +17,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import jakarta.servlet.Filter;
-import jakarta.servlet.http.HttpServletRequest;
 
 
 /**
@@ -28,18 +27,17 @@ public abstract class JwtAuthorizationFilter implements Filter {
     public static final String BEARER = "Bearer";
 
     /**
-     * Extracts a JWT from an HTTP request by reading its Authorization header,
-     * checking the presence of the "Bearer" keyword and returning the decoded token.
+     * Extracts a JWT from an HTTP request's auth header, checking the presence of the "Bearer" keyword and returning the
+     * decoded token.
      *
-     * @param request An incoming HTTP request.
-     *
-     * @return The decoded JWT if present, else null
+     * @param authHeaderValue The header value of the "Authorization: ..." header.
+     * @return The decoded JWT
+     * @throws IllegalArgumentException if the input did not contain the bearer keyword
      */
-    protected DecodedJWT extractAndDecodeJwt(HttpServletRequest request) {
-        var authHeaderValue = request.getHeader(AUTHORIZATION);
+    protected DecodedJWT extractAndDecodeJwt(String authHeaderValue) throws IllegalArgumentException {
 
         if (authHeaderValue == null || !authHeaderValue.startsWith(BEARER.concat(" "))) {
-            return null;
+            throw new IllegalArgumentException(String.format("Authorization header value did not contain bearer keyword: %s", authHeaderValue));
         }
 
         // Remove "Bearer "

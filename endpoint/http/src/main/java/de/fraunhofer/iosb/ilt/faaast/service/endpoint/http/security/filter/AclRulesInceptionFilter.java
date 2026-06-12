@@ -19,12 +19,15 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AccessPermissionRu
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.List;
+import java.util.Objects;
 
 
 /**
  * Helper filter to inject the current ACL rules into a request.
  */
 public class AclRulesInceptionFilter extends AbstractAclFilter {
+
+    private static final String RULES_ALREADY_PRESENT_TEMPLATE = "%s called after ACL rules were injected into request: %s";
 
     private final AclRepository aclRepository;
 
@@ -34,12 +37,15 @@ public class AclRulesInceptionFilter extends AbstractAclFilter {
      * @param aclRepository Retrieval of ACL
      */
     public AclRulesInceptionFilter(AclRepository aclRepository) {
-        this.aclRepository = aclRepository;
+        this.aclRepository = Objects.requireNonNull(aclRepository);
     }
 
 
     @Override
     protected List<AccessPermissionRule> doFilter(HttpServletRequest request, List<AccessPermissionRule> rules) {
+        if (rules != null) {
+            throw new IllegalStateException(String.format(RULES_ALREADY_PRESENT_TEMPLATE, AclRulesInceptionFilter.class.getName(), rules));
+        }
         return aclRepository.getAccessPermissionRules();
     }
 }

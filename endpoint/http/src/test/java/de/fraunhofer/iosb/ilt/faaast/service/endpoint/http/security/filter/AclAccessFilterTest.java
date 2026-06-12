@@ -36,7 +36,7 @@ public class AclAccessFilterTest extends AbstractAclFilterTest {
 
         List<AccessPermissionRule> expected = List.of(unfilteredRule);
 
-        HttpServletRequest mockRequest = mockRequestWith(rules);
+        HttpServletRequest mockRequest = mockRequest(rules);
 
         List<AccessPermissionRule> actual = filter.doFilter(mockRequest, rules);
         assertEquals(expected, actual);
