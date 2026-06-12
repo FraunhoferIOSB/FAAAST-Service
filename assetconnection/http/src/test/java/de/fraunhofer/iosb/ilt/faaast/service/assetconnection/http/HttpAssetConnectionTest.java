@@ -809,18 +809,12 @@ public class HttpAssetConnectionTest {
         }
 
         String path = String.format("/test/random/%s", "foo");
-        //stubFor(request(method.getName(), urlEqualTo(path))
-        //        .willReturn(aResponse()
-        //                .withStatus(200)
-        //                .withHeader(CONTENT_TYPE, APPLICATION_JSON)
-        //                .withBody(assetResponse)));
         String pathStatus = String.format("%s/operation-status/99", path);
         String pathResult = String.format("%s/operation-Result/99", path);
         stubFor(request(method.getName(), urlEqualTo(path))
                 .willReturn(aResponse()
                         .withStatus(202)
                         .withHeader(LOCATION, pathStatus)));
-        //.withBody(assetResponse)));
         stubFor(get(pathStatus).willReturn(temporaryRedirect(pathResult)));
         stubFor((get(pathResult)
                 .willReturn(aResponse()
