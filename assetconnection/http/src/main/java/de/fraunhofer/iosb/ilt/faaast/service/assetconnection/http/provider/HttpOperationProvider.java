@@ -14,10 +14,14 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider;
 
+import com.jayway.jsonpath.Configuration;
+import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.Option;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.provider.MultiFormatOperationProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.HttpAssetConnectionConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.AsyncOperationMode;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.HttpOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.util.HttpHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
@@ -26,10 +30,14 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundExc
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
@@ -52,6 +60,14 @@ public class HttpOperationProvider extends MultiFormatOperationProvider<HttpOper
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpOperationProvider.class);
 
     public static final String DEFAULT_EXECUTE_METHOD = "POST";
+    private static final int HTTP_ACCEPTED = 202;
+    private static final String LOCATION_HEADER = "location";
+    private static final String STATUS_INITIATED = "Initiated";
+    private static final String STATUS_RUNNING = "Running";
+    private static final String STATUS_COMPLETED = "Completed";
+    private static final String EXECUTION_STATE_QUERY = "$.executionState";
+    private static final String EMPTY = "[empty]";
+    private static final long ASYNC_POLL_INTERVAL = 500;
     private final ServiceContext serviceContext;
     private final Reference reference;
     private final HttpClient client;
@@ -116,23 +132,31 @@ public class HttpOperationProvider extends MultiFormatOperationProvider<HttpOper
                     method,
                     headers,
                     Objects.nonNull(input) ? new String(input) : "");
-            HttpResponse<byte[]> response = HttpHelper.execute(
-                    client,
-                    connectionConfig.getBaseUrl(),
-                    path,
-                    config.getFormat(),
-                    method,
-                    HttpRequest.BodyPublishers.ofByteArray(input),
-                    HttpResponse.BodyHandlers.ofByteArray(),
-                    headers);
-            LOGGER.trace("Response from asset (status code: {}, headers: {}, body: {})",
-                    response.statusCode(),
-                    response.headers().map(),
-                    response.body() != null ? new String(response.body()) : "[empty]");
-            if (!HttpHelper.is2xxSuccessful(response)) {
-                throw new AssetConnectionException(String.format("executing operation via HTTP asset connection failed (reference: %s)", ReferenceHelper.toString(reference)));
+            byte[] retval = null;
+            if (config.getMode() == AsyncOperationMode.DIRECT) {
+                HttpResponse<byte[]> response = HttpHelper.execute(
+                        client,
+                        connectionConfig.getBaseUrl(),
+                        path,
+                        config.getFormat(),
+                        method,
+                        HttpRequest.BodyPublishers.ofByteArray(input),
+                        HttpResponse.BodyHandlers.ofByteArray(),
+                        headers);
+                LOGGER.trace("Response from asset (status code: {}, headers: {}, body: {})",
+                        response.statusCode(),
+                        response.headers().map(),
+                        response.body() != null ? new String(response.body()) : EMPTY);
+                if (!HttpHelper.is2xxSuccessful(response)) {
+                    throw new AssetConnectionException(String.format("executing operation via HTTP asset connection failed (reference: %s)", ReferenceHelper.toString(reference)));
+                }
+                retval = response.body();
             }
-            return response.body();
+            if (config.getMode() == AsyncOperationMode.ASYNC_AAS) {
+                retval = invokeAsyncAas(path, method, input, headers, retval);
+            }
+
+            return retval;
         }
         catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -142,4 +166,102 @@ public class HttpOperationProvider extends MultiFormatOperationProvider<HttpOper
             throw new AssetConnectionException(String.format("executing operation via HTTP asset connection failed (reference: %s)", ReferenceHelper.toString(reference)), e);
         }
     }
+
+
+    private byte[] invokeAsyncAas(String path, String method, byte[] input, Map<String, String> headers, byte[] retval)
+            throws InterruptedException, URISyntaxException, IOException, AssetConnectionException {
+        HttpResponse<byte[]> responseCall = HttpHelper.execute(
+                client,
+                connectionConfig.getBaseUrl(),
+                path,
+                config.getFormat(),
+                method,
+                HttpRequest.BodyPublishers.ofByteArray(input),
+                HttpResponse.BodyHandlers.ofByteArray(),
+                headers);
+        LOGGER.debug("Response from asset (status code: {}, headers: {}, body: {})",
+                responseCall.statusCode(),
+                responseCall.headers().map(),
+                responseCall.body() != null ? new String(responseCall.body()) : EMPTY);
+        if (responseCall.statusCode() == HTTP_ACCEPTED) {
+            // extract location header
+            if (responseCall.headers().map().containsKey(LOCATION_HEADER) && (!responseCall.headers().map().get(LOCATION_HEADER).isEmpty())) {
+                URI locationUri = extractLocationUri(responseCall, path);
+
+                boolean running = true;
+                while (running) {
+                    HttpResponse<byte[]> responseStatus = HttpHelper.execute(
+                            client,
+                            locationUri.toURL(),
+                            "",
+                            config.getFormat(),
+                            "GET",
+                            HttpRequest.BodyPublishers.noBody(),
+                            HttpResponse.BodyHandlers.ofByteArray(),
+                            headers);
+                    LOGGER.debug("Response from asset status (status code: {}, headers: {}, body: {})",
+                            responseStatus.statusCode(),
+                            responseStatus.headers().map(),
+                            responseStatus.body() != null ? new String(responseStatus.body()) : EMPTY);
+                    if (!HttpHelper.is2xxSuccessful(responseStatus)) {
+                        throw new AssetConnectionException(
+                                String.format("executing operation via HTTP asset connection failed (reference: %s)", ReferenceHelper.toString(reference)));
+                    }
+                    if (responseStatus.body() != null) {
+                        String bodyTxt = new String(responseStatus.body());
+                        List<Object> jsonPathResult = JsonPath
+                                .using(Configuration.defaultConfiguration().addOptions(Option.ALWAYS_RETURN_LIST))
+                                .parse(bodyTxt)
+                                .read(EXECUTION_STATE_QUERY);
+                        if (!jsonPathResult.isEmpty()) {
+                            String state = jsonPathResult.get(0).toString();
+                            if (state.equalsIgnoreCase(STATUS_INITIATED) || state.equalsIgnoreCase(STATUS_RUNNING)) {
+                                running = true;
+                            }
+                            else {
+                                running = false;
+                                if (state.equalsIgnoreCase(STATUS_COMPLETED)) {
+                                    retval = responseStatus.body();
+                                }
+                                else {
+                                    throw new AssetConnectionException(
+                                            String.format("executing operation via HTTP asset connection failed (reference: %s): executionState: %s",
+                                                    ReferenceHelper.toString(reference), state));
+                                }
+                            }
+                        }
+                        else {
+                            throw new AssetConnectionException(String.format(
+                                    "executing operation via HTTP asset connection failed: executionState not found (reference: %s)", ReferenceHelper.toString(reference)));
+                        }
+                    }
+                    else {
+                        throw new AssetConnectionException(
+                                String.format("executing operation via HTTP asset connection failed (reference: %s)", ReferenceHelper.toString(reference)));
+                    }
+                    Thread.sleep(ASYNC_POLL_INTERVAL);
+                }
+            }
+            else {
+                throw new AssetConnectionException(
+                        String.format("executing operation via HTTP asset connection failed (reference: %s)", ReferenceHelper.toString(reference)));
+            }
+        }
+        else {
+            throw new AssetConnectionException(String.format("executing operation via HTTP asset connection failed (reference: %s)", ReferenceHelper.toString(reference)));
+        }
+        return retval;
+    }
+
+
+    private URI extractLocationUri(HttpResponse<byte[]> responseCall, String path) throws URISyntaxException, MalformedURLException {
+        String urlTxt = responseCall.headers().map().get(LOCATION_HEADER).get(0);
+        URI locationUri = new URI(urlTxt);
+        if (!locationUri.isAbsolute()) {
+            // make relative URL absolute
+            locationUri = new URL(connectionConfig.getBaseUrl(), path).toURI().resolve(locationUri.toString());
+        }
+        return locationUri;
+    }
+
 }
