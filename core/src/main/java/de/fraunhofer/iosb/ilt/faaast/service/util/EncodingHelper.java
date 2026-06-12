@@ -80,7 +80,9 @@ public class EncodingHelper {
      * @return encoded value
      */
     public static byte[] base64Encode(byte[] value) {
-        return Base64.getEncoder().encode(value);
+        return Objects.nonNull(value)
+                ? Base64.getEncoder().encode(value)
+                : new byte[0];
     }
 
 
