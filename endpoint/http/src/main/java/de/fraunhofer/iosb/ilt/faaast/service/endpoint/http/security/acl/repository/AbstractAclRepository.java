@@ -38,7 +38,7 @@ public abstract class AbstractAclRepository implements AclRepository {
     private AllAccessPermissionRules allAccessPermissionRules;
 
     /**
-     * Initialize repository
+     * Class constructor.
      */
     protected AbstractAclRepository() {
         this.allAccessPermissionRules = new AllAccessPermissionRules();
