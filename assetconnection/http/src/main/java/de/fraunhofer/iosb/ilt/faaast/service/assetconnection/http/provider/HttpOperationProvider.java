@@ -250,7 +250,7 @@ public class HttpOperationProvider extends MultiFormatOperationProvider<HttpOper
 
     private URI extractLocationUri(HttpResponse<byte[]> responseCall, String path) throws URISyntaxException, MalformedURLException {
         String urlTxt = responseCall.headers().map().get(LOCATION_HEADER).get(0);
-        URI locationUri = new URL(urlTxt).toURI();
+        URI locationUri = new URI(urlTxt);
         if (!locationUri.isAbsolute()) {
             // make relative URL absolute
             locationUri = new URL(connectionConfig.getBaseUrl(), path).toURI().resolve(locationUri.toString());
