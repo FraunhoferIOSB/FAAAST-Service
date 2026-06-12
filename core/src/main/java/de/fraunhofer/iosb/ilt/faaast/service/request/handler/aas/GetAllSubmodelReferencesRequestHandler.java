@@ -32,16 +32,17 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
  * Class to handle a {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.GetAllSubmodelReferencesRequest}
  * in the service and to send the corresponding response
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.GetAllSubmodelReferencesResponse}. Is responsible
- * for communication with the persistence and sends the corresponding events to the message bus.
+ * for communication with the persistence and sends the
+ * corresponding events to the message bus.
  */
 public class GetAllSubmodelReferencesRequestHandler extends AbstractRequestHandler<GetAllSubmodelReferencesRequest, GetAllSubmodelReferencesResponse> {
 
     @Override
     public GetAllSubmodelReferencesResponse process(GetAllSubmodelReferencesRequest request, RequestExecutionContext context)
             throws ResourceNotFoundException, MessageBusException, PersistenceException {
-        Page<Reference> page = context.getPersistence().getSubmodelRefs(request.getId(), request.getPagingInfo());
+        Page<Reference> page = context.getPersistence().getSubmodelRefs(request.getId(), request.getPagingInfo(), request.getFormula());
         if (!request.isInternal()) {
-            AssetAdministrationShell aas = context.getPersistence().getAssetAdministrationShell(request.getId(), OutputModifier.MINIMAL);
+            AssetAdministrationShell aas = context.getPersistence().getAssetAdministrationShell(request.getId(), OutputModifier.MINIMAL, request.getFormula());
             context.getMessageBus().publish(ElementReadEventMessage.builder()
                     .element(aas)
                     .value(aas)

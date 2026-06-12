@@ -62,7 +62,7 @@ public class PostSubmodelElementByPathRequestHandler extends AbstractSubmodelInt
             childSubReferenceBuilder.element(request.getSubmodelElement().getIdShort());
         }
         else {
-            SubmodelElement parent = context.getPersistence().getSubmodelElement(parentReference, QueryModifier.DEFAULT);
+            SubmodelElement parent = context.getPersistence().getSubmodelElement(parentReference, QueryModifier.DEFAULT, request.getFormula());
             KeyTypes keyType = ReferenceHelper.toKeyType(request.getSubmodelElement().getClass());
             if (SubmodelElementList.class.isAssignableFrom(parent.getClass())) {
                 childSubReferenceBuilder.index(((SubmodelElementList) parent).getValue().size(), keyType);

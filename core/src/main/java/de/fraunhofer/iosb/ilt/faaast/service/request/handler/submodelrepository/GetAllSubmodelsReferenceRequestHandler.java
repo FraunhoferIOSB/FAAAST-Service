@@ -51,7 +51,8 @@ public class GetAllSubmodelsReferenceRequestHandler extends AbstractRequestHandl
         Page<Submodel> page = context.getPersistence().findSubmodels(
                 SubmodelSearchCriteria.NONE,
                 request.getOutputModifier(),
-                request.getPagingInfo());
+                request.getPagingInfo(),
+                request.getFormula());
         if (!request.isInternal() && Objects.nonNull(page.getContent())) {
             for (Submodel submodel: page.getContent()) {
                 Reference reference = AasUtils.toReference(submodel);

@@ -1,0 +1,37 @@
+{
+  "AllAccessPermissionRules": {
+    "rules": [
+      {
+        "ACL": {
+          "ATTRIBUTES": [
+            {
+              "CLAIM": "email"
+            }
+          ],
+          "RIGHTS": [
+            "READ",
+            "UPDATE"
+          ],
+          "ACCESS": "ALLOW"
+        },
+        "OBJECTS": [
+          {
+            "IDENTIFIABLE": "(Submodel)https://submodel1.company1.com"
+          }
+        ],
+        "FORMULA": {
+          "$eq": [
+            {
+              "$attribute": {
+                "CLAIM": "email"
+              }
+            },
+            {
+              "$strVal": "user1@company1.com"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

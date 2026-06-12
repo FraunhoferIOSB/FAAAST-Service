@@ -103,7 +103,7 @@ public class GetAllSubmodelElementsPathRequestHandler extends AbstractSubmodelIn
     public GetAllSubmodelElementsPathResponse doProcess(GetAllSubmodelElementsPathRequest request, RequestExecutionContext context)
             throws AssetConnectionException, ValueMappingException, ResourceNotFoundException, MessageBusException, ResourceNotAContainerElementException, PersistenceException {
         Reference reference = ReferenceBuilder.forSubmodel(request.getSubmodelId());
-        Page<SubmodelElement> submodelElements = context.getPersistence().getSubmodelElements(reference, request.getOutputModifier(), PagingInfo.ALL);
+        Page<SubmodelElement> submodelElements = context.getPersistence().getSubmodelElements(reference, request.getOutputModifier(), PagingInfo.ALL, request.getFormula());
         Page<IdShortPath> page;
         page = preparePagedResult(submodelElements.getContent().stream()
                 .flatMap(x -> ReferenceCollector.collect(x).keySet().stream()

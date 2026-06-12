@@ -14,6 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler.submodel;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence.identity;
+
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
@@ -53,12 +55,12 @@ public class PutSubmodelRequestHandler extends AbstractRequestHandler<PutSubmode
             PersistenceException {
         ModelValidator.validate(request.getSubmodel(), context.getCoreConfig().getValidationOnUpdate());
         //check if resource does exist
-        Submodel oldSubmodel = context.getPersistence().getSubmodel(request.getSubmodelId(), QueryModifier.DEFAULT);
+        Submodel oldSubmodel = context.getPersistence().getSubmodel(request.getSubmodelId(), QueryModifier.DEFAULT, request.getFormula());
         if (Objects.nonNull(request.getSubmodel()) && !Objects.equals(request.getSubmodel().getId(), request.getSubmodelId())) {
             // id has changed, need to update references to this submodel
             Reference submodelRefOld = ReferenceBuilder.forSubmodel(request.getSubmodelId());
             Reference submodelRefNew = ReferenceBuilder.forSubmodel(request.getSubmodel().getId());
-            context.getPersistence().getAllAssetAdministrationShells(QueryModifier.MINIMAL, PagingInfo.ALL).getContent().stream()
+            context.getPersistence().getAllAssetAdministrationShells(QueryModifier.MINIMAL, PagingInfo.ALL, identity()).getContent().stream()
                     .filter(aas -> aas.getSubmodels().stream().anyMatch(submodelRef -> ReferenceHelper.equals(submodelRef, submodelRefOld)))
                     .forEach(LambdaExceptionHelper.rethrowConsumer(aas -> {
                         aas.getSubmodels().removeIf(submodelRef -> ReferenceHelper.equals(submodelRef, submodelRefOld));

@@ -14,6 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.persistence;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence.identity;
+
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
@@ -129,7 +131,7 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
         AssetAdministrationShell expected = environment.getAssetAdministrationShells().stream()
                 .filter(x -> x.getId().equals(aasId))
                 .findFirst().get();
-        AssetAdministrationShell actual = persistence.getAssetAdministrationShell(aasId, QueryModifier.DEFAULT);
+        AssetAdministrationShell actual = persistence.getAssetAdministrationShell(aasId, QueryModifier.DEFAULT, identity());
         Assert.assertEquals(expected, actual);
         persistence.stop();
     }
@@ -144,7 +146,7 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
         AssetAdministrationShell expected = environment.getAssetAdministrationShells().stream()
                 .filter(x -> x.getId().equals(aasId))
                 .findFirst().get();
-        AssetAdministrationShell actual = tempPersistence.getAssetAdministrationShell(aasId, QueryModifier.DEFAULT);
+        AssetAdministrationShell actual = tempPersistence.getAssetAdministrationShell(aasId, QueryModifier.DEFAULT, identity());
         Assert.assertEquals(expected, actual);
         tempPersistence.stop();
     }
@@ -168,7 +170,7 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
                         .submodelId(submodelId)
                         .idShortPath(path)
                         .build(),
-                QueryModifier.DEFAULT);
+                QueryModifier.DEFAULT, identity());
         Assert.assertEquals(expected, actual);
     }
 
@@ -202,7 +204,7 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
                         .submodelId(submodelId)
                         .idShortPath(path)
                         .build(),
-                QueryModifier.DEFAULT);
+                QueryModifier.DEFAULT, identity());
         Assert.assertEquals(expected, actual);
     }
 
@@ -231,7 +233,7 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
                         .submodelId(submodelId)
                         .idShortPath(path)
                         .build(),
-                queryModifier);
+                queryModifier, identity());
         Assert.assertEquals(expected, actual);
     }
 
@@ -253,7 +255,7 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
                         .submodelId(submodelId)
                         .idShortPath(IdShortPath.fromReference(reference))
                         .build(),
-                QueryModifier.DEFAULT);
+                QueryModifier.DEFAULT, identity());
         Assert.assertEquals(expected, actual);
     }
 
@@ -264,7 +266,7 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
         AssetAdministrationShell expected = environment.getAssetAdministrationShells().stream()
                 .filter(x -> x.getId().equals(id))
                 .findFirst().get();
-        AssetAdministrationShell actual = persistence.getAssetAdministrationShell(id, QueryModifier.DEFAULT);
+        AssetAdministrationShell actual = persistence.getAssetAdministrationShell(id, QueryModifier.DEFAULT, identity());
         Assert.assertEquals(expected, actual);
     }
 
@@ -276,7 +278,7 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
         Submodel expected = environment.getSubmodels().stream()
                 .filter(x -> x.getId().equals(id))
                 .findFirst().get();
-        Submodel actual = persistence.getSubmodel(id, QueryModifier.DEFAULT);
+        Submodel actual = persistence.getSubmodel(id, QueryModifier.DEFAULT, identity());
         Assert.assertEquals(expected, actual);
     }
 
@@ -287,7 +289,7 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
         ConceptDescription expected = environment.getConceptDescriptions().stream()
                 .filter(x -> x.getId().equals(id))
                 .findFirst().get();
-        ConceptDescription actual = persistence.getConceptDescription(id, QueryModifier.DEFAULT);
+        ConceptDescription actual = persistence.getConceptDescription(id, QueryModifier.DEFAULT, identity());
         Assert.assertEquals(expected, actual);
 
     }
@@ -303,7 +305,8 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
                         .assetIds(List.of(GlobalAssetIdentification.builder().build()))
                         .build(),
                 QueryModifier.DEFAULT,
-                PagingInfo.ALL)
+                PagingInfo.ALL,
+                identity())
                 .getContent();
         Assert.assertEquals(expected, actual);
     }
@@ -313,7 +316,7 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
     public void getShellsAll() throws PersistenceException {
         List<AssetAdministrationShell> expected = environment.getAssetAdministrationShells();
         List<AssetAdministrationShell> actual = persistence
-                .getAllAssetAdministrationShells(QueryModifier.DEFAULT, PagingInfo.ALL)
+                .getAllAssetAdministrationShells(QueryModifier.DEFAULT, PagingInfo.ALL, identity())
                 .getContent();
         Assert.assertEquals(expected, actual);
     }
@@ -330,7 +333,8 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
                         .idShort(aasIdShort)
                         .build(),
                 QueryModifier.DEFAULT,
-                PagingInfo.ALL)
+                PagingInfo.ALL,
+                identity())
                 .getContent();
         Assert.assertEquals(expected, actual);
     }
@@ -348,7 +352,8 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
                         .assetIds(List.of(globalAssetIdentification))
                         .build(),
                 QueryModifier.DEFAULT,
-                PagingInfo.ALL)
+                PagingInfo.ALL,
+                identity())
                 .getContent();
         Assert.assertEquals(expected, actual);
     }
@@ -359,7 +364,7 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
         List<Submodel> expected = environment.getSubmodels();
         ExtendHelper.withoutBlobValue(expected);
         List<Submodel> actual = persistence
-                .getAllSubmodels(QueryModifier.DEFAULT, PagingInfo.ALL)
+                .getAllSubmodels(QueryModifier.DEFAULT, PagingInfo.ALL, identity())
                 .getContent();
         Assert.assertEquals(expected, actual);
     }
@@ -376,7 +381,8 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
                         .idShort(submodelIdShort)
                         .build(),
                 QueryModifier.DEFAULT,
-                PagingInfo.ALL)
+                PagingInfo.ALL,
+                identity())
                 .getContent();
         Assert.assertEquals(expected, actual);
     }
@@ -400,7 +406,8 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
                         .semanticId(semanticId)
                         .build(),
                 QueryModifier.DEFAULT,
-                PagingInfo.ALL)
+                PagingInfo.ALL,
+                identity())
                 .getContent();
         Assert.assertEquals(expected, actual);
     }
@@ -421,7 +428,8 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
                         .idShortPath(path)
                         .build(),
                 QueryModifier.DEFAULT,
-                PagingInfo.ALL)
+                PagingInfo.ALL,
+                identity())
                 .getContent();
         Assert.assertEquals(expected, actual);
     }
@@ -445,7 +453,7 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
                         .semanticId(semanticId)
                         .build(),
                 QueryModifier.DEFAULT,
-                PagingInfo.ALL)
+                PagingInfo.ALL, identity())
                 .getContent();
         Assert.assertEquals(expected, actual);
     }
@@ -458,7 +466,7 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
         Reference reference = ReferenceBuilder.forSubmodel(submodelId, submodelElementId);
         Collection<SubmodelElement> expected = EnvironmentHelper.resolve(reference, environment, SubmodelElementCollection.class).getValue();
         List<SubmodelElement> actual = persistence
-                .getSubmodelElements(reference, QueryModifier.DEFAULT, PagingInfo.ALL)
+                .getSubmodelElements(reference, QueryModifier.DEFAULT, PagingInfo.ALL, identity())
                 .getContent();
         Assert.assertEquals(expected, actual);
     }
@@ -471,7 +479,7 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
         Reference reference = ReferenceBuilder.forSubmodel(submodelId, submodelElementId);
         List<SubmodelElement> expected = EnvironmentHelper.resolve(reference, environment, SubmodelElementList.class).getValue();
         List<SubmodelElement> actual = persistence
-                .getSubmodelElements(reference, QueryModifier.DEFAULT, PagingInfo.ALL)
+                .getSubmodelElements(reference, QueryModifier.DEFAULT, PagingInfo.ALL, identity())
                 .getContent();
         Assert.assertEquals(expected, actual);
     }
@@ -481,7 +489,7 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
     public void getConceptDescriptionsAll() throws PersistenceException {
         List<ConceptDescription> expected = environment.getConceptDescriptions();
         List<ConceptDescription> actual = persistence
-                .getAllConceptDescriptions(QueryModifier.DEFAULT, PagingInfo.ALL)
+                .getAllConceptDescriptions(QueryModifier.DEFAULT, PagingInfo.ALL, identity())
                 .getContent();
         Assert.assertEquals(expected, actual);
     }
@@ -495,7 +503,7 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
                         .idShort(idShort)
                         .build(),
                 QueryModifier.DEFAULT,
-                PagingInfo.ALL)
+                PagingInfo.ALL, identity())
                 .getContent();
         List<ConceptDescription> expected = environment.getConceptDescriptions().stream()
                 .filter(x -> x.getIdShort().equalsIgnoreCase(idShort))
@@ -522,7 +530,7 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
                         .isCaseOf(isCaseOf)
                         .build(),
                 QueryModifier.DEFAULT,
-                PagingInfo.ALL)
+                PagingInfo.ALL, identity())
                 .getContent();
         Assert.assertEquals(expected, actual);
     }
@@ -546,7 +554,7 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
                         .dataSpecification(dataSpecification)
                         .build(),
                 QueryModifier.DEFAULT,
-                PagingInfo.ALL)
+                PagingInfo.ALL, identity())
                 .getContent();
         Assert.assertEquals(expected, actual);
     }
@@ -571,7 +579,7 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
                         .isCaseOf(isCaseOf)
                         .build(),
                 QueryModifier.DEFAULT,
-                PagingInfo.ALL)
+                PagingInfo.ALL, identity())
                 .getContent();
         Assert.assertEquals(expected, actual);
     }
@@ -592,7 +600,7 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
                                 .idShort(idShort)
                                 .build())
                         .build(),
-                QueryModifier.DEFAULT);
+                QueryModifier.DEFAULT, identity());
         Assert.assertEquals(expected, actual);
     }
 
@@ -612,8 +620,8 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
                 .element(submodelElement)
                 .build();
         persistence.update(reference, expected);
-        SubmodelElement actualSubmodelElement = persistence.getSubmodelElement(reference, QueryModifier.DEFAULT);
-        Submodel actualSubmodel = persistence.getSubmodel(submodel.getId(), QueryModifier.DEFAULT);
+        SubmodelElement actualSubmodelElement = persistence.getSubmodelElement(reference, QueryModifier.DEFAULT, identity());
+        Submodel actualSubmodel = persistence.getSubmodel(submodel.getId(), QueryModifier.DEFAULT, identity());
         int idxActual = actualSubmodel.getSubmodelElements().indexOf(expected);
         Assert.assertEquals(expected, actualSubmodelElement);
         Assert.assertEquals(idxExpected, idxActual);
@@ -646,7 +654,8 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
                         .with(parent)
                         .element(idShort)
                         .build(),
-                QueryModifier.DEFAULT);
+                QueryModifier.DEFAULT,
+                identity());
         Assert.assertEquals(expected, actual);
     }
 
@@ -667,7 +676,8 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
                 reference,
                 new QueryModifier.Builder()
                         .extend(Extent.WITH_BLOB_VALUE)
-                        .build());
+                        .build(),
+                identity());
         Assert.assertEquals(expected, actual);
     }
 
@@ -694,7 +704,7 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
                 .element(submodelElement)
                 .build();
         persistence.update(reference, expected);
-        SubmodelElement actual = persistence.getSubmodelElement(reference, new QueryModifier.Builder().extend(Extent.WITH_BLOB_VALUE).build());
+        SubmodelElement actual = persistence.getSubmodelElement(reference, new QueryModifier.Builder().extend(Extent.WITH_BLOB_VALUE).build(), identity());
         Assert.assertEquals(expected, actual);
     }
 
@@ -707,7 +717,7 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
         String category = "NewCategory";
         expected.setCategory(category);
         persistence.update(reference, expected);
-        SubmodelElement actual = persistence.getSubmodelElement(reference, new QueryModifier.Builder().extend(Extent.WITH_BLOB_VALUE).build());
+        SubmodelElement actual = persistence.getSubmodelElement(reference, new QueryModifier.Builder().extend(Extent.WITH_BLOB_VALUE).build(), identity());
         Assert.assertEquals(expected, actual);
     }
 
@@ -715,27 +725,27 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
     @Test
     public void removeSubmodel() throws ResourceNotFoundException, PersistenceException {
         String submodelId = "https://acplt.org/Test_Submodel_Mandatory";
-        Assert.assertNotNull(persistence.getSubmodel(submodelId, QueryModifier.DEFAULT));
+        Assert.assertNotNull(persistence.getSubmodel(submodelId, QueryModifier.DEFAULT, identity()));
         persistence.deleteSubmodel(submodelId);
-        Assert.assertThrows(ResourceNotFoundException.class, () -> persistence.getSubmodel(submodelId, QueryModifier.DEFAULT));
+        Assert.assertThrows(ResourceNotFoundException.class, () -> persistence.getSubmodel(submodelId, QueryModifier.DEFAULT, identity()));
     }
 
 
     @Test
     public void removeAAS() throws ResourceNotFoundException, PersistenceException {
         String aasId = "https://acplt.org/Test_AssetAdministrationShell_Mandatory";
-        Assert.assertNotNull(persistence.getAssetAdministrationShell(aasId, QueryModifier.DEFAULT));
+        Assert.assertNotNull(persistence.getAssetAdministrationShell(aasId, QueryModifier.DEFAULT, identity()));
         persistence.deleteAssetAdministrationShell(aasId);
-        Assert.assertThrows(ResourceNotFoundException.class, () -> persistence.getAssetAdministrationShell(aasId, QueryModifier.DEFAULT));
+        Assert.assertThrows(ResourceNotFoundException.class, () -> persistence.getAssetAdministrationShell(aasId, QueryModifier.DEFAULT, identity()));
     }
 
 
     @Test
     public void removeAll() throws PersistenceException {
         persistence.deleteAll();
-        Assert.assertTrue(persistence.getAllAssetAdministrationShells(QueryModifier.MINIMAL, PagingInfo.ALL).getContent().isEmpty());
-        Assert.assertTrue(persistence.getAllSubmodels(QueryModifier.MINIMAL, PagingInfo.ALL).getContent().isEmpty());
-        Assert.assertTrue(persistence.getAllConceptDescriptions(QueryModifier.MINIMAL, PagingInfo.ALL).getContent().isEmpty());
+        Assert.assertTrue(persistence.getAllAssetAdministrationShells(QueryModifier.MINIMAL, PagingInfo.ALL, identity()).getContent().isEmpty());
+        Assert.assertTrue(persistence.getAllSubmodels(QueryModifier.MINIMAL, PagingInfo.ALL, identity()).getContent().isEmpty());
+        Assert.assertTrue(persistence.getAllConceptDescriptions(QueryModifier.MINIMAL, PagingInfo.ALL, identity()).getContent().isEmpty());
     }
 
 
@@ -747,9 +757,9 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
                 .submodel(submodelId)
                 .element(submodelElementCollectionId)
                 .build();
-        Assert.assertNotNull(persistence.getSubmodelElement(reference, QueryModifier.DEFAULT));
+        Assert.assertNotNull(persistence.getSubmodelElement(reference, QueryModifier.DEFAULT, identity()));
         persistence.deleteSubmodelElement(reference);
-        Assert.assertThrows(ResourceNotFoundException.class, () -> persistence.getSubmodelElement(reference, QueryModifier.DEFAULT));
+        Assert.assertThrows(ResourceNotFoundException.class, () -> persistence.getSubmodelElement(reference, QueryModifier.DEFAULT, identity()));
     }
 
 
@@ -763,9 +773,9 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
                 .element(submodelElementCollectionId)
                 .element(submodelElementId)
                 .build();
-        Assert.assertNotNull(persistence.getSubmodelElement(reference, new OutputModifier()));
+        Assert.assertNotNull(persistence.getSubmodelElement(reference, new OutputModifier(), identity()));
         persistence.deleteSubmodelElement(reference);
-        Assert.assertThrows(ResourceNotFoundException.class, () -> persistence.getSubmodelElement(reference, QueryModifier.DEFAULT));
+        Assert.assertThrows(ResourceNotFoundException.class, () -> persistence.getSubmodelElement(reference, QueryModifier.DEFAULT, identity()));
     }
 
 
@@ -778,9 +788,9 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
                 .element(submodelElementCollectionId)
                 .index(0)
                 .build();
-        SubmodelElement original = persistence.getSubmodelElement(reference, QueryModifier.DEFAULT);
+        SubmodelElement original = persistence.getSubmodelElement(reference, QueryModifier.DEFAULT, identity());
         persistence.deleteSubmodelElement(reference);
-        SubmodelElement actual = persistence.getSubmodelElement(reference, QueryModifier.DEFAULT);
+        SubmodelElement actual = persistence.getSubmodelElement(reference, QueryModifier.DEFAULT, identity());
         Assert.assertNotEquals(original, actual);
     }
 
@@ -793,9 +803,9 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
                 .submodel(submodelId)
                 .element(submodelElementId)
                 .build();
-        Assert.assertNotNull(persistence.getSubmodelElement(reference, new OutputModifier()));
+        Assert.assertNotNull(persistence.getSubmodelElement(reference, new OutputModifier(), identity()));
         persistence.deleteSubmodelElement(reference);
-        Assert.assertThrows(ResourceNotFoundException.class, () -> persistence.getSubmodelElement(reference, QueryModifier.DEFAULT));
+        Assert.assertThrows(ResourceNotFoundException.class, () -> persistence.getSubmodelElement(reference, QueryModifier.DEFAULT, identity()));
     }
 
 
@@ -807,7 +817,7 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
         expected.setIdShort(idShort);
         expected.setId("http://newIdentifier.org");
         persistence.save(expected);
-        Submodel actual = persistence.getSubmodel(expected.getId(), QueryModifier.DEFAULT);
+        Submodel actual = persistence.getSubmodel(expected.getId(), QueryModifier.DEFAULT, identity());
         Assert.assertEquals(expected, actual);
     }
 
@@ -821,9 +831,9 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
         String category = "NewCategory";
         expected.setCategory(category);
         persistence.save(expected);
-        ConceptDescription actual = persistence.getConceptDescription(expected.getId(), QueryModifier.DEFAULT);
+        ConceptDescription actual = persistence.getConceptDescription(expected.getId(), QueryModifier.DEFAULT, identity());
         int actualIndex = persistence
-                .getAllConceptDescriptions(QueryModifier.DEFAULT, PagingInfo.ALL)
+                .getAllConceptDescriptions(QueryModifier.DEFAULT, PagingInfo.ALL, identity())
                 .getContent()
                 .indexOf(actual);
         Assert.assertEquals(expected, actual);
@@ -851,13 +861,13 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
                 .getValue().stream()
                 .filter(z -> z.getIdShort().equalsIgnoreCase(submodelElementId))
                 .findFirst().get();
-        SubmodelElement actual = persistence.getSubmodelElement(reference, queryModifier);
+        SubmodelElement actual = persistence.getSubmodelElement(reference, queryModifier, identity());
         Assert.assertEquals(expected, actual);
 
         queryModifier = new QueryModifier.Builder().extend(Extent.WITHOUT_BLOB_VALUE).build();
         expected = DeepCopyHelper.deepCopy(expected, SubmodelElement.class);
         ((Blob) expected).setValue(null);
-        actual = persistence.getSubmodelElement(reference, queryModifier);
+        actual = persistence.getSubmodelElement(reference, queryModifier, identity());
         Assert.assertEquals(expected, actual);
     }
 
@@ -868,11 +878,11 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
         String submodelId = "https://acplt.org/Test_Submodel_Mandatory";
         Submodel expected = environment.getSubmodels().stream()
                 .filter(x -> x.getId().equals(submodelId)).findFirst().get();
-        Submodel actual = persistence.getSubmodel(submodelId, queryModifier);
+        Submodel actual = persistence.getSubmodel(submodelId, queryModifier, identity());
         Assert.assertEquals(expected, actual);
 
         queryModifier = new QueryModifier.Builder().level(Level.CORE).build();
-        actual = persistence.getSubmodel(submodelId, queryModifier);
+        actual = persistence.getSubmodel(submodelId, queryModifier, identity());
         List<SubmodelElement> submodelElementCollections = actual.getSubmodelElements().stream()
                 .filter(x -> SubmodelElementCollection.class.isAssignableFrom(x.getClass()))
                 .collect(Collectors.toList());

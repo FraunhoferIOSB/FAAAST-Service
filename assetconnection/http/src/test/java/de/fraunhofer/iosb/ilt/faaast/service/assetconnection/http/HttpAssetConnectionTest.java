@@ -695,7 +695,7 @@ public class HttpAssetConnectionTest {
                 .outputVariables(Arrays.asList(output))
                 .build())
                 .when(persistence)
-                .getSubmodelElement(eq(REFERENCE), any());
+                .getSubmodelElement(eq(REFERENCE), any(), any());
         if (output != null) {
             Stream.of(output).forEach(x -> {
                 try {

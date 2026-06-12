@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.LogicalExpression;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
@@ -26,9 +27,32 @@ import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 public abstract class Request<T extends Response> {
 
     private boolean internal;
+    private LogicalExpression formula;
 
     protected Request() {
         this.internal = false;
+        this.formula = new LogicalExpression();
+        this.formula.set$boolean(true);
+    }
+
+
+    /**
+     * Get this requests access control formula.
+     *
+     * @return The formula.
+     */
+    public LogicalExpression getFormula() {
+        return formula;
+    }
+
+
+    /**
+     * Set this requests access control formula.
+     *
+     * @param formula The formula.
+     */
+    public void setFormula(LogicalExpression formula) {
+        this.formula = formula;
     }
 
 
@@ -51,13 +75,14 @@ public abstract class Request<T extends Response> {
             return false;
         }
         Request<?> that = (Request<?>) o;
-        return Objects.equals(internal, that.internal);
+        return Objects.equals(internal, that.internal) &&
+                Objects.equals(formula, that.formula);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(internal);
+        return Objects.hash(internal, formula);
     }
 
     public abstract static class AbstractBuilder<T extends Request, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
@@ -70,6 +95,12 @@ public abstract class Request<T extends Response> {
 
         public B internal() {
             getBuildingInstance().setInternal(true);
+            return getSelf();
+        }
+
+
+        public B formula(LogicalExpression value) {
+            getBuildingInstance().setFormula(value);
             return getSelf();
         }
     }

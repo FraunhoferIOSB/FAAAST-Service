@@ -37,7 +37,7 @@ public class DeleteAllAssetLinksByIdRequestHandler extends AbstractRequestHandle
     @Override
     public DeleteAllAssetLinksByIdResponse process(DeleteAllAssetLinksByIdRequest request, RequestExecutionContext context) throws ResourceNotFoundException, PersistenceException {
         DeleteAllAssetLinksByIdResponse response = new DeleteAllAssetLinksByIdResponse();
-        AssetAdministrationShell aas = context.getPersistence().getAssetAdministrationShell(request.getId(), QueryModifier.DEFAULT);
+        AssetAdministrationShell aas = context.getPersistence().getAssetAdministrationShell(request.getId(), QueryModifier.DEFAULT, request.getFormula());
         aas.getAssetInformation().setGlobalAssetId(null);
         aas.getAssetInformation().getSpecificAssetIds().clear();
         context.getPersistence().save(aas);

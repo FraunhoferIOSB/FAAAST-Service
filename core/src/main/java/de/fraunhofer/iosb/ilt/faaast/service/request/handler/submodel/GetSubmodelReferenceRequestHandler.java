@@ -42,7 +42,7 @@ public class GetSubmodelReferenceRequestHandler extends AbstractSubmodelInterfac
     @Override
     public GetSubmodelReferenceResponse doProcess(GetSubmodelReferenceRequest request, RequestExecutionContext context)
             throws ResourceNotFoundException, AssetConnectionException, ValueMappingException, MessageBusException, ResourceNotAContainerElementException, PersistenceException {
-        Submodel submodel = context.getPersistence().getSubmodel(request.getSubmodelId(), request.getOutputModifier());
+        Submodel submodel = context.getPersistence().getSubmodel(request.getSubmodelId(), request.getOutputModifier(), request.getFormula());
         Reference reference = ReferenceBuilder.forSubmodel(submodel);
         if (!request.isInternal()) {
             context.getMessageBus().publish(ElementReadEventMessage.builder()

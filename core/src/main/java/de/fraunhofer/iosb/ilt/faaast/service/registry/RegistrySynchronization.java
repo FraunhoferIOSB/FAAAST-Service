@@ -18,6 +18,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.registry;
 import static de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod.DELETE;
 import static de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod.POST;
 import static de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod.PUT;
+import static de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence.identity;
 
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
@@ -241,7 +242,7 @@ public class RegistrySynchronization {
         if (coreConfig.getAasRegistries().isEmpty()) {
             return;
         }
-        getPageSafe(persistence.getAllAssetAdministrationShells(QueryModifier.MINIMAL, PagingInfo.ALL))
+        getPageSafe(persistence.getAllAssetAdministrationShells(QueryModifier.MINIMAL, PagingInfo.ALL, identity()))
                 .getContent()
                 .forEach(this::registerAas);
     }
@@ -254,7 +255,7 @@ public class RegistrySynchronization {
 
     private void registerAas(String id) {
         try {
-            registerAas(persistence.getAssetAdministrationShell(id, QueryModifier.MINIMAL));
+            registerAas(persistence.getAssetAdministrationShell(id, QueryModifier.MINIMAL, identity()));
         }
         catch (ResourceNotFoundException | PersistenceException e) {
             LOGGER.warn(String.format(
@@ -271,7 +272,7 @@ public class RegistrySynchronization {
         if (coreConfig.getAasRegistries().isEmpty()) {
             return;
         }
-        getPageSafe(persistence.getAllAssetAdministrationShells(QueryModifier.MINIMAL, PagingInfo.ALL))
+        getPageSafe(persistence.getAllAssetAdministrationShells(QueryModifier.MINIMAL, PagingInfo.ALL, identity()))
                 .getContent()
                 .forEach(this::unregisterAas);
     }
@@ -284,7 +285,7 @@ public class RegistrySynchronization {
 
     private void unregisterAas(String id) {
         try {
-            unregisterAas(persistence.getAssetAdministrationShell(id, QueryModifier.MINIMAL));
+            unregisterAas(persistence.getAssetAdministrationShell(id, QueryModifier.MINIMAL, identity()));
         }
         catch (ResourceNotFoundException | PersistenceException e) {
             LOGGER.warn(String.format(
@@ -304,7 +305,7 @@ public class RegistrySynchronization {
 
     private void updateAas(String id) {
         try {
-            updateAas(persistence.getAssetAdministrationShell(id, QueryModifier.MINIMAL));
+            updateAas(persistence.getAssetAdministrationShell(id, QueryModifier.MINIMAL, identity()));
         }
         catch (ResourceNotFoundException | PersistenceException e) {
             LOGGER.warn(String.format(
@@ -321,7 +322,7 @@ public class RegistrySynchronization {
         if (coreConfig.getSubmodelRegistries().isEmpty()) {
             return;
         }
-        getPageSafe(persistence.getAllSubmodels(QueryModifier.MINIMAL, PagingInfo.ALL))
+        getPageSafe(persistence.getAllSubmodels(QueryModifier.MINIMAL, PagingInfo.ALL, identity()))
                 .getContent()
                 .forEach(this::registerSubmodel);
     }
@@ -334,7 +335,7 @@ public class RegistrySynchronization {
 
     private void registerSubmodel(String id) {
         try {
-            registerSubmodel(persistence.getSubmodel(id, QueryModifier.MINIMAL));
+            registerSubmodel(persistence.getSubmodel(id, QueryModifier.MINIMAL, identity()));
         }
         catch (ResourceNotFoundException | PersistenceException e) {
             LOGGER.warn(String.format(
@@ -351,7 +352,7 @@ public class RegistrySynchronization {
         if (coreConfig.getSubmodelRegistries().isEmpty()) {
             return;
         }
-        getPageSafe(persistence.getAllSubmodels(QueryModifier.MINIMAL, PagingInfo.ALL))
+        getPageSafe(persistence.getAllSubmodels(QueryModifier.MINIMAL, PagingInfo.ALL, identity()))
                 .getContent()
                 .forEach(this::unregisterSubmodel);
     }
@@ -364,7 +365,7 @@ public class RegistrySynchronization {
 
     private void unregisterSubmodel(String id) {
         try {
-            unregisterSubmodel(persistence.getSubmodel(id, QueryModifier.MINIMAL));
+            unregisterSubmodel(persistence.getSubmodel(id, QueryModifier.MINIMAL, identity()));
         }
         catch (ResourceNotFoundException | PersistenceException e) {
             LOGGER.warn(String.format(
@@ -384,7 +385,7 @@ public class RegistrySynchronization {
 
     private void updateSubmodel(String id) {
         try {
-            updateSubmodel(persistence.getSubmodel(id, QueryModifier.MINIMAL));
+            updateSubmodel(persistence.getSubmodel(id, QueryModifier.MINIMAL, identity()));
         }
         catch (ResourceNotFoundException | PersistenceException e) {
             LOGGER.warn(String.format(
@@ -439,7 +440,7 @@ public class RegistrySynchronization {
                 .submodelDescriptors(aas.getSubmodels().stream()
                         .map(x -> ReferenceHelper.findFirstKeyType(x, KeyTypes.SUBMODEL))
                         .filter(persistence::submodelExists)
-                        .map(LambdaExceptionHelper.wrapFunction(x -> persistence.getSubmodel(x, QueryModifier.MINIMAL)))
+                        .map(LambdaExceptionHelper.wrapFunction(x -> persistence.getSubmodel(x, QueryModifier.MINIMAL, identity())))
                         .map(this::asDescriptor)
                         .toList())
                 .endpoints(endpoints.stream()

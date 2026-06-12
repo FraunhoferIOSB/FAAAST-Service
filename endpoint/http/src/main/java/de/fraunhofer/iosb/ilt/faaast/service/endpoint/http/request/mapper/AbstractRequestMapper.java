@@ -134,7 +134,9 @@ public abstract class AbstractRequestMapper {
         Ensure.requireNonNull(httpRequest, "httpRequest must be non-null");
         Matcher matcher = Pattern.compile(urlPattern).matcher(httpRequest.getPath());
         if (matcher.matches()) {
-            return doParse(httpRequest, RegExHelper.getGroupValues(urlPattern, httpRequest.getPath()));
+            Request request = doParse(httpRequest, RegExHelper.getGroupValues(urlPattern, httpRequest.getPath()));
+            request.setFormula(httpRequest.getFormula());
+            return request;
         }
         throw new IllegalStateException(String.format("request was matched but no suitable parser found (HTTP method: %s, URL pattern: %s", method, urlPattern));
     }

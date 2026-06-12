@@ -1,0 +1,36 @@
+{
+  "AllAccessPermissionRules": {
+    "rules": [
+      {
+        "ACL": {
+          "ATTRIBUTES": [
+            {
+              "CLAIM": "BusinessPartnerNumber"
+            }
+          ],
+          "RIGHTS": [
+            "READ"
+          ],
+          "ACCESS": "ALLOW"
+        },
+        "OBJECTS": [
+          {
+            "ROUTE": "*"
+          }
+        ],
+        "FORMULA": {
+          "$eq": [
+            {
+              "$attribute": {
+                "CLAIM": "BusinessPartnerNumber"
+              }
+            },
+            {
+              "$strVal": "BPN1234"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
