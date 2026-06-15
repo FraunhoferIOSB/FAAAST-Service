@@ -46,6 +46,7 @@
     - CloudEventsMessageBus now available implementing the async-aas specification in https://factory-x-contributions.github.io/async-aas-helm/
 	- MQTT
 		- Changed default value for `host` from localhost to 0.0.0.0
+		- Fixed duplicate sending of events
 - SMT Processor
 	- AID/AIMC
 		- Fixed bug that prevented to update asset connection providers are runtime

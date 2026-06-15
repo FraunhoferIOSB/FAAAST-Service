@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.messagebus.mqtt;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonEventDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonEventSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
@@ -115,12 +116,18 @@ public class MessageBusMqtt implements MessageBus<MessageBusMqttConfig> {
     public SubscriptionId subscribe(SubscriptionInfo subscriptionInfo) {
         Ensure.requireNonNull(subscriptionInfo, "subscriptionInfo must be non-null");
         subscriptionInfo.getSubscribedEvents()
-                .forEach(x -> determineEvents((Class<? extends EventMessage>) x).stream()
-                        .forEach(e -> client.subscribe(config.getTopicPrefix() + e.getSimpleName(), (t, message) -> {
-                            EventMessage event = deserializer.read(message.toString(), e);
-                            if (subscriptionInfo.getFilter().test(event.getElement())) {
-                                subscriptionInfo.getHandler().accept(event);
+                .forEach(requestedEventType -> determineEvents((Class<? extends EventMessage>) requestedEventType).stream()
+                        .forEach(actualEventType -> client.subscribe(config.getTopicPrefix() + actualEventType.getSimpleName(), (t, message) -> {
+                            try {
+                                EventMessage event = deserializer.read(message.toString(), actualEventType);
+                                if (subscriptionInfo.getFilter().test(event.getElement())) {
+                                    subscriptionInfo.getHandler().accept(event);
+                                }
                             }
+                            catch (DeserializationException e) {
+                                LOGGER.warn("failed to deserialize event message received via MQTT (message: {})", message.toString(), e);
+                            }
+
                         })));
 
         SubscriptionId subscriptionId = new SubscriptionId();
