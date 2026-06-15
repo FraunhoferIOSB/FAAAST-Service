@@ -22,14 +22,21 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
+import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.function.BiConsumer;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
-import org.eclipse.paho.client.mqttv3.IMqttMessageListener;
 import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
@@ -50,8 +57,13 @@ public class PahoClient {
     private static final String PROTOCOL_PREFIX_WEBSOCKET_SSL = "wss://";
     private static final String PROTOCOL_PREFIX_WEBSOCKET = "ws://";
     private static final Logger logger = LoggerFactory.getLogger(PahoClient.class);
+
     private final MessageBusMqttConfig config;
     private MqttClient mqttClient;
+
+    private final BlockingQueue<MqttEvent> queue = new java.util.concurrent.LinkedBlockingQueue<>();
+    private final ConcurrentMap<String, CopyOnWriteArrayList<BiConsumer<String, MqttMessage>>> handlersByTopic = new ConcurrentHashMap<>();
+    private ExecutorService messageHandlerExecutor;
 
     public PahoClient(MessageBusMqttConfig config) {
         this.config = config;
@@ -125,23 +137,44 @@ public class PahoClient {
                 @Override
                 public void messageArrived(String string, MqttMessage mm) throws Exception {
                     // intentionally left empty
-
+                    // all message handling is done via per-topic listeners that enqueue into 'queue'
                 }
 
 
                 @Override
                 public void connectComplete(boolean reconnect, String serverURI) {
                     logger.debug("MQTT MessageBus Client connected to broker.");
-
                 }
 
             });
             logger.trace("connecting to MQTT broker: {}", endpoint);
             mqttClient.connect(options);
             logger.debug("connected to MQTT broker: {}", endpoint);
+            startDispatch();
         }
         catch (MqttException e) {
             throw new MessageBusException("Failed to connect to MQTT server", e);
+        }
+    }
+
+
+    private void startDispatch() {
+        if (messageHandlerExecutor == null || messageHandlerExecutor.isShutdown()) {
+            int threads = 1;
+            messageHandlerExecutor = Executors.newFixedThreadPool(threads);
+            for (int i = 0; i < threads; i++) {
+                messageHandlerExecutor.submit(() -> {
+                    try {
+                        while (!Thread.currentThread().isInterrupted()) {
+                            MqttEvent event = queue.take();
+                            dispatch(event);
+                        }
+                    }
+                    catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
+                });
+            }
         }
     }
 
@@ -150,6 +183,10 @@ public class PahoClient {
      * Stops the client connection.
      */
     public void stop() {
+        if (messageHandlerExecutor != null) {
+            messageHandlerExecutor.shutdownNow();
+            messageHandlerExecutor = null;
+        }
         if (mqttClient == null) {
             return;
         }
@@ -166,6 +203,8 @@ public class PahoClient {
         catch (MqttException e) {
             logger.debug("MQTT message bus did not stop gracefully", e);
         }
+        handlersByTopic.clear();
+        queue.clear();
     }
 
 
@@ -197,7 +236,7 @@ public class PahoClient {
      * @throws de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException if publishing the message fails
      */
     public void publish(String topic, String content) throws MessageBusException {
-        if (!mqttClient.isConnected()) {
+        if (mqttClient == null || !mqttClient.isConnected()) {
             logger.debug("received data but MQTT connection is closed, trying to connect...");
             start();
         }
@@ -212,35 +251,127 @@ public class PahoClient {
     }
 
 
-    /**
-     * Subscribe to a mqtt topic.
-     *
-     * @param topic the topic to subscribe to
-     * @param listener the callback listener
-     */
-    public void subscribe(String topic, IMqttMessageListener listener) {
-        try {
-            mqttClient.subscribe(topic, listener);
+    private void dispatch(MqttEvent event) {
+        List<BiConsumer<String, MqttMessage>> listeners = handlersByTopic.get(event.topic);
+        if (listeners == null || listeners.isEmpty()) {
+            return;
         }
-        catch (MqttException e) {
-            logger.error(e.getMessage());
+        for (var listener: listeners) {
+            try {
+                listener.accept(event.topic, event.message);
+            }
+            catch (Exception ex) {
+                logger.warn("Error in MQTT handler for topic {}: {}", event.topic, ex.getMessage(), ex);
+            }
         }
     }
 
 
     /**
-     * Unsubscribe from a mqtt topic.
+     * Subscribe to a mqtt topic.
+     * Multiple handlers per topic are supported. Only ONE underlying Paho
+     * subscription per topic is created; messages are put into a queue and
+     * processed by worker threads which call all registered handlers.
+     *
+     * @param topic the topic to subscribe to
+     * @param listener the callback listener
+     */
+    public void subscribe(String topic, BiConsumer<String, MqttMessage> listener) {
+        if (topic == null || listener == null) {
+            return;
+        }
+        if (mqttClient == null || !mqttClient.isConnected()) {
+            logger.error("MQTT client not started or not connected; cannot subscribe to {}", topic);
+        }
+        // synchronize to avoid race when subscribing same topic concurrent
+        synchronized (handlersByTopic) {
+            List<BiConsumer<String, MqttMessage>> handlers = handlersByTopic.computeIfAbsent(topic, x -> new CopyOnWriteArrayList<>());
+            handlers.add(listener);
+            if (handlers.size() == 1) {
+                try {
+                    mqttClient.subscribe(topic, (t, message) -> {
+                        try {
+                            queue.put(new MqttEvent(t, message));
+                        }
+                        catch (InterruptedException e) {
+                            Thread.currentThread().interrupt();
+                            logger.error("Interrupted while enqueuing MQTT message", e);
+                        }
+                    });
+                    logger.debug("Subscribed to topic: {}", topic);
+                }
+                catch (MqttException e) {
+                    logger.error("Error subscribing to topic {}: {}", topic, e.getMessage(), e);
+                }
+            }
+        }
+    }
+
+
+    /**
+     * Unsubscribe a specific listener from a mqtt topic.
+     * If the last listener is removed, the underlying Paho subscription
+     * is also removed.
+     *
+     * @param topic the topic to unsubscribe from
+     * @param listener the listener to remove
+     */
+    public void unsubscribe(String topic, BiConsumer<String, MqttMessage> listener) {
+        if (topic == null || listener == null) {
+            return;
+        }
+        synchronized (handlersByTopic) {
+            List<BiConsumer<String, MqttMessage>> list = handlersByTopic.get(topic);
+            if (list == null) {
+                return;
+            }
+            list.remove(listener);
+            if (list.isEmpty()) {
+                handlersByTopic.remove(topic);
+                if (mqttClient != null && mqttClient.isConnected()) {
+                    try {
+                        mqttClient.unsubscribe(topic);
+                        logger.debug("Unsubscribed (Paho) from topic: {}", topic);
+                    }
+                    catch (MqttException e) {
+                        logger.error("Error unsubscribing from topic {}: {}", topic, e.getMessage(), e);
+                    }
+                }
+            }
+        }
+    }
+
+
+    /**
+     * Unsubscribe all listeners from a mqtt topic.
      *
      * @param topic the topic to unsubscribe from
      */
     public void unsubscribe(String topic) {
+        if (topic == null) {
+            return;
+        }
+        synchronized (handlersByTopic) {
+            handlersByTopic.remove(topic);
+        }
         if (mqttClient != null && mqttClient.isConnected()) {
             try {
                 mqttClient.unsubscribe(topic);
+                logger.debug("Unsubscribed (Paho) from topic (all listeners): {}", topic);
             }
             catch (MqttException e) {
-                logger.error(e.getMessage());
+                logger.error(e.getMessage(), e);
             }
+        }
+    }
+
+    private static class MqttEvent {
+        final String topic;
+        final MqttMessage message;
+
+        MqttEvent(String topic, MqttMessage message) {
+            this.topic = topic;
+            this.message = message;
         }
     }
 }
