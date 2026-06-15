@@ -20,13 +20,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.LogicalExpression;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.MatchExpression;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.StringValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.Value;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -37,7 +36,6 @@ public class ExpressionInjectionHelper {
     private static final Logger LOGGER = LoggerFactory.getLogger(ExpressionInjectionHelper.class);
 
     private static final DateTimeFormatter SPEC_DATE_FORMAT = DateTimeFormatter.ISO_DATE_TIME;
-
 
     private ExpressionInjectionHelper() {
 
