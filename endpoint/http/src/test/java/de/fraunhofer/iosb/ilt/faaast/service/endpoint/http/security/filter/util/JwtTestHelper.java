@@ -31,7 +31,7 @@ public class JwtTestHelper {
             Map.of("sub", "1234567890",
                     "name", "John Doe",
                     "admin", "true",
-                    "iat", "02:30:22"));
+                    "iat", "2018-01-18T01:30:22Z"));
 
     public static String from(Map<String, String> claims, RSAPublicKey pubKey, RSAPrivateKey privKey, String keyId) {
         JWTCreator.Builder builder = JWT.create();

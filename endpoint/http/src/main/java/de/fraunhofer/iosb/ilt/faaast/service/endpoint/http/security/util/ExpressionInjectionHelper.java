@@ -20,20 +20,24 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.LogicalExpression;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.MatchExpression;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.StringValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.Value;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.time.Clock;
-import java.time.LocalTime;
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.Map;
-import java.util.TimeZone;
 
 
 /**
  * Helps to inject request claims into a nested logical expression.
  */
 public class ExpressionInjectionHelper {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ExpressionInjectionHelper.class);
+
+    private static final DateTimeFormatter SPEC_DATE_FORMAT = DateTimeFormatter.ISO_DATE_TIME;
+
 
     private ExpressionInjectionHelper() {
 
@@ -50,10 +54,18 @@ public class ExpressionInjectionHelper {
         if (!formula.get$and().isEmpty()) {
             // It is an AND expression
             formula.get$and().forEach(op -> injectLogicalExpression(op, claims));
+            if (formula.get$and().stream().anyMatch(and -> and.get$boolean() != null && and.get$boolean() == false)) {
+                formula.set$and(null);
+                formula.set$boolean(false);
+            }
         }
         else if (!formula.get$or().isEmpty()) {
             // It is an OR expression
             formula.get$or().forEach(op -> injectLogicalExpression(op, claims));
+            if (formula.get$or().stream().allMatch(or -> or.get$boolean() != null && or.get$boolean() == false)) {
+                formula.set$or(null);
+                formula.set$boolean(false);
+            }
         }
         else if (formula.get$not() != null) {
             // It is an OR expression
@@ -158,27 +170,19 @@ public class ExpressionInjectionHelper {
         else if (value.get$attribute().getGlobal() != null) {
             AttributeItem.Global global = value.get$attribute().getGlobal();
             if (global == AttributeItem.Global.UTCNOW) {
-                value.set$timeVal(LocalTime.now(Clock.systemUTC()).toString());
+                value.set$timeVal(LocalDateTime.now().atZone(ZoneOffset.UTC).format(SPEC_DATE_FORMAT));
             }
             else if (global == AttributeItem.Global.LOCALNOW) {
-                TimeZone tz = TimeZone.getTimeZone("UTC");
-                DateFormat df = new SimpleDateFormat("HH:mm:ss");
-                df.setTimeZone(tz);
-                String nowAsISO = df.format(new Date());
-                value.set$timeVal(nowAsISO);
+                value.set$timeVal(LocalDateTime.now().format(SPEC_DATE_FORMAT));
             }
             else if (global == AttributeItem.Global.CLIENTNOW) {
                 if (claims.containsKey("iat")) {
-                    TimeZone tz = TimeZone.getDefault();
-                    DateFormat df = new SimpleDateFormat("HH:mm:ss");
-                    df.setTimeZone(tz);
-                    String nowAsISO = df.format(claims.get("iat").asDate());
-                    value.set$timeVal(nowAsISO);
+                    value.set$timeVal(claims.get("iat").asDate().toInstant().toString());
                 }
                 else {
+                    LOGGER.debug("Rule with '{}' attribute evaluated to 'false' as request had no 'iat' claim present.", AttributeItem.Global.CLIENTNOW);
                     value.set$boolean(false);
                 }
-
             }
             else if (global == AttributeItem.Global.ANONYMOUS) {
                 value.set$boolean(true);
@@ -213,5 +217,4 @@ public class ExpressionInjectionHelper {
         }
         value.set$attribute(null);
     }
-
 }

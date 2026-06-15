@@ -109,18 +109,23 @@ public abstract class AbstractAclFilterTest extends JwtAuthorizationFilterTest {
     }
 
 
+    protected static AccessPermissionRule rule(RightsEnum right) {
+        return rule(false, List.of(right), null, null, null);
+    }
+
+
     protected static AccessPermissionRule rule(List<AttributeItem> attributes) {
         return rule(false, null, attributes, null, null);
     }
 
 
-    protected static AccessPermissionRule rule(ObjectItem... objects) {
-        return rule(false, null, null, null, Arrays.asList(objects));
+    protected static AccessPermissionRule rule(LogicalExpression formula) {
+        return rule(false, null, null, formula, null);
     }
 
 
-    protected static AccessPermissionRule rule(RightsEnum right) {
-        return rule(false, List.of(right), null, null, null);
+    protected static AccessPermissionRule rule(ObjectItem... objects) {
+        return rule(false, null, null, null, Arrays.asList(objects));
     }
 
 
@@ -138,7 +143,7 @@ public abstract class AbstractAclFilterTest extends JwtAuthorizationFilterTest {
     }
 
 
-    private static LogicalExpression fn(AttributeItem attribute, String string, BiConsumer<LogicalExpression, List<Value>> appliedFunction) {
+    protected static LogicalExpression fn(AttributeItem attribute, String string, BiConsumer<LogicalExpression, List<Value>> appliedFunction) {
         LogicalExpression eqFormula = new LogicalExpression();
         Value claimValue = new Value();
         claimValue.set$attribute(attribute);
@@ -149,7 +154,7 @@ public abstract class AbstractAclFilterTest extends JwtAuthorizationFilterTest {
     }
 
 
-    private static AttributeItem global(AttributeItem.Global global) {
+    protected static AttributeItem global(AttributeItem.Global global) {
         AttributeItem item = new AttributeItem();
         item.setGlobal(global);
         return item;

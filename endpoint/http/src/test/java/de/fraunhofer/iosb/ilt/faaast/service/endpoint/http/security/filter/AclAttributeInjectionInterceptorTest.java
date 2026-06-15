@@ -21,6 +21,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AccessPermissionRule;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AttributeItem;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.LogicalExpression;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -36,7 +37,7 @@ public class AclAttributeInjectionInterceptorTest extends AbstractAclFilterTest 
 
     @Test
     public void testInjectAttributes() {
-        AccessPermissionRule uninjectedRule = rule();
+        AccessPermissionRule uninjectedRule = rule(formulaWithAttributes());
         List<AccessPermissionRule> rules = List.of(uninjectedRule);
 
         HttpServletRequest mockRequest = mockRequest(rules);
@@ -68,6 +69,24 @@ public class AclAttributeInjectionInterceptorTest extends AbstractAclFilterTest 
                 assertNull(term.get$gt().get(0).get$attribute());
             }
         }
+    }
 
+
+    private LogicalExpression formulaWithAttributes() {
+        AttributeItem claimAttribute = new AttributeItem();
+        claimAttribute.setClaim("name");
+        AttributeItem utcNow = global(AttributeItem.Global.UTCNOW);
+        AttributeItem clientNow = global(AttributeItem.Global.CLIENTNOW);
+        AttributeItem localNow = global(AttributeItem.Global.LOCALNOW);
+        AttributeItem anonymous = global(AttributeItem.Global.ANONYMOUS);
+        LogicalExpression formula = new LogicalExpression();
+
+        formula.set$and(List.of(
+                fn(claimAttribute, JOHN_DOE.get(claimAttribute.getClaim()), LogicalExpression::set$eq),
+                fn(utcNow, "0:00", LogicalExpression::set$ge),
+                fn(clientNow, "23:59:59", LogicalExpression::set$le),
+                fn(localNow, "0:00", LogicalExpression::set$lt),
+                fn(anonymous, "abc-test", LogicalExpression::set$gt)));
+        return formula;
     }
 }
