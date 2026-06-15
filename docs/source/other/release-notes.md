@@ -17,6 +17,8 @@
 	- Improves parsing of JSON payload for operations so that if no mappings are provided it tries to use the variable name (if there are multiple parameters) or the whole object if there is only one parameter
 	- OPC UA
 		- When connecting to an OPC UA asset and the discovery service returns mutliple URLs to use, the ones with a reachable host are preferred.
+	- HTTP
+		- Extend Operation Provider to support asynchronous operations.
 - Endpoint
 	- HTTP
 		- URL prefix /api/v3.x is now optional
