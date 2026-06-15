@@ -29,7 +29,9 @@ import java.util.Optional;
 
 
 /**
- * Filters applicable AAS ACL rules using the incoming request's bearer token claims.
+ * Filters applicable AAS ACL rules using the incoming request's bearer token claims. All attributes declared in an ACL
+ * rule need to be present as claims or processable (e.g.,
+ * local time).
  */
 public class AclAttributeFilter extends AbstractAclFilter {
 
@@ -41,21 +43,10 @@ public class AclAttributeFilter extends AbstractAclFilter {
                 .ofNullable(request.getHeader(AUTHORIZATION)).map(header -> extractAndDecodeJwt(header).getClaims())
                 .orElse(Map.of());
 
-        return rules.stream().filter(rule -> {
-            for (AttributeItem item: rule.getAcl().getAttributes()) {
-                if (item.getGlobal() != null && PERMISSIBLE_ATTRIBUTES.contains(item.getGlobal())) {
-                    continue;
-                }
-                else if (item.getClaim() != null && claims.containsKey(item.getClaim())) {
-                    continue;
-                }
-                else if (item.getReference() != null) {
-                    continue;
-                }
-                return false;
-            }
-            return true;
-        })
+        return rules.stream().filter(rule -> rule.getAcl().getAttributes().stream()
+                .allMatch(item -> item.getGlobal() != null && PERMISSIBLE_ATTRIBUTES.contains(item.getGlobal()) ||
+                        item.getClaim() != null && claims.containsKey(item.getClaim()) ||
+                        item.getReference() != null))
                 .toList();
     }
 }

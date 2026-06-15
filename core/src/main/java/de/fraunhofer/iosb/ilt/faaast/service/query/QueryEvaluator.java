@@ -122,9 +122,8 @@ public class QueryEvaluator {
             return false;
         }
 
-        Boolean directBoolean = expr.get$boolean();
-        if (directBoolean != null) {
-            return directBoolean;
+        if (expr.get$boolean() != null) {
+            return expr.get$boolean();
         }
 
         if (expr.get$and() != null && !expr.get$and().isEmpty()) {
@@ -137,7 +136,7 @@ public class QueryEvaluator {
             return !matches(expr.get$not(), identifiable);
         }
 
-        if (hasMatchExpression(expr)) {
+        if (expr.get$match() != null && !expr.get$match().isEmpty()) {
             return evaluateMatch(expr.get$match(), identifiable);
         }
 
@@ -146,11 +145,6 @@ public class QueryEvaluator {
         }
 
         return evaluateFirstStringOperator(expr, identifiable);
-    }
-
-
-    private boolean hasMatchExpression(LogicalExpression expr) {
-        return expr.get$match() != null && !expr.get$match().isEmpty();
     }
 
 

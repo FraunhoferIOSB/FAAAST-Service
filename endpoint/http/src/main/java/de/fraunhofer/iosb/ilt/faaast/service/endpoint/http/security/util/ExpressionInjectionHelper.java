@@ -52,7 +52,7 @@ public class ExpressionInjectionHelper {
         if (!formula.get$and().isEmpty()) {
             // It is an AND expression
             formula.get$and().forEach(op -> injectLogicalExpression(op, claims));
-            if (formula.get$and().stream().anyMatch(and -> and.get$boolean() != null && and.get$boolean() == false)) {
+            if (formula.get$and().stream().anyMatch(and -> and.get$boolean() != null && !and.get$boolean())) {
                 formula.set$and(null);
                 formula.set$boolean(false);
             }
@@ -60,7 +60,7 @@ public class ExpressionInjectionHelper {
         else if (!formula.get$or().isEmpty()) {
             // It is an OR expression
             formula.get$or().forEach(op -> injectLogicalExpression(op, claims));
-            if (formula.get$or().stream().allMatch(or -> or.get$boolean() != null && or.get$boolean() == false)) {
+            if (formula.get$or().stream().allMatch(or -> or.get$boolean() != null && !or.get$boolean())) {
                 formula.set$or(null);
                 formula.set$boolean(false);
             }
