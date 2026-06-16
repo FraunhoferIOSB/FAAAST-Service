@@ -5,30 +5,21 @@
         "ACL": {
           "ATTRIBUTES": [
             {
-              "CLAIM": "BusinessPartnerNumber"
+              "GLOBAL": "ANONYMOUS"
             }
           ],
           "RIGHTS": [
-            "READ"
+            "ALL"
           ],
           "ACCESS": "ALLOW"
         },
         "OBJECTS": [
           {
-            "ROUTE": "*"
+            "ROUTE": "/submodels/*"
           }
         ],
         "FORMULA": {
-          "$eq": [
-            {
-              "$attribute": {
-                "CLAIM": "BusinessPartnerNumber"
-              }
-            },
-            {
-              "$strVal": "BPN1234"
-            }
-          ]
+          "$boolean": true
         }
       }
     ]

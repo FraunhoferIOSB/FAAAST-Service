@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
@@ -32,17 +33,23 @@ import java.util.regex.Pattern;
  */
 public class AclObjectsFilter extends AbstractAclFilter {
 
-    private static final String identifiableObjectSplitRegex = "^(?:IDENTIFIABLE\\s+)?(\\$(?:aas|sm|cd))\\s*\\(\\s*\"([^\"]*)\"\\s*\\)$";
+    private static final Pattern identifiableObjectSplitRegex = Pattern.compile("^\\$(sm|aas|cd)\\(\"([^\"]+)\"\\)$");
     private static final String referableObjectSplitRegex = "^(?:REFERABLE\\s+)?(\\$sme)\\s*\\(\\s*\"([^\"]*)\"\\s*\\)\\.(.+)$";
 
-    private final Map<String, String> identifiableToPathMapping = Map.of("$aas", "shells",
-            "$sm", "submodels",
-            "$cd", "concept-descriptions",
-            "$sme", "submodels");
+    private final Map<String, String> identifiableToPathMapping = Map.of("aas", "shells",
+            "sm", "submodels",
+            "cd", "concept-descriptions",
+            "sme", "submodels");
+    private final String pathPrefix;
+
+    public AclObjectsFilter(String pathPrefix) {
+        this.pathPrefix = pathPrefix;
+    }
+
 
     @Override
     protected List<AccessPermissionRule> doFilter(HttpServletRequest request, List<AccessPermissionRule> rules) {
-        String path = request.getServletPath();
+        String path = request.getPathInfo().replaceFirst(pathPrefix, "");
         String method = request.getMethod();
 
         List<AccessPermissionRule> filteredRules = new ArrayList<>();
@@ -57,7 +64,7 @@ public class AclObjectsFilter extends AbstractAclFilter {
                     return checkRoute(objectItem.getRoute(), path);
                 }
                 else if (objectItem.getIdentifiable() != null) {
-                    return checkIdentifiable(path, objectItem.getIdentifiable(), method);
+                    return checkIdentifiable(objectItem.getIdentifiable(), path, method);
                 }
                 else if (objectItem.getReferable() != null) {
                     return checkReferable(path, objectItem.getReferable(), method);
@@ -104,37 +111,37 @@ public class AclObjectsFilter extends AbstractAclFilter {
             }
         }
         regex.append("$");
-        return Pattern.compile(regex.toString());
+        return Pattern.compile(routePattern.replaceAll("\\*", ".*"));
     }
 
 
     private boolean checkIdentifiable(String identifiable, String requestPath, String method) {
         // ["$aas/sm/cd", identifier]
-        String[] identifiableObjectSegments = identifiable.split(identifiableObjectSplitRegex);
-        if (identifiableObjectSegments.length != 2) {
+        Matcher identifiableObjectSegmentsmatcher = identifiableObjectSplitRegex.matcher(identifiable);
+        if (identifiableObjectSegmentsmatcher.groupCount() != 2 || !identifiableObjectSegmentsmatcher.matches()) {
             return false;
         }
 
         // requestPath does not lead or end with /
         String[] requestPathSegments = requestPath.split("/");
-        String identifiableMarker = identifiableObjectSegments[0];
-        short actualResourceSegment = 0;
+        String identifiableMarker = identifiableObjectSegmentsmatcher.group(1);
+        short actualResourceSegment = 1;
 
         if (requestPathSegments[0].equals("lookup") && requestPathSegments.length > 1) {
             // /lookup/shells/{aasIdentifier}
-            actualResourceSegment = 1;
+            actualResourceSegment = 2;
         }
 
-        if (identifiableObjectSegments[0].equals("$sm") && requestPathSegments[0].equals("shells") && requestPathSegments.length > 2) {
+        if (identifiableObjectSegmentsmatcher.group(1).equals("sm") && requestPathSegments[0].equals("shells") && requestPathSegments.length > 2) {
             // /shells/{aasIdentifier}/submodels/{submodelIdentifier}
-            actualResourceSegment = 2;
+            actualResourceSegment = 3;
         }
 
         if (!requestPathSegments[actualResourceSegment].equals(identifiableToPathMapping.get(identifiableMarker))) {
             return false;
         }
 
-        return checkIdentifierInstanceOrAll(identifiableObjectSegments[1], requestPathSegments, method);
+        return checkIdentifierInstanceOrAll(identifiableObjectSegmentsmatcher.group(2), requestPathSegments, method);
     }
 
 
@@ -178,11 +185,11 @@ public class AclObjectsFilter extends AbstractAclFilter {
         if (identifier.equals("\"*\"")) {
             return true;
         }
-        if (requestPathSegments.length < 2) {
+        if (requestPathSegments.length < 3) {
             // Specific identifiable permitted, all requested -> Will be filtered at persistence
             // If requests tries to manipulate state, wildcard or the id to manipulate needs to be present
             return httpMethod.equalsIgnoreCase(GET.name());
         }
-        return requestPathSegments[1].equals(Objects.requireNonNull(EncodingHelper.base64Encode(identifier)));
+        return requestPathSegments[2].equals(Objects.requireNonNull(EncodingHelper.base64Encode(identifier)));
     }
 }

@@ -14,6 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.AuthState.AUTHENTICATED;
+
 import com.auth0.jwk.InvalidPublicKeyException;
 import com.auth0.jwk.Jwk;
 import com.auth0.jwk.JwkException;
@@ -42,7 +44,7 @@ import org.slf4j.LoggerFactory;
  * Filters any incoming request by verifying its JWT if available. If no Authorization: Bearer <...> header is
  * available, assumes an anonymous request.
  */
-public class JwtValidationFilter extends JwtAuthorizationFilter {
+public class JwtValidationFilter extends AbstractJwtFilter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JwtValidationFilter.class);
 
@@ -78,6 +80,7 @@ public class JwtValidationFilter extends JwtAuthorizationFilter {
             respondUnauthorized((HttpServletResponse) servletResponse);
         }
         else {
+            servletRequest.setAttribute(SharedAttributes.AUTH_STATE.getName(), AUTHENTICATED);
             filterChain.doFilter(servletRequest, servletResponse);
         }
     }
@@ -95,7 +98,7 @@ public class JwtValidationFilter extends JwtAuthorizationFilter {
             jwk = jwkProvider.get(decodedJWT.getKeyId());
         }
         catch (SigningKeyNotFoundException getJwkException) {
-            LOGGER.debug("No jwk can be found using the given kid: {}", decodedJWT.getKeyId(), getJwkException);
+            LOGGER.debug("No jwk can be found using the given key id: {}", decodedJWT.getKeyId(), getJwkException);
             return false;
         }
         catch (JwkException jwkException) {

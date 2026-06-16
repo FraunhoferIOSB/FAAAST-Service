@@ -125,15 +125,17 @@ public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
 
         RequestHandlerServlet handler = new RequestHandlerServlet(this, config, serviceContext);
 
-        if (Objects.nonNull(config.getJwkProvider())) {
-            context.addFilter(new JwtValidationFilter(new UrlJwkProvider(parseJwkProviderUrl(config.getJwkProvider()))), "*", EnumSet.allOf(DispatcherType.class));
+        if (Objects.nonNull(config.getAclFolder())) {
+            if (Objects.nonNull(config.getJwkProvider())) {
+                context.addFilter(new JwtValidationFilter(new UrlJwkProvider(parseJwkProviderUrl(config.getJwkProvider()))), "*", EnumSet.allOf(DispatcherType.class));
+            }
             context.addFilter(new AclRulesInceptionFilter(FileAclRepository.createNewInstance(config.getAclFolder())), "*", EnumSet.allOf(DispatcherType.class));
             // Remove ACL that are DISABLED.
             context.addFilter(new AclAccessFilter(), "*", EnumSet.allOf(DispatcherType.class));
             // Remove ACL that do not comply with the HTTP method of a request.
             context.addFilter(new AclRightsFilter(), "*", EnumSet.allOf(DispatcherType.class));
             // Remove ACL that do not comply with the HTTP path of a request.
-            context.addFilter(new AclObjectsFilter(), "*", EnumSet.allOf(DispatcherType.class));
+            context.addFilter(new AclObjectsFilter(config.getPathPrefix()), "*", EnumSet.allOf(DispatcherType.class));
             // Remove ACL that do not comply with the JWT claims of a request.
             context.addFilter(new AclAttributeFilter(), "*", EnumSet.allOf(DispatcherType.class));
 

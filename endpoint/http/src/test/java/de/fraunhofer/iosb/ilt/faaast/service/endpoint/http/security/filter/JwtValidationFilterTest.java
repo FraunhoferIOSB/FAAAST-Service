@@ -24,7 +24,8 @@ import com.auth0.jwk.Jwk;
 import com.auth0.jwk.JwkException;
 import com.auth0.jwk.JwkProvider;
 import com.auth0.jwk.UrlJwkProvider;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.util.JwtTestHelper;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
@@ -33,7 +34,6 @@ import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
-import java.util.Map;
 import org.junit.Test;
 
 
@@ -62,7 +62,9 @@ public class JwtValidationFilterTest extends JwtAuthorizationFilterTest {
         RSAPublicKey pub = (RSAPublicKey) kp.getPublic();
         RSAPrivateKey priv = (RSAPrivateKey) kp.getPrivate();
 
-        String jwt = JwtTestHelper.from(Map.of(), pub, priv, keyId);
+        String jwt = JWT.create()
+                .withKeyId(keyId)
+                .sign(Algorithm.RSA256(pub, priv));
 
         Jwk jwk = mock(Jwk.class);
         when(jwk.getPublicKey()).thenReturn(pub);

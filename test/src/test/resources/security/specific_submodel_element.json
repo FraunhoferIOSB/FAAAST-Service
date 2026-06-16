@@ -9,13 +9,13 @@
             }
           ],
           "RIGHTS": [
-            "READ"
+            "ALL"
           ],
           "ACCESS": "ALLOW"
         },
         "OBJECTS": [
           {
-            "ROUTE": "*"
+            "ROUTE": "*ExampleRelationshipElement"
           }
         ],
         "FORMULA": {

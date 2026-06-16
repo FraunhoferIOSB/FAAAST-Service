@@ -33,7 +33,7 @@ import java.util.Objects;
  * Contains common logic for extracting and storing the AAS ACL in a request. If the ACL is empty as a result of the
  * AclFilter, the request will be denied.
  */
-public abstract class AbstractAclFilter extends JwtAuthorizationFilter implements Filter {
+public abstract class AbstractAclFilter extends AbstractJwtFilter implements Filter {
 
     @SuppressWarnings("unchecked")
     @Override

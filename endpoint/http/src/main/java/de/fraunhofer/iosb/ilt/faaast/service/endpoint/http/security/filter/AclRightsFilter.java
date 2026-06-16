@@ -50,7 +50,7 @@ public class AclRightsFilter extends AbstractAclFilter {
     @Override
     protected List<AccessPermissionRule> doFilter(HttpServletRequest request, List<AccessPermissionRule> rules) {
         String method = request.getMethod();
-        boolean isOperation = isOperationRequest(method, request.getServletPath());
+        boolean isOperation = isOperationRequest(method, request.getPathInfo());
 
         return rules.stream().filter(
                 rule -> rule.getAcl().getRights().stream()

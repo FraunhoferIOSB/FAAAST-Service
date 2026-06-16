@@ -160,7 +160,9 @@ public class AccessControlListHelper {
             }
         }
         else {
-            throw new IllegalArgumentException(String.format("Invalid rule: FILTER or %s must be specified", USEFILTER));
+            LogicalExpression defaultFilter = new LogicalExpression();
+            defaultFilter.set$boolean(true);
+            return defaultFilter;
         }
     }
 

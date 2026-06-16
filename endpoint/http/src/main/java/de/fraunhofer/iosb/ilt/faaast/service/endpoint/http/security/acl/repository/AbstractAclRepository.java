@@ -23,8 +23,6 @@ import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.util.
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AccessPermissionRule;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.Acl;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AllAccessPermissionRules;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.LogicalExpression;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.ObjectItem;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -85,12 +83,9 @@ public abstract class AbstractAclRepository implements AclRepository {
             acl.setRights(rule.getAcl().getRights());
             acl.setAttributes(getAttributes(getAcl(rule, unresolved), unresolved));
             resolvedRule.setAcl(acl);
-            List<ObjectItem> objects = getObjects(rule, unresolved);
-            resolvedRule.setObjects(objects);
-            LogicalExpression formula = getFormula(rule, unresolved);
-            resolvedRule.setFormula(formula);
-            LogicalExpression filter = getFilter(rule, unresolved);
-            resolvedRule.setFilter(filter);
+            resolvedRule.setObjects(getObjects(rule, unresolved));
+            resolvedRule.setFormula(getFormula(rule, unresolved));
+            resolvedRule.setFilter(getFilter(rule, unresolved));
             resolvedRules.add(resolvedRule);
         }
 

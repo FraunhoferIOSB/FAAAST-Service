@@ -27,7 +27,7 @@ import org.junit.Test;
 public class AclObjectsFilterTest extends AbstractAclFilterTest {
 
     protected AbstractAclFilter createFilter() {
-        return new AclObjectsFilter();
+        return new AclObjectsFilter("/api/v3.1");
     }
 
 

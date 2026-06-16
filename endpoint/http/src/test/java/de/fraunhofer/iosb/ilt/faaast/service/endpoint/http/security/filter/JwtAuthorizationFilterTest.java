@@ -14,8 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter;
 
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.JwtAuthorizationFilter.AUTHORIZATION;
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.JwtAuthorizationFilter.BEARER;
+import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.AbstractJwtFilter.AUTHORIZATION;
+import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.AbstractJwtFilter.BEARER;
+import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.AuthState.AUTHENTICATED;
 import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.SharedAttributes.ACL;
 import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.util.JwtTestHelper.JOHN_DOE;
 import static org.mockito.Mockito.mock;
@@ -43,7 +44,8 @@ public class JwtAuthorizationFilterTest {
         HttpServletRequest mockRequest = mock(HttpServletRequest.class);
         when(mockRequest.getAttribute(ACL.getName())).thenReturn(rules);
         when(mockRequest.getMethod()).thenReturn(method.name());
-        when(mockRequest.getServletPath()).thenReturn(path);
+        when(mockRequest.getPathInfo()).thenReturn(path);
+        when(mockRequest.getAttribute(SharedAttributes.AUTH_STATE.getName())).thenReturn(AUTHENTICATED.getName());
         when(mockRequest.getHeader(AUTHORIZATION)).thenReturn(BEARER.concat(" ")
                 .concat(jwtString));
 

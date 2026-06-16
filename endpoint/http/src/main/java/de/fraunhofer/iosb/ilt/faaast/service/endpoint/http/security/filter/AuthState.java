@@ -15,31 +15,26 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter;
 
 /**
- * Shared attributes during servlet request filtering.
+ * Authentication state of a request. If a servlet request contains the attribute "AuthState: authenticated", the bearer
+ * token in its "Authorization" header was validated
+ * against the configured JWK provider.
  */
-public enum SharedAttributes {
-    /**
-     * Shared AAS "All Access Control List" attribute.
-     */
-    ACL("acl"),
-    /**
-     * Authentication state.
-     */
-    AUTH_STATE("auth_state");
+public enum AuthState {
+    AUTHENTICATED("authenticated");
 
     private final String name;
 
     /**
-     * Serialization of an attribute.
+     * Serialization of an auth state.
      *
-     * @return String version of an attribute.
+     * @return String version of an auth state.
      */
     public String getName() {
         return name;
     }
 
 
-    SharedAttributes(String name) {
+    AuthState(String name) {
         this.name = name;
     }
 }

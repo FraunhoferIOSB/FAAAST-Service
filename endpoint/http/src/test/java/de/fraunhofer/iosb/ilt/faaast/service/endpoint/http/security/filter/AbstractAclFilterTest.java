@@ -94,9 +94,9 @@ public abstract class AbstractAclFilterTest extends JwtAuthorizationFilterTest {
                 fn(localNow, "0:00", LogicalExpression::set$lt),
                 fn(anonymous, "abc-test", LogicalExpression::set$gt)));
 
-        var routeNoWildcard = objectRoute("/api/v3.1/shells/12345/submodels/67890/submodel-elements/Abc.Def.Ghi/invoke-async/$value");
+        var routeNoWildcard = objectRoute("/shells/12345/submodels/67890/submodel-elements/Abc.Def.Ghi/invoke-async/$value");
         var routePrefixWildcard = objectRoute("*/12345/submodels/67890/submodel-elements/Abc.Def.Ghi/invoke-async/$value");
-        var routeSuffixWildcard = objectRoute("/api/v3.1/shells/12345/submodels/*");
+        var routeSuffixWildcard = objectRoute("/shells/12345/submodels/*");
 
         List<ObjectItem> objects = List.of(routeNoWildcard, routePrefixWildcard, routeSuffixWildcard);
 

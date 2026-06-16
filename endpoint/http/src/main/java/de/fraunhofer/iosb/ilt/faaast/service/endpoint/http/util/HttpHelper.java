@@ -14,13 +14,15 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util;
 
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.JwtAuthorizationFilter.AUTHORIZATION;
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.JwtAuthorizationFilter.BEARER;
+import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.AbstractJwtFilter.AUTHORIZATION;
+import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.AbstractJwtFilter.BEARER;
+import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.AuthState.AUTHENTICATED;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.Claim;
 import com.google.common.net.MediaType;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.SharedAttributes;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
@@ -142,10 +144,15 @@ public class HttpHelper {
      * @return The claims contained in the bearer token of the request's header.
      */
     public static Map<String, Claim> extractClaims(HttpServletRequest request) {
+        if (AUTHENTICATED != request.getAttribute(SharedAttributes.AUTH_STATE.getName())) {
+            // No claims for the unauthenticated
+            return Map.of();
+        }
+
         var authHeaderValue = request.getHeader(AUTHORIZATION);
 
         if (authHeaderValue == null || !authHeaderValue.startsWith(BEARER.concat(" "))) {
-            return null;
+            return Map.of();
         }
 
         // Remove "Bearer "

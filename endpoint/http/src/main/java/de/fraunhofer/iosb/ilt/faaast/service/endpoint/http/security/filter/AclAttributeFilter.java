@@ -25,7 +25,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AttributeItem;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 
 /**
@@ -39,9 +38,7 @@ public class AclAttributeFilter extends AbstractAclFilter {
 
     @Override
     protected List<AccessPermissionRule> doFilter(HttpServletRequest request, List<AccessPermissionRule> rules) {
-        Map<String, Claim> claims = Optional
-                .ofNullable(request.getHeader(AUTHORIZATION)).map(header -> extractAndDecodeJwt(header).getClaims())
-                .orElse(Map.of());
+        Map<String, Claim> claims = extractClaims(request);
 
         return rules.stream().filter(rule -> rule.getAcl().getAttributes().stream()
                 .allMatch(item -> item.getGlobal() != null && PERMISSIBLE_ATTRIBUTES.contains(item.getGlobal()) ||
