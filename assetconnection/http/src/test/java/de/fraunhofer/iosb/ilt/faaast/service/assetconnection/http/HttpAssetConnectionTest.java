@@ -79,6 +79,7 @@ import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -837,20 +838,23 @@ public class HttpAssetConnectionTest {
                 serviceContext);
         awaitConnection(connection);
         try {
-            OperationVariable[] actualInput = toOperationVariables(input);
-            OperationVariable[] actualInoutput = toOperationVariables(inoutput);
-            OperationVariable[] actualOutput = connection.getOperationProviders().get(REFERENCE).invoke(actualInput, actualInoutput);
-            // assert output is as correct
-            Assert.assertArrayEquals(output, actualOutput);
-            // assert inoutput is correct
-            Assert.assertArrayEquals(toOperationVariables(expectedInoutput), actualInoutput);
-            // assert correct HTTP request to asset has been made
-            RequestPatternBuilder verifier = new RequestPatternBuilder(method, urlEqualTo(path));
-            if (expectedRequestToAsset != null) {
-                verifier = verifier.withHeader(CONTENT_TYPE, equalTo(APPLICATION_JSON))
-                        .withRequestBody(equalToJson(expectedRequestToAsset));
-            }
-            verify(exactly(1), verifier);
+            connection.getOperationProviders().get(REFERENCE).invokeAsync(toOperationVariables(input),
+                    toOperationVariables(inoutput), new BiConsumer<OperationVariable[], OperationVariable[]>() {
+                        @Override
+                        public void accept(OperationVariable[] actualInoutput, OperationVariable[] actualOutput) {
+                            Assert.assertArrayEquals(toOperationVariables(expectedOutput), actualOutput);
+                            Assert.assertArrayEquals(toOperationVariables(expectedInoutput), actualInoutput);
+                            RequestPatternBuilder verifier = new RequestPatternBuilder(method, urlEqualTo(path));
+                            if (expectedRequestToAsset != null) {
+                                verifier = verifier.withHeader(CONTENT_TYPE, equalTo(APPLICATION_JSON))
+                                        .withRequestBody(equalToJson(expectedRequestToAsset));
+                            }
+                            verify(exactly(1), verifier);
+                        }
+                    },
+                    e -> {
+                        Assert.fail();
+                    });
         }
         finally {
             connection.disconnect();

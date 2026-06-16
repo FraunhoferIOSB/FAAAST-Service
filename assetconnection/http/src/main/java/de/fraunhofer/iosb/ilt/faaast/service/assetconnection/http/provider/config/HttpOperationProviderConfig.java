@@ -31,6 +31,7 @@ public class HttpOperationProviderConfig extends AbstractMultiFormatOperationPro
     private String method;
     private Map<String, String> headers;
     private AsyncOperationMode mode;
+    private long asyncPollInterval = 1000;
 
     public HttpOperationProviderConfig() {
         this.headers = new HashMap<>();
@@ -78,6 +79,16 @@ public class HttpOperationProviderConfig extends AbstractMultiFormatOperationPro
     }
 
 
+    public long getAsyncPollInterval() {
+        return asyncPollInterval;
+    }
+
+
+    public void setAsyncPollInterval(long asyncPollInterval) {
+        this.asyncPollInterval = asyncPollInterval;
+    }
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -91,7 +102,8 @@ public class HttpOperationProviderConfig extends AbstractMultiFormatOperationPro
                 && Objects.equals(path, that.path)
                 && Objects.equals(method, that.method)
                 && Objects.equals(headers, that.headers)
-                && Objects.equals(mode, that.mode);
+                && Objects.equals(mode, that.mode)
+                && Objects.equals(asyncPollInterval, that.asyncPollInterval);
     }
 
 
@@ -108,13 +120,14 @@ public class HttpOperationProviderConfig extends AbstractMultiFormatOperationPro
                 && StringHelper.equalsNullOrEmpty(path, that.path)
                 && StringHelper.equalsNullOrEmpty(method, that.method)
                 && Objects.equals(headers, that.headers)
-                && Objects.equals(mode, that.mode);
+                && Objects.equals(mode, that.mode)
+                && Objects.equals(asyncPollInterval, that.asyncPollInterval);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), path, method, headers, mode);
+        return Objects.hash(super.hashCode(), path, method, headers, mode, asyncPollInterval);
     }
 
 
@@ -151,6 +164,12 @@ public class HttpOperationProviderConfig extends AbstractMultiFormatOperationPro
 
         public B mode(AsyncOperationMode value) {
             getBuildingInstance().setMode(value);
+            return getSelf();
+        }
+
+
+        public B asyncPollInterval(long value) {
+            getBuildingInstance().setAsyncPollInterval(value);
             return getSelf();
         }
 
