@@ -14,11 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider;
 
-import static org.eclipse.digitaltwin.aas4j.v3.model.ExecutionState.CANCELED;
-import static org.eclipse.digitaltwin.aas4j.v3.model.ExecutionState.COMPLETED;
-import static org.eclipse.digitaltwin.aas4j.v3.model.ExecutionState.FAILED;
-import static org.eclipse.digitaltwin.aas4j.v3.model.ExecutionState.TIMEOUT;
-
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.provider.MultiFormatOperationProvider;
@@ -69,6 +64,7 @@ public class HttpOperationProvider extends MultiFormatOperationProvider<HttpOper
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpOperationProvider.class);
 
+    private static final String EXECUTION_FAILED_MSG = "executing operation via HTTP asset connection failed";
     private static final String INVOKE_OPERATION_ASYNC_AAS_MSG = "Invoking HTTP asset operation provider with ASYNC AAS pattern";
     public static final String DEFAULT_EXECUTE_METHOD = HttpConstants.METHOD_POST;
     private final ServiceContext serviceContext;
@@ -130,10 +126,10 @@ public class HttpOperationProvider extends MultiFormatOperationProvider<HttpOper
         }
         catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new AssetConnectionException(String.format("executing operation via HTTP asset connection failed (reference: %s)", ReferenceHelper.toString(reference)), e);
+            throw new AssetConnectionException(String.format("%s (reference: %s)", EXECUTION_FAILED_MSG, ReferenceHelper.toString(reference)), e);
         }
         catch (IOException | URISyntaxException e) {
-            throw new AssetConnectionException(String.format("executing operation via HTTP asset connection failed (reference: %s)", ReferenceHelper.toString(reference)), e);
+            throw new AssetConnectionException(String.format("%s (reference: %s)", EXECUTION_FAILED_MSG, ReferenceHelper.toString(reference)), e);
         }
     }
 
@@ -181,14 +177,14 @@ public class HttpOperationProvider extends MultiFormatOperationProvider<HttpOper
                 response.headers().map(),
                 response.body());
         if (!HttpHelper.is2xxSuccessful(response)) {
-            throw new AssetConnectionException(String.format("executing operation via HTTP asset connection failed (reference: %s)", ReferenceHelper.toString(reference)));
+            throw new AssetConnectionException(String.format("%s (reference: %s)", EXECUTION_FAILED_MSG, ReferenceHelper.toString(reference)));
         }
         return response.body();
     }
 
 
     private byte[] invokeAsyncAas(String path, String method, byte[] input, Map<String, String> headers)
-            throws InterruptedException, URISyntaxException, IOException, AssetConnectionException {
+            throws InterruptedException, IOException, AssetConnectionException {
         URI statusUri = invokeAsyncAas_call(path, method, input, headers);
         URI resultUri = invokeAsyncAas_status(statusUri, headers);
         return invokeAsyncAas_result(resultUri, headers);
@@ -210,6 +206,9 @@ public class HttpOperationProvider extends MultiFormatOperationProvider<HttpOper
                     headers);
         }
         catch (URISyntaxException | InterruptedException e) {
+            if (e instanceof InterruptedException) {
+                Thread.currentThread().interrupt();
+            }
             throw new AssetConnectionException(String.format(
                     "%s - failed to invoke asset (reference: %s, reason: %s)",
                     INVOKE_OPERATION_ASYNC_AAS_MSG,
@@ -217,11 +216,13 @@ public class HttpOperationProvider extends MultiFormatOperationProvider<HttpOper
                     e.getMessage()),
                     e);
         }
-        LOGGER.trace("{} - response from asset upon invoke (status code: {}, headers: {}, body: {})",
-                INVOKE_OPERATION_ASYNC_AAS_MSG,
-                response.statusCode(),
-                response.headers().map(),
-                response.body());
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("{} - response from asset upon invoke (status code: {}, headers: {}, body: {})",
+                    INVOKE_OPERATION_ASYNC_AAS_MSG,
+                    response.statusCode(),
+                    response.headers().map(),
+                    response.body());
+        }
         if (response.statusCode() != HttpConstants.STATUS_ACCEPTED) {
             throw new AssetConnectionException(String.format(
                     "%s - asset returned invalid status code upon invoke (expected: %d, actual: %d, reference: %s, body: %s)",
@@ -235,9 +236,8 @@ public class HttpOperationProvider extends MultiFormatOperationProvider<HttpOper
             throw new AssetConnectionException(String.format(
                     "%s - asset did not return location header upon invoke (reference: %s, status code: %d, body: %s)",
                     INVOKE_OPERATION_ASYNC_AAS_MSG,
-                    HttpConstants.STATUS_ACCEPTED,
+                    ReferenceHelper.asString(reference),
                     response.statusCode(),
-                    ReferenceHelper.toString(reference),
                     response.body()));
         }
         return extractLocationUri(response);
@@ -269,7 +269,8 @@ public class HttpOperationProvider extends MultiFormatOperationProvider<HttpOper
                 switch (currentState) {
                     case CANCELED, FAILED, TIMEOUT ->
                         future.completeExceptionally(new AssetConnectionException(String.format(
-                                "executing operation via HTTP asset connection failed (reference: %s): executionState: %s",
+                                "%s (reference: %s): executionState: %s",
+                                EXECUTION_FAILED_MSG,
                                 ReferenceHelper.toString(reference),
                                 currentState)));
                     case COMPLETED -> {
@@ -284,6 +285,9 @@ public class HttpOperationProvider extends MultiFormatOperationProvider<HttpOper
                 }
             }
             catch (Exception e) {
+                if (e instanceof InterruptedException) {
+                    Thread.currentThread().interrupt();
+                }
                 future.completeExceptionally(e);
             }
         }, 0, config.getAsyncPollInterval(), TimeUnit.MILLISECONDS);
@@ -294,8 +298,8 @@ public class HttpOperationProvider extends MultiFormatOperationProvider<HttpOper
         }
         catch (ExecutionException e) {
             Throwable cause = e.getCause();
-            if (cause instanceof AssetConnectionException) {
-                throw (AssetConnectionException) cause;
+            if (cause instanceof AssetConnectionException ace) {
+                throw ace;
             }
             throw new AssetConnectionException(String.format(
                     "%s - fetching status failed (reference: %s, reason: %s)",
@@ -321,6 +325,9 @@ public class HttpOperationProvider extends MultiFormatOperationProvider<HttpOper
                     headers);
         }
         catch (IOException | URISyntaxException | InterruptedException e) {
+            if (e instanceof InterruptedException) {
+                Thread.currentThread().interrupt();
+            }
             throw new AssetConnectionException(String.format(
                     "%s - failed to fetch asset result (reference: %s, URI: %s, reason: %s)",
                     INVOKE_OPERATION_ASYNC_AAS_MSG,
@@ -336,7 +343,8 @@ public class HttpOperationProvider extends MultiFormatOperationProvider<HttpOper
 
         if (responseResult.statusCode() != HttpConstants.STATUS_OK) {
             throw new AssetConnectionException(String.format(
-                    "executing operation via HTTP asset connection failed (reference: %s)",
+                    "%s (reference: %s)",
+                    EXECUTION_FAILED_MSG,
                     ReferenceHelper.toString(reference)));
         }
         return responseResult.body();
@@ -354,13 +362,15 @@ public class HttpOperationProvider extends MultiFormatOperationProvider<HttpOper
                 HttpRequest.BodyPublishers.noBody(),
                 HttpResponse.BodyHandlers.ofString(),
                 headers);
-        LOGGER.trace("Response from asset status (status code: {}, headers: {}, body: {})",
-                response.statusCode(),
-                response.headers().map(),
-                response.body());
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("Response from asset status (status code: {}, headers: {}, body: {})",
+                    response.statusCode(),
+                    response.headers().map(),
+                    response.body());
+        }
         if (!HttpHelper.is2xxSuccessful(response)) {
             throw new AssetConnectionException(
-                    String.format("executing operation via HTTP asset connection failed (reference: %s)", ReferenceHelper.toString(reference)));
+                    String.format("%s (reference: %s)", EXECUTION_FAILED_MSG, ReferenceHelper.toString(reference)));
         }
         return response;
     }
