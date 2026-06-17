@@ -774,6 +774,7 @@ public class OpcUaAssetConnectionTest {
             connection.getOperationProviders().get(reference).invokeAsync(
                     inputVariables,
                     inoutputVariables,
+                    message -> {},
                     (res, inout) -> {
                         operationResult.set(res);
                         operationInout.set(inout);

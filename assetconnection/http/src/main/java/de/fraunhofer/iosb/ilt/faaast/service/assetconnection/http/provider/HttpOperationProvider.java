@@ -28,11 +28,13 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.confi
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.util.HttpConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.util.HttpHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonApiDeserializer;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetOperationAsyncStatusResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+import de.fraunhofer.iosb.ilt.faaast.service.util.OperationProviderHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.io.IOException;
 import java.net.URI;
@@ -50,6 +52,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
@@ -108,7 +111,7 @@ public class HttpOperationProvider extends MultiFormatOperationProvider<HttpOper
 
 
     @Override
-    protected byte[] invoke(byte[] input, UnaryOperator<String> variableReplacer) throws AssetConnectionException {
+    protected byte[] invoke(byte[] input, UnaryOperator<String> variableReplacer, Consumer<Message> callbackProgress) throws AssetConnectionException {
         try {
             String path = variableReplacer.apply(config.getPath());
             String method = StringUtils.isBlank(config.getMethod())
@@ -124,7 +127,7 @@ public class HttpOperationProvider extends MultiFormatOperationProvider<HttpOper
                     Objects.nonNull(input) ? new String(input) : "");
             return switch (config.getMode()) {
                 case DIRECT -> invokeDirect(path, method, input, headers);
-                case ASYNC_AAS -> invokeAsyncAas(path, method, input, headers);
+                case ASYNC_AAS -> invokeAsyncAas(path, method, input, headers, callbackProgress);
                 default -> throw new IllegalArgumentException("unsupported HTTP operation invocation mode: " + config.getMode());
             };
         }
@@ -187,10 +190,10 @@ public class HttpOperationProvider extends MultiFormatOperationProvider<HttpOper
     }
 
 
-    private byte[] invokeAsyncAas(String path, String method, byte[] input, Map<String, String> headers)
+    private byte[] invokeAsyncAas(String path, String method, byte[] input, Map<String, String> headers, Consumer<Message> callbackProgress)
             throws InterruptedException, URISyntaxException, IOException, AssetConnectionException {
         URI statusUri = invokeAsyncAas_call(path, method, input, headers);
-        URI resultUri = invokeAsyncAas_status(statusUri, headers);
+        URI resultUri = invokeAsyncAas_status(statusUri, headers, callbackProgress);
         return invokeAsyncAas_result(resultUri, headers);
     }
 
@@ -244,7 +247,7 @@ public class HttpOperationProvider extends MultiFormatOperationProvider<HttpOper
     }
 
 
-    private URI invokeAsyncAas_status(URI statusUri, Map<String, String> headers) throws AssetConnectionException, InterruptedException {
+    private URI invokeAsyncAas_status(URI statusUri, Map<String, String> headers, Consumer<Message> callbackProgress) throws AssetConnectionException, InterruptedException {
         CompletableFuture<URI> future = new CompletableFuture<>();
         AtomicReference<ExecutionState> lastKnownState = new AtomicReference<>(ExecutionState.INITIATED);
 
@@ -276,7 +279,9 @@ public class HttpOperationProvider extends MultiFormatOperationProvider<HttpOper
                         // keep pulling until there is a redirect
                     }
                     case RUNNING -> {
-                        // TODO potentially update progress
+                        status.getPayload().getMessages().stream()
+                                .filter(OperationProviderHelper::isProgressMessage)
+                                .forEach(x -> callbackProgress.accept(Message.of(x)));
                     }
                     default -> {
                         // do nothing

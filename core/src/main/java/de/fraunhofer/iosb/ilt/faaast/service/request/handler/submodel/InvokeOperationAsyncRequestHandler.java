@@ -29,6 +29,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.Opera
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.OperationInvokeEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -65,6 +66,7 @@ public class InvokeOperationAsyncRequestHandler extends AbstractInvokeOperationR
             context.getAssetConnectionManager().invokeAsync(reference,
                     request.getInputArguments().toArray(new OperationVariable[0]),
                     request.getInoutputArguments().toArray(new OperationVariable[0]),
+                    message -> handleOperationProgress(reference, operationHandle, message, context),
                     (output, inoutput) -> {
                         handleOperationSuccess(reference, operationHandle, inoutput, output, context);
                         future.complete(null);
@@ -94,6 +96,22 @@ public class InvokeOperationAsyncRequestHandler extends AbstractInvokeOperationR
                 .payload(operationHandle)
                 .statusCode(StatusCode.SUCCESS_ACCEPTED)
                 .build();
+    }
+
+
+    private void handleOperationProgress(Reference reference, OperationHandle operationHandle, Message message, RequestExecutionContext context) {
+        try {
+            OperationResult result = context.getPersistence().getOperationResult(operationHandle);
+            result.getMessages().add(message);
+            context.getPersistence().save(operationHandle, result);
+        }
+        catch (ResourceNotFoundException | PersistenceException e) {
+            LOGGER.warn("failed to update async operation progress (reference: {}, operationHandle: {}, reason: {})",
+                    ReferenceHelper.asString(reference),
+                    operationHandle.getHandleId(),
+                    e.getMessage(),
+                    e);
+        }
     }
 
 
