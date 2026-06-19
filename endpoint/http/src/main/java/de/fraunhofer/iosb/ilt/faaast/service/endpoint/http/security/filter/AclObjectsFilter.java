@@ -102,15 +102,6 @@ public class AclObjectsFilter extends AbstractAclFilter {
 
 
     private static Pattern toRegex(String routePattern) {
-        String[] parts = routePattern.split("\\*", -1);
-        StringBuilder regex = new StringBuilder("^");
-        for (int i = 0; i < parts.length; i++) {
-            regex.append(Pattern.quote(parts[i]));
-            if (i < parts.length - 1) {
-                regex.append(".*");
-            }
-        }
-        regex.append("$");
         return Pattern.compile(routePattern.replaceAll("\\*", ".*"));
     }
 
