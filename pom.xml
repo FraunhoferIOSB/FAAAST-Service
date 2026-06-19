@@ -108,7 +108,7 @@
         <maven.compiler.target>17</maven.compiler.target>
         <maven.plugin.assembly.version>3.8.0</maven.plugin.assembly.version>
         <maven.plugin.buildhelper.version>3.6.1</maven.plugin.buildhelper.version>
-        <maven.plugin.central-publishing.version>0.10.0</maven.plugin.central-publishing.version>
+        <maven.plugin.central-publishing.version>0.11.0</maven.plugin.central-publishing.version>
         <maven.plugin.checkstyle.version>3.6.0</maven.plugin.checkstyle.version>
         <maven.plugin.compiler.version>3.15.0</maven.plugin.compiler.version>
         <maven.plugin.dependency-check.autoUpdate>true</maven.plugin.dependency-check.autoUpdate>
@@ -128,7 +128,7 @@
         <maven.plugin.shade.version>3.6.2</maven.plugin.shade.version>
         <maven.plugin.sonar.version>5.7.0.6970</maven.plugin.sonar.version>
         <maven.plugin.source.version>3.4.0</maven.plugin.source.version>
-        <maven.plugin.spotless.version>3.6.0</maven.plugin.spotless.version>
+        <maven.plugin.spotless.version>3.7.0</maven.plugin.spotless.version>
         <maven.plugin.surefire.version>3.5.6</maven.plugin.surefire.version>
         <milo.version>1.1.4</milo.version>
         <mockito.version>5.23.0</mockito.version>
@@ -145,7 +145,7 @@
         <proguard.version>7.9.1</proguard.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <prosys.sdk.version>5.7.0-248</prosys.sdk.version>
-        <protobuf.version>4.35.0</protobuf.version>
+        <protobuf.version>4.35.1</protobuf.version>
         <rgxgen.version>3.1</rgxgen.version>
         <root.basedir>${project.basedir}</root.basedir>
         <slf4j.ext.version>1.0.0-jdk6</slf4j.ext.version>
