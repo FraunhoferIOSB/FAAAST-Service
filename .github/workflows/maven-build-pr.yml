@@ -18,7 +18,7 @@ jobs:
         fetch-depth: 0
 
     - name: Restore Cache - Maven Repository
-      uses: actions/cache/restore@v5
+      uses: actions/cache/restore@v6
       with:
         path: |
           ~/.m2/repository
@@ -58,7 +58,7 @@ jobs:
       shell: bash
 
     - name: Restore Cache - CVE Database
-      uses: actions/cache/restore@v5
+      uses: actions/cache/restore@v6
       with:
         path: |
           ~/.m2/repository/org/owasp/dependency-check-data
