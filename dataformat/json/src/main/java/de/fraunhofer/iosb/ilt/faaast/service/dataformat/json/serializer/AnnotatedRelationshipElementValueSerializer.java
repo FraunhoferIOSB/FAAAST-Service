@@ -15,7 +15,6 @@
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonFieldNames;
@@ -41,19 +40,25 @@ public class AnnotatedRelationshipElementValueSerializer extends StdSerializer<A
 
 
     @Override
-    public void serialize(AnnotatedRelationshipElementValue value, JsonGenerator generator, SerializerProvider provider) throws IOException, JsonProcessingException {
+    public void serialize(AnnotatedRelationshipElementValue value, JsonGenerator generator, SerializerProvider provider) throws IOException {
         if (value != null) {
             generator.writeStartObject();
-            provider.defaultSerializeField(JsonFieldNames.ANNOTATED_RELATIONSHIP_ELEMENT_VALUE_FIRST, value.getFirst(), generator);
-            provider.defaultSerializeField(JsonFieldNames.ANNOTATED_RELATIONSHIP_ELEMENT_VALUE_SECOND, value.getSecond(), generator);
-            generator.writeFieldName(JsonFieldNames.ANNOTATED_RELATIONSHIP_ELEMENT_VALUE_ANNOTATION);
-            generator.writeStartArray();
-            for (Map.Entry<String, DataElementValue> annotation: value.getAnnotations().entrySet()) {
-                generator.writeStartObject();
-                generator.writeObjectField(annotation.getKey(), annotation.getValue());
-                generator.writeEndObject();
+            if (value.getFirst() != null) {
+                provider.defaultSerializeField(JsonFieldNames.ANNOTATED_RELATIONSHIP_ELEMENT_VALUE_FIRST, value.getFirst(), generator);
             }
-            generator.writeEndArray();
+            if (value.getSecond() != null) {
+                provider.defaultSerializeField(JsonFieldNames.ANNOTATED_RELATIONSHIP_ELEMENT_VALUE_SECOND, value.getSecond(), generator);
+            }
+            if (value.getAnnotations() != null && !value.getAnnotations().isEmpty()) {
+                generator.writeFieldName(JsonFieldNames.ANNOTATED_RELATIONSHIP_ELEMENT_VALUE_ANNOTATIONS);
+                generator.writeStartArray();
+                for (Map.Entry<String, DataElementValue> annotation: value.getAnnotations().entrySet()) {
+                    generator.writeStartObject();
+                    generator.writeObjectField(annotation.getKey(), annotation.getValue());
+                    generator.writeEndObject();
+                }
+                generator.writeEndArray();
+            }
             generator.writeEndObject();
         }
     }

@@ -50,6 +50,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasbasicdiscovery
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasbasicdiscovery.GetAllAssetAdministrationShellIdsByAssetLinkRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasbasicdiscovery.GetAllAssetLinksByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasbasicdiscovery.PostAllAssetLinksByIdRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasbasicdiscovery.SearchAllAssetAdministrationShellIdsByAssetLinkRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository.DeleteAssetAdministrationShellByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository.GetAllAssetAdministrationShellsByAssetIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository.GetAllAssetAdministrationShellsByIdShortRequest;
@@ -278,6 +279,20 @@ public class RequestMappingManagerTest {
                 .method(HttpMethod.GET)
                 .path("lookup/shells")
                 .query("assetIds=" + EncodingHelper.base64UrlEncode(serializer.write(ASSET_IDENTIFIERS)))
+                .build());
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testSearchAllAssetAdministrationShellIdsByAssetLink() throws SerializationException, InvalidRequestException {
+        Request expected = SearchAllAssetAdministrationShellIdsByAssetLinkRequest.builder()
+                .assetIdentifierPairs(ASSET_IDENTIFIERS)
+                .build();
+        Request actual = mappingManager.map(HttpRequest.builder()
+                .method(HttpMethod.POST)
+                .path("lookup/shellsByAssetLink")
+                .body(serializer.write(ASSET_IDENTIFIERS))
                 .build());
         Assert.assertEquals(expected, actual);
     }

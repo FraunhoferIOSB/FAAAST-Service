@@ -35,7 +35,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import org.eclipse.digitaltwin.aas4j.v3.model.ExecutionState;
-import org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum;
+import org.eclipse.digitaltwin.aas4j.v3.model.MessageType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationResult;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
@@ -121,7 +121,7 @@ public class InvokeOperationAsyncRequestHandler extends AbstractInvokeOperationR
                         .inoutputArguments(inoutput)
                         .outputArguments(List.of())
                         .messages(Message.builder()
-                                .messageType(MessageTypeEnum.ERROR)
+                                .messageType(MessageType.ERROR)
                                 .text(String.format(
                                         "operation failed to execute (reason: %s)",
                                         error.getMessage()))

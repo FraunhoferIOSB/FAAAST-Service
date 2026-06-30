@@ -4,6 +4,7 @@
 
 **New Features & Major Changes**
 - General
+	- Updated to AAS metamodel v3.1.
 	- Added support for reading/writing operation arguments from/to referenced other AAS elements (by using Qualifiers)
 	- Added CLI argument --show-stacktrace
 	- Added new core config properties `operationTimeout` to set a global timeout for executing AAS operations
@@ -20,6 +21,7 @@
 - Endpoint
 	- HTTP
 		- URL prefix /api/v3.x is now optional
+        - Default URL prefix is now /api/v3.1
 		- Add new config property `httpVersion`
 		- Treat headers case-insenstive (see RFC 2616)
 		- OperationProvider now supports use of input arguments via variables in headers
