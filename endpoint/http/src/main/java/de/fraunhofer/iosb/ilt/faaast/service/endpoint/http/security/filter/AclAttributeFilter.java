@@ -1,0 +1,49 @@
+/*
+ * Copyright (c) 2021 Fraunhofer IOSB, eine rechtlich nicht selbstaendige
+ * Einrichtung der Fraunhofer-Gesellschaft zur Foerderung der angewandten
+ * Forschung e.V.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter;
+
+import static de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AttributeItem.Global.ANONYMOUS;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AttributeItem.Global.CLIENTNOW;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AttributeItem.Global.LOCALNOW;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AttributeItem.Global.UTCNOW;
+
+import com.auth0.jwt.interfaces.Claim;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AccessPermissionRule;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AttributeItem;
+import jakarta.servlet.http.HttpServletRequest;
+import java.util.List;
+import java.util.Map;
+
+
+/**
+ * Filters applicable AAS ACL rules using the incoming request's bearer token claims. All attributes declared in an ACL
+ * rule need to be present as claims or processable (e.g.,
+ * local time).
+ */
+public class AclAttributeFilter extends AbstractAclFilter {
+
+    private static final List<AttributeItem.Global> PERMISSIBLE_ATTRIBUTES = List.of(ANONYMOUS, UTCNOW, CLIENTNOW, LOCALNOW);
+
+    @Override
+    protected List<AccessPermissionRule> doFilter(HttpServletRequest request, List<AccessPermissionRule> rules) {
+        Map<String, Claim> claims = extractClaims(request);
+
+        return rules.stream().filter(rule -> rule.getAcl().getAttributes().stream()
+                .allMatch(item -> item.getGlobal() != null && PERMISSIBLE_ATTRIBUTES.contains(item.getGlobal()) ||
+                        item.getClaim() != null && claims.containsKey(item.getClaim()) ||
+                        item.getReference() != null))
+                .toList();
+    }
+}

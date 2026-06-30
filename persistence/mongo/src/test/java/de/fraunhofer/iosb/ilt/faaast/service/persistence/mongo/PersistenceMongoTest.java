@@ -14,6 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.persistence.mongo;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence.identity;
+
 import de.flapdoodle.embed.mongo.distribution.Version;
 import de.flapdoodle.embed.mongo.transitions.Mongod;
 import de.flapdoodle.embed.mongo.transitions.RunningMongodProcess;
@@ -103,13 +105,13 @@ public class PersistenceMongoTest extends AbstractPersistenceTest<PersistenceMon
         Persistence noOverridePersistence = getPersistenceConfig(null, environment, false).newInstance(CoreConfig.DEFAULT, SERVICE_CONTEXT);
         noOverridePersistence.start();
         Assert.assertThrows(ResourceNotFoundException.class, () -> {
-            noOverridePersistence.getAssetAdministrationShell(AASSimple.AAS_IDENTIFIER, QueryModifier.DEFAULT);
+            noOverridePersistence.getAssetAdministrationShell(AASSimple.AAS_IDENTIFIER, QueryModifier.DEFAULT, identity());
         });
         noOverridePersistence.stop();
         Persistence overridePersistence = getPersistenceConfig(null, environment, true).newInstance(CoreConfig.DEFAULT, SERVICE_CONTEXT);
         overridePersistence.start();
         AssetAdministrationShell expected = environment.getAssetAdministrationShells().get(0);
-        AssetAdministrationShell actual = overridePersistence.getAssetAdministrationShell(AASSimple.AAS_IDENTIFIER, QueryModifier.DEFAULT);
+        AssetAdministrationShell actual = overridePersistence.getAssetAdministrationShell(AASSimple.AAS_IDENTIFIER, QueryModifier.DEFAULT, identity());
         Assert.assertEquals(expected, actual);
         overridePersistence.stop();
     }
@@ -135,7 +137,8 @@ public class PersistenceMongoTest extends AbstractPersistenceTest<PersistenceMon
                 reference,
                 new QueryModifier.Builder()
                         .extend(Extent.WITH_BLOB_VALUE)
-                        .build());
+                        .build(),
+                identity());
         Assert.assertEquals(expected, actual);
         persistence.stop();
     }

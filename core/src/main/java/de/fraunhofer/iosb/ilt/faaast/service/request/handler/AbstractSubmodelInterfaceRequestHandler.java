@@ -60,7 +60,8 @@ public abstract class AbstractSubmodelInterfaceRequestHandler<T extends Abstract
                     request.getAasId(),
                     new OutputModifier.Builder()
                             .level(Level.CORE)
-                            .build());
+                            .build(),
+                    request.getFormula());
             if (aas.getSubmodels().stream().noneMatch(x -> ReferenceHelper.equals(x, submodelRef))) {
                 throw new ResourceNotFoundException(String.format(
                         "AAS does not contain requested submodel (aasId: %s, submodelId: %s)",

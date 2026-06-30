@@ -1,0 +1,81 @@
+{
+  "AllAccessPermissionRules": {
+    "rules": [
+      {
+        "ACL": {
+          "ATTRIBUTES": [
+            {
+              "CLAIM": "email"
+            }
+          ],
+          "RIGHTS": [
+            "READ",
+            "UPDATE"
+          ],
+          "ACCESS": "ALLOW"
+        },
+        "OBJECTS": [
+          {
+            "IDENTIFIABLE": "(Submodel)*"
+          }
+        ],
+        "FORMULA": {
+          "$and": [
+            {
+              "$or": [
+                {
+                  "$eq": [
+                    {
+                      "$field": "$sm#semanticId"
+                    },
+                    {
+                      "$strVal": "SemanticID-Nameplate"
+                    }
+                  ]
+                },
+                {
+                  "$eq": [
+                    {
+                      "$field": "$sm#semanticId"
+                    },
+                    {
+                      "$strVal": "SemanticID-TechnicalData"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "$or": [
+                {
+                  "$eq": [
+                    {
+                      "$attribute": {
+                        "CLAIM": "email"
+                      }
+                    },
+                    {
+                      "$strVal": "user1@company1.com"
+                    }
+                  ]
+                },
+                {
+                  "$eq": [
+                    {
+                      "$attribute": {
+                        "CLAIM": "email"
+                      }
+                    },
+                    {
+                      "$strVal": "user2@company2.com"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

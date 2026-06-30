@@ -1,0 +1,48 @@
+{
+  "AllAccessPermissionRules": {
+    "rules": [
+      {
+        "ACL": {
+          "ATTRIBUTES": [
+            {
+              "GLOBAL": "ANONYMOUS"
+            }
+          ],
+          "RIGHTS": [
+            "READ"
+          ],
+          "ACCESS": "ALLOW"
+        },
+        "OBJECTS": [
+          {
+            "ROUTE": "*"
+          }
+        ],
+        "FORMULA": {
+          "$or": [
+            {
+              "$eq": [
+                {
+                  "$field": "$sm#semanticId"
+                },
+                {
+                  "$strVal": "SemanticID-Nameplate"
+                }
+              ]
+            },
+            {
+              "$eq": [
+                {
+                  "$field": "$sm#semanticId"
+                },
+                {
+                  "$strVal": "SemanticID-TechnicalData"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

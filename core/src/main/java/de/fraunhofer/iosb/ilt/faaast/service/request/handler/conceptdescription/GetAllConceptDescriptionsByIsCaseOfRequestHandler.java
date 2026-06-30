@@ -46,7 +46,8 @@ public class GetAllConceptDescriptionsByIsCaseOfRequestHandler
                         .isCaseOf(request.getIsCaseOf())
                         .build(),
                 request.getOutputModifier(),
-                request.getPagingInfo());
+                request.getPagingInfo(),
+                request.getFormula());
         if (!request.isInternal() && Objects.nonNull(page.getContent())) {
             page.getContent().forEach(LambdaExceptionHelper.rethrowConsumer(
                     x -> context.getMessageBus().publish(ElementReadEventMessage.builder()

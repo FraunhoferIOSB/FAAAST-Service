@@ -14,6 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler.submodel;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence.identity;
+
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
@@ -137,7 +139,8 @@ public class InvokeOperationAsyncRequestHandler extends AbstractInvokeOperationR
                                        OperationResult operationResult,
                                        RequestExecutionContext context) {
         try {
-            Operation operation = context.getPersistence().getSubmodelElement(reference, QueryModifier.MINIMAL, Operation.class);
+            // TODO identity() allowed here?
+            Operation operation = context.getPersistence().getSubmodelElement(reference, QueryModifier.MINIMAL, Operation.class, identity());
             if (operationResult.getSuccess()) {
                 operationResult.setOutputArguments(
                         validateAndPrepare(

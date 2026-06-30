@@ -14,6 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence.identity;
+
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.SubmodelElementIdentifier;
@@ -63,7 +65,7 @@ public class SubmodelTemplateManager {
         if (submodelTemplateProcessors.isEmpty()) {
             return;
         }
-        List<Submodel> submodels = serviceContext.getPersistence().getAllSubmodels(QueryModifier.MAXIMAL, PagingInfo.ALL).getContent();
+        List<Submodel> submodels = serviceContext.getPersistence().getAllSubmodels(QueryModifier.MAXIMAL, PagingInfo.ALL, identity()).getContent();
         for (var submodel: submodels) {
             addSubmodel(submodel);
         }
@@ -92,7 +94,7 @@ public class SubmodelTemplateManager {
             // if a SubmodelElement changed, we use updateSubodel
             SubmodelElementIdentifier submodelElementIdentifier = SubmodelElementIdentifier.fromReference(event.getElement());
             try {
-                updateSubmodel(serviceContext.getPersistence().getSubmodel(submodelElementIdentifier.getSubmodelId(), QueryModifier.DEFAULT));
+                updateSubmodel(serviceContext.getPersistence().getSubmodel(submodelElementIdentifier.getSubmodelId(), QueryModifier.DEFAULT, identity()));
             }
             catch (ResourceNotFoundException | PersistenceException e) {
                 LOGGER.warn("Failed to read submodel (submodelId: {})", submodelElementIdentifier.getSubmodelId(), e);
@@ -114,7 +116,7 @@ public class SubmodelTemplateManager {
             // if a SubmodelElement changed, we use updateSubodel
             SubmodelElementIdentifier submodelElementIdentifier = SubmodelElementIdentifier.fromReference(event.getElement());
             try {
-                updateSubmodel(serviceContext.getPersistence().getSubmodel(submodelElementIdentifier.getSubmodelId(), QueryModifier.DEFAULT));
+                updateSubmodel(serviceContext.getPersistence().getSubmodel(submodelElementIdentifier.getSubmodelId(), QueryModifier.DEFAULT, identity()));
             }
             catch (ResourceNotFoundException | PersistenceException e) {
                 LOGGER.warn("Failed to read submodel (submodelId: {})", submodelElementIdentifier.getSubmodelId(), e);
@@ -136,7 +138,7 @@ public class SubmodelTemplateManager {
             // if a SubmodelElement changed, we use updateSubodel
             SubmodelElementIdentifier submodelElementIdentifier = SubmodelElementIdentifier.fromReference(event.getElement());
             try {
-                updateSubmodel(serviceContext.getPersistence().getSubmodel(submodelElementIdentifier.getSubmodelId(), QueryModifier.DEFAULT));
+                updateSubmodel(serviceContext.getPersistence().getSubmodel(submodelElementIdentifier.getSubmodelId(), QueryModifier.DEFAULT, identity()));
             }
             catch (ResourceNotFoundException | PersistenceException e) {
                 LOGGER.warn("Failed to read submodel (submodelId: {})", submodelElementIdentifier.getSubmodelId(), e);

@@ -14,8 +14,11 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence.identity;
+
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.LogicalExpression;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,6 +38,7 @@ public class HttpRequest extends HttpMessage {
     private String path;
     private Map<String, String> queryParameters;
     private List<String> pathElements;
+    private LogicalExpression formula;
 
     public static Builder builder() {
         return new Builder();
@@ -45,6 +49,7 @@ public class HttpRequest extends HttpMessage {
         method = HttpMethod.GET;
         queryParameters = new HashMap<>();
         pathElements = new ArrayList<>();
+        formula = identity();
     }
 
 
@@ -159,6 +164,26 @@ public class HttpRequest extends HttpMessage {
     }
 
 
+    /**
+     * Gets this request's applying formula according to AAS Security.
+     *
+     * @return List of formula.
+     */
+    public LogicalExpression getFormula() {
+        return formula;
+    }
+
+
+    /**
+     * Sets this request's applying formula according to AAS Security.
+     *
+     * @param formula the applying formula.
+     */
+    public void setFormula(LogicalExpression formula) {
+        this.formula = formula;
+    }
+
+
     private String[] splitKeyValue(String x, String regex) {
         String[] split = x.split(regex);
         if (split.length == 2) {
@@ -211,6 +236,12 @@ public class HttpRequest extends HttpMessage {
 
         public B query(String value) {
             getBuildingInstance().setQueryParametersFromQueryString(value);
+            return getSelf();
+        }
+
+
+        public B formula(LogicalExpression value) {
+            getBuildingInstance().setFormula(value);
             return getSelf();
         }
     }

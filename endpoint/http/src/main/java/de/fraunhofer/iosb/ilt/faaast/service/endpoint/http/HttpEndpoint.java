@@ -16,20 +16,32 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http;
 
 import static de.fraunhofer.iosb.ilt.faaast.service.certificate.util.KeyStoreHelper.DEFAULT_ALIAS;
 
+import com.auth0.jwk.UrlJwkProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.certificate.CertificateData;
 import de.fraunhofer.iosb.ilt.faaast.service.certificate.CertificateInformation;
 import de.fraunhofer.iosb.ilt.faaast.service.certificate.util.KeyStoreHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.AbstractEndpoint;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.acl.repository.file.FileAclRepository;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.AclAccessFilter;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.AclAttributeFilter;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.AclAttributeInjectionInterceptor;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.AclObjectsFilter;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.AclRightsFilter;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.AclRulesInceptionFilter;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.JwtValidationFilter;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.Interface;
 import de.fraunhofer.iosb.ilt.faaast.service.model.Version;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.HostnameUtil;
+import jakarta.servlet.DispatcherType;
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -37,6 +49,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -111,6 +124,25 @@ public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
         crossOriginHandler.setHandler(context);
 
         RequestHandlerServlet handler = new RequestHandlerServlet(this, config, serviceContext);
+
+        if (Objects.nonNull(config.getAclFolder())) {
+            if (Objects.nonNull(config.getJwkProvider())) {
+                context.addFilter(new JwtValidationFilter(new UrlJwkProvider(parseJwkProviderUrl(config.getJwkProvider()))), "*", EnumSet.allOf(DispatcherType.class));
+            }
+            context.addFilter(new AclRulesInceptionFilter(FileAclRepository.createNewInstance(config.getAclFolder())), "*", EnumSet.allOf(DispatcherType.class));
+            // Remove ACL that are DISABLED.
+            context.addFilter(new AclAccessFilter(), "*", EnumSet.allOf(DispatcherType.class));
+            // Remove ACL that do not comply with the HTTP method of a request.
+            context.addFilter(new AclRightsFilter(), "*", EnumSet.allOf(DispatcherType.class));
+            // Remove ACL that do not comply with the HTTP path of a request.
+            context.addFilter(new AclObjectsFilter(config.getPathPrefix()), "*", EnumSet.allOf(DispatcherType.class));
+            // Remove ACL that do not comply with the JWT claims of a request.
+            context.addFilter(new AclAttributeFilter(), "*", EnumSet.allOf(DispatcherType.class));
+
+            // Inject claims and global attributes into the remaining ACL rules.
+            context.addFilter(new AclAttributeInjectionInterceptor(), "*", EnumSet.allOf(DispatcherType.class));
+        }
+
         context.addServlet(handler, "/*");
         server.setErrorHandler(new HttpErrorHandler(config));
         try {
@@ -118,6 +150,16 @@ public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
         }
         catch (Exception e) {
             throw new EndpointException("error starting HTTP endpoint", e);
+        }
+    }
+
+
+    private URL parseJwkProviderUrl(String urlString) throws EndpointException {
+        try {
+            return new URL(urlString);
+        }
+        catch (MalformedURLException malformedJwkProviderUrl) {
+            throw new EndpointException("Could not parse JWK provider URL", malformedJwkProviderUrl);
         }
     }
 

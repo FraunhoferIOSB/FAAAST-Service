@@ -20,7 +20,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceExceptio
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
-import org.eclipse.digitaltwin.aas4j.v3.model.OperationResult;
 
 
 /**
@@ -34,9 +33,9 @@ public class GetOperationAsyncResultRequestHandler extends AbstractRequestHandle
 
     @Override
     public GetOperationAsyncResultResponse process(GetOperationAsyncResultRequest request, RequestExecutionContext context) throws ResourceNotFoundException, PersistenceException {
-        OperationResult operationResult = context.getPersistence().getOperationResult(request.getHandle());
+        // TODO need to be able to enforce access control here. The submodel of the operation could be checked with formula.
         return GetOperationAsyncResultResponse.builder()
-                .payload(operationResult)
+                .payload(context.getPersistence().getOperationResult(request.getHandle()))
                 .success()
                 .build();
     }

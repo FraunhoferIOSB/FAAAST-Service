@@ -760,7 +760,7 @@ public class OpcUaAssetConnectionTest {
                 .outputVariables(Arrays.asList(expectedOut))
                 .build())
                 .when(persistence)
-                .getSubmodelElement(eq(reference), any());
+                .getSubmodelElement(eq(reference), any(), any());
         OpcUaAssetConnection connection = config.newInstance(CoreConfig.DEFAULT, serviceContext);
         awaitConnection(connection);
         OperationVariable[] actual;

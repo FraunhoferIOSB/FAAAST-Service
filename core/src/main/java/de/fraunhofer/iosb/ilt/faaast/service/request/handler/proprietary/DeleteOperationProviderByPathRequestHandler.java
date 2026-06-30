@@ -52,7 +52,7 @@ public class DeleteOperationProviderByPathRequestHandler
                 .submodel(request.getSubmodelId())
                 .idShortPath(request.getPath())
                 .build();
-        context.getPersistence().getSubmodelElement(reference, QueryModifier.MINIMAL, Operation.class);
+        context.getPersistence().getSubmodelElement(reference, QueryModifier.MINIMAL, Operation.class, request.getFormula());
         if (!context.getAssetConnectionManager().hasOperationProvider(reference)) {
             throw new ResourceNotFoundException(String.format(
                     "no operation provider available for reference '%s'",

@@ -48,14 +48,14 @@ public class PatchSubmodelElementByPathRequestHandler extends AbstractSubmodelIn
     public PatchSubmodelElementByPathResponse doProcess(PatchSubmodelElementByPathRequest request, RequestExecutionContext context)
             throws ResourceNotFoundException, ValueMappingException, AssetConnectionException, MessageBusException, ValidationException, ResourceNotAContainerElementException,
             InvalidRequestException, PersistenceException {
-        Submodel current = context.getPersistence().getSubmodel(request.getSubmodelId(), QueryModifier.DEFAULT);
+        Submodel current = context.getPersistence().getSubmodel(request.getSubmodelId(), QueryModifier.DEFAULT, request.getFormula());
         Submodel updated = applyMergePatch(request.getChanges(), current, Submodel.class);
         context.getPersistence().save(updated);
         Reference reference = new ReferenceBuilder()
                 .submodel(request.getSubmodelId())
                 .idShortPath(request.getPath())
                 .build();
-        SubmodelElement oldSubmodelElement = context.getPersistence().getSubmodelElement(reference, QueryModifier.DEFAULT);
+        SubmodelElement oldSubmodelElement = context.getPersistence().getSubmodelElement(reference, QueryModifier.DEFAULT, request.getFormula());
         SubmodelElement newSubmodelElement = applyMergePatch(request.getChanges(), oldSubmodelElement, SubmodelElement.class);
         ModelValidator.validate(newSubmodelElement, context.getCoreConfig().getValidationOnUpdate());
         context.getPersistence().update(reference, newSubmodelElement);

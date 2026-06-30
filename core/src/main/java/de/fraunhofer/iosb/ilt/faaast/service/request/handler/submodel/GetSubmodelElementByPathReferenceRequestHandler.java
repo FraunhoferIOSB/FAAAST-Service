@@ -14,6 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler.submodel;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence.identity;
+
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
@@ -47,7 +49,7 @@ public class GetSubmodelElementByPathReferenceRequestHandler
     public GetSubmodelElementByPathReferenceResponse doProcess(GetSubmodelElementByPathReferenceRequest request, RequestExecutionContext context)
             throws ResourceNotFoundException, ValueMappingException, AssetConnectionException, MessageBusException, ResourceNotAContainerElementException, PersistenceException {
         Reference reference = resolveReferenceWithTypes(request.getSubmodelId(), request.getPath(), context);
-        SubmodelElement submodelElement = context.getPersistence().getSubmodelElement(reference, request.getOutputModifier());
+        SubmodelElement submodelElement = context.getPersistence().getSubmodelElement(reference, request.getOutputModifier(), request.getFormula());
         if (!request.isInternal()) {
             context.getMessageBus().publish(ElementReadEventMessage.builder()
                     .element(reference)
@@ -72,7 +74,8 @@ public class GetSubmodelElementByPathReferenceRequestHandler
                             .submodelId(submodelId)
                             .idShortPath(subPath)
                             .build(),
-                    QueryModifier.MINIMAL);
+                    QueryModifier.MINIMAL,
+                    identity());
             if (pathElement.startsWith("[") && pathElement.endsWith("]")) {
                 builder.element(pathElement.substring(1, pathElement.length() - 1), submodelElement.getClass());
             }

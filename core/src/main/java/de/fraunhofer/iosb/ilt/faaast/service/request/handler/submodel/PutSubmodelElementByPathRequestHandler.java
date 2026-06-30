@@ -54,7 +54,7 @@ public class PutSubmodelElementByPathRequestHandler extends AbstractSubmodelInte
                 .submodel(request.getSubmodelId())
                 .idShortPath(request.getPath())
                 .build();
-        SubmodelElement oldSubmodelElement = context.getPersistence().getSubmodelElement(reference, QueryModifier.DEFAULT);
+        SubmodelElement oldSubmodelElement = context.getPersistence().getSubmodelElement(reference, QueryModifier.DEFAULT, request.getFormula());
         SubmodelElement newSubmodelElement = request.getSubmodelElement();
         context.getAssetConnectionManager().syncValueProvidersOnWrite(reference, oldSubmodelElement, newSubmodelElement, !request.isInternal());
         context.getPersistence().update(reference, newSubmodelElement);
