@@ -21,6 +21,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.format.Forma
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.format.FormatFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.provider.config.MultiFormatOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.util.TemplateHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
@@ -32,6 +33,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -45,7 +49,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperationVariable;
  *
  * @param <T> concrete type of matching configuration
  */
-public abstract class MultiFormatOperationProvider<T extends MultiFormatOperationProviderConfig> extends AbstractMultiFormatProvider<T> implements AssetOperationProvider {
+public abstract class MultiFormatOperationProvider<T extends MultiFormatOperationProviderConfig> extends AbstractMultiFormatProvider<T> implements AssetOperationProvider<T> {
 
     protected MultiFormatOperationProvider(T config) {
         super(config);
@@ -60,56 +64,24 @@ public abstract class MultiFormatOperationProvider<T extends MultiFormatOperatio
 
     @Override
     public OperationVariable[] invoke(OperationVariable[] input, OperationVariable[] inoutput) throws AssetConnectionException {
-        final Map<String, DataElementValue> inputParameter = parseParameters(input);
-        final Map<String, DataElementValue> inoutputParameter = parseParameters(inoutput);
-        Set<String> duplicateInputParameters = inputParameter.keySet().stream()
-                .filter(inoutputParameter::containsKey)
-                .collect(Collectors.toSet());
-        if (!duplicateInputParameters.isEmpty()) {
-            throw new AssetConnectionException(String.format("duplicate input/inoutput parameter(s) found - must be either input or inoutput parameter but not both(%s)",
-                    String.join(",", duplicateInputParameters)));
-        }
-        Format format = FormatFactory.create(config.getFormat());
-        // handle inoutput
-        Map<String, Object> variableReplacements = Stream.concat(inputParameter.entrySet().stream(), inoutputParameter.entrySet().stream())
-                .collect(Collectors.toMap(
-                        Entry::getKey,
-                        LambdaExceptionHelper.rethrowFunction(x -> (x.getValue() instanceof PropertyValue p) ? p.getValue().asString() : format.write(x.getValue()))));
-        UnaryOperator<String> variableReplacer = x -> TemplateHelper.replace(x, variableReplacements);
-        String request = variableReplacer.apply(config.getTemplate());
-        String response = new String(invoke(request != null ? request.getBytes() : new byte[0], variableReplacer));
-        Map<String, ElementInfo> mapping = Stream.concat(Stream.of(getOutputParameters()), Stream.of(inoutput))
-                .collect(Collectors.toMap(
-                        x -> x.getValue().getIdShort(),
-                        x -> ElementInfo.of(
-                                config.getQueries().get(x.getValue().getIdShort()),
-                                TypeExtractor.extractTypeInfo(x.getValue()))));
+        return invokeInternal(input, inoutput, x -> {});
+    }
 
-        Map<String, DataElementValue> output = format.read(response, mapping);
-        for (int i = 0; i < inoutput.length; i++) {
-            if (output.containsKey(inoutput[i].getValue().getIdShort())) {
-                try {
-                    ElementValueMapper.setValue(inoutput[i].getValue(), output.get(inoutput[i].getValue().getIdShort()));
-                }
-                catch (ValueMappingException e) {
-                    throw new AssetConnectionException("error reading inoutput parameters", e);
-                }
-            }
-        }
-        return Stream.of(getOutputParameters())
-                .map(LambdaExceptionHelper.rethrowFunction(x -> {
-                    SubmodelElement newValue = DeepCopyHelper.deepCopy(x.getValue(), SubmodelElement.class);
-                    try {
-                        ElementValueMapper.setValue(newValue, output.get(newValue.getIdShort()));
-                    }
-                    catch (ValueMappingException e) {
-                        throw new AssetConnectionException("error reading output parameters", e);
-                    }
-                    return new DefaultOperationVariable.Builder()
-                            .value(newValue)
-                            .build();
-                }))
-                .toArray(OperationVariable[]::new);
+
+    @Override
+    public void invokeAsync(OperationVariable[] input,
+                            OperationVariable[] inoutput,
+                            Consumer<Message> callbackProgress,
+                            BiConsumer<OperationVariable[], OperationVariable[]> callbackSuccess,
+                            Consumer<Throwable> callbackFailure)
+            throws AssetConnectionException {
+        CompletableFuture
+                .supplyAsync(LambdaExceptionHelper.rethrowSupplier(() -> invokeInternal(input, inoutput, callbackProgress)))
+                .thenAccept(x -> callbackSuccess.accept(x, inoutput))
+                .exceptionally(e -> {
+                    callbackFailure.accept(e);
+                    return null;
+                });
     }
 
 
@@ -148,8 +120,63 @@ public abstract class MultiFormatOperationProvider<T extends MultiFormatOperatio
      *
      * @param input the raw input for the operation
      * @param variableReplacer functin to replace/subsctitute variables if needed, e.g. in URLs
+     * @param callbackProgress callback for handling progress update messages
      * @return result of executing the operation
      * @throws AssetConnectionException if operation fails
      */
-    protected abstract byte[] invoke(byte[] input, UnaryOperator<String> variableReplacer) throws AssetConnectionException;
+    protected abstract byte[] invoke(byte[] input, UnaryOperator<String> variableReplacer, Consumer<Message> callbackProgress) throws AssetConnectionException;
+
+
+    private OperationVariable[] invokeInternal(OperationVariable[] input, OperationVariable[] inoutput, Consumer<Message> callbackProgress) throws AssetConnectionException {
+        final Map<String, DataElementValue> inputParameter = parseParameters(input);
+        final Map<String, DataElementValue> inoutputParameter = parseParameters(inoutput);
+        Set<String> duplicateInputParameters = inputParameter.keySet().stream()
+                .filter(inoutputParameter::containsKey)
+                .collect(Collectors.toSet());
+        if (!duplicateInputParameters.isEmpty()) {
+            throw new AssetConnectionException(String.format("duplicate input/inoutput parameter(s) found - must be either input or inoutput parameter but not both(%s)",
+                    String.join(",", duplicateInputParameters)));
+        }
+        Format format = FormatFactory.create(config.getFormat());
+        // handle inoutput
+        Map<String, Object> variableReplacements = Stream.concat(inputParameter.entrySet().stream(), inoutputParameter.entrySet().stream())
+                .collect(Collectors.toMap(
+                        Entry::getKey,
+                        LambdaExceptionHelper.rethrowFunction(x -> (x.getValue() instanceof PropertyValue p) ? p.getValue().asString() : format.write(x.getValue()))));
+        UnaryOperator<String> variableReplacer = x -> TemplateHelper.replace(x, variableReplacements);
+        String request = variableReplacer.apply(config.getTemplate());
+        String response = new String(invoke(request != null ? request.getBytes() : new byte[0], variableReplacer, callbackProgress));
+        Map<String, ElementInfo> mapping = Stream.concat(Stream.of(getOutputParameters()), Stream.of(inoutput))
+                .collect(Collectors.toMap(
+                        x -> x.getValue().getIdShort(),
+                        x -> ElementInfo.of(
+                                config.getQueries().get(x.getValue().getIdShort()),
+                                TypeExtractor.extractTypeInfo(x.getValue()))));
+
+        Map<String, DataElementValue> output = format.read(response, mapping);
+        for (int i = 0; i < inoutput.length; i++) {
+            if (output.containsKey(inoutput[i].getValue().getIdShort())) {
+                try {
+                    ElementValueMapper.setValue(inoutput[i].getValue(), output.get(inoutput[i].getValue().getIdShort()));
+                }
+                catch (ValueMappingException e) {
+                    throw new AssetConnectionException("error reading inoutput parameters", e);
+                }
+            }
+        }
+        return Stream.of(getOutputParameters())
+                .map(LambdaExceptionHelper.rethrowFunction(x -> {
+                    SubmodelElement newValue = DeepCopyHelper.deepCopy(x.getValue(), SubmodelElement.class);
+                    try {
+                        ElementValueMapper.setValue(newValue, output.get(newValue.getIdShort()));
+                    }
+                    catch (ValueMappingException e) {
+                        throw new AssetConnectionException("error reading output parameters", e);
+                    }
+                    return new DefaultOperationVariable.Builder()
+                            .value(newValue)
+                            .build();
+                }))
+                .toArray(OperationVariable[]::new);
+    }
 }

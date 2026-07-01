@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import org.eclipse.digitaltwin.aas4j.v3.model.Message;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.slf4j.Logger;
@@ -81,7 +82,10 @@ public class TestAssetConnection implements
 
 
                 @Override
-                public void invokeAsync(OperationVariable[] input, OperationVariable[] inoutput, BiConsumer<OperationVariable[], OperationVariable[]> callbackSuccess,
+                public void invokeAsync(OperationVariable[] input,
+                                        OperationVariable[] inoutput,
+                                        Consumer<Message> callbackProgress,
+                                        BiConsumer<OperationVariable[], OperationVariable[]> callbackSuccess,
                                         Consumer<Throwable> callbackFailure)
                         throws AssetConnectionException {
                     throw new UnsupportedOperationException("Not supported yet.");

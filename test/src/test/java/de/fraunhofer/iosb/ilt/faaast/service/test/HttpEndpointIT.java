@@ -312,7 +312,7 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
                         });
             }
             return null;
-        }).when(assetConnectionManager).invokeAsync(any(), any(), any(), any(), any());
+        }).when(assetConnectionManager).invokeAsync(any(), any(), any(), any(), any(), any());
     }
 
 

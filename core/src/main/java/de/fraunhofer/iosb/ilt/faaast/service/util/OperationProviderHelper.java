@@ -21,6 +21,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
+import org.eclipse.digitaltwin.aas4j.v3.model.Message;
+import org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +36,9 @@ public class OperationProviderHelper {
     private static final Logger LOGGER = LoggerFactory.getLogger(OperationProviderHelper.class);
     private static final ObjectMapper MAPPER = new ObjectMapper()
             .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+
+    private static final String CORRELATION_ID_PROGRESS_PERCENTAGE = "progress-percentage";
+    private static final String CORRELATION_ID_PROGRESS_STATUS = "progress-status";
 
     private OperationProviderHelper() {}
 
@@ -68,6 +73,41 @@ public class OperationProviderHelper {
         catch (JsonProcessingException e) {
             throw new InvalidRequestException("failed to parse asset connection config from JSON", e);
         }
+    }
+
+
+    /**
+     * Checks if a message contains any kind of progress information.
+     *
+     * @param message the message to check
+     * @return true if the message contains any kind of progress information, false otherwise
+     */
+    public static boolean isProgressMessage(Message message) {
+        return isProgressMessagePercentage(message) || isProgressMessageStatus(message);
+    }
+
+
+    /**
+     * Checks if a message contains progress information in form of a percentage.
+     *
+     * @param message the message to check
+     * @return true if the message contains contains progress information inform of a percentage, false otherwise
+     */
+    public static boolean isProgressMessagePercentage(Message message) {
+        return message.getMessageType() == MessageTypeEnum.INFO
+                && CORRELATION_ID_PROGRESS_PERCENTAGE.equalsIgnoreCase(message.getCorrelationId());
+    }
+
+
+    /**
+     * Checks if a message contains progress information in form of a status message.
+     *
+     * @param message the message to check
+     * @return true if the message contains contains progress information inform of a a status message, false otherwise
+     */
+    public static boolean isProgressMessageStatus(Message message) {
+        return message.getMessageType() == MessageTypeEnum.INFO
+                && CORRELATION_ID_PROGRESS_STATUS.equalsIgnoreCase(message.getCorrelationId());
     }
 
 }

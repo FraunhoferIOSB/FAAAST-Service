@@ -424,6 +424,79 @@ public class HttpAssetConnectionTest {
                 Map.of("out1", TypedValueFactory.create(Datatype.INT, "3")),
                 Map.of("inout1", TypedValueFactory.create(Datatype.INT, "4")),
                 false);
+        //
+        RequestMethod method = RequestMethod.POST;
+        OperationVariable[] output = toOperationVariables(Map.of("out1", TypedValueFactory.create(Datatype.INT, "3")));
+        ServiceContext serviceContext = mock(ServiceContext.class);
+        Persistence persistence = mock(Persistence.class);
+        doReturn(persistence)
+                .when(serviceContext)
+                .getPersistence();
+        doReturn(new DefaultOperation.Builder()
+                .outputVariables(Arrays.asList(output))
+                .build())
+                .when(persistence)
+                .getSubmodelElement(eq(REFERENCE), any());
+        Stream.of(output).forEach(LambdaExceptionHelper.rethrowConsumer(x -> {
+            doReturn(TypeExtractor.extractTypeInfo(x.getValue()))
+                    .when(serviceContext)
+                    .getTypeInfo(AasUtils.toReference(REFERENCE, x.getValue()));
+        }));
+
+        String path = String.format("/test/random/%s", "foo");
+        String pathStatus = String.format("%s/operation-status/99", path);
+        String pathResult = String.format("%s/operation-Result/99", path);
+        stubFor(request(method.getName(), urlEqualTo(path))
+                .willReturn(aResponse()
+                        .withStatus(202)
+                        .withHeader(LOCATION, pathStatus)));
+        stubFor(get(pathStatus).willReturn(temporaryRedirect(pathResult)));
+        stubFor((get(pathResult)
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader(CONTENT_TYPE, APPLICATION_JSON)
+                        .withBody(assetResponse))));
+        HttpAssetConnectionConfig config = createAssetConnectionConfig(null, useHttps);
+        config.getOperationProviders().put(REFERENCE, HttpOperationProviderConfig.builder()
+                .method(method.toString())
+                .path(path)
+                .queries(queries)
+                .format(JsonFormat.KEY)
+                .template(template)
+                .mode(AsyncOperationMode.ASYNC_AAS)
+                .build());
+        HttpAssetConnection connection = new HttpAssetConnection(
+                CoreConfig.builder()
+                        .build(),
+                config,
+                serviceContext);
+        awaitConnection(connection);
+        try {
+            connection.getOperationProviders().get(REFERENCE).invokeAsync(
+                    toOperationVariables(input),
+                    toOperationVariables(inoutput),
+                    message -> {},
+                    new BiConsumer<OperationVariable[], OperationVariable[]>() {
+                        @Override
+                        public void accept(OperationVariable[] actualInoutput, OperationVariable[] actualOutput) {
+                            Assert.assertArrayEquals(toOperationVariables(expectedOutput), actualOutput);
+                            Assert.assertArrayEquals(toOperationVariables(expectedInoutput), actualInoutput);
+                            RequestPatternBuilder verifier = new RequestPatternBuilder(method, urlEqualTo(path));
+                            if (expectedRequestToAsset != null) {
+                                verifier = verifier.withHeader(CONTENT_TYPE, equalTo(APPLICATION_JSON))
+                                        .withRequestBody(equalToJson(expectedRequestToAsset));
+                            }
+                            verify(exactly(1), verifier);
+                        }
+                    },
+                    e -> {
+                        Assert.fail();
+                    });
+        }
+        finally {
+            connection.disconnect();
+        }
+
     }
 
 
@@ -767,94 +840,6 @@ public class HttpAssetConnectionTest {
                         .withRequestBody(equalToJson(expectedRequestToAsset));
             }
             verify(exactly(1), verifier);
-        }
-        finally {
-            connection.disconnect();
-        }
-    }
-
-
-    private void assertOperationProviderPropertyJsonAsync(RequestMethod method,
-                                                          String template,
-                                                          String expectedRequestToAsset,
-                                                          String assetResponse,
-                                                          Map<String, String> queries,
-                                                          Map<String, TypedValue> input,
-                                                          Map<String, TypedValue> inoutput,
-                                                          Map<String, TypedValue> expectedOutput,
-                                                          Map<String, TypedValue> expectedInoutput,
-                                                          boolean useHttps)
-            throws AssetConnectionException, ResourceNotFoundException, ConfigurationInitializationException, PersistenceException {
-        ServiceContext serviceContext = mock(ServiceContext.class);
-        Persistence persistence = mock(Persistence.class);
-        doReturn(persistence)
-                .when(serviceContext)
-                .getPersistence();
-        OperationVariable[] output = toOperationVariables(expectedOutput);
-        doReturn(new DefaultOperation.Builder()
-                .outputVariables(Arrays.asList(output))
-                .build())
-                .when(persistence)
-                .getSubmodelElement(eq(REFERENCE), any());
-        if (output != null) {
-            Stream.of(output).forEach(x -> {
-                try {
-                    doReturn(TypeExtractor.extractTypeInfo(x.getValue()))
-                            .when(serviceContext)
-                            .getTypeInfo(AasUtils.toReference(REFERENCE, x.getValue()));
-                }
-                catch (ResourceNotFoundException | PersistenceException e) {
-                    throw new RuntimeException(e);
-                }
-            });
-        }
-
-        String path = String.format("/test/random/%s", "foo");
-        String pathStatus = String.format("%s/operation-status/99", path);
-        String pathResult = String.format("%s/operation-Result/99", path);
-        stubFor(request(method.getName(), urlEqualTo(path))
-                .willReturn(aResponse()
-                        .withStatus(202)
-                        .withHeader(LOCATION, pathStatus)));
-        stubFor(get(pathStatus).willReturn(temporaryRedirect(pathResult)));
-        stubFor((get(pathResult)
-                .willReturn(aResponse()
-                        .withStatus(200)
-                        .withHeader(CONTENT_TYPE, APPLICATION_JSON)
-                        .withBody(assetResponse))));
-        HttpAssetConnectionConfig config = createAssetConnectionConfig(null, useHttps);
-        config.getOperationProviders().put(REFERENCE, HttpOperationProviderConfig.builder()
-                .method(method.toString())
-                .path(path)
-                .queries(queries)
-                .format(JsonFormat.KEY)
-                .template(template)
-                .mode(AsyncOperationMode.ASYNC_AAS)
-                .build());
-        HttpAssetConnection connection = new HttpAssetConnection(
-                CoreConfig.builder()
-                        .build(),
-                config,
-                serviceContext);
-        awaitConnection(connection);
-        try {
-            connection.getOperationProviders().get(REFERENCE).invokeAsync(toOperationVariables(input),
-                    toOperationVariables(inoutput), new BiConsumer<OperationVariable[], OperationVariable[]>() {
-                        @Override
-                        public void accept(OperationVariable[] actualInoutput, OperationVariable[] actualOutput) {
-                            Assert.assertArrayEquals(toOperationVariables(expectedOutput), actualOutput);
-                            Assert.assertArrayEquals(toOperationVariables(expectedInoutput), actualInoutput);
-                            RequestPatternBuilder verifier = new RequestPatternBuilder(method, urlEqualTo(path));
-                            if (expectedRequestToAsset != null) {
-                                verifier = verifier.withHeader(CONTENT_TYPE, equalTo(APPLICATION_JSON))
-                                        .withRequestBody(equalToJson(expectedRequestToAsset));
-                            }
-                            verify(exactly(1), verifier);
-                        }
-                    },
-                    e -> {
-                        Assert.fail();
-                    });
         }
         finally {
             connection.disconnect();
