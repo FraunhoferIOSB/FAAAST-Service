@@ -20,9 +20,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceExceptio
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
-import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.OperationProviderHelper;
-import org.eclipse.digitaltwin.aas4j.v3.model.ExecutionState;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationResult;
 
 
@@ -35,12 +32,6 @@ public class GetOperationAsyncStatusRequestHandler extends AbstractRequestHandle
     @Override
     public GetOperationAsyncStatusResponse process(GetOperationAsyncStatusRequest request, RequestExecutionContext context) throws ResourceNotFoundException, PersistenceException {
         OperationResult result = context.getPersistence().getOperationResult(request.getHandle());
-        // if request is running, only report each progress once
-        if (result.getExecutionState() == ExecutionState.RUNNING) {
-            OperationResult updatedResult = DeepCopyHelper.deepCopyAny(result, OperationResult.class);
-            updatedResult.getMessages().removeIf(OperationProviderHelper::isProgressMessage);
-            context.getPersistence().save(request.getHandle(), updatedResult);
-        }
         return GetOperationAsyncStatusResponse.builder()
                 .payload(result)
                 .success()

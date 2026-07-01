@@ -431,7 +431,7 @@ public class HttpAssetConnectionTest {
         Persistence persistence = mock(Persistence.class);
         doReturn(persistence)
                 .when(serviceContext)
-                .getPersistence();        
+                .getPersistence();
         doReturn(new DefaultOperation.Builder()
                 .outputVariables(Arrays.asList(output))
                 .build())

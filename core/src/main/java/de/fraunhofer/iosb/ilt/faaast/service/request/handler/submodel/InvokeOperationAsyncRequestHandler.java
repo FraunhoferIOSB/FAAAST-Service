@@ -29,6 +29,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.Opera
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.OperationInvokeEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.OperationProviderHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.Arrays;
 import java.util.List;
@@ -102,6 +103,9 @@ public class InvokeOperationAsyncRequestHandler extends AbstractInvokeOperationR
     private void handleOperationProgress(Reference reference, OperationHandle operationHandle, Message message, RequestExecutionContext context) {
         try {
             OperationResult result = context.getPersistence().getOperationResult(operationHandle);
+            if (OperationProviderHelper.isProgressMessagePercentage(message)) {
+                result.getMessages().removeIf(OperationProviderHelper::isProgressMessagePercentage);
+            }
             result.getMessages().add(message);
             context.getPersistence().save(operationHandle, result);
         }
