@@ -95,15 +95,6 @@ public class HttpOperationProvider extends MultiFormatOperationProvider<HttpOper
 
 
     @Override
-    public OperationVariable[] invoke(OperationVariable[] input, OperationVariable[] inoutput) throws AssetConnectionException {
-        if (config.getMode() == AsyncOperationMode.ASYNC_AAS) {
-            throw new AssetConnectionException("Operation provider with mode ASYNC_AAS can only be invoked asynchronuously");
-        }
-        return super.invoke(input, inoutput);
-    }
-
-
-    @Override
     protected byte[] invoke(byte[] input, UnaryOperator<String> variableReplacer) throws AssetConnectionException {
         try {
             String path = variableReplacer.apply(config.getPath());
@@ -185,13 +176,13 @@ public class HttpOperationProvider extends MultiFormatOperationProvider<HttpOper
 
     private byte[] invokeAsyncAas(String path, String method, byte[] input, Map<String, String> headers)
             throws InterruptedException, IOException, AssetConnectionException {
-        URI statusUri = invokeAsyncAas_call(path, method, input, headers);
-        URI resultUri = invokeAsyncAas_status(statusUri, headers);
-        return invokeAsyncAas_result(resultUri, headers);
+        URI statusUri = invokeAsyncAasCall(path, method, input, headers);
+        URI resultUri = invokeAsyncAasStatus(statusUri, headers);
+        return invokeAsyncAasResult(resultUri, headers);
     }
 
 
-    private URI invokeAsyncAas_call(String path, String method, byte[] input, Map<String, String> headers)
+    private URI invokeAsyncAasCall(String path, String method, byte[] input, Map<String, String> headers)
             throws IOException, AssetConnectionException {
         HttpResponse<String> response = null;
         try {
@@ -244,7 +235,7 @@ public class HttpOperationProvider extends MultiFormatOperationProvider<HttpOper
     }
 
 
-    private URI invokeAsyncAas_status(URI statusUri, Map<String, String> headers) throws AssetConnectionException, InterruptedException {
+    private URI invokeAsyncAasStatus(URI statusUri, Map<String, String> headers) throws AssetConnectionException, InterruptedException {
         CompletableFuture<URI> future = new CompletableFuture<>();
         AtomicReference<ExecutionState> lastKnownState = new AtomicReference<>(ExecutionState.INITIATED);
 
@@ -311,7 +302,7 @@ public class HttpOperationProvider extends MultiFormatOperationProvider<HttpOper
     }
 
 
-    private byte[] invokeAsyncAas_result(URI resultUri, Map<String, String> headers) throws AssetConnectionException {
+    private byte[] invokeAsyncAasResult(URI resultUri, Map<String, String> headers) throws AssetConnectionException {
         HttpResponse<byte[]> responseResult;
         try {
             responseResult = HttpHelper.execute(
