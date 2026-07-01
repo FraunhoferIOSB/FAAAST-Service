@@ -99,12 +99,12 @@
         <jsonpath.version>3.0.0</jsonpath.version>
         <junit.version>4.13.2</junit.version>
         <log4j.api.version>2.26.0</log4j.api.version>
-        <logback.version>1.5.34</logback.version>
+        <logback.version>1.5.37</logback.version>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <maven.plugin.assembly.version>3.8.0</maven.plugin.assembly.version>
         <maven.plugin.buildhelper.version>3.6.1</maven.plugin.buildhelper.version>
-        <maven.plugin.central-publishing.version>0.10.0</maven.plugin.central-publishing.version>
+        <maven.plugin.central-publishing.version>0.11.0</maven.plugin.central-publishing.version>
         <maven.plugin.checkstyle.version>3.6.0</maven.plugin.checkstyle.version>
         <maven.plugin.compiler.version>3.15.0</maven.plugin.compiler.version>
         <maven.plugin.dependency-check.autoUpdate>true</maven.plugin.dependency-check.autoUpdate>
@@ -124,14 +124,14 @@
         <maven.plugin.shade.version>3.6.2</maven.plugin.shade.version>
         <maven.plugin.sonar.version>5.7.0.6970</maven.plugin.sonar.version>
         <maven.plugin.source.version>3.4.0</maven.plugin.source.version>
-        <maven.plugin.spotless.version>3.6.0</maven.plugin.spotless.version>
+        <maven.plugin.spotless.version>3.8.0</maven.plugin.spotless.version>
         <maven.plugin.surefire.version>3.5.6</maven.plugin.surefire.version>
         <milo.version>1.1.4</milo.version>
         <mockito.version>5.23.0</mockito.version>
         <mongodb.version>5.8.0</mongodb.version>
-        <moquette.version>0.18.4</moquette.version>
+        <moquette.version>0.18.5</moquette.version>
         <netty.version>4.2.15.Final</netty.version>
-        <org.apache.httpcomponents.client5.version>5.6.1</org.apache.httpcomponents.client5.version>
+        <org.apache.httpcomponents.client5.version>5.6.2</org.apache.httpcomponents.client5.version>
         <org.apache.log4j-to-slf4j>2.26.0</org.apache.log4j-to-slf4j>
         <paho.version>1.2.5</paho.version>
         <parsson.version>1.1.9</parsson.version>

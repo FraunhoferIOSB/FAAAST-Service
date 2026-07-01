@@ -63,13 +63,15 @@ spec:
       {{- if and (hasKey .Values "messageBus") (eq (index .Values.messageBus "@class") "de.fraunhofer.iosb.ilt.faaast.service.messagebus.cloudevents.MessageBusCloudevents") }}
         - name: wait-for-cloudevents-mqtt
           image: busybox:1.35
-          {{- $hp := splitList ":" .Values.messageBus.host }}
           command:
             - sh
             - -c
             - |
               echo "Waiting for CloudEvents MQTT broker to be ready..."
-              until nc -z {{ index $hp 1 | trimPrefix "//" }} {{ index $hp 2 }}; do
+              URL="{{ .Values.messageBus.host }}"
+              HOST=$(echo "$URL" | sed -E 's,^[a-zA-Z]+://([^:/]+).*,\1,')
+              PORT=$(echo "$URL" | sed -E 's,.*:([0-9]+)$,\1,')
+              until nc -z "$HOST" "$PORT"; do
                 echo "CloudEvents MQTT broker not ready, waiting..."
                 sleep 5
               done
@@ -83,7 +85,7 @@ spec:
             - -c
             - |
               echo "Waiting for MQTT broker to be ready..."
-              until nc -z {{ .Values.messageBus.host }} .{{ .Values.messageBus.port }}; do
+              until nc -z {{ .Values.messageBus.host }} {{ .Values.messageBus.port }}; do
                 echo "MQTT broker not ready, waiting..."
                 sleep 5
               done
