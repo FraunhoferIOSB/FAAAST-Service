@@ -18,8 +18,10 @@ import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
 import static com.github.tomakehurst.wiremock.client.WireMock.exactly;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.request;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.temporaryRedirect;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
@@ -40,6 +42,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionExce
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.NewDataListener;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.format.JsonFormat;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.AsyncOperationMode;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.HttpOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.HttpSubscriptionProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.HttpValueProviderConfig;
@@ -109,6 +112,7 @@ public class HttpAssetConnectionTest {
     private static final String KEYSTORE_TYPE = "PKCS12";
     private static final Reference REFERENCE = ReferenceHelper.parseReference("(Property)[ID_SHORT]Temperature");
     private static final String CONTENT_TYPE = "Content-Type";
+    private static final String LOCATION = "Location";
     private static final String APPLICATION_JSON = "application/json";
     private static final CertificateInformation SELF_SIGNED_SERVER_CERTIFICATE_INFO = CertificateInformation.builder()
             .applicationUri("urn:de:fraunhofer:iosb:ilt:faaast:service:assetconnection:http:test")
@@ -404,6 +408,24 @@ public class HttpAssetConnectionTest {
     }
 
 
+    @Test
+    public void testOperationProviderPropertyJsonPOSTAsync()
+            throws AssetConnectionException, ConfigurationInitializationException, ValueFormatException, ResourceNotFoundException, PersistenceException, Exception {
+        assertOperationProviderPropertyJsonAsync(
+                RequestMethod.POST,
+                "{ \"parameters\": { \"in1\": ${in1}, \"inout1\": ${inout1} }}",
+                "{ \"parameters\": { \"in1\": 1, \"inout1\": 2 }}",
+                "{ \"executionState\": \"Completed\", \"result\": 3, \"modified\": { \"inout1\": 4 }}",
+                Map.of("out1", "$.result",
+                        "inout1", "$.modified.inout1"),
+                Map.of("in1", TypedValueFactory.create(Datatype.INT, "1")),
+                Map.of("inout1", TypedValueFactory.create(Datatype.INT, "2")),
+                Map.of("out1", TypedValueFactory.create(Datatype.INT, "3")),
+                Map.of("inout1", TypedValueFactory.create(Datatype.INT, "4")),
+                false);
+    }
+
+
     private static void generateSelfSignedServerCertificate() throws IOException, GeneralSecurityException {
         keyStoreFile = Files.createTempFile("faaast-assetconnection-http-cert", ".p12").toFile();
         keyStoreFile.deleteOnExit();
@@ -594,6 +616,93 @@ public class HttpAssetConnectionTest {
                 verifier = verifierModifier.apply(verifier);
             }
             verify(exactly(1), verifier);
+        }
+        finally {
+            connection.disconnect();
+        }
+    }
+
+
+    private void assertOperationProviderPropertyJsonAsync(RequestMethod method,
+                                                          String template,
+                                                          String expectedRequestToAsset,
+                                                          String assetResponse,
+                                                          Map<String, String> queries,
+                                                          Map<String, TypedValue> input,
+                                                          Map<String, TypedValue> inoutput,
+                                                          Map<String, TypedValue> expectedOutput,
+                                                          Map<String, TypedValue> expectedInoutput,
+                                                          boolean useHttps)
+            throws AssetConnectionException, ResourceNotFoundException, ConfigurationInitializationException, PersistenceException {
+        ServiceContext serviceContext = mock(ServiceContext.class);
+        Persistence persistence = mock(Persistence.class);
+        doReturn(persistence)
+                .when(serviceContext)
+                .getPersistence();
+        OperationVariable[] output = toOperationVariables(expectedOutput);
+        doReturn(new DefaultOperation.Builder()
+                .outputVariables(Arrays.asList(output))
+                .build())
+                .when(persistence)
+                .getSubmodelElement(eq(REFERENCE), any());
+        if (output != null) {
+            Stream.of(output).forEach(x -> {
+                try {
+                    doReturn(TypeExtractor.extractTypeInfo(x.getValue()))
+                            .when(serviceContext)
+                            .getTypeInfo(AasUtils.toReference(REFERENCE, x.getValue()));
+                }
+                catch (ResourceNotFoundException | PersistenceException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+        }
+
+        String path = String.format("/test/random/%s", "foo");
+        String pathStatus = String.format("%s/operation-status/99", path);
+        String pathResult = String.format("%s/operation-Result/99", path);
+        stubFor(request(method.getName(), urlEqualTo(path))
+                .willReturn(aResponse()
+                        .withStatus(202)
+                        .withHeader(LOCATION, pathStatus)));
+        stubFor(get(pathStatus).willReturn(temporaryRedirect(pathResult)));
+        stubFor((get(pathResult)
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader(CONTENT_TYPE, APPLICATION_JSON)
+                        .withBody(assetResponse))));
+        HttpAssetConnectionConfig config = createAssetConnectionConfig(null, useHttps);
+        config.getOperationProviders().put(REFERENCE, HttpOperationProviderConfig.builder()
+                .method(method.toString())
+                .path(path)
+                .queries(queries)
+                .format(JsonFormat.KEY)
+                .template(template)
+                .mode(AsyncOperationMode.ASYNC_AAS)
+                .build());
+        HttpAssetConnection connection = new HttpAssetConnection(
+                CoreConfig.builder()
+                        .build(),
+                config,
+                serviceContext);
+        awaitConnection(connection);
+        try {
+            connection.getOperationProviders().get(REFERENCE).invokeAsync(toOperationVariables(input),
+                    toOperationVariables(inoutput),
+                    message -> {},
+                    (OperationVariable[] actualInoutput, OperationVariable[] actualOutput) -> {
+                        Assert.assertArrayEquals(toOperationVariables(expectedOutput), actualOutput);
+                        Assert.assertArrayEquals(toOperationVariables(expectedInoutput), actualInoutput);
+                        RequestPatternBuilder verifier = new RequestPatternBuilder(method, urlEqualTo(path));
+                        if (expectedRequestToAsset != null) {
+                            verifier = verifier.withHeader(CONTENT_TYPE, equalTo(APPLICATION_JSON))
+                                    .withRequestBody(equalToJson(expectedRequestToAsset));
+                        }
+                        verify(exactly(1), verifier);
+                    },
+                    e -> {
+                        Assert.fail();
+                    });
         }
         finally {
             connection.disconnect();

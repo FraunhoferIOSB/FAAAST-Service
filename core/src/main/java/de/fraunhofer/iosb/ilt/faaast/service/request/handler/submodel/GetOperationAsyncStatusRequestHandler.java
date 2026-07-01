@@ -20,6 +20,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceExceptio
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
+import org.eclipse.digitaltwin.aas4j.v3.model.OperationResult;
 
 
 /**
@@ -30,8 +31,9 @@ public class GetOperationAsyncStatusRequestHandler extends AbstractRequestHandle
 
     @Override
     public GetOperationAsyncStatusResponse process(GetOperationAsyncStatusRequest request, RequestExecutionContext context) throws ResourceNotFoundException, PersistenceException {
+        OperationResult result = context.getPersistence().getOperationResult(request.getHandle());
         return GetOperationAsyncStatusResponse.builder()
-                .payload(context.getPersistence().getOperationResult(request.getHandle()))
+                .payload(result)
                 .success()
                 .build();
     }

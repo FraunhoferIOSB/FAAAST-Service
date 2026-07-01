@@ -30,9 +30,12 @@ public class HttpOperationProviderConfig extends AbstractMultiFormatOperationPro
     private String path;
     private String method;
     private Map<String, String> headers;
+    private AsyncOperationMode mode;
+    private long asyncPollInterval = 1000;
 
     public HttpOperationProviderConfig() {
         this.headers = new HashMap<>();
+        mode = AsyncOperationMode.DEFAULT;
     }
 
 
@@ -66,6 +69,26 @@ public class HttpOperationProviderConfig extends AbstractMultiFormatOperationPro
     }
 
 
+    public AsyncOperationMode getMode() {
+        return mode;
+    }
+
+
+    public void setMode(AsyncOperationMode mode) {
+        this.mode = mode;
+    }
+
+
+    public long getAsyncPollInterval() {
+        return asyncPollInterval;
+    }
+
+
+    public void setAsyncPollInterval(long asyncPollInterval) {
+        this.asyncPollInterval = asyncPollInterval;
+    }
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -78,7 +101,9 @@ public class HttpOperationProviderConfig extends AbstractMultiFormatOperationPro
         return super.equals(that)
                 && Objects.equals(path, that.path)
                 && Objects.equals(method, that.method)
-                && Objects.equals(headers, that.headers);
+                && Objects.equals(headers, that.headers)
+                && Objects.equals(mode, that.mode)
+                && Objects.equals(asyncPollInterval, that.asyncPollInterval);
     }
 
 
@@ -94,13 +119,15 @@ public class HttpOperationProviderConfig extends AbstractMultiFormatOperationPro
         return super.sameAs(that)
                 && StringHelper.equalsNullOrEmpty(path, that.path)
                 && StringHelper.equalsNullOrEmpty(method, that.method)
-                && Objects.equals(headers, that.headers);
+                && Objects.equals(headers, that.headers)
+                && Objects.equals(mode, that.mode)
+                && Objects.equals(asyncPollInterval, that.asyncPollInterval);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), path, method, headers);
+        return Objects.hash(super.hashCode(), path, method, headers, mode, asyncPollInterval);
     }
 
 
@@ -131,6 +158,18 @@ public class HttpOperationProviderConfig extends AbstractMultiFormatOperationPro
 
         public B header(String name, String value) {
             getBuildingInstance().getHeaders().put(name, value);
+            return getSelf();
+        }
+
+
+        public B mode(AsyncOperationMode value) {
+            getBuildingInstance().setMode(value);
+            return getSelf();
+        }
+
+
+        public B asyncPollInterval(long value) {
+            getBuildingInstance().setAsyncPollInterval(value);
             return getSelf();
         }
 

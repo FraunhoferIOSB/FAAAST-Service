@@ -19,6 +19,7 @@
 		- When connecting to an OPC UA asset and the discovery service returns mutliple URLs to use, the ones with a reachable host are preferred.
 	- HTTP
 		- Fixed bug that Operation Provider failed in an operation with arguments when no template was configured.
+		- Extend Operation Provider to support asynchronous operations.
 - Endpoint
 	- HTTP
 		- URL prefix /api/v3.x is now optional

@@ -168,6 +168,7 @@ Validation of operation argument can be configured independently for in-, out-, 
 | path                                   | String                                                | Path for the HTTP request, relative to the `baseUrl` of the connection.                                                                                                                     |                           |
 | queries<br>*(optional)*                | Map<String,String>                                    | Map of result variable idShorts and corresponding query expressions to fetch them from returned value<br>Query expressions depend on `format`, e.g. for JSON this is a JSONPath expression. |                           |
 | template<br>*(optional)*               | String                                                | Template used to format payload when sending via HTTP.                                                                                                                                      |                           |
+| mode<br>*(optional)*                  | DIRECT<br>ASYNC_AAS                                    | Mode for calling operation in asset: DIRECT: Method is called direct. ASYNC_AAS: Method is called asynchronous with status updates as in AAS invoke-async API.                           |                           |
 :::
 
 
