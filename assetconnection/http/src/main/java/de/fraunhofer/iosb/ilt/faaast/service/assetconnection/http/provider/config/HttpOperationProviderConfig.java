@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.conf
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.provider.config.AbstractMultiFormatOperationProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.util.HttpConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.util.StringHelper;
 import java.util.HashMap;
 import java.util.Map;
@@ -27,6 +28,8 @@ import java.util.Objects;
  */
 public class HttpOperationProviderConfig extends AbstractMultiFormatOperationProviderConfig {
 
+    private static final String DEFAULT_METHOD = HttpConstants.METHOD_POST;
+
     private String path;
     private String method;
     private Map<String, String> headers;
@@ -35,7 +38,8 @@ public class HttpOperationProviderConfig extends AbstractMultiFormatOperationPro
 
     public HttpOperationProviderConfig() {
         this.headers = new HashMap<>();
-        mode = AsyncOperationMode.DEFAULT;
+        this.mode = AsyncOperationMode.DEFAULT;
+        this.method = DEFAULT_METHOD;
     }
 
 

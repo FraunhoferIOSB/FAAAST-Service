@@ -410,7 +410,7 @@ public class HttpAssetConnectionTest {
 
     @Test
     public void testOperationProviderPropertyJsonPOSTAsync()
-            throws AssetConnectionException, ConfigurationInitializationException, ValueFormatException, ResourceNotFoundException, PersistenceException, Exception {
+            throws AssetConnectionException, ConfigurationInitializationException, ResourceNotFoundException, PersistenceException, ValueFormatException {
         assertOperationProviderPropertyJsonAsync(
                 RequestMethod.POST,
                 "{ \"parameters\": { \"in1\": ${in1}, \"inout1\": ${inout1} }}",
