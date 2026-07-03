@@ -24,11 +24,14 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.Defformula;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.Defobject;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.LogicalExpression;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.ObjectItem;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.SecurityQueryFilter;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import javax.annotation.Nullable;
 
 
 /**
@@ -41,17 +44,15 @@ public class AccessControlListHelper {
     private static final Object USEATTRIBUTES = "USEATTRIBUTES";
     private static final String DEFFORMULA = "DEFFORUMLA";
     private static final Object USEFORUMLA = "USEFORUMLA";
-    private static final String DEFFILTER = "DEFFILTER";
-    private static final Object USEFILTER = "USEFILTER";
     private static final String DEFOBJECTS = "DEFOBJECTS";
     private static final Object USEOBJECTS = "USEOBJECTS";
+
 
     private AccessControlListHelper() {}
 
 
     /**
-     * returns the ACL definition of the AccessPermissionRule. If ACL is not directly defined, returns the DEFACL defined by
-     * USEACL.
+     * returns the ACL definition of the AccessPermissionRule. If ACL is not directly defined, returns the DEFACL defined by USEACL.
      *
      * @param rule Rule to get ACL from
      * @param allAccess Rule environment
@@ -79,8 +80,7 @@ public class AccessControlListHelper {
 
 
     /**
-     * returns the ATTRIBUTES of the AccessPermissionRule. If ATTRIBUTES are not directly defined, returns the DEFATTRIBUTES
-     * defined by USEATTRIBUTES.
+     * returns the ATTRIBUTES of the AccessPermissionRule. If ATTRIBUTES are not directly defined, returns the DEFATTRIBUTES defined by USEATTRIBUTES.
      *
      * @param acl ACL to get ATTRIBUTES from
      * @param allAccess Rule environment
@@ -108,8 +108,7 @@ public class AccessControlListHelper {
 
 
     /**
-     * returns the FORMULA of the AccessPermissionRule. If FORMULA is not directly defined, returns the DEFFORMULA defined
-     * by USEFORMULA.
+     * returns the FORMULA of the AccessPermissionRule. If FORMULA is not directly defined, returns the DEFFORMULA defined by USEFORMULA.
      *
      * @param rule Rule to get FORMULA from
      * @param allAccess Rule environment
@@ -137,39 +136,42 @@ public class AccessControlListHelper {
 
 
     /**
-     * returns the FILTER of the AccessPermissionRule. If FILTER is not directly defined, returns the DEFFORMULA defined
-     * by USEFILTER.
+     * returns the FILTER of the AccessPermissionRule. If condition of FILTER is not directly defined, uses the DEFFORMULA defined by USEFORMULA.
      *
      * @param rule Rule to get FILTER from
-     * @param allAccess Rule environment
      * @return The FILTER.
      */
-    public static LogicalExpression getFilter(AccessPermissionRule rule, AllAccessPermissionRules allAccess) {
-        if (rule.getFilter() != null) {
-            return rule.getFilter();
+    public static @Nullable SecurityQueryFilter getFilter(AccessPermissionRule rule, AllAccessPermissionRules allAccess) {
+        if (rule.getFilter() == null) {
+            return null;
         }
-        else if (rule.getUsefilter() != null) {
+        SecurityQueryFilter resolved = new SecurityQueryFilter();
+        resolved.setFragment(rule.getFilter().getFragment());
+
+        if (rule.getFilter().getCondition() != null) {
+            resolved.setCondition(rule.getFilter().getCondition());
+        }
+        else if (rule.getFilter().getUseformula() != null) {
             Optional<Defformula> formula = allAccess.getDefformulas().stream()
-                    .filter(a -> Objects.equals(a.getName(), rule.getUsefilter()))
+                    .filter(a -> Objects.equals(a.getName(), rule.getFilter().getUseformula()))
                     .findAny();
             if (formula.isPresent()) {
-                return formula.get().getFormula();
+                resolved.setCondition(formula.get().getFormula());
             }
             else {
-                throw new IllegalArgumentException(String.format("%s not found for %s: %s", DEFFILTER, USEFILTER, rule.getUseformula()));
+                throw new IllegalArgumentException(String.format("%s not found for %s: %s", DEFFORMULA, USEFORUMLA, rule.getUseformula()));
             }
         }
         else {
-            LogicalExpression defaultFilter = new LogicalExpression();
-            defaultFilter.set$boolean(true);
-            return defaultFilter;
+            throw new IllegalArgumentException(String.format("Invalid filter: FORMULA or %s must be specified", USEFORUMLA));
         }
+
+        return resolved;
     }
 
 
     /**
-     * returns the OBJECTS of the AccessPermissionRule. If OBJECTS is not directly defined, returns the DEFOBJECTS defined
-     * by USEOBJECTS.
+     * returns the OBJECTS of the AccessPermissionRule. If OBJECTS is not directly defined, returns the DEFOBJECTS defined by USEOBJECTS.
      *
      * @param rule Rule to get ObjectItems from
      * @param allAccess Rule environment

@@ -200,7 +200,7 @@
                 <artifactId>jsonschema2pojo-maven-plugin</artifactId>
                 <version>${jsonschema2pojo.version}</version>
                 <configuration>
-                    <sourceDirectory>${project.basedir}/src/main/resources/schema.json</sourceDirectory>
+                    <sourceDirectory>${project.basedir}/src/main/resources/schema</sourceDirectory>
                     <targetPackage>de.fraunhofer.iosb.ilt.faaast.service.model.query.json</targetPackage>
                     <includeAdditionalProperties>false</includeAdditionalProperties>
                     <includeToString>true</includeToString>
