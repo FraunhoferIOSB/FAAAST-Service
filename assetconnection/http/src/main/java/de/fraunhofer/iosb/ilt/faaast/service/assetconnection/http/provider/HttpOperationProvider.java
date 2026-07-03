@@ -25,7 +25,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.util.HttpHelpe
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonApiDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetOperationAsyncStatusResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
@@ -50,6 +49,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
+import org.eclipse.digitaltwin.aas4j.v3.model.BaseOperationResult;
 import org.eclipse.digitaltwin.aas4j.v3.model.ExecutionState;
 import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
@@ -249,16 +249,16 @@ public class HttpOperationProvider extends MultiFormatOperationProvider<HttpOper
                 HttpResponse<String> response = callOperationStatus(statusUri, headers);
                 if (response.statusCode() == HttpConstants.STATUS_FOUND) {
                     URI resultUri = extractLocationUri(response);
-                    LOGGER.trace("async operation returned 302 indicated it is finished (reference: {}, result URI: {})",
+                    LOGGER.debug("async operation returned 302 indicated it is finished (reference: {}, result URI: {})",
                             ReferenceHelper.asString(reference),
                             resultUri);
                     future.complete(resultUri);
                     return;
                 }
-                GetOperationAsyncStatusResponse status = new JsonApiDeserializer().read(response.body(), GetOperationAsyncStatusResponse.class);
-                ExecutionState currentState = status.getPayload().getExecutionState();
+                BaseOperationResult status = new JsonApiDeserializer().read(response.body(), BaseOperationResult.class);
+                ExecutionState currentState = status.getExecutionState();
                 if (lastKnownState.get() != currentState) {
-                    LOGGER.trace("async operation state changed from {} to {} (reference: {})",
+                    LOGGER.debug("async operation state changed from {} to {} (reference: {})",
                             lastKnownState.get(), currentState, ReferenceHelper.asString(reference));
                     lastKnownState.set(currentState);
                 }
@@ -272,9 +272,11 @@ public class HttpOperationProvider extends MultiFormatOperationProvider<HttpOper
                         // keep pulling until there is a redirect
                     }
                     case RUNNING -> {
-                        status.getPayload().getMessages().stream()
-                                .filter(OperationProviderHelper::isProgressMessage)
-                                .forEach(x -> callbackProgress.accept(Message.of(x)));
+                        if (status.getMessages() != null) {
+                            status.getMessages().stream()
+                                    .filter(OperationProviderHelper::isProgressMessage)
+                                    .forEach(x -> callbackProgress.accept(Message.of(x)));
+                        }
                     }
                     default -> {
                         // do nothing
@@ -294,15 +296,16 @@ public class HttpOperationProvider extends MultiFormatOperationProvider<HttpOper
             return future.get();
         }
         catch (ExecutionException e) {
+            LOGGER.info("invokeAsyncAasStatus failed", e);
             Throwable cause = e.getCause();
-            if (cause instanceof AssetConnectionException) {
-                throw (AssetConnectionException) cause;
+            if (cause instanceof AssetConnectionException assetConnectionException) {
+                throw assetConnectionException;
             }
             throw new AssetConnectionException(String.format(
                     "%s - fetching status failed (reference: %s, reason: %s)",
                     INVOKE_OPERATION_ASYNC_AAS_MSG,
                     ReferenceHelper.toString(reference),
-                    cause.getMessage()),
+                    cause != null ? cause.getMessage() : ""),
                     cause);
         }
     }
@@ -359,7 +362,7 @@ public class HttpOperationProvider extends MultiFormatOperationProvider<HttpOper
                 response.statusCode(),
                 response.headers().map(),
                 response.body());
-        if (!HttpHelper.is2xxSuccessful(response)) {
+        if ((!HttpHelper.is2xxSuccessful(response)) && (response.statusCode() != HttpConstants.STATUS_FOUND)) {
             throw new AssetConnectionException(
                     String.format(OPERATION_FAILED_MSG, ReferenceHelper.toString(reference)));
         }
