@@ -24,8 +24,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AllAccessPermissio
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,13 +31,11 @@ import org.slf4j.LoggerFactory;
 /**
  * File implementation of an ACL Repository. Connected to a file system monitoring service.
  */
-public class FileAclRepository extends AbstractAclRepository implements DirectoryWatcherListener {
+public class FileAclRepository extends AbstractAclRepository<Path> implements DirectoryWatcherListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(FileAclRepository.class);
-    private final Map<Path, AllAccessPermissionRules> aclList;
     private final ObjectMapper mapper;
 
     private FileAclRepository() {
-        this.aclList = new HashMap<>();
         this.mapper = new ObjectMapper();
     }
 
@@ -68,14 +64,14 @@ public class FileAclRepository extends AbstractAclRepository implements Director
     @Override
     public void onFileCreated(Path path) {
         LOGGER.debug("Adding ACL {}", path);
-        update(path);
+        add(path);
     }
 
 
     @Override
     public void onFileDeleted(Path path) {
         LOGGER.debug("Removing ACL {}", path);
-        remove(aclList.get(path));
+        remove(path);
     }
 
 
@@ -89,12 +85,29 @@ public class FileAclRepository extends AbstractAclRepository implements Director
     private void update(Path path) {
         AllAccessPermissionRules acl = readFile(path);
         if (acl != null && acl.getRules().stream().allMatch(rule -> validate(rule, acl))) {
-            aclList.put(path, acl);
-            addAndResolve(acl);
+            remove(path);
+            add(path, acl);
         }
         else {
-            LOGGER.warn("Tried to load invalid ACL: {}.", path);
+            warnInvalid(path);
         }
+    }
+
+
+    private void add(Path path) {
+        AllAccessPermissionRules acl = readFile(path);
+        if (acl != null && acl.getRules().stream().allMatch(rule -> validate(rule, acl))) {
+            add(path, acl);
+        }
+        else {
+            warnInvalid(path);
+        }
+    }
+
+
+    private void warnInvalid(Path path) {
+        LOGGER.warn("Tried to load invalid ACL: {}.", path);
+
     }
 
 

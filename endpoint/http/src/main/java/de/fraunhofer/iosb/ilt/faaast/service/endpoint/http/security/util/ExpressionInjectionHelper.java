@@ -95,13 +95,13 @@ public class ExpressionInjectionHelper {
             formula.get$contains().forEach(val -> injectStringValue(val, claims));
         }
         else if (!formula.get$startsWith().isEmpty()) {
-            formula.get$contains().forEach(val -> injectStringValue(val, claims));
+            formula.get$startsWith().forEach(val -> injectStringValue(val, claims));
         }
         else if (!formula.get$endsWith().isEmpty()) {
-            formula.get$contains().forEach(val -> injectStringValue(val, claims));
+            formula.get$endsWith().forEach(val -> injectStringValue(val, claims));
         }
         else if (!formula.get$regex().isEmpty()) {
-            formula.get$contains().forEach(val -> injectStringValue(val, claims));
+            formula.get$regex().forEach(val -> injectStringValue(val, claims));
         }
     }
 

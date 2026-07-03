@@ -59,7 +59,7 @@ public abstract class AbstractJwtFilter implements Filter {
      * @return The claims contained in the bearer token of the request's header.
      */
     protected Map<String, Claim> extractClaims(HttpServletRequest request) {
-        if (!AUTHENTICATED.getName().equals(request.getAttribute(SharedAttributes.AUTH_STATE.getName()))) {
+        if (AUTHENTICATED != request.getAttribute(SharedAttributes.AUTH_STATE.getName())) {
             // No claims for the unauthenticated
             return Map.of();
         }

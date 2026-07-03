@@ -15,7 +15,7 @@
         },
         "OBJECTS": [
           {
-            "IDENTIFIABLE": "(Submodel)*"
+            "IDENTIFIABLE": "$sm(\"*\")"
           }
         ],
         "FORMULA": {
@@ -28,7 +28,7 @@
                       "$field": "$sm#semanticId"
                     },
                     {
-                      "$strVal": "SemanticID-Nameplate"
+                      "$strVal": "http://acplt.org/SubmodelTemplates/AssetIdentification"
                     }
                   ]
                 },
@@ -38,7 +38,7 @@
                       "$field": "$sm#semanticId"
                     },
                     {
-                      "$strVal": "SemanticID-TechnicalData"
+                      "$strVal": "http://acplt.org/SubmodelTemplates/ExampleSubmodel"
                     }
                   ]
                 }
@@ -52,7 +52,7 @@
                   }
                 },
                 {
-                  "$strVal": "[\\w\\.]+@company\\.com"
+                  "$strVal": "(?:[a-z0-9!#$%&'*+\\x2f=?^_`\\x7b-\\x7d~\\x2d]+(?:\\.[a-z0-9!#$%&'*+\\x2f=?^_`\\x7b-\\x7d~\\x2d]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@company\\.com"
                 }
               ]
             }

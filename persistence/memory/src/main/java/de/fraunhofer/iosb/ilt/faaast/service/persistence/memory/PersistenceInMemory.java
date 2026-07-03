@@ -257,7 +257,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
         }
         QueryEvaluator evaluator = new QueryEvaluator();
         if (formula != null) {
-            result = result.filter(aas -> evaluator.matches(formula, aas));
+            result = result.filter(cd -> evaluator.matches(formula, cd));
         }
         return preparePagedResult(result, modifier, paging);
     }
@@ -326,8 +326,13 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
             result = filterBySemanticId(result, criteria.getSemanticId());
         }
         QueryEvaluator evaluator = new QueryEvaluator();
+
         if (formula != null) {
-            result = result.filter(aas -> evaluator.matches(formula, aas));
+            result = result.filter(sm -> {
+                if (evaluator.matches(formula, sm))
+                    return true;
+                return false;
+            });
         }
         return preparePagedResult(result, modifier, paging);
     }

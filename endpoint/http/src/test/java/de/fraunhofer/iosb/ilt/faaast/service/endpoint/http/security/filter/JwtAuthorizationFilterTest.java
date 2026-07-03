@@ -45,7 +45,7 @@ public class JwtAuthorizationFilterTest {
         when(mockRequest.getAttribute(ACL.getName())).thenReturn(rules);
         when(mockRequest.getMethod()).thenReturn(method.name());
         when(mockRequest.getPathInfo()).thenReturn(path);
-        when(mockRequest.getAttribute(SharedAttributes.AUTH_STATE.getName())).thenReturn(AUTHENTICATED.getName());
+        when(mockRequest.getAttribute(SharedAttributes.AUTH_STATE.getName())).thenReturn(AUTHENTICATED);
         when(mockRequest.getHeader(AUTHORIZATION)).thenReturn(BEARER.concat(" ")
                 .concat(jwtString));
 

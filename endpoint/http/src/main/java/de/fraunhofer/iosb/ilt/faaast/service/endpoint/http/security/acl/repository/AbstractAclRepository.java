@@ -23,73 +23,92 @@ import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.util.
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AccessPermissionRule;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.Acl;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AllAccessPermissionRules;
+import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 /**
  * Keeps an in-memory version of the aclFolder's rules. When access control rules are added/deleted/modified, updates
  * its own state accordingly.
+ *
+ * @param <T> Identifier type.
  */
-public abstract class AbstractAclRepository implements AclRepository {
+public abstract class AbstractAclRepository<T> implements AclRepository {
 
-    private AllAccessPermissionRules allAccessPermissionRules;
+    protected final Map<T, AllAccessPermissionRules> allAccessPermissionRules;
+
+    private List<AccessPermissionRule> resolved;
 
     /**
      * Class constructor.
      */
     protected AbstractAclRepository() {
-        this.allAccessPermissionRules = new AllAccessPermissionRules();
+        this.allAccessPermissionRules = new HashMap<>();
+        this.resolved = new ArrayList<>();
     }
 
 
     @Override
     public List<AccessPermissionRule> getAccessPermissionRules() {
-        return allAccessPermissionRules.getRules();
+        return new ArrayList<>(resolved.stream().map(rule -> DeepCopyHelper.deepCopyAny(rule, AccessPermissionRule.class)).toList());
     }
 
 
-    @Override
-    public final void addAndResolve(AllAccessPermissionRules acl) {
-        allAccessPermissionRules.getRules().addAll(acl.getRules());
-        allAccessPermissionRules.getDefacls().addAll(acl.getDefacls());
-        allAccessPermissionRules.getDefattributes().addAll(acl.getDefattributes());
-        allAccessPermissionRules.getDefformulas().addAll(acl.getDefformulas());
-        allAccessPermissionRules.getDefobjects().addAll(acl.getDefobjects());
-
-        allAccessPermissionRules = resolve(allAccessPermissionRules);
+    /**
+     * Add an environment to the current ACL and resolve all DEF* into the AccessPermissionRule list.
+     *
+     * @param identifier Identifier of rule to add.
+     * @param acl Rule environment to add.
+     */
+    public final void add(T identifier, AllAccessPermissionRules acl) {
+        allAccessPermissionRules.put(identifier, acl);
+        resolve(allAccessPermissionRules.values());
     }
 
 
-    @Override
-    public final void remove(AllAccessPermissionRules acl) {
-        allAccessPermissionRules.getRules().removeAll(acl.getRules());
-        allAccessPermissionRules.getDefacls().removeAll(acl.getDefacls());
-        allAccessPermissionRules.getDefattributes().removeAll(acl.getDefattributes());
-        allAccessPermissionRules.getDefformulas().removeAll(acl.getDefformulas());
-        allAccessPermissionRules.getDefobjects().removeAll(acl.getDefobjects());
-
-        allAccessPermissionRules = resolve(allAccessPermissionRules);
+    /**
+     * Remove an environment from the current ACL along with its DEF*.
+     *
+     * @param identifier Identifier of rule to remove.
+     */
+    public final void remove(T identifier) {
+        if (allAccessPermissionRules.remove(identifier) != null) {
+            resolve(allAccessPermissionRules.values());
+        }
     }
 
 
-    private AllAccessPermissionRules resolve(AllAccessPermissionRules unresolved) {
-        AllAccessPermissionRules resolved = new AllAccessPermissionRules();
+    private void resolve(Collection<AllAccessPermissionRules> unresolved) {
+        AllAccessPermissionRules unresolvedMerged = merge(unresolved);
         List<AccessPermissionRule> resolvedRules = new ArrayList<>();
-        for (AccessPermissionRule rule: unresolved.getRules()) {
+        for (AccessPermissionRule rule: unresolvedMerged.getRules()) {
             AccessPermissionRule resolvedRule = new AccessPermissionRule();
             Acl acl = new Acl();
             acl.setAccess(rule.getAcl().getAccess());
             acl.setRights(rule.getAcl().getRights());
-            acl.setAttributes(getAttributes(getAcl(rule, unresolved), unresolved));
+            acl.setAttributes(getAttributes(getAcl(rule, unresolvedMerged), unresolvedMerged));
             resolvedRule.setAcl(acl);
-            resolvedRule.setObjects(getObjects(rule, unresolved));
-            resolvedRule.setFormula(getFormula(rule, unresolved));
-            resolvedRule.setFilter(getFilter(rule, unresolved));
+            resolvedRule.setObjects(getObjects(rule, unresolvedMerged));
+            resolvedRule.setFormula(getFormula(rule, unresolvedMerged));
+            resolvedRule.setFilter(getFilter(rule, unresolvedMerged));
             resolvedRules.add(resolvedRule);
         }
 
-        resolved.setRules(resolvedRules);
-        return resolved;
+        resolved = resolvedRules;
+    }
+
+
+    private AllAccessPermissionRules merge(Collection<AllAccessPermissionRules> rulesList) {
+        AllAccessPermissionRules merged = new AllAccessPermissionRules();
+        merged.setRules(rulesList.stream().map(AllAccessPermissionRules::getRules).flatMap(Collection::stream).toList());
+        merged.setDefobjects(rulesList.stream().map(AllAccessPermissionRules::getDefobjects).flatMap(Collection::stream).toList());
+        merged.setDefformulas(rulesList.stream().map(AllAccessPermissionRules::getDefformulas).flatMap(Collection::stream).toList());
+        merged.setDefacls(rulesList.stream().map(AllAccessPermissionRules::getDefacls).flatMap(Collection::stream).toList());
+        merged.setDefattributes(rulesList.stream().map(AllAccessPermissionRules::getDefattributes).flatMap(Collection::stream).toList());
+        return merged;
     }
 }

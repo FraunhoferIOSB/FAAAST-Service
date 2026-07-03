@@ -123,7 +123,7 @@ public class AclObjectsFilter extends AbstractAclFilter {
             actualResourceSegment = 2;
         }
 
-        if (identifiableObjectSegmentsmatcher.group(1).equals("sm") && requestPathSegments[0].equals("shells") && requestPathSegments.length > 2) {
+        if (identifiableObjectSegmentsmatcher.group(1).equals("sm") && requestPathSegments[1].equals("shells") && requestPathSegments.length > 3) {
             // /shells/{aasIdentifier}/submodels/{submodelIdentifier}
             actualResourceSegment = 3;
         }
@@ -173,7 +173,7 @@ public class AclObjectsFilter extends AbstractAclFilter {
 
     private boolean checkIdentifierInstanceOrAll(String identifier, String[] requestPathSegments, String httpMethod) {
         // grammar states that wildcard is surrounded by escaped quotes, identifiers are not
-        if (identifier.equals("\"*\"")) {
+        if (identifier.equals("*")) {
             return true;
         }
         if (requestPathSegments.length < 3) {

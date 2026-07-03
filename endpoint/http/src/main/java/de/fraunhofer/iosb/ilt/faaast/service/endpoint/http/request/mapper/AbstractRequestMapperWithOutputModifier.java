@@ -141,6 +141,7 @@ public abstract class AbstractRequestMapperWithOutputModifier<T extends Abstract
             OutputModifier outputModifier = outputModifierBuilder.build();
             T result = doParse(httpRequest, urlParameters, outputModifier);
             result.setOutputModifier(outputModifier);
+            result.setFormula(httpRequest.getFormula());
             return result;
         }
         catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException | SecurityException e) {

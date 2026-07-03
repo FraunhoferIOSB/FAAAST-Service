@@ -14,15 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.test;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.AbstractJwtFilter.AUTHORIZATION;
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.AbstractJwtFilter.BEARER;
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper.toHttpStatusCode;
-
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.github.tomakehurst.wiremock.WireMockServer;
@@ -51,20 +42,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.PortHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReflectionHelper;
-import java.io.IOException;
-import java.net.http.HttpResponse;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.interfaces.RSAPrivateKey;
-import java.security.interfaces.RSAPublicKey;
-import java.util.Base64;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Stream;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.internal.serialization.EnumSerializer;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.JsonDeserializer;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
@@ -82,8 +59,33 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
+
+import java.io.IOException;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
+import java.util.Base64;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Stream;
+
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
+import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.AbstractJwtFilter.AUTHORIZATION;
+import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.AbstractJwtFilter.BEARER;
+import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper.toHttpStatusCode;
 
 
 public class SecurityIT extends AbstractIntegrationTest {
@@ -103,12 +105,8 @@ public class SecurityIT extends AbstractIntegrationTest {
     private static Persistence persistence;
     private static FileStorage fileStorage;
     private static String endpointAclFolder;
-    private static JsonDeserializer jsonDeserializer;
+    private static final JsonDeserializer JSON_DESERIALIZER = new JsonDeserializer();
     private static KeyPair keyPair;
-
-    public SecurityIT() {
-        jsonDeserializer = new JsonDeserializer();
-    }
 
 
     @BeforeClass
@@ -163,9 +161,10 @@ public class SecurityIT extends AbstractIntegrationTest {
 
 
     @After
-    public void after() {
+    public void after() throws IOException {
         service.stop();
         WireMock.resetAllRequests();
+        cleanUp();
     }
 
 
@@ -202,15 +201,15 @@ public class SecurityIT extends AbstractIntegrationTest {
     }
 
 
-    protected void writeAclRules(String fileName, String content) throws IOException {
-        Path aclFile = Paths.get(endpointAclFolder, fileName);
-        Files.createDirectories(aclFile.getParent());
-        Files.write(aclFile, content.getBytes(StandardCharsets.UTF_8));
+    protected void cleanUp() throws IOException {
+        Files.delete(Paths.get(endpointAclFolder, "acls.json"));
     }
 
 
     protected void writeAclRules(String content) throws IOException {
-        writeAclRules("acls.json", content);
+        Path aclFile = Paths.get(endpointAclFolder, "acls.json");
+        Files.createDirectories(aclFile.getParent());
+        Files.writeString(aclFile, content);
     }
 
 
@@ -239,11 +238,6 @@ public class SecurityIT extends AbstractIntegrationTest {
     }
 
 
-    protected HttpResponse<String> executeRequest(HttpMethod method, String url) throws Exception {
-        return HttpHelper.execute(httpClient, method, url, Map.of());
-    }
-
-
     protected HttpResponse<String> executeRequest(HttpMethod method, String url, Object payload, Map<String, String> headers) throws Exception {
         return HttpHelper.execute(httpClient, method, url, payload, headers);
     }
@@ -255,25 +249,21 @@ public class SecurityIT extends AbstractIntegrationTest {
 
 
     @Test
-    public void testSecurityWithJwkProvider() {}
-
-
-    @Test
-    public void testSecurityWithoutJwkProvider() {}
-
-
-    @Test
     public void testSecurityWithEmptyAclRules() throws Exception {
         assertForbidden(environment, ReferenceBuilder.forAas(environment.getAssetAdministrationShells().get(0)));
         assertForbidden(environment, ReferenceBuilder.forSubmodel(environment.getSubmodels().get(0)));
         assertForbidden(environment, ReferenceBuilder.forConceptDescription(environment.getConceptDescriptions().get(0)));
         assertForbidden(environment, ReferenceBuilder.forSubmodel(environment.getSubmodels().get(0), environment.getSubmodels().get(0).getSubmodelElements().get(0)));
+
+        // Note: Still add the file so that the test clean up mechanism won't fail
+        applyAclRulesFromFile("anonymous.json");
     }
 
 
     @Test
     public void testSecurityWithAnonymousAccessToAll() throws Exception {
         applyAclRulesFromFile("anonymous.json");
+        var authHeader = authHeaderFromClaims(Map.of("email", "94test.name-helloworld@company.com"), keyPair);
 
         Submodel sm = environment.getSubmodels().get(3);
         SubmodelElementCollection smc = (SubmodelElementCollection) sm.getSubmodelElements().get(6);
@@ -283,6 +273,7 @@ public class SecurityIT extends AbstractIntegrationTest {
         assertAllowed(environment, ReferenceBuilder.forSubmodel(environment.getSubmodels().get(0)));
         assertAllowed(environment, ReferenceBuilder.forAas(environment.getAssetAdministrationShells().get(0)));
         assertAllowed(environment, ReferenceBuilder.forConceptDescription(environment.getConceptDescriptions().get(0)));
+        assertAllowed(environment, ReferenceBuilder.forSubmodel(sm), authHeader);
     }
 
 
@@ -365,10 +356,48 @@ public class SecurityIT extends AbstractIntegrationTest {
     }
 
 
+    @Test
+    public void testClaimWithRegex() throws Exception {
+        applyAclRulesFromFile("regexclaim.json");
+        var authHeader = authHeaderFromClaims(Map.of("email", "94test.name-helloworld@company.com"), keyPair);
+        var wrongCompany = authHeaderFromClaims(Map.of("email", "94test.name-helloworld@company2.com"), keyPair);
+
+        Submodel sm = environment.getSubmodels().get(2);
+        SubmodelElementCollection smc = (SubmodelElementCollection) sm.getSubmodelElements().get(6);
+        assertAllowed(environment, ReferenceBuilder.forSubmodel(sm), authHeader, true);
+        assertNotFound(environment, ReferenceBuilder.forSubmodel(sm), wrongCompany);
+        assertAllowed(environment, ReferenceBuilder.forSubmodel(sm, smc), authHeader, true);
+        assertNotFound(environment, ReferenceBuilder.forSubmodel(sm, smc), wrongCompany);
+        assertAllowed(environment, ReferenceBuilder.forSubmodel(sm, smc, smc.getValue().get(0)), authHeader, true);
+        assertNotFound(environment, ReferenceBuilder.forSubmodel(sm, smc, smc.getValue().get(0)), wrongCompany);
+        assertAllowed(environment, ReferenceBuilder.forSubmodel(environment.getSubmodels().get(0)), authHeader, true);
+        assertNotFound(environment, ReferenceBuilder.forSubmodel(environment.getSubmodels().get(0)), wrongCompany);
+        assertForbidden(environment, ReferenceBuilder.forAas(environment.getAssetAdministrationShells().get(0)), authHeader);
+        assertForbidden(environment, ReferenceBuilder.forAas(environment.getAssetAdministrationShells().get(0)), wrongCompany);
+        assertForbidden(environment, ReferenceBuilder.forConceptDescription(environment.getConceptDescriptions().get(0)), authHeader);
+        assertForbidden(environment, ReferenceBuilder.forConceptDescription(environment.getConceptDescriptions().get(0)), wrongCompany);
+    }
+
+
+    @Ignore("filter does not work yet. Need to decide when to apply filter")
+    @Test
+    public void testFilter() throws Exception {
+        applyAclRulesFromFile("filter.json");
+    }
+
+
     private void assertForbidden(Environment environment, Reference reference, Map<String, String> headers) throws Exception {
-        HttpResponse<String> response = execute(environment, reference, headers);
+        // don't need blob as return will be empty anyways, so
+        HttpResponse<String> response = execute(environment, reference, headers, false);
 
         Assert.assertEquals(toHttpStatusCode(StatusCode.CLIENT_FORBIDDEN), getStatusCode(response));
+    }
+
+
+    private void assertNotFound(Environment environment, Reference reference, Map<String, String> headers) throws Exception {
+        HttpResponse<String> response = execute(environment, reference, headers, false);
+
+        Assert.assertEquals(toHttpStatusCode(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND), getStatusCode(response));
     }
 
 
@@ -377,13 +406,19 @@ public class SecurityIT extends AbstractIntegrationTest {
     }
 
 
-    private void assertAllowed(Environment environment, Reference reference, Map<String, String> headers) throws Exception {
+    private void assertAllowed(Environment environment, Reference reference, Map<String, String> headers, boolean blob) throws Exception {
 
-        HttpResponse<String> response = execute(environment, reference, headers);
+        HttpResponse<String> response = execute(environment, reference, headers, blob);
 
         Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), getStatusCode(response));
-        Assert.assertEquals(EnvironmentHelper.resolve(reference, environment), jsonDeserializer.read(response.body(),
+        Assert.assertEquals(EnvironmentHelper.resolve(reference, environment), JSON_DESERIALIZER.read(response.body(),
                 keyTypeToClass(ReferenceHelper.getEffectiveKeyType(reference))));
+    }
+
+
+
+    private void assertAllowed(Environment environment, Reference reference, Map<String, String> headers) throws Exception {
+        assertAllowed(environment, reference, headers, false);
     }
 
 
@@ -392,7 +427,7 @@ public class SecurityIT extends AbstractIntegrationTest {
     }
 
 
-    private HttpResponse<String> execute(Environment environment, Reference reference, Map<String, String> headers) throws Exception {
+    private HttpResponse<String> execute(Environment environment, Reference reference, Map<String, String> headers, boolean blob) throws Exception {
         String path = null;
         Referable referable = EnvironmentHelper.resolve(reference, environment);
         if (referable instanceof AssetAdministrationShell aas) {
@@ -410,6 +445,13 @@ public class SecurityIT extends AbstractIntegrationTest {
                             new DefaultReference.Builder().keys(ReferenceHelper.getRoot(reference)).build(), environment)))
                     .submodelElement(ReferenceHelper.toPath(reference));
         }
+        else {
+            throw new IllegalArgumentException("referable type not supported");
+        }
+
+        if (blob) {
+            path = path.concat("?extent=withBlobValue");
+        }
 
         return executeRequest(HttpMethod.GET, path, null, headers);
     }
@@ -417,8 +459,8 @@ public class SecurityIT extends AbstractIntegrationTest {
 
     private static Class<? extends Referable> keyTypeToClass(KeyTypes key) {
         return Stream.concat(
-                org.eclipse.digitaltwin.aas4j.v3.dataformat.core.internal.util.ReflectionHelper.INTERFACES.stream(),
-                org.eclipse.digitaltwin.aas4j.v3.dataformat.core.internal.util.ReflectionHelper.INTERFACES_WITHOUT_DEFAULT_IMPLEMENTATION.stream())
+                        org.eclipse.digitaltwin.aas4j.v3.dataformat.core.internal.util.ReflectionHelper.INTERFACES.stream(),
+                        org.eclipse.digitaltwin.aas4j.v3.dataformat.core.internal.util.ReflectionHelper.INTERFACES_WITHOUT_DEFAULT_IMPLEMENTATION.stream())
                 .filter(x -> x.getSimpleName().equals(EnumSerializer.serializeEnumName(key.name())))
                 .findAny()
                 .orElse(null);

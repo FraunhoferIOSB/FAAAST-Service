@@ -15,26 +15,10 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter;
 
 /**
- * Authentication state of a request. If a servlet request contains the attribute "AuthState: authenticated", the bearer
+ * Authentication state of a request. If a servlet request contains the attribute "AuthState: AUTHENTICATED", the bearer
  * token in its "Authorization" header was validated
  * against the configured JWK provider.
  */
 public enum AuthState {
-    AUTHENTICATED("authenticated");
-
-    private final String name;
-
-    /**
-     * Serialization of an auth state.
-     *
-     * @return String version of an auth state.
-     */
-    public String getName() {
-        return name;
-    }
-
-
-    AuthState(String name) {
-        this.name = name;
-    }
+    AUTHENTICATED;
 }
