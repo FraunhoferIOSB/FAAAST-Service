@@ -262,26 +262,7 @@ public class HttpOperationProvider extends MultiFormatOperationProvider<HttpOper
                             lastKnownState.get(), currentState, ReferenceHelper.asString(reference));
                     lastKnownState.set(currentState);
                 }
-                switch (currentState) {
-                    case CANCELED, FAILED, TIMEOUT ->
-                        future.completeExceptionally(new AssetConnectionException(String.format(
-                                "executing operation via HTTP asset connection failed (reference: %s): executionState: %s",
-                                ReferenceHelper.toString(reference),
-                                currentState)));
-                    case COMPLETED -> {
-                        // keep pulling until there is a redirect
-                    }
-                    case RUNNING -> {
-                        if (status.getMessages() != null) {
-                            status.getMessages().stream()
-                                    .filter(OperationProviderHelper::isProgressMessage)
-                                    .forEach(x -> callbackProgress.accept(Message.of(x)));
-                        }
-                    }
-                    default -> {
-                        // do nothing
-                    }
-                }
+                handleCurrentState(currentState, future, status, callbackProgress);
             }
             catch (Exception e) {
                 if (e instanceof InterruptedException) {
@@ -307,6 +288,30 @@ public class HttpOperationProvider extends MultiFormatOperationProvider<HttpOper
                     ReferenceHelper.toString(reference),
                     cause != null ? cause.getMessage() : ""),
                     cause);
+        }
+    }
+
+
+    private void handleCurrentState(ExecutionState currentState, CompletableFuture<URI> future, BaseOperationResult status, Consumer<Message> callbackProgress) {
+        switch (currentState) {
+            case CANCELED, FAILED, TIMEOUT ->
+                future.completeExceptionally(new AssetConnectionException(String.format(
+                        "executing operation via HTTP asset connection failed (reference: %s): executionState: %s",
+                        ReferenceHelper.toString(reference),
+                        currentState)));
+            case COMPLETED -> {
+                // keep pulling until there is a redirect
+            }
+            case RUNNING -> {
+                if (status.getMessages() != null) {
+                    status.getMessages().stream()
+                            .filter(OperationProviderHelper::isProgressMessage)
+                            .forEach(x -> callbackProgress.accept(Message.of(x)));
+                }
+            }
+            default -> {
+                // do nothing
+            }
         }
     }
 
