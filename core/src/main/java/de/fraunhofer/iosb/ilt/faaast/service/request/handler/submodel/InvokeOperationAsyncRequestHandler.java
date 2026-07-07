@@ -106,7 +106,9 @@ public class InvokeOperationAsyncRequestHandler extends AbstractInvokeOperationR
             if (OperationProviderHelper.isProgressMessagePercentage(message)) {
                 result.getMessages().removeIf(OperationProviderHelper::isProgressMessagePercentage);
             }
-            result.getMessages().add(message);
+            if (!result.getMessages().contains(message)) {
+                result.getMessages().add(message);
+            }
             context.getPersistence().save(operationHandle, result);
         }
         catch (ResourceNotFoundException | PersistenceException e) {
