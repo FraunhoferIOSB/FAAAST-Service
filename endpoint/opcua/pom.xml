@@ -86,7 +86,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
+            <artifactId>httpcore</artifactId>
             <version>${apache.httpcomponents.core.version}</version>
         </dependency>
         <dependency>
