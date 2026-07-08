@@ -51,6 +51,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.certificate.CertificateInformation;
 import de.fraunhofer.iosb.ilt.faaast.service.certificate.util.KeyStoreHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
@@ -71,6 +72,7 @@ import java.net.URL;
 import java.net.http.HttpClient;
 import java.nio.file.Files;
 import java.security.GeneralSecurityException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -84,6 +86,7 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 import javax.net.ssl.SSLHandshakeException;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
+import org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperation;
@@ -124,10 +127,33 @@ public class HttpAssetConnectionTest {
             .ipAddress("127.0.0.1")
             .dnsName("localhost")
             .build();
+    private static final String ASYNC_RESULT1 = """
+            {
+              "executionState": "Running",
+              "success": false,
+              "messages": [
+                {
+                  "messageType": "Info",
+                  "text": "%d",
+                  "timestamp": "2026-07-07T16:21:59.571621",
+                  "correlationId": "progress-percentage"
+                },
+                {
+                  "messageType": "Info",
+                  "text": "Status Text",
+                  "timestamp": "2026-07-07T16:22:14.368721",
+                  "correlationId": "progress-status"
+                }
+              ]
+            }
+            """;
 
+    private final List<Message> progressPercentage = new ArrayList<>();
+    private final List<Message> progressStatus = new ArrayList<>();
     private static URL httpUrl;
     private static URL httpsUrl;
     private static File keyStoreFile;
+    private boolean asyncCallbackCalled = false;
 
     @BeforeClass
     public static void init() throws IOException, GeneralSecurityException {
@@ -273,13 +299,14 @@ public class HttpAssetConnectionTest {
         assertSubscriptionProviderPropertyJson(
                 Datatype.INT,
                 RequestMethod.GET,
-                List.of("{\n"
-                        + "	\"data\": [\n"
-                        + "		{\n"
-                        + "			\"value\": 42\n"
-                        + "		}\n"
-                        + "	]\n"
-                        + "}"),
+                List.of("""
+                        {
+                        \t"data": [
+                        \t\t{
+                        \t\t\t"value": 42
+                        \t\t}
+                        \t]
+                        }"""),
                 "$.data[-1:].value",
                 //null,
                 false,
@@ -659,13 +686,41 @@ public class HttpAssetConnectionTest {
         }
 
         String path = String.format("/test/random/%s", "foo");
-        String pathStatus = String.format("%s/operation-status/99", path);
-        String pathResult = String.format("%s/operation-Result/99", path);
+        String pathStatus = String.format("%s/operation-status/199", path);
+        String pathResult = String.format("%s/operation-Result/199", path);
         stubFor(request(method.getName(), urlEqualTo(path))
                 .willReturn(aResponse()
                         .withStatus(202)
                         .withHeader(LOCATION, pathStatus)));
-        stubFor(get(pathStatus).willReturn(temporaryRedirect(pathResult)));
+
+        String progress1 = String.format(ASYNC_RESULT1, 30);
+        String progress2 = String.format(ASYNC_RESULT1, 60);
+
+        // include state
+        stubFor(get(pathStatus)
+                .inScenario("async-test")
+                .whenScenarioStateIs(Scenario.STARTED)
+                .willSetStateTo("1")
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader(CONTENT_TYPE, APPLICATION_JSON)
+                        .withBody(progress1)));
+
+        stubFor(get(pathStatus)
+                .inScenario("async-test")
+                .whenScenarioStateIs("1")
+                .willSetStateTo("2")
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader(CONTENT_TYPE, APPLICATION_JSON)
+                        .withBody(progress2)));
+
+        stubFor(get(pathStatus)
+                .inScenario("async-test")
+                .whenScenarioStateIs("2")
+                .willSetStateTo(Scenario.STARTED)
+                .willReturn(temporaryRedirect(pathResult)));
+
         stubFor((get(pathResult)
                 .willReturn(aResponse()
                         .withStatus(200)
@@ -689,8 +744,28 @@ public class HttpAssetConnectionTest {
         try {
             connection.getOperationProviders().get(REFERENCE).invokeAsync(toOperationVariables(input),
                     toOperationVariables(inoutput),
-                    message -> {},
+                    message -> {
+                        //LOGGER.info("Message callback: {}; Text: {}", message.getCorrelationId(), message.getText());
+                        //Assert.assertEquals(MessageTypeEnum.INFO, message.getMessageType());
+                        if ("progress-percentage".equals(message.getCorrelationId())) {
+                            progressPercentage.add(message);
+                            //Assert.assertEquals("2026-07-07T16:21:59.571621", message.getTimestamp());
+                            // The first ürogress
+                            //if (progressCounter == 0) {
+                            //    Assert.assertEquals("30", message.getText());
+                            //    progressCounter++;
+                            //}
+                            //else if (progressCounter == 1) {
+                            //    Assert.assertEquals("60", message.getText());
+                            //    progressCounter++;
+                            //}
+                        }
+                        else if ("progress-status".equals(message.getCorrelationId())) {
+                            progressStatus.add(message);
+                        }
+                    },
                     (OperationVariable[] actualInoutput, OperationVariable[] actualOutput) -> {
+                        asyncCallbackCalled = true;
                         Assert.assertArrayEquals(toOperationVariables(expectedOutput), actualOutput);
                         Assert.assertArrayEquals(toOperationVariables(expectedInoutput), actualInoutput);
                         RequestPatternBuilder verifier = new RequestPatternBuilder(method, urlEqualTo(path));
@@ -703,6 +778,25 @@ public class HttpAssetConnectionTest {
                     e -> {
                         Assert.fail();
                     });
+            await().atMost(60, TimeUnit.SECONDS)
+                    .with()
+                    .pollInterval(1, TimeUnit.SECONDS)
+                    .until(() -> {
+                        return asyncCallbackCalled;
+                    });
+            Assert.assertEquals(2, progressPercentage.size());
+            Assert.assertEquals(2, progressStatus.size());
+            for (var m: progressPercentage) {
+                Assert.assertEquals(MessageTypeEnum.INFO, m.getMessageType());
+                Assert.assertEquals("2026-07-07T16:21:59.571621", m.getTimestamp());
+            }
+            Assert.assertEquals("30", progressPercentage.get(0).getText());
+            Assert.assertEquals("60", progressPercentage.get(1).getText());
+            for (var m: progressStatus) {
+                Assert.assertEquals(MessageTypeEnum.INFO, m.getMessageType());
+                Assert.assertEquals("2026-07-07T16:22:14.368721", m.getTimestamp());
+                Assert.assertEquals("Status Text", m.getText());
+            }
         }
         finally {
             connection.disconnect();
