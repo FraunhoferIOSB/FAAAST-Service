@@ -66,6 +66,16 @@
                     <groupId>org.bouncycastle</groupId>
                     <artifactId>bcprov-jdk15to18</artifactId>
                 </exclusion>
+                <!-- Fixes CVE-2026-54399 & CVE-2026-54428 -->
+                <exclusion>
+                    <groupId>org.apache.httpcomponents</groupId>
+                    <artifactId>httpclient</artifactId>
+                </exclusion>
+                <!-- Fixes CVE-2026-54399 & CVE-2026-54428 -->
+                <exclusion>
+                    <groupId>org.apache.httpcomponents</groupId>
+                    <artifactId>httpcore-nio</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <!-- explicitely use version of commons-codec also used in other modules -->
@@ -73,6 +83,16 @@
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
             <version>${commons.codec.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>${apache.httpcomponents.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpcore-nio</artifactId>
+            <version>${apache.httpcomponents.version}</version>
         </dependency>
         <dependency>
             <groupId>org.awaitility</groupId>
