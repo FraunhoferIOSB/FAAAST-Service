@@ -745,20 +745,8 @@ public class HttpAssetConnectionTest {
             connection.getOperationProviders().get(REFERENCE).invokeAsync(toOperationVariables(input),
                     toOperationVariables(inoutput),
                     message -> {
-                        //LOGGER.info("Message callback: {}; Text: {}", message.getCorrelationId(), message.getText());
-                        //Assert.assertEquals(MessageTypeEnum.INFO, message.getMessageType());
                         if ("progress-percentage".equals(message.getCorrelationId())) {
                             progressPercentage.add(message);
-                            //Assert.assertEquals("2026-07-07T16:21:59.571621", message.getTimestamp());
-                            // The first ürogress
-                            //if (progressCounter == 0) {
-                            //    Assert.assertEquals("30", message.getText());
-                            //    progressCounter++;
-                            //}
-                            //else if (progressCounter == 1) {
-                            //    Assert.assertEquals("60", message.getText());
-                            //    progressCounter++;
-                            //}
                         }
                         else if ("progress-status".equals(message.getCorrelationId())) {
                             progressStatus.add(message);
