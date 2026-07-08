@@ -128,7 +128,7 @@
         <maven.plugin.surefire.version>3.5.6</maven.plugin.surefire.version>
         <milo.version>1.1.4</milo.version>
         <mockito.version>5.23.0</mockito.version>
-        <mongodb.version>5.8.0</mongodb.version>
+        <mongodb.version>5.9.0</mongodb.version>
         <moquette.version>0.18.5</moquette.version>
         <netty.version>4.2.15.Final</netty.version>
         <org.apache.httpcomponents.client5.version>5.6.2</org.apache.httpcomponents.client5.version>
