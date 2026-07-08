@@ -69,7 +69,7 @@
                 <!-- Fixes CVE-2026-54399 & CVE-2026-54428 -->
                 <exclusion>
                     <groupId>org.apache.httpcomponents</groupId>
-                    <artifactId>httpclient</artifactId>
+                    <artifactId>httpcore</artifactId>
                 </exclusion>
                 <!-- Fixes CVE-2026-54399 & CVE-2026-54428 -->
                 <exclusion>
@@ -87,12 +87,12 @@
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
-            <version>${apache.httpcomponents.version}</version>
+            <version>${apache.httpcomponents.core.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpcore-nio</artifactId>
-            <version>${apache.httpcomponents.version}</version>
+            <version>${apache.httpcomponents.core.version}</version>
         </dependency>
         <dependency>
             <groupId>org.awaitility</groupId>

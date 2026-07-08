@@ -67,7 +67,7 @@
     </issueManagement>
     <properties>
         <aas4j.version>1.0.5</aas4j.version>
-        <apache.httpcomponents.version>4.4.16</apache.httpcomponents.version>
+        <apache.httpcomponents.core.version>4.4.16</apache.httpcomponents.core.version>
         <awaitility.version>4.3.0</awaitility.version>
         <bouncycastle.version>1.84</bouncycastle.version>
         <checkstyle.version>12.3.1</checkstyle.version>
