@@ -29,7 +29,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ResponseHelper;
 import java.util.List;
-import org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum;
+import org.eclipse.digitaltwin.aas4j.v3.model.MessageType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
@@ -61,7 +61,7 @@ public class DeleteOperationProviderByPathRequestHandler
 
         AssetConnectionConfig<?, ?, ?, ?> config = OperationProviderHelper.convertBodyToAssetConnectionConfig(request.getBody(), reference);
         List<Message> result = context.getAssetConnectionManager().updateConnections(List.of(config), List.of()).stream()
-                .filter(x -> x.getMessageType() == MessageTypeEnum.ERROR || x.getMessageType() == MessageTypeEnum.EXCEPTION)
+                .filter(x -> x.getMessageType() == MessageType.ERROR || x.getMessageType() == MessageType.EXCEPTION)
                 .toList();
         LogHelper.logMessages(result);
         return DeleteOperationProviderByPathResponse.builder()

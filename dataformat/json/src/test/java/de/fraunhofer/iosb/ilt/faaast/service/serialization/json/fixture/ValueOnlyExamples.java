@@ -32,7 +32,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Entity;
 import org.eclipse.digitaltwin.aas4j.v3.model.EntityType;
 import org.eclipse.digitaltwin.aas4j.v3.model.ExecutionState;
 import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
-import org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum;
+import org.eclipse.digitaltwin.aas4j.v3.model.MessageType;
 import org.eclipse.digitaltwin.aas4j.v3.model.MultiLanguageProperty;
 import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
 import org.eclipse.digitaltwin.aas4j.v3.model.Property;
@@ -211,7 +211,7 @@ public class ValueOnlyExamples {
                     .build())
             .result(new DefaultResult.Builder()
                     .messages(Message.builder()
-                            .messageType(MessageTypeEnum.INFO)
+                            .messageType(MessageType.INFO)
                             .text("some message text")
                             .timestamp("2024-01-01T00:00:00.000+00:00")
                             .build())
