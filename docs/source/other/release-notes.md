@@ -18,6 +18,8 @@
 	- Improves parsing of JSON payload for operations so that if no mappings are provided it tries to use the variable name (if there are multiple parameters) or the whole object if there is only one parameter
 	- OPC UA
 		- When connecting to an OPC UA asset and the discovery service returns mutliple URLs to use, the ones with a reachable host are preferred.
+	- HTTP
+		- Fixed bug that Operation Provider failed in an operation with arguments when no template was configured.
 - Endpoint
 	- HTTP
 		- URL prefix /api/v3.x is now optional
@@ -48,6 +50,7 @@
     - CloudEventsMessageBus now available implementing the async-aas specification in https://factory-x-contributions.github.io/async-aas-helm/
 	- MQTT
 		- Changed default value for `host` from localhost to 0.0.0.0
+		- Fixed duplicate sending of events
 - SMT Processor
 	- AID/AIMC
 		- Fixed bug that prevented to update asset connection providers are runtime
