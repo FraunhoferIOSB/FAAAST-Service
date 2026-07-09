@@ -24,6 +24,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.DeserializerWrapper
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.SubmodelElementIdentifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationHandle;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
@@ -67,6 +68,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.JsonSerializer;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
+import org.eclipse.digitaltwin.aas4j.v3.model.Blob;
 import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.eclipse.digitaltwin.aas4j.v3.model.HasSemantics;
@@ -255,8 +257,11 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
 
     @Override
     public Submodel getSubmodel(String id, QueryModifier modifier) throws ResourceNotFoundException, PersistenceException {
-        return prepareResult(
-                getSubmodel(id), modifier);
+        Submodel submodel = getSubmodel(id);
+        if (modifier.getExtent() == Extent.WITH_BLOB_VALUE) {
+            injectBlobValues(id, submodel);
+        }
+        return prepareResult(submodel, modifier);
     }
 
 
@@ -274,7 +279,13 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
                         : new SqlCondition(DatabaseSchema.COLUMN_SEMANTIC_ID + " IS NULL", List.of()));
             }
         }
-        return findEntities(DatabaseSchema.TABLE_SUBMODEL, Submodel.class, conditions, modifier, paging);
+        Page<Submodel> result = findEntities(DatabaseSchema.TABLE_SUBMODEL, Submodel.class, conditions, modifier, paging);
+        if (modifier.getExtent() == Extent.WITH_BLOB_VALUE) {
+            for (Submodel submodel: result.getContent()) {
+                injectBlobValues(submodel.getId(), submodel);
+            }
+        }
+        return result;
     }
 
 
@@ -291,9 +302,33 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
 
     @Override
     public void save(Submodel submodel) throws PersistenceException {
-        saveEntity(DatabaseSchema.TABLE_SUBMODEL, submodel.getId(), submodel,
-                new IndexColumn(DatabaseSchema.COLUMN_ID_SHORT, submodel.getIdShort()),
-                new IndexColumn(DatabaseSchema.COLUMN_SEMANTIC_ID, semanticIdAsString(submodel.getSemanticId())));
+        Submodel toStore = submodel;
+        Map<String, byte[]> blobs = Map.of();
+        if (BlobExternalization.containsExternalizableBlobValue(submodel)) {
+            // work on a copy so the caller's object keeps its blob values
+            toStore = DeepCopyHelper.deepCopy(submodel, Submodel.class);
+            blobs = BlobExternalization.externalizeBlobValues(toStore);
+        }
+        try (Connection c = dataSource.getConnection()) {
+            c.setAutoCommit(false);
+            try {
+                upsertEntity(c, DatabaseSchema.TABLE_SUBMODEL, toStore.getId(), toStore,
+                        new IndexColumn(DatabaseSchema.COLUMN_ID_SHORT, toStore.getIdShort()),
+                        new IndexColumn(DatabaseSchema.COLUMN_SEMANTIC_ID, semanticIdAsString(toStore.getSemanticId())));
+                insertBlobContents(c, toStore.getId(), blobs);
+                c.commit();
+            }
+            catch (Exception e) {
+                c.rollback();
+                throw e;
+            }
+            finally {
+                c.setAutoCommit(true);
+            }
+        }
+        catch (Exception e) {
+            throw new PersistenceException("Failed to save submodel: " + submodel.getId(), e);
+        }
     }
 
 
@@ -320,7 +355,11 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
                 if (!rs.next() || rs.getString("element") == null) {
                     throw new ResourceNotFoundException(identifier.toReference());
                 }
-                return prepareResult(jsonDeserializer.read(rs.getString("element"), SubmodelElement.class), modifier);
+                SubmodelElement element = jsonDeserializer.read(rs.getString("element"), SubmodelElement.class);
+                if (modifier.getExtent() == Extent.WITH_BLOB_VALUE) {
+                    injectBlobValues(identifier.getSubmodelId(), element);
+                }
+                return prepareResult(element, modifier);
             }
         }
         catch (ResourceNotFoundException e) {
@@ -376,6 +415,9 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
         List<SubmodelElement> elements = new ArrayList<>();
         if (criteria.getParent().getSubmodelId() != null) {
             Submodel submodel = getSubmodel(criteria.getParent().getSubmodelId());
+            if (modifier.getExtent() == Extent.WITH_BLOB_VALUE) {
+                injectBlobValues(submodel.getId(), submodel);
+            }
             Referable parent = EnvironmentHelper.resolve(criteria.getParent().toReference(), submodel,
                     Referable.class);
             if (Submodel.class.isAssignableFrom(parent.getClass())) {
@@ -410,7 +452,7 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
      */
     private Page<SubmodelElement> findSubmodelElementsViaIndex(SubmodelElementSearchCriteria criteria, QueryModifier modifier, PagingInfo paging)
             throws PersistenceException {
-        StringBuilder sql = new StringBuilder("SELECT s.content #> e." + DatabaseSchema.COLUMN_DOC_PATH + " AS element FROM "
+        StringBuilder sql = new StringBuilder("SELECT s.content #> e." + DatabaseSchema.COLUMN_DOC_PATH + " AS element, e.submodel_id FROM "
                 + DatabaseSchema.TABLE_SUBMODEL_ELEMENT_INDEX + " e JOIN " + DatabaseSchema.TABLE_SUBMODEL + " s ON s.id = e.submodel_id");
         List<String> parameters = new ArrayList<>();
         if (criteria.isSemanticIdSet() && criteria.getSemanticId() != null) {
@@ -432,7 +474,11 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
             }
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
-                    elements.add(jsonDeserializer.read(rs.getString("element"), SubmodelElement.class));
+                    SubmodelElement element = jsonDeserializer.read(rs.getString("element"), SubmodelElement.class);
+                    if (modifier.getExtent() == Extent.WITH_BLOB_VALUE) {
+                        injectBlobValues(rs.getString("submodel_id"), element);
+                    }
+                    elements.add(element);
                 }
             }
         }
@@ -515,19 +561,38 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
         if (steps.isEmpty()) {
             throw new ResourceNotFoundException(identifier.toReference());
         }
-        // single atomic statement: the row lock makes concurrent updates to different elements of
+        SubmodelElement toStore = submodelElement;
+        Map<String, byte[]> blobs = Map.of();
+        if (BlobExternalization.containsExternalizableBlobValue(submodelElement)) {
+            // work on a copy so the caller's object keeps its blob values
+            toStore = DeepCopyHelper.deepCopy(submodelElement, SubmodelElement.class);
+            blobs = BlobExternalization.externalizeBlobValues(toStore);
+        }
+        // single atomic update statement: the row lock makes concurrent updates to different elements of
         // the same submodel serialize instead of overwriting each other
         String sql = "UPDATE " + DatabaseSchema.TABLE_SUBMODEL
                 + " SET content = jsonb_set(content, " + DatabaseSchema.FUNCTION_RESOLVE_PATH + "(content, ?), ?::jsonb)"
                 + " WHERE id = ? AND " + DatabaseSchema.FUNCTION_RESOLVE_PATH + "(content, ?) IS NOT NULL";
-        try (Connection c = dataSource.getConnection(); PreparedStatement pstmt = c.prepareStatement(sql)) {
-            Array stepsArray = c.createArrayOf("text", steps.toArray(new String[0]));
-            pstmt.setArray(1, stepsArray);
-            pstmt.setString(2, jsonSerializer.write(submodelElement));
-            pstmt.setString(3, identifier.getSubmodelId());
-            pstmt.setArray(4, stepsArray);
-            if (pstmt.executeUpdate() == 0) {
-                throw new ResourceNotFoundException(identifier.toReference());
+        try (Connection c = dataSource.getConnection()) {
+            c.setAutoCommit(false);
+            try (PreparedStatement pstmt = c.prepareStatement(sql)) {
+                Array stepsArray = c.createArrayOf("text", steps.toArray(new String[0]));
+                pstmt.setArray(1, stepsArray);
+                pstmt.setString(2, jsonSerializer.write(toStore));
+                pstmt.setString(3, identifier.getSubmodelId());
+                pstmt.setArray(4, stepsArray);
+                if (pstmt.executeUpdate() == 0) {
+                    throw new ResourceNotFoundException(identifier.toReference());
+                }
+                insertBlobContents(c, identifier.getSubmodelId(), blobs);
+                c.commit();
+            }
+            catch (Exception e) {
+                c.rollback();
+                throw e;
+            }
+            finally {
+                c.setAutoCommit(true);
             }
         }
         catch (ResourceNotFoundException e) {
@@ -664,32 +729,87 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
 
 
     private <T> void saveEntity(String table, String id, T entity, IndexColumn... indexColumns) throws PersistenceException {
-        Ensure.requireNonNull(id, MSG_ID_NOT_NULL);
         try {
-            String json = jsonSerializer.write(entity);
-            StringBuilder columns = new StringBuilder("id, content");
-            StringBuilder placeholders = new StringBuilder("?, ?");
-            StringBuilder updates = new StringBuilder("content = EXCLUDED.content");
-            for (IndexColumn column: indexColumns) {
-                columns.append(", ").append(column.name());
-                placeholders.append(", ?");
-                updates.append(", ").append(column.name()).append(" = EXCLUDED.").append(column.name());
-            }
-            String sql = "INSERT INTO " + table + " (" + columns + ") VALUES (" + placeholders + ") " +
-                    "ON CONFLICT (id) DO UPDATE SET " + updates;
-
-            try (Connection c = dataSource.getConnection(); PreparedStatement preparedStatement = c.prepareStatement(sql)) {
-                preparedStatement.setString(1, id);
-                preparedStatement.setObject(2, json, Types.OTHER);
-                int parameterIndex = 3;
-                for (IndexColumn column: indexColumns) {
-                    preparedStatement.setString(parameterIndex++, column.value());
-                }
-                preparedStatement.executeUpdate();
+            try (Connection c = dataSource.getConnection()) {
+                upsertEntity(c, table, id, entity, indexColumns);
             }
         }
         catch (Exception e) {
             throw new PersistenceException("Failed to save to " + table + ": " + id, e);
+        }
+    }
+
+
+    private <T> void upsertEntity(Connection connection, String table, String id, T entity, IndexColumn... indexColumns) throws Exception {
+        Ensure.requireNonNull(id, MSG_ID_NOT_NULL);
+        String json = jsonSerializer.write(entity);
+        StringBuilder columns = new StringBuilder("id, content");
+        StringBuilder placeholders = new StringBuilder("?, ?");
+        StringBuilder updates = new StringBuilder("content = EXCLUDED.content");
+        for (IndexColumn column: indexColumns) {
+            columns.append(", ").append(column.name());
+            placeholders.append(", ?");
+            updates.append(", ").append(column.name()).append(" = EXCLUDED.").append(column.name());
+        }
+        String sql = "INSERT INTO " + table + " (" + columns + ") VALUES (" + placeholders + ") " +
+                "ON CONFLICT (id) DO UPDATE SET " + updates;
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setString(1, id);
+            preparedStatement.setObject(2, json, Types.OTHER);
+            int parameterIndex = 3;
+            for (IndexColumn column: indexColumns) {
+                preparedStatement.setString(parameterIndex++, column.value());
+            }
+            preparedStatement.executeUpdate();
+        }
+    }
+
+
+    /**
+     * Inserts externalized blob content rows. Must be called in the same transaction as the document write and after
+     * it, so the foreign key on the submodel is satisfied and the index trigger's orphan cleanup (which runs on the
+     * document write) does not see the new rows.
+     */
+    private void insertBlobContents(Connection connection, String submodelId, Map<String, byte[]> blobs) throws SQLException {
+        if (blobs.isEmpty()) {
+            return;
+        }
+        String sql = "INSERT INTO " + DatabaseSchema.TABLE_BLOB_STORE + " (submodel_id, blob_id, content) VALUES (?, ?, ?)";
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            for (Map.Entry<String, byte[]> blob: blobs.entrySet()) {
+                pstmt.setString(1, submodelId);
+                pstmt.setString(2, blob.getKey());
+                pstmt.setBytes(3, blob.getValue());
+                pstmt.addBatch();
+            }
+            pstmt.executeBatch();
+        }
+    }
+
+
+    /**
+     * Resolves externalization placeholders in the element tree back to the stored blob content. Placeholders without
+     * a matching blob store row are left untouched.
+     */
+    private void injectBlobValues(String submodelId, Referable root) throws PersistenceException {
+        Map<String, List<Blob>> placeholders = BlobExternalization.findBlobPlaceholders(root);
+        if (placeholders.isEmpty()) {
+            return;
+        }
+        String sql = "SELECT blob_id, content FROM " + DatabaseSchema.TABLE_BLOB_STORE + " WHERE submodel_id = ? AND blob_id = ANY(?)";
+        try (Connection c = dataSource.getConnection(); PreparedStatement pstmt = c.prepareStatement(sql)) {
+            pstmt.setString(1, submodelId);
+            pstmt.setArray(2, c.createArrayOf("text", placeholders.keySet().toArray(new String[0])));
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    byte[] content = rs.getBytes("content");
+                    placeholders.getOrDefault(rs.getString("blob_id"), List.of())
+                            .forEach(blob -> blob.setValue(content));
+                }
+            }
+        }
+        catch (SQLException e) {
+            throw new PersistenceException("Database error loading blob content for submodel " + submodelId, e);
         }
     }
 

@@ -47,6 +47,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
+import org.eclipse.digitaltwin.aas4j.v3.model.Blob;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.eclipse.digitaltwin.aas4j.v3.model.Property;
@@ -56,6 +57,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetInformation;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultBlob;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSpecificAssetId;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodel;
@@ -550,6 +552,95 @@ public class PersistencePostgresTest extends AbstractPersistenceTest<Persistence
             stmt.setString(2, idShortPath);
             try (java.sql.ResultSet rs = stmt.executeQuery()) {
                 return rs.next() ? rs.getObject(1, type) : null;
+            }
+        }
+    }
+
+
+    @Test
+    public void blobValuesAreExternalizedAndRoundTrip() throws Exception {
+        PersistencePostgres persistence = getPersistenceConfig(null, null, true)
+                .newInstance(CoreConfig.DEFAULT, SERVICE_CONTEXT);
+        persistence.start();
+
+        String submodelId = "http://example.org/submodel/blob";
+        byte[] content = new byte[100_000];
+        new java.util.Random(42).nextBytes(content);
+        persistence.save(new DefaultSubmodel.Builder()
+                .id(submodelId)
+                .idShort("blobSubmodel")
+                .submodelElements(new DefaultBlob.Builder()
+                        .idShort("doc")
+                        .contentType("application/pdf")
+                        .value(content)
+                        .build())
+                .submodelElements(new DefaultProperty.Builder()
+                        .idShort("counter")
+                        .value("0")
+                        .valueType(DataTypeDefXsd.INT)
+                        .build())
+                .build());
+
+        // blob content is stored in the blob store, not in the document
+        Assert.assertEquals(1, countBlobRows(submodelId));
+        Assert.assertTrue("document should not contain the blob content",
+                documentSize(submodelId) < content.length);
+
+        // default read strips the blob value, WITH_BLOB_VALUE returns the original content
+        QueryModifier withBlob = new QueryModifier.Builder().extend(Extent.WITH_BLOB_VALUE).build();
+        Reference blobRef = new ReferenceBuilder().submodel(submodelId).element("doc").build();
+        Assert.assertNull(((Blob) persistence.getSubmodelElement(blobRef, QueryModifier.DEFAULT)).getValue());
+        Assert.assertArrayEquals(content, ((Blob) persistence.getSubmodelElement(blobRef, withBlob)).getValue());
+        Submodel submodel = persistence.getSubmodel(submodelId, withBlob);
+        Assert.assertArrayEquals(content, ((Blob) submodel.getSubmodelElements().get(0)).getValue());
+
+        // updating an unrelated element keeps the blob
+        persistence.update(
+                new ReferenceBuilder().submodel(submodelId).element("counter").build(),
+                new DefaultProperty.Builder().idShort("counter").value("1").valueType(DataTypeDefXsd.INT).build());
+        Assert.assertEquals(1, countBlobRows(submodelId));
+        Assert.assertArrayEquals(content, ((Blob) persistence.getSubmodelElement(blobRef, withBlob)).getValue());
+
+        // replacing the blob stores the new content and purges the old row
+        byte[] newContent = new byte[50_000];
+        new java.util.Random(7).nextBytes(newContent);
+        persistence.update(blobRef, new DefaultBlob.Builder()
+                .idShort("doc")
+                .contentType("application/pdf")
+                .value(newContent)
+                .build());
+        Assert.assertEquals(1, countBlobRows(submodelId));
+        Assert.assertArrayEquals(newContent, ((Blob) persistence.getSubmodelElement(blobRef, withBlob)).getValue());
+
+        // deleting the blob element purges the stored content
+        persistence.deleteSubmodelElement(blobRef);
+        Assert.assertEquals(0, countBlobRows(submodelId));
+
+        persistence.stop();
+    }
+
+
+    private static int countBlobRows(String submodelId) throws Exception {
+        try (java.sql.Connection c = java.sql.DriverManager.getConnection(jdbcUrl);
+                java.sql.PreparedStatement stmt = c.prepareStatement(
+                        "SELECT COUNT(*) FROM " + DatabaseSchema.TABLE_BLOB_STORE + " WHERE submodel_id = ?")) {
+            stmt.setString(1, submodelId);
+            try (java.sql.ResultSet rs = stmt.executeQuery()) {
+                rs.next();
+                return rs.getInt(1);
+            }
+        }
+    }
+
+
+    private static int documentSize(String submodelId) throws Exception {
+        try (java.sql.Connection c = java.sql.DriverManager.getConnection(jdbcUrl);
+                java.sql.PreparedStatement stmt = c.prepareStatement(
+                        "SELECT length(content::text) FROM " + DatabaseSchema.TABLE_SUBMODEL + " WHERE id = ?")) {
+            stmt.setString(1, submodelId);
+            try (java.sql.ResultSet rs = stmt.executeQuery()) {
+                rs.next();
+                return rs.getInt(1);
             }
         }
     }

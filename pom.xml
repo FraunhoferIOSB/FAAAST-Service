@@ -81,14 +81,14 @@
         <container.image.name>fraunhoferiosb/faaast-service</container.image.name>
         <container.image.tag>latest</container.image.tag>
         <de.flapdoodle.embed.version>4.24.0</de.flapdoodle.embed.version>
-        <eclipse.jdt.version>4.32</eclipse.jdt.version>
-        <embedded-postgres.version>2.2.0</embedded-postgres.version>
-        <hikari.version>7.0.2</hikari.version>
         <de.flapdoodle.embed.version>4.33.0</de.flapdoodle.embed.version>
+        <eclipse.jdt.version>4.32</eclipse.jdt.version>
         <eclipse.jdt.version>4.40</eclipse.jdt.version>
+        <embedded-postgres.version>2.2.0</embedded-postgres.version>
         <equalsverifier.version>4.5</equalsverifier.version>
         <glassfish.jaxb-runtime>4.0.5</glassfish.jaxb-runtime>
         <guava.version>33.6.0-jre</guava.version>
+        <hikari.version>7.0.2</hikari.version>
         <jackson-jq.version>1.6.2</jackson-jq.version>
         <jackson.annotations.version>2.22</jackson.annotations.version>
         <jackson.databind.version>2.22.1</jackson.databind.version>

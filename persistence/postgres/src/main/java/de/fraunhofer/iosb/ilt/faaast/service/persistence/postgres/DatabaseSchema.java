@@ -43,6 +43,14 @@ public final class DatabaseSchema {
      */
     public static final String TABLE_SUBMODEL_ELEMENT_INDEX = "submodel_element_index";
 
+    /**
+     * Table name for externalized Blob element values. Blob content is stored here (raw, not base64) instead of
+     * inside the submodel JSONB documents; the document keeps a small placeholder in the Blob's value. Rows are
+     * removed by the index trigger when their placeholder disappears from the document, and by FK cascade when the
+     * submodel is deleted.
+     */
+    public static final String TABLE_BLOB_STORE = "blob_store";
+
     /** Column name for the idShort of an entity. */
     public static final String COLUMN_ID_SHORT = "id_short";
 
@@ -92,6 +100,7 @@ public final class DatabaseSchema {
             stmt.execute(getConceptDescriptionTableCreate());
             stmt.execute(getOperationResultTableCreate());
             stmt.execute(getSubmodelElementIndexTableCreate());
+            stmt.execute(getBlobStoreTableCreate());
             stmt.execute(getIndexesCreate());
             stmt.execute(getResolvePathFunctionCreate());
             stmt.execute(getJsonbArrayFunctionCreate());
@@ -230,6 +239,23 @@ public final class DatabaseSchema {
 
 
     /**
+     * The blob store holds the content of externalized Blob element values, keyed by the placeholder string exactly
+     * as it appears in the JSONB document (and thus in the value_text column of the submodel element index, which the
+     * index trigger uses for orphan cleanup).
+     */
+    private static String getBlobStoreTableCreate() {
+        return """
+                CREATE TABLE IF NOT EXISTS %s (
+                    submodel_id TEXT NOT NULL REFERENCES %s(id) ON DELETE CASCADE,
+                    blob_id TEXT NOT NULL,
+                    content BYTEA NOT NULL,
+                    PRIMARY KEY (submodel_id, blob_id)
+                )
+                """.formatted(TABLE_BLOB_STORE, TABLE_SUBMODEL);
+    }
+
+
+    /**
      * Coerces a jsonb value to an array, so that {@code jsonb_array_elements} can be applied without error to values
      * that may be missing or of a different type.
      */
@@ -353,6 +379,13 @@ public final class DatabaseSchema {
                     CROSS JOIN LATERAL (
                         SELECT CASE WHEN jsonb_typeof(e.elem -> 'value') = 'string' THEN e.elem ->> 'value' END AS text_value
                     ) v;
+                    DELETE FROM %7$s b
+                    WHERE b.submodel_id = NEW.id
+                      AND NOT EXISTS (
+                          SELECT 1 FROM %2$s i
+                          WHERE i.submodel_id = NEW.id
+                            AND i.model_type = 'Blob'
+                            AND i.value_text = b.blob_id);
                     RETURN NULL;
                 END;
                 $func$ LANGUAGE plpgsql
@@ -362,7 +395,8 @@ public final class DatabaseSchema {
                 FUNCTION_JSONB_ARRAY,
                 FUNCTION_REFERENCE_STRING,
                 FUNCTION_TRY_NUMERIC,
-                FUNCTION_TRY_TIMESTAMP);
+                FUNCTION_TRY_TIMESTAMP,
+                TABLE_BLOB_STORE);
     }
 
 
@@ -427,6 +461,7 @@ public final class DatabaseSchema {
      */
     public static void dropTables(final Connection connection) throws SQLException {
         try (Statement stmt = connection.createStatement()) {
+            stmt.execute(DROP_TABLE + TABLE_BLOB_STORE + CASCADE);
             stmt.execute(DROP_TABLE + TABLE_SUBMODEL_ELEMENT_INDEX + CASCADE);
             stmt.execute(DROP_TABLE + TABLE_OPERATION_RESULT
                     + CASCADE);
