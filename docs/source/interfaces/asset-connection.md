@@ -168,10 +168,24 @@ Validation of operation argument can be configured independently for in-, out-, 
 | path                                   | String                                                | Path for the HTTP request, relative to the `baseUrl` of the connection.                                                                                                                     |                           |
 | queries<br>*(optional)*                | Map<String,String>                                    | Map of result variable idShorts and corresponding query expressions to fetch them from returned value<br>Query expressions depend on `format`, e.g. for JSON this is a JSONPath expression. |                           |
 | template<br>*(optional)*               | String                                                | Template used to format payload when sending via HTTP.                                                                                                                                      |                           |
-| mode<br>*(optional)*                  | DIRECT<br>ASYNC_AAS                                    | Mode for calling operation in asset: DIRECT: Method is called direct. ASYNC_AAS: Method is called asynchronous with status updates as in AAS invoke-async API.                           |                           |
+| mode<br>*(optional)*                   | DIRECT<br>ASYNC_AAS                                   | Mode for calling operation in asset: DIRECT: Method is called direct. ASYNC_AAS: Method is called<br>asynchronous with status updates as in AAS invoke-async API.                           |  DIRECT                   |
+| asyncPollInterval<br>*(optional)*      | long                                                  | Asynchronous poll Interval in milliseconds. Only relevant in mode ASYNC_AAS.<br>Interval in which the asset is polled for the method status.                                                |  1000                     |
 :::
 
+##### Asynchronous invocation
 
+When mode ASYNC_AAS is used, the operation in the asset is called asynchronously. The same mechanism is used as in the [AAS specification](https://industrialdigitaltwin.io/aas-specifications/IDTA-01002/v3.1.3/http-rest-api/http-rest-api.html#async-invocation-of-se-operation).
+This can be used, for example, for long-running operations. Please be aware, that these operations can only be invoked asychronus in the AAS API.
+
+The execution of the operation is started in the `Invoke Endpoint`. The asset immediately responds with an Accepted (status code: 202) message containing the link to an endpoint (in the Location header) where the status can be queried. As long as the operation is running,  the `Status endpoint` responds with a BaseOperationResult object with the attribute `executionState` set to `Running`. As soon as the execution is finished, the `Status endpoint` delivers a Found (HTTP status code 302) response with the location of the result in the Location response header.
+
+Especially for such for long-running operations, the asset can provide information about the current status via the `Status endpoint`.
+This is done via the `messages` in the BaseOperationResult. Two different types of messages are possible. Both have `messageType` `Info`.
+
+The first one has `correlationId` `progress-percentage`. The `text` here is the current progress in percent. E.g. 50 means 50%.
+This message can be conatined only once.
+
+The second one has `correlationId` `progress-status`. The `text` in this message is defined by the asset, and provides additional status information. Multiple of these messages are possible.
 
 ```{code-block} json
 :caption: Example configuration section for HTTP OperationProvider for an Operation with input parameters `in1` and `in2` and output parameters `out1` and `out2`.
