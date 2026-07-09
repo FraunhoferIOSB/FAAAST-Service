@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.persistence.postgres;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
@@ -28,6 +29,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationHandle
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingMetadata;
+import de.fraunhofer.iosb.ilt.faaast.service.model.asset.AssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceAlreadyExistsException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
@@ -37,6 +39,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.persistence.ConceptDescriptionSearc
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.SubmodelElementSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.SubmodelSearchCriteria;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.util.PersistenceHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.util.QueryModifierHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.CollectionHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
@@ -45,6 +48,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EnvironmentHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.StringHelper;
+import java.sql.Array;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -53,9 +57,13 @@ import java.sql.Statement;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.JsonSerializer;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
@@ -65,20 +73,17 @@ import org.eclipse.digitaltwin.aas4j.v3.model.HasSemantics;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationResult;
 import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
  * Persistence implementation for Postgres DB.
  */
 public class PersistencePostgres implements Persistence<PersistencePostgresConfig> {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(PersistencePostgres.class);
 
     private static final String MSG_ID_NOT_NULL = "id must be non-null";
     private static final String MSG_MODIFIER_NOT_NULL = "modifier must be non-null";
@@ -94,6 +99,7 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
 
     private final JsonSerializer jsonSerializer = new JsonSerializer();
     private final DeserializerWrapper jsonDeserializer = new DeserializerWrapper();
+    private final ObjectMapper varsMapper = new ObjectMapper();
 
     @Override
     public void init(CoreConfig coreConfig, PersistencePostgresConfig config, ServiceContext serviceContext) throws ConfigurationInitializationException {
@@ -111,7 +117,9 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
             hikariConfig.setMaximumPoolSize(10);
             this.dataSource = new HikariDataSource(hikariConfig);
 
-            DatabaseSchema.createTables(dataSource.getConnection());
+            try (Connection connection = dataSource.getConnection()) {
+                DatabaseSchema.createTables(connection);
+            }
 
             if (config.loadInitialModel() != null) {
                 if (config.getOverride()) {
@@ -176,57 +184,67 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
     @Override
     public Page<AssetAdministrationShell> findAssetAdministrationShells(AssetAdministrationShellSearchCriteria criteria, QueryModifier modifier, PagingInfo paging)
             throws PersistenceException {
-        long offset = 0;
-        if (paging.getCursor() != null) {
-            offset = readCursor(paging.getCursor());
-        }
-
-        int totalCount = countEntities(DatabaseSchema.TABLE_AAS);
-        int limit = paging.hasLimit() ? (int) paging.getLimit() : totalCount;
-
-        List<AssetAdministrationShell> all;
-        if (criteria != null && (criteria.getIdShort() != null || (criteria.getAssetIds() != null && !criteria.getAssetIds().isEmpty()))) {
-            all = loadAllEntities(DatabaseSchema.TABLE_AAS, AssetAdministrationShell.class);
-        }
-        else {
-            all = loadAllEntitiesPaginated(DatabaseSchema.TABLE_AAS, AssetAdministrationShell.class, offset, limit + 1);
-        }
-
-        Stream<AssetAdministrationShell> stream = all.stream();
-
+        List<SqlCondition> conditions = new ArrayList<>();
         if (criteria != null) {
             if (criteria.getIdShort() != null) {
-                stream = stream.filter(x -> Objects.equals(x.getIdShort(), criteria.getIdShort()));
+                conditions.add(idShortCondition(criteria.getIdShort()));
             }
             if (criteria.getAssetIds() != null && !criteria.getAssetIds().isEmpty()) {
-                stream = stream.filter(x -> x.getAssetInformation() != null &&
-                        criteria.getAssetIds().stream().anyMatch(
-                                c -> Objects.equals(x.getAssetInformation().getGlobalAssetId(), c.getValue())));
+                conditions.addAll(assetIdConditions(criteria.getAssetIds()));
             }
         }
-        return preparePagedResult(stream, paging);
+        return findEntities(DatabaseSchema.TABLE_AAS, AssetAdministrationShell.class, conditions, modifier, paging);
+    }
+
+
+    private static SqlCondition idShortCondition(String idShort) {
+        return new SqlCondition(DatabaseSchema.COLUMN_ID_SHORT + " = ?", List.of(idShort));
+    }
+
+
+    /**
+     * Builds SQL conditions matching the asset id criteria: the shell must match any of the global asset ids (if set)
+     * and any of the specific asset ids (if set). Specific asset ids are matched via JSONB containment, i.e. a stored
+     * specificAssetId matches if it has at least the requested name and value.
+     */
+    private List<SqlCondition> assetIdConditions(List<AssetIdentification> assetIds) throws PersistenceException {
+        List<String> globalAssetIds = new ArrayList<>();
+        List<SpecificAssetId> specificAssetIds = new ArrayList<>();
+        PersistenceHelper.splitAssetIdsIntoGlobalAndSpecificIds(assetIds, globalAssetIds, specificAssetIds);
+        List<SqlCondition> result = new ArrayList<>();
+        if (!globalAssetIds.isEmpty()) {
+            result.add(new SqlCondition(
+                    "content #>> '{assetInformation,globalAssetId}' IN (" + String.join(", ", Collections.nCopies(globalAssetIds.size(), "?")) + ")",
+                    globalAssetIds));
+        }
+        if (!specificAssetIds.isEmpty()) {
+            List<String> params = new ArrayList<>();
+            try {
+                for (SpecificAssetId specificAssetId: specificAssetIds) {
+                    params.add("[" + jsonSerializer.write(specificAssetId) + "]");
+                }
+            }
+            catch (Exception e) {
+                throw new PersistenceException("Failed to serialize specificAssetId filter", e);
+            }
+            result.add(new SqlCondition(
+                    "(" + String.join(" OR ", Collections.nCopies(params.size(), "content #> '{assetInformation,specificAssetIds}' @> ?::jsonb")) + ")",
+                    params));
+        }
+        return result;
     }
 
 
     @Override
-    public void save(AssetAdministrationShell shell) {
-        try {
-            saveEntity(DatabaseSchema.TABLE_AAS, shell.getId(), shell);
-        }
-        catch (PersistenceException e) {
-            LOGGER.error("Could not save aas with id {}", shell.getId());
-        }
+    public void save(AssetAdministrationShell shell) throws PersistenceException {
+        saveEntity(DatabaseSchema.TABLE_AAS, shell.getId(), shell,
+                new IndexColumn(DatabaseSchema.COLUMN_ID_SHORT, shell.getIdShort()));
     }
 
 
     @Override
-    public void deleteAssetAdministrationShell(String id) {
-        try {
-            deleteEntity(DatabaseSchema.TABLE_AAS, id);
-        }
-        catch (PersistenceException e) {
-            LOGGER.error("Could not delete AAS with id {}", id);
-        }
+    public void deleteAssetAdministrationShell(String id) throws ResourceNotFoundException, PersistenceException {
+        deleteEntity(DatabaseSchema.TABLE_AAS, id);
     }
 
 
@@ -244,64 +262,102 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
 
     @Override
     public Page<Submodel> findSubmodels(SubmodelSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) throws PersistenceException {
-        long offset = 0;
-        if (paging.getCursor() != null) {
-            offset = readCursor(paging.getCursor());
-        }
-
-        int totalCount = countEntities(DatabaseSchema.TABLE_SUBMODEL);
-        int limit = paging.hasLimit() ? (int) paging.getLimit() : totalCount;
-
-        List<Submodel> all;
-        if (criteria != null && (criteria.getIdShort() != null || criteria.getSemanticId() != null)) {
-            all = loadAllEntities(DatabaseSchema.TABLE_SUBMODEL, Submodel.class);
-        }
-        else {
-            all = loadAllEntitiesPaginated(DatabaseSchema.TABLE_SUBMODEL, Submodel.class, offset, limit + 1);
-        }
-
-        Stream<Submodel> stream = all.stream();
-
+        List<SqlCondition> conditions = new ArrayList<>();
         if (criteria != null) {
             if (criteria.getIdShort() != null) {
-                stream = stream.filter(x -> Objects.equals(x.getIdShort(), criteria.getIdShort()));
+                conditions.add(idShortCondition(criteria.getIdShort()));
             }
             if (criteria.getSemanticId() != null) {
-                stream = stream.filter(x -> ReferenceHelper.equals(x.getSemanticId(), criteria.getSemanticId()));
+                String semanticId = semanticIdAsString(criteria.getSemanticId());
+                conditions.add(semanticId != null
+                        ? new SqlCondition(DatabaseSchema.COLUMN_SEMANTIC_ID + " = ?", List.of(semanticId))
+                        : new SqlCondition(DatabaseSchema.COLUMN_SEMANTIC_ID + " IS NULL", List.of()));
             }
         }
-        return preparePagedResult(stream, modifier, paging);
+        return findEntities(DatabaseSchema.TABLE_SUBMODEL, Submodel.class, conditions, modifier, paging);
+    }
+
+
+    /**
+     * Canonical string form of a semanticId used for indexed equality matching in the database. Includes key types and
+     * key values but ignores the reference type and referredSemanticId, approximating
+     * {@link ReferenceHelper#equals(Reference, Reference)} (which additionally tolerates compatible key types and
+     * compares referredSemanticId).
+     */
+    private static String semanticIdAsString(Reference semanticId) {
+        return ReferenceHelper.toString(semanticId, false, false);
     }
 
 
     @Override
-    public void save(Submodel submodel) {
-        try {
-            saveEntity(DatabaseSchema.TABLE_SUBMODEL, submodel.getId(), submodel);
-        }
-        catch (PersistenceException e) {
-            LOGGER.error("Could not save submodel with id {}", submodel.getId());
-        }
+    public void save(Submodel submodel) throws PersistenceException {
+        saveEntity(DatabaseSchema.TABLE_SUBMODEL, submodel.getId(), submodel,
+                new IndexColumn(DatabaseSchema.COLUMN_ID_SHORT, submodel.getIdShort()),
+                new IndexColumn(DatabaseSchema.COLUMN_SEMANTIC_ID, semanticIdAsString(submodel.getSemanticId())));
     }
 
 
     @Override
-    public void deleteSubmodel(String id) {
-        try {
-            deleteEntity(DatabaseSchema.TABLE_SUBMODEL, id);
-        }
-        catch (PersistenceException e) {
-            LOGGER.error("Could not delete submodel with id {}", id);
-        }
+    public void deleteSubmodel(String id) throws ResourceNotFoundException, PersistenceException {
+        deleteEntity(DatabaseSchema.TABLE_SUBMODEL, id);
     }
 
 
     @Override
     public SubmodelElement getSubmodelElement(SubmodelElementIdentifier identifier, QueryModifier modifier) throws ResourceNotFoundException, PersistenceException {
         Ensure.requireNonNull(identifier, MSG_ID_NOT_NULL);
-        return prepareResult(
-                EnvironmentHelper.resolve(identifier.toReference(), getSubmodel(identifier.getSubmodelId()), SubmodelElement.class),
-                modifier);
+        List<String> steps = identifier.getIdShortPath().getElements();
+        if (steps.isEmpty()) {
+            throw new ResourceNotFoundException(identifier.toReference());
+        }
+        String sql = "SELECT jsonb_path_query_first(content, ?::jsonpath, ?::jsonb) AS element FROM " + DatabaseSchema.TABLE_SUBMODEL + " WHERE id = ?";
+        try (Connection c = dataSource.getConnection(); PreparedStatement pstmt = c.prepareStatement(sql)) {
+            Map<String, String> vars = new LinkedHashMap<>();
+            pstmt.setString(1, buildElementJsonPath(steps, vars));
+            pstmt.setString(2, varsMapper.writeValueAsString(vars));
+            pstmt.setString(3, identifier.getSubmodelId());
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (!rs.next() || rs.getString("element") == null) {
+                    throw new ResourceNotFoundException(identifier.toReference());
+                }
+                return prepareResult(jsonDeserializer.read(rs.getString("element"), SubmodelElement.class), modifier);
+            }
+        }
+        catch (ResourceNotFoundException e) {
+            throw e;
+        }
+        catch (Exception e) {
+            throw new PersistenceException("Database error loading submodel element", e);
+        }
+    }
+
+
+    /**
+     * Builds a SQL/JSON path expression addressing the element identified by the given idShort path within a submodel
+     * document. idShort steps become filter expressions referencing variables added to vars (so values are passed as
+     * query parameters, not embedded in the path), index steps like [3] become numeric array accessors.
+     */
+    private static String buildElementJsonPath(List<String> steps, Map<String, String> vars) {
+        StringBuilder path = new StringBuilder("$");
+        String container = "submodelElements";
+        for (int i = 0; i < steps.size(); i++) {
+            String step = steps.get(i);
+            if (isIndexSegment(step)) {
+                path.append(".\"").append(container).append("\"[").append(step, 1, step.length() - 1).append("]");
+            }
+            else {
+                String var = "k" + i;
+                vars.put(var, step);
+                path.append(".\"").append(container).append("\"[*] ? (@.\"idShort\" == $").append(var).append(")");
+            }
+            container = "value";
+        }
+        return path.toString();
+    }
+
+
+    private static boolean isIndexSegment(String step) {
+        return step.matches("\\[\\d+\\]");
     }
 
 
@@ -313,26 +369,24 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
         Ensure.requireNonNull(modifier, MSG_MODIFIER_NOT_NULL);
         Ensure.requireNonNull(paging, MSG_PAGING_NOT_NULL);
 
-        List<SubmodelElement> elements = new ArrayList<>();
-
-        if (criteria.isParentSet()) {
-            if (criteria.getParent().getSubmodelId() != null) {
-                Submodel submodel = getSubmodel(criteria.getParent().getSubmodelId());
-                Referable parent = EnvironmentHelper.resolve(criteria.getParent().toReference(), submodel,
-                        Referable.class);
-                if (Submodel.class.isAssignableFrom(parent.getClass())) {
-                    elements.addAll(((Submodel) parent).getSubmodelElements());
-                }
-                else if (SubmodelElementCollection.class.isAssignableFrom(parent.getClass())) {
-                    elements.addAll(((SubmodelElementCollection) parent).getValue());
-                }
-                else if (SubmodelElementList.class.isAssignableFrom(parent.getClass())) {
-                    elements.addAll(((SubmodelElementList) parent).getValue());
-                }
-            }
+        if (!criteria.isParentSet()) {
+            return findSubmodelElementsViaIndex(criteria, modifier, paging);
         }
-        else {
-            elements = getAllSubmodelElementsOptimized(paging);
+
+        List<SubmodelElement> elements = new ArrayList<>();
+        if (criteria.getParent().getSubmodelId() != null) {
+            Submodel submodel = getSubmodel(criteria.getParent().getSubmodelId());
+            Referable parent = EnvironmentHelper.resolve(criteria.getParent().toReference(), submodel,
+                    Referable.class);
+            if (Submodel.class.isAssignableFrom(parent.getClass())) {
+                elements.addAll(((Submodel) parent).getSubmodelElements());
+            }
+            else if (SubmodelElementCollection.class.isAssignableFrom(parent.getClass())) {
+                elements.addAll(((SubmodelElementCollection) parent).getValue());
+            }
+            else if (SubmodelElementList.class.isAssignableFrom(parent.getClass())) {
+                elements.addAll(((SubmodelElementList) parent).getValue());
+            }
         }
 
         Stream<SubmodelElement> result = elements.stream();
@@ -346,52 +400,50 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
     }
 
 
-    private List<SubmodelElement> getAllSubmodelElementsOptimized(PagingInfo paging) throws PersistenceException {
+    /**
+     * Searches submodel elements across all submodels (at any nesting depth) using the submodel element index table.
+     * The index is only used to locate matching elements - the elements themselves are extracted from the JSONB
+     * submodel documents via the indexed jsonb path, so only matches are transferred and deserialized. Results are in
+     * document order per submodel, submodels in insertion order. SemanticId matching uses the same canonical string
+     * form as {@link #semanticIdAsString(Reference)} and includes supplemental semantic ids, mirroring the in-memory
+     * implementation.
+     */
+    private Page<SubmodelElement> findSubmodelElementsViaIndex(SubmodelElementSearchCriteria criteria, QueryModifier modifier, PagingInfo paging)
+            throws PersistenceException {
+        StringBuilder sql = new StringBuilder("SELECT s.content #> e." + DatabaseSchema.COLUMN_DOC_PATH + " AS element FROM "
+                + DatabaseSchema.TABLE_SUBMODEL_ELEMENT_INDEX + " e JOIN " + DatabaseSchema.TABLE_SUBMODEL + " s ON s.id = e.submodel_id");
+        List<String> parameters = new ArrayList<>();
+        if (criteria.isSemanticIdSet() && criteria.getSemanticId() != null) {
+            String semanticId = semanticIdAsString(criteria.getSemanticId());
+            if (semanticId != null) {
+                sql.append(" WHERE (e.").append(DatabaseSchema.COLUMN_SEMANTIC_ID).append(" = ? OR ? = ANY(e.supplemental_semantic_ids))");
+                parameters.add(semanticId);
+                parameters.add(semanticId);
+            }
+            else {
+                sql.append(" WHERE e.").append(DatabaseSchema.COLUMN_SEMANTIC_ID).append(" IS NULL");
+            }
+        }
+        sql.append(" ORDER BY s.seq, e.ord_path");
         List<SubmodelElement> elements = new ArrayList<>();
-
-        if (paging.hasLimit()) {
-            long offset = 0;
-            if (paging.getCursor() != null) {
-                offset = readCursor(paging.getCursor());
+        try (Connection c = dataSource.getConnection(); PreparedStatement pstmt = c.prepareStatement(sql.toString())) {
+            for (int i = 0; i < parameters.size(); i++) {
+                pstmt.setString(i + 1, parameters.get(i));
             }
-
-            int limit = (int) paging.getLimit();
-            int fetchSize = Math.min(limit * 2, 100);
-
-            long currentOffset = offset;
-            int totalLoaded = 0;
-
-            while (totalLoaded < limit) {
-                List<Submodel> submodels = loadAllEntitiesPaginated(DatabaseSchema.TABLE_SUBMODEL, Submodel.class, currentOffset, fetchSize);
-
-                if (submodels.isEmpty()) {
-                    break;
-                }
-
-                for (Submodel submodel: submodels) {
-                    if (totalLoaded >= limit) {
-                        break;
-                    }
-                    List<SubmodelElement> subElements = submodel.getSubmodelElements();
-                    int elementsToAdd = Math.min(limit - totalLoaded, subElements.size());
-                    elements.addAll(subElements.subList(0, elementsToAdd));
-                    totalLoaded += elementsToAdd;
-                }
-
-                currentOffset += fetchSize;
-                if (submodels.size() < fetchSize) {
-                    break;
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    elements.add(jsonDeserializer.read(rs.getString("element"), SubmodelElement.class));
                 }
             }
         }
-        else {
-            List<Submodel> submodels = loadAllEntities(DatabaseSchema.TABLE_SUBMODEL, Submodel.class);
-            for (Submodel submodel: submodels) {
-                elements.addAll(submodel.getSubmodelElements());
-            }
+        catch (Exception e) {
+            throw new PersistenceException("Database error searching submodel elements", e);
         }
-
-        return elements;
+        Stream<SubmodelElement> result = elements.stream();
+        if (criteria.getValueOnly()) {
+            result = filterByHasValueOnlySerialization(result);
+        }
+        return preparePagedResult(result, modifier, paging);
     }
 
 
@@ -459,65 +511,59 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
     public void update(SubmodelElementIdentifier identifier, SubmodelElement submodelElement) throws ResourceNotFoundException, PersistenceException {
         Ensure.requireNonNull(identifier, MSG_ID_NOT_NULL);
         Ensure.requireNonNull(submodelElement, MSG_ELEMENT_NOT_NULL);
-        Submodel submodel = getSubmodel(identifier.getSubmodelId());
-        SubmodelElement oldElement = EnvironmentHelper.resolve(identifier.toReference(), submodel, SubmodelElement.class);
-        Referable parent = EnvironmentHelper.resolve(ReferenceHelper.getParent(identifier.toReference()), submodel, Referable.class);
-
-        if (SubmodelElementList.class.isAssignableFrom(parent.getClass())) {
-            int index = Integer.parseInt(identifier.getIdShortPath().getElements().get(identifier.getIdShortPath().getElements().size() - 1).substring(1, 2));
-            ((SubmodelElementList) parent).getValue().set(index, submodelElement);
-            save(submodel);
-            return;
+        List<String> steps = identifier.getIdShortPath().getElements();
+        if (steps.isEmpty()) {
+            throw new ResourceNotFoundException(identifier.toReference());
         }
-
-        Collection<SubmodelElement> container;
-        if (Submodel.class.isAssignableFrom(parent.getClass())) {
-            container = ((Submodel) parent).getSubmodelElements();
+        // single atomic statement: the row lock makes concurrent updates to different elements of
+        // the same submodel serialize instead of overwriting each other
+        String sql = "UPDATE " + DatabaseSchema.TABLE_SUBMODEL
+                + " SET content = jsonb_set(content, " + DatabaseSchema.FUNCTION_RESOLVE_PATH + "(content, ?), ?::jsonb)"
+                + " WHERE id = ? AND " + DatabaseSchema.FUNCTION_RESOLVE_PATH + "(content, ?) IS NOT NULL";
+        try (Connection c = dataSource.getConnection(); PreparedStatement pstmt = c.prepareStatement(sql)) {
+            Array stepsArray = c.createArrayOf("text", steps.toArray(new String[0]));
+            pstmt.setArray(1, stepsArray);
+            pstmt.setString(2, jsonSerializer.write(submodelElement));
+            pstmt.setString(3, identifier.getSubmodelId());
+            pstmt.setArray(4, stepsArray);
+            if (pstmt.executeUpdate() == 0) {
+                throw new ResourceNotFoundException(identifier.toReference());
+            }
         }
-        else if (SubmodelElementCollection.class.isAssignableFrom(parent.getClass())) {
-            container = ((SubmodelElementCollection) parent).getValue();
+        catch (ResourceNotFoundException e) {
+            throw e;
         }
-        else {
-            throw new IllegalArgumentException(String.format(ILLEGAL_TYPE,
-                    parent.getClass(),
-                    Submodel.class,
-                    SubmodelElementCollection.class,
-                    SubmodelElementList.class));
+        catch (Exception e) {
+            throw new PersistenceException("Database error updating submodel element", e);
         }
-        CollectionHelper.put(container,
-                container.stream()
-                        .filter(x -> Objects.equals(x, oldElement))
-                        .findFirst()
-                        .orElse(null),
-                submodelElement);
-        save(submodel);
     }
 
 
     @Override
     public void deleteSubmodelElement(SubmodelElementIdentifier identifier) throws ResourceNotFoundException, PersistenceException {
         Ensure.requireNonNull(identifier, MSG_ID_NOT_NULL);
-        Submodel submodel = getSubmodel(identifier.getSubmodelId());
-        SubmodelElement element = EnvironmentHelper.resolve(identifier.toReference(), submodel, SubmodelElement.class);
-        Referable parent = EnvironmentHelper.resolve(ReferenceHelper.getParent(identifier.toReference()), submodel, Referable.class);
-
-        if (SubmodelElementList.class.isAssignableFrom(parent.getClass())) {
-            ((SubmodelElementList) parent).getValue().remove(element);
+        List<String> steps = identifier.getIdShortPath().getElements();
+        if (steps.isEmpty()) {
+            throw new ResourceNotFoundException(identifier.toReference());
         }
-        else if (SubmodelElementCollection.class.isAssignableFrom(parent.getClass())) {
-            ((SubmodelElementCollection) parent).getValue().remove(element);
+        String sql = "UPDATE " + DatabaseSchema.TABLE_SUBMODEL
+                + " SET content = content #- " + DatabaseSchema.FUNCTION_RESOLVE_PATH + "(content, ?)"
+                + " WHERE id = ? AND " + DatabaseSchema.FUNCTION_RESOLVE_PATH + "(content, ?) IS NOT NULL";
+        try (Connection c = dataSource.getConnection(); PreparedStatement pstmt = c.prepareStatement(sql)) {
+            Array stepsArray = c.createArrayOf("text", steps.toArray(new String[0]));
+            pstmt.setArray(1, stepsArray);
+            pstmt.setString(2, identifier.getSubmodelId());
+            pstmt.setArray(3, stepsArray);
+            if (pstmt.executeUpdate() == 0) {
+                throw new ResourceNotFoundException(identifier.toReference());
+            }
         }
-        else if (Submodel.class.isAssignableFrom(parent.getClass())) {
-            ((Submodel) parent).getSubmodelElements().remove(element);
+        catch (ResourceNotFoundException e) {
+            throw e;
         }
-        else {
-            throw new IllegalArgumentException(String.format(ILLEGAL_TYPE,
-                    parent.getClass(),
-                    Submodel.class,
-                    SubmodelElementCollection.class,
-                    SubmodelElementList.class));
+        catch (SQLException e) {
+            throw new PersistenceException("Database error deleting submodel element", e);
         }
-        save(submodel);
     }
 
 
@@ -536,28 +582,14 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
 
     @Override
     public Page<ConceptDescription> findConceptDescriptions(ConceptDescriptionSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) throws PersistenceException {
-        long offset = 0;
-        if (paging.getCursor() != null) {
-            offset = readCursor(paging.getCursor());
+        List<SqlCondition> conditions = new ArrayList<>();
+        if (criteria != null && criteria.getIdShort() != null) {
+            conditions.add(idShortCondition(criteria.getIdShort()));
         }
-
-        int totalCount = countEntities(DatabaseSchema.TABLE_CONCEPT_DESCRIPTION);
-        int limit = paging.hasLimit() ? (int) paging.getLimit() : totalCount;
-
-        List<ConceptDescription> all;
-        if (criteria != null && (criteria.getIdShort() != null || criteria.getIsCaseOf() != null || criteria.getDataSpecification() != null)) {
-            all = loadAllEntities(DatabaseSchema.TABLE_CONCEPT_DESCRIPTION, ConceptDescription.class);
-        }
-        else {
-            all = loadAllEntitiesPaginated(DatabaseSchema.TABLE_CONCEPT_DESCRIPTION, ConceptDescription.class, offset, limit + 1);
-        }
-
-        Stream<ConceptDescription> stream = all.stream();
-
-        if (criteria != null) {
-            if (criteria.getIdShort() != null) {
-                stream = stream.filter(x -> Objects.equals(x.getIdShort(), criteria.getIdShort()));
-            }
+        if (criteria != null && (criteria.getIsCaseOf() != null || criteria.getDataSpecification() != null)) {
+            // reference comparisons that cannot be expressed as indexed SQL equality - filter in
+            // memory, but still apply the SQL-able conditions in the query
+            Stream<ConceptDescription> stream = loadAllEntities(DatabaseSchema.TABLE_CONCEPT_DESCRIPTION, ConceptDescription.class, conditions).stream();
             if (criteria.getIsCaseOf() != null) {
                 stream = stream.filter(x -> x.getIsCaseOf() != null && x.getIsCaseOf().contains(criteria.getIsCaseOf()));
             }
@@ -566,30 +598,22 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
                         x.getEmbeddedDataSpecifications().stream().anyMatch(
                                 d -> Objects.equals(d.getDataSpecification(), criteria.getDataSpecification())));
             }
+            return preparePagedResult(stream, modifier, paging);
         }
-        return preparePagedResult(stream, modifier, paging);
+        return findEntities(DatabaseSchema.TABLE_CONCEPT_DESCRIPTION, ConceptDescription.class, conditions, modifier, paging);
     }
 
 
     @Override
-    public void save(ConceptDescription conceptDescription) {
-        try {
-            saveEntity(DatabaseSchema.TABLE_CONCEPT_DESCRIPTION, conceptDescription.getId(), conceptDescription);
-        }
-        catch (PersistenceException e) {
-            LOGGER.error("Could not save ConceptDescription with id {}", conceptDescription.getId());
-        }
+    public void save(ConceptDescription conceptDescription) throws PersistenceException {
+        saveEntity(DatabaseSchema.TABLE_CONCEPT_DESCRIPTION, conceptDescription.getId(), conceptDescription,
+                new IndexColumn(DatabaseSchema.COLUMN_ID_SHORT, conceptDescription.getIdShort()));
     }
 
 
     @Override
-    public void deleteConceptDescription(String id) {
-        try {
-            deleteEntity(DatabaseSchema.TABLE_CONCEPT_DESCRIPTION, id);
-        }
-        catch (PersistenceException e) {
-            LOGGER.error("Could not delete ConceptDescription with id {}", id);
-        }
+    public void deleteConceptDescription(String id) throws ResourceNotFoundException, PersistenceException {
+        deleteEntity(DatabaseSchema.TABLE_CONCEPT_DESCRIPTION, id);
     }
 
 
@@ -605,15 +629,25 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
     }
 
 
-    private void save(Environment environment) {
-        if (environment == null)
+    private void save(Environment environment) throws PersistenceException {
+        if (environment == null) {
             return;
-        if (environment.getAssetAdministrationShells() != null)
-            environment.getAssetAdministrationShells().forEach(this::save);
-        if (environment.getSubmodels() != null)
-            environment.getSubmodels().forEach(this::save);
-        if (environment.getConceptDescriptions() != null)
-            environment.getConceptDescriptions().forEach(this::save);
+        }
+        if (environment.getAssetAdministrationShells() != null) {
+            for (AssetAdministrationShell shell: environment.getAssetAdministrationShells()) {
+                save(shell);
+            }
+        }
+        if (environment.getSubmodels() != null) {
+            for (Submodel submodel: environment.getSubmodels()) {
+                save(submodel);
+            }
+        }
+        if (environment.getConceptDescriptions() != null) {
+            for (ConceptDescription conceptDescription: environment.getConceptDescriptions()) {
+                save(conceptDescription);
+            }
+        }
     }
 
 
@@ -629,16 +663,28 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
     }
 
 
-    private <T> void saveEntity(String table, String id, T entity) throws PersistenceException {
+    private <T> void saveEntity(String table, String id, T entity, IndexColumn... indexColumns) throws PersistenceException {
         Ensure.requireNonNull(id, MSG_ID_NOT_NULL);
         try {
             String json = jsonSerializer.write(entity);
-            String sql = "INSERT INTO " + table + " (id, content) VALUES (?, ?) " +
-                    "ON CONFLICT (id) DO UPDATE SET content = EXCLUDED.content";
+            StringBuilder columns = new StringBuilder("id, content");
+            StringBuilder placeholders = new StringBuilder("?, ?");
+            StringBuilder updates = new StringBuilder("content = EXCLUDED.content");
+            for (IndexColumn column: indexColumns) {
+                columns.append(", ").append(column.name());
+                placeholders.append(", ?");
+                updates.append(", ").append(column.name()).append(" = EXCLUDED.").append(column.name());
+            }
+            String sql = "INSERT INTO " + table + " (" + columns + ") VALUES (" + placeholders + ") " +
+                    "ON CONFLICT (id) DO UPDATE SET " + updates;
 
             try (Connection c = dataSource.getConnection(); PreparedStatement preparedStatement = c.prepareStatement(sql)) {
                 preparedStatement.setString(1, id);
                 preparedStatement.setObject(2, json, Types.OTHER);
+                int parameterIndex = 3;
+                for (IndexColumn column: indexColumns) {
+                    preparedStatement.setString(parameterIndex++, column.value());
+                }
                 preparedStatement.executeUpdate();
             }
         }
@@ -670,10 +716,20 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
     }
 
 
-    private <T> List<T> loadAllEntities(String table, Class<T> clazz) throws PersistenceException {
+    private <T> List<T> loadAllEntities(String table, Class<T> clazz, List<SqlCondition> conditions) throws PersistenceException {
         List<T> results = new ArrayList<>();
-        String sql = SELECT_CONTENT + table + " ORDER BY seq ASC";
-        try (Connection c = dataSource.getConnection(); PreparedStatement pstmt = c.prepareStatement(sql)) {
+        StringBuilder sql = new StringBuilder(SELECT_CONTENT).append(table);
+        if (!conditions.isEmpty()) {
+            sql.append(" WHERE ").append(conditions.stream().map(SqlCondition::clause).collect(Collectors.joining(" AND ")));
+        }
+        sql.append(" ORDER BY seq ASC");
+        try (Connection c = dataSource.getConnection(); PreparedStatement pstmt = c.prepareStatement(sql.toString())) {
+            int parameterIndex = 1;
+            for (SqlCondition condition: conditions) {
+                for (String parameter: condition.parameters()) {
+                    pstmt.setString(parameterIndex++, parameter);
+                }
+            }
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
                     results.add(jsonDeserializer.read(rs.getString(CONTENT), clazz));
@@ -687,46 +743,68 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
     }
 
 
-    private <T> List<T> loadAllEntitiesPaginated(String table, Class<T> clazz, long offset, int limit) throws PersistenceException {
-        List<T> results = new ArrayList<>();
-        String sql = SELECT_CONTENT + table + " ORDER BY seq ASC LIMIT ? OFFSET ?";
-        try (Connection c = dataSource.getConnection(); PreparedStatement pstmt = c.prepareStatement(sql)) {
-            pstmt.setInt(1, limit);
-            pstmt.setLong(2, offset);
+    /**
+     * Queries one page of entities with all filtering, ordering and pagination done by the database. Pagination uses
+     * the cursor as keyset on the seq column ({@code seq > cursor}) instead of an offset, so pages are stable under
+     * concurrent inserts and deletes and the database never scans skipped rows. One row more than the limit is fetched
+     * to determine whether more data is available.
+     */
+    private <T extends Referable> Page<T> findEntities(String table, Class<T> clazz, List<SqlCondition> conditions, QueryModifier modifier, PagingInfo paging)
+            throws PersistenceException {
+        long previousSeq = paging.getCursor() != null ? readCursor(paging.getCursor()) : 0;
+        StringBuilder sql = new StringBuilder("SELECT content, seq FROM ").append(table).append(" WHERE seq > ?");
+        for (SqlCondition condition: conditions) {
+            sql.append(" AND ").append(condition.clause());
+        }
+        sql.append(" ORDER BY seq ASC");
+        if (paging.hasLimit()) {
+            sql.append(" LIMIT ?");
+        }
+        List<T> content = new ArrayList<>();
+        long lastSeq = previousSeq;
+        boolean hasMore = false;
+        try (Connection c = dataSource.getConnection(); PreparedStatement pstmt = c.prepareStatement(sql.toString())) {
+            int parameterIndex = 1;
+            pstmt.setLong(parameterIndex++, previousSeq);
+            for (SqlCondition condition: conditions) {
+                for (String parameter: condition.parameters()) {
+                    pstmt.setString(parameterIndex++, parameter);
+                }
+            }
+            if (paging.hasLimit()) {
+                pstmt.setLong(parameterIndex, paging.getLimit() + 1);
+            }
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
-                    results.add(jsonDeserializer.read(rs.getString(CONTENT), clazz));
+                    if (paging.hasLimit() && content.size() >= paging.getLimit()) {
+                        hasMore = true;
+                        break;
+                    }
+                    content.add(jsonDeserializer.read(rs.getString(CONTENT), clazz));
+                    lastSeq = rs.getLong("seq");
                 }
             }
         }
         catch (Exception e) {
-            throw new PersistenceException("Database error loading paginated from " + table, e);
+            throw new PersistenceException("Database error querying " + table, e);
         }
-        return results;
+        return Page.<T> builder()
+                .result(QueryModifierHelper.applyQueryModifier(content, modifier))
+                .metadata(PagingMetadata.builder()
+                        .cursor(hasMore ? writeCursor(lastSeq) : null)
+                        .build())
+                .build();
     }
 
 
-    private int countEntities(String table) throws PersistenceException {
-        String sql = "SELECT COUNT(*) FROM " + table;
-        try (Connection c = dataSource.getConnection(); PreparedStatement pstmt = c.prepareStatement(sql)) {
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getInt(1);
-                }
-            }
-        }
-        catch (Exception e) {
-            throw new PersistenceException("Database error counting from " + table, e);
-        }
-        return 0;
-    }
-
-
-    private void deleteEntity(String table, String id) throws PersistenceException {
+    private void deleteEntity(String table, String id) throws ResourceNotFoundException, PersistenceException {
+        Ensure.requireNonNull(id, MSG_ID_NOT_NULL);
         String sql = "DELETE FROM " + table + " WHERE id = ?";
         try (Connection c = dataSource.getConnection(); PreparedStatement pstmt = c.prepareStatement(sql)) {
             pstmt.setString(1, id);
-            pstmt.executeUpdate();
+            if (pstmt.executeUpdate() == 0) {
+                throw new ResourceNotFoundException(String.format("resource not found (id %s)", id));
+            }
         }
         catch (SQLException e) {
             throw new PersistenceException("Database error deleting " + id, e);
@@ -799,4 +877,15 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
                 DeepCopyHelper.deepCopy(result),
                 modifier);
     }
+
+    /**
+     * A queryable column holding a value extracted from the entity on save, kept in sync with the JSONB content.
+     */
+    private record IndexColumn(String name, String value) {}
+
+    /**
+     * A SQL filter fragment with positional parameters, e.g. {@code id_short = ?}. All parameters are bound as
+     * strings.
+     */
+    private record SqlCondition(String clause, List<String> parameters) {}
 }
