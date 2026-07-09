@@ -15,7 +15,6 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.PagingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
@@ -24,6 +23,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithModifierAndPaging;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.AbstractPagedResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
 import java.util.Map;
 
 

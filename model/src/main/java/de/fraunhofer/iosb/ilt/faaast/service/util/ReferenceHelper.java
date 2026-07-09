@@ -680,6 +680,25 @@ public class ReferenceHelper {
 
 
     /**
+     * Checks if the {@code collection} contains any references that start with the given {@code reference}.
+     *
+     * @param collection the collection of references to check
+     * @param reference the reference to check for
+     * @return true if the {@code collection} contains any references that start with the given {@code reference}, otherwise
+     *         false
+     */
+    public static boolean containsReferenceDirectlyOrRecursivly(Collection<Reference> collection, Reference reference) {
+        if (Objects.isNull(collection)) {
+            return false;
+        }
+        if (Objects.isNull(reference)) {
+            return true;
+        }
+        return collection.stream().anyMatch(x -> startsWith(x, reference));
+    }
+
+
+    /**
      * Groups references by {@code ReferenceHelper.equals(...)}.
      *
      * @param references the references to group

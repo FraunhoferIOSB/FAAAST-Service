@@ -32,7 +32,7 @@ All endpoint implementations share the following common configuration properties
 :::{table} Configuration properties of all Endpoint implementations.
 | Name                                 | Allowed Value                                                                                                                                                                                                                                                                                               | Description                                                | Default Value                               |
 | ------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- | ------------------------------------------- |
-| profiles<br>*(optional)*             | List, allowed values:<br>AAS_FULL<br>AAS_READ<br>AAS_REPOSITORY_FULL<br>AAS_REPOSITORY_READ<br>AASX_FILE_SERVER_FULL<br>CONCEPT_DESCRIPTION_FULL<br>DISCOVERY_FULL<br>FAAAST_IMPORT<br>FAAAST_RESET<br>SUBMODEL_FULL<br>SUBMODEL_READ<br>SUBMODEL_VALUE<br>SUBMODEL_REPOSITORY_FULL<br>SUBMODEL_REPOSITORY_READ | The AAS Service Profiles that the endpoint should support. | (empty, meaning all profiles are supported) |
+| profiles<br>*(optional)*             | List, allowed values:<br>AAS_FULL<br>AAS_READ<br>AAS_REPOSITORY_FULL<br>AAS_REPOSITORY_READ<br>AASX_FILE_SERVER_FULL<br>CONCEPT_DESCRIPTION_FULL<br>DISCOVERY_FULL<br>FAAAST_IMPORT<br>FAAAST_RESET<br>FAAAST_OPERATION_PROVIDER_RUNTIME<br>SUBMODEL_FULL<br>SUBMODEL_READ<br>SUBMODEL_VALUE<br>SUBMODEL_REPOSITORY_FULL<br>SUBMODEL_REPOSITORY_READ | The AAS Service Profiles<br>that the endpoint should support. | (empty, meaning all profiles are supported) |
 :::
 
 (endpoint-http)=
@@ -46,22 +46,26 @@ The HTTP Endpoint is based on the document [Details of the Asset Administration 
 ### Configuration
 
 :::{table} Configuration properties of HTTP Endpoint.
-| Name                                 | Allowed Value                                               | Description                                                                                                                                                                              | Default Value                               |
-| ------------------------------------ | ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------- |
-| certificate<br>*(optional)*          | [CertificateInfo](#providing-certificates-in-configuration) | The HTTPS certificate to use.<br>                                                                                                                                                        | self-signed certificate                     |
-| corsAllowCredentials<br>*(optional)* | Boolean                                                     | Sets the `Access-Control-Allow-Credentials` response header.                                                                                                                             | false                                       |
-| corsAllowedHeaders<br>*(optional)*   | String (comma-separated list)                               | Sets the `Access-Control-Allow-Headers` response header.                                                                                                                                 | *                                           |
-| corsAllowedMethods<br>*(optional)*   | String (comma-separated list)                               | Sets the `Access-Control-Allow-Methods` response header.                                                                                                                                 | GET, POST, HEAD                             |
-| corsAllowedOrigin<br>*(optional)*    | String                                                      | Sets the `Access-Control-Allow-Origin` response header.                                                                                                                                  | *                                           |
-| corsEnabled<br>*(optional)*          | Boolean                                                     | If Cross-Origin Resource Sharing (CORS) should be enabled.<br>Typically required if you want to access the REST interface from any machine other than the one running FA³ST Service.     | false                                       |
-| corsExposedHeaders<br>*(optional)*   | String (comma-separated list)                               | Sets the `Access-Control-Expose-Headers` response header.                                                                                                                                |                                             |
-| corsMaxAge<br>*(optional)*           | Long                                                        | Sets the `Access-Control-Max-Age` response header.                                                                                                                                       | 3600                                        |
-| hostname<br>*(optional)*             | String                                                      | The hostname to be used for automatic registration with registry.                                                                                                                        | auto-detect (typically IP address)          |
-| pathPrefix<br>*(optional)*           | String                                                      | The path prefix to be used for automatic registration with registry. Must start with a "/" and not end with a "/". Exceptions: "" and "/". (regex: `^(?:$|/|/.*[^/])$`)                  | /api/v3.0                                   | 
-| includeErrorDetails<br>*(optional)*  | Boolean                                                     | If set, stack traceis added to the HTTP responses incase of error.                                                                                                                       | false                                       |
-| port<br>*(optional)*                 | Integer                                                     | The port to use.                                                                                                                                                                         | 443                                         |
-| sniEnabled<br>*(optional)*           | Boolean                                                     | If Server Name Identification (SNI) should be enabled.<br>**This should only be disabled for testing purposes as it may present a security risk!**                                       | true                                        |
-| sslEnabled<br>*(optional)*           | Boolean                                                     | If SSL/HTTPS should be enabled.<br>**This should only be disabled for testing purposes as it may present a security risk!**                                                              | true                                        |
+| Name                                    | Allowed Value                                               | Description                                                                                                                                                                                                                                                | Default Value                               |
+| --------------------------------------- | ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------- |
+| certificate<br>*(optional)*             | [CertificateInfo](#providing-certificates-in-configuration) | The HTTPS certificate to use.<br>                                                                                                                                                                                                                          | self-signed certificate                     |
+| corsAllowCredentials<br>*(optional)*    | Boolean                                                     | Sets the `Access-Control-Allow-Credentials` response header.                                                                                                                                                                                               | false                                       |
+| corsAllowedHeaders<br>*(optional)*      | String (comma-separated list)                               | Sets the `Access-Control-Allow-Headers` response header.                                                                                                                                                                                                   | *                                           |
+| corsAllowedMethods<br>*(optional)*      | String (comma-separated list)                               | Sets the `Access-Control-Allow-Methods` response header.                                                                                                                                                                                                   | GET, POST, HEAD                             |
+| corsAllowedOrigin<br>*(optional)*       | String                                                      | Sets the `Access-Control-Allow-Origin` response header.                                                                                                                                                                                                    | *                                           |
+| corsEnabled<br>*(optional)*             | Boolean                                                     | If Cross-Origin Resource Sharing (CORS) should be enabled.<br>Typically required if you want to access the REST interface from any machine other than the one running FA³ST Service.                                                                       | false                                       |
+| corsExposedHeaders<br>*(optional)*      | String (comma-separated list)                               | Sets the `Access-Control-Expose-Headers` response header.                                                                                                                                                                                                  |                                             |
+| corsMaxAge<br>*(optional)*              | Long                                                        | Sets the `Access-Control-Max-Age` response header.                                                                                                                                                                                                         | 3600                                        |
+| hostname<br>*(optional)*                | String                                                      | The external URI the FA³ST Service is reachable from (e.g., Kubernetes Ingress URL). Used in registry synchronization and MessageBusCloudEvents. If this is defined, no additional scheme or port will be added. Example: <https://my-domain.example/path> | auto-detect (typically IP address)          |
+| httpVersion<br>*(optional)*             | HTTP_1_1<br>HTTP_2                                          | The HTTP version to use for the connection. If HTTP 2 is used but not supported by the server, the connection will automatically downgrade.                                                                                                                | HTTP_2                                      |
+| pathPrefix<br>*(optional)*              | String                                                      | The path prefix to be used for automatic registration with registry. Must start with a "/" and not end with a "/". Exceptions: "" and "/". (regex: `^(?:$\|/\|/.*[^/])$`)                                                                                  | /api/v3.0                                   |
+| includeErrorDetails<br>*(optional)*     | Boolean                                                     | If set, stack trace is added to the HTTP responses incase of error.                                                                                                                                                                                        | false                                       |
+| port<br>*(optional)*                    | Integer                                                     | The port to use.                                                                                                                                                                                                                                           | 443                                         |
+| sniEnabled<br>*(optional)*              | Boolean                                                     | If Server Name Identification (SNI) should be enabled.<br>**This should only be disabled for testing purposes as it may present a security risk!**                                                                                                         | true                                        |
+| sslEnabled<br>*(optional)*              | Boolean                                                     | If SSL/HTTPS should be enabled.<br>**This should only be disabled for testing purposes as it may present a security risk!**                                                                                                                                | true                                        |
+| subprotocol<br>*(optional)*             | String                                                      | The subprotocol to be used for automatic registration with registry. Limited to a maximum of 128 characters.                                                                                                                                               |                                             |
+| subprotocolBody<br>*(optional)*         | String                                                      | The subprotocol body to be used for automatic registration with registry. Limited to a maximum of 128 characters.<br>Supports templating: any "${id}" in the given subprotocolBody will be replaced with the AAS/submodel identifier.                      |                                             |
+| subprotocolBodyEncoding<br>*(optional)* | String                                                      | The subprotocol body encoding to be used for automatic registration with registry.                                                                                                                                                                         |                                             |
 :::
 
 ```{code-block} json
@@ -84,7 +88,8 @@ The HTTP Endpoint is based on the document [Details of the Asset Administration 
 		"corsEnabled": true,
 		"corsExposedHeaders": "X-Custom-Header",
 		"corsMaxAge": 1000,
-		"hostname": "localhost",
+		"hostname": "https://my-domain.example/path",
+		"httpVersion": "HTTP_2",
 		"pathPrefix": "/api/v3.0",
 		"includeErrorDetails": true,
 		"port": 443,
@@ -111,11 +116,58 @@ FA³ST Service supports the following APIs as defined by the [OpenAPI documentat
 
 Additionally, FA³ST Service offers the following proprietary API calls:
 
-| HTTP Method | URL Path | Description                                                                                                                                                                                                 | Payload             | Response                                                                 |
-| ----------- | -------- |-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------| ------------------- | ------------------------------------------------------------------------ |
-| GET         | /reset   | Resets the server which includes deleting all AASs, submodels, concept descriptions, files, asset connections, and pending operations.                                                                      | -                   | `204 No Content`                                                         |
-| POST        | /import  | Imports an AAS files in any supported data format. Set the `Content-Type` header accordingly so that the server can parse the document. For AASX, it is application/asset-administration-shell-package+xml. | The file to upload. | `200 Ok` with body containing list of errors that happend during import. |
+| HTTP Method | URL Path                                                 | Description                                                                                                                                                                                                      | Payload                       | Response                                                                 |
+|-------------| -------------------------------------------------------- |------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------| ----------------------------- | ------------------------------------------------------------------------ |
+| DELETE      | /reset                                                   | Resets the server which includes deleting all AASs, submodels,<br>concept descriptions, files, asset connections, and pending operations.                                                                        | -                             | `204 No Content`                                                         |
+| POST        | /import                                                  | Imports an AAS file in any supported data format. Set the `Content-Type`<br>header accordingly so that the server can parse the document.<br>For AASX, it is application/asset-administration-shell-package+xml. | The file to upload.           | `200 Ok` with body containing list<br>of errors that happend during import. |
+| POST        | /submodel/submodel-elements<br>/{idShortPath}/connection | Adds an Asset Connection to the operation at the specified path.                                                                                                                                                 | Asset Operation Configuration | `204 No Content`                                                         |
+| DELETE      | /submodel/submodel-elements<br>/{idShortPath}/connection | Removes an Asset Connection from the operation at the specified path.                                                                                                                                            | Asset Operation Configuration | `204 No Content`                                                         |
 
+#### Asset Operation Configuration
+
+As can be seen in the previous table, there's the possibility to add or remove an Asset Connection from an operation during runtime. For both calls, a specific method body is required, called `Asset Operation Configuration` in the table.
+It consists of two main objects: `connection` and `provider`.
+
+```{code-block} json
+{
+  "connection": {
+    // Connection-Level configuration
+  },
+  "provider": {
+    // OperationProvider Configuration
+  }
+}
+```
+
+The `connection` object contains the Connection-Level configuration, and `provider` the OperationProvider Configuration.
+You can refer to the AssetConnection Configuration section to get details about the corresponding configuration options.
+
+In the following section you can find an example configuration.
+
+```{code-block} json
+{
+  "connection": {
+    "@class": "de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.OpcUaAssetConnection",
+    "host": "opc.tcp://example.com:4840"
+  },
+  "provider": {
+    "nodeId": "nsu=com:example;s=foo",
+    "parentNodeId": "nsu=com:example;s=fooObject",
+    "inputArgumentMapping": [
+      {
+        "idShort": "ExampleInputId",
+        "argumentName": "ExampleInputArgument"
+      }
+    ],
+    "outputArgumentMapping": [
+      {
+        "idShort": "ExampleOutputId",
+        "argumentName": "ExampleOutputArgument"
+      }
+    ]
+  }
+}
+```
 
 #### Using HTTP PATCH
 

@@ -84,6 +84,7 @@ public class HttpEndpointWithProvidedCertificateTest extends AbstractHttpEndpoin
         endpoint.init(
                 CoreConfig.DEFAULT,
                 HttpEndpointConfig.builder()
+                        .hostname(HOST)
                         .port(port)
                         .cors(true)
                         .certificate(CertificateConfig.builder()

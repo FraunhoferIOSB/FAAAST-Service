@@ -62,7 +62,7 @@ public class ValueArrayDeserializer extends ContainerDeserializerBase<Object[]> 
         }
         ElementValue[] result = new ElementValue[node.size()];
         for (int i = 0; i < node.size(); i++) {
-            context.setAttribute(ContextAwareElementValueDeserializer.VALUE_TYPE_CONTEXT, typeInfo.getElements().get(i));
+            context.setAttribute(ContextAwareElementValueDeserializer.CONTEXT_TYPE_INFO, typeInfo.getElements().get(i));
             Class<?> type = ((TypeInfo) typeInfo.getElements().get(i)).getType();
             Object element = context.readTreeAsValue(node.get(i), type);
             result[i] = (ElementValue) element;

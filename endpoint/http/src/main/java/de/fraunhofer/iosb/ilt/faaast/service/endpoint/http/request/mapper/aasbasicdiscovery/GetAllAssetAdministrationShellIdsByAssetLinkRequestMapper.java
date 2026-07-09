@@ -16,7 +16,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.aasba
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractRequestMapperWithPaging;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.QueryParameters;
@@ -24,6 +23,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasbasicdiscovery.GetAllAssetAdministrationShellIdsByAssetLinkRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasbasicdiscovery.GetAllAssetAdministrationShellIdsByAssetLinkResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
 import java.util.Map;
 import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
 

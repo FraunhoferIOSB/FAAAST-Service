@@ -14,7 +14,10 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.provider.config;
 
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AbstractAssetValueProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.ReadWriteMode;
 import de.fraunhofer.iosb.ilt.faaast.service.util.StringHelper;
 import java.util.Objects;
 
@@ -22,9 +25,26 @@ import java.util.Objects;
 /**
  * Base class for AssetValueProviderConfig supporting multiple data formats.
  */
-public abstract class AbstractMultiFormatValueProviderConfig extends AbstractMultiFormatProviderConfig implements MultiFormatValueProviderConfig {
+public abstract class AbstractMultiFormatValueProviderConfig extends AbstractMultiFormatProviderConfig implements MultiFormatValueProviderConfig, AssetValueProviderConfig {
 
+    protected ReadWriteMode readWriteMode;
     protected String query;
+
+    protected AbstractMultiFormatValueProviderConfig() {
+        this.readWriteMode = AbstractAssetValueProviderConfig.DEFAULT_READ_WRITE_MODE;
+    }
+
+
+    @Override
+    public ReadWriteMode getReadWriteMode() {
+        return readWriteMode;
+    }
+
+
+    public void setReadWriteMode(ReadWriteMode readWriteMode) {
+        this.readWriteMode = readWriteMode;
+    }
+
 
     @Override
     public String getQuery() {
@@ -48,6 +68,7 @@ public abstract class AbstractMultiFormatValueProviderConfig extends AbstractMul
         }
         AbstractMultiFormatValueProviderConfig that = (AbstractMultiFormatValueProviderConfig) o;
         return super.equals(that)
+                && Objects.equals(readWriteMode, that.readWriteMode)
                 && Objects.equals(query, that.query);
     }
 
@@ -62,17 +83,24 @@ public abstract class AbstractMultiFormatValueProviderConfig extends AbstractMul
         }
         AbstractMultiFormatValueProviderConfig that = (AbstractMultiFormatValueProviderConfig) other;
         return super.sameAs(that)
+                && Objects.equals(readWriteMode, that.readWriteMode)
                 && StringHelper.equalsNullOrEmpty(query, that.query);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), query);
+        return Objects.hash(super.hashCode(), readWriteMode, query);
     }
 
     protected abstract static class AbstractBuilder<T extends AbstractMultiFormatValueProviderConfig, B extends AbstractBuilder<T, B>>
             extends AbstractMultiFormatProviderConfig.AbstractBuilder<T, B> {
+
+        public B readWriteMode(ReadWriteMode value) {
+            getBuildingInstance().setReadWriteMode(value);
+            return getSelf();
+        }
+
 
         public B query(String value) {
             getBuildingInstance().setQuery(value);

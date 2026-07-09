@@ -1,0 +1,53 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "faaast-service.fullname" . }}-config
+  labels:
+    {{- include "faaast-service.labels" . | nindent 4 }}
+data:
+  data:
+    {{- /* build endpoints with adjusted aclFolder */ -}}
+    {{- $rawEndpoints := default list .Values.endpoints -}}
+    {{- $endpoints := list -}}
+    {{- range $_, $ep := $rawEndpoints }}
+      {{- $e := deepCopy $ep -}}
+      {{- if $ep.aclFolder }}
+        {{- $acl := printf "/app/resources/%s" (trimPrefix "/" $ep.aclFolder) -}}
+        {{- $_ = set $e "aclFolder" $acl -}}
+      {{- end }}
+      {{- $endpoints = append $endpoints $e -}}
+    {{- end }}
+  config.json: |
+    {
+      {{- with .Values.core }}
+      "core": {{ toRawJson . | nindent 6 | trim }},
+      {{- end }}
+
+      {{- with .Values.endpoints }}
+      "endpoints": {{ toRawJson $endpoints | nindent 6 | trim }},
+      {{- end }}
+
+      {{- with .Values.assetConnections }}
+      "assetConnections": {{ toRawJson . | nindent 6 | trim }},
+      {{- end }}
+
+      {{- with .Values.submodelTemplateProcessors }}
+      "submodelTemplateProcessors": {{ toRawJson . | nindent 6 | trim }}
+      {{- end }}
+
+      {{- if hasKey .Values "persistence" }}
+      "persistence": {{ toRawJson .Values.persistence | nindent 6 | trim }},
+      {{- else }}
+      "persistence": {
+        "@class": "de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemory"
+      },
+      {{- end }}
+
+      {{- if hasKey .Values "messageBus" }}
+      "messageBus": {{ toRawJson .Values.messageBus | nindent 6 | trim }}
+      {{- else }}
+      "messageBus": {
+        "@class": "de.fraunhofer.iosb.ilt.faaast.service.messagebus.internal.MessageBusInternal"
+      }
+      {{- end }}
+    }

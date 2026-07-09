@@ -143,7 +143,7 @@ public class AasSubmodelElementHelper {
      * @throws ValueFormatException The data format of the value is invalid
      */
     public static void setSubmodelElementValue(AASSubmodelElementType subElem, ElementValue value, NodeManagerUaNode nodeManager) throws StatusException, ValueFormatException {
-        LOG.debug("setSubmodelElementValue: {}", subElem.getBrowseName().getName());
+        LOG.trace("setSubmodelElementValue: {}", subElem.getBrowseName().getName());
 
         // changed the order because of an error in the derivation hierarchy of ElementValue
         // perhaps the order will be changed back to normal as soon as the error is fixed
@@ -837,7 +837,7 @@ public class AasSubmodelElementHelper {
      * @throws StatusException If the operation fails.
      */
     private static void setPropertyValue(AASPropertyType property, PropertyValue value) throws StatusException {
-        LOG.debug("setPropertyValue: {} to {}", property.getBrowseName().getName(), value.getValue());
+        LOG.trace("setPropertyValue: {} to {}", property.getBrowseName().getName(), value.getValue());
         property.setValue(ValueConverter.convertTypedValue(value.getValue()));
     }
 

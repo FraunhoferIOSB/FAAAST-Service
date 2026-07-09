@@ -14,16 +14,16 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.test.util;
 
-import com.apicatalog.jsonld.http.media.MediaType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.google.common.net.MediaType;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonApiDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonApiSerializer;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.UnsupportedModifierException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -109,7 +109,7 @@ public class HttpHelper {
         return client
                 .send(HttpRequest.newBuilder()
                         .uri(new URI(url))
-                        .header(HttpConstants.HEADER_CONTENT_TYPE, MediaType.JSON.toString())
+                        .header(HttpConstants.HEADER_CONTENT_TYPE, MediaType.JSON_UTF_8.toString())
                         .PUT(HttpRequest.BodyPublishers.ofString(new JsonApiSerializer().write(payload)))
                         .build(),
                         BodyHandlers.ofString());
@@ -121,7 +121,7 @@ public class HttpHelper {
         return client
                 .send(HttpRequest.newBuilder()
                         .uri(new URI(url))
-                        .header(HttpConstants.HEADER_CONTENT_TYPE, MediaType.JSON.toString())
+                        .header(HttpConstants.HEADER_CONTENT_TYPE, MediaType.JSON_UTF_8.toString())
                         .POST(HttpRequest.BodyPublishers.ofString(Objects.nonNull(payload) && String.class.isAssignableFrom(payload.getClass())
                                 ? (String) payload
                                 : new JsonApiSerializer().write(payload)))

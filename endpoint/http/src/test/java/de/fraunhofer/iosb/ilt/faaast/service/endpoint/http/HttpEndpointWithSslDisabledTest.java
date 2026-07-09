@@ -53,6 +53,7 @@ public class HttpEndpointWithSslDisabledTest extends AbstractHttpEndpointTest {
         endpoint.init(
                 CoreConfig.DEFAULT,
                 HttpEndpointConfig.builder()
+                        .hostname(HOST)
                         .port(port)
                         .cors(true)
                         .ssl(false)

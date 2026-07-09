@@ -14,18 +14,18 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.util;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.type.TypeFactory;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingMetadata;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.DeserializationException;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.SerializationException;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.JsonDeserializer;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.JsonSerializer;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.JsonMapperFactory;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.SimpleAbstractTypeResolverFactory;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
@@ -42,13 +42,10 @@ import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperationVariable;
  */
 public class DeepCopyHelper {
 
-    private static final ObjectMapper mapper;
+    private static final JsonMapper mapper;
 
     static {
-        mapper = new ObjectMapper()
-                .enable(SerializationFeature.INDENT_OUTPUT)
-                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-                .setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+        mapper = new JsonMapperFactory().create(new SimpleAbstractTypeResolverFactory().create());
         mapper.setTypeFactory(mapper.getTypeFactory().withClassLoader(ImplementationManager.getClassLoader()));
     }
 
@@ -64,9 +61,9 @@ public class DeepCopyHelper {
      */
     public static Environment deepCopy(Environment env) {
         try {
-            return new JsonDeserializer().read(new JsonSerializer().write(env), Environment.class);
+            return mapper.readValue(mapper.writeValueAsString(env), Environment.class);
         }
-        catch (SerializationException | DeserializationException e) {
+        catch (JsonProcessingException e) {
             throw new IllegalArgumentException("deep copy of AAS environment failed", e);
         }
     }
@@ -108,9 +105,9 @@ public class DeepCopyHelper {
                     String.format("type mismatch - can not create deep copy of instance of type %s with target type %s", referable.getClass(), outputClass));
         }
         try {
-            return new JsonDeserializer().read(new JsonSerializer().write(referable), outputClass);
+            return mapper.readValue(mapper.writeValueAsString(referable), outputClass);
         }
-        catch (SerializationException | DeserializationException e) {
+        catch (JsonProcessingException e) {
             throw new RuntimeException("deep copy of AAS environment failed", e);
         }
     }
@@ -127,8 +124,7 @@ public class DeepCopyHelper {
      * @throws IllegalArgumentException if referables is null
      * @throws RuntimeException when operation fails
      */
-    public static <T extends Referable> List<T> deepCopy(Collection<? extends T> referables,
-                                                         Class<? extends T> outputClass) {
+    public static <T extends Referable> List<T> deepCopy(Collection<? extends T> referables, Class<? extends T> outputClass) {
         if (outputClass == null) {
             throw new IllegalArgumentException("outputClass must be non-null");
         }
@@ -136,6 +132,32 @@ public class DeepCopyHelper {
             throw new IllegalArgumentException("referables must be non-null");
         }
         return referables.stream().map(x -> deepCopy(x, outputClass)).collect(Collectors.toList());
+    }
+
+
+    /**
+     * Create a deep copy of a page of {@link org.eclipse.digitaltwin.aas4j.v3.model.Referable} objects.
+     *
+     * @param page page with referables which should be deep copied
+     * @param outputClass of the referables
+     * @param <T> type of the referables
+     * @return a list with deep copied referables
+     * @throws IllegalArgumentException if outputClass is null
+     * @throws RuntimeException when operation fails
+     */
+    public static <T extends Referable> Page<T> deepCopy(Page<? extends T> page, Class<? extends T> outputClass) {
+        if (page == null) {
+            return null;
+        }
+        if (outputClass == null) {
+            throw new IllegalArgumentException("outputClass must be non-null");
+        }
+        return Page.<T> builder()
+                .metadata(PagingMetadata.builder()
+                        .cursor(page.getMetadata().getCursor())
+                        .build())
+                .result(page.getContent().stream().map(x -> deepCopy(x, outputClass)).collect(Collectors.toList()))
+                .build();
     }
 
 
@@ -166,7 +188,40 @@ public class DeepCopyHelper {
      * @throws RuntimeException when deep copy fails
      */
     public static <T> T deepCopyAny(T original, Class<T> type) {
+        return deepCopyAny(original, TypeFactory.defaultInstance().constructType(type));
+    }
+
+
+    /**
+     * Create a deep copy of any object by serializing and deserializing it using Jackson.
+     *
+     * @param <T> type of the object
+     * @param original the original object
+     * @param type type of the object
+     * @return a deep copy of the object
+     * @throws RuntimeException when deep copy fails
+     */
+    public static <T> T deepCopyAny(T original, JavaType type) {
         try {
+            if (Objects.nonNull(type) && type.hasGenericTypes() && type.getRawClass() == Page.class) {
+                JavaType[] typeParams = type.findTypeParameters(Page.class);
+                if (typeParams != null && typeParams.length == 1) {
+                    Page page = (Page) original;
+                    JavaType contentType = typeParams[0];
+                    Page result = (Page) Page.builder()
+                            .result((List) page.getContent().stream()
+                                    .map(LambdaExceptionHelper.rethrowFunction(x -> mapper.readValue(mapper.writeValueAsString(x), contentType)))
+                                    .collect(Collectors.toList()))
+                            .build();
+                    if (Objects.nonNull(page.getMetadata())) {
+                        result.setMetadata(PagingMetadata.builder()
+                                .cursor(page.getMetadata().getCursor())
+                                .build());
+                    }
+                    return (T) result;
+                }
+            }
+
             String json = mapper.writeValueAsString(original);
             return mapper.readValue(json, type);
         }

@@ -1,0 +1,195 @@
+{{- $root := . }}
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "faaast-service.fullname" . }}
+  labels:
+    {{- include "faaast-service.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "faaast-service.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "faaast-service.labels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "faaast-service.serviceAccountName" . }}
+      {{- with .Values.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      initContainers:
+      {{- range $c := .Values.initContainers | default list }}
+        {{- if or (not (hasKey $c "enabled")) $c.enabled }}
+        - {{- $spec := omit $c "enabled" }}
+          {{ toYaml $spec | nindent 10 }}
+        {{- end }}
+      {{- end }}
+      {{- if and (hasKey .Values "persistence") (and (hasSuffix "Mongo" (index .Values.persistence "@class")) (hasKey .Values.persistence "connectionString") )}}
+        - name: wait-for-persistence
+          image: mongo:8.2.7
+          command: [ "/bin/sh", "-c" ]
+          args:
+            - |
+              CONNECTION_STRING="{{ .Values.persistence.connectionString }}"
+              echo "Waiting for MongoDB at ${CONNECTION_STRING}..."
+              for i in $(seq 1 30); do
+                if mongosh "${CONNECTION_STRING}" --eval 'db.adminCommand({ ping: 1 })' --quiet >/dev/null 2>&1; then
+                  echo "MongoDB is reachable"
+                  exit 0
+                fi
+                echo "MongoDB not reachable yet, retry ${i}/30..."
+                sleep 2
+              done
+              echo "MongoDB is NOT reachable after timeout"
+              exit 1
+      {{- end }}
+      {{- if and (hasKey .Values "messageBus") (eq (index .Values.messageBus "@class") "de.fraunhofer.iosb.ilt.faaast.service.messagebus.cloudevents.MessageBusCloudevents") }}
+        - name: wait-for-cloudevents-mqtt
+          image: busybox:1.35
+          command:
+            - sh
+            - -c
+            - |
+              echo "Waiting for CloudEvents MQTT broker to be ready..."
+              URL="{{ .Values.messageBus.host }}"
+              HOST=$(echo "$URL" | sed -E 's,^[a-zA-Z]+://([^:/]+).*,\1,')
+              PORT=$(echo "$URL" | sed -E 's,.*:([0-9]+)$,\1,')
+              until nc -z "$HOST" "$PORT"; do
+                echo "CloudEvents MQTT broker not ready, waiting..."
+                sleep 5
+              done
+              echo "CloudEvents MQTT broker is ready!"
+      {{- end }}
+      {{- if and (hasKey .Values "messageBus") (and (eq (index .Values.messageBus "@class") "de.fraunhofer.iosb.ilt.faaast.service.messagebus.mqtt.MessageBusMqtt") (hasKey .Values.messageBus "host")) }}
+        - name: wait-for-mqtt
+          image: busybox:1.35
+          command:
+            - sh
+            - -c
+            - |
+              echo "Waiting for MQTT broker to be ready..."
+              until nc -z {{ .Values.messageBus.host }} {{ .Values.messageBus.port }}; do
+                echo "MQTT broker not ready, waiting..."
+                sleep 5
+              done
+              echo "MQTT broker is ready!"
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          {{- with .Values.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+          {{- if .Values.debug.enabled }}
+            - name: "JAVA_TOOL_OPTIONS"
+            {{- if .Values.debug.suspendOnStart }}
+              value: >-
+                {{ printf "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=%v" .Values.debug.port }}
+            {{- else }}
+              value: >-
+                {{ printf "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=%v" .Values.debug.port }}
+            {{- end }}
+          {{- end }}
+          args:
+          {{- if hasKey .Values "cli" }}
+          {{- if hasKey .Values.cli "loglevel" }}
+            - "-{{ .Values.cli.loglevel }}"
+          {{- end }}
+          {{- if and (hasKey .Values.cli "empty") .Values.cli.empty }}
+            - "-e"
+          {{- end }}
+          {{- if and (hasKey .Values.cli "validation") (not .Values.cli.empty) }}
+            - "-no-validation"
+          {{- end }}
+          {{- if and (hasKey .Values.cli "quiet") .Values.cli.quiet }}
+            - "-q"
+          {{- end }}
+          {{- if and (hasKey .Values.cli "showStacktrace") .Values.cli.showStacktrace }}
+            - "-s"
+          {{- end }}
+          {{- end }}
+          ports:
+            {{- range $i, $endpoint := .Values.endpoints }}
+            - name: port-{{ $i }}
+              containerPort: {{ $endpoint.port }}
+              protocol: TCP
+            {{- end }}
+
+          {{- with .Values.livenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.readinessProbe }}
+          readinessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            {{- range $vm := .Values.volumeMounts | default list }}
+            {{- if or (not (hasKey $vm "enabled")) $vm.enabled }}
+            - {{- $spec := omit $vm "enabled" }}
+              {{ toYaml $spec | nindent 14 }}
+            {{- end }}
+            {{- end }}
+            - name: config
+              mountPath: /app/config.json
+              subPath: config.json
+            {{- $seenVolumes := dict }}
+            {{- range $i, $ep := $root.Values.endpoints }}
+              {{- if and $ep.aclFolder (not (hasKey $seenVolumes $ep.aclFolder)) }}
+                {{- $_ := set $seenVolumes $ep.aclFolder true }}
+            - name: acl-{{ $i }}
+              mountPath: {{ printf "/app/resources/%s" $ep.aclFolder | quote }}
+              {{- end }}
+            {{- end }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ include "faaast-service.fullname" . }}-config
+      {{- with .Values.volumes }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- $seenMounts := dict }}
+      {{- range $i, $ep := $root.Values.endpoints }}
+      {{- if and $ep.aclFolder (not (hasKey $seenMounts $ep.aclFolder)) }}
+        {{- $_ := set $seenMounts $ep.aclFolder true }}
+        - name: acl-{{ $i }}
+          configMap:
+            name: {{ printf "%s-acl-%d" $.Release.Name $i }}
+      {{- end }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

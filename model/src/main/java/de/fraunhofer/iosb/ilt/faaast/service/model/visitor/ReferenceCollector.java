@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.internal.util.ReflectionHelper;
 import org.eclipse.digitaltwin.aas4j.v3.model.AnnotatedRelationshipElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetInformation;
@@ -66,6 +67,23 @@ public class ReferenceCollector extends AssetAdministrationShellElementWalker {
     public static Map<Reference, Referable> collect(Object obj) {
         ReferenceCollector collector = new ReferenceCollector();
         collector.walk(obj);
+        return collector.result;
+    }
+
+
+    /**
+     * Collects a map of all referables and their corresponding references starting at a parent element given by
+     * {@code parent}.
+     *
+     * @param obj the object to search, e.g., an null {@link org.eclipse.digitaltwin.aas4j.v3.model.Environment},
+     *            {@link org.eclipse.digitaltwin.aas4j.v3.model.Referable}, or
+     *            {@link org.eclipse.digitaltwin.aas4j.v3.model.Identifiable}
+     * @param parent the parent reference to start from
+     * @return a map of all referables contained in any depth with their corresponding reference
+     */
+    public static Map<Reference, Referable> collect(Object obj, Reference parent) {
+        ReferenceCollector collector = new ReferenceCollector();
+        collector.walk(obj, parent);
         return collector.result;
     }
 
@@ -127,13 +145,6 @@ public class ReferenceCollector extends AssetAdministrationShellElementWalker {
 
 
     @Override
-    public void visit(AnnotatedRelationshipElement element) {
-        visitBefore(element);
-        visitAfter(element);
-    }
-
-
-    @Override
     public void visit(AssetInformation element) {
         visitBefore(element);
         visitAfter(element);
@@ -148,9 +159,14 @@ public class ReferenceCollector extends AssetAdministrationShellElementWalker {
 
 
     @Override
-    public void visit(Entity element) {
-        visitBefore(element);
-        visitAfter(element);
+    public void visit(Entity entity) {
+        visitBefore(entity);
+
+        if ((entity != null) && (entity.getStatements() != null)) {
+            entity.getStatements().forEach(this::visit);
+        }
+
+        visitAfter(entity);
     }
 
 
@@ -161,15 +177,57 @@ public class ReferenceCollector extends AssetAdministrationShellElementWalker {
     }
 
 
-    private static boolean isContainerElement(Referable referable) {
-        if (referable == null) {
+    /**
+     * Walks the given object using {@code reference} reference as base. The reference has to point to the element given in
+     * {@code obj}.
+     *
+     * @param obj object to walk, must be some element of an AAS
+     * @param reference the reference to use as base, i.e., prefix to all found references. It must point to the element
+     *            given in {@code obj}, i.e., the last key must address the element.
+     */
+    public void walk(Object obj, Reference reference) {
+        init();
+        if (Objects.nonNull(reference)) {
+            if (reference.getKeys().size() >= 2 && ReferenceHelper.getEffectiveKeyType(ReferenceHelper.getParent(reference)) == KeyTypes.SUBMODEL_ELEMENT_LIST) {
+                try {
+                    currentListIndex = Integer.parseInt(ReferenceHelper.getEffectiveKey(reference).getValue());
+                }
+                catch (NumberFormatException e) {
+                    throw new IllegalArgumentException(String.format(
+                            "Reference points to an element in a SubmodelElementList but effective key is not a valid index (actual: %s)",
+                            ReferenceHelper.getEffectiveKey(reference).getValue()));
+                }
+            }
+            if (isAasElement(obj)) {
+                this.parent = ReferenceHelper.getParent(reference);
+            }
+            else {
+                this.parent = reference;
+            }
+        }
+        super.walk(obj);
+    }
+
+
+    private static boolean isContainerElement(Object obj) {
+        if (obj == null) {
             return false;
         }
-        return Environment.class.isAssignableFrom(referable.getClass())
-                || AssetAdministrationShell.class.isAssignableFrom(referable.getClass())
-                || Submodel.class.isAssignableFrom(referable.getClass())
-                || SubmodelElementCollection.class.isAssignableFrom(referable.getClass())
-                || SubmodelElementList.class.isAssignableFrom(referable.getClass());
+        return Environment.class.isAssignableFrom(obj.getClass())
+                || AssetAdministrationShell.class.isAssignableFrom(obj.getClass())
+                || Submodel.class.isAssignableFrom(obj.getClass())
+                || SubmodelElementCollection.class.isAssignableFrom(obj.getClass())
+                || SubmodelElementList.class.isAssignableFrom(obj.getClass())
+                || Entity.class.isAssignableFrom(obj.getClass())
+                || AnnotatedRelationshipElement.class.isAssignableFrom(obj.getClass());
+    }
+
+
+    private static boolean isAasElement(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        return ReflectionHelper.INTERFACES.stream().anyMatch(x -> x.isAssignableFrom(obj.getClass()));
     }
 
 

@@ -15,9 +15,8 @@
 package de.fraunhofer.iosb.ilt.faaast.service.example.assetconnection.custom.provider;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AbstractAssetValueProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetProviderConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.example.assetconnection.custom.provider.config.CustomValueProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.example.assetconnection.custom.util.AasHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.example.assetconnection.custom.util.RandomValueGenerator;
@@ -35,21 +34,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class CustomValueProvider implements AssetValueProvider {
+public class CustomValueProvider extends AbstractAssetValueProvider<CustomValueProviderConfig> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CustomValueProvider.class);
-    private final CustomValueProviderConfig config;
     private final Reference reference;
     private final Datatype datatype;
 
     public CustomValueProvider(Reference reference, CustomValueProviderConfig config, ServiceContext serviceContext)
             throws ValueMappingException, ResourceNotFoundException, PersistenceException {
+        super(config);
         Ensure.requireNonNull(reference, "reference must be non-null");
-        Ensure.requireNonNull(config, "config must be non-null");
         Ensure.requireNonNull(serviceContext, "serviceContext must be non-null");
         AasHelper.ensureType(reference, Property.class, serviceContext);
         this.reference = reference;
-        this.config = config;
         this.datatype = AasHelper.getDatatype(reference, serviceContext);
         LOGGER.debug(String.format("custom property 'note' of 'CustomValueProvider': %s", config.getNote()));
     }
@@ -69,12 +66,6 @@ public class CustomValueProvider implements AssetValueProvider {
     @Override
     public void setValue(DataElementValue value) throws AssetConnectionException {
         throw new UnsupportedOperationException(String.format("%s does not support writing", getClass().getName()));
-    }
-
-
-    @Override
-    public AssetProviderConfig asConfig() {
-        return config;
     }
 
 }

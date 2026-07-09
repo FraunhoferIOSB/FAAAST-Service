@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.visitor;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.HashMap;
@@ -122,6 +123,34 @@ public class ReferenceCollectorTest {
         Map<Reference, Referable> actual = ReferenceCollector.collect(environment);
         Assert.assertEquals(expected.size(), actual.size());
         // cannot compare using .equals on references as keyTypes do not match
+        for (var reference: expected.keySet()) {
+            Optional<Reference> actualReference = actual.keySet().stream()
+                    .filter(x -> ReferenceHelper.equals(reference, x))
+                    .findAny();
+            Assert.assertTrue(actualReference.isPresent());
+            Assert.assertEquals(expected.get(reference), actual.get(actualReference.get()));
+        }
+    }
+
+
+    @Test
+    public void testCollectPage() {
+        Property property1 = new DefaultProperty.Builder()
+                .idShort("property1")
+                .build();
+        Property property2 = new DefaultProperty.Builder()
+                .idShort("property2")
+                .build();
+        Property property3 = new DefaultProperty.Builder()
+                .idShort("property3")
+                .build();
+
+        Map<Reference, Referable> expected = new HashMap<>();
+        expected.put(new ReferenceBuilder().elements(property1).build(), property1);
+        expected.put(new ReferenceBuilder().elements(property2).build(), property2);
+        expected.put(new ReferenceBuilder().elements(property3).build(), property3);
+        Map<Reference, Referable> actual = ReferenceCollector.collect(Page.of(property1, property2, property3));
+        Assert.assertEquals(expected.size(), actual.size());
         for (var reference: expected.keySet()) {
             Optional<Reference> actualReference = actual.keySet().stream()
                     .filter(x -> ReferenceHelper.equals(reference, x))

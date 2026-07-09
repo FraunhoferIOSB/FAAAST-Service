@@ -85,7 +85,7 @@ public class OpcUaEndpoint extends AbstractEndpoint<OpcUaEndpointConfig> {
         }
 
         try {
-            aasEnvironment = serviceContext.getAASEnvironment();
+            aasEnvironment = serviceContext.getPersistence().getEnvironment();
             Ensure.requireNonNull(aasEnvironment, "aasEnvironment must not be null");
             server = new Server(config.getTcpPort(), aasEnvironment, this);
             server.startup();
@@ -200,7 +200,7 @@ public class OpcUaEndpoint extends AbstractEndpoint<OpcUaEndpointConfig> {
      * @return True if it has a Value Provider, false otherwise.
      */
     public boolean hasValueProvider(Reference refElement) {
-        return serviceContext.hasValueProvider(refElement);
+        return serviceContext.getAssetConnectionManager().hasValueProvider(refElement);
     }
 
 
@@ -255,7 +255,7 @@ public class OpcUaEndpoint extends AbstractEndpoint<OpcUaEndpointConfig> {
      * @throws PersistenceException if accessing the environment fails
      */
     public Environment getAASEnvironment() throws PersistenceException {
-        return serviceContext.getAASEnvironment();
+        return serviceContext.getPersistence().getEnvironment();
     }
 
 

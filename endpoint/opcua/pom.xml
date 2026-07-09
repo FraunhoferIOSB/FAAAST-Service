@@ -66,6 +66,16 @@
                     <groupId>org.bouncycastle</groupId>
                     <artifactId>bcprov-jdk15to18</artifactId>
                 </exclusion>
+                <!-- Fixes CVE-2026-54399 & CVE-2026-54428 -->
+                <exclusion>
+                    <groupId>org.apache.httpcomponents</groupId>
+                    <artifactId>httpcore</artifactId>
+                </exclusion>
+                <!-- Fixes CVE-2026-54399 & CVE-2026-54428 -->
+                <exclusion>
+                    <groupId>org.apache.httpcomponents</groupId>
+                    <artifactId>httpcore-nio</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <!-- explicitely use version of commons-codec also used in other modules -->

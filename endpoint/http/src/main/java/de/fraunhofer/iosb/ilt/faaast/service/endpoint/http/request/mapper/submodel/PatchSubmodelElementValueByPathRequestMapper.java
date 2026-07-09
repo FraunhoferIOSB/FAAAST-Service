@@ -16,7 +16,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.submo
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractSubmodelInterfaceRequestMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
@@ -26,6 +25,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestExcep
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValueParser;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;

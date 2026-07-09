@@ -12,13 +12,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout Source
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
       with:
         # Disabling shallow clone is recommended for improving relevancy of reporting
         fetch-depth: 0
 
-    - name: Cache maven repository
-      uses: actions/cache@v5
+    - name: Restore Cache - Maven Repository
+      uses: actions/cache/restore@v6
       with:
         path: |
           ~/.m2/repository
@@ -51,31 +51,23 @@ jobs:
       run: |
         mvn install sonar:sonar -P coverage -Dsonar.projectKey=FraunhoferIOSB_FAAAST-Service --settings maven-ci-settings.xml -B
 
-    - name: Restore CVD Database from Cache
-      uses: actions/cache/restore@v5
-      with:
-        path: |
-          ~/.m2/repository/org/owasp/dependency-check-data
-        key: ${{ runner.os }}-maven-owasp-cvedb
-
-    - name: Update CVD Database
-      env:
-        OWASP_OSS_INDEX_USERNAME: ${{ secrets.OWASP_OSS_INDEX_USERNAME }}
-        OWASP_OSS_INDEX_APIKEY: ${{ secrets.OWASP_OSS_INDEX_APIKEY }}
-        NIST_NVD_API_KEY: ${{ secrets.NIST_NVD_API_KEY }}
+    - name: Get Date
+      id: get-date
       run: |
-        mvn -B -P owasp -DnvdApiDelay=6000 --settings maven-ci-settings.xml org.owasp:dependency-check-maven:update-only
+        echo "date=$(/bin/date -u "+%Y-%m-%dT%H:%M:%S")" >> $GITHUB_OUTPUT
+      shell: bash
 
-    - name: Save CVD Database to Cache
-      uses: actions/cache/save@v5
+    - name: Restore Cache - CVE Database
+      uses: actions/cache/restore@v6
       with:
         path: |
           ~/.m2/repository/org/owasp/dependency-check-data
-        key: ${{ runner.os }}-maven-owasp-cvedb
+        key: ${{ runner.os }}-maven-owasp-cvedb-${{ steps.get-date.outputs.date }}
+        restore-keys: ${{ runner.os }}-maven-owasp-cvedb
 
     - name: Dependency Vulnerability Check with OWASP
       env:
         OWASP_OSS_INDEX_USERNAME: ${{ secrets.OWASP_OSS_INDEX_USERNAME }}
         OWASP_OSS_INDEX_APIKEY: ${{ secrets.OWASP_OSS_INDEX_APIKEY }}
       run: |
-        mvn org.owasp:dependency-check-maven:aggregate -P owasp --settings maven-ci-settings.xml -B
+        mvn org.owasp:dependency-check-maven:aggregate -P owasp --settings maven-ci-settings.xml -Dmaven.plugin.dependency-check.autoUpdate=false -B 

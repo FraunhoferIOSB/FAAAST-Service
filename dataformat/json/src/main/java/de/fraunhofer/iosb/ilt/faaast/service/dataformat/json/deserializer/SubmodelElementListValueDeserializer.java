@@ -74,7 +74,7 @@ public class SubmodelElementListValueDeserializer extends ContextAwareElementVal
             while (iterator.hasNext()) {
                 JsonNode child = iterator.next();
                 TypeInfo concreteChildTypeInfo = (TypeInfo) typeInfo.getElements().get(Integer.toString(i));
-                result.add((T) context.setAttribute(VALUE_TYPE_CONTEXT, concreteChildTypeInfo)
+                result.add((T) context.setAttribute(CONTEXT_TYPE_INFO, concreteChildTypeInfo)
                         .readTreeAsValue(child, concreteChildTypeInfo.getType()));
                 i++;
             }
@@ -82,7 +82,7 @@ public class SubmodelElementListValueDeserializer extends ContextAwareElementVal
         else {
             while (iterator.hasNext()) {
                 JsonNode child = iterator.next();
-                result.add((T) context.setAttribute(VALUE_TYPE_CONTEXT, genericChildTypeInfo)
+                result.add((T) context.setAttribute(CONTEXT_TYPE_INFO, genericChildTypeInfo)
                         .readTreeAsValue(child, genericChildTypeInfo.getType()));
             }
         }

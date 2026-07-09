@@ -47,13 +47,6 @@ public class EnvironmentSerializationManagerTest {
     }
 
 
-    @Test
-    @Ignore("Curently not supported by AAS4j")
-    public void testFromFileRDF() throws IOException, DeserializationException, Exception {
-        // assertEquals("src/test/resources/AASFull.rdf", new org.eclipse.digitaltwin.aas4j.v3.dataformat.rdf.Serializer());
-    }
-
-
     @Test(expected = DeserializationException.class)
     public void testFromFileFileNotExists() throws IOException, DeserializationException, Exception {
         EnvironmentSerializationManager.deserialize(new File("src/test/resources/AASSimple.foo"));

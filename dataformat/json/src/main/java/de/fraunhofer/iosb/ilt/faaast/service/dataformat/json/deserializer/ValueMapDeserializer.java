@@ -64,10 +64,6 @@ public class ValueMapDeserializer extends MapDeserializer {
         if (!node.isObject()) {
             return context.reportBadDefinition(Collection.class, "expected array");
         }
-        if (node.size() != typeInfo.getElements().size()) {
-            return context.reportBadDefinition(Collection.class,
-                    String.format("number of elements mismatch (expected: %d, actual: %d)", typeInfo.getElements().size(), node.size()));
-        }
         Iterator<Map.Entry<String, JsonNode>> iterator = node.fields();
         while (iterator.hasNext()) {
             Map.Entry<String, JsonNode> element = iterator.next();
@@ -76,7 +72,7 @@ public class ValueMapDeserializer extends MapDeserializer {
                         "found element '%s' during valueOnly deserialization that is not defined by type information",
                         element.getKey()));
             }
-            context.setAttribute(ContextAwareElementValueDeserializer.VALUE_TYPE_CONTEXT, typeInfo.getElements().get(element.getKey()));
+            context.setAttribute(ContextAwareElementValueDeserializer.CONTEXT_TYPE_INFO, typeInfo.getElements().get(element.getKey()));
             Class<?> type = ((TypeInfo) typeInfo.getElements().get(element.getKey())).getType();
             result.put(element.getKey(), context.readTreeAsValue(element.getValue(), type));
         }

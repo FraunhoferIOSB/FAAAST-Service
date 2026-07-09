@@ -28,11 +28,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValidationException
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.validation.ModelValidator;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractSubmodelInterfaceRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
+import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList;
@@ -57,27 +57,27 @@ public class PostSubmodelElementByPathRequestHandler extends AbstractSubmodelInt
                 .submodel(request.getSubmodelId())
                 .idShortPath(idShortPath)
                 .build();
-        ReferenceBuilder childReferenceBuilder = ReferenceBuilder.with(parentReference);
+        ReferenceBuilder childSubReferenceBuilder = new ReferenceBuilder();
         if (idShortPath.isEmpty()) {
-            childReferenceBuilder.element(request.getSubmodelElement().getIdShort());
+            childSubReferenceBuilder.element(request.getSubmodelElement().getIdShort());
         }
         else {
             SubmodelElement parent = context.getPersistence().getSubmodelElement(parentReference, QueryModifier.DEFAULT);
+            KeyTypes keyType = ReferenceHelper.toKeyType(request.getSubmodelElement().getClass());
             if (SubmodelElementList.class.isAssignableFrom(parent.getClass())) {
-                childReferenceBuilder.index(((SubmodelElementList) parent).getValue().size());
+                childSubReferenceBuilder.index(((SubmodelElementList) parent).getValue().size(), keyType);
+                ReferenceHelper.getEffectiveKey(parentReference).setType(KeyTypes.SUBMODEL_ELEMENT_LIST);
             }
             else {
-                childReferenceBuilder.element(request.getSubmodelElement().getIdShort());
+                childSubReferenceBuilder.element(request.getSubmodelElement().getIdShort(), keyType);
             }
         }
-        Reference childReference = childReferenceBuilder.build();
+        Reference childReference = ReferenceHelper.combine(parentReference, childSubReferenceBuilder.build());
         if (context.getPersistence().submodelElementExists(childReference)) {
             throw new ResourceAlreadyExistsException(childReference);
         }
+        context.getAssetConnectionManager().syncValueProvidersOnWrite(childReference, null, request.getSubmodelElement(), !request.isInternal());
         context.getPersistence().insert(parentReference, request.getSubmodelElement());
-        if (ElementValueHelper.isSerializableAsValue(request.getSubmodelElement().getClass())) {
-            context.getAssetConnectionManager().setValue(childReference, ElementValueMapper.toValue(request.getSubmodelElement()));
-        }
         if (!request.isInternal()) {
             context.getMessageBus().publish(ElementCreateEventMessage.builder()
                     .element(childReference)

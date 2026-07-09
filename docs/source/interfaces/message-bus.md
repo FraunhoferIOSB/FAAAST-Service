@@ -110,7 +110,7 @@ For deserialization of events the class `JsonEventDeserializer` in module `dataf
 | --------------------------------- | ----------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
 | clientCertificate<br>*(optional)* | [CertificateInfo](#providing-certificates-in-configuration) | The client certificate to use. If not set, SSL will be disabled.                                                                              |                            |
 | clientId<br>*(optional)*          | String                                                      | ClientId to use when connecting to the MQTT server.                                                                                           | FAST MQTT MessageBus       |
-| host<br>*(optional)*              | String                                                      | The host name of the MQTT server without prefix, e.g., 192.168.0.1.                                                                           | localhost                  |
+| host<br>*(optional)*              | String                                                      | The host name of the MQTT server without prefix, e.g., 192.168.0.1.                                                                           | 0.0.0.0                    |
 | password<br>*(optional)*          | String                                                      | Password used to connect to the MQTT server.                                                                                                  |                            |
 | port<br>*(optional)*              | Integer                                                     | The port to use for TCP communication.                                                                                                        | 1883                       |
 | serverCertificate<br>*(optional)* | [CertificateInfo](#providing-certificates-in-configuration) | The server certificate to use. If not set, SSL will be disabled.                                                                              |                            |
@@ -157,6 +157,69 @@ For deserialization of events the class `JsonEventDeserializer` in module `dataf
 		"password": "messagebus-password",
 		"clientId": "CustomClientId",
 		"topicPrefix": "faaast/events/"
+	},
+	//...
+}
+```
+
+
+
+## CloudEvents
+
+This implementation of the `MessageBus` interface publishes CloudEvent messages via MQTT by using an externally hosted MQTT broker.
+
+### Topics & Payload
+
+Each message is published under the topic defined in `[topicPrefix]`.
+The payload is a JSON serialization of a CloudEvent as specified in the async-aas specification: [https://factory-x-contributions.github.io/async-aas-helm](https://factory-x-contributions.github.io/async-aas-helm)
+
+Note: To modify the URL in a CloudEvent's `source` field, `HttpEndpointConfig.hostname` needs to be configured. Else, `http(s)://(localhost|127.0.0.1|local-ip-address):(port)` will be used, depending on the rest of the HttpEndpoint's config and your system. If multiple HttpEndpoints are defined, the MessageBus will try to select one with a non-local hostname.
+
+Note: MessageBusCloudEvents requires the definition of a HttpEndpoint in the FA³ST configuration. 
+
+### Configuration
+
+:::{table} Configuration properties of CloudEvents MessageBus.
+| Name                                | Allowed Value                                               | Description                                                                                                                                                     | Default Value                                                                                        |
+| ----------------------------------- | ----------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| host<br>                            | String                                                      | The host name of the MQTT server with scheme, port and path segments if relevant.                                                                               |                                                                                                      |
+| clientId<br>*(optional)*            | String                                                      | ClientId to use when connecting to the MQTT server. This clientId will only be used to identify as a MQTT publisher, not for oauth-flows or as a username.      | A randomized identifier                                                                                |
+| username<br>*(optional)*            | String                                                      | Username used to connect to the MQTT server.                                                                                                                    |                                                                                                      |
+| password<br>*(optional)*            | String                                                      | Password used to connect to the MQTT server.                                                                                                                    |                                                                                                      |
+| identityProviderUrl<br>*(optional)* | String                                                      | Oauth2 IdP URL. Obtained tokens are placed as the MQTT broker password, the username is obtained from the username config. Token refresh happens automatically. |                                                                                                      |
+| oauth2ClientId<br>*(optional)*      | String                                                      | Oauth2 client id to use when retrieving an oauth2-token from the IdP.                                                                                           |                                                                                                      |
+| oauth2ClientSecret<br>*(optional)*  | String                                                      | Oauth2 client secret to use when retrieving an oauth2-token from the IdP.                                                                                       |                                                                                                      |
+| topicPrefix<br>*(optional)*         | String                                                      | Prefix to use for the topic names.                                                                                                                              | noauth                                                                                               |
+| slimEvents<br>*(optional)*          | boolean                                                     | Whether the full referable is sent in a CloudEvent's data-field. If true, the data-field will be empty.                                                         | true                                                                                                 |
+| eventTypePrefix<br>*(optional)*     | String                                                      | Prefix to use in the CloudEvents type-field. Should end with a ".".                                                                                             | io.admin-shell.events.v1.                                                                            |
+| dataSchemaPrefix<br>*(optional)*    | String                                                      | Prefix to use in the CloudEvents dataschema-field. Should end with a "/".                                                                                       | https://api.swaggerhub.com/domains/Plattform_i40/Part1-MetaModel-Schemas/V3.1.0#/components/schemas/ |
+| clientCertificate<br>*(optional)*   | [CertificateInfo](#providing-certificates-in-configuration) | The client certificate to use. If not set, SSL will be disabled.                                                                                                |                                                                                                      |
+:::
+
+```{code-block} json
+:caption: Example configuration for CloudEvents MessageBus.
+:lineno-start: 1
+{
+	"messageBus": {
+		"@class": "de.fraunhofer.iosb.ilt.faaast.service.messagebus.cloudevents.MessageBusCloudEvents",
+		"host": "tcp://localhost:1883",
+		"clientCertificate": {
+			"keyStoreType": "PKCS12",
+			"keyStorePath": "C:\faaast\MyKeyStore.p12",
+			"keyStorePassword": "changeit",
+			"keyAlias": "client-key",
+			"keyPassword": "changeit"
+		},
+		"username": "broker-user",
+		"password": "broker-password",
+		"identityProviderUrl": "http://localhost:12345/realms/fa3st/protocol/openid-connect/token",
+		"oauth2ClientId": "my-keycloak-clientid",
+		"oauth2ClientSecret": "my-keycloak-clientsecret",
+		"clientId": "FA³ST Service client",
+		"topicPrefix": "noauth",
+		"slimEvents": true,
+		"eventTypePrefix": "io.admin-shell.events.v1.",
+		"dataSchemaPrefix": "https://api.swaggerhub.com/domains/Plattform_i40/Part1-MetaModel-Schemas/V3.1.0#/components/schemas/"
 	},
 	//...
 }
