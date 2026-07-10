@@ -22,7 +22,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import org.eclipse.digitaltwin.aas4j.v3.model.Message;
-import org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum;
+import org.eclipse.digitaltwin.aas4j.v3.model.MessageType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -94,7 +94,7 @@ public class OperationProviderHelper {
      * @return true if the message contains contains progress information inform of a percentage, false otherwise
      */
     public static boolean isProgressMessagePercentage(Message message) {
-        return message.getMessageType() == MessageTypeEnum.INFO
+        return message.getMessageType() == MessageType.INFO
                 && CORRELATION_ID_PROGRESS_PERCENTAGE.equalsIgnoreCase(message.getCorrelationId());
     }
 
@@ -106,7 +106,7 @@ public class OperationProviderHelper {
      * @return true if the message contains contains progress information inform of a a status message, false otherwise
      */
     public static boolean isProgressMessageStatus(Message message) {
-        return message.getMessageType() == MessageTypeEnum.INFO
+        return message.getMessageType() == MessageType.INFO
                 && CORRELATION_ID_PROGRESS_STATUS.equalsIgnoreCase(message.getCorrelationId());
     }
 

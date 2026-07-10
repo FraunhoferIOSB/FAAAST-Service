@@ -86,7 +86,7 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 import javax.net.ssl.SSLHandshakeException;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
-import org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum;
+import org.eclipse.digitaltwin.aas4j.v3.model.MessageType;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperation;
@@ -775,13 +775,13 @@ public class HttpAssetConnectionTest {
             Assert.assertEquals(2, progressPercentage.size());
             Assert.assertEquals(2, progressStatus.size());
             for (var m: progressPercentage) {
-                Assert.assertEquals(MessageTypeEnum.INFO, m.getMessageType());
+                Assert.assertEquals(MessageType.INFO, m.getMessageType());
                 Assert.assertEquals("2026-07-07T16:21:59.571621", m.getTimestamp());
             }
             Assert.assertEquals("30", progressPercentage.get(0).getText());
             Assert.assertEquals("60", progressPercentage.get(1).getText());
             for (var m: progressStatus) {
-                Assert.assertEquals(MessageTypeEnum.INFO, m.getMessageType());
+                Assert.assertEquals(MessageType.INFO, m.getMessageType());
                 Assert.assertEquals("2026-07-07T16:22:14.368721", m.getTimestamp());
                 Assert.assertEquals("Status Text", m.getText());
             }
