@@ -1429,7 +1429,7 @@ public class RequestHandlerManagerTest {
                         QueryModifier.MINIMAL,
                         Operation.class);
         doNothing().when(assetConnectionManager)
-                .invokeAsync(any(), any(), any(), any(), any());
+                .invokeAsync(any(), any(), any(), any(), any(), any());
 
         InvokeOperationAsyncRequest invokeOperationAsyncRequest = new InvokeOperationAsyncRequest.Builder()
                 .submodelId(submodelId)

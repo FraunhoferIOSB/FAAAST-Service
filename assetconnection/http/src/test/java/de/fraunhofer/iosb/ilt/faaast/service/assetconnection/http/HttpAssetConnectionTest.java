@@ -18,8 +18,10 @@ import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
 import static com.github.tomakehurst.wiremock.client.WireMock.exactly;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.request;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.temporaryRedirect;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
@@ -40,6 +42,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionExce
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.NewDataListener;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.format.JsonFormat;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.AsyncOperationMode;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.HttpOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.HttpSubscriptionProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.HttpValueProviderConfig;
@@ -48,6 +51,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.certificate.CertificateInformation;
 import de.fraunhofer.iosb.ilt.faaast.service.certificate.util.KeyStoreHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
@@ -68,6 +72,7 @@ import java.net.URL;
 import java.net.http.HttpClient;
 import java.nio.file.Files;
 import java.security.GeneralSecurityException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -81,6 +86,7 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 import javax.net.ssl.SSLHandshakeException;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
+import org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperation;
@@ -109,6 +115,7 @@ public class HttpAssetConnectionTest {
     private static final String KEYSTORE_TYPE = "PKCS12";
     private static final Reference REFERENCE = ReferenceHelper.parseReference("(Property)[ID_SHORT]Temperature");
     private static final String CONTENT_TYPE = "Content-Type";
+    private static final String LOCATION = "Location";
     private static final String APPLICATION_JSON = "application/json";
     private static final CertificateInformation SELF_SIGNED_SERVER_CERTIFICATE_INFO = CertificateInformation.builder()
             .applicationUri("urn:de:fraunhofer:iosb:ilt:faaast:service:assetconnection:http:test")
@@ -120,10 +127,33 @@ public class HttpAssetConnectionTest {
             .ipAddress("127.0.0.1")
             .dnsName("localhost")
             .build();
+    private static final String ASYNC_RESULT1 = """
+            {
+              "executionState": "Running",
+              "success": false,
+              "messages": [
+                {
+                  "messageType": "Info",
+                  "text": "%d",
+                  "timestamp": "2026-07-07T16:21:59.571621",
+                  "correlationId": "progress-percentage"
+                },
+                {
+                  "messageType": "Info",
+                  "text": "Status Text",
+                  "timestamp": "2026-07-07T16:22:14.368721",
+                  "correlationId": "progress-status"
+                }
+              ]
+            }
+            """;
 
+    private final List<Message> progressPercentage = new ArrayList<>();
+    private final List<Message> progressStatus = new ArrayList<>();
     private static URL httpUrl;
     private static URL httpsUrl;
     private static File keyStoreFile;
+    private boolean asyncCallbackCalled = false;
 
     @BeforeClass
     public static void init() throws IOException, GeneralSecurityException {
@@ -269,13 +299,14 @@ public class HttpAssetConnectionTest {
         assertSubscriptionProviderPropertyJson(
                 Datatype.INT,
                 RequestMethod.GET,
-                List.of("{\n"
-                        + "	\"data\": [\n"
-                        + "		{\n"
-                        + "			\"value\": 42\n"
-                        + "		}\n"
-                        + "	]\n"
-                        + "}"),
+                List.of("""
+                        {
+                        \t"data": [
+                        \t\t{
+                        \t\t\t"value": 42
+                        \t\t}
+                        \t]
+                        }"""),
                 "$.data[-1:].value",
                 //null,
                 false,
@@ -394,6 +425,24 @@ public class HttpAssetConnectionTest {
                 "{ \"parameters\": { \"in1\": ${in1}, \"inout1\": ${inout1} }}",
                 "{ \"parameters\": { \"in1\": 1, \"inout1\": 2 }}",
                 "{ \"result\": 3, \"modified\": { \"inout1\": 4 }}",
+                Map.of("out1", "$.result",
+                        "inout1", "$.modified.inout1"),
+                Map.of("in1", TypedValueFactory.create(Datatype.INT, "1")),
+                Map.of("inout1", TypedValueFactory.create(Datatype.INT, "2")),
+                Map.of("out1", TypedValueFactory.create(Datatype.INT, "3")),
+                Map.of("inout1", TypedValueFactory.create(Datatype.INT, "4")),
+                false);
+    }
+
+
+    @Test
+    public void testOperationProviderPropertyJsonPOSTAsync()
+            throws AssetConnectionException, ConfigurationInitializationException, ResourceNotFoundException, PersistenceException, ValueFormatException {
+        assertOperationProviderPropertyJsonAsync(
+                RequestMethod.POST,
+                "{ \"parameters\": { \"in1\": ${in1}, \"inout1\": ${inout1} }}",
+                "{ \"parameters\": { \"in1\": 1, \"inout1\": 2 }}",
+                "{ \"executionState\": \"Completed\", \"result\": 3, \"modified\": { \"inout1\": 4 }}",
                 Map.of("out1", "$.result",
                         "inout1", "$.modified.inout1"),
                 Map.of("in1", TypedValueFactory.create(Datatype.INT, "1")),
@@ -594,6 +643,148 @@ public class HttpAssetConnectionTest {
                 verifier = verifierModifier.apply(verifier);
             }
             verify(exactly(1), verifier);
+        }
+        finally {
+            connection.disconnect();
+        }
+    }
+
+
+    private void assertOperationProviderPropertyJsonAsync(RequestMethod method,
+                                                          String template,
+                                                          String expectedRequestToAsset,
+                                                          String assetResponse,
+                                                          Map<String, String> queries,
+                                                          Map<String, TypedValue> input,
+                                                          Map<String, TypedValue> inoutput,
+                                                          Map<String, TypedValue> expectedOutput,
+                                                          Map<String, TypedValue> expectedInoutput,
+                                                          boolean useHttps)
+            throws AssetConnectionException, ResourceNotFoundException, ConfigurationInitializationException, PersistenceException {
+        ServiceContext serviceContext = mock(ServiceContext.class);
+        Persistence persistence = mock(Persistence.class);
+        doReturn(persistence)
+                .when(serviceContext)
+                .getPersistence();
+        OperationVariable[] output = toOperationVariables(expectedOutput);
+        doReturn(new DefaultOperation.Builder()
+                .outputVariables(Arrays.asList(output))
+                .build())
+                .when(persistence)
+                .getSubmodelElement(eq(REFERENCE), any());
+        if (output != null) {
+            Stream.of(output).forEach(x -> {
+                try {
+                    doReturn(TypeExtractor.extractTypeInfo(x.getValue()))
+                            .when(serviceContext)
+                            .getTypeInfo(AasUtils.toReference(REFERENCE, x.getValue()));
+                }
+                catch (ResourceNotFoundException | PersistenceException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+        }
+
+        String path = String.format("/test/random/%s", "foo");
+        String pathStatus = String.format("%s/operation-status/199", path);
+        String pathResult = String.format("%s/operation-Result/199", path);
+        stubFor(request(method.getName(), urlEqualTo(path))
+                .willReturn(aResponse()
+                        .withStatus(202)
+                        .withHeader(LOCATION, pathStatus)));
+
+        String progress1 = String.format(ASYNC_RESULT1, 30);
+        String progress2 = String.format(ASYNC_RESULT1, 60);
+
+        // include state
+        stubFor(get(pathStatus)
+                .inScenario("async-test")
+                .whenScenarioStateIs(Scenario.STARTED)
+                .willSetStateTo("1")
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader(CONTENT_TYPE, APPLICATION_JSON)
+                        .withBody(progress1)));
+
+        stubFor(get(pathStatus)
+                .inScenario("async-test")
+                .whenScenarioStateIs("1")
+                .willSetStateTo("2")
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader(CONTENT_TYPE, APPLICATION_JSON)
+                        .withBody(progress2)));
+
+        stubFor(get(pathStatus)
+                .inScenario("async-test")
+                .whenScenarioStateIs("2")
+                .willSetStateTo(Scenario.STARTED)
+                .willReturn(temporaryRedirect(pathResult)));
+
+        stubFor((get(pathResult)
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader(CONTENT_TYPE, APPLICATION_JSON)
+                        .withBody(assetResponse))));
+        HttpAssetConnectionConfig config = createAssetConnectionConfig(null, useHttps);
+        config.getOperationProviders().put(REFERENCE, HttpOperationProviderConfig.builder()
+                .method(method.toString())
+                .path(path)
+                .queries(queries)
+                .format(JsonFormat.KEY)
+                .template(template)
+                .mode(AsyncOperationMode.ASYNC_AAS)
+                .build());
+        HttpAssetConnection connection = new HttpAssetConnection(
+                CoreConfig.builder()
+                        .build(),
+                config,
+                serviceContext);
+        awaitConnection(connection);
+        try {
+            connection.getOperationProviders().get(REFERENCE).invokeAsync(toOperationVariables(input),
+                    toOperationVariables(inoutput),
+                    message -> {
+                        if ("progress-percentage".equals(message.getCorrelationId())) {
+                            progressPercentage.add(message);
+                        }
+                        else if ("progress-status".equals(message.getCorrelationId())) {
+                            progressStatus.add(message);
+                        }
+                    },
+                    (OperationVariable[] actualInoutput, OperationVariable[] actualOutput) -> {
+                        asyncCallbackCalled = true;
+                        Assert.assertArrayEquals(toOperationVariables(expectedOutput), actualOutput);
+                        Assert.assertArrayEquals(toOperationVariables(expectedInoutput), actualInoutput);
+                        RequestPatternBuilder verifier = new RequestPatternBuilder(method, urlEqualTo(path));
+                        if (expectedRequestToAsset != null) {
+                            verifier = verifier.withHeader(CONTENT_TYPE, equalTo(APPLICATION_JSON))
+                                    .withRequestBody(equalToJson(expectedRequestToAsset));
+                        }
+                        verify(exactly(1), verifier);
+                    },
+                    e -> {
+                        Assert.fail();
+                    });
+            await().atMost(60, TimeUnit.SECONDS)
+                    .with()
+                    .pollInterval(1, TimeUnit.SECONDS)
+                    .until(() -> {
+                        return asyncCallbackCalled;
+                    });
+            Assert.assertEquals(2, progressPercentage.size());
+            Assert.assertEquals(2, progressStatus.size());
+            for (var m: progressPercentage) {
+                Assert.assertEquals(MessageTypeEnum.INFO, m.getMessageType());
+                Assert.assertEquals("2026-07-07T16:21:59.571621", m.getTimestamp());
+            }
+            Assert.assertEquals("30", progressPercentage.get(0).getText());
+            Assert.assertEquals("60", progressPercentage.get(1).getText());
+            for (var m: progressStatus) {
+                Assert.assertEquals(MessageTypeEnum.INFO, m.getMessageType());
+                Assert.assertEquals("2026-07-07T16:22:14.368721", m.getTimestamp());
+                Assert.assertEquals("Status Text", m.getText());
+            }
         }
         finally {
             connection.disconnect();

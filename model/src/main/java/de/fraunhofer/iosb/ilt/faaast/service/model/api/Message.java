@@ -36,6 +36,23 @@ public class Message extends DefaultMessage {
     }
 
 
+    /**
+     * Creates a new instance based on the provided input.
+     *
+     * @param other the original instance to use as input
+     * @return a new instance
+     */
+    public static Message of(org.eclipse.digitaltwin.aas4j.v3.model.Message other) {
+        return builder()
+                .code(other.getCode())
+                .correlationId(other.getCorrelationId())
+                .messageType(other.getMessageType())
+                .text(other.getText())
+                .timestamp(other.getTimestamp())
+                .build();
+    }
+
+
     public static Builder builder() {
         return new Builder();
     }

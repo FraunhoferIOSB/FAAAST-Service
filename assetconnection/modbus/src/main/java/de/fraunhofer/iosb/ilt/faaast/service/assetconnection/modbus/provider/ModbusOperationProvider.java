@@ -20,6 +20,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionExce
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.config.ModbusOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.model.MostSignificantWord;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
@@ -51,7 +52,10 @@ public class ModbusOperationProvider extends AbstractModbusProvider<ModbusOperat
 
 
     @Override
-    public void invokeAsync(OperationVariable[] input, OperationVariable[] inoutput, BiConsumer<OperationVariable[], OperationVariable[]> callbackSuccess,
+    public void invokeAsync(OperationVariable[] input,
+                            OperationVariable[] inoutput,
+                            Consumer<Message> callbackProgress,
+                            BiConsumer<OperationVariable[], OperationVariable[]> callbackSuccess,
                             Consumer<Throwable> callbackFailure) {
         throw new UnsupportedOperationException("Not supported yet.");
     }

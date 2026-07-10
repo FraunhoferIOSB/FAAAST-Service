@@ -20,6 +20,12 @@ package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.util;
 public class HttpConstants {
 
     public static final String CONTENT_TYPE = "Content-Type";
+    public static final String HEADER_LOCATION = "Location";
+    public static final String METHOD_GET = "GET";
+    public static final String METHOD_POST = "POST";
+    public static final int STATUS_OK = 200;
+    public static final int STATUS_ACCEPTED = 202;
+    public static final int STATUS_FOUND = 302;
 
     private HttpConstants() {}
 }

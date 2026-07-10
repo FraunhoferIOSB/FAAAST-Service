@@ -490,17 +490,19 @@ public class AssetConnectionManager {
      * @param input the input
      * @param inoutput the inoutput
      * @param callbackSuccess callback upon success
+     * @param callbackProgress callback upon progress
      * @param callbackFailure callback upon failure
      * @throws AssetConnectionException if invocation fails
      */
     public void invokeAsync(Reference reference,
                             OperationVariable[] input,
                             OperationVariable[] inoutput,
+                            Consumer<Message> callbackProgress,
                             BiConsumer<OperationVariable[], OperationVariable[]> callbackSuccess,
                             Consumer<Throwable> callbackFailure)
             throws AssetConnectionException {
         if (hasOperationProvider(reference)) {
-            getOperationProvider(reference).invokeAsync(input, inoutput, callbackSuccess, callbackFailure);
+            getOperationProvider(reference).invokeAsync(input, inoutput, callbackProgress, callbackSuccess, callbackFailure);
         }
     }
 
