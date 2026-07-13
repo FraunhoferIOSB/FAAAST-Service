@@ -232,12 +232,28 @@ public enum ServiceSpecificationProfile {
             "https://admin-shell.io/aas/API/3/1/AssetAdministrationShellRegistryServiceSpecification/SSP-002",
             List.of(),
             List.of()),
+    AAS_REGISTRY_BULK(
+            "https://admin-shell.io/aas/API/3/1/AssetAdministrationShellRegistryServiceSpecification/SSP-003",
+            List.of(),
+            List.of()),
+    AAS_REGISTRY_QUERY(
+            "https://admin-shell.io/aas/API/3/1/AssetAdministrationShellRegistryServiceSpecification/SSP-004",
+            List.of(),
+            List.of()),
     SUBMODEL_REGISTRY_FULL(
             "https://admin-shell.io/aas/API/3/1/SubmodelRegistryServiceSpecification/SSP-001",
             List.of(),
             List.of()),
     SUBMODEL_REGISTRY_READ(
             "https://admin-shell.io/aas/API/3/1/SubmodelRegistryServiceSpecification/SSP-002",
+            List.of(),
+            List.of()),
+    SUBMODEL_REGISTRY_BULK(
+            "https://admin-shell.io/aas/API/3/1/SubmodelRegistryServiceSpecification/SSP-003",
+            List.of(),
+            List.of()),
+    SUBMODEL_REGISTRY_QUERY(
+            "https://admin-shell.io/aas/API/3/1/SubmodelRegistryServiceSpecification/SSP-004",
             List.of(),
             List.of()),
     DISCOVERY_FULL(
