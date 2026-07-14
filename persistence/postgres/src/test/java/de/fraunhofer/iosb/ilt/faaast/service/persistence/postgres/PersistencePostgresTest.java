@@ -478,7 +478,7 @@ public class PersistencePostgresTest extends AbstractPersistenceTest<Persistence
 
 
     @Test
-    public void submodelElementIndexTracksWrites() throws Exception {
+    public void submodelElementTableTracksWrites() throws Exception {
         PersistencePostgres persistence = getPersistenceConfig(null, null, true)
                 .newInstance(CoreConfig.DEFAULT, SERVICE_CONTEXT);
         persistence.start();
@@ -502,9 +502,10 @@ public class PersistencePostgresTest extends AbstractPersistenceTest<Persistence
                         .build())
                 .build());
 
-        Assert.assertEquals(3, countIndexRows(submodelId));
-        Assert.assertEquals(0, java.math.BigDecimal.valueOf(42.5).compareTo(queryIndexValueNum(submodelId, "speed")));
-        Assert.assertEquals(Boolean.TRUE, queryIndexColumn(submodelId, "data.active", "value_bool", Boolean.class));
+        Assert.assertEquals(3, countElementRows(submodelId));
+        Assert.assertEquals(0, java.math.BigDecimal.valueOf(42.5).compareTo(
+                queryPropertyColumn(submodelId, "speed", "value_num", java.math.BigDecimal.class)));
+        Assert.assertEquals(Boolean.TRUE, queryPropertyColumn(submodelId, "data.active", "value_bool", Boolean.class));
 
         persistence.update(
                 new ReferenceBuilder().submodel(submodelId).element("speed").build(),
@@ -513,23 +514,26 @@ public class PersistencePostgresTest extends AbstractPersistenceTest<Persistence
                         .value("99.9")
                         .valueType(DataTypeDefXsd.DOUBLE)
                         .build());
-        Assert.assertEquals(0, java.math.BigDecimal.valueOf(99.9).compareTo(queryIndexValueNum(submodelId, "speed")));
+        Assert.assertEquals(0, java.math.BigDecimal.valueOf(99.9).compareTo(
+                queryPropertyColumn(submodelId, "speed", "value_num", java.math.BigDecimal.class)));
 
         persistence.deleteSubmodelElement(new ReferenceBuilder().submodel(submodelId).element("speed").build());
-        Assert.assertEquals(2, countIndexRows(submodelId));
-        Assert.assertNull(queryIndexColumn(submodelId, "speed", "id_short", String.class));
+        Assert.assertEquals(2, countElementRows(submodelId));
+        Assert.assertNull(queryPropertyColumn(submodelId, "speed", "value_text", String.class));
 
         persistence.deleteSubmodel(submodelId);
-        Assert.assertEquals(0, countIndexRows(submodelId));
+        Assert.assertEquals(0, countElementRows(submodelId));
 
         persistence.stop();
     }
 
 
-    private static int countIndexRows(String submodelId) throws Exception {
+    private static int countElementRows(String submodelId) throws Exception {
         try (java.sql.Connection c = java.sql.DriverManager.getConnection(jdbcUrl);
                 java.sql.PreparedStatement stmt = c.prepareStatement(
-                        "SELECT COUNT(*) FROM " + DatabaseSchema.TABLE_SUBMODEL_ELEMENT_INDEX + " WHERE submodel_id = ?")) {
+                        "SELECT COUNT(*) FROM " + DatabaseSchema.TABLE_SUBMODEL_ELEMENT + " e"
+                                + " JOIN " + DatabaseSchema.TABLE_SUBMODEL + " s ON s.id = e.submodel_id"
+                                + " WHERE s.submodel_identifier = ?")) {
             stmt.setString(1, submodelId);
             try (java.sql.ResultSet rs = stmt.executeQuery()) {
                 rs.next();
@@ -539,15 +543,13 @@ public class PersistencePostgresTest extends AbstractPersistenceTest<Persistence
     }
 
 
-    private static java.math.BigDecimal queryIndexValueNum(String submodelId, String idShortPath) throws Exception {
-        return queryIndexColumn(submodelId, idShortPath, "value_num", java.math.BigDecimal.class);
-    }
-
-
-    private static <T> T queryIndexColumn(String submodelId, String idShortPath, String column, Class<T> type) throws Exception {
+    private static <T> T queryPropertyColumn(String submodelId, String idShortPath, String column, Class<T> type) throws Exception {
         try (java.sql.Connection c = java.sql.DriverManager.getConnection(jdbcUrl);
                 java.sql.PreparedStatement stmt = c.prepareStatement(
-                        "SELECT " + column + " FROM " + DatabaseSchema.TABLE_SUBMODEL_ELEMENT_INDEX + " WHERE submodel_id = ? AND id_short_path = ?")) {
+                        "SELECT p." + column + " FROM " + DatabaseSchema.TABLE_PROPERTY + " p"
+                                + " JOIN " + DatabaseSchema.TABLE_SUBMODEL_ELEMENT + " e ON e.id = p.id"
+                                + " JOIN " + DatabaseSchema.TABLE_SUBMODEL + " s ON s.id = e.submodel_id"
+                                + " WHERE s.submodel_identifier = ? AND e.idshort_path = ?")) {
             stmt.setString(1, submodelId);
             stmt.setString(2, idShortPath);
             try (java.sql.ResultSet rs = stmt.executeQuery()) {
@@ -558,7 +560,7 @@ public class PersistencePostgresTest extends AbstractPersistenceTest<Persistence
 
 
     @Test
-    public void blobValuesAreExternalizedAndRoundTrip() throws Exception {
+    public void blobValuesAreStoredInBlobTableAndRoundTrip() throws Exception {
         PersistencePostgres persistence = getPersistenceConfig(null, null, true)
                 .newInstance(CoreConfig.DEFAULT, SERVICE_CONTEXT);
         persistence.start();
@@ -581,10 +583,9 @@ public class PersistencePostgresTest extends AbstractPersistenceTest<Persistence
                         .build())
                 .build());
 
-        // blob content is stored in the blob store, not in the document
+        // blob content is stored in the blob element table
         Assert.assertEquals(1, countBlobRows(submodelId));
-        Assert.assertTrue("document should not contain the blob content",
-                documentSize(submodelId) < content.length);
+        Assert.assertEquals(content.length, storedBlobSize(submodelId, "doc"));
 
         // default read strips the blob value, WITH_BLOB_VALUE returns the original content
         QueryModifier withBlob = new QueryModifier.Builder().extend(Extent.WITH_BLOB_VALUE).build();
@@ -623,7 +624,10 @@ public class PersistencePostgresTest extends AbstractPersistenceTest<Persistence
     private static int countBlobRows(String submodelId) throws Exception {
         try (java.sql.Connection c = java.sql.DriverManager.getConnection(jdbcUrl);
                 java.sql.PreparedStatement stmt = c.prepareStatement(
-                        "SELECT COUNT(*) FROM " + DatabaseSchema.TABLE_BLOB_STORE + " WHERE submodel_id = ?")) {
+                        "SELECT COUNT(*) FROM " + DatabaseSchema.TABLE_BLOB + " b"
+                                + " JOIN " + DatabaseSchema.TABLE_SUBMODEL_ELEMENT + " e ON e.id = b.id"
+                                + " JOIN " + DatabaseSchema.TABLE_SUBMODEL + " s ON s.id = e.submodel_id"
+                                + " WHERE s.submodel_identifier = ? AND b.value IS NOT NULL")) {
             stmt.setString(1, submodelId);
             try (java.sql.ResultSet rs = stmt.executeQuery()) {
                 rs.next();
@@ -633,11 +637,15 @@ public class PersistencePostgresTest extends AbstractPersistenceTest<Persistence
     }
 
 
-    private static int documentSize(String submodelId) throws Exception {
+    private static int storedBlobSize(String submodelId, String idShortPath) throws Exception {
         try (java.sql.Connection c = java.sql.DriverManager.getConnection(jdbcUrl);
                 java.sql.PreparedStatement stmt = c.prepareStatement(
-                        "SELECT length(content::text) FROM " + DatabaseSchema.TABLE_SUBMODEL + " WHERE id = ?")) {
+                        "SELECT octet_length(b.value) FROM " + DatabaseSchema.TABLE_BLOB + " b"
+                                + " JOIN " + DatabaseSchema.TABLE_SUBMODEL_ELEMENT + " e ON e.id = b.id"
+                                + " JOIN " + DatabaseSchema.TABLE_SUBMODEL + " s ON s.id = e.submodel_id"
+                                + " WHERE s.submodel_identifier = ? AND e.idshort_path = ?")) {
             stmt.setString(1, submodelId);
+            stmt.setString(2, idShortPath);
             try (java.sql.ResultSet rs = stmt.executeQuery()) {
                 rs.next();
                 return rs.getInt(1);

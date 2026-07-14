@@ -248,6 +248,73 @@ public class PersistencePostgresPerformanceTest {
 
 
     @Test
+    public void testPerformanceElementInsertion() throws Exception {
+        System.out.println("\n=== Performance Test: Element Insertion (Write) ===");
+
+        int[] elementCounts = {
+                100,
+                500,
+                1000,
+                2000,
+                5000
+        };
+
+        for (int elementCount: elementCounts) {
+            Environment environment = createHighElementCountAAS(elementCount);
+            PersistencePostgres persistence = createPersistence(environment, true);
+            persistence.start();
+
+            try {
+                String submodelId = "high_element_submodel";
+                SubmodelElementIdentifier parentIdentifier = SubmodelElementIdentifier.builder()
+                        .submodelId(submodelId)
+                        .build();
+
+                long totalTime = 0;
+                long maxMemory = 0;
+                int counter = 0;
+
+                for (int i = 0; i < WARMUP_ITERATIONS; i++) {
+                    persistence.insert(parentIdentifier, createProperty("WarmupProperty_" + counter, "Value_" + counter));
+                    counter++;
+                }
+
+                System.gc();
+                Thread.sleep(100);
+
+                MemoryUsage beforeHeap = memoryBean.getHeapMemoryUsage();
+
+                for (int i = 0; i < MEASUREMENT_ITERATIONS; i++) {
+                    DefaultProperty newElement = createProperty("NewProperty_" + counter, "Value_" + counter);
+                    counter++;
+                    long start = System.nanoTime();
+                    persistence.insert(parentIdentifier, newElement);
+                    long elapsed = System.nanoTime() - start;
+                    totalTime += TimeUnit.NANOSECONDS.toMillis(elapsed);
+                }
+
+                MemoryUsage afterHeap = memoryBean.getHeapMemoryUsage();
+                maxMemory = Math.max(beforeHeap.getUsed(), afterHeap.getUsed());
+
+                double avgTime = (double) totalTime / MEASUREMENT_ITERATIONS;
+                double memoryMB = maxMemory / (1024.0 * 1024.0);
+
+                System.out.printf(Locale.US, "  Elements %d (insert one more): avg=%.2fms, memory=%.2fMB%n",
+                        elementCount, avgTime, memoryMB);
+
+                csvWriter.format(Locale.US, "element_insertion,1,%d,1,%.2f,%.2f,%d%n",
+                        elementCount, avgTime, memoryMB, MEASUREMENT_ITERATIONS);
+                csvWriter.flush();
+
+            }
+            finally {
+                persistence.stop();
+            }
+        }
+    }
+
+
+    @Test
     public void testPerformanceHighSubmodelCount() throws Exception {
         System.out.println("\n=== Performance Test: High Submodel Count ===");
 
