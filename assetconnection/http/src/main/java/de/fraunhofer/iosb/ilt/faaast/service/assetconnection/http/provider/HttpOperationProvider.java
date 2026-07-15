@@ -18,7 +18,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.provider.MultiFormatOperationProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.HttpAssetConnectionConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.AsyncOperationMode;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.HttpOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.util.HttpConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.util.HttpHelper;
@@ -92,15 +91,6 @@ public class HttpOperationProvider extends MultiFormatOperationProvider<HttpOper
         this.serviceContext = serviceContext;
         this.reference = reference;
         this.connectionConfig = connectionConfig;
-    }
-
-
-    @Override
-    public OperationVariable[] invoke(OperationVariable[] input, OperationVariable[] inoutput) throws AssetConnectionException {
-        if (config.getMode() == AsyncOperationMode.ASYNC_AAS) {
-            throw new AssetConnectionException("Operation provider with mode ASYNC_AAS can only be invoked asynchronuously");
-        }
-        return super.invoke(input, inoutput);
     }
 
 
