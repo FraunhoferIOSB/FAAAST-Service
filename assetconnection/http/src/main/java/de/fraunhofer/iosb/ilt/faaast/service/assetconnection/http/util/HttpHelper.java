@@ -17,6 +17,8 @@ package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.util;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.format.FormatFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.http.HttpClient;
@@ -98,7 +100,7 @@ public class HttpHelper {
         Ensure.requireNonNull(path, "path must be non-null");
         Ensure.requireNonNull(method, "method must be non-null");
         HttpRequest.Builder builder = HttpRequest.newBuilder()
-                .uri(new URL(baseUrl, path).toURI());
+                .uri(buildUri(baseUrl, path));
         String mimeType = FormatFactory.create(format).getMimeType();
         if (!StringUtils.isBlank(mimeType)) {
             builder = builder.header(HttpConstants.CONTENT_TYPE, mimeType);
@@ -129,5 +131,25 @@ public class HttpHelper {
                         Map.Entry::getKey,
                         Map.Entry::getValue,
                         (x, y) -> y));
+    }
+
+
+    private static URI buildUri(URL baseUrl, String path) throws MalformedURLException, URISyntaxException {
+        if ((path == null) || path.isEmpty()) {
+            return baseUrl.toURI();
+        }
+
+        // before building the URI, we make sure, that baseUrl ends with a /
+        // and the path doesn't start with a /
+        URL safeBaseUrl;
+        if (!baseUrl.toString().endsWith("/")) {
+            safeBaseUrl = new URL(baseUrl.toString() + "/");
+        }
+        else {
+            safeBaseUrl = baseUrl;
+        }
+        String safePath = path.startsWith("/") ? path.substring(1) : path;
+
+        return new URL(safeBaseUrl, safePath).toURI();
     }
 }
