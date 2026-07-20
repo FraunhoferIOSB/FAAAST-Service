@@ -23,6 +23,7 @@ public class Constants {
     public static final String AID_INTERFACE_SEMANTIC_ID = "https://admin-shell.io/idta/AssetInterfacesDescription/1/0/Interface";
     public static final String AID_INTERFACE_SUPP_SEMANTIC_ID_HTTP = "http://www.w3.org/2011/http";
     public static final String AID_INTERFACE_SUPP_SEMANTIC_ID_MQTT = "http://www.w3.org/2011/mqtt";
+    public static final String AID_INTERFACE_SUPP_SEMANTIC_ID_OPC_UA = "http://opcfoundation.org/UA/WoT-Binding/";
     public static final String AID_INTERACTION_METADATA_SEMANTIC_ID = "https://www.w3.org/2019/wot/td#InteractionAffordance";
     public static final String AID_INTERACTION_METADATA_SEMANTIC_ID_2 = "https://admin-shell.io/idta/AssetInterfacesDescription/1/0/InteractionMetadata";
     public static final String AID_PROPERTY_TYPE = "type";
@@ -30,6 +31,8 @@ public class Constants {
     public static final String AID_PROPERTY_OBSERVABLE = "observable";
     public static final String AID_SECURITY_NOSEC = "nosec_sc";
     public static final String AID_SECURITY_BASIC = "basic_sc";
+    public static final String AID_SECURITY_OPCUA_CHANNEL = "opcua_channel_sc";
+    public static final String AID_SECURITY_OPCUA_AUTHENTICATION = "opcua_authentication_sc";
     public static final String AID_TYPE_OBJECT = "object";
     public static final String AIMC_MAPPING_CONFIGURATIONS_SEMANTIC_ID = "https://admin-shell.io/idta/AssetInterfacesMappingConfiguration/1/0/MappingConfigurations";
     public static final String AIMC_CONFIGURATION_SEMANTIC_ID = "https://admin-shell.io/idta/AssetInterfacesMappingConfiguration/1/0/MappingConfiguration";

@@ -30,6 +30,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.SubmodelTemplatePr
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.config.AimcSubmodelTemplateProcessorConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.util.HttpHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.util.MqttHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.util.OpcUaHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.util.Util;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
@@ -289,6 +290,13 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
         else if (Util.containsSupplementalSemanticId(assetInterface, Constants.AID_INTERFACE_SUPP_SEMANTIC_ID_MQTT)) {
             // MQTT Interface
             return MqttHelper.processInterface(serviceContext, assetInterface, relations, config.getCredentials());
+        }
+        else if (Util.containsSupplementalSemanticId(assetInterface, Constants.AID_INTERFACE_SUPP_SEMANTIC_ID_OPC_UA)) {
+            // OPC UA Interface
+            return OpcUaHelper.processInterface(serviceContext, assetInterface, relations, config.getCredentials());
+        }
+        else {
+            LOGGER.atDebug().log("Type of interface '{}' not supported", assetInterface.getIdShort());
         }
         return null;
     }

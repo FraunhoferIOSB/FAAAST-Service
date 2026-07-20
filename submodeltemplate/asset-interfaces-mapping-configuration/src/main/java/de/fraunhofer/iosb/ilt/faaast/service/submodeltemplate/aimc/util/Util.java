@@ -401,6 +401,31 @@ public class Util {
     }
 
 
+    /**
+     * Checks if the given object is observable.
+     *
+     * @param property The list of properties.
+     * @param propertyReference The refence to the property.
+     * @param data The relation data.
+     * @return True if it's observable, false otherwise.
+     * @throws IllegalArgumentException When the Root Property was not found.
+     * @throws ResourceNotFoundException if the resource dcesn't exist.
+     * @throws PersistenceException if storage error occurs.
+     */
+    public static boolean isObservable(SubmodelElementCollection property, RelationData data, Reference propertyReference)
+            throws IllegalArgumentException, ResourceNotFoundException, PersistenceException {
+        boolean retval = false;
+        // only available in the root object
+        SubmodelElementCollection root = Util.getRootProperty(property, propertyReference, data);
+        Optional<SubmodelElement> element = root.getValue().stream().filter(e -> Util.semanticIdEquals(e, Constants.AID_PROPERTY_OBSERVABLE_SEMANTIC_ID)).findFirst();
+        if (element.isPresent() && (element.get() instanceof Property prop)) {
+            String obsText = prop.getValue();
+            retval = Boolean.parseBoolean(obsText);
+        }
+        return retval;
+    }
+
+
     private static boolean semanticReferenceEquals(Reference ref, String semanticId) {
         return (ref.getKeys().size() == 1) && semanticId.equals(ref.getKeys().get(0).getValue());
     }

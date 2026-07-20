@@ -35,6 +35,13 @@ public class RelationData {
     }
 
 
+    public RelationData(ServiceContext serviceContext, List<RelationshipElement> relations) {
+        this.serviceContext = serviceContext;
+        this.relations = relations;
+        this.contentType = null;
+    }
+
+
     /**
      * Get the service context.
      *
