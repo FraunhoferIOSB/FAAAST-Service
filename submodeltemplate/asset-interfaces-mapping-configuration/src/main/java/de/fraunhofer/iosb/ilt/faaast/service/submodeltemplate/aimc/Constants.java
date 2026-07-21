@@ -32,6 +32,8 @@ public class Constants {
     public static final String AID_SECURITY_NOSEC = "nosec_sc";
     public static final String AID_SECURITY_BASIC = "basic_sc";
     public static final String AID_SECURITY_OPCUA_CHANNEL = "opcua_channel_sc";
+    public static final String AID_SECURITY_OPCUA_MODE_SEMANTIC_ID = "http://opcfoundation.org/UA/WoT-Binding/securityMode";
+    public static final String AID_SECURITY_OPCUA_POLICY_SEMANTIC_ID = "http://opcfoundation.org/UA/WoT-Binding/securityPolicy";
     public static final String AID_SECURITY_OPCUA_AUTHENTICATION = "opcua_authentication_sc";
     public static final String AID_TYPE_OBJECT = "object";
     public static final String AIMC_MAPPING_CONFIGURATIONS_SEMANTIC_ID = "https://admin-shell.io/idta/AssetInterfacesMappingConfiguration/1/0/MappingConfigurations";
@@ -50,6 +52,7 @@ public class Constants {
     public static final String AID_ENDPOINT_METADATA_SEMANTIC_ID = "https://admin-shell.io/idta/AssetInterfacesDescription/1/0/EndpointMetadata";
     public static final String AID_SECURITY_NOSEC_SEMANTIC_ID = "https://www.w3.org/2019/wot/security#NoSecurityScheme";
     public static final String AID_SECURITY_BASIC_SEMANTIC_ID = "https://www.w3.org/2019/wot/security#BasicSecurityScheme";
+    public static final String AID_SECURITY_OPCUA_CHANNEL_SEMANTIC_ID = "http://opcfoundation.org/UA/WoT-Binding/OPCUASecurityChannelScheme";
     public static final String AID_PROPERTY_KEY_SEMANTIC_ID = "https://admin-shell.io/idta/AssetInterfacesDescription/1/0/key";
     public static final String AID_PROPERTY_FORMS_SEMANTIC_ID = "https://www.w3.org/2019/wot/td#hasForm";
     public static final String AID_METADATA_SECURITY_SEMANTIC_ID = "https://www.w3.org/2019/wot/td#hasSecurityConfiguration";

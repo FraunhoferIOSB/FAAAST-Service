@@ -20,6 +20,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.conf
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.Constants;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.config.AimcSubmodelTemplateProcessorConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.config.BasicCredentials;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.config.Credentials;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.model.RelationData;
@@ -57,14 +58,15 @@ public class OpcUaHelper {
      * @param serviceContext The service context.
      * @param assetInterface The desired Asset Interface.
      * @param relations The list of rekations.
-     * @param credentials The list of credentials.
+     * @param config The configuration of the SubmodelTemplateProcessor.
      * @return The Asset Connection configuration from this interface.
      * @throws PersistenceException if storage error occurs
      * @throws ResourceNotFoundException if the resource dcesn't exist.
      */
     public static AssetConnectionConfig processInterface(ServiceContext serviceContext, SubmodelElementCollection assetInterface,
-                                                         List<RelationshipElement> relations, Map<String, List<Credentials>> credentials)
+                                                         List<RelationshipElement> relations, AimcSubmodelTemplateProcessorConfig config)
             throws PersistenceException, ResourceNotFoundException {
+        Map<String, List<Credentials>> credentials = config.getCredentials();
         String title = Util.getInterfaceTitle(assetInterface);
         LOGGER.debug("process OPC UA interface {} with {} relations", title, relations.size());
 
@@ -95,6 +97,9 @@ public class OpcUaHelper {
             assetConfigBuilder = configureSecurity(serviceContext, securityList, assetConfigBuilder, serverCredentials);
         }
 
+        if (config.getOpcuaSecurityBaseDir().containsKey(base)) {
+            assetConfigBuilder.securityBaseDir(config.getOpcuaSecurityBaseDir().get(base));
+        }
         return assetConfigBuilder
                 .valueProviders(valueProviders)
                 .subscriptionProviders(subscriptionProviders)
@@ -125,20 +130,25 @@ public class OpcUaHelper {
                                                                         OpcUaAssetConnectionConfig.Builder assetConfigBuilder, List<Credentials> credentials)
             throws ResourceNotFoundException, PersistenceException {
         OpcUaAssetConnectionConfig.Builder retval = assetConfigBuilder;
-        List<String> supportedSecurity = Util.getSupportedSecurityList(serviceContext, securityList);
+        Map<String, SubmodelElement> supportedSecurity = Util.getSupportedSecurityList(serviceContext, securityList);
 
-        if (supportedSecurity.contains(Constants.AID_SECURITY_NOSEC)) {
+        if (supportedSecurity.containsKey(Constants.AID_SECURITY_OPCUA_CHANNEL)) {
+            // use OPC UA Security Information
+            if (supportedSecurity.get(Constants.AID_SECURITY_OPCUA_CHANNEL) instanceof SubmodelElementCollection smc) {
+                String mode = Util.getSecurityMode(smc);
+                String policy = Util.getSecurityPolicy(smc);
+                retval.securityMode(MessageSecurityMode.valueOf(mode));
+                retval.securityPolicy(SecurityPolicy.valueOf(policy));
+            }
+        }
+        else if (supportedSecurity.containsKey(Constants.AID_SECURITY_NOSEC)) {
             // no security found. We choose that.
             LOGGER.trace("configureSecurity: use no security");
             retval.securityMode(MessageSecurityMode.None);
             retval.securityPolicy(SecurityPolicy.None);
         }
-        else if (supportedSecurity.contains(Constants.AID_SECURITY_OPCUA_CHANNEL)) {
-            // use OPC UA Security Information
-            // TODO
-        }
 
-        if (supportedSecurity.contains(Constants.AID_SECURITY_OPCUA_AUTHENTICATION)) {
+        if (supportedSecurity.containsKey(Constants.AID_SECURITY_OPCUA_AUTHENTICATION)) {
             // use basic security. Username and password are used from the configuration.
             // TODO 
 

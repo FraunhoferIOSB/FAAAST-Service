@@ -140,13 +140,13 @@ public class MqttHelper {
                                                                        MqttAssetConnectionConfig.Builder assetConfigBuilder, List<Credentials> credentials)
             throws ResourceNotFoundException, PersistenceException {
         MqttAssetConnectionConfig.Builder retval = assetConfigBuilder;
-        List<String> supportedSecurity = Util.getSupportedSecurityList(serviceContext, securityList);
+        Map<String, SubmodelElement> supportedSecurity = Util.getSupportedSecurityList(serviceContext, securityList);
 
-        if (supportedSecurity.contains(Constants.AID_SECURITY_NOSEC)) {
+        if (supportedSecurity.containsKey(Constants.AID_SECURITY_NOSEC)) {
             // no security found. We choose that.
             LOGGER.trace("configureSecurity: use no security");
         }
-        else if (supportedSecurity.contains(Constants.AID_SECURITY_BASIC)) {
+        else if (supportedSecurity.containsKey(Constants.AID_SECURITY_BASIC)) {
             // use basic security. Username and password are used from the configuration.
             LOGGER.trace("configureSecurity: use basic security");
             Optional<BasicCredentials> basic = credentials.stream().filter(BasicCredentials.class::isInstance).map(c -> (BasicCredentials) c).findFirst();

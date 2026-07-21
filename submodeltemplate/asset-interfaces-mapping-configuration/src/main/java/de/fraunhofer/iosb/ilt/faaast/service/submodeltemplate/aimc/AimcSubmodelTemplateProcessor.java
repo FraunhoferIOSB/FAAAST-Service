@@ -293,7 +293,7 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
         }
         else if (Util.containsSupplementalSemanticId(assetInterface, Constants.AID_INTERFACE_SUPP_SEMANTIC_ID_OPC_UA)) {
             // OPC UA Interface
-            return OpcUaHelper.processInterface(serviceContext, assetInterface, relations, config.getCredentials());
+            return OpcUaHelper.processInterface(serviceContext, assetInterface, relations, config);
         }
         else {
             LOGGER.atDebug().log("Type of interface '{}' not supported", assetInterface.getIdShort());

@@ -25,7 +25,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.EnvironmentHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.eclipse.digitaltwin.aas4j.v3.model.HasSemantics;
 import org.eclipse.digitaltwin.aas4j.v3.model.Property;
@@ -81,14 +83,15 @@ public class Util {
     public static String getFormatFromContentType(String contentType) {
         Ensure.requireNonNull(contentType);
         switch (contentType) {
-            case "application/xml", "text/xml":
+            case "application/xml", "text/xml" -> {
                 return "XML";
+            }
 
-            case "application/json":
+            case "application/json" -> {
                 return "JSON";
+            }
 
-            default:
-                throw new IllegalArgumentException("unsupported contentType: " + contentType);
+            default -> throw new IllegalArgumentException("unsupported contentType: " + contentType);
         }
     }
 
@@ -176,17 +179,21 @@ public class Util {
      * @throws PersistenceException if a storage error occurs.
      * @throws ResourceNotFoundException if the resource dcesn't exist.
      */
-    public static List<String> getSupportedSecurityList(ServiceContext serviceContext, SubmodelElementList securityList) throws PersistenceException, ResourceNotFoundException {
-        List<String> supportedSecurity = new ArrayList<>();
+    public static Map<String, SubmodelElement> getSupportedSecurityList(ServiceContext serviceContext, SubmodelElementList securityList)
+            throws PersistenceException, ResourceNotFoundException {
+        Map<String, SubmodelElement> supportedSecurity = new HashMap<>();
         for (SubmodelElement se: securityList.getValue()) {
             if (se instanceof ReferenceElement refElem) {
                 Referable securityReferable = EnvironmentHelper.resolve(refElem.getValue(), serviceContext.getPersistence().getEnvironment());
                 if (securityReferable instanceof SubmodelElement securityElement) {
                     if (semanticIdEquals(securityElement, Constants.AID_SECURITY_NOSEC_SEMANTIC_ID)) {
-                        supportedSecurity.add(Constants.AID_SECURITY_NOSEC);
+                        supportedSecurity.put(Constants.AID_SECURITY_NOSEC, securityElement);
                     }
                     else if (semanticIdEquals(securityElement, Constants.AID_SECURITY_BASIC_SEMANTIC_ID)) {
-                        supportedSecurity.add(Constants.AID_SECURITY_BASIC);
+                        supportedSecurity.put(Constants.AID_SECURITY_BASIC, securityElement);
+                    }
+                    else if (semanticIdEquals(securityElement, Constants.AID_SECURITY_OPCUA_CHANNEL_SEMANTIC_ID)) {
+                        supportedSecurity.put(Constants.AID_SECURITY_OPCUA_CHANNEL, securityElement);
                     }
                 }
                 else {
@@ -421,6 +428,44 @@ public class Util {
         if (element.isPresent() && (element.get() instanceof Property prop)) {
             String obsText = prop.getValue();
             retval = Boolean.parseBoolean(obsText);
+        }
+        return retval;
+    }
+
+
+    /**
+     * Gets the SecurityMode for the given opcua_channel_sc SecurityScheme.
+     *
+     * @param object The desired object.
+     * @return The SecurityMode of the object.
+     */
+    public static String getSecurityMode(SubmodelElementCollection object) {
+        String retval = object.getIdShort();
+        Optional<Property> prop = SemanticIdPath.builder()
+                .globalReference(Constants.AID_SECURITY_OPCUA_MODE_SEMANTIC_ID)
+                .build()
+                .resolveOptional(object, Property.class);
+        if (prop.isPresent()) {
+            retval = prop.get().getValue();
+        }
+        return retval;
+    }
+
+
+    /**
+     * Gets the SecurityPolicy for the given opcua_channel_sc SecurityScheme.
+     *
+     * @param object The desired object.
+     * @return The SecurityPolicy of the object.
+     */
+    public static String getSecurityPolicy(SubmodelElementCollection object) {
+        String retval = object.getIdShort();
+        Optional<Property> prop = SemanticIdPath.builder()
+                .globalReference(Constants.AID_SECURITY_OPCUA_POLICY_SEMANTIC_ID)
+                .build()
+                .resolveOptional(object, Property.class);
+        if (prop.isPresent()) {
+            retval = prop.get().getValue();
         }
         return retval;
     }
