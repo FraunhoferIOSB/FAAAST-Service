@@ -38,6 +38,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList;
 import org.eclipse.milo.opcua.stack.core.security.SecurityPolicy;
 import org.eclipse.milo.opcua.stack.core.types.enumerated.MessageSecurityMode;
+import org.eclipse.milo.opcua.stack.core.types.enumerated.UserTokenType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -135,10 +136,8 @@ public class OpcUaHelper {
         if (supportedSecurity.containsKey(Constants.AID_SECURITY_OPCUA_CHANNEL)) {
             // use OPC UA Security Information
             if (supportedSecurity.get(Constants.AID_SECURITY_OPCUA_CHANNEL) instanceof SubmodelElementCollection smc) {
-                String mode = Util.getSecurityMode(smc);
-                String policy = Util.getSecurityPolicy(smc);
-                retval.securityMode(MessageSecurityMode.valueOf(mode));
-                retval.securityPolicy(SecurityPolicy.valueOf(policy));
+                retval.securityMode(MessageSecurityMode.valueOf(Util.getSecurityMode(smc)));
+                retval.securityPolicy(SecurityPolicy.valueOf(Util.getSecurityPolicy(smc)));
             }
         }
         else if (supportedSecurity.containsKey(Constants.AID_SECURITY_NOSEC)) {
@@ -149,16 +148,27 @@ public class OpcUaHelper {
         }
 
         if (supportedSecurity.containsKey(Constants.AID_SECURITY_OPCUA_AUTHENTICATION)) {
-            // use basic security. Username and password are used from the configuration.
-            // TODO 
+            if (supportedSecurity.get(Constants.AID_SECURITY_OPCUA_AUTHENTICATION) instanceof SubmodelElementCollection smc) {
+                String tokenTxt = Util.getSecurityUserIdentity(smc);
+                UserTokenType token = UserTokenType.valueOf(tokenTxt);
+                switch (token) {
+                    case Anonymous -> retval.userTokenType(token);
 
-            LOGGER.trace("configureSecurity: use basic security");
-            Optional<BasicCredentials> basic = credentials.stream().filter(BasicCredentials.class::isInstance).map(c -> (BasicCredentials) c).findFirst();
-            if (basic.isEmpty()) {
-                LOGGER.warn("configureSecurity: basic security configured, but no username given");
-            }
-            else {
-                retval = retval.username(basic.get().getUsername()).password(basic.get().getPassword());
+                    case UserName -> {
+                        LOGGER.trace("configureSecurity: use OPC UA security with UserName");
+                        Optional<BasicCredentials> basic = credentials.stream().filter(BasicCredentials.class::isInstance).map(c -> (BasicCredentials) c).findFirst();
+                        if (basic.isEmpty()) {
+                            LOGGER.warn("configureSecurity: OPC UA security with UserName configured, but no username given");
+                        }
+                        else {
+                            retval = retval.userTokenType(token).username(basic.get().getUsername()).password(basic.get().getPassword());
+                        }
+                    }
+
+                    case Certificate -> LOGGER.warn("UserTokenType Certificate not supported");
+
+                    case IssuedToken -> LOGGER.warn("UserTokenType IssuedToken not supported");
+                }
             }
         }
 
@@ -197,13 +207,17 @@ public class OpcUaHelper {
 
 
     private static String getNodeId(SubmodelElementCollection forms) {
-        String retval = Util.getFormsHref(forms);
-        if (retval.startsWith("/?id=")) {
-            retval = retval.substring(5);
+        String href = Util.getFormsHref(forms);
+        if (href.startsWith("/?id")) {
+            href = href.substring(4).trim();
+            if (href.startsWith("=")) {
+                href = href.substring(1).trim();
+                return href;
+            }
+            else {
+                throw new IllegalArgumentException("illegal href value");
+            }
         }
-        else {
-            throw new IllegalArgumentException("illegal href value");
-        }
-        return retval;
+        throw new IllegalArgumentException("illegal href value");
     }
 }

@@ -195,6 +195,9 @@ public class Util {
                     else if (semanticIdEquals(securityElement, Constants.AID_SECURITY_OPCUA_CHANNEL_SEMANTIC_ID)) {
                         supportedSecurity.put(Constants.AID_SECURITY_OPCUA_CHANNEL, securityElement);
                     }
+                    else if (semanticIdEquals(securityElement, Constants.AID_SECURITY_OPCUA_AUTH_SEMANTIC_ID)) {
+                        supportedSecurity.put(Constants.AID_SECURITY_OPCUA_AUTHENTICATION, securityElement);
+                    }
                 }
                 else {
                     throw new IllegalArgumentException("SecurityElement invalid: no SubmodelElement");
@@ -403,7 +406,7 @@ public class Util {
             return current;
         }
         else {
-            throw new IllegalArgumentException("Submodel AID invalid: Root Property not found (Property {}).");
+            throw new IllegalArgumentException("Submodel AID invalid: Root Property not found.");
         }
     }
 
@@ -440,15 +443,11 @@ public class Util {
      * @return The SecurityMode of the object.
      */
     public static String getSecurityMode(SubmodelElementCollection object) {
-        String retval = object.getIdShort();
-        Optional<Property> prop = SemanticIdPath.builder()
+        return SemanticIdPath.builder()
                 .globalReference(Constants.AID_SECURITY_OPCUA_MODE_SEMANTIC_ID)
                 .build()
-                .resolveOptional(object, Property.class);
-        if (prop.isPresent()) {
-            retval = prop.get().getValue();
-        }
-        return retval;
+                .resolveUnique(object, Property.class)
+                .getValue();
     }
 
 
@@ -459,15 +458,26 @@ public class Util {
      * @return The SecurityPolicy of the object.
      */
     public static String getSecurityPolicy(SubmodelElementCollection object) {
-        String retval = object.getIdShort();
-        Optional<Property> prop = SemanticIdPath.builder()
+        return SemanticIdPath.builder()
                 .globalReference(Constants.AID_SECURITY_OPCUA_POLICY_SEMANTIC_ID)
                 .build()
-                .resolveOptional(object, Property.class);
-        if (prop.isPresent()) {
-            retval = prop.get().getValue();
-        }
-        return retval;
+                .resolveUnique(object, Property.class)
+                .getValue();
+    }
+
+
+    /**
+     * Gets the configured User Identity Token for the given opcua_authentication_sc SecurityScheme.
+     *
+     * @param authentication The desired SecurityScheme.
+     * @return The configured User Identity Token.
+     */
+    public static String getSecurityUserIdentity(SubmodelElementCollection authentication) {
+        return SemanticIdPath.builder()
+                .globalReference(Constants.AID_SECURITY_OPCUA_USER_IDENT_SEMANTIC_ID)
+                .build()
+                .resolveUnique(authentication, Property.class)
+                .getValue();
     }
 
 

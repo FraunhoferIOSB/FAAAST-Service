@@ -101,6 +101,7 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
     @Override
     public boolean add(Submodel submodel) {
         Ensure.requireNonNull(submodel);
+
         if (Util.semanticIdEquals(submodel, Constants.AID_SUBMODEL_SEMANTIC_ID)) {
             handleAidChange(submodel, ProcessingMode.ADD);
             return false;

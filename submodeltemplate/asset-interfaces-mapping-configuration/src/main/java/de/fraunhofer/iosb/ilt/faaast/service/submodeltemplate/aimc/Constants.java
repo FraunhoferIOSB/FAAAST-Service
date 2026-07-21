@@ -32,9 +32,11 @@ public class Constants {
     public static final String AID_SECURITY_NOSEC = "nosec_sc";
     public static final String AID_SECURITY_BASIC = "basic_sc";
     public static final String AID_SECURITY_OPCUA_CHANNEL = "opcua_channel_sc";
+    public static final String AID_SECURITY_OPCUA_AUTHENTICATION = "opcua_authentication_sc";
     public static final String AID_SECURITY_OPCUA_MODE_SEMANTIC_ID = "http://opcfoundation.org/UA/WoT-Binding/securityMode";
     public static final String AID_SECURITY_OPCUA_POLICY_SEMANTIC_ID = "http://opcfoundation.org/UA/WoT-Binding/securityPolicy";
-    public static final String AID_SECURITY_OPCUA_AUTHENTICATION = "opcua_authentication_sc";
+    public static final String AID_SECURITY_OPCUA_AUTH_SEMANTIC_ID = "http://opcfoundation.org/UA/WoT-Binding/OPCUASecurityAuthenticationScheme";
+    public static final String AID_SECURITY_OPCUA_USER_IDENT_SEMANTIC_ID = "http://opcfoundation.org/UA/WoT-Binding/userIdentityToken";
     public static final String AID_TYPE_OBJECT = "object";
     public static final String AIMC_MAPPING_CONFIGURATIONS_SEMANTIC_ID = "https://admin-shell.io/idta/AssetInterfacesMappingConfiguration/1/0/MappingConfigurations";
     public static final String AIMC_CONFIGURATION_SEMANTIC_ID = "https://admin-shell.io/idta/AssetInterfacesMappingConfiguration/1/0/MappingConfiguration";
