@@ -64,6 +64,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapp
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeExtractor;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.HashHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ResponseHelper;
@@ -205,8 +206,26 @@ public abstract class AbstractHttpEndpointTest {
         when(service.execute(any(), any())).thenReturn(GetAssetAdministrationShellResponse.builder()
                 .statusCode(StatusCode.SUCCESS)
                 .build());
-        ContentResponse response = execute(HttpMethod.GET, "/shells/" + EncodingHelper.base64UrlEncode(id) + "/$reference");
+        ContentResponse response = execute(HttpMethod.GET,
+                "/shells/" + EncodingHelper.base64UrlEncode(id) + "/$reference");
         Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
+    }
+
+
+    @Test
+    public void testGetAasEndpointInformationEvaluatesSubprotocolBodyTemplateFunctions() {
+        String aasId = "https://acplt.org/Test_AssetAdministrationShell";
+        String hashedAasId = HashHelper.sha256(aasId);
+
+        List<Endpoint> actual = endpoint.getAasEndpointInformation(aasId);
+
+        Assert.assertFalse(actual.isEmpty());
+
+        String subprotocolBody = actual.get(0).getProtocolInformation().getSubprotocolBody();
+
+        Assert.assertEquals(
+                String.format("id: %s. hash: %s.MyTestSubprotocolBody", aasId, hashedAasId),
+                subprotocolBody);
     }
 
 
@@ -216,7 +235,8 @@ public abstract class AbstractHttpEndpointTest {
         when(service.execute(any(), any())).thenReturn(GetAssetAdministrationShellResponse.builder()
                 .statusCode(StatusCode.SUCCESS)
                 .build());
-        ContentResponse response = execute(HttpMethod.GET, "/shells/" + EncodingHelper.base64UrlEncode(id) + "/$foo?level=foo");
+        ContentResponse response = execute(HttpMethod.GET,
+                "/shells/" + EncodingHelper.base64UrlEncode(id) + "/$foo?level=foo");
         assertContainsErrorText(response, HttpStatus.BAD_REQUEST_400, "unsupported content modifier 'foo'");
     }
 
@@ -255,7 +275,8 @@ public abstract class AbstractHttpEndpointTest {
                 .statusCode(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND)
                 .payload(null)
                 .build());
-        ContentResponse response = execute(HttpMethod.GET, "/submodels/" + EncodingHelper.base64UrlEncode(idShort));
+        ContentResponse response = execute(HttpMethod.GET,
+                "/submodels/" + EncodingHelper.base64UrlEncode(idShort));
         Assert.assertEquals(HttpStatus.NOT_FOUND_404, response.getStatus());
     }
 
@@ -267,7 +288,8 @@ public abstract class AbstractHttpEndpointTest {
                 .statusCode(StatusCode.SUCCESS)
                 .payload(null)
                 .build());
-        ContentResponse response = execute(HttpMethod.GET, "/submodels/" + EncodingHelper.base64UrlEncode(idShort)
+        ContentResponse response = execute(HttpMethod.GET, "/submodels/"
+                + EncodingHelper.base64UrlEncode(idShort)
                 + "/submodel-elements/ExampleRelationshipElement?level=normal&level=deep");
         Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
     }
@@ -280,7 +302,8 @@ public abstract class AbstractHttpEndpointTest {
                 .statusCode(StatusCode.SUCCESS)
                 .payload(null)
                 .build());
-        ContentResponse response = execute(HttpMethod.GET, "/submodels/" + EncodingHelper.base64UrlEncode(idShort)
+        ContentResponse response = execute(HttpMethod.GET, "/submodels/"
+                + EncodingHelper.base64UrlEncode(idShort)
                 + "/submodel-elements/ExampleRelationshipElement?level=normal&content=");
         Assert.assertEquals(HttpStatus.BAD_REQUEST_400, response.getStatus());
     }
@@ -293,8 +316,9 @@ public abstract class AbstractHttpEndpointTest {
                 .statusCode(StatusCode.SUCCESS)
                 .payload(null)
                 .build());
-        ContentResponse response = execute(HttpMethod.GET, "/submodels/" + EncodingHelper.base64UrlEncode(idShort)
-                + "/submodel-elements/ExampleRelationshipElement?level=normal&bogus");
+        ContentResponse response = execute(HttpMethod.GET,
+                "/submodels/" + EncodingHelper.base64UrlEncode(idShort)
+                        + "/submodel-elements/ExampleRelationshipElement?level=normal&bogus");
         Assert.assertEquals(HttpStatus.BAD_REQUEST_400, response.getStatus());
     }
 
@@ -307,10 +331,11 @@ public abstract class AbstractHttpEndpointTest {
 
         HttpEndpointConfig config = endpoint.asConfig();
 
-        Assert.assertEquals(config.getHostname().concat(endpoint.getPathPrefix()).concat("/shells"), protocolInformation.getHref());
+        Assert.assertEquals(config.getHostname().concat(endpoint.getPathPrefix()).concat("/shells"),
+                protocolInformation.getHref());
         Assert.assertEquals(config.getSubprotocol(), protocolInformation.getSubprotocol());
-        Assert.assertEquals(config.getSubprotocolBody(), protocolInformation.getSubprotocolBody());
-        Assert.assertEquals(config.getSubprotocolBodyEncoding(), protocolInformation.getSubprotocolBodyEncoding());
+        Assert.assertEquals(config.getSubprotocolBodyEncoding(),
+                protocolInformation.getSubprotocolBodyEncoding());
     }
 
 
@@ -372,7 +397,8 @@ public abstract class AbstractHttpEndpointTest {
                 .timeout(1, TimeUnit.HOURS)
                 .idleTimeout(1, TimeUnit.HOURS)
                 .method(HttpMethod.PUT)
-                .path(String.format("%s/shells/%s/asset-information/thumbnail", API_PREFIX, EncodingHelper.base64UrlEncode(aasId)))
+                .path(String.format("%s/shells/%s/asset-information/thumbnail", API_PREFIX,
+                        EncodingHelper.base64UrlEncode(aasId)))
                 .body(multiPart)
                 .scheme(scheme)
                 .send();
@@ -392,7 +418,8 @@ public abstract class AbstractHttpEndpointTest {
         // TODO: server not returning character encoding
         LOGGER.info("http response encoding: {}", response.getEncoding());
         LOGGER.info("http response content: {}", new String(response.getContent(), "UTF-8"));
-        Page<AssetAdministrationShell> actual = deserializer.read(new String(response.getContent(), "UTF-8"), new TypeReference<Page<AssetAdministrationShell>>() {});
+        Page<AssetAdministrationShell> actual = deserializer.read(new String(response.getContent(), "UTF-8"),
+                new TypeReference<Page<AssetAdministrationShell>>() {});
         Assert.assertEquals(expected, actual);
     }
 
@@ -414,7 +441,8 @@ public abstract class AbstractHttpEndpointTest {
         // TODO: server not returning character encoding
         LOGGER.info("http response encoding: {}", response.getEncoding());
         LOGGER.info("http response content: {}", new String(response.getContent(), "UTF-8"));
-        Page<AssetAdministrationShell> actual = deserializer.read(new String(response.getContent(), "UTF-8"), new TypeReference<Page<AssetAdministrationShell>>() {});
+        Page<AssetAdministrationShell> actual = deserializer.read(new String(response.getContent(), "UTF-8"),
+                new TypeReference<Page<AssetAdministrationShell>>() {});
         Assert.assertEquals(expected, actual);
     }
 
@@ -437,10 +465,13 @@ public abstract class AbstractHttpEndpointTest {
                 HttpMethod.GET,
                 "/serialization",
                 Map.of(
-                        "aasIds", EncodingHelper.base64UrlEncode(expected.getAssetAdministrationShells().stream()
-                                .map(x -> x.getId())
-                                .collect(Collectors.joining(","))),
-                        "submodelIds", EncodingHelper.base64UrlEncode(expected.getSubmodels().stream()
+                        "aasIds",
+                        EncodingHelper.base64UrlEncode(
+                                expected.getAssetAdministrationShells().stream()
+                                        .map(x -> x.getId())
+                                        .collect(Collectors.joining(","))),
+                        "submodelIds",
+                        EncodingHelper.base64UrlEncode(expected.getSubmodels().stream()
                                 .map(x -> x.getId())
                                 .collect(Collectors.joining(","))),
                         QueryParameters.INCLUDE_CONCEPT_DESCRIPTIONS, "false"),
@@ -448,7 +479,8 @@ public abstract class AbstractHttpEndpointTest {
                 null,
                 null,
                 Map.of(
-                        HttpConstants.HEADER_ACCEPT, DataFormat.JSON.getContentType().withoutParameters().toString()));
+                        HttpConstants.HEADER_ACCEPT,
+                        DataFormat.JSON.getContentType().withoutParameters().toString()));
         Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
         LOGGER.info("http response encoding: {}", response.getEncoding());
         LOGGER.info("http response content: {}", response.getContentAsString());
@@ -464,7 +496,9 @@ public abstract class AbstractHttpEndpointTest {
                 .submodels(AASFull.SUBMODEL_4)
                 .submodels(AASFull.SUBMODEL_5)
                 .build();
-        when(service.execute(any(), argThat((GenerateSerializationByIdsRequest request) -> request.getSerializationFormat() == DataFormat.JSON)))
+        when(service.execute(any(),
+                argThat((GenerateSerializationByIdsRequest request) -> request
+                        .getSerializationFormat() == DataFormat.JSON)))
                 .thenReturn(GenerateSerializationByIdsResponse.builder()
                         .dataformat(DataFormat.JSON)
                         .payload(EnvironmentContext.builder()
@@ -476,10 +510,13 @@ public abstract class AbstractHttpEndpointTest {
                 HttpMethod.GET,
                 "/serialization",
                 Map.of(
-                        "aasIds", EncodingHelper.base64UrlEncode(expected.getAssetAdministrationShells().stream()
-                                .map(x -> x.getId())
-                                .collect(Collectors.joining(","))),
-                        "submodelIds", EncodingHelper.base64UrlEncode(expected.getSubmodels().stream()
+                        "aasIds",
+                        EncodingHelper.base64UrlEncode(
+                                expected.getAssetAdministrationShells().stream()
+                                        .map(x -> x.getId())
+                                        .collect(Collectors.joining(","))),
+                        "submodelIds",
+                        EncodingHelper.base64UrlEncode(expected.getSubmodels().stream()
                                 .map(x -> x.getId())
                                 .collect(Collectors.joining(","))),
                         QueryParameters.INCLUDE_CONCEPT_DESCRIPTIONS, "false"),
@@ -508,7 +545,8 @@ public abstract class AbstractHttpEndpointTest {
                 .content(Content.VALUE)
                 .build());
         Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
-        Page<AssetAdministrationShell> actualPayload = deserializer.read(new String(response.getContent()), Page.class);
+        Page<AssetAdministrationShell> actualPayload = deserializer.read(new String(response.getContent()),
+                Page.class);
         Assert.assertEquals(expectedPayload, actualPayload);
     }
 
@@ -531,13 +569,16 @@ public abstract class AbstractHttpEndpointTest {
                 .statusCode(StatusCode.SUCCESS)
                 .payload(Page.of(submodelElements))
                 .build());
-        ContentResponse response = execute(HttpMethod.GET, "/submodels/foo/submodel-elements", new OutputModifier.Builder()
-                .content(Content.VALUE)
-                .build());
+        ContentResponse response = execute(HttpMethod.GET, "/submodels/foo/submodel-elements",
+                new OutputModifier.Builder()
+                        .content(Content.VALUE)
+                        .build());
         Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
-        Page<ElementValue> actual = deserializer.readValuePage(new String(response.getContent()), TypeExtractor.extractTypeInfo(submodelElements));
+        Page<ElementValue> actual = deserializer.readValuePage(new String(response.getContent()),
+                TypeExtractor.extractTypeInfo(submodelElements));
         Page<ElementValue> expected = Page.of(submodelElements.stream()
-                .map(LambdaExceptionHelper.rethrowFunction(x -> (ElementValue) ElementValueMapper.toValue(x)))
+                .map(LambdaExceptionHelper
+                        .rethrowFunction(x -> (ElementValue) ElementValueMapper.toValue(x)))
                 .collect(Collectors.toList()));
         Assert.assertEquals(expected, actual);
     }
@@ -558,11 +599,13 @@ public abstract class AbstractHttpEndpointTest {
                 .statusCode(StatusCode.SUCCESS)
                 .payload(expected)
                 .build());
-        ContentResponse response = execute(HttpMethod.GET, "/submodels/foo/submodel-elements", new OutputModifier.Builder()
-                .content(Content.METADATA)
-                .build());
+        ContentResponse response = execute(HttpMethod.GET, "/submodels/foo/submodel-elements",
+                new OutputModifier.Builder()
+                        .content(Content.METADATA)
+                        .build());
         Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
-        Page<SubmodelElement> actual = deserializer.read(new String(response.getContent()), new TypeReference<Page<SubmodelElement>>() {});
+        Page<SubmodelElement> actual = deserializer.read(new String(response.getContent()),
+                new TypeReference<Page<SubmodelElement>>() {});
         Assert.assertEquals(expected, actual);
     }
 
@@ -576,9 +619,11 @@ public abstract class AbstractHttpEndpointTest {
                 .statusCode(StatusCode.SUCCESS)
                 .payload(expected)
                 .build());
-        ContentResponse response = execute(HttpMethod.GET, "/submodels/foo/submodel-elements", Content.REFERENCE);
+        ContentResponse response = execute(HttpMethod.GET, "/submodels/foo/submodel-elements",
+                Content.REFERENCE);
         Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
-        Page<Reference> actual = deserializer.read(new String(response.getContent()), new TypeReference<Page<Reference>>() {});
+        Page<Reference> actual = deserializer.read(new String(response.getContent()),
+                new TypeReference<Page<Reference>>() {});
         Assert.assertEquals(expected, actual);
     }
 
@@ -601,11 +646,13 @@ public abstract class AbstractHttpEndpointTest {
                 .statusCode(StatusCode.SUCCESS)
                 .payload(expected)
                 .build());
-        ContentResponse response = execute(HttpMethod.GET, "/submodels/foo/submodel-elements", new OutputModifier.Builder()
-                .content(Content.NORMAL)
-                .build());
+        ContentResponse response = execute(HttpMethod.GET, "/submodels/foo/submodel-elements",
+                new OutputModifier.Builder()
+                        .content(Content.NORMAL)
+                        .build());
         Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
-        Page<SubmodelElement> actual = deserializer.read(new String(response.getContent()), new TypeReference<Page<SubmodelElement>>() {});
+        Page<SubmodelElement> actual = deserializer.read(new String(response.getContent()),
+                new TypeReference<Page<SubmodelElement>>() {});
         Assert.assertEquals(expected, actual);
     }
 
@@ -654,7 +701,8 @@ public abstract class AbstractHttpEndpointTest {
                         .content(Content.NORMAL)
                         .build());
         Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
-        Page<SubmodelElement> actual = deserializer.read(new String(response.getContent()), new TypeReference<Page<SubmodelElement>>() {});
+        Page<SubmodelElement> actual = deserializer.read(new String(response.getContent()),
+                new TypeReference<Page<SubmodelElement>>() {});
         Assert.assertEquals(expected, actual);
     }
 
@@ -695,7 +743,8 @@ public abstract class AbstractHttpEndpointTest {
                         .statusCode(StatusCode.CLIENT_RESOURCE_CONFLICT)
                         .build());
         ContentResponse response = execute(
-                HttpMethod.POST, "/submodels/" + EncodingHelper.base64UrlEncode(id) + "/submodel-elements",
+                HttpMethod.POST,
+                "/submodels/" + EncodingHelper.base64UrlEncode(id) + "/submodel-elements",
                 new DefaultProperty.Builder().build());
         Assert.assertEquals(HttpStatus.CONFLICT_409, response.getStatus());
     }
@@ -748,7 +797,8 @@ public abstract class AbstractHttpEndpointTest {
                         .payload(null)
                         .statusCode(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND)
                         .build());
-        ContentResponse responseStatusNotFound = execute(HttpMethod.GET, "/submodels/foo/submodel-elements/bar/operation-status/" + handleId);
+        ContentResponse responseStatusNotFound = execute(HttpMethod.GET,
+                "/submodels/foo/submodel-elements/bar/operation-status/" + handleId);
         Assert.assertEquals(HttpStatus.NOT_FOUND_404, responseStatusNotFound.getStatus());
 
         // check COMPLETED = 302
@@ -765,7 +815,8 @@ public abstract class AbstractHttpEndpointTest {
         Assert.assertTrue(responseStatusCompleted.getHeaders().contains(HttpHeader.LOCATION));
         // check content for state == COMPLETED
 
-        URI urlResult = urlStatus.resolve(responseStatusCompleted.getHeaders().getField(HttpHeader.LOCATION).getValue());
+        URI urlResult = urlStatus
+                .resolve(responseStatusCompleted.getHeaders().getField(HttpHeader.LOCATION).getValue());
         when(service.execute(any(), any())).thenReturn(
                 GetOperationAsyncResultResponse.builder()
                         .payload(new DefaultOperationResult.Builder()
@@ -840,7 +891,8 @@ public abstract class AbstractHttpEndpointTest {
                 .result(expected)
                 .build());
         String id = "foo";
-        ContentResponse response = execute(HttpMethod.GET, "/submodels/" + EncodingHelper.base64UrlEncode(id) + "/submodel-elements/Invalid");
+        ContentResponse response = execute(HttpMethod.GET,
+                "/submodels/" + EncodingHelper.base64UrlEncode(id) + "/submodel-elements/Invalid");
         Result actual = deserializer.read(new String(response.getContent()), Result.class);
         Assert.assertEquals(MessageType.ERROR, actual.getMessages().get(0).getMessageType());
     }
@@ -857,14 +909,16 @@ public abstract class AbstractHttpEndpointTest {
                         .statusCode(StatusCode.SUCCESS)
                         .payload(expected)
                         .build());
-        ContentResponse response = execute(HttpMethod.POST, "/import", null, null, "{}", "application/json", null);
+        ContentResponse response = execute(HttpMethod.POST, "/import", null, null, "{}", "application/json",
+                null);
         Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
         ImportResult actual = deserializer.read(new String(response.getContent()), ImportResult.class);
         Assert.assertEquals(expected, actual);
     }
 
 
-    protected ContentResponse execute(HttpMethod method, String path, Map<String, String> parameters) throws Exception {
+    protected ContentResponse execute(HttpMethod method, String path, Map<String, String> parameters)
+            throws Exception {
         return execute(method, path, parameters, null, null, null, null);
     }
 
@@ -898,7 +952,8 @@ public abstract class AbstractHttpEndpointTest {
     }
 
 
-    protected ContentResponse execute(HttpMethod method, String path, OutputModifier outputModifier) throws Exception {
+    protected ContentResponse execute(HttpMethod method, String path, OutputModifier outputModifier)
+            throws Exception {
         return execute(
                 method,
                 path,
@@ -956,7 +1011,8 @@ public abstract class AbstractHttpEndpointTest {
     }
 
 
-    private void assertContainsErrorText(ContentResponse response, int status, String... textSnippets) throws DeserializationException {
+    private void assertContainsErrorText(ContentResponse response, int status, String... textSnippets)
+            throws DeserializationException {
         Assert.assertEquals(status, response.getStatus());
         Result actual = new HttpJsonApiDeserializer().read(response.getContentAsString(), Result.class);
         Assert.assertNotNull(actual.getMessages());
