@@ -30,6 +30,8 @@
 		- OperationProvider now supports use of input arguments via variables in headers
 		- Add support for runtime update of OperationProvider
         - Consolidated temporarily introduced `CoreConfig.callbackAddress` into `HttpEndpointConfig.hostname`. If `MessageBusCloudEvents` is used in combination with multiple `HttpEndpoints`, one of them will be chosen to fill a `CloudEvent`'s `source` URI. The implementation will prefer non-local hostnames (i.e. **not** `localhost`/`127.0.0.1`).  
+- SMT Processor
+	- Updated processor for SMT Asset Interfaces Description (AID) to support AID version 1.1 including OPC UA binding.
 
 **Internal changes & bugfixes**
 - General
