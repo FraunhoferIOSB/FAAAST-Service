@@ -255,7 +255,7 @@ public class RegistrySynchronizationTest {
                                             .value("")
                                             .build())
                                     .subprotocol("MyTestSubprotocol")
-                                    .subprotocolBody("id: ${id}. again: ${id}.MyTestSubprotocolBody")
+                                    .subprotocolBody("id: ${id|hash}. again: ${id|hash}.MyTestSubprotocolBody")
                                     .subprotocolBodyEncoding("MyTestSubprotocolBodyEncoding")
                                     .build())
                             .build());
