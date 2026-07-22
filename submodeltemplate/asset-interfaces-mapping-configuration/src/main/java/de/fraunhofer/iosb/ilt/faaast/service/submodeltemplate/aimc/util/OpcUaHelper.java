@@ -22,6 +22,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundExc
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.Constants;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.config.AimcSubmodelTemplateProcessorConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.config.BasicCredentials;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.config.CertificateCredentials;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.config.Credentials;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.model.RelationData;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EnvironmentHelper;
@@ -165,7 +166,17 @@ public class OpcUaHelper {
                         }
                     }
 
-                    case Certificate -> LOGGER.warn("UserTokenType Certificate not supported");
+                    case Certificate -> {
+                        LOGGER.trace("configureSecurity: use OPC UA security with Certificate");
+                        Optional<CertificateCredentials> cert = credentials.stream().filter(CertificateCredentials.class::isInstance).map(c -> (CertificateCredentials) c)
+                                .findFirst();
+                        if (cert.isEmpty()) {
+                            LOGGER.warn("configureSecurity: OPC UA security with Certificate configured, but no certificate data given");
+                        }
+                        else {
+                            retval = retval.userTokenType(token).authenticationCertificate(cert.get().getAuthenticationCertificate());
+                        }
+                    }
 
                     case IssuedToken -> LOGGER.warn("UserTokenType IssuedToken not supported");
                 }
