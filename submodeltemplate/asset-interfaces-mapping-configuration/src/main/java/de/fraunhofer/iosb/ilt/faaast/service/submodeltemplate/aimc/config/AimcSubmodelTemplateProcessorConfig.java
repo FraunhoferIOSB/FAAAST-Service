@@ -30,10 +30,12 @@ import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 public class AimcSubmodelTemplateProcessorConfig extends SubmodelTemplateProcessorConfig<AimcSubmodelTemplateProcessor> {
 
     private Map<String, List<Credentials>> credentials;
+    private long subscriptionInterval;
     private Map<String, Path> opcuaSecurityBaseDir;
 
     public AimcSubmodelTemplateProcessorConfig() {
         credentials = new HashMap<>();
+        subscriptionInterval = 0;
     }
 
 
@@ -44,6 +46,16 @@ public class AimcSubmodelTemplateProcessorConfig extends SubmodelTemplateProcess
 
     public void setCredentials(Map<String, List<Credentials>> credentials) {
         this.credentials = credentials;
+    }
+
+
+    public long getSubscriptionInterval() {
+        return subscriptionInterval;
+    }
+
+
+    public void setSubscriptionInterval(long subscriptionInterval) {
+        this.subscriptionInterval = subscriptionInterval;
     }
 
 
@@ -59,7 +71,7 @@ public class AimcSubmodelTemplateProcessorConfig extends SubmodelTemplateProcess
 
     @Override
     public int hashCode() {
-        return Objects.hash(credentials, opcuaSecurityBaseDir);
+        return Objects.hash(credentials, subscriptionInterval, opcuaSecurityBaseDir);
     }
 
 
@@ -76,7 +88,8 @@ public class AimcSubmodelTemplateProcessorConfig extends SubmodelTemplateProcess
         }
         final AimcSubmodelTemplateProcessorConfig other = (AimcSubmodelTemplateProcessorConfig) obj;
         return Objects.equals(credentials, other.credentials)
-                && Objects.equals(opcuaSecurityBaseDir, this.opcuaSecurityBaseDir);
+                && Objects.equals(subscriptionInterval, other.subscriptionInterval)
+                && Objects.equals(opcuaSecurityBaseDir, other.opcuaSecurityBaseDir);
     }
 
     protected abstract static class AbstractBuilder<C extends AimcSubmodelTemplateProcessorConfig, B extends AbstractBuilder<C, B>>
@@ -84,6 +97,12 @@ public class AimcSubmodelTemplateProcessorConfig extends SubmodelTemplateProcess
 
         public B connectionLevelCredentials(Map<String, List<Credentials>> value) {
             getBuildingInstance().setCredentials(value);
+            return getSelf();
+        }
+
+
+        public B subscriptionInterval(long value) {
+            getBuildingInstance().setSubscriptionInterval(value);
             return getSelf();
         }
 

@@ -13,5 +13,6 @@
                 "password": "pw2"
             }
         ]
-    }
+    },
+    "subscriptionInterval": 0
 }

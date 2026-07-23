@@ -21,6 +21,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.confi
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.Constants;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.config.AimcSubmodelTemplateProcessorConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.config.BasicCredentials;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.config.Credentials;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.model.RelationData;
@@ -56,14 +57,15 @@ public class MqttHelper {
      * @param serviceContext The service context.
      * @param assetInterface The desired Asset Interface.
      * @param relations The list of rekations.
-     * @param credentials The list of credentials.
+     * @param config The configuration of the SubmodelTemplateProcessor.
      * @return The Asset Connection configuration from this interface.
      * @throws PersistenceException if a storage error occurs.
      * @throws ResourceNotFoundException if the resource dcesn't exist..
      */
     public static AssetConnectionConfig processInterface(ServiceContext serviceContext, SubmodelElementCollection assetInterface,
-                                                         List<RelationshipElement> relations, Map<String, List<Credentials>> credentials)
+                                                         List<RelationshipElement> relations, AimcSubmodelTemplateProcessorConfig config)
             throws ResourceNotFoundException, PersistenceException {
+        Map<String, List<Credentials>> credentials = config.getCredentials();
         String title = Util.getInterfaceTitle(assetInterface);
         LOGGER.debug("process MQTT interface {} with {} relations", title, relations.size());
 
@@ -78,7 +80,7 @@ public class MqttHelper {
 
         Map<Reference, MqttSubscriptionProviderConfig> subscriptionProviders = new HashMap<>();
 
-        processRelations(new RelationData(serviceContext, relations, contentType), subscriptionProviders);
+        processRelations(new RelationData(serviceContext, relations, contentType, config), subscriptionProviders);
 
         List<Credentials> serverCredentials = new ArrayList<>();
         if (credentials.containsKey(base)) {

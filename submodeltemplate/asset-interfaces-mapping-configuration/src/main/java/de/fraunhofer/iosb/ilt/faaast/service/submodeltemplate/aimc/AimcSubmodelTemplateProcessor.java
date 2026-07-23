@@ -286,11 +286,11 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
 
         if (Util.containsSupplementalSemanticId(assetInterface, Constants.AID_INTERFACE_SUPP_SEMANTIC_ID_HTTP)) {
             // HTTP Interface
-            return HttpHelper.processInterface(serviceContext, assetInterface, relations, config.getCredentials());
+            return HttpHelper.processInterface(serviceContext, assetInterface, relations, config);
         }
         else if (Util.containsSupplementalSemanticId(assetInterface, Constants.AID_INTERFACE_SUPP_SEMANTIC_ID_MQTT)) {
             // MQTT Interface
-            return MqttHelper.processInterface(serviceContext, assetInterface, relations, config.getCredentials());
+            return MqttHelper.processInterface(serviceContext, assetInterface, relations, config);
         }
         else if (Util.containsSupplementalSemanticId(assetInterface, Constants.AID_INTERFACE_SUPP_SEMANTIC_ID_OPC_UA)) {
             // OPC UA Interface

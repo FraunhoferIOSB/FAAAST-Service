@@ -81,7 +81,7 @@ public class OpcUaHelper {
         Map<Reference, OpcUaValueProviderConfig> valueProviders = new HashMap<>();
         Map<Reference, OpcUaSubscriptionProviderConfig> subscriptionProviders = new HashMap<>();
 
-        processRelations(new RelationData(serviceContext, relations), subscriptionProviders, base, valueProviders);
+        processRelations(new RelationData(serviceContext, relations, config), subscriptionProviders, base, valueProviders);
 
         OpcUaAssetConnectionConfig.Builder assetConfigBuilder = OpcUaAssetConnectionConfig.builder().host(base);
 
@@ -194,9 +194,12 @@ public class OpcUaHelper {
         String nodeid = getNodeId(forms);
 
         LOGGER.debug("createSubscriptionProvider: nodeId: {}", nodeid);
-        OpcUaSubscriptionProviderConfig retval = OpcUaSubscriptionProviderConfig.builder()
-                .nodeId(nodeid)
-                .build();
+        OpcUaSubscriptionProviderConfig.Builder configBuilder = OpcUaSubscriptionProviderConfig.builder()
+                .nodeId(nodeid);
+        if (data.getConfig().getSubscriptionInterval() > 0) {
+            configBuilder.interval(data.getConfig().getSubscriptionInterval());
+        }
+        OpcUaSubscriptionProviderConfig retval = configBuilder.build();
         return retval;
     }
 

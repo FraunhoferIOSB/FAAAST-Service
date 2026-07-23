@@ -53,6 +53,7 @@ The processor uses the following configuration structure:
                     // credential configuration
                 ]
             },
+            "subscriptionInterval": {interval},
             "opcuaSecurityBaseDir": {
                 "{Server URL}": "{directory}"
             }
@@ -64,9 +65,15 @@ The processor uses the following configuration structure:
 The value of `{Server URL}` is the URL of the Server. This must match the Base URL in the AID Submodel.
 An example value could look like this `http://myserver.example.com:8088`.
 
-Add a list of Credentials for each Server URL.
+:::{table} General configuration properties.
+| Name                                | Allowed Value                                               | Description                                                                                    | Default Value |
+| ----------------------------------- | ----------------------------------------------------------- |----------------------------------------------------------------------------------------------- | ------------- |
+| subscriptionInterval                | long                                                        | Default Interval for Subscription Provider                                                     |               |
+:::
 
 ### Credential configuration
+
+Add a list of Credentials for each Server URL.
 
 Currently, there are two separate types of credentials possible.
 
@@ -101,15 +108,17 @@ Currently, we only support the following Security Schemes:
 
 - NoSecurityScheme (nosec_sc)
 - BasicSecurityScheme (basic_sc)
+- OPCUASecurityChannelScheme (opcua_channel_sc, only OPC UA)
+- OPCUASecurityAuthenticationScheme (opcua_authentication_sc, only OPC UA)
 :::
 
 If BasicSecurityScheme is configured, username and password from the SMT configuration is used. In that case, make sure, that valid username and password is configured.
 
 In the Property of AID the following attributes are currently evaluated:
 
-- observable (only HTTP)
+- observable (only HTTP and OPC UA)
 
-For HTTP: If observable is true, a SubscriptionProvider, otherwise a ValueProvider is created.
+For HTTP and OPC UA: If observable is true, a SubscriptionProvider, otherwise a ValueProvider is created.
 In case of MQTT, a SubscriptionProvider is created always.
 
 The subscriptionInterval for a SubscriptionProvider is taken from the corresponding configuration section of the Processor (if available). If no value is provided, the default value will be used.
