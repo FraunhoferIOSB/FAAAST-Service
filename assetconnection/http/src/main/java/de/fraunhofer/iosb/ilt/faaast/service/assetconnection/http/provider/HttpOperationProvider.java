@@ -292,7 +292,7 @@ public class HttpOperationProvider extends MultiFormatOperationProvider<HttpOper
             case COMPLETED -> {
                 // keep pulling until there is a redirect
             }
-            case RUNNING -> {
+            case INITIATED, RUNNING -> {
                 if (status.getMessages() != null) {
                     status.getMessages().stream()
                             .filter(OperationProviderHelper::isProgressMessage)
