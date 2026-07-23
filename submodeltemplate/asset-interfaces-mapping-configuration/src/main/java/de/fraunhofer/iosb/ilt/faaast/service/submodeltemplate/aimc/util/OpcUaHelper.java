@@ -96,7 +96,7 @@ public class OpcUaHelper {
             throw new IllegalArgumentException("Submodel AID (OPC UA) invalid: EndpointMetadata security not found.");
         }
         else if (element.get() instanceof SubmodelElementList securityList) {
-            assetConfigBuilder = configureSecurity(serviceContext, securityList, assetConfigBuilder, serverCredentials);
+            configureSecurity(serviceContext, securityList, assetConfigBuilder, serverCredentials);
         }
 
         if (config.getOpcuaSecurityBaseDir().containsKey(base)) {
@@ -128,8 +128,8 @@ public class OpcUaHelper {
     }
 
 
-    private static OpcUaAssetConnectionConfig.Builder configureSecurity(ServiceContext serviceContext, SubmodelElementList securityList,
-                                                                        OpcUaAssetConnectionConfig.Builder assetConfigBuilder, List<Credentials> credentials)
+    private static void configureSecurity(ServiceContext serviceContext, SubmodelElementList securityList,
+                                          OpcUaAssetConnectionConfig.Builder assetConfigBuilder, List<Credentials> credentials)
             throws ResourceNotFoundException, PersistenceException {
         OpcUaAssetConnectionConfig.Builder retval = assetConfigBuilder;
         Map<String, SubmodelElement> supportedSecurity = Util.getSupportedSecurityList(serviceContext, securityList);
@@ -150,40 +150,38 @@ public class OpcUaHelper {
 
         if (supportedSecurity.containsKey(Constants.AID_SECURITY_OPCUA_AUTHENTICATION)
                 && (supportedSecurity.get(Constants.AID_SECURITY_OPCUA_AUTHENTICATION) instanceof SubmodelElementCollection smc)) {
-            retval = configureOpcUaAuthentication(smc, retval, credentials);
+            configureOpcUaAuthentication(smc, retval, credentials);
         }
-
-        return retval;
     }
 
 
-    private static OpcUaAssetConnectionConfig.Builder configureOpcUaAuthentication(SubmodelElementCollection authObject, OpcUaAssetConnectionConfig.Builder retval,
-                                                                                   List<Credentials> credentials) {
+    private static void configureOpcUaAuthentication(SubmodelElementCollection authObject, OpcUaAssetConnectionConfig.Builder retval,
+                                                     List<Credentials> credentials) {
         String tokenTxt = Util.getSecurityUserIdentity(authObject);
         UserTokenType token = UserTokenType.valueOf(tokenTxt);
         switch (token) {
             case Anonymous -> retval.userTokenType(token);
 
             case UserName -> {
-                LOGGER.trace("configureSecurity: use OPC UA security with UserName");
+                LOGGER.trace("configureOpcUaAuthentication: use OPC UA security with UserName");
                 Optional<BasicCredentials> basic = credentials.stream().filter(BasicCredentials.class::isInstance).map(c -> (BasicCredentials) c).findFirst();
                 if (basic.isEmpty()) {
-                    LOGGER.warn("configureSecurity: OPC UA security with UserName configured, but no username given");
+                    LOGGER.warn("configureOpcUaAuthentication: OPC UA security with UserName configured, but no username given");
                 }
                 else {
-                    retval = retval.userTokenType(token).username(basic.get().getUsername()).password(basic.get().getPassword());
+                    retval.userTokenType(token).username(basic.get().getUsername()).password(basic.get().getPassword());
                 }
             }
 
             case Certificate -> {
-                LOGGER.trace("configureSecurity: use OPC UA security with Certificate");
+                LOGGER.trace("configureOpcUaAuthentication: use OPC UA security with Certificate");
                 Optional<CertificateCredentials> cert = credentials.stream().filter(CertificateCredentials.class::isInstance).map(c -> (CertificateCredentials) c)
                         .findFirst();
                 if (cert.isEmpty()) {
-                    LOGGER.warn("configureSecurity: OPC UA security with Certificate configured, but no certificate data given");
+                    LOGGER.warn("configureOpcUaAuthentication: OPC UA security with Certificate configured, but no certificate data given");
                 }
                 else {
-                    retval = retval.userTokenType(token).authenticationCertificate(cert.get().getAuthenticationCertificate());
+                    retval.userTokenType(token).authenticationCertificate(cert.get().getAuthenticationCertificate());
                 }
             }
 
@@ -191,7 +189,6 @@ public class OpcUaHelper {
 
             default -> LOGGER.warn("unknown UserTokenType {}", token);
         }
-        return retval;
     }
 
 
