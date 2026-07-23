@@ -81,7 +81,7 @@ public class OpcUaHelper {
         Map<Reference, OpcUaValueProviderConfig> valueProviders = new HashMap<>();
         Map<Reference, OpcUaSubscriptionProviderConfig> subscriptionProviders = new HashMap<>();
 
-        processRelations(new RelationData(serviceContext, relations, config), subscriptionProviders, base, valueProviders);
+        processRelations(new RelationData(serviceContext, relations, config), subscriptionProviders, valueProviders);
 
         OpcUaAssetConnectionConfig.Builder assetConfigBuilder = OpcUaAssetConnectionConfig.builder().host(base);
 
@@ -110,7 +110,7 @@ public class OpcUaHelper {
 
 
     private static void processRelations(RelationData data,
-                                         Map<Reference, OpcUaSubscriptionProviderConfig> subscriptionProviders, String base,
+                                         Map<Reference, OpcUaSubscriptionProviderConfig> subscriptionProviders,
                                          Map<Reference, OpcUaValueProviderConfig> valueProviders)
             throws PersistenceException, ResourceNotFoundException {
         for (var r: data.getRelations()) {
@@ -148,41 +148,49 @@ public class OpcUaHelper {
             retval.securityPolicy(SecurityPolicy.None);
         }
 
-        if (supportedSecurity.containsKey(Constants.AID_SECURITY_OPCUA_AUTHENTICATION)) {
-            if (supportedSecurity.get(Constants.AID_SECURITY_OPCUA_AUTHENTICATION) instanceof SubmodelElementCollection smc) {
-                String tokenTxt = Util.getSecurityUserIdentity(smc);
-                UserTokenType token = UserTokenType.valueOf(tokenTxt);
-                switch (token) {
-                    case Anonymous -> retval.userTokenType(token);
-
-                    case UserName -> {
-                        LOGGER.trace("configureSecurity: use OPC UA security with UserName");
-                        Optional<BasicCredentials> basic = credentials.stream().filter(BasicCredentials.class::isInstance).map(c -> (BasicCredentials) c).findFirst();
-                        if (basic.isEmpty()) {
-                            LOGGER.warn("configureSecurity: OPC UA security with UserName configured, but no username given");
-                        }
-                        else {
-                            retval = retval.userTokenType(token).username(basic.get().getUsername()).password(basic.get().getPassword());
-                        }
-                    }
-
-                    case Certificate -> {
-                        LOGGER.trace("configureSecurity: use OPC UA security with Certificate");
-                        Optional<CertificateCredentials> cert = credentials.stream().filter(CertificateCredentials.class::isInstance).map(c -> (CertificateCredentials) c)
-                                .findFirst();
-                        if (cert.isEmpty()) {
-                            LOGGER.warn("configureSecurity: OPC UA security with Certificate configured, but no certificate data given");
-                        }
-                        else {
-                            retval = retval.userTokenType(token).authenticationCertificate(cert.get().getAuthenticationCertificate());
-                        }
-                    }
-
-                    case IssuedToken -> LOGGER.warn("UserTokenType IssuedToken not supported");
-                }
-            }
+        if (supportedSecurity.containsKey(Constants.AID_SECURITY_OPCUA_AUTHENTICATION)
+                && (supportedSecurity.get(Constants.AID_SECURITY_OPCUA_AUTHENTICATION) instanceof SubmodelElementCollection smc)) {
+            retval = configureOpcUaAuthentication(smc, retval, credentials);
         }
 
+        return retval;
+    }
+
+
+    private static OpcUaAssetConnectionConfig.Builder configureOpcUaAuthentication(SubmodelElementCollection authObject, OpcUaAssetConnectionConfig.Builder retval,
+                                                                                   List<Credentials> credentials) {
+        String tokenTxt = Util.getSecurityUserIdentity(authObject);
+        UserTokenType token = UserTokenType.valueOf(tokenTxt);
+        switch (token) {
+            case Anonymous -> retval.userTokenType(token);
+
+            case UserName -> {
+                LOGGER.trace("configureSecurity: use OPC UA security with UserName");
+                Optional<BasicCredentials> basic = credentials.stream().filter(BasicCredentials.class::isInstance).map(c -> (BasicCredentials) c).findFirst();
+                if (basic.isEmpty()) {
+                    LOGGER.warn("configureSecurity: OPC UA security with UserName configured, but no username given");
+                }
+                else {
+                    retval = retval.userTokenType(token).username(basic.get().getUsername()).password(basic.get().getPassword());
+                }
+            }
+
+            case Certificate -> {
+                LOGGER.trace("configureSecurity: use OPC UA security with Certificate");
+                Optional<CertificateCredentials> cert = credentials.stream().filter(CertificateCredentials.class::isInstance).map(c -> (CertificateCredentials) c)
+                        .findFirst();
+                if (cert.isEmpty()) {
+                    LOGGER.warn("configureSecurity: OPC UA security with Certificate configured, but no certificate data given");
+                }
+                else {
+                    retval = retval.userTokenType(token).authenticationCertificate(cert.get().getAuthenticationCertificate());
+                }
+            }
+
+            case IssuedToken -> LOGGER.warn("UserTokenType IssuedToken not supported");
+
+            default -> LOGGER.warn("unknown UserTokenType {}", token);
+        }
         return retval;
     }
 

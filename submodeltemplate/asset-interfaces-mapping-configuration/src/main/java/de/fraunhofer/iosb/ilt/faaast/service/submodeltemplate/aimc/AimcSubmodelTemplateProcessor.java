@@ -94,7 +94,8 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
     public boolean accept(Submodel submodel) {
         return Objects.nonNull(submodel)
                 && (Util.semanticIdEquals(submodel, Constants.AIMC_SUBMODEL_SEMANTIC_ID)
-                        || Util.semanticIdEquals(submodel, Constants.AID_SUBMODEL_SEMANTIC_ID));
+                        || Util.semanticIdEquals(submodel, Constants.AID_SUBMODEL_SEMANTIC_ID_1_0)
+                        || Util.semanticIdEquals(submodel, Constants.AID_SUBMODEL_SEMANTIC_ID_1_1));
     }
 
 
@@ -102,7 +103,8 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
     public boolean add(Submodel submodel) {
         Ensure.requireNonNull(submodel);
 
-        if (Util.semanticIdEquals(submodel, Constants.AID_SUBMODEL_SEMANTIC_ID)) {
+        if (Util.semanticIdEquals(submodel, Constants.AID_SUBMODEL_SEMANTIC_ID_1_0)
+                || Util.semanticIdEquals(submodel, Constants.AID_SUBMODEL_SEMANTIC_ID_1_1)) {
             handleAidChange(submodel, ProcessingMode.ADD);
             return false;
         }
@@ -121,7 +123,8 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
     @Override
     public boolean update(Submodel submodel) {
         Ensure.requireNonNull(submodel);
-        if (Util.semanticIdEquals(submodel, Constants.AID_SUBMODEL_SEMANTIC_ID)) {
+        if (Util.semanticIdEquals(submodel, Constants.AID_SUBMODEL_SEMANTIC_ID_1_0)
+                || Util.semanticIdEquals(submodel, Constants.AID_SUBMODEL_SEMANTIC_ID_1_1)) {
             handleAidChange(submodel, ProcessingMode.UPDATE);
             return false;
         }
@@ -140,7 +143,8 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
     @Override
     public boolean delete(Submodel submodel) {
         Ensure.requireNonNull(submodel);
-        if (Util.semanticIdEquals(submodel, Constants.AID_SUBMODEL_SEMANTIC_ID)) {
+        if (Util.semanticIdEquals(submodel, Constants.AID_SUBMODEL_SEMANTIC_ID_1_0)
+                || Util.semanticIdEquals(submodel, Constants.AID_SUBMODEL_SEMANTIC_ID_1_1)) {
             handleAidChange(submodel, ProcessingMode.DELETE);
             return false;
         }
