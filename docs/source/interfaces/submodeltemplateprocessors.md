@@ -20,8 +20,8 @@ Each SubmodelTemplate Processor must implement the interface SubmodelTemplatePro
 
 ## Asset Interfaces Description and Asset Interfaces Mapping Configuration
 
-The SubmodelTemplate [Asset Interfaces Description](https://industrialdigitaltwin.org/wp-content/uploads/2024/01/IDTA-02017-1-0_Submodel_Asset-Interfaces-Description.pdf) (AID) specifies an information model and a common representation for describing the interfaces of an asset service or asset related service. Based on this information, it is possible to initiate a connection to such a service and request or subscribe to served datapoints.
-The Asset Interfaces Description (AID) in version 1.0 supports the description of interfaces based on three specific protocols: Modbus, HTTP and MQTT. Fa³st currently supports HTTP and MQTT, Modbus is currently not supported.
+The SubmodelTemplate [Asset Interfaces Description](https://industrialdigitaltwin.org/wp-content/uploads/2026/04/IDTA-02017-1-1_Submodel_Asset-Interfaces-Description.pdf) (AID) specifies an information model and a common representation for describing the interfaces of an asset service or asset related service. Based on this information, it is possible to initiate a connection to such a service and request or subscribe to served datapoints.
+The Asset Interfaces Description (AID) in version 1.1 supports the description of interfaces based on several specific protocols, e.g. Modbus, HTTP, MQTT and OPC UA. Fa³st currently supports HTTP, MQTT and OPC UA, Modbus is currently not supported.
 
 The SubmodelTemplate [Asset Interfaces Mapping Configuration](https://industrialdigitaltwin.org/wp-content/uploads/2024/06/IDTA-02027-1-0_Submodel_AssetInterfacesMappingConfiguration.pdf) (AIMC) specifies an information model and a common representation for describing the mapping of interface(s) of an asset service or asset-related service already described in an Asset Interfaces Description (AID) Submodel. It can be understood as a configuration Submodel for south-bound communication between AAS and asset. Based on this information, it's possible to create an [AssetConnection](#assetconnection) and map the payloads to the intended locations in an AAS automatically.
 
@@ -33,7 +33,7 @@ The Processor looks for the SubmodelTemplate AIMC and maps all relations in the 
 Besides AID / AIMC you also have the possibility to configure Asset Interfaces with our Asset Connections in the Fa³st Configuration.
 As AID / AIMC currently has some limitations, for several use cases you must use Asset Connections, e.g. if you need write access or if you want to call operations in the Asset.
 
-Just be aware, that you can change AID during Runtime, but changes of the Asset Connections in the Configuration require a restart of the Serice.
+Just be aware, that you can change AID during Runtime, but changes of the Asset Connections in the Configuration require a restart of the Service.
 :::
 
 ### Generic Configuration
@@ -49,8 +49,13 @@ The processor uses the following configuration structure:
             "@class": "de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.AimcSubmodelTemplateProcessor",
             "credentials": {
                 "{Server URL}": [
+                    "@class": "...",
                     // credential configuration
                 ]
+            },
+            "subscriptionInterval": {interval},
+            "opcuaSecurityBaseDir": {
+                "{Server URL}": "{directory}"
             }
         }
     ]
@@ -60,16 +65,37 @@ The processor uses the following configuration structure:
 The value of `{Server URL}` is the URL of the Server. This must match the Base URL in the AID Submodel.
 An example value could look like this `http://myserver.example.com:8088`.
 
-Add a list of Credentials for each Server URL.
+:::{table} General configuration properties.
+| Name                                | Allowed Value                                               | Description                                                                                    | Default Value |
+| ----------------------------------- | ----------------------------------------------------------- |----------------------------------------------------------------------------------------------- | ------------- |
+| subscriptionInterval                | long                                                        | Default Interval for Subscription Provider                                                     |               |
+:::
 
 ### Credential configuration
 
-:::{table} Configuration properties of Credential configuration.
+Add a list of Credentials for each Server URL.
+
+Currently, there are two separate types of credentials possible.
+
+- BasicCredentials
+- CertificateCredentials
+
+CertificateCredentials are only used for OPC UA.
+
+:::{table} Configuration properties of BasicCredentials configuration.
 | Name                                | Allowed Value                                               | Description                                                                                    | Default Value |
 | ----------------------------------- | ----------------------------------------------------------- |----------------------------------------------------------------------------------------------- | ------------- |
-| password            | String                                                      | Password for connecting to the Asset server.                                                    |               |
-| username            | String                                                      | Username for connecting to the Asset server.                                                    |               |
+| password                            | String                                                      | Password for connecting to the Asset server.                                                   |               |
+| username                            | String                                                      | Username for connecting to the Asset server.                                                   |               |
 :::
+
+:::{table} Configuration properties of CertificateCredentials configuration (only OPC UA).
+| Name                                | Allowed Value                                               | Description                                                                                    | Default Value |
+| ----------------------------------- | ----------------------------------------------------------- |----------------------------------------------------------------------------------------------- | ------------- |
+| authenticationCertificate           | [CertificateInfo](#providing-certificates-in-configuration) | The authentication/user certificate.                                                           |               |
+:::
+
+### General information
 
 In the EndpointMetadata of AID the following attributes are currently evaluated:
 
@@ -82,15 +108,17 @@ Currently, we only support the following Security Schemes:
 
 - NoSecurityScheme (nosec_sc)
 - BasicSecurityScheme (basic_sc)
+- OPCUASecurityChannelScheme (opcua_channel_sc, only OPC UA)
+- OPCUASecurityAuthenticationScheme (opcua_authentication_sc, only OPC UA)
 :::
 
 If BasicSecurityScheme is configured, username and password from the SMT configuration is used. In that case, make sure, that valid username and password is configured.
 
 In the Property of AID the following attributes are currently evaluated:
 
-- observable (only HTTP)
+- observable (only HTTP and OPC UA)
 
-For HTTP: If observable is true, a SubscriptionProvider, otherwise a ValueProvider is created.
+For HTTP and OPC UA: If observable is true, a SubscriptionProvider, otherwise a ValueProvider is created.
 In case of MQTT, a SubscriptionProvider is created always.
 
 The subscriptionInterval for a SubscriptionProvider is taken from the corresponding configuration section of the Processor (if available). If no value is provided, the default value will be used.

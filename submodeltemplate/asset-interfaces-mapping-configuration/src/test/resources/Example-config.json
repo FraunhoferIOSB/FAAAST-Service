@@ -3,13 +3,16 @@
     "credentials": {
         "http://plugfest.thingweb.io:8083": [
             {
+                "@class": "de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.config.BasicCredentials",
                 "username": "user1",
                 "password": "pw1"
             },
             {
+                "@class": "de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.config.BasicCredentials",
                 "username": "user2",
                 "password": "pw2"
             }
         ]
-    }
+    },
+    "subscriptionInterval": 0
 }

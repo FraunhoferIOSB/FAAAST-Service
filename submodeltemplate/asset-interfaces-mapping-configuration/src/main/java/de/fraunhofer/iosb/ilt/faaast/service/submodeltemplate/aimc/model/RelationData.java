@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.model;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.config.AimcSubmodelTemplateProcessorConfig;
 import java.util.List;
 import org.eclipse.digitaltwin.aas4j.v3.model.RelationshipElement;
 
@@ -27,11 +28,21 @@ public class RelationData {
     private final ServiceContext serviceContext;
     private final List<RelationshipElement> relations;
     private final String contentType;
+    private final AimcSubmodelTemplateProcessorConfig config;
 
-    public RelationData(ServiceContext serviceContext, List<RelationshipElement> relations, String contentType) {
+    public RelationData(ServiceContext serviceContext, List<RelationshipElement> relations, String contentType, AimcSubmodelTemplateProcessorConfig config) {
         this.serviceContext = serviceContext;
         this.relations = relations;
         this.contentType = contentType;
+        this.config = config;
+    }
+
+
+    public RelationData(ServiceContext serviceContext, List<RelationshipElement> relations, AimcSubmodelTemplateProcessorConfig config) {
+        this.serviceContext = serviceContext;
+        this.relations = relations;
+        this.contentType = null;
+        this.config = config;
     }
 
 
@@ -64,4 +75,8 @@ public class RelationData {
         return contentType;
     }
 
+
+    public AimcSubmodelTemplateProcessorConfig getConfig() {
+        return config;
+    }
 }

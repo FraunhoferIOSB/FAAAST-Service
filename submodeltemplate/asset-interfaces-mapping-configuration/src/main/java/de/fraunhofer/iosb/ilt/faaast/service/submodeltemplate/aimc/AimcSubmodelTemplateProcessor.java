@@ -30,6 +30,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.SubmodelTemplatePr
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.config.AimcSubmodelTemplateProcessorConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.util.HttpHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.util.MqttHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.util.OpcUaHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.util.Util;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
@@ -93,14 +94,17 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
     public boolean accept(Submodel submodel) {
         return Objects.nonNull(submodel)
                 && (Util.semanticIdEquals(submodel, Constants.AIMC_SUBMODEL_SEMANTIC_ID)
-                        || Util.semanticIdEquals(submodel, Constants.AID_SUBMODEL_SEMANTIC_ID));
+                        || Util.semanticIdEquals(submodel, Constants.AID_SUBMODEL_SEMANTIC_ID_1_0)
+                        || Util.semanticIdEquals(submodel, Constants.AID_SUBMODEL_SEMANTIC_ID_1_1));
     }
 
 
     @Override
     public boolean add(Submodel submodel) {
         Ensure.requireNonNull(submodel);
-        if (Util.semanticIdEquals(submodel, Constants.AID_SUBMODEL_SEMANTIC_ID)) {
+
+        if (Util.semanticIdEquals(submodel, Constants.AID_SUBMODEL_SEMANTIC_ID_1_0)
+                || Util.semanticIdEquals(submodel, Constants.AID_SUBMODEL_SEMANTIC_ID_1_1)) {
             handleAidChange(submodel, ProcessingMode.ADD);
             return false;
         }
@@ -119,7 +123,8 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
     @Override
     public boolean update(Submodel submodel) {
         Ensure.requireNonNull(submodel);
-        if (Util.semanticIdEquals(submodel, Constants.AID_SUBMODEL_SEMANTIC_ID)) {
+        if (Util.semanticIdEquals(submodel, Constants.AID_SUBMODEL_SEMANTIC_ID_1_0)
+                || Util.semanticIdEquals(submodel, Constants.AID_SUBMODEL_SEMANTIC_ID_1_1)) {
             handleAidChange(submodel, ProcessingMode.UPDATE);
             return false;
         }
@@ -138,7 +143,8 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
     @Override
     public boolean delete(Submodel submodel) {
         Ensure.requireNonNull(submodel);
-        if (Util.semanticIdEquals(submodel, Constants.AID_SUBMODEL_SEMANTIC_ID)) {
+        if (Util.semanticIdEquals(submodel, Constants.AID_SUBMODEL_SEMANTIC_ID_1_0)
+                || Util.semanticIdEquals(submodel, Constants.AID_SUBMODEL_SEMANTIC_ID_1_1)) {
             handleAidChange(submodel, ProcessingMode.DELETE);
             return false;
         }
@@ -284,11 +290,18 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
 
         if (Util.containsSupplementalSemanticId(assetInterface, Constants.AID_INTERFACE_SUPP_SEMANTIC_ID_HTTP)) {
             // HTTP Interface
-            return HttpHelper.processInterface(serviceContext, assetInterface, relations, config.getCredentials());
+            return HttpHelper.processInterface(serviceContext, assetInterface, relations, config);
         }
         else if (Util.containsSupplementalSemanticId(assetInterface, Constants.AID_INTERFACE_SUPP_SEMANTIC_ID_MQTT)) {
             // MQTT Interface
-            return MqttHelper.processInterface(serviceContext, assetInterface, relations, config.getCredentials());
+            return MqttHelper.processInterface(serviceContext, assetInterface, relations, config);
+        }
+        else if (Util.containsSupplementalSemanticId(assetInterface, Constants.AID_INTERFACE_SUPP_SEMANTIC_ID_OPC_UA)) {
+            // OPC UA Interface
+            return OpcUaHelper.processInterface(serviceContext, assetInterface, relations, config);
+        }
+        else {
+            LOGGER.atDebug().log("Type of interface '{}' not supported", assetInterface.getIdShort());
         }
         return null;
     }
