@@ -53,7 +53,7 @@ The processor uses the following configuration structure:
                     // credential configuration
                 ]
             },
-            "subscriptionInterval": {interval},
+            "subscriptionInterval": 1000,
             "opcuaSecurityBaseDir": {
                 "{Server URL}": "{directory}"
             }
@@ -68,7 +68,7 @@ An example value could look like this `http://myserver.example.com:8088`.
 :::{table} General configuration properties.
 | Name                                | Allowed Value                                               | Description                                                                                    | Default Value |
 | ----------------------------------- | ----------------------------------------------------------- |----------------------------------------------------------------------------------------------- | ------------- |
-| subscriptionInterval                | long                                                        | Default Interval for Subscription Provider                                                     |               |
+| subscriptionInterval                | long                                                        | Default Interval for Subscription Provider (usually in ms)                                     |               |
 :::
 
 ### Credential configuration
@@ -95,16 +95,8 @@ CertificateCredentials are only used for OPC UA.
 | authenticationCertificate           | [CertificateInfo](#providing-certificates-in-configuration) | The authentication/user certificate.                                                           |               |
 :::
 
-### General information
-
-In the EndpointMetadata of AID the following attributes are currently evaluated:
-
-- base
-- contentType
-- security
-
 :::{caution}
-Currently, we only support the following Security Schemes:
+Currently, we support the following Security Schemes:
 
 - NoSecurityScheme (nosec_sc)
 - BasicSecurityScheme (basic_sc)
@@ -112,7 +104,17 @@ Currently, we only support the following Security Schemes:
 - OPCUASecurityAuthenticationScheme (opcua_authentication_sc, only OPC UA)
 :::
 
-If BasicSecurityScheme is configured, username and password from the SMT configuration is used. In that case, make sure, that valid username and password is configured.
+If BasicSecurityScheme is configured, username and password from the SMT configuration is used. In that case, make sure, that a valid username and password is configured.
+
+If OPCUASecurityAuthenticationScheme is configured, the credentials from the SMT configuration are used. In that case, make sure, that valid BasicCredentials or CertificateCredentials are configured.
+
+### General information
+
+In the EndpointMetadata of AID the following attributes are currently evaluated:
+
+- base
+- contentType
+- security
 
 In the Property of AID the following attributes are currently evaluated:
 
@@ -130,12 +132,12 @@ In the Property Forms of AID, the following attributes are currently evaluated:
 - htv_headers (for HTTP)
 
 :::{table} Overview of the mappings of the used AID attributes.
-| AID Attribute                       | Value in Asset Connection HTTP            | Value in Asset Connection MQTT                              |
-| ----------------------------------- | ----------------------------------------- |------------------------------------------------------------ |
-| base (EndpointMetadata)             | baseUrl                                   | serverUri                                                   |
-| contentType                         | format                                    | format                                                      |
-| href                                | path                                      | topic                                                       |
-| htv_headers                         | headers                                   | -                                                           |
+| AID Attribute                     | Value in Asset Connection HTTP       | Value in Asset Connection MQTT     | Value in Asset Connection OPC UA |
+| --------------------------------- | ------------------------------------ | ---------------------------------- | -------------------------------- |
+| base (EndpointMetadata)           | baseUrl                              | serverUri                          | host                             |
+| contentType                       | format                               | format                             | -                                |
+| href                              | path                                 | topic                              | nodeId                           |
+| htv_headers                       | headers                              | -                                  | -                                |
 :::
 
 ```{code-block} json
