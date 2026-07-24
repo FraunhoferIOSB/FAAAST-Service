@@ -204,8 +204,7 @@ public class OpcUaHelper {
         if (data.getConfig().getSubscriptionInterval() > 0) {
             configBuilder.interval(data.getConfig().getSubscriptionInterval());
         }
-        OpcUaSubscriptionProviderConfig retval = configBuilder.build();
-        return retval;
+        return configBuilder.build();
     }
 
 
