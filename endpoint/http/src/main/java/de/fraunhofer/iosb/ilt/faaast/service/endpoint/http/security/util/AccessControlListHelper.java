@@ -47,12 +47,12 @@ public class AccessControlListHelper {
     private static final String DEFOBJECTS = "DEFOBJECTS";
     private static final Object USEOBJECTS = "USEOBJECTS";
 
-
     private AccessControlListHelper() {}
 
 
     /**
-     * returns the ACL definition of the AccessPermissionRule. If ACL is not directly defined, returns the DEFACL defined by USEACL.
+     * returns the ACL definition of the AccessPermissionRule. If ACL is not directly defined, returns the DEFACL defined by
+     * USEACL.
      *
      * @param rule Rule to get ACL from
      * @param allAccess Rule environment
@@ -80,7 +80,8 @@ public class AccessControlListHelper {
 
 
     /**
-     * returns the ATTRIBUTES of the AccessPermissionRule. If ATTRIBUTES are not directly defined, returns the DEFATTRIBUTES defined by USEATTRIBUTES.
+     * returns the ATTRIBUTES of the AccessPermissionRule. If ATTRIBUTES are not directly defined, returns the DEFATTRIBUTES
+     * defined by USEATTRIBUTES.
      *
      * @param acl ACL to get ATTRIBUTES from
      * @param allAccess Rule environment
@@ -108,7 +109,8 @@ public class AccessControlListHelper {
 
 
     /**
-     * returns the FORMULA of the AccessPermissionRule. If FORMULA is not directly defined, returns the DEFFORMULA defined by USEFORMULA.
+     * returns the FORMULA of the AccessPermissionRule. If FORMULA is not directly defined, returns the DEFFORMULA defined
+     * by USEFORMULA.
      *
      * @param rule Rule to get FORMULA from
      * @param allAccess Rule environment
@@ -136,9 +138,11 @@ public class AccessControlListHelper {
 
 
     /**
-     * returns the FILTER of the AccessPermissionRule. If condition of FILTER is not directly defined, uses the DEFFORMULA defined by USEFORMULA.
+     * returns the FILTER of the AccessPermissionRule. If condition of FILTER is not directly defined, uses the DEFFORMULA
+     * defined by USEFORMULA.
      *
      * @param rule Rule to get FILTER from
+     * @param allAccess Rule environment
      * @return The FILTER.
      */
     public static @Nullable SecurityQueryFilter getFilter(AccessPermissionRule rule, AllAccessPermissionRules allAccess) {
@@ -171,7 +175,8 @@ public class AccessControlListHelper {
 
 
     /**
-     * returns the OBJECTS of the AccessPermissionRule. If OBJECTS is not directly defined, returns the DEFOBJECTS defined by USEOBJECTS.
+     * returns the OBJECTS of the AccessPermissionRule. If OBJECTS is not directly defined, returns the DEFOBJECTS defined
+     * by USEOBJECTS.
      *
      * @param rule Rule to get ObjectItems from
      * @param allAccess Rule environment

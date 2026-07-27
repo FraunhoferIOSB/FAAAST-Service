@@ -15,7 +15,7 @@
         },
         "OBJECTS": [
           {
-            "IDENTIFIABLE": "$sm(\"https://acplt.org/Test_Submodel_Mandatory\")"
+            "IDENTIFIABLE": "(Submodel)https://acplt.org/Test_Submodel_Mandatory"
           }
         ],
         "FORMULA": {
