@@ -36,6 +36,7 @@ public class AimcSubmodelTemplateProcessorConfig extends SubmodelTemplateProcess
     public AimcSubmodelTemplateProcessorConfig() {
         credentials = new HashMap<>();
         subscriptionInterval = 0;
+        opcuaSecurityBaseDir = new HashMap<>();
     }
 
 
