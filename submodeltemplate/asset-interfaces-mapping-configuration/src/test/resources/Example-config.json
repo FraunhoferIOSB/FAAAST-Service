@@ -12,6 +12,18 @@
                 "username": "user2",
                 "password": "pw2"
             }
+        ],
+        "opc.tcp://example.com:9999": [
+            {
+                "@class": "de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.config.CertificateCredentials",
+                "authenticationCertificate": {
+                    "keyStoreType": "PKCS12",
+                    "keyStorePath": ".\\user_certificate.pfx",
+                    "keyStorePassword": "storepw",
+                    "keyAlias": "user1",
+                    "keyPassword": "keypw"
+                }
+            }
         ]
     },
     "subscriptionInterval": 0
