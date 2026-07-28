@@ -70,7 +70,7 @@
         <awaitility.version>4.3.0</awaitility.version>
         <bouncycastle.version>1.85</bouncycastle.version>
         <checkstyle.version>12.3.1</checkstyle.version>
-        <classgraph.version>4.8.185</classgraph.version>
+        <classgraph.version>4.8.186</classgraph.version>
         <cloudevents.version>5.0.0</cloudevents.version>
         <commons.codec.version>1.22.0</commons.codec.version>
         <commons.compress.version>1.28.0</commons.compress.version>
