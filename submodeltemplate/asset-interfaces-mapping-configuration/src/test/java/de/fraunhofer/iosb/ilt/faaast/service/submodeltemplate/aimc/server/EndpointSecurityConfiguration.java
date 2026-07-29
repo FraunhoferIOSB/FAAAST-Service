@@ -202,7 +202,7 @@ public class EndpointSecurityConfiguration {
                 securityMode,
                 protocol,
                 tokenPolicies.stream()
-                        .map(x -> x.name())
+                        .map(Enum::name)
                         .collect(Collectors.joining(", ")));
     }
 

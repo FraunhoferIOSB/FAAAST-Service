@@ -20,6 +20,7 @@ import java.nio.file.Path;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,7 +46,7 @@ public class EmbeddedOpcUaServerConfig {
         this.path = DEFAULT_PATH;
         this.allowedClientCertificates = Collections.synchronizedList(new ArrayList<>());
         this.endpointSecurityConfigurations = new ArrayList<>();
-        this.protocolPorts = new HashMap<>();
+        this.protocolPorts = new EnumMap<>(Protocol.class);
         this.allowedCredentials = new HashMap<>();
         // for discovery it's necessary that TCP is always enabled
         this.protocolPorts.put(Protocol.TCP, PortHelper.findFreePort());

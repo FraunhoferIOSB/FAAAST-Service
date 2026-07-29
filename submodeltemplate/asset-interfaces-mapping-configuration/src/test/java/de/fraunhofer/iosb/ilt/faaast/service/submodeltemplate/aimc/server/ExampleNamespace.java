@@ -351,7 +351,6 @@ public class ExampleNamespace extends ManagedNamespaceWithLifecycle {
 
         // Add the rest of the nodes
         addVariableNodes(folderNode);
-        //addSqrtMethod(folderNode);
     }
 
 

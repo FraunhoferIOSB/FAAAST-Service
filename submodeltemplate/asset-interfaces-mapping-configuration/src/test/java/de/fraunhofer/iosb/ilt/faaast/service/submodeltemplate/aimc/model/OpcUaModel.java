@@ -45,7 +45,7 @@ public class OpcUaModel {
     private static final String SUBMODEL_AIMC_ID = "https://example.com/ids/sm/8854_6574_6587_5745";
     private static final String PROPERTY_1 = "double_value";
     private static final String PROPERTY_2 = "int_value";
-    private final static String NODE_ID_PREFIX = "/?id=";
+    private static final String NODE_ID_PREFIX = "/?id=";
 
     public static Environment create(String host) {
         return new DefaultEnvironment.Builder()

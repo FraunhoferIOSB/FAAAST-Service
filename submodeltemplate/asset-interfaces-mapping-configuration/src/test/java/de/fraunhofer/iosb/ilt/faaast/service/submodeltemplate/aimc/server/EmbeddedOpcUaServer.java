@@ -299,7 +299,7 @@ public class EmbeddedOpcUaServer {
             throw new UnsupportedOperationException(String.format(
                     "transport profile not supported (transport profile: %s, supported transport profiles: %s)",
                     transportProfile,
-                    SUPPORTED_TRANSPORT_PROFILES.stream().map(x -> x.name()).collect(Collectors.joining(", "))));
+                    SUPPORTED_TRANSPORT_PROFILES.stream().map(Enum::name).collect(Collectors.joining(", "))));
         }
         return String.format("%s://localhost:%s%s",
                 transportProfile.getScheme(),

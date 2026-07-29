@@ -148,7 +148,6 @@ public class AimcSubmodelTemplateProcessorIT {
         if (securityTempDir != null) {
             try {
                 FileUtils.forceDelete(securityTempDir.toFile());
-                //Files.delete(securityTempDir);
             }
             catch (IOException ex) {
                 LOGGER.info("shutdown: can't delete securityTempDir", ex);
