@@ -1,0 +1,383 @@
+/*
+ * Copyright 2026 Fraunhofer IOSB.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.server;
+
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.util.OpcUaConstants;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.util.SecurityPathHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.certificate.CertificateData;
+import de.fraunhofer.iosb.ilt.faaast.service.certificate.util.KeyStoreHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.security.GeneralSecurityException;
+import java.security.KeyPair;
+import java.security.Security;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.function.BiFunction;
+import java.util.stream.Collectors;
+import org.apache.commons.io.FileUtils;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.eclipse.milo.opcua.sdk.server.AddressSpace.WriteContext;
+import org.eclipse.milo.opcua.sdk.server.EndpointConfig;
+import org.eclipse.milo.opcua.sdk.server.ManagedNamespaceWithLifecycle;
+import org.eclipse.milo.opcua.sdk.server.OpcUaServer;
+import org.eclipse.milo.opcua.sdk.server.OpcUaServerConfig;
+import org.eclipse.milo.opcua.sdk.server.identity.AnonymousIdentityValidator;
+import org.eclipse.milo.opcua.sdk.server.identity.CompositeValidator;
+import org.eclipse.milo.opcua.sdk.server.identity.IdentityValidator;
+import org.eclipse.milo.opcua.sdk.server.identity.UsernameIdentityValidator;
+import org.eclipse.milo.opcua.sdk.server.identity.X509IdentityValidator;
+import org.eclipse.milo.opcua.sdk.server.util.HostnameUtil;
+import org.eclipse.milo.opcua.stack.core.AttributeId;
+import org.eclipse.milo.opcua.stack.core.StatusCodes;
+import org.eclipse.milo.opcua.stack.core.UaRuntimeException;
+import org.eclipse.milo.opcua.stack.core.security.DefaultApplicationGroup;
+import org.eclipse.milo.opcua.stack.core.security.DefaultCertificateManager;
+import org.eclipse.milo.opcua.stack.core.security.DefaultServerCertificateValidator;
+import org.eclipse.milo.opcua.stack.core.security.FileBasedTrustListManager;
+import org.eclipse.milo.opcua.stack.core.security.MemoryCertificateQuarantine;
+import org.eclipse.milo.opcua.stack.core.security.MemoryCertificateStore;
+import org.eclipse.milo.opcua.stack.core.security.RsaSha256CertificateFactory;
+import org.eclipse.milo.opcua.stack.core.security.SecurityPolicy;
+import org.eclipse.milo.opcua.stack.core.transport.TransportProfile;
+import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
+import org.eclipse.milo.opcua.stack.core.types.builtin.DateTime;
+import org.eclipse.milo.opcua.stack.core.types.builtin.LocalizedText;
+import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId;
+import org.eclipse.milo.opcua.stack.core.types.builtin.StatusCode;
+import org.eclipse.milo.opcua.stack.core.types.builtin.Variant;
+import org.eclipse.milo.opcua.stack.core.types.enumerated.MessageSecurityMode;
+import org.eclipse.milo.opcua.stack.core.types.enumerated.UserTokenType;
+import org.eclipse.milo.opcua.stack.core.types.structured.BuildInfo;
+import org.eclipse.milo.opcua.stack.core.types.structured.UserTokenPolicy;
+import org.eclipse.milo.opcua.stack.core.types.structured.WriteValue;
+import org.eclipse.milo.opcua.stack.core.util.CertificateUtil;
+import org.eclipse.milo.opcua.stack.transport.server.tcp.OpcTcpServerTransport;
+import org.eclipse.milo.opcua.stack.transport.server.tcp.OpcTcpServerTransportConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+
+/**
+ * Helper class to run embedded OPC UA server
+ */
+public class EmbeddedOpcUaServer {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(EmbeddedOpcUaServer.class);
+    public static final String DEFAULT_APPLICATION_CERTIFICATE_FILE = "server-application.p12";
+    public static final String DEFAULT_APPLICATION_CERTIFICATE_PASSWORD = "";
+    public static final String DEFAULT_APPLICATION_CERTIFICATE_KEY_STORE_TYPE = "PKCS12";
+    private static final BuildInfo BUILD_INFO = new BuildInfo(
+            "urn:de:fraunhofer:iosb:ilt:faaast:service:assetconnection:opcua:test",
+            "Fraunhofer IOSB",
+            "FA³ST OPC UA Asset Connection Test Server",
+            OpcUaServer.SDK_VERSION,
+            "1",
+            DateTime.now());
+    private static final List<TransportProfile> SUPPORTED_TRANSPORT_PROFILES = List.of(TransportProfile.HTTPS_UABINARY, TransportProfile.TCP_UASC_UABINARY);
+
+    private final EmbeddedOpcUaServerConfig config;
+    private final OpcUaServer server;
+    private final List<ManagedNamespaceWithLifecycle> namespaces = new ArrayList<>();
+    private final ExampleNamespace exampleNamespace;
+
+    static {
+        // Required for SecurityPolicy.Aes256_Sha256_RsaPss
+        Security.addProvider(new BouncyCastleProvider());
+    }
+
+    public void allowClient(X509Certificate certificate) {
+        config.getAllowedClientCertificates().add(certificate);
+    }
+
+
+    public void disallowClient(X509Certificate certificate) {
+        config.getAllowedClientCertificates().remove(certificate);
+    }
+
+
+    public EmbeddedOpcUaServerConfig getConfig() {
+        return config;
+    }
+
+
+    private static IdentityValidator buildIdentityValidator(EmbeddedOpcUaServerConfig config) {
+        Set<UserTokenType> availableTokenPolicies = config.getEndpointSecurityConfigurations().stream()
+                .flatMap(x -> x.getTokenPolicies().stream())
+                .distinct()
+                .collect(Collectors.toSet());
+        if (availableTokenPolicies.contains(UserTokenType.IssuedToken)) {
+            throw new IllegalArgumentException(String.format("Unsupported user token policy: %s", UserTokenType.IssuedToken.name()));
+        }
+        if (availableTokenPolicies.isEmpty()) {
+            throw new IllegalArgumentException("at least one user token policy is required");
+        }
+        BiFunction<IdentityValidator, IdentityValidator, IdentityValidator> compositor = (oldValidator, newValidator) -> Objects.isNull(oldValidator)
+                ? newValidator
+                : new CompositeValidator(oldValidator, newValidator);
+        IdentityValidator result = null;
+        if (availableTokenPolicies.contains(UserTokenType.Anonymous)) {
+            result = compositor.apply(result, new AnonymousIdentityValidator());
+        }
+        if (availableTokenPolicies.contains(UserTokenType.UserName)) {
+            result = compositor.apply(result, new UsernameIdentityValidator(
+                    x -> {
+                        boolean userOk = config.getAllowedCredentials().containsKey(x.getUsername());
+                        boolean passwordOk = Objects.equals(x.getPassword(), config.getAllowedCredentials().get(x.getUsername()));
+
+                        return userOk && passwordOk;
+                    }));
+        }
+        if (availableTokenPolicies.contains(UserTokenType.Certificate)) {
+            result = compositor.apply(result, new X509IdentityValidator(x -> config.getAllowedClientCertificates().contains(x)));
+        }
+        return result;
+    }
+
+
+    private static CertificateData getApplicationCertificate(EmbeddedOpcUaServerConfig config) throws IOException, GeneralSecurityException {
+        return Objects.nonNull(config.getApplicationCertificate())
+                ? config.getApplicationCertificate()
+                : KeyStoreHelper
+                        .loadOrDefaultCertificateData(Thread.currentThread().getContextClassLoader().getResourceAsStream(DEFAULT_APPLICATION_CERTIFICATE_FILE),
+                                DEFAULT_APPLICATION_CERTIFICATE_KEY_STORE_TYPE,
+                                null,
+                                DEFAULT_APPLICATION_CERTIFICATE_PASSWORD,
+                                DEFAULT_APPLICATION_CERTIFICATE_PASSWORD,
+                                OpcUaConstants.DEFAULT_APPLICATION_CERTIFICATE_INFO);
+    }
+
+
+    /**
+     * Starts an embedded OPC UA server.
+     *
+     * @param config the config to start the server with
+     * @throws Exception if initialization of server fails
+     */
+    public EmbeddedOpcUaServer(EmbeddedOpcUaServerConfig config) throws Exception {
+        this.config = config;
+        Files.createDirectories(config.getSecurityBaseDir());
+        CertificateData applicationCertificate = getApplicationCertificate(config);
+        var certificateQuarantine = new MemoryCertificateQuarantine();
+
+        var certificateFactory = new RsaSha256CertificateFactory() {
+            @Override
+            protected KeyPair createRsaSha256KeyPair() {
+                return applicationCertificate.getKeyPair();
+            }
+
+
+            @Override
+            protected X509Certificate[] createRsaSha256CertificateChain(KeyPair keyPair) {
+                return applicationCertificate.getCertificateChain();
+            }
+        };
+
+        var trustListManager = FileBasedTrustListManager.createAndInitialize(SecurityPathHelper.pki(config.getSecurityBaseDir()));
+        var certificateStore = new MemoryCertificateStore();
+        var certificateValidator = new DefaultServerCertificateValidator(trustListManager, certificateQuarantine);
+        var defaultGroup = DefaultApplicationGroup.createAndInitialize(
+                trustListManager, certificateStore, certificateFactory, certificateValidator);
+
+        var certificateManager = new DefaultCertificateManager(certificateQuarantine, defaultGroup);
+
+        // The configured application URI must match the one in the certificate(s)
+        String applicationUri = CertificateUtil
+                .getSanUri(applicationCertificate.getCertificate())
+                .orElseThrow(() -> new UaRuntimeException(
+                        StatusCodes.Bad_ConfigurationError,
+                        "certificate is missing the application URI"));
+        server = new OpcUaServer(OpcUaServerConfig.builder()
+                .setEndpoints(createEndpointConfigurations(applicationCertificate.getCertificate(), config.getEndpointSecurityConfigurations()))
+                .setApplicationUri(applicationUri)
+                .setApplicationName(LocalizedText.english("FA³ST OPC UA Asset Connection Test Server"))
+                .setBuildInfo(BUILD_INFO)
+                .setCertificateManager(certificateManager)
+                .setIdentityValidator(buildIdentityValidator(config))
+                .setProductUri(BUILD_INFO.getProductUri())
+                .build(),
+                transportProfile -> {
+                    if (transportProfile == TransportProfile.TCP_UASC_UABINARY) {
+                        OpcTcpServerTransportConfig transportConfig = OpcTcpServerTransportConfig.newBuilder().build();
+
+                        return new OpcTcpServerTransport(transportConfig);
+                    }
+                    else {
+                        throw new RuntimeException("unexpected TransportProfile: " + transportProfile);
+                    }
+                });
+        exampleNamespace = new ExampleNamespace(server);
+        namespaces.add(exampleNamespace);
+        startupNamespaces();
+    }
+
+
+    public StatusCode writeExampleValue(NodeId nodeId, Object value) {
+        if (nodeId.getNamespaceIndex().equals(exampleNamespace.getNamespaceIndex())) {
+            WriteValue v1 = new WriteValue(nodeId, AttributeId.Value.uid(), null, DataValue.valueOnly(new Variant(value)));
+            List<StatusCode> retval = exampleNamespace.write(new WriteContext(server, null), List.of(v1));
+            if ((retval != null) && (!retval.isEmpty())) {
+                return retval.get(0);
+            }
+        }
+        return StatusCode.BAD;
+    }
+
+
+    private void startupNamespaces() {
+        namespaces.forEach(x -> x.startup());
+    }
+
+
+    private void shutdownNamespaces() {
+        namespaces.forEach(x -> x.shutdown());
+    }
+
+
+    private static UserTokenPolicy toPolicy(UserTokenType tokenType) {
+        return new UserTokenPolicy(tokenType.name(),
+                tokenType,
+                null,
+                null,
+                tokenType == UserTokenType.Anonymous ? null : SecurityPolicy.Basic256.getUri());
+    }
+
+
+    private EndpointConfig.Builder applyEndpointSecurityConfiguration(EndpointConfig.Builder builder, EndpointSecurityConfiguration securityConfiguration) {
+        return builder.copy()
+                .setSecurityPolicy(securityConfiguration.getPolicy())
+                .setSecurityMode(securityConfiguration.getSecurityMode())
+                .addTokenPolicies(securityConfiguration.getTokenPolicies().stream()
+                        .map(x -> toPolicy(x))
+                        .toArray(UserTokenPolicy[]::new))
+                .setTransportProfile(getTransportProfile(securityConfiguration.getProtocol()))
+                .setBindPort(config.getProtocolPorts().get(securityConfiguration.getProtocol()));
+    }
+
+
+    public static TransportProfile getTransportProfile(Protocol protocol) {
+        switch (protocol) {
+            case TCP -> {
+                return TransportProfile.TCP_UASC_UABINARY;
+            }
+            default -> throw new IllegalStateException(String.format("unsupported protocol: %s", protocol));
+        }
+    }
+
+
+    private static Set<String> getRelevantHostnames(X509Certificate certificate) {
+        Set<String> result = new HashSet<>();
+        result.addAll(CertificateUtil.getSanIpAddresses(certificate));
+        result.addAll(CertificateUtil.getSanDnsNames(certificate));
+        if (result.isEmpty()) {
+            result.add(HostnameUtil.getHostname());
+            result.addAll(HostnameUtil.getHostnames("0.0.0.0"));
+        }
+        return result;
+    }
+
+
+    public String getEndpoint(TransportProfile transportProfile) {
+        Ensure.requireNonNull(transportProfile, "transportProfile must be non-null");
+        if (!SUPPORTED_TRANSPORT_PROFILES.contains(transportProfile)) {
+            throw new UnsupportedOperationException(String.format(
+                    "transport profile not supported (transport profile: %s, supported transport profiles: %s)",
+                    transportProfile,
+                    SUPPORTED_TRANSPORT_PROFILES.stream().map(x -> x.name()).collect(Collectors.joining(", "))));
+        }
+        return String.format("%s://localhost:%s%s",
+                transportProfile.getScheme(),
+                config.getProtocolPorts().get(Protocol.from(transportProfile)),
+                config.getPath());
+    }
+
+
+    public String getEndpoint(Protocol protocol) {
+        return getEndpoint(getTransportProfile(protocol));
+    }
+
+
+    private Set<EndpointConfig> createEndpointConfigurations(X509Certificate certificate, List<EndpointSecurityConfiguration> endpointSecurityConfigurations) {
+        List<EndpointSecurityConfiguration> securityConfigurations = endpointSecurityConfigurations;
+        if (Objects.isNull(securityConfigurations) || securityConfigurations.isEmpty()) {
+            LOGGER.warn("No endpoint security configuration specified - using default (all allowed configurations)");
+            securityConfigurations = EndpointSecurityConfiguration.ALL;
+        }
+        Set<EndpointConfig> result = new HashSet<>();
+        for (var hostname: getRelevantHostnames(certificate)) {
+            EndpointConfig.Builder builder = EndpointConfig.newBuilder()
+                    .setBindAddress("0.0.0.0")
+                    .setHostname(hostname)
+                    .setPath(config.getPath())
+                    .setCertificate(certificate);
+            for (var securityConfiguration: securityConfigurations) {
+                result.add(applyEndpointSecurityConfiguration(builder, securityConfiguration).build());
+            }
+
+            EndpointConfig.Builder discoveryBuilder = builder.copy()
+                    .setPath(String.format("%s/discovery", config.getPath()))
+                    .setSecurityPolicy(SecurityPolicy.None)
+                    .setSecurityMode(MessageSecurityMode.None)
+                    .addTokenPolicies(
+                            toPolicy(UserTokenType.Anonymous),
+                            toPolicy(UserTokenType.UserName),
+                            toPolicy(UserTokenType.Certificate));
+            if (config.getProtocolPorts().containsKey(Protocol.TCP)) {
+                result.add(discoveryBuilder
+                        .copy()
+                        .setTransportProfile(TransportProfile.TCP_UASC_UABINARY)
+                        .setBindPort(config.getProtocolPorts().get(Protocol.TCP))
+                        .build());
+            }
+            if (config.getProtocolPorts().containsKey(Protocol.HTTPS)) {
+                result.add(discoveryBuilder
+                        .copy()
+                        .setTransportProfile(TransportProfile.HTTPS_UABINARY)
+                        .setBindPort(config.getProtocolPorts().get(Protocol.HTTPS))
+                        .build());
+            }
+        }
+        return result;
+    }
+
+
+    public OpcUaServer getServer() {
+        return server;
+    }
+
+
+    public void startup() throws InterruptedException, ExecutionException {
+        server.startup().get();
+    }
+
+
+    public void shutdown() throws InterruptedException, ExecutionException {
+        shutdownNamespaces();
+        server.shutdown().get();
+        // delete Temp dir after use
+        if (config.getSecurityBaseDir() != null) {
+            try {
+                FileUtils.forceDelete(config.getSecurityBaseDir().toFile());
+            }
+            catch (IOException ex) {
+                LOGGER.info("shutdown: can't delete SecurityBaseDir", ex);
+            }
+        }
+    }
+}
