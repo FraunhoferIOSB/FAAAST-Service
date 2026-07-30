@@ -70,7 +70,7 @@
         <awaitility.version>4.3.0</awaitility.version>
         <bouncycastle.version>1.85</bouncycastle.version>
         <checkstyle.version>12.3.1</checkstyle.version>
-        <classgraph.version>4.8.184</classgraph.version>
+        <classgraph.version>4.8.186</classgraph.version>
         <cloudevents.version>5.0.0</cloudevents.version>
         <commons.codec.version>1.22.0</commons.codec.version>
         <commons.compress.version>1.28.0</commons.compress.version>
@@ -99,7 +99,7 @@
         <jsonpath.version>3.0.0</jsonpath.version>
         <junit.version>4.13.2</junit.version>
         <log4j.api.version>2.26.1</log4j.api.version>
-        <logback.version>1.6.0</logback.version>
+        <logback.version>1.6.1</logback.version>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <maven.plugin.assembly.version>3.8.0</maven.plugin.assembly.version>
@@ -124,12 +124,12 @@
         <maven.plugin.shade.version>3.6.2</maven.plugin.shade.version>
         <maven.plugin.sonar.version>5.7.0.6970</maven.plugin.sonar.version>
         <maven.plugin.source.version>3.4.0</maven.plugin.source.version>
-        <maven.plugin.spotless.version>3.8.0</maven.plugin.spotless.version>
+        <maven.plugin.spotless.version>3.9.0</maven.plugin.spotless.version>
         <maven.plugin.surefire.version>3.5.6</maven.plugin.surefire.version>
         <milo.version>1.1.6</milo.version>
         <mockito.version>5.23.0</mockito.version>
         <mongodb.version>5.9.1</mongodb.version>
-        <moquette.version>0.18.5</moquette.version>
+        <moquette.version>0.18.6</moquette.version>
         <netty.version>4.2.16.Final</netty.version>
         <org.apache.httpcomponents.client5.version>5.6.2</org.apache.httpcomponents.client5.version>
         <org.apache.log4j-to-slf4j>2.26.1</org.apache.log4j-to-slf4j>
