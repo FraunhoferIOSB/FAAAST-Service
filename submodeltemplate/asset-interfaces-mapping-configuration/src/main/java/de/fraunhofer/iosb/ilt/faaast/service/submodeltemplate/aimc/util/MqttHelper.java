@@ -18,6 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.MqttAssetConnectionConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.config.MqttSubscriptionProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.model.SemanticIdPath;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.Constants;
@@ -90,13 +91,15 @@ public class MqttHelper {
         MqttAssetConnectionConfig.Builder assetConfigBuilder = MqttAssetConnectionConfig.builder().serverUri(base);
 
         // security
-        Optional<SubmodelElement> element = metadata.getValue().stream().filter(e -> Util.semanticIdEquals(e, Constants.AID_METADATA_SECURITY_SEMANTIC_ID)).findFirst();
-        if (element.isEmpty()) {
-            throw new IllegalArgumentException("Submodel AID (MQTT) invalid: EndpointMetadata security not found.");
-        }
-        else if (element.get() instanceof SubmodelElementList securityList) {
-            assetConfigBuilder = configureSecurity(serviceContext, securityList, assetConfigBuilder, serverCredentials);
-        }
+        assetConfigBuilder = configureSecurity(
+                serviceContext,
+                SemanticIdPath.builder()
+                        .globalReference(Constants.AID_METADATA_SECURITY_SEMANTIC_ID)
+                        .build()
+                        .resolveOptional(metadata, SubmodelElementList.class)
+                        .orElseThrow(() -> new IllegalArgumentException("Submodel AID (MQTT) invalid: EndpointMetadata security not found.")),
+                assetConfigBuilder,
+                serverCredentials);
 
         LOGGER.debug("processInterface: add {} subscriptionProviders", subscriptionProviders.size());
         return assetConfigBuilder

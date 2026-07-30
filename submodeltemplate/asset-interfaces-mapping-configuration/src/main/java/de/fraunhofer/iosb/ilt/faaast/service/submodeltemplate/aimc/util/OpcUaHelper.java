@@ -17,6 +17,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionConf
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.OpcUaAssetConnectionConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config.OpcUaSubscriptionProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config.OpcUaValueProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.model.SemanticIdPath;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.Constants;
@@ -91,13 +92,15 @@ public class OpcUaHelper {
         }
 
         // security
-        Optional<SubmodelElement> element = metadata.getValue().stream().filter(e -> Util.semanticIdEquals(e, Constants.AID_METADATA_SECURITY_SEMANTIC_ID)).findFirst();
-        if (element.isEmpty()) {
-            throw new IllegalArgumentException("Submodel AID (OPC UA) invalid: EndpointMetadata security not found.");
-        }
-        else if (element.get() instanceof SubmodelElementList securityList) {
-            configureSecurity(serviceContext, securityList, assetConfigBuilder, serverCredentials);
-        }
+        configureSecurity(
+                serviceContext,
+                SemanticIdPath.builder()
+                        .globalReference(Constants.AID_METADATA_SECURITY_SEMANTIC_ID)
+                        .build()
+                        .resolveOptional(metadata, SubmodelElementList.class)
+                        .orElseThrow(() -> new IllegalArgumentException("Submodel AID (OPC UA) invalid: EndpointMetadata security not found.")),
+                assetConfigBuilder,
+                serverCredentials);
 
         if (config.getOpcuaSecurityBaseDir().containsKey(base)) {
             assetConfigBuilder.securityBaseDir(config.getOpcuaSecurityBaseDir().get(base));

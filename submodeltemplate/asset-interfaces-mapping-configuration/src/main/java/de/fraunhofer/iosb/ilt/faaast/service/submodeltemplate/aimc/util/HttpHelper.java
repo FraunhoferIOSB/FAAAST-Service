@@ -19,6 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionConf
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.HttpAssetConnectionConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.HttpSubscriptionProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.HttpValueProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.model.SemanticIdPath;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.Constants;
@@ -30,10 +31,13 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.EnvironmentHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.eclipse.digitaltwin.aas4j.v3.model.Property;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.RelationshipElement;
@@ -93,13 +97,15 @@ public class HttpHelper {
         }
 
         // security
-        Optional<SubmodelElement> element = metadata.getValue().stream().filter(e -> Util.semanticIdEquals(e, Constants.AID_METADATA_SECURITY_SEMANTIC_ID)).findFirst();
-        if (element.isEmpty()) {
-            throw new IllegalArgumentException("Submodel AID (HTTP) invalid: EndpointMetadata security not found.");
-        }
-        else if (element.get() instanceof SubmodelElementList securityList) {
-            assetConfigBuilder = configureSecurity(serviceContext, securityList, assetConfigBuilder, serverCredentials);
-        }
+        assetConfigBuilder = configureSecurity(
+                serviceContext,
+                SemanticIdPath.builder()
+                        .globalReference(Constants.AID_METADATA_SECURITY_SEMANTIC_ID)
+                        .build()
+                        .resolveOptional(metadata, SubmodelElementList.class)
+                        .orElseThrow(() -> new IllegalArgumentException("Submodel AID (HTTP) invalid: EndpointMetadata security not found.")),
+                assetConfigBuilder,
+                serverCredentials);
 
         return assetConfigBuilder
                 .valueProviders(valueProviders)
@@ -179,25 +185,22 @@ public class HttpHelper {
 
 
     private static Map<String, String> getHeaders(SubmodelElementCollection forms) {
-        Map<String, String> retval = new HashMap<>();
-        Optional<SubmodelElement> element = forms.getValue().stream().filter(e -> Util.semanticIdEquals(e, Constants.AID_FORMS_HEADERS_SEMANTIC_ID)).findFirst();
-        if (element.isPresent() && (element.get() instanceof SubmodelElementList list)) {
-            for (var h: list.getValue()) {
-                addHeader(retval, h);
-            }
-        }
-        return retval;
-    }
-
-
-    private static void addHeader(Map<String, String> headers, SubmodelElement headerElement) {
-        if (headerElement instanceof SubmodelElementCollection header) {
-            Optional<SubmodelElement> nameElement = header.getValue().stream().filter(h -> Util.semanticIdEquals(h, Constants.AID_HEADER_FIELD_NAME_SEMANTIC_ID)).findFirst();
-            Optional<SubmodelElement> valueElement = header.getValue().stream().filter(h -> Util.semanticIdEquals(h, Constants.AID_HEADER_FIELD_VALUE_SEMANTIC_ID)).findFirst();
-            if (nameElement.isPresent() && valueElement.isPresent() && (nameElement.get() instanceof Property name) && (valueElement.get() instanceof Property value)) {
-                headers.put(name.getValue(), value.getValue());
-            }
-        }
+        return SemanticIdPath.fromGlobalReference(Constants.AID_FORMS_HEADERS_SEMANTIC_ID)
+                .resolveOptional(forms, SubmodelElementList.class)
+                .map(list -> list.getValue().stream()
+                        .map(header -> {
+                            Optional<Property> name = SemanticIdPath.fromGlobalReference(Constants.AID_HEADER_FIELD_NAME_SEMANTIC_ID)
+                                    .resolveOptional(header, Property.class);
+                            Optional<Property> value = SemanticIdPath.fromGlobalReference(Constants.AID_HEADER_FIELD_VALUE_SEMANTIC_ID)
+                                    .resolveOptional(header, Property.class);
+                            if (name.isPresent() && value.isPresent()) {
+                                return Map.entry(name.get().getValue(), value.get().getValue());
+                            }
+                            return null;
+                        })
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)))
+                .orElse(Collections.emptyMap());
     }
 
 

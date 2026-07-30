@@ -424,15 +424,12 @@ public class Util {
      */
     public static boolean isObservable(SubmodelElementCollection property, RelationData data, Reference propertyReference)
             throws IllegalArgumentException, ResourceNotFoundException, PersistenceException {
-        boolean retval = false;
-        // only available in the root object
-        SubmodelElementCollection root = Util.getRootProperty(property, propertyReference, data);
-        Optional<SubmodelElement> element = root.getValue().stream().filter(e -> Util.semanticIdEquals(e, Constants.AID_PROPERTY_OBSERVABLE_SEMANTIC_ID)).findFirst();
-        if (element.isPresent() && (element.get() instanceof Property prop)) {
-            String obsText = prop.getValue();
-            retval = Boolean.parseBoolean(obsText);
-        }
-        return retval;
+        return SemanticIdPath.builder()
+                .globalReference(Constants.AID_PROPERTY_OBSERVABLE_SEMANTIC_ID)
+                .build()
+                .resolveOptional(Util.getRootProperty(property, propertyReference, data), Property.class)
+                .map(prop -> Boolean.valueOf(prop.getValue()))
+                .orElse(false);
     }
 
 
