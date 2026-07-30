@@ -92,6 +92,17 @@ public class SemanticIdPath {
 
 
     /**
+     * Creates a new semanticId path with a single element of global reference.
+     *
+     * @param globalReference the global reference value
+     * @return a new semanticId path with a single element of global reference
+     */
+    public static SemanticIdPath fromGlobalReference(String globalReference) {
+        return builder().globalReference(globalReference).build();
+    }
+
+
+    /**
      * Creates a new idShortPath without the first/parent segment.
      *
      * @return idShortPath without the first/parent segment

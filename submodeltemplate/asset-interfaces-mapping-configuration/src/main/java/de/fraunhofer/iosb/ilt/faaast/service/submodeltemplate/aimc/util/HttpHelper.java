@@ -19,9 +19,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionConf
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.HttpAssetConnectionConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.HttpSubscriptionProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.HttpValueProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.model.SemanticIdPath;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.Constants;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.config.AimcSubmodelTemplateProcessorConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.config.BasicCredentials;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.config.Credentials;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.model.RelationData;
@@ -29,10 +31,13 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.EnvironmentHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.eclipse.digitaltwin.aas4j.v3.model.Property;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.RelationshipElement;
@@ -48,8 +53,6 @@ import org.slf4j.LoggerFactory;
  */
 public class HttpHelper {
 
-    public static final long DEFAULT_INTERVAL = 1000;
-
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpHelper.class);
 
     private HttpHelper() {}
@@ -61,15 +64,16 @@ public class HttpHelper {
      * @param serviceContext The service context.
      * @param assetInterface The desired Asset Interface.
      * @param relations The list of rekations.
-     * @param credentials The list of credentials.
+     * @param config The configuration of the SubmodelTemplateProcessor.
      * @return The Asset Connection configuration from this interface.
      * @throws MalformedURLException Invalif URL.
      * @throws PersistenceException if storage error occurs
      * @throws ResourceNotFoundException if the resource dcesn't exist.
      */
     public static AssetConnectionConfig processInterface(ServiceContext serviceContext, SubmodelElementCollection assetInterface,
-                                                         List<RelationshipElement> relations, Map<String, List<Credentials>> credentials)
+                                                         List<RelationshipElement> relations, AimcSubmodelTemplateProcessorConfig config)
             throws MalformedURLException, PersistenceException, ResourceNotFoundException {
+        Map<String, List<Credentials>> credentials = config.getCredentials();
         String title = Util.getInterfaceTitle(assetInterface);
         LOGGER.debug("process HTTP interface {} with {} relations", title, relations.size());
 
@@ -83,7 +87,7 @@ public class HttpHelper {
         Map<Reference, HttpValueProviderConfig> valueProviders = new HashMap<>();
         Map<Reference, HttpSubscriptionProviderConfig> subscriptionProviders = new HashMap<>();
 
-        processRelations(new RelationData(serviceContext, relations, contentType), subscriptionProviders, base, valueProviders);
+        processRelations(new RelationData(serviceContext, relations, contentType, config), subscriptionProviders, base, valueProviders);
 
         HttpAssetConnectionConfig.Builder assetConfigBuilder = HttpAssetConnectionConfig.builder().baseUrl(base);
 
@@ -93,13 +97,15 @@ public class HttpHelper {
         }
 
         // security
-        Optional<SubmodelElement> element = metadata.getValue().stream().filter(e -> Util.semanticIdEquals(e, Constants.AID_METADATA_SECURITY_SEMANTIC_ID)).findFirst();
-        if (element.isEmpty()) {
-            throw new IllegalArgumentException("Submodel AID (HTTP) invalid: EndpointMetadata security not found.");
-        }
-        else if (element.get() instanceof SubmodelElementList securityList) {
-            assetConfigBuilder = configureSecurity(serviceContext, securityList, assetConfigBuilder, serverCredentials);
-        }
+        assetConfigBuilder = configureSecurity(
+                serviceContext,
+                SemanticIdPath.builder()
+                        .globalReference(Constants.AID_METADATA_SECURITY_SEMANTIC_ID)
+                        .build()
+                        .resolveOptional(metadata, SubmodelElementList.class)
+                        .orElseThrow(() -> new IllegalArgumentException("Submodel AID (HTTP) invalid: EndpointMetadata security not found.")),
+                assetConfigBuilder,
+                serverCredentials);
 
         return assetConfigBuilder
                 .valueProviders(valueProviders)
@@ -114,7 +120,7 @@ public class HttpHelper {
             throws PersistenceException, ResourceNotFoundException {
         for (var r: data.getRelations()) {
             if (EnvironmentHelper.resolve(r.getFirst(), data.getServiceContext().getPersistence().getEnvironment()) instanceof SubmodelElementCollection property) {
-                if (isObservable(property, data, r.getFirst())) {
+                if (Util.isObservable(property, data, r.getFirst())) {
                     LOGGER.atDebug().log("processRelations: createSubscriptionProvider for: {}", ReferenceHelper.asString(r.getSecond()));
                     subscriptionProviders.put(r.getSecond(), createSubscriptionProvider(property, base, data, r.getFirst()));
                 }
@@ -146,6 +152,9 @@ public class HttpHelper {
         if (!jsonPath.isEmpty()) {
             configBuilder.query(jsonPath);
         }
+        if (data.getConfig().getSubscriptionInterval() > 0) {
+            configBuilder.interval(data.getConfig().getSubscriptionInterval());
+        }
         retval = configBuilder.build();
         return retval;
     }
@@ -176,25 +185,22 @@ public class HttpHelper {
 
 
     private static Map<String, String> getHeaders(SubmodelElementCollection forms) {
-        Map<String, String> retval = new HashMap<>();
-        Optional<SubmodelElement> element = forms.getValue().stream().filter(e -> Util.semanticIdEquals(e, Constants.AID_FORMS_HEADERS_SEMANTIC_ID)).findFirst();
-        if (element.isPresent() && (element.get() instanceof SubmodelElementList list)) {
-            for (var h: list.getValue()) {
-                addHeader(retval, h);
-            }
-        }
-        return retval;
-    }
-
-
-    private static void addHeader(Map<String, String> headers, SubmodelElement headerElement) {
-        if (headerElement instanceof SubmodelElementCollection header) {
-            Optional<SubmodelElement> nameElement = header.getValue().stream().filter(h -> Util.semanticIdEquals(h, Constants.AID_HEADER_FIELD_NAME_SEMANTIC_ID)).findFirst();
-            Optional<SubmodelElement> valueElement = header.getValue().stream().filter(h -> Util.semanticIdEquals(h, Constants.AID_HEADER_FIELD_VALUE_SEMANTIC_ID)).findFirst();
-            if (nameElement.isPresent() && valueElement.isPresent() && (nameElement.get() instanceof Property name) && (valueElement.get() instanceof Property value)) {
-                headers.put(name.getValue(), value.getValue());
-            }
-        }
+        return SemanticIdPath.fromGlobalReference(Constants.AID_FORMS_HEADERS_SEMANTIC_ID)
+                .resolveOptional(forms, SubmodelElementList.class)
+                .map(list -> list.getValue().stream()
+                        .map(header -> {
+                            Optional<Property> name = SemanticIdPath.fromGlobalReference(Constants.AID_HEADER_FIELD_NAME_SEMANTIC_ID)
+                                    .resolveOptional(header, Property.class);
+                            Optional<Property> value = SemanticIdPath.fromGlobalReference(Constants.AID_HEADER_FIELD_VALUE_SEMANTIC_ID)
+                                    .resolveOptional(header, Property.class);
+                            if (name.isPresent() && value.isPresent()) {
+                                return Map.entry(name.get().getValue(), value.get().getValue());
+                            }
+                            return null;
+                        })
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)))
+                .orElse(Collections.emptyMap());
     }
 
 
@@ -208,18 +214,17 @@ public class HttpHelper {
     }
 
 
-    //private static HttpAssetConnectionConfig.Builder configureSecurity(ServiceContext serviceContext, InterfaceConfiguration config,
     private static HttpAssetConnectionConfig.Builder configureSecurity(ServiceContext serviceContext, SubmodelElementList securityList,
                                                                        HttpAssetConnectionConfig.Builder assetConfigBuilder, List<Credentials> credentials)
             throws ResourceNotFoundException, PersistenceException {
         HttpAssetConnectionConfig.Builder retval = assetConfigBuilder;
-        List<String> supportedSecurity = Util.getSupportedSecurityList(serviceContext, securityList);
+        Map<String, SubmodelElement> supportedSecurity = Util.getSupportedSecurityList(serviceContext, securityList);
 
-        if (supportedSecurity.contains(Constants.AID_SECURITY_NOSEC)) {
+        if (supportedSecurity.containsKey(Constants.AID_SECURITY_NOSEC)) {
             // no security found. We choose that.
             LOGGER.trace("configureSecurity: use no security");
         }
-        else if (supportedSecurity.contains(Constants.AID_SECURITY_BASIC)) {
+        else if (supportedSecurity.containsKey(Constants.AID_SECURITY_BASIC)) {
             // use basic security. Username and password are used from the configuration.
             LOGGER.trace("configureSecurity: use basic security");
             Optional<BasicCredentials> basic = credentials.stream().filter(BasicCredentials.class::isInstance).map(c -> (BasicCredentials) c).findFirst();
@@ -231,20 +236,6 @@ public class HttpHelper {
             }
         }
 
-        return retval;
-    }
-
-
-    private static boolean isObservable(SubmodelElementCollection property, RelationData data, Reference propertyReference)
-            throws IllegalArgumentException, ResourceNotFoundException, PersistenceException {
-        boolean retval = false;
-        // only available in the root object
-        SubmodelElementCollection root = Util.getRootProperty(property, propertyReference, data);
-        Optional<SubmodelElement> element = root.getValue().stream().filter(e -> Util.semanticIdEquals(e, Constants.AID_PROPERTY_OBSERVABLE_SEMANTIC_ID)).findFirst();
-        if (element.isPresent() && (element.get() instanceof Property prop)) {
-            String obsText = prop.getValue();
-            retval = Boolean.parseBoolean(obsText);
-        }
         return retval;
     }
 
