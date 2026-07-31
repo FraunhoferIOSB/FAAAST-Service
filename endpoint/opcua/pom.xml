@@ -162,7 +162,7 @@
                                 <generate>
                                     <targets>all</targets>
                                     <uris>
-                                        <uri>http://opcfoundation.org/UA/I4AAS/V3/</uri>
+                                        <uri>http://opcfoundation.org/UA/AAS/</uri>
                                     </uris>
                                     <outputs>
                                         <code>${dir.generated-code}</code>
@@ -172,8 +172,8 @@
                             </generates>
                             <namespaceMappings>
                                 <namespaceMapping>
-                                    <uri>http://opcfoundation.org/UA/I4AAS/V3/</uri>
-                                    <packageName>opc.i4aas</packageName>
+                                    <uri>http://opcfoundation.org/UA/AAS/</uri>
+                                    <packageName>opc.ua.aas</packageName>
                                 </namespaceMapping>
                             </namespaceMappings>
                         </configuration>

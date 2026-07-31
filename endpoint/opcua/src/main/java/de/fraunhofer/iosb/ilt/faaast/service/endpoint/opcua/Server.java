@@ -299,7 +299,7 @@ public class Server {
      */
     private void createAddressSpace() {
         try {
-            loadI4AasNodes();
+            loadAasNodes();
             AasServiceNodeManager aasNodeManager = new AasServiceNodeManager(uaServer, AasServiceNodeManager.NAMESPACE_URI, aasEnvironment, endpoint);
             aasNodeManager.getIoManager().addListeners(new AasServiceIoManagerListener(endpoint, aasNodeManager));
         }
@@ -312,11 +312,11 @@ public class Server {
     /**
      * Loads the AAS nodes from the NodeSet file
      */
-    private void loadI4AasNodes() {
+    private void loadAasNodes() {
         long start = System.currentTimeMillis();
         try {
             LOGGER.debug("loadI4AasNodes start I4AAS");
-            uaServer.getAddressSpace().loadModel(opc.i4aas.server.ServerInformationModel.getLocationURI());
+            uaServer.getAddressSpace().loadModel(opc.ua.aas.server.ServerInformationModel.getLocationURI());
         }
         catch (Exception ex) {
             LOGGER.error("loadI4AasNodes Exception", ex);

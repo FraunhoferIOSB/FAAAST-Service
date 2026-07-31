@@ -32,8 +32,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElement
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.UaHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import java.util.List;
-import opc.i4aas.objecttypes.AASEntityType;
 import opc.i4aas.objecttypes.AASSpecificAssetIdList;
+import opc.ua.aas.objecttypes.AASEntityType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Entity;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
@@ -119,7 +119,7 @@ public class EntityCreator extends SubmodelElementCreator {
     public static void setGlobalAssetIdData(AASEntityType entityNode, String value, NodeManagerUaNode nodeManager) throws StatusException, ValueFormatException {
         if (entityNode.getGlobalAssetIdNode() == null) {
             // create node
-            UaHelper.addStringUaProperty(entityNode, nodeManager, AASEntityType.GLOBAL_ASSET_ID, value, opc.i4aas.ObjectTypeIds.AASEntityType.getNamespaceUri());
+            UaHelper.addStringUaProperty(entityNode, nodeManager, AASEntityType.GLOBAL_ASSET_ID, value, opc.ua.aas.ObjectTypeIds.AASEntityType.getNamespaceUri());
         }
         else {
             entityNode.setGlobalAssetId(value);

@@ -63,13 +63,13 @@ import java.util.Optional;
 import opc.i4aas.datatypes.AASAssetKindDataType;
 import opc.i4aas.datatypes.AASDataTypeDefXsd;
 import opc.i4aas.datatypes.AASDirectionDataType;
-import opc.i4aas.datatypes.AASEntityTypeDataType;
 import opc.i4aas.datatypes.AASKeyDataType;
 import opc.i4aas.datatypes.AASKeyTypesDataType;
 import opc.i4aas.datatypes.AASModellingKindDataType;
 import opc.i4aas.datatypes.AASQualifierKindDataType;
 import opc.i4aas.datatypes.AASStateOfEventDataType;
 import opc.i4aas.datatypes.AASSubmodelElementsDataType;
+import opc.ua.aas.datatypes.AASEntityEnumType;
 import org.eclipse.digitaltwin.aas4j.v3.model.AasSubmodelElements;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
 import org.eclipse.digitaltwin.aas4j.v3.model.Blob;
@@ -109,7 +109,7 @@ public class ValueConverter {
     private static final Map<ModellingKind, AASModellingKindDataType> MODELING_KIND_MAP;
     private static final Map<QualifierKind, AASQualifierKindDataType> QUALIFIER_KIND_MAP;
     private static final Map<AssetKind, AASAssetKindDataType> ASSET_KIND_MAP;
-    private static final List<TypeMapper<EntityType, AASEntityTypeDataType>> ENTITY_TYPE_LIST;
+    private static final List<TypeMapper<EntityType, AASEntityEnumType>> ENTITY_TYPE_LIST;
     private static final List<TypeMapper<KeyTypes, AASKeyTypesDataType>> KEY_ELEMENTS_LIST;
     private static final List<TypeMapper<Direction, AASDirectionDataType>> DIRECTION_LIST;
     private static final List<TypeMapper<StateOfEvent, AASStateOfEventDataType>> STATE_OF_EVENT_LIST;
@@ -184,8 +184,8 @@ public class ValueConverter {
         ASSET_KIND_MAP.put(AssetKind.INSTANCE, AASAssetKindDataType.Instance);
 
         ENTITY_TYPE_LIST = new ArrayList<>();
-        ENTITY_TYPE_LIST.add(new TypeMapper<>(EntityType.CO_MANAGED_ENTITY, AASEntityTypeDataType.CoManagedEntity));
-        ENTITY_TYPE_LIST.add(new TypeMapper<>(EntityType.SELF_MANAGED_ENTITY, AASEntityTypeDataType.SelfManagedEntity));
+        ENTITY_TYPE_LIST.add(new TypeMapper<>(EntityType.CO_MANAGED_ENTITY, AASEntityEnumType.of(AASEntityEnumType.Options.CoManagedEntity)));
+        ENTITY_TYPE_LIST.add(new TypeMapper<>(EntityType.SELF_MANAGED_ENTITY, AASEntityEnumType.of(AASEntityEnumType.Options.SelfManagedEntity)));
 
         KEY_ELEMENTS_LIST = new ArrayList<>();
         KEY_ELEMENTS_LIST.add(new TypeMapper<>(KeyTypes.ANNOTATED_RELATIONSHIP_ELEMENT, AASKeyTypesDataType.AnnotatedRelationshipElement));
@@ -395,8 +395,8 @@ public class ValueConverter {
      * @param value The desired EntityType
      * @return The corresponding AASEntityTypeDataType
      */
-    public static AASEntityTypeDataType getAasEntityType(EntityType value) {
-        AASEntityTypeDataType retval;
+    public static AASEntityEnumType getAasEntityType(EntityType value) {
+        AASEntityEnumType retval;
         var rv = ENTITY_TYPE_LIST.stream().filter(m -> m.aasObject == value).findAny();
         if (rv.isEmpty()) {
             LOGGER.warn("getAasEntityType: unknown value {}", value);
@@ -416,7 +416,7 @@ public class ValueConverter {
      * @param value The desired AASEntityTypeDataType
      * @return The corresponding EntityType
      */
-    public static EntityType getEntityType(AASEntityTypeDataType value) {
+    public static EntityType getEntityType(AASEntityEnumType value) {
         EntityType retval;
         var rv = ENTITY_TYPE_LIST.stream().filter(m -> m.opcuaObject == value).findAny();
         if (rv.isEmpty()) {
@@ -918,7 +918,7 @@ public class ValueConverter {
             aasEntity.setEntityType(null);
         }
         else {
-            aasEntity.setEntityType(ValueConverter.getEntityType(AASEntityTypeDataType.valueOf((int) variant.getValue())));
+            aasEntity.setEntityType(ValueConverter.getEntityType(AASEntityEnumType.of(UnsignedShort.valueOf(variant.getValue().toString()))));
         }
     }
 

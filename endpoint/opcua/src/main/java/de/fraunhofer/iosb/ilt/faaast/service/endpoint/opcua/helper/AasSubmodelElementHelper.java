@@ -16,7 +16,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper;
 
 import com.prosysopc.ua.StatusException;
 import com.prosysopc.ua.UaQualifiedName;
-import com.prosysopc.ua.ValueRanks;
 import com.prosysopc.ua.nodes.UaNode;
 import com.prosysopc.ua.server.NodeManagerUaNode;
 import com.prosysopc.ua.server.nodes.PlainProperty;
@@ -36,7 +35,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.AasReference
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.EntityCreator;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ValueData;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.AnnotatedRelationshipElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.BlobValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
@@ -44,29 +42,22 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.EntityValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.FileValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.MultiLanguagePropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.RangeValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ReferenceElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.RelationshipElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValueFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import opc.i4aas.datatypes.AASDataTypeDefXsd;
-import opc.i4aas.objecttypes.AASAnnotatedRelationshipElementType;
-import opc.i4aas.objecttypes.AASBlobType;
-import opc.i4aas.objecttypes.AASEntityType;
-import opc.i4aas.objecttypes.AASFileType;
-import opc.i4aas.objecttypes.AASMultiLanguagePropertyType;
-import opc.i4aas.objecttypes.AASPropertyType;
-import opc.i4aas.objecttypes.AASRangeType;
-import opc.i4aas.objecttypes.AASReferenceElementType;
-import opc.i4aas.objecttypes.AASRelationshipElementType;
-import opc.i4aas.objecttypes.AASSubmodelElementList;
-import opc.i4aas.objecttypes.AASSubmodelElementType;
-import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
+import opc.ua.aas.objecttypes.AASBlobType;
+import opc.ua.aas.objecttypes.AASEntityType;
+import opc.ua.aas.objecttypes.AASFileType;
+import opc.ua.aas.objecttypes.AASRelationshipElementType;
+import opc.ua.aas.variabletypes.AASMultiLanguagePropertyType;
+import opc.ua.aas.variabletypes.AASPropertyType;
+import opc.ua.aas.variabletypes.AASReferenceElementType;
+import opc.ua.aas.variabletypes.AASSubmodelElementVariableType;
 import org.eclipse.digitaltwin.aas4j.v3.model.LangStringTextType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Property;
 import org.slf4j.Logger;
@@ -80,7 +71,7 @@ public class AasSubmodelElementHelper {
     /**
      * The logger for this class
      */
-    private static final Logger LOG = LoggerFactory.getLogger(AasSubmodelElementHelper.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AasSubmodelElementHelper.class);
 
     /**
      * Text if value is null
@@ -107,29 +98,31 @@ public class AasSubmodelElementHelper {
         Ensure.requireNonNull(aasElement, "aasElement must not be null");
         Ensure.requireNonNull(value, VALUE_NULL);
 
-        AasReferenceCreator.setAasReferenceData(value.getFirst(), aasElement.getFirstNode(), false);
-        AasReferenceCreator.setAasReferenceData(value.getSecond(), aasElement.getSecondNode(), false);
+        LOGGER.debug("setRelationshipValue not yet implemented");
+        
+        //AasReferenceCreator.setAasReferenceData(value.getFirst(), aasElement.getFirstNode(), false);
+        //AasReferenceCreator.setAasReferenceData(value.getSecond(), aasElement.getSecondNode(), false);
 
-        if ((aasElement instanceof AASAnnotatedRelationshipElementType) && (value instanceof AnnotatedRelationshipElementValue)) {
-            AASAnnotatedRelationshipElementType annotatedElement = (AASAnnotatedRelationshipElementType) aasElement;
-            AnnotatedRelationshipElementValue annotatedValue = (AnnotatedRelationshipElementValue) value;
-            UaNode[] annotationNodes = annotatedElement.getAnnotationNode().getComponents();
-            Map<String, DataElementValue> valueMap = annotatedValue.getAnnotations();
-            if (annotationNodes.length != valueMap.size()) {
-                LOG.error("Size of Value ({}) doesn't match the number of AnnotationNodes ({})", valueMap.size(), annotationNodes.length);
-                throw new IllegalArgumentException("Size of Value doesn't match the number of AnnotationNodes");
-            }
+        //if ((aasElement instanceof AASAnnotatedRelationshipElementType) && (value instanceof AnnotatedRelationshipElementValue)) {
+        //    AASAnnotatedRelationshipElementType annotatedElement = (AASAnnotatedRelationshipElementType) aasElement;
+        //    AnnotatedRelationshipElementValue annotatedValue = (AnnotatedRelationshipElementValue) value;
+        //    UaNode[] annotationNodes = annotatedElement.getAnnotationNode().getComponents();
+        //    Map<String, DataElementValue> valueMap = annotatedValue.getAnnotations();
+        //    if (annotationNodes.length != valueMap.size()) {
+        //        LOG.error("Size of Value ({}) doesn't match the number of AnnotationNodes ({})", valueMap.size(), annotationNodes.length);
+        //        throw new IllegalArgumentException("Size of Value doesn't match the number of AnnotationNodes");
+        //    }
 
-            // The Key of the Map is the IdShort of the DataElement (in our case the BrowseName)
-            for (UaNode annotationNode: annotationNodes) {
-                if (valueMap.containsKey(annotationNode.getBrowseName().getName())) {
-                    setDataElementValue(annotationNode, valueMap.get(annotationNode.getBrowseName().getName()), nodeManager);
-                }
-            }
-        }
-        else {
-            LOG.debug("setRelationshipValue: No AnnotatedRelationshipElement {}", aasElement.getBrowseName().getName());
-        }
+        //    // The Key of the Map is the IdShort of the DataElement (in our case the BrowseName)
+        //    for (UaNode annotationNode: annotationNodes) {
+        //        if (valueMap.containsKey(annotationNode.getBrowseName().getName())) {
+        //            setDataElementValue(annotationNode, valueMap.get(annotationNode.getBrowseName().getName()), nodeManager);
+        //        }
+        //    }
+        //}
+        //else {
+        //    LOG.debug("setRelationshipValue: No AnnotatedRelationshipElement {}", aasElement.getBrowseName().getName());
+        //}
     }
 
 
@@ -142,8 +135,8 @@ public class AasSubmodelElementHelper {
      * @throws StatusException If the operation fails
      * @throws ValueFormatException The data format of the value is invalid
      */
-    public static void setSubmodelElementValue(AASSubmodelElementType subElem, ElementValue value, NodeManagerUaNode nodeManager) throws StatusException, ValueFormatException {
-        LOG.trace("setSubmodelElementValue: {}", subElem.getBrowseName().getName());
+    public static void setSubmodelElementValue(AASSubmodelElementVariableType subElem, ElementValue value, NodeManagerUaNode nodeManager) throws StatusException, ValueFormatException {
+        LOGGER.trace("setSubmodelElementValue: {}", subElem.getBrowseName().getName());
 
         // changed the order because of an error in the derivation hierarchy of ElementValue
         // perhaps the order will be changed back to normal as soon as the error is fixed
@@ -157,7 +150,7 @@ public class AasSubmodelElementHelper {
             setDataElementValue(subElem, dataElementValue, nodeManager);
         }
         else {
-            LOG.warn("SubmodelElement {} type not supported", subElem.getBrowseName().getName());
+            LOGGER.warn("SubmodelElement {} type not supported", subElem.getBrowseName().getName());
         }
     }
 
@@ -171,7 +164,7 @@ public class AasSubmodelElementHelper {
     public static void addBlobValueNode(UaNode node, NodeManagerUaNode nodeManager) {
         NodeId propertyId = new NodeId(nodeManager.getNamespaceIndex(), node.getNodeId().getValue().toString() + "." + AASBlobType.VALUE);
         PlainProperty<ByteString> property = new PlainProperty<>(nodeManager, propertyId,
-                UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASBlobType.getNamespaceUri(), AASBlobType.VALUE).toQualifiedName(nodeManager.getNamespaceTable()),
+                UaQualifiedName.from(opc.ua.aas.ObjectTypeIds.AASBlobType.getNamespaceUri(), AASBlobType.VALUE).toQualifiedName(nodeManager.getNamespaceTable()),
                 LocalizedText.english(AASBlobType.VALUE));
         property.setDataTypeId(Identifiers.ByteString);
         property.setDescription(new LocalizedText("", ""));
@@ -188,7 +181,7 @@ public class AasSubmodelElementHelper {
     public static void addFileValueNode(UaNode fileNode, NodeManagerUaNode nodeManager) {
         NodeId propertyId = new NodeId(nodeManager.getNamespaceIndex(), fileNode.getNodeId().getValue().toString() + "." + AASFileType.VALUE);
         PlainProperty<String> property = new PlainProperty<>(nodeManager, propertyId,
-                UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASFileType.getNamespaceUri(), AASFileType.VALUE).toQualifiedName(nodeManager.getNamespaceTable()),
+                UaQualifiedName.from(opc.ua.aas.ObjectTypeIds.AASFileType.getNamespaceUri(), AASFileType.VALUE).toQualifiedName(nodeManager.getNamespaceTable()),
                 LocalizedText.english(AASFileType.VALUE));
         property.setDataTypeId(Identifiers.String);
         if (AasServiceNodeManager.VALUES_READ_ONLY) {
@@ -199,27 +192,28 @@ public class AasSubmodelElementHelper {
     }
 
 
-    /**
-     * Adds the Value Node for the MultiLanguageProperty.
-     *
-     * @param node The desired MultiLanguageProperty Node
-     * @param arraySize The desired Array Size.
-     * @param nodeManager The corresponding Node Manager.
-     */
-    public static void addMultiLanguageValueNode(UaNode node, int arraySize, NodeManagerUaNode nodeManager) {
-        NodeId propertyId = new NodeId(nodeManager.getNamespaceIndex(), node.getNodeId().getValue().toString() + "." + AASMultiLanguagePropertyType.VALUE);
-        PlainProperty<LocalizedText[]> myLTProperty = new PlainProperty<>(nodeManager, propertyId,
-                UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASMultiLanguagePropertyType.getNamespaceUri(), AASMultiLanguagePropertyType.VALUE)
-                        .toQualifiedName(nodeManager.getNamespaceTable()),
-                LocalizedText.english(AASMultiLanguagePropertyType.VALUE));
-        myLTProperty.setDataTypeId(Identifiers.LocalizedText);
-        myLTProperty.setValueRank(ValueRanks.OneDimension);
-        myLTProperty.setArrayDimensions(new UnsignedInteger[] {
-                UnsignedInteger.valueOf(arraySize)
-        });
-        node.addProperty(myLTProperty);
-        myLTProperty.setDescription(new LocalizedText("", ""));
-    }
+//    /**
+//     * Adds the Value Node for the MultiLanguageProperty.
+//     *
+//     * @param node The desired MultiLanguageProperty Node
+//     * @param arraySize The desired Array Size.
+//     * @param nodeManager The corresponding Node Manager.
+//     */
+//    public static void addMultiLanguageValueNode(UaNode node, int arraySize, NodeManagerUaNode nodeManager) {
+//        //NodeId propertyId = new NodeId(nodeManager.getNamespaceIndex(), node.getNodeId().getValue().toString() + "." + AASMultiLanguagePropertyType.VALUE);
+//        NodeId propertyId = new NodeId(nodeManager.getNamespaceIndex(), node.getNodeId().getValue().toString());
+//        PlainProperty<LocalizedText[]> myLTProperty = new PlainProperty<>(nodeManager, propertyId,
+//                UaQualifiedName.from(opc.ua.aas.VariableTypeIds.AASMultiLanguagePropertyType.getNamespaceUri(), AASMultiLanguagePropertyType.VALUE)
+//                        .toQualifiedName(nodeManager.getNamespaceTable()),
+//                LocalizedText.english(AASMultiLanguagePropertyType.VALUE));
+//        myLTProperty.setDataTypeId(Identifiers.LocalizedText);
+//        myLTProperty.setValueRank(ValueRanks.OneDimension);
+//        myLTProperty.setArrayDimensions(new UnsignedInteger[] {
+//                UnsignedInteger.valueOf(arraySize)
+//        });
+//        node.addProperty(myLTProperty);
+//        myLTProperty.setDescription(new LocalizedText("", ""));
+//    }
 
 
     /**
@@ -233,91 +227,64 @@ public class AasSubmodelElementHelper {
     public static void setPropertyValueAndType(Property aasProperty, AASPropertyType prop, ValueData valueData)
             throws StatusException {
         try {
-            LOG.atTrace().log("setPropertyValueAndType: {}", aasProperty.getIdShort());
-            AASDataTypeDefXsd valueDataType;
+            LOGGER.atTrace().log("setPropertyValueAndType: {}", aasProperty.getIdShort());
+            //AASDataTypeDefXsd valueDataType;
             PropertyValue typedValue = ElementValueMapper.toValue(aasProperty, PropertyValue.class);
-            if ((typedValue != null) && (typedValue.getValue() != null)) {
-                valueDataType = ValueConverter.datatypeToOpcDataType(typedValue.getValue().getDataType());
-            }
-            else {
-                valueDataType = ValueConverter.convertDataTypeDefXsd(aasProperty.getValueType());
-            }
+            //if ((typedValue != null) && (typedValue.getValue() != null)) {
+            //    valueDataType = ValueConverter.datatypeToOpcDataType(typedValue.getValue().getDataType());
+            //}
+            //else {
+            //    valueDataType = ValueConverter.convertDataTypeDefXsd(aasProperty.getValueType());
+            //}
 
-            prop.setValueType(valueDataType);
+            //prop.setValueType(valueDataType);
 
-            switch (valueDataType) {
-                case Boolean:
-                    setBooleanPropertyValue(valueData, typedValue, prop);
-                    break;
+            switch (aasProperty.getValueType()) {
+                case BOOLEAN -> setBooleanPropertyValue(valueData, typedValue, prop);
 
-                case DateTime:
-                    setDateTimePropertyValue(valueData, typedValue, prop);
-                    break;
+                case DATE_TIME -> setDateTimePropertyValue(valueData, typedValue, prop);
 
-                case Int:
-                    setInt32PropertyValue(valueData, typedValue, prop);
-                    break;
+                case INT -> setInt32PropertyValue(valueData, typedValue, prop);
 
-                case UnsignedInt:
-                    setUInt32PropertyValue(valueData, typedValue, prop);
-                    break;
+                case UNSIGNED_INT -> setUInt32PropertyValue(valueData, typedValue, prop);
 
-                case Long:
-                    setInt64PropertyValue(valueData, typedValue, prop);
-                    break;
+                case LONG -> setInt64PropertyValue(valueData, typedValue, prop);
 
-                case UnsignedLong:
-                    setUInt64PropertyValue(valueData, typedValue, prop);
-                    break;
+                case UNSIGNED_LONG -> setUInt64PropertyValue(valueData, typedValue, prop);
 
-                case Short:
-                    setInt16PropertyValue(valueData, typedValue, prop);
-                    break;
+                case SHORT -> setInt16PropertyValue(valueData, typedValue, prop);
 
-                case UnsignedShort:
-                    setUInt16PropertyValue(valueData, typedValue, prop);
-                    break;
+                case UNSIGNED_SHORT -> setUInt16PropertyValue(valueData, typedValue, prop);
 
-                case Byte:
-                    setSBytePropertyValue(valueData, typedValue, prop);
-                    break;
+                case BYTE -> setSBytePropertyValue(valueData, typedValue, prop);
 
-                case UnsignedByte:
-                    setBytePropertyValue(valueData, typedValue, prop);
-                    break;
+                case UNSIGNED_BYTE -> setBytePropertyValue(valueData, typedValue, prop);
 
-                case Double:
-                    setDoublePropertyValue(valueData, typedValue, prop);
-                    break;
+                case DOUBLE -> setDoublePropertyValue(valueData, typedValue, prop);
 
-                case Float:
-                    setFloatPropertyValue(valueData, typedValue, prop);
-                    break;
+                case FLOAT -> setFloatPropertyValue(valueData, typedValue, prop);
 
-                case String, AnyUri, Time, Duration, GDay, GMonth, GMonthDay, GYear, GYearMonth, Decimal, Integer, PositiveInteger, NonPositiveInteger, NegativeInteger,
-                        NonNegativeInteger, Date:
-                    setStringValue(valueData, typedValue, prop);
-                    break;
+                case STRING, ANY_URI, TIME, DURATION, GDAY, GMONTH, GMONTH_DAY, GYEAR, GYEAR_MONTH, DECIMAL, INTEGER, POSITIVE_INTEGER, NON_POSITIVE_INTEGER, NEGATIVE_INTEGER,
+                        NON_NEGATIVE_INTEGER, DATE -> setStringValue(valueData, typedValue, prop);
 
-                case Base64Binary, HexBinary:
-                    setByteStringPropertyValue(valueData, typedValue, prop);
-                    break;
+                case BASE64BINARY, HEX_BINARY -> setByteStringPropertyValue(valueData, typedValue, prop);
 
-                default:
-                    LOG.warn("setPropertyValueAndType: Property {}: Unknown type: {}; use string as default", prop.getBrowseName().getName(), aasProperty.getValueType());
+                default -> {
+                    LOGGER.warn("setPropertyValueAndType: Property {}: Unknown type: {}; use string as default", prop.getBrowseName().getName(), aasProperty.getValueType());
                     PlainProperty<String> myDefaultProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(),
                             valueData.getDisplayName());
                     myDefaultProperty.setDataTypeId(Identifiers.String);
                     myDefaultProperty.setValue(aasProperty.getValue());
                     prop.addProperty(myDefaultProperty);
-                    break;
+                }
+
             }
-            if ((prop.getValueNode() != null) && (prop.getValueNode().getDescription() == null)) {
-                prop.getValueNode().setDescription(new LocalizedText("", ""));
+            if (prop.getDescription() == null) {
+                prop.setDescription(new LocalizedText("", ""));
             }
         }
         catch (Exception ex) {
-            LOG.error("setPropertyValueAndType Exception", ex);
+            LOGGER.error("setPropertyValueAndType Exception", ex);
         }
     }
 
@@ -513,17 +480,17 @@ public class AasSubmodelElementHelper {
     }
 
 
-    private static void setByteStringRangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, AASRangeType range, String maxValue, ValueData maxData,
-                                                 TypedValue<?> maxTypedValue)
-            throws StatusException {
-        if (minValue != null) {
-            range.addProperty(createByteStringProperty(minData, minTypedValue));
-        }
-
-        if (maxValue != null) {
-            range.addProperty(createByteStringProperty(maxData, maxTypedValue));
-        }
-    }
+//    private static void setByteStringRangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, AASRangeType range, String maxValue, ValueData maxData,
+//                                                 TypedValue<?> maxTypedValue)
+//            throws StatusException {
+//        if (minValue != null) {
+//            range.addProperty(createByteStringProperty(minData, minTypedValue));
+//        }
+//
+//        if (maxValue != null) {
+//            range.addProperty(createByteStringProperty(maxData, maxTypedValue));
+//        }
+//    }
 
 
     private static PlainProperty<ByteString> createByteStringProperty(ValueData valueData, TypedValue<?> typedValue) throws StatusException {
@@ -538,261 +505,261 @@ public class AasSubmodelElementHelper {
     }
 
 
-    public static void setRangeValueAndType(DataTypeDefXsd valueType, String minValue, String maxValue, AASRangeType range, ValueData minData,
-                                            ValueData maxData)
-            throws StatusException {
-        try {
-            TypedValue<?> minTypedValue = TypedValueFactory.create(valueType, minValue);
-            TypedValue<?> maxTypedValue = TypedValueFactory.create(valueType, maxValue);
-            AASDataTypeDefXsd valueDataType = getValueType(minTypedValue, valueType);
-            range.setValueType(valueDataType);
-
-            switch (valueDataType) {
-                case Boolean:
-                    setBooleanRangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
-                    break;
-
-                case DateTime:
-                    setDateTimeRangeValues(minValue, minData, minTypedValue, maxValue, maxData, maxTypedValue, range);
-                    break;
-
-                case Int:
-                    setInt32RangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
-                    break;
-
-                case UnsignedInt:
-                    setUInt32RangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
-                    break;
-
-                case Long:
-                    setInt64RangeValues(minValue, minData, minTypedValue, maxValue, maxData, maxTypedValue, range);
-                    break;
-
-                case UnsignedLong:
-                    setUInt64RangeValues(minValue, minData, minTypedValue, maxValue, maxData, maxTypedValue, range);
-                    break;
-
-                case Short:
-                    setInt16RangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
-                    break;
-
-                case UnsignedShort:
-                    setUInt16RangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
-                    break;
-
-                case Byte:
-                    setSByteRangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
-                    break;
-
-                case UnsignedByte:
-                    setByteRangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
-                    break;
-
-                case Double:
-                    setDoubleRangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
-                    break;
-
-                case Float:
-                    setFloatRangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
-                    break;
-
-                case String, AnyUri, Time, Duration, GDay, GMonth, GMonthDay, GYear, GYearMonth, Decimal, Integer, PositiveInteger, NonPositiveInteger, NegativeInteger,
-                        NonNegativeInteger, Date:
-                    setStringRangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
-                    break;
-
-                case Base64Binary, HexBinary:
-                    setByteStringRangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
-                    break;
-
-                default:
-                    LOG.warn("setRangeValueAndType: Range {}: Unknown type: {}; use string as default", range.getBrowseName().getName(), valueType);
-                    setStringRangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
-                    break;
-            }
-        }
-        catch (Exception ex) {
-            LOG.error("setRangeValueAndType Exception", ex);
-        }
-    }
-
-
-    private static AASDataTypeDefXsd getValueType(TypedValue<?> typedValue, DataTypeDefXsd valueType) {
-        AASDataTypeDefXsd valueDataType;
-        if (typedValue != null) {
-            valueDataType = ValueConverter.datatypeToOpcDataType(typedValue.getDataType());
-        }
-        else {
-            valueDataType = ValueConverter.convertDataTypeDefXsd(valueType);
-        }
-        return valueDataType;
-    }
+//    public static void setRangeValueAndType(DataTypeDefXsd valueType, String minValue, String maxValue, AASRangeType range, ValueData minData,
+//                                            ValueData maxData)
+//            throws StatusException {
+//        try {
+//            TypedValue<?> minTypedValue = TypedValueFactory.create(valueType, minValue);
+//            TypedValue<?> maxTypedValue = TypedValueFactory.create(valueType, maxValue);
+//            AASDataTypeDefXsd valueDataType = getValueType(minTypedValue, valueType);
+//            range.setValueType(valueDataType);
+//
+//            switch (valueDataType) {
+//                case Boolean:
+//                    setBooleanRangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
+//                    break;
+//
+//                case DateTime:
+//                    setDateTimeRangeValues(minValue, minData, minTypedValue, maxValue, maxData, maxTypedValue, range);
+//                    break;
+//
+//                case Int:
+//                    setInt32RangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
+//                    break;
+//
+//                case UnsignedInt:
+//                    setUInt32RangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
+//                    break;
+//
+//                case Long:
+//                    setInt64RangeValues(minValue, minData, minTypedValue, maxValue, maxData, maxTypedValue, range);
+//                    break;
+//
+//                case UnsignedLong:
+//                    setUInt64RangeValues(minValue, minData, minTypedValue, maxValue, maxData, maxTypedValue, range);
+//                    break;
+//
+//                case Short:
+//                    setInt16RangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
+//                    break;
+//
+//                case UnsignedShort:
+//                    setUInt16RangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
+//                    break;
+//
+//                case Byte:
+//                    setSByteRangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
+//                    break;
+//
+//                case UnsignedByte:
+//                    setByteRangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
+//                    break;
+//
+//                case Double:
+//                    setDoubleRangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
+//                    break;
+//
+//                case Float:
+//                    setFloatRangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
+//                    break;
+//
+//                case String, AnyUri, Time, Duration, GDay, GMonth, GMonthDay, GYear, GYearMonth, Decimal, Integer, PositiveInteger, NonPositiveInteger, NegativeInteger,
+//                        NonNegativeInteger, Date:
+//                    setStringRangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
+//                    break;
+//
+//                case Base64Binary, HexBinary:
+//                    setByteStringRangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
+//                    break;
+//
+//                default:
+//                    LOG.warn("setRangeValueAndType: Range {}: Unknown type: {}; use string as default", range.getBrowseName().getName(), valueType);
+//                    setStringRangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
+//                    break;
+//            }
+//        }
+//        catch (Exception ex) {
+//            LOG.error("setRangeValueAndType Exception", ex);
+//        }
+//    }
 
 
-    private static void setStringRangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, AASRangeType range, String maxValue, ValueData maxData,
-                                             TypedValue<?> maxTypedValue)
-            throws StatusException {
-        if (minValue != null) {
-            range.addProperty(UaHelper.createStringProperty(minData, minTypedValue));
-        }
-
-        if (maxValue != null) {
-            range.addProperty(UaHelper.createStringProperty(maxData, maxTypedValue));
-        }
-    }
-
-
-    private static void setFloatRangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, AASRangeType range, String maxValue, ValueData maxData,
-                                            TypedValue<?> maxTypedValue)
-            throws StatusException {
-        if (minValue != null) {
-            range.addProperty(createFloatProperty(minData, minTypedValue));
-        }
-
-        if (maxValue != null) {
-            range.addProperty(createFloatProperty(maxData, maxTypedValue));
-        }
-    }
+//    private static AASDataTypeDefXsd getValueType(TypedValue<?> typedValue, DataTypeDefXsd valueType) {
+//        AASDataTypeDefXsd valueDataType;
+//        if (typedValue != null) {
+//            valueDataType = ValueConverter.datatypeToOpcDataType(typedValue.getDataType());
+//        }
+//        else {
+//            valueDataType = ValueConverter.convertDataTypeDefXsd(valueType);
+//        }
+//        return valueDataType;
+//    }
 
 
-    private static void setDoubleRangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, AASRangeType range, String maxValue, ValueData maxData,
-                                             TypedValue<?> maxTypedValue)
-            throws StatusException {
-        if (minValue != null) {
-            range.addProperty(createDoubleProperty(minData, minTypedValue));
-        }
-
-        if (maxValue != null) {
-            range.addProperty(createDoubleProperty(maxData, maxTypedValue));
-        }
-    }
-
-
-    private static void setSByteRangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, AASRangeType range, String maxValue, ValueData maxData,
-                                            TypedValue<?> maxTypedValue)
-            throws StatusException {
-        if (minValue != null) {
-            range.addProperty(createSByteProperty(minData, minTypedValue));
-        }
-
-        if (maxValue != null) {
-            range.addProperty(createSByteProperty(maxData, maxTypedValue));
-        }
-    }
-
-
-    private static void setByteRangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, AASRangeType range, String maxValue, ValueData maxData,
-                                           TypedValue<?> maxTypedValue)
-            throws StatusException {
-        if (minValue != null) {
-            range.addProperty(createByteProperty(minData, minTypedValue));
-        }
-
-        if (maxValue != null) {
-            range.addProperty(createByteProperty(maxData, maxTypedValue));
-        }
-    }
-
-
-    private static void setInt16RangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, AASRangeType range, String maxValue, ValueData maxData,
-                                            TypedValue<?> maxTypedValue)
-            throws StatusException {
-        if (minValue != null) {
-            range.addProperty(createInt16Property(minData, minTypedValue));
-        }
-
-        if (maxValue != null) {
-            range.addProperty(createInt16Property(maxData, maxTypedValue));
-        }
-    }
-
-
-    private static void setUInt16RangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, AASRangeType range, String maxValue, ValueData maxData,
-                                             TypedValue<?> maxTypedValue)
-            throws StatusException {
-        if (minValue != null) {
-            range.addProperty(createUInt16Property(minData, minTypedValue));
-        }
-
-        if (maxValue != null) {
-            range.addProperty(createUInt16Property(maxData, maxTypedValue));
-        }
-    }
-
-
-    private static void setInt64RangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, String maxValue, ValueData maxData, TypedValue<?> maxTypedValue,
-                                            AASRangeType range)
-            throws NumberFormatException, StatusException {
-        if (minValue != null) {
-            range.addProperty(createInt64Property(minData, minTypedValue));
-        }
-        if (maxValue != null) {
-            range.addProperty(createInt64Property(maxData, maxTypedValue));
-        }
-    }
-
-
-    private static void setUInt64RangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, String maxValue, ValueData maxData, TypedValue<?> maxTypedValue,
-                                             AASRangeType range)
-            throws NumberFormatException, StatusException {
-        if (minValue != null) {
-            range.addProperty(createUInt64Property(minData, minTypedValue));
-        }
-        if (maxValue != null) {
-            range.addProperty(createUInt64Property(maxData, maxTypedValue));
-        }
-    }
-
-
-    private static void setInt32RangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, AASRangeType range, String maxValue, ValueData maxData,
-                                            TypedValue<?> maxTypedValue)
-            throws StatusException {
-        if (minValue != null) {
-            range.addProperty(createInt32Property(minData, minTypedValue));
-        }
-
-        if (maxValue != null) {
-            range.addProperty(createInt32Property(maxData, maxTypedValue));
-        }
-    }
-
-
-    private static void setUInt32RangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, AASRangeType range, String maxValue, ValueData maxData,
-                                             TypedValue<?> maxTypedValue)
-            throws StatusException {
-        if (minValue != null) {
-            range.addProperty(createUInt32Property(minData, minTypedValue));
-        }
-
-        if (maxValue != null) {
-            range.addProperty(createUInt32Property(maxData, maxTypedValue));
-        }
-    }
-
-
-    private static void setDateTimeRangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, String maxValue, ValueData maxData, TypedValue<?> maxTypedValue,
-                                               AASRangeType range)
-            throws StatusException {
-        if (minValue != null) {
-            range.addProperty(createDateTimeProperty(minData, minTypedValue));
-        }
-        if (maxValue != null) {
-            range.addProperty(createDateTimeProperty(maxData, maxTypedValue));
-        }
-    }
-
-
-    private static void setBooleanRangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, AASRangeType range, String maxValue, ValueData maxData,
-                                              TypedValue<?> maxTypedValue)
-            throws StatusException {
-        if (minValue != null) {
-            range.addProperty(UaHelper.createBooleanProperty(minData, minTypedValue));
-        }
-
-        if (maxValue != null) {
-            range.addProperty(UaHelper.createBooleanProperty(maxData, maxTypedValue));
-        }
-    }
+//    private static void setStringRangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, AASRangeType range, String maxValue, ValueData maxData,
+//                                             TypedValue<?> maxTypedValue)
+//            throws StatusException {
+//        if (minValue != null) {
+//            range.addProperty(UaHelper.createStringProperty(minData, minTypedValue));
+//        }
+//
+//        if (maxValue != null) {
+//            range.addProperty(UaHelper.createStringProperty(maxData, maxTypedValue));
+//        }
+//    }
+//
+//
+//    private static void setFloatRangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, AASRangeType range, String maxValue, ValueData maxData,
+//                                            TypedValue<?> maxTypedValue)
+//            throws StatusException {
+//        if (minValue != null) {
+//            range.addProperty(createFloatProperty(minData, minTypedValue));
+//        }
+//
+//        if (maxValue != null) {
+//            range.addProperty(createFloatProperty(maxData, maxTypedValue));
+//        }
+//    }
+//
+//
+//    private static void setDoubleRangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, AASRangeType range, String maxValue, ValueData maxData,
+//                                             TypedValue<?> maxTypedValue)
+//            throws StatusException {
+//        if (minValue != null) {
+//            range.addProperty(createDoubleProperty(minData, minTypedValue));
+//        }
+//
+//        if (maxValue != null) {
+//            range.addProperty(createDoubleProperty(maxData, maxTypedValue));
+//        }
+//    }
+//
+//
+//    private static void setSByteRangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, AASRangeType range, String maxValue, ValueData maxData,
+//                                            TypedValue<?> maxTypedValue)
+//            throws StatusException {
+//        if (minValue != null) {
+//            range.addProperty(createSByteProperty(minData, minTypedValue));
+//        }
+//
+//        if (maxValue != null) {
+//            range.addProperty(createSByteProperty(maxData, maxTypedValue));
+//        }
+//    }
+//
+//
+//    private static void setByteRangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, AASRangeType range, String maxValue, ValueData maxData,
+//                                           TypedValue<?> maxTypedValue)
+//            throws StatusException {
+//        if (minValue != null) {
+//            range.addProperty(createByteProperty(minData, minTypedValue));
+//        }
+//
+//        if (maxValue != null) {
+//            range.addProperty(createByteProperty(maxData, maxTypedValue));
+//        }
+//    }
+//
+//
+//    private static void setInt16RangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, AASRangeType range, String maxValue, ValueData maxData,
+//                                            TypedValue<?> maxTypedValue)
+//            throws StatusException {
+//        if (minValue != null) {
+//            range.addProperty(createInt16Property(minData, minTypedValue));
+//        }
+//
+//        if (maxValue != null) {
+//            range.addProperty(createInt16Property(maxData, maxTypedValue));
+//        }
+//    }
+//
+//
+//    private static void setUInt16RangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, AASRangeType range, String maxValue, ValueData maxData,
+//                                             TypedValue<?> maxTypedValue)
+//            throws StatusException {
+//        if (minValue != null) {
+//            range.addProperty(createUInt16Property(minData, minTypedValue));
+//        }
+//
+//        if (maxValue != null) {
+//            range.addProperty(createUInt16Property(maxData, maxTypedValue));
+//        }
+//    }
+//
+//
+//    private static void setInt64RangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, String maxValue, ValueData maxData, TypedValue<?> maxTypedValue,
+//                                            AASRangeType range)
+//            throws NumberFormatException, StatusException {
+//        if (minValue != null) {
+//            range.addProperty(createInt64Property(minData, minTypedValue));
+//        }
+//        if (maxValue != null) {
+//            range.addProperty(createInt64Property(maxData, maxTypedValue));
+//        }
+//    }
+//
+//
+//    private static void setUInt64RangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, String maxValue, ValueData maxData, TypedValue<?> maxTypedValue,
+//                                             AASRangeType range)
+//            throws NumberFormatException, StatusException {
+//        if (minValue != null) {
+//            range.addProperty(createUInt64Property(minData, minTypedValue));
+//        }
+//        if (maxValue != null) {
+//            range.addProperty(createUInt64Property(maxData, maxTypedValue));
+//        }
+//    }
+//
+//
+//    private static void setInt32RangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, AASRangeType range, String maxValue, ValueData maxData,
+//                                            TypedValue<?> maxTypedValue)
+//            throws StatusException {
+//        if (minValue != null) {
+//            range.addProperty(createInt32Property(minData, minTypedValue));
+//        }
+//
+//        if (maxValue != null) {
+//            range.addProperty(createInt32Property(maxData, maxTypedValue));
+//        }
+//    }
+//
+//
+//    private static void setUInt32RangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, AASRangeType range, String maxValue, ValueData maxData,
+//                                             TypedValue<?> maxTypedValue)
+//            throws StatusException {
+//        if (minValue != null) {
+//            range.addProperty(createUInt32Property(minData, minTypedValue));
+//        }
+//
+//        if (maxValue != null) {
+//            range.addProperty(createUInt32Property(maxData, maxTypedValue));
+//        }
+//    }
+//
+//
+//    private static void setDateTimeRangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, String maxValue, ValueData maxData, TypedValue<?> maxTypedValue,
+//                                               AASRangeType range)
+//            throws StatusException {
+//        if (minValue != null) {
+//            range.addProperty(createDateTimeProperty(minData, minTypedValue));
+//        }
+//        if (maxValue != null) {
+//            range.addProperty(createDateTimeProperty(maxData, maxTypedValue));
+//        }
+//    }
+//
+//
+//    private static void setBooleanRangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, AASRangeType range, String maxValue, ValueData maxData,
+//                                              TypedValue<?> maxTypedValue)
+//            throws StatusException {
+//        if (minValue != null) {
+//            range.addProperty(UaHelper.createBooleanProperty(minData, minTypedValue));
+//        }
+//
+//        if (maxValue != null) {
+//            range.addProperty(UaHelper.createBooleanProperty(maxData, maxTypedValue));
+//        }
+//    }
 
 
     /**
@@ -816,14 +783,14 @@ public class AasSubmodelElementHelper {
         else if ((node instanceof AASReferenceElementType) && (value instanceof ReferenceElementValue)) {
             setReferenceElementValue((AASReferenceElementType) node, (ReferenceElementValue) value);
         }
-        else if ((node instanceof AASRangeType) && (value instanceof RangeValue)) {
-            setRangeValue((AASRangeType) node, (RangeValue<?>) value);
-        }
+        //else if ((node instanceof AASRangeType) && (value instanceof RangeValue)) {
+        //    setRangeValue((AASRangeType) node, (RangeValue<?>) value);
+        //}
         else if ((node instanceof AASMultiLanguagePropertyType) && (value instanceof MultiLanguagePropertyValue)) {
             setMultiLanguagePropertyValue((AASMultiLanguagePropertyType) node, (MultiLanguagePropertyValue) value, nodeManager);
         }
         else if (value != null) {
-            LOG.warn("setDataElementValue: unknown or invalid DataElement or value: {}; Class: {}; Value Class: {}", node.getBrowseName().getName(), node.getClass(),
+            LOGGER.warn("setDataElementValue: unknown or invalid DataElement or value: {}; Class: {}; Value Class: {}", node.getBrowseName().getName(), node.getClass(),
                     value.getClass());
         }
     }
@@ -837,7 +804,7 @@ public class AasSubmodelElementHelper {
      * @throws StatusException If the operation fails.
      */
     private static void setPropertyValue(AASPropertyType property, PropertyValue value) throws StatusException {
-        LOG.trace("setPropertyValue: {} to {}", property.getBrowseName().getName(), value.getValue());
+        LOGGER.trace("setPropertyValue: {} to {}", property.getBrowseName().getName(), value.getValue());
         property.setValue(ValueConverter.convertTypedValue(value.getValue()));
     }
 
@@ -861,18 +828,20 @@ public class AasSubmodelElementHelper {
         }
 
         // Statements
+        // TODO: handle Statemnt Objects
         Map<String, ElementValue> valueMap = value.getStatements();
-        AASSubmodelElementList statementNode = entity.getStatementNode();
-        if (statementNode != null) {
-            UaNode[] statementNodes = statementNode.getComponents();
-            if (statementNodes.length != valueMap.size()) {
-                LOG.warn("Size of Value ({}) doesn't match the number of StatementNodes ({})", valueMap.size(), statementNodes.length);
+        var statementVariables = entity.getS_StatementVariable_Nodes();
+        if (statementVariables != null) {
+            //UaNode[] statementNodes = statementVariables.getComponents();
+            int statementCount = statementVariables.size();
+            if (statementCount != valueMap.size()) {
+                LOGGER.warn("Size of Value ({}) doesn't match the number of StatementNodes ({})", valueMap.size(), statementCount);
                 throw new IllegalArgumentException("Size of Value doesn't match the number of StatementNodes");
             }
 
-            for (UaNode statementNode1: statementNodes) {
-                if ((statementNode1 instanceof AASSubmodelElementType) && value.getStatements().containsKey(statementNode1.getBrowseName().getName())) {
-                    setSubmodelElementValue((AASSubmodelElementType) statementNode1, value.getStatements().get(statementNode1.getBrowseName().getName()), nodeManager);
+            for (var statementNode1: statementVariables) {
+                if ((statementNode1 instanceof AASSubmodelElementVariableType) && value.getStatements().containsKey(statementNode1.getBrowseName().getName())) {
+                    setSubmodelElementValue((AASSubmodelElementVariableType) statementNode1, value.getStatements().get(statementNode1.getBrowseName().getName()), nodeManager);
                 }
             }
         }
@@ -930,25 +899,25 @@ public class AasSubmodelElementHelper {
      * @throws StatusException If the operation fails
      */
     private static void setReferenceElementValue(AASReferenceElementType refElement, ReferenceElementValue value) throws StatusException {
-        AasReferenceCreator.setAasReferenceData(value.getValue(), refElement.getValueNode());
+        AasReferenceCreator.setAasReferenceData(value.getValue(), refElement);
     }
 
 
-    /**
-     * Sets the value for the given Range.
-     *
-     * @param range The desired Range.
-     * @param value The new value
-     * @throws StatusException If the operation fails
-     */
-    private static void setRangeValue(AASRangeType range, RangeValue<?> value) throws StatusException {
-        if (range.getMinNode() != null) {
-            range.setMin(ValueConverter.convertTypedValue(value.getMin()));
-        }
-        if (range.getMaxNode() != null) {
-            range.setMax(ValueConverter.convertTypedValue(value.getMax()));
-        }
-    }
+//    /**
+//     * Sets the value for the given Range.
+//     *
+//     * @param range The desired Range.
+//     * @param value The new value
+//     * @throws StatusException If the operation fails
+//     */
+//    private static void setRangeValue(AASRangeType range, RangeValue<?> value) throws StatusException {
+//        if (range.getMinNode() != null) {
+//            range.setMin(ValueConverter.convertTypedValue(value.getMin()));
+//        }
+//        if (range.getMaxNode() != null) {
+//            range.setMax(ValueConverter.convertTypedValue(value.getMax()));
+//        }
+//    }
 
 
     /**
@@ -962,11 +931,11 @@ public class AasSubmodelElementHelper {
     private static void setMultiLanguagePropertyValue(AASMultiLanguagePropertyType multiLangProp, MultiLanguagePropertyValue value, NodeManagerUaNode nodeManager)
             throws StatusException {
         List<LangStringTextType> values = new ArrayList<>(value.getLangStringSet());
-        if (multiLangProp.getValueNode() == null) {
-            addMultiLanguageValueNode(multiLangProp, values.size(), nodeManager);
-        }
+        //if (multiLangProp.getValueNode() == null) {
+        //    addMultiLanguageValueNode(multiLangProp, values.size(), nodeManager);
+        //}
 
-        multiLangProp.getValueNode().setValue(ValueConverter.getLocalizedTextFromLangStringSet(values));
+        multiLangProp.setValue(ValueConverter.getLocalizedTextFromLangStringSet(values));
     }
 
 }

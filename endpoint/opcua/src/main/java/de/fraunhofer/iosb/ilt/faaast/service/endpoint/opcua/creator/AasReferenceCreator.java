@@ -28,7 +28,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.util.List;
 import opc.i4aas.datatypes.AASKeyDataType;
 import opc.i4aas.objecttypes.AASReferenceList;
-import opc.i4aas.objecttypes.AASReferenceType;
+import opc.ua.aas.variabletypes.AASReferenceElementType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -167,7 +167,7 @@ public class AasReferenceCreator {
      * @param refNode The AAS Reference object with the source data
      * @throws StatusException If the operation fails
      */
-    public static void setAasReferenceData(Reference ref, AASReferenceType refNode) throws StatusException {
+    public static void setAasReferenceData(Reference ref, AASReferenceElementType refNode) throws StatusException {
         setAasReferenceData(ref, refNode, AasServiceNodeManager.VALUES_READ_ONLY);
     }
 
