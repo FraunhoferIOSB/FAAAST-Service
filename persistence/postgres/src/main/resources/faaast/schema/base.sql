@@ -160,6 +160,7 @@ CREATE TABLE IF NOT EXISTS specific_asset_id_external_subject_id_reference_paylo
   id           BIGSERIAL PRIMARY KEY,
   reference_id BIGINT NOT NULL REFERENCES specific_asset_id_external_subject_id_reference(id) ON DELETE CASCADE,
   parent_reference_payload JSONB NOT NULL,
+  UNIQUE(reference_id),
   db_created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   db_updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -188,6 +189,7 @@ CREATE TABLE IF NOT EXISTS specific_asset_id_supplemental_semantic_id_reference_
   id           BIGSERIAL PRIMARY KEY,
   reference_id BIGINT NOT NULL REFERENCES specific_asset_id_supplemental_semantic_id_reference(id) ON DELETE CASCADE,
   parent_reference_payload JSONB NOT NULL,
+  UNIQUE(reference_id),
   db_created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   db_updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -241,6 +243,7 @@ CREATE TABLE IF NOT EXISTS submodel_semantic_id_reference_payload (
   id           BIGSERIAL PRIMARY KEY,
   reference_id BIGINT NOT NULL REFERENCES submodel_semantic_id_reference(id) ON DELETE CASCADE,
   parent_reference_payload JSONB NOT NULL,
+  UNIQUE(reference_id),
   db_created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   db_updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -270,6 +273,7 @@ CREATE TABLE IF NOT EXISTS submodel_supplemental_semantic_id_reference_payload (
   id BIGSERIAL PRIMARY KEY,
   reference_id BIGINT NOT NULL REFERENCES submodel_supplemental_semantic_id_reference(id) ON DELETE CASCADE,
   parent_reference_payload JSONB NOT NULL,
+  UNIQUE(reference_id),
   db_created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   db_updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -329,6 +333,7 @@ CREATE TABLE IF NOT EXISTS submodel_element_semantic_id_reference_payload (
   id           BIGSERIAL PRIMARY KEY,
   reference_id BIGINT NOT NULL REFERENCES submodel_element_semantic_id_reference(id) ON DELETE CASCADE,
   parent_reference_payload JSONB NOT NULL,
+  UNIQUE(reference_id),
   db_created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   db_updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -358,6 +363,7 @@ CREATE TABLE IF NOT EXISTS submodel_element_supplemental_semantic_id_reference_p
   id BIGSERIAL PRIMARY KEY,
   reference_id BIGINT NOT NULL REFERENCES submodel_element_supplemental_semantic_id_reference(id) ON DELETE CASCADE,
   parent_reference_payload JSONB NOT NULL,
+  UNIQUE(reference_id),
   db_created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   db_updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -521,11 +527,20 @@ CREATE TABLE IF NOT EXISTS concept_description (
 -- Operation results
 -- ------------------------------------------
 
+-- One row per OperationHandle. `content` is NULL while the invocation is still in flight, so a
+-- handle that is running can be distinguished from an unknown handle; `expires_at` bounds retention
+-- (without it the table grows for the lifetime of the database).
 CREATE TABLE IF NOT EXISTS operation_result (
   id TEXT PRIMARY KEY,
-  content JSONB NOT NULL,
+  content JSONB,
+  execution_state TEXT NOT NULL DEFAULT 'Completed' CHECK (
+    execution_state IN ('Initiated', 'Running', 'Completed', 'Canceled', 'Failed', 'Timeout')
+  ),
+  expires_at TIMESTAMPTZ,
   db_created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  db_updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  db_updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  CONSTRAINT ck_operation_result_terminal_has_content
+    CHECK (execution_state IN ('Initiated', 'Running') OR content IS NOT NULL)
 );
 
 -- ------------------------------------------
@@ -582,6 +597,10 @@ END $$;
 CREATE INDEX IF NOT EXISTS ix_aas_identifier ON aas(aas_id);
 CREATE INDEX IF NOT EXISTS ix_aas_idshort ON aas(id_short);
 
+-- serves AasDb.readSubmodelReferences (filter on aas_id, ordered by position) and the
+-- bulk delete in AasDb.deleteContents
+CREATE INDEX IF NOT EXISTS ix_aas_submodel_reference_aas_pos ON aas_submodel_reference(aas_id, position);
+
 CREATE INDEX IF NOT EXISTS ix_asset_information_asset_kind ON asset_information(asset_kind);
 CREATE INDEX IF NOT EXISTS ix_asset_information_asset_type ON asset_information(asset_type);
 CREATE INDEX IF NOT EXISTS ix_asset_information_global_asset_id ON asset_information(global_asset_id);
@@ -637,7 +656,6 @@ CREATE INDEX IF NOT EXISTS ix_submodel_element_semantic_id_refkey_refid ON submo
 CREATE INDEX IF NOT EXISTS ix_submodel_element_semantic_id_refkey_refval ON submodel_element_semantic_id_reference_key(reference_id, value);
 CREATE INDEX IF NOT EXISTS ix_submodel_element_semantic_id_refkey_type_val ON submodel_element_semantic_id_reference_key(type, value);
 CREATE INDEX IF NOT EXISTS ix_submodel_element_semantic_id_refkey_val_trgm ON submodel_element_semantic_id_reference_key USING GIN (value gin_trgm_ops);
-CREATE INDEX IF NOT EXISTS ix_submodel_element_semantic_id_refpayload_refid ON submodel_element_semantic_id_reference_payload(reference_id);
 
 CREATE INDEX IF NOT EXISTS ix_sme_supp_sem_owner_id ON submodel_element_supplemental_semantic_id_reference(submodel_element_id);
 CREATE INDEX IF NOT EXISTS ix_sme_supp_sem_refkey_refid ON submodel_element_supplemental_semantic_id_reference_key(reference_id);
@@ -650,7 +668,6 @@ CREATE INDEX IF NOT EXISTS ix_specasset_external_subject_id_refkey_refid ON spec
 CREATE INDEX IF NOT EXISTS ix_specasset_external_subject_id_refkey_refval ON specific_asset_id_external_subject_id_reference_key(reference_id, value);
 CREATE INDEX IF NOT EXISTS ix_specasset_external_subject_id_refkey_type_val ON specific_asset_id_external_subject_id_reference_key(type, value);
 CREATE INDEX IF NOT EXISTS ix_specasset_external_subject_id_refkey_val_trgm ON specific_asset_id_external_subject_id_reference_key USING GIN (value gin_trgm_ops);
-CREATE INDEX IF NOT EXISTS ix_specasset_external_subject_id_refpayload_refid ON specific_asset_id_external_subject_id_reference_payload(reference_id);
 
 CREATE INDEX IF NOT EXISTS ix_specasset_supp_semantic_owner_id ON specific_asset_id_supplemental_semantic_id_reference(specific_asset_id_id);
 CREATE UNIQUE INDEX IF NOT EXISTS ux_specasset_supp_semantic_owner_position ON specific_asset_id_supplemental_semantic_id_reference(specific_asset_id_id, position);
@@ -660,3 +677,8 @@ CREATE INDEX IF NOT EXISTS ix_specasset_supp_semantic_refkey_type_val ON specifi
 CREATE INDEX IF NOT EXISTS ix_specasset_supp_semantic_refkey_val_trgm ON specific_asset_id_supplemental_semantic_id_reference_key USING GIN (value gin_trgm_ops);
 
 CREATE INDEX IF NOT EXISTS ix_cd_seq ON concept_description(seq);
+
+-- supports purging expired results; only terminal rows are ever eligible
+CREATE INDEX IF NOT EXISTS ix_operation_result_cleanup
+  ON operation_result(expires_at)
+  WHERE execution_state NOT IN ('Initiated', 'Running');
