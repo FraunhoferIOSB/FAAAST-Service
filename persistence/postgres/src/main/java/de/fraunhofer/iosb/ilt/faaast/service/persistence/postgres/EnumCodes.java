@@ -274,6 +274,7 @@ final class EnumCodes {
         return switch (value) {
             case TYPE -> 0;
             case INSTANCE -> 1;
+            case ROLE -> 3;
             case NOT_APPLICABLE -> 4;
         };
     }
@@ -286,6 +287,7 @@ final class EnumCodes {
         return switch (code) {
             case 0 -> AssetKind.TYPE;
             case 1 -> AssetKind.INSTANCE;
+            case 3 -> AssetKind.ROLE;
             case 4 -> AssetKind.NOT_APPLICABLE;
             default -> null;
         };
