@@ -26,17 +26,18 @@ import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
  */
 public class AssetAdministrationShellSearchCriteria {
 
-    public static final AssetAdministrationShellSearchCriteria NONE = new AssetAdministrationShellSearchCriteria();
-
     private static final String DEFAULT_ID_SHORT = null;
-    private static final List<AssetIdentification> DEFAULT_ASSET_IDS = new ArrayList<>();
+    private static final List<AssetIdentification> DEFAULT_ASSET_IDS = List.of();
+
+    public static final AssetAdministrationShellSearchCriteria NONE = new AssetAdministrationShellSearchCriteria();
 
     private String idShort;
     private List<AssetIdentification> assetIds;
 
     public AssetAdministrationShellSearchCriteria() {
         this.idShort = DEFAULT_ID_SHORT;
-        this.assetIds = DEFAULT_ASSET_IDS;
+        // must be a fresh list: assetId(...) adds to it, so sharing a single instance would leak criteria between searches
+        this.assetIds = new ArrayList<>(DEFAULT_ASSET_IDS);
     }
 
 

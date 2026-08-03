@@ -365,7 +365,7 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
                 result.append(step);
             }
             else {
-                if (result.length() > 0) {
+                if (!result.isEmpty()) {
                     result.append('.');
                 }
                 result.append(step);

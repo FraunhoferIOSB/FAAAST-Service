@@ -80,10 +80,6 @@ import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelElementList;
  * any depth (with parent/root links, sibling position and materialized {@code idshort_path}), one row in the
  * model-type specific value table, plus payload and semantic reference rows.
  *
- * <p>
- * Property/Range values are written to the type-appropriate value column (enabling typed SQL queries) and
- * additionally always to the text column, so the original lexical representation round-trips
- * losslessly. Reads prefer the text column and fall back to the typed columns for rows written by other applications.
  */
 final class SubmodelElementDb {
 
@@ -744,8 +740,7 @@ final class SubmodelElementDb {
 
 
     /**
-     * Creates an empty instance of the model type; type-specific values are filled in later by
-     * {@link #hydrate(Connection, int, List, Map)}.
+     * Creates an empty instance of the model type; type-specific values are filled in later by hydration.
      */
     private static SubmodelElement newElement(int modelType) throws SQLException {
         return switch (modelType) {

@@ -235,11 +235,6 @@ final class EnumCodes {
     }
 
 
-    static KeyTypes keyTypes(int code) {
-        return KEY_TYPES_REVERSE.get(code);
-    }
-
-
     static int of(DataTypeDefXsd value) {
         return value != null ? DATA_TYPES.get(value) : NO_VALUE;
     }
@@ -267,18 +262,6 @@ final class EnumCodes {
         return switch (value) {
             case EXTERNAL_REFERENCE -> 0;
             case MODEL_REFERENCE -> 1;
-        };
-    }
-
-
-    static ReferenceTypes referenceTypes(Integer code) {
-        if (code == null) {
-            return null;
-        }
-        return switch (code) {
-            case 0 -> ReferenceTypes.EXTERNAL_REFERENCE;
-            case 1 -> ReferenceTypes.MODEL_REFERENCE;
-            default -> null;
         };
     }
 

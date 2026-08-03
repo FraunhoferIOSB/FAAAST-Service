@@ -28,10 +28,7 @@ import java.util.List;
  * Database schema management for the PostgreSQL persistence.
  *
  * <p>
- * The schema is defined by the classpath resource {@code faaast/schema/base.sql} plus incremental patches under
- * {@code faaast/schema/patches/}. The {@code faaast_schema_version} table tracks the installed schema version; on
- * startup the base schema is installed if missing and only patches newer than the recorded version are applied, so
- * running against an already provisioned database is safe.
+ * The schema is defined by the classpath resource {@code faaast/schema/base.sql}
  */
 public final class DatabaseSchema {
 
@@ -105,9 +102,7 @@ public final class DatabaseSchema {
 
 
     /**
-     * Creates or upgrades the database schema: on an empty database the base schema (v1.0.0) is installed, then all
-     * patches are applied in order; on an existing database only patches newer than the recorded schema version are
-     * applied.
+     * Creates or upgrades the database schema.
      *
      * @param connection the database connection
      * @throws SQLException if a database error occurs
@@ -126,12 +121,6 @@ public final class DatabaseSchema {
                 stmt.execute(loadScript(RESOURCE_BASE));
                 stmt.execute("INSERT INTO " + TABLE_SYSTEM + " (schema_version) VALUES ('v1.0.0')");
                 currentVersion = "1.0.0";
-            }
-            for (String patchVersion: PATCH_VERSIONS) {
-                if (compareVersions(patchVersion, currentVersion) > 0) {
-                    stmt.execute(loadScript("/faaast/schema/patches/" + patchVersion.replace('.', '_') + ".sql"));
-                    stmt.execute("INSERT INTO " + TABLE_SYSTEM + " (schema_version) VALUES ('v" + patchVersion + "')");
-                }
             }
         }
     }
