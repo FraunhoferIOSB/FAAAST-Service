@@ -456,7 +456,7 @@ public class RegistrySynchronization {
                 .idShort(submodel.getIdShort())
                 .description(submodel.getDescription())
                 .semanticId(submodel.getSemanticId())
-                .supplementalSemanticId(submodel.getSupplementalSemanticIds())
+                .supplementalSemanticIds(submodel.getSupplementalSemanticIds())
                 .displayName(submodel.getDisplayName())
                 .extensions(submodel.getExtensions())
                 .endpoints(endpoints.stream()

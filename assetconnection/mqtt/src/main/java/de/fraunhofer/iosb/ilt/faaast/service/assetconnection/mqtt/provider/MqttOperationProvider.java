@@ -17,6 +17,8 @@ package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.provider.MultiFormatOperationProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.config.MqttOperationProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
+import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 
@@ -38,7 +40,7 @@ public class MqttOperationProvider extends MultiFormatOperationProvider<MqttOper
 
 
     @Override
-    protected byte[] invoke(byte[] input, UnaryOperator<String> variableReplacer) throws AssetConnectionException {
+    protected byte[] invoke(byte[] input, UnaryOperator<String> variableReplacer, Consumer<Message> callbackProgress) throws AssetConnectionException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 }

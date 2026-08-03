@@ -12,8 +12,8 @@ FA³ST Service: Non-Technical View.
 ```
 
 ## Implemented AAS Specifications
-- Details of the Asset Administration Shell - Part 1: Metamodel v3.0 ([specification](https://industrialdigitaltwin.org/en/content-hub/aasspecifications/specification-of-the-asset-administration-shell-part-1-metamodel-idta-number-01001-3-0))
-- Details of the Asset Administration Shell - Part 2: Application Programming Interfaces v3.0.1 ([specification](https://industrialdigitaltwin.org/en/content-hub/aasspecifications/specification-of-the-asset-administration-shell-part-2-application-programming-interfaces-idta-number-01002-3-0)) ([OpenAPI](https://app.swaggerhub.com/apis/Plattform_i40/Entire-API-Collection/V3.0.1))
+- Details of the Asset Administration Shell - Part 1: Metamodel v3.1.2 ([specification](https://industrialdigitaltwin.org/wp-content/uploads/2025/11/IDTA-01001-3-1-2_AAS-Specification_Part1_Metamodel.pdf))
+- Details of the Asset Administration Shell - Part 2: Application Programming Interfaces v3.1.2 ([specification](https://industrialdigitaltwin.org/wp-content/uploads/2026/04/IDTA-01002-3-1-2_AAS-Specification_Part2_API.pdf)) ([OpenAPI](https://app.swaggerhub.com/apis/Plattform_i40/Entire-API-Collection/V3.1.2))
 
 
 

@@ -49,7 +49,8 @@ public class HttpEndpointWithSslDisabledTest extends AbstractHttpEndpointTest {
         scheme = HttpScheme.HTTP.toString();
         endpoint = new HttpEndpoint();
         server = new Server();
-        service = spy(new Service(CoreConfig.DEFAULT, persistence, fileStorage, mock(MessageBus.class), List.of(endpoint), List.of(), List.of()));
+        service = spy(new Service(CoreConfig.DEFAULT, persistence, fileStorage, mock(MessageBus.class),
+                List.of(endpoint), List.of(), List.of()));
         endpoint.init(
                 CoreConfig.DEFAULT,
                 HttpEndpointConfig.builder()
@@ -57,6 +58,7 @@ public class HttpEndpointWithSslDisabledTest extends AbstractHttpEndpointTest {
                         .port(port)
                         .cors(true)
                         .ssl(false)
+                        .subprotocolBody("id: ${id}. hash: ${id|hash}.MyTestSubprotocolBody")
                         .build(),
                 service);
         server.start();

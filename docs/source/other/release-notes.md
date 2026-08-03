@@ -4,12 +4,13 @@
 
 **New Features & Major Changes**
 - General
+	- Updated to AAS metamodel v3.1.
 	- Added support for reading/writing operation arguments from/to referenced other AAS elements (by using Qualifiers)
 	- Added CLI argument --show-stacktrace
 	- Added new core config properties `operationTimeout` to set a global timeout for executing AAS operations
 	- Removed support for RDF and JSON-LD format
 - Persistence
-	- MongoDB is now deprecated and will be remove in v2.0.
+	- MongoDB is now deprecated and will be removed in v2.0.
 - Asset Connection
 	- Modbus TCP asset connection added
 	- Synchronization with asset now happens asynchronously in multiple threads. This can be configured via new config properties `assetConnectionReadMaxThreadPoolSize`, `assetConnectionWriteMaxThreadPoolSize`, and `assetConnectionReadTimeout`.
@@ -19,14 +20,19 @@
 		- When connecting to an OPC UA asset and the discovery service returns mutliple URLs to use, the ones with a reachable host are preferred.
 	- HTTP
 		- Fixed bug that Operation Provider failed in an operation with arguments when no template was configured.
+		- Extend Operation Provider to support asynchronous operations.
 - Endpoint
 	- HTTP
 		- URL prefix /api/v3.x is now optional
+        - Default URL prefix is now /api/v3.1
 		- Add new config property `httpVersion`
 		- Treat headers case-insenstive (see RFC 2616)
 		- OperationProvider now supports use of input arguments via variables in headers
 		- Add support for runtime update of OperationProvider
-        - Consolidated temporarily introduced `CoreConfig.callbackAddress` into `HttpEndpointConfig.hostname`. If `MessageBusCloudEvents` is used in combination with multiple `HttpEndpoints`, one of them will be chosen to fill a `CloudEvent`'s `source` URI. The implementation will prefer non-local hostnames (i.e. **not** `localhost`/`127.0.0.1`).  
+        - Consolidated temporarily introduced `CoreConfig.callbackAddress` into `HttpEndpointConfig.hostname`. If `MessageBusCloudEvents` is used in combination with multiple `HttpEndpoints`, one of them will be chosen to fill a `CloudEvent`'s `source` URI. The implementation will prefer non-local hostnames (i.e. **not** `localhost`/`127.0.0.1`).
+        - Added configurability for registry synchronization's `subprotocol*` values (`Descriptor.Endpoint.ProtocolInformation.subprotocol*`). in `subprotocolBody`, `${id}` is substituted with the identifiable's identifier and `${id|hash}` with the sha256-hash value of it. Configurable in `HttpEndpointConfig`  
+- SMT Processor
+	- Updated processor for SMT Asset Interfaces Description (AID) to support AID version 1.1 including OPC UA binding.
 
 **Internal changes & bugfixes**
 - General

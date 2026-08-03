@@ -16,7 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.api;
 
 import de.fraunhofer.iosb.ilt.faaast.service.util.TimeFormatHelper;
 import java.util.Date;
-import org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum;
+import org.eclipse.digitaltwin.aas4j.v3.model.MessageType;
 import org.eclipse.digitaltwin.aas4j.v3.model.builder.MessageBuilder;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultMessage;
 
@@ -26,13 +26,30 @@ import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultMessage;
  */
 public class Message extends DefaultMessage {
 
-    // enshure variables are set to the default values as required by the implementation 
+    // ensure variables are set to the default values as required by the implementation
     public Message() {
         Date date = new Date();
         this.timestamp = TimeFormatHelper.asISO8601(date);
         this.text = "";
         this.code = "";
-        this.messageType = MessageTypeEnum.INFO;
+        this.messageType = MessageType.INFO;
+    }
+
+
+    /**
+     * Creates a new instance based on the provided input.
+     *
+     * @param other the original instance to use as input
+     * @return a new instance
+     */
+    public static Message of(org.eclipse.digitaltwin.aas4j.v3.model.Message other) {
+        return builder()
+                .code(other.getCode())
+                .correlationId(other.getCorrelationId())
+                .messageType(other.getMessageType())
+                .text(other.getText())
+                .timestamp(other.getTimestamp())
+                .build();
     }
 
 

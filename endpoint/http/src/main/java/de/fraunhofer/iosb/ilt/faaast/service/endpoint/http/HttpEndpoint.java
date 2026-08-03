@@ -25,6 +25,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.Interface;
 import de.fraunhofer.iosb.ilt.faaast.service.model.Version;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.HashHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.HostnameUtil;
 import java.io.File;
 import java.io.IOException;
@@ -39,7 +40,6 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import org.eclipse.digitaltwin.aas4j.v3.model.SecurityTypeEnum;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEndpoint;
@@ -65,7 +65,7 @@ import org.slf4j.LoggerFactory;
  */
 public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
 
-    public static final Version API_VERSION = Version.V3_0;
+    public static final Version API_VERSION = Version.V3_1;
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpEndpoint.class);
     private static final CertificateInformation SELFSIGNED_CERTIFICATE_INFORMATION = CertificateInformation.builder()
             .applicationUri("urn:de:fraunhofer:iosb:ilt:faaast:service:endpoint:http")
@@ -328,7 +328,9 @@ public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
         if (subprotocolBodyTemplate == null) {
             return null;
         }
-        return subprotocolBodyTemplate.replace("${id}", Optional.ofNullable(identifiableId).orElse(""));
+        return subprotocolBodyTemplate
+                .replace("${id}", identifiableId)
+                .replace("${id|hash}", HashHelper.sha256(identifiableId));
     }
 
 

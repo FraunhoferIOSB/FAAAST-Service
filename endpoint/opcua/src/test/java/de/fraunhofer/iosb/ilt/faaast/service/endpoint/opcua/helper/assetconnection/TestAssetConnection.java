@@ -23,6 +23,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetProviderConfig
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetSubscriptionProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.HashMap;
 import java.util.Map;
@@ -81,7 +82,10 @@ public class TestAssetConnection implements
 
 
                 @Override
-                public void invokeAsync(OperationVariable[] input, OperationVariable[] inoutput, BiConsumer<OperationVariable[], OperationVariable[]> callbackSuccess,
+                public void invokeAsync(OperationVariable[] input,
+                                        OperationVariable[] inoutput,
+                                        Consumer<Message> callbackProgress,
+                                        BiConsumer<OperationVariable[], OperationVariable[]> callbackSuccess,
                                         Consumer<Throwable> callbackFailure)
                         throws AssetConnectionException {
                     throw new UnsupportedOperationException("Not supported yet.");

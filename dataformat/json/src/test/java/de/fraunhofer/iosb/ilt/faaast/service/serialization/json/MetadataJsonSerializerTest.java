@@ -16,7 +16,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.serialization.json;
 
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.MetadataJsonSerializer;
-import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.fixture.MetadataExamples;
 import java.io.File;
 import java.io.IOException;
@@ -44,43 +43,43 @@ public class MetadataJsonSerializerTest {
 
 
     @Test
-    public void testBlob() throws SerializationException, JSONException, IOException, ValueMappingException {
+    public void testBlob() throws SerializationException, JSONException, IOException {
         assertEquals(MetadataExamples.BLOB_FILE, MetadataExamples.BLOB);
     }
 
 
     @Test
-    public void testElementCollection() throws SerializationException, JSONException, IOException, ValueMappingException {
+    public void testElementCollection() throws SerializationException, JSONException, IOException {
         assertEquals(MetadataExamples.ELEMENT_COLLECTION_FILE, MetadataExamples.ELEMENT_COLLECTION);
     }
 
 
     @Test
-    public void testElementList() throws SerializationException, JSONException, IOException, ValueMappingException {
+    public void testElementList() throws SerializationException, JSONException, IOException {
         assertEquals(MetadataExamples.ELEMENT_LIST_FILE, MetadataExamples.ELEMENT_LIST);
     }
 
 
     @Test
-    public void testEntity() throws SerializationException, JSONException, IOException, ValueMappingException {
+    public void testEntity() throws SerializationException, JSONException, IOException {
         assertEquals(MetadataExamples.ENTITY_FILE, MetadataExamples.ENTITY);
     }
 
 
     @Test
-    public void testFile() throws SerializationException, JSONException, IOException, ValueMappingException {
+    public void testFile() throws SerializationException, JSONException, IOException {
         assertEquals(MetadataExamples.FILE_FILE, MetadataExamples.FILE);
     }
 
 
     @Test
-    public void testMultiLanguageProperty() throws SerializationException, JSONException, IOException, ValueMappingException {
+    public void testMultiLanguageProperty() throws SerializationException, JSONException, IOException {
         assertEquals(MetadataExamples.MULTI_LANGUAGE_PROPERTY_FILE, MetadataExamples.MULTI_LANGUAGE_PROPERTY);
     }
 
 
     @Test
-    public void testProperty() throws SerializationException, JSONException, IOException, ValueMappingException {
+    public void testProperty() throws SerializationException, JSONException, IOException {
         assertEquals(MetadataExamples.PROPERTY_DATETIME_FILE, MetadataExamples.PROPERTY_DATETIME);
         assertEquals(MetadataExamples.PROPERTY_DOUBLE_FILE, MetadataExamples.PROPERTY_DOUBLE);
         assertEquals(MetadataExamples.PROPERTY_INT_FILE, MetadataExamples.PROPERTY_INT);
@@ -89,27 +88,27 @@ public class MetadataJsonSerializerTest {
 
 
     @Test
-    public void testRange() throws SerializationException, JSONException, IOException, ValueMappingException {
+    public void testRange() throws SerializationException, JSONException, IOException {
         assertEquals(MetadataExamples.RANGE_DOUBLE_FILE, MetadataExamples.RANGE_DOUBLE);
         assertEquals(MetadataExamples.RANGE_INT_FILE, MetadataExamples.RANGE_INT);
     }
 
 
     @Test
-    public void testReferenceElement() throws SerializationException, JSONException, IOException, ValueMappingException {
+    public void testReferenceElement() throws SerializationException, JSONException, IOException {
         assertEquals(MetadataExamples.REFERENCE_ELEMENT_GLOBAL_FILE, MetadataExamples.REFERENCE_ELEMENT_GLOBAL);
         assertEquals(MetadataExamples.REFERENCE_ELEMENT_MODEL_FILE, MetadataExamples.REFERENCE_ELEMENT_MODEL);
     }
 
 
     @Test
-    public void testRelationshipElement() throws SerializationException, JSONException, IOException, ValueMappingException {
+    public void testRelationshipElement() throws SerializationException, JSONException, IOException {
         assertEquals(MetadataExamples.RELATIONSHIP_ELEMENT_FILE, MetadataExamples.RELATIONSHIP_ELEMENT);
     }
 
 
     @Test
-    public void testAnnotatedRelationshipElement() throws SerializationException, JSONException, IOException, ValueMappingException {
+    public void testAnnotatedRelationshipElement() throws SerializationException, JSONException, IOException {
         assertEquals(MetadataExamples.ANNOTATED_RELATIONSHIP_ELEMENT_FILE, MetadataExamples.ANNOTATED_RELATIONSHIP_ELEMENT);
     }
 
@@ -119,7 +118,7 @@ public class MetadataJsonSerializerTest {
     }
 
 
-    private void assertEquals(String expected, Object value) throws JSONException, IOException, SerializationException {
+    private void assertEquals(String expected, Object value) throws JSONException, SerializationException {
         String actual = serializer.write(value);
         JSONAssert.assertEquals(expected, actual, JSONCompareMode.NON_EXTENSIBLE);
     }

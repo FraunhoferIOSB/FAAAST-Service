@@ -15,7 +15,6 @@
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonFieldNames;
@@ -46,15 +45,17 @@ public class EntityValueSerializer extends StdSerializer<EntityValue> {
 
 
     @Override
-    public void serialize(EntityValue value, JsonGenerator generator, SerializerProvider provider) throws IOException, JsonProcessingException {
+    public void serialize(EntityValue value, JsonGenerator generator, SerializerProvider provider) throws IOException {
         if (value != null) {
             generator.writeStartObject();
-            generator.writeFieldName(JsonFieldNames.ENTITY_VALUE_STATEMENTS);
-            generator.writeStartObject();
-            for (Map.Entry<String, ElementValue> annotation: value.getStatements().entrySet()) {
-                provider.defaultSerializeField(annotation.getKey(), annotation.getValue(), generator);
+            if (value.getStatements() != null && !value.getStatements().isEmpty()) {
+                generator.writeFieldName(JsonFieldNames.ENTITY_VALUE_STATEMENTS);
+                generator.writeStartObject();
+                for (Map.Entry<String, ElementValue> annotation: value.getStatements().entrySet()) {
+                    provider.defaultSerializeField(annotation.getKey(), annotation.getValue(), generator);
+                }
+                generator.writeEndObject();
             }
-            generator.writeEndObject();
             generator.writeStringField(JsonFieldNames.ENTITY_VALUE_ENTITY_TYPE, EnumSerializer.serializeEnumName(value.getEntityType().name()));
             provider.defaultSerializeField(JsonFieldNames.ENTITY_VALUE_GLOBAL_ASSET_ID, new DefaultReference.Builder()
                     .type(ReferenceTypes.EXTERNAL_REFERENCE)

@@ -300,8 +300,10 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
             Reference actualReference = invocation.getArgument(0);
             OperationVariable[] input = invocation.getArgument(1);
             OperationVariable[] inoutput = invocation.getArgument(2);
-            BiConsumer<OperationVariable[], OperationVariable[]> callbackSuccess = invocation.getArgument(3);
-            Consumer<Throwable> callbackFailure = invocation.getArgument(4);
+            //argument not used in integration tests
+            //Consumer<Message> progressHandler = invocation.getArgument(3);
+            BiConsumer<OperationVariable[], OperationVariable[]> callbackSuccess = invocation.getArgument(4);
+            Consumer<Throwable> callbackFailure = invocation.getArgument(5);
             if (ReferenceHelper.equals(reference, actualReference)) {
                 CompletableFuture
                         .supplyAsync(LambdaExceptionHelper.rethrowSupplier(() -> logic.apply(input, inoutput)))
@@ -312,7 +314,7 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
                         });
             }
             return null;
-        }).when(assetConnectionManager).invokeAsync(any(), any(), any(), any(), any());
+        }).when(assetConnectionManager).invokeAsync(any(), any(), any(), any(), any(), any());
     }
 
 

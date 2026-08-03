@@ -58,8 +58,8 @@ For testing purposes, we provide an example model here: <!--start:download-model
 ```
 
 If you use the API and get a "Resource not found" message, FA³ST Service could not find an appropriate API call for your request.
-In many cases, providing the proper API prefix, for example `/api/v3.0` and following the up-to-date SwaggerHub API, should lead to a valid result:
-`https://faaast-service-v1.k8s.ilt-dmz.iosb.fraunhofer.de/api/v3.0/shells`
+In many cases, providing the proper API prefix, for example `/api/v3.1` and following the up-to-date SwaggerHub API, should lead to a valid result:
+`https://faaast-service-v1.k8s.ilt-dmz.iosb.fraunhofer.de/api/v3.1/shells`
 Keep in mind that the right HTTP method must be selected for specific calls.
 :::
 
@@ -165,7 +165,7 @@ For example, if your FA³ST service is reachable under <https://my-faaast-servic
 	}
   ],
   "core": {
-    "aasRegistries": [ "https://my-registry:8090/api/v3.0" ]
+    "aasRegistries": [ "https://my-registry:8090/api/v3.1" ]
   }
 }
 ```
@@ -185,7 +185,7 @@ A registered shell descriptor could then look like this:
       "securityAttributes": {
         // ...
 	  },
-      "interface": "AAS-REPOSITORY-3.0"    
+      "interface": "AAS-REPOSITORY-3.1"    
     },
     {
       "protocolInformation": {
@@ -196,7 +196,7 @@ A registered shell descriptor could then look like this:
       "securityAttributes": {
         // ...
 	  },
-      "interface": "AAS-3.0"    
+      "interface": "AAS-3.1"    
     }
   ],
   "id": "example-aas-id",

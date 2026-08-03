@@ -18,9 +18,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.MqttAssetConnectionConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.config.MqttSubscriptionProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.model.SemanticIdPath;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.Constants;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.config.AimcSubmodelTemplateProcessorConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.config.BasicCredentials;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.config.Credentials;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.model.RelationData;
@@ -56,14 +58,15 @@ public class MqttHelper {
      * @param serviceContext The service context.
      * @param assetInterface The desired Asset Interface.
      * @param relations The list of rekations.
-     * @param credentials The list of credentials.
+     * @param config The configuration of the SubmodelTemplateProcessor.
      * @return The Asset Connection configuration from this interface.
      * @throws PersistenceException if a storage error occurs.
      * @throws ResourceNotFoundException if the resource dcesn't exist..
      */
     public static AssetConnectionConfig processInterface(ServiceContext serviceContext, SubmodelElementCollection assetInterface,
-                                                         List<RelationshipElement> relations, Map<String, List<Credentials>> credentials)
+                                                         List<RelationshipElement> relations, AimcSubmodelTemplateProcessorConfig config)
             throws ResourceNotFoundException, PersistenceException {
+        Map<String, List<Credentials>> credentials = config.getCredentials();
         String title = Util.getInterfaceTitle(assetInterface);
         LOGGER.debug("process MQTT interface {} with {} relations", title, relations.size());
 
@@ -78,7 +81,7 @@ public class MqttHelper {
 
         Map<Reference, MqttSubscriptionProviderConfig> subscriptionProviders = new HashMap<>();
 
-        processRelations(new RelationData(serviceContext, relations, contentType), subscriptionProviders);
+        processRelations(new RelationData(serviceContext, relations, contentType, config), subscriptionProviders);
 
         List<Credentials> serverCredentials = new ArrayList<>();
         if (credentials.containsKey(base)) {
@@ -88,13 +91,15 @@ public class MqttHelper {
         MqttAssetConnectionConfig.Builder assetConfigBuilder = MqttAssetConnectionConfig.builder().serverUri(base);
 
         // security
-        Optional<SubmodelElement> element = metadata.getValue().stream().filter(e -> Util.semanticIdEquals(e, Constants.AID_METADATA_SECURITY_SEMANTIC_ID)).findFirst();
-        if (element.isEmpty()) {
-            throw new IllegalArgumentException("Submodel AID (MQTT) invalid: EndpointMetadata security not found.");
-        }
-        else if (element.get() instanceof SubmodelElementList securityList) {
-            assetConfigBuilder = configureSecurity(serviceContext, securityList, assetConfigBuilder, serverCredentials);
-        }
+        assetConfigBuilder = configureSecurity(
+                serviceContext,
+                SemanticIdPath.builder()
+                        .globalReference(Constants.AID_METADATA_SECURITY_SEMANTIC_ID)
+                        .build()
+                        .resolveOptional(metadata, SubmodelElementList.class)
+                        .orElseThrow(() -> new IllegalArgumentException("Submodel AID (MQTT) invalid: EndpointMetadata security not found.")),
+                assetConfigBuilder,
+                serverCredentials);
 
         LOGGER.debug("processInterface: add {} subscriptionProviders", subscriptionProviders.size());
         return assetConfigBuilder
@@ -140,13 +145,13 @@ public class MqttHelper {
                                                                        MqttAssetConnectionConfig.Builder assetConfigBuilder, List<Credentials> credentials)
             throws ResourceNotFoundException, PersistenceException {
         MqttAssetConnectionConfig.Builder retval = assetConfigBuilder;
-        List<String> supportedSecurity = Util.getSupportedSecurityList(serviceContext, securityList);
+        Map<String, SubmodelElement> supportedSecurity = Util.getSupportedSecurityList(serviceContext, securityList);
 
-        if (supportedSecurity.contains(Constants.AID_SECURITY_NOSEC)) {
+        if (supportedSecurity.containsKey(Constants.AID_SECURITY_NOSEC)) {
             // no security found. We choose that.
             LOGGER.trace("configureSecurity: use no security");
         }
-        else if (supportedSecurity.contains(Constants.AID_SECURITY_BASIC)) {
+        else if (supportedSecurity.containsKey(Constants.AID_SECURITY_BASIC)) {
             // use basic security. Username and password are used from the configuration.
             LOGGER.trace("configureSecurity: use basic security");
             Optional<BasicCredentials> basic = credentials.stream().filter(BasicCredentials.class::isInstance).map(c -> (BasicCredentials) c).findFirst();

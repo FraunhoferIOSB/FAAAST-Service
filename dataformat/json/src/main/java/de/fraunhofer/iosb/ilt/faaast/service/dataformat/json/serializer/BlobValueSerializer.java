@@ -15,13 +15,13 @@
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonFieldNames;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.BlobValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
+
 import java.io.IOException;
 
 
@@ -41,11 +41,13 @@ public class BlobValueSerializer extends ModifierAwareSerializer<BlobValue> {
 
 
     @Override
-    public void serialize(BlobValue value, JsonGenerator generator, SerializerProvider provider, Level level, Extent extend) throws IOException, JsonProcessingException {
+    public void serialize(BlobValue value, JsonGenerator generator, SerializerProvider provider, Level level, Extent extent) throws IOException {
         if (value != null) {
             generator.writeStartObject();
-            generator.writeStringField(JsonFieldNames.BLOB_VALUE_CONTENT_TYPE, value.getContentType());
-            if (extend == Extent.WITH_BLOB_VALUE) {
+            if (value.getContentType() != null) {
+                generator.writeStringField(JsonFieldNames.BLOB_VALUE_CONTENT_TYPE, value.getContentType());
+            }
+            if (extent == Extent.WITH_BLOB_VALUE && value.getValue() != null) {
                 generator.writeStringField(JsonFieldNames.BLOB_VALUE_VALUE, new String(EncodingHelper.base64Encode(value.getValue())));
             }
             generator.writeEndObject();

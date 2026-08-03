@@ -34,7 +34,7 @@ import java.util.Comparator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum;
+import org.eclipse.digitaltwin.aas4j.v3.model.MessageType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Result;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultResult;
 import org.eclipse.jetty.http.HttpHeader;
@@ -122,7 +122,7 @@ public class HttpErrorHandler extends ErrorHandler {
                 .build();
         if (config.isIncludeErrorDetails() && Objects.nonNull(cause)) {
             result.getMessages().add(Message.builder()
-                    .messageType(MessageTypeEnum.EXCEPTION)
+                    .messageType(MessageType.EXCEPTION)
                     .text(getStacktrace(
                             cause))
                     .build());

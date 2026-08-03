@@ -29,13 +29,15 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.Opera
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.OperationInvokeEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.OperationProviderHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import org.eclipse.digitaltwin.aas4j.v3.model.ExecutionState;
-import org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum;
+import org.eclipse.digitaltwin.aas4j.v3.model.MessageType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationResult;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
@@ -65,6 +67,7 @@ public class InvokeOperationAsyncRequestHandler extends AbstractInvokeOperationR
             context.getAssetConnectionManager().invokeAsync(reference,
                     request.getInputArguments().toArray(new OperationVariable[0]),
                     request.getInoutputArguments().toArray(new OperationVariable[0]),
+                    message -> handleOperationProgress(reference, operationHandle, message, context),
                     (output, inoutput) -> {
                         handleOperationSuccess(reference, operationHandle, inoutput, output, context);
                         future.complete(null);
@@ -97,6 +100,27 @@ public class InvokeOperationAsyncRequestHandler extends AbstractInvokeOperationR
     }
 
 
+    private void handleOperationProgress(Reference reference, OperationHandle operationHandle, Message message, RequestExecutionContext context) {
+        try {
+            OperationResult result = context.getPersistence().getOperationResult(operationHandle);
+            if (OperationProviderHelper.isProgressMessagePercentage(message)) {
+                result.getMessages().removeIf(OperationProviderHelper::isProgressMessagePercentage);
+            }
+            if (!result.getMessages().contains(message)) {
+                result.getMessages().add(message);
+            }
+            context.getPersistence().save(operationHandle, result);
+        }
+        catch (ResourceNotFoundException | PersistenceException e) {
+            LOGGER.warn("failed to update async operation progress (reference: {}, operationHandle: {}, reason: {})",
+                    ReferenceHelper.asString(reference),
+                    operationHandle.getHandleId(),
+                    e.getMessage(),
+                    e);
+        }
+    }
+
+
     private void handleOperationSuccess(Reference reference, OperationHandle operationHandle, OperationVariable[] inoutput, OperationVariable[] output,
                                         RequestExecutionContext context) {
         handleOperationResult(
@@ -121,7 +145,7 @@ public class InvokeOperationAsyncRequestHandler extends AbstractInvokeOperationR
                         .inoutputArguments(inoutput)
                         .outputArguments(List.of())
                         .messages(Message.builder()
-                                .messageType(MessageTypeEnum.ERROR)
+                                .messageType(MessageType.ERROR)
                                 .text(String.format(
                                         "operation failed to execute (reason: %s)",
                                         error.getMessage()))
