@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler.dpp;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.dpp.ReadDPPByProductIdRequest;
@@ -21,13 +22,17 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.dpp.ReadDPPByPro
 import de.fraunhofer.iosb.ilt.faaast.service.model.asset.AssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.asset.GlobalAssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.dpp.DigitalProductPassport;
-import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.AssetAdministrationShellSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import java.util.List;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 
 
+/**
+ * Class to handle a {@link ReadDPPByProductIdRequest} in the service and to send the corresponding
+ * {@link ReadDPPByProductIdResponse}.
+ * Is responsible for communication with the persistence and sends the corresponding events to the message bus.
+ */
 public class ReadDPPByProductIdRequestHandler extends AbstractDPPRequestHandler<ReadDPPByProductIdRequest, ReadDPPByProductIdResponse> {
     @Override
     public ReadDPPByProductIdResponse process(ReadDPPByProductIdRequest request, RequestExecutionContext context) throws Exception {
@@ -38,7 +43,7 @@ public class ReadDPPByProductIdRequestHandler extends AbstractDPPRequestHandler<
                 .getContent();
 
         if (aas.size() != 1) {
-            throw new PersistenceException(String.format("Found %d DPPs with product ID %s", aas.size(), globalAssetId.getValue()));
+            return ReadDPPByProductIdResponse.builder().statusCode(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND).build();
         }
 
         DigitalProductPassport dpp = buildFrom(aas.get(0), context.getPersistence());

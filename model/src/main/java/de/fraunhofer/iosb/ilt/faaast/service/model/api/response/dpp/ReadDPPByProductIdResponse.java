@@ -14,6 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.response.dpp;
 
+/**
+ * Response class for ReadDPPByProductIdResponse requests.
+ */
 public class ReadDPPByProductIdResponse extends AbstractDPPResponse {
 
     public static Builder builder() {

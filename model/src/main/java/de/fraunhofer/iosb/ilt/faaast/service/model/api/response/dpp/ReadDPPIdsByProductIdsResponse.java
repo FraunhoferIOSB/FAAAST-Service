@@ -17,6 +17,9 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.api.response.dpp;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.AbstractPagedResponse;
 
 
+/**
+ * Response class for ReadDPPIdsByProductIdsResponse requests.
+ */
 public class ReadDPPIdsByProductIdsResponse extends AbstractPagedResponse<String> {
 
     public static Builder builder() {

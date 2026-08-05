@@ -66,6 +66,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescriptio
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.PostConceptDescriptionRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.PutConceptDescriptionByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.description.GetSelfDescriptionRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.dpp.ReadDPPByIdRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.dpp.ReadDPPByProductIdRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.dpp.ReadDPPIdsByProductIdsRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.proprietary.DeleteOperationProviderByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.proprietary.ImportRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.proprietary.PostOperationProviderByPathRequest;
@@ -582,6 +585,49 @@ public class RequestMappingManagerTest {
         Request actual = mappingManager.map(HttpRequest.builder()
                 .method(HttpMethod.GET)
                 .path("concept-descriptions/" + EncodingHelper.base64UrlEncode(CONCEPT_DESCRIPTION.getId()))
+                .build());
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testReadDPPById() throws InvalidRequestException, MethodNotAllowedException {
+        String dppId = AAS.getId();
+        Request expected = ReadDPPByIdRequest.builder()
+                .dppId(dppId)
+                .build();
+        Request actual = mappingManager.map(HttpRequest.builder()
+                .method(HttpMethod.GET)
+                .path("v1/dpps/" + EncodingHelper.base64UrlEncode(dppId))
+                .build());
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testReadDPPByProductId() throws InvalidRequestException, MethodNotAllowedException {
+        String productId = "http://example.org/productId";
+        Request expected = ReadDPPByProductIdRequest.builder()
+                .productId(productId)
+                .build();
+        Request actual = mappingManager.map(HttpRequest.builder()
+                .method(HttpMethod.GET)
+                .path("v1/dppsByProductId/" + EncodingHelper.base64UrlEncode(productId))
+                .build());
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testReadDPPIdsByProductIds() throws InvalidRequestException, MethodNotAllowedException, SerializationException {
+        List<String> productIds = List.of("http://example.org/productId1", "http://example.org/productId2");
+        Request expected = ReadDPPIdsByProductIdsRequest.builder()
+                .productIds(productIds)
+                .build();
+        Request actual = mappingManager.map(HttpRequest.builder()
+                .method(HttpMethod.POST)
+                .path("v1/dppsByProductIds")
+                .body(serializer.write(productIds))
                 .build());
         Assert.assertEquals(expected, actual);
     }

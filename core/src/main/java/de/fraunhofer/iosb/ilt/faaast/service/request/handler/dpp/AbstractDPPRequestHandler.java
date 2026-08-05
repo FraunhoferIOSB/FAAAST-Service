@@ -34,8 +34,23 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Key;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 
 
+/**
+ * Base class for handling DPP requests with content.
+ *
+ * @param <T> type of the DPP request
+ * @param <U> type of the corresponding DPP response
+ */
 public abstract class AbstractDPPRequestHandler<T extends AbstractDPPRequest<U>, U extends AbstractDPPResponse> extends AbstractRequestHandler<T, U> {
 
+    /**
+     * Get and build a DPP from an AAS as source, fetching its metadata and content submodels.
+     *
+     * @param shell The DPP shell.
+     * @param persistence The persistence where the DPP submodels are stored.
+     * @return A complete DigitalProductPassport with resolved metadata and contents.
+     * @throws ResourceNotFoundException Any of the submodels were not found.
+     * @throws PersistenceException Requesting the persistence failed.
+     */
     protected DigitalProductPassport buildFrom(AssetAdministrationShell shell, Persistence<?> persistence) throws ResourceNotFoundException, PersistenceException {
         List<String> submodelIds = shell.getSubmodels().stream()
                 .map(ReferenceHelper::getEffectiveKey).filter(Objects::nonNull)
@@ -69,6 +84,13 @@ public abstract class AbstractDPPRequestHandler<T extends AbstractDPPRequest<U>,
     }
 
 
+    /**
+     * For a read DPP, Shell and Submodel read events need to be emitted.
+     *
+     * @param dpp The DPP that was read during a request.
+     * @param messageBus The message bus used to distribute events.
+     * @throws MessageBusException Distributing events failed.
+     */
     protected void distributeReadEvents(DigitalProductPassport dpp, MessageBus<?> messageBus) throws MessageBusException {
         messageBus.publish(ElementReadEventMessage.builder()
                 .element(dpp.getAAS())

@@ -22,6 +22,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionCon
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 
 
+/**
+ * Class to handle a {@link ReadDPPByIdRequest} in the service and to send the corresponding
+ * {@link ReadDPPByIdResponse}.
+ * Is responsible for communication with the persistence and sends the corresponding events to the message bus.
+ */
 public class ReadDPPByIdRequestHandler extends AbstractDPPRequestHandler<ReadDPPByIdRequest, ReadDPPByIdResponse> {
     @Override
     public ReadDPPByIdResponse process(ReadDPPByIdRequest request, RequestExecutionContext context) throws Exception {

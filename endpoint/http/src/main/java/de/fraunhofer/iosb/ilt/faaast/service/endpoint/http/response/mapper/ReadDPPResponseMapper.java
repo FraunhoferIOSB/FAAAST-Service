@@ -25,6 +25,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.dpp.AbstractDPPR
 import jakarta.servlet.http.HttpServletResponse;
 
 
+/**
+ * Response mapper for {@link AbstractDPPResponse}.
+ */
 public class ReadDPPResponseMapper extends ResponseWithPayloadResponseMapper<AbstractDPPResponse, AbstractDPPRequest<AbstractDPPResponse>> {
     public ReadDPPResponseMapper(ServiceContext serviceContext) {
         super(serviceContext);

@@ -13,6 +13,8 @@
 
 package de.fraunhofer.iosb.ilt.faaast.service.serialization.json.dpp;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.model.DPP.DPP_1;
+
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.dpp.DppSerializationMode;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.dpp.JsonDppSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.dpp.DigitalProductPassport;
@@ -30,7 +32,7 @@ public class JsonDppSerializerTest {
 
     @Test
     public void test1() throws Exception {
-        assertEquals(DppExamples.DPP_1_COMPRESSED_FILE, DppExamples.DPP_1, DppSerializationMode.COMPRESSED);
+        assertEquals(DppExamples.DPP_1_COMPRESSED_FILE, DPP_1, DppSerializationMode.COMPRESSED);
     }
 
 

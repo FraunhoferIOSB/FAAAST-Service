@@ -21,6 +21,9 @@ import java.util.List;
 import java.util.Objects;
 
 
+/**
+ * Request class for ReadDPPIdsByProductIdsRequest.
+ */
 public class ReadDPPIdsByProductIdsRequest extends AbstractRequestWithPaging<ReadDPPIdsByProductIdsResponse> {
 
     private List<String> productIds;

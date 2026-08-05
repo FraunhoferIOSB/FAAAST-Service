@@ -28,6 +28,11 @@ import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.Identifiable;
 
 
+/**
+ * Class to handle a {@link ReadDPPIdsByProductIdsRequest} in the service and to send the corresponding
+ * {@link ReadDPPIdsByProductIdsResponse}.
+ * Is responsible for communication with the persistence and sends the corresponding events to the message bus.
+ */
 public class ReadDPPIdsByProductIdsRequestHandler extends AbstractRequestHandler<ReadDPPIdsByProductIdsRequest, ReadDPPIdsByProductIdsResponse> {
     @Override
     public ReadDPPIdsByProductIdsResponse process(ReadDPPIdsByProductIdsRequest request, RequestExecutionContext context) throws Exception {

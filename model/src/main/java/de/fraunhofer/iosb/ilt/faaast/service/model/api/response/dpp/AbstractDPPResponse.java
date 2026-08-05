@@ -18,6 +18,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.AbstractResponse
 import de.fraunhofer.iosb.ilt.faaast.service.model.dpp.DigitalProductPassport;
 
 
+/**
+ * Abstract response class for DPP requests.
+ */
 public abstract class AbstractDPPResponse extends AbstractResponseWithPayload<DigitalProductPassport> {
     public abstract static class AbstractBuilder<T extends AbstractDPPResponse, B extends AbstractBuilder<T, B>>
             extends AbstractResponseWithPayload.AbstractBuilder<DigitalProductPassport, T, B> {}

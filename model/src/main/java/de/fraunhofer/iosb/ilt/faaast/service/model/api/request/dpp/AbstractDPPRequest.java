@@ -20,6 +20,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWi
 import java.util.Objects;
 
 
+/**
+ * Abstract request class for DPP requests with content.
+ */
 public abstract class AbstractDPPRequest<T extends Response> extends AbstractRequestWithModifier<T> {
 
     @Override

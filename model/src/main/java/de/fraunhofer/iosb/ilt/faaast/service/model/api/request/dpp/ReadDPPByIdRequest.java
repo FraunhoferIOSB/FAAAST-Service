@@ -19,6 +19,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.dpp.ReadDPPByIdR
 import java.util.Objects;
 
 
+/**
+ * Request class for ReadDPPByIdRequest.
+ */
 public class ReadDPPByIdRequest extends AbstractDPPRequest<ReadDPPByIdResponse> {
 
     private String dppId;
