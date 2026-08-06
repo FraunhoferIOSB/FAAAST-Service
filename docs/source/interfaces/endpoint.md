@@ -236,6 +236,21 @@ The payload will be simplified and look similar to this
 }
 ```
 
+#### DPP API
+
+There are three DPP endpoints available, enabling FA³ST Service to act as a Custodian (economic operator or service provider) in a DPP hosting scenario.
+
+Specifically, the following endpoints are exposed: 
+
+| Name                    | HTTP Method | URL Path                       | Query Parameter                                       | Description                                                                                                                                                                                                                                                                                    | Payload                 | Response                                                     |
+|-------------------------|-------------|--------------------------------|-------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------|--------------------------------------------------------------|
+| ReadDPPById             | GET         | v1/dpps/{dppId}                | representation (allowed values: "full", "compressed") | Retrieves the AAS by its identifier, fetches all referenced Submodels, and composes the DPP document. The representation query parameter controls the serialization format.                                                                                                                    | -                       | `200 Ok` with body containing DPP with specified ID.         |
+| ReadDPPByProductId      | GET         | v1/dppsByProductId/{productId} | representation (allowed values: "full", "compressed") | Resolves the product identifier to an AAS (via globalAssetId) and compose the DPP document. The representation query parameter controls the serialization format.                                                                                                                              | -                       | `200 Ok` with body containing DPP with specified product ID. |
+| ReadDPPIdsByProductIds  | GET         | v1/dppsByProductIds            | pagination (limit, cursor)                            | Resolves a set of product identifiers to their corresponding DPP identifiers. The operation calls GetAllAssetAdministrationShellIdsByAssetId with the set of product identifiers and returns the union of all discovered DPP identifiers. Supports pagination via limit and cursor parameters. | list of DPP product IDs | `200 Ok` with body containing list of DPP identifiers.       |
+
+
+Currently, only the `compressed` DPP serialization format is supported and is the default value for requests to the API.
+
 ## OPC UA
 
 The OPC UA Endpoint allows accessing data and execute operations within the FA³ST Service via [OPC UA](https://opcfoundation.org/about/opc-technologies/opc-ua/).

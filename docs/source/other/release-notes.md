@@ -30,7 +30,8 @@
 		- OperationProvider now supports use of input arguments via variables in headers
 		- Add support for runtime update of OperationProvider
         - Consolidated temporarily introduced `CoreConfig.callbackAddress` into `HttpEndpointConfig.hostname`. If `MessageBusCloudEvents` is used in combination with multiple `HttpEndpoints`, one of them will be chosen to fill a `CloudEvent`'s `source` URI. The implementation will prefer non-local hostnames (i.e. **not** `localhost`/`127.0.0.1`).
-        - Added configurability for registry synchronization's `subprotocol*` values (`Descriptor.Endpoint.ProtocolInformation.subprotocol*`). in `subprotocolBody`, `${id}` is substituted with the identifiable's identifier and `${id|hash}` with the sha256-hash value of it. Configurable in `HttpEndpointConfig`  
+        - Added configurability for registry synchronization's `subprotocol*` values (`Descriptor.Endpoint.ProtocolInformation.subprotocol*`). in `subprotocolBody`, `${id}` is substituted with the identifiable's identifier and `${id|hash}` with the sha256-hash value of it. Configurable in `HttpEndpointConfig`
+        - Added DPP endpoints ReadDPPById, ReadDPPByProductId, ReadDPPIdsByIds, DPP serialization (compressed mode)
 
 **Internal changes & bugfixes**
 - General
