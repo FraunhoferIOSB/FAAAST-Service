@@ -149,6 +149,12 @@ public class CertificateConfig {
         }
 
 
+        public Builder keyAlias(String value) {
+            getBuildingInstance().setKeyAlias(value);
+            return getSelf();
+        }
+
+
         @Override
         protected Builder getSelf() {
             return this;

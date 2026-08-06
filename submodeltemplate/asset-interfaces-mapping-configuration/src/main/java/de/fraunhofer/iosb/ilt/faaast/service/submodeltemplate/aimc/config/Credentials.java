@@ -14,13 +14,18 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.config;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 
 /**
  * Interface for User credentials.
  */
-@JsonDeserialize(as = BasicCredentials.class)
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = BasicCredentials.class),
+        @JsonSubTypes.Type(value = CertificateCredentials.class)
+})
 public interface Credentials {
 
 }
