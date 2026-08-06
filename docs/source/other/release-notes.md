@@ -22,16 +22,19 @@
 		- Fixed bug that Operation Provider failed in an operation with arguments when no template was configured.
 		- Extend Operation Provider to support asynchronous operations.
 - Endpoint
-	- HTTP
-		- URL prefix /api/v3.x is now optional
-        - Default URL prefix is now /api/v3.1
-		- Add new config property `httpVersion`
-		- Treat headers case-insenstive (see RFC 2616)
-		- OperationProvider now supports use of input arguments via variables in headers
-		- Add support for runtime update of OperationProvider
-        - Consolidated temporarily introduced `CoreConfig.callbackAddress` into `HttpEndpointConfig.hostname`. If `MessageBusCloudEvents` is used in combination with multiple `HttpEndpoints`, one of them will be chosen to fill a `CloudEvent`'s `source` URI. The implementation will prefer non-local hostnames (i.e. **not** `localhost`/`127.0.0.1`).
-        - Added configurability for registry synchronization's `subprotocol*` values (`Descriptor.Endpoint.ProtocolInformation.subprotocol*`). in `subprotocolBody`, `${id}` is substituted with the identifiable's identifier and `${id|hash}` with the sha256-hash value of it. Configurable in `HttpEndpointConfig`
-        - Added DPP endpoints ReadDPPById, ReadDPPByProductId, ReadDPPIdsByIds, DPP serialization (compressed mode)
+    - DPP
+      - Added DPP endpoint
+      - API calls: ReadDPPById, ReadDPPByProductId, ReadDPPIdsByIds
+      - DPP serialization (compressed mode)
+    - HTTP
+        - URL prefix /api/v3.x is now optional
+          - Default URL prefix is now /api/v3.1
+        - Add new config property `httpVersion`
+        - Treat headers case-insenstive (see RFC 2616)
+        - OperationProvider now supports use of input arguments via variables in headers
+        - Add support for runtime update of OperationProvider
+          - Consolidated temporarily introduced `CoreConfig.callbackAddress` into `HttpEndpointConfig.hostname`. If `MessageBusCloudEvents` is used in combination with multiple `HttpEndpoints`, one of them will be chosen to fill a `CloudEvent`'s `source` URI. The implementation will prefer non-local hostnames (i.e. **not** `localhost`/`127.0.0.1`).
+          - Added configurability for registry synchronization's `subprotocol*` values (`Descriptor.Endpoint.ProtocolInformation.subprotocol*`). in `subprotocolBody`, `${id}` is substituted with the identifiable's identifier and `${id|hash}` with the sha256-hash value of it. Configurable in `HttpEndpointConfig`
 
 **Internal changes & bugfixes**
 - General

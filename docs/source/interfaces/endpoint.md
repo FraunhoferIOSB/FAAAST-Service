@@ -236,7 +236,7 @@ The payload will be simplified and look similar to this
 }
 ```
 
-#### DPP API
+## DPP
 
 There are three DPP endpoints available, enabling FA³ST Service to act as a Custodian (economic operator or service provider) in a DPP hosting scenario.
 
@@ -250,6 +250,10 @@ Specifically, the following endpoints are exposed:
 
 
 Currently, only the `compressed` DPP serialization format is supported and is the default value for requests to the API.
+
+### Configuration
+
+The DPP endpoint is configured like the HTTP endpoint, with the only difference being the required `@class`: `de.fraunhofer.iosb.ilt.faaast.service.endpoint.dpp.DppEndpoint`. If HTTP and DPP endpoint are needed, they need to be configured to run on different ports.
 
 ## OPC UA
 
