@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.model.DPP.DPP_1;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -66,9 +67,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescriptio
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.PostConceptDescriptionRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.PutConceptDescriptionByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.description.GetSelfDescriptionRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.dpp.ReadDPPByIdRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.dpp.ReadDPPByProductIdRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.dpp.ReadDPPIdsByProductIdsRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.dpp.ReadDppByIdRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.dpp.ReadDppByProductIdRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.dpp.ReadDppIdsByProductIdsRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.proprietary.DeleteOperationProviderByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.proprietary.ImportRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.proprietary.PostOperationProviderByPathRequest;
@@ -99,6 +100,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepositor
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.GetAllSubmodelsRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.PostSubmodelRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetSubmodelElementByPathResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.dpp.DppSerializationMode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
@@ -591,37 +593,39 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testReadDPPById() throws InvalidRequestException, MethodNotAllowedException {
-        String dppId = AAS.getId();
-        Request expected = ReadDPPByIdRequest.builder()
-                .dppId(dppId)
+    public void testReadDPPById() throws InvalidRequestException {
+        String dppId = DPP_1.getAAS().getId();
+        Request expected = ReadDppByIdRequest.builder()
+                .id(dppId)
+                .dppSerializationMode(DppSerializationMode.DEFAULT)
                 .build();
         Request actual = mappingManager.map(HttpRequest.builder()
                 .method(HttpMethod.GET)
-                .path("v1/dpps/" + EncodingHelper.base64UrlEncode(dppId))
+                .path("v1/dpps/" + EncodingHelper.urlEncode(dppId))
                 .build());
         Assert.assertEquals(expected, actual);
     }
 
 
     @Test
-    public void testReadDPPByProductId() throws InvalidRequestException, MethodNotAllowedException {
+    public void testReadDPPByProductId() throws InvalidRequestException {
         String productId = "http://example.org/productId";
-        Request expected = ReadDPPByProductIdRequest.builder()
-                .productId(productId)
+        Request expected = ReadDppByProductIdRequest.builder()
+                .id(productId)
+                .dppSerializationMode(DppSerializationMode.DEFAULT)
                 .build();
         Request actual = mappingManager.map(HttpRequest.builder()
                 .method(HttpMethod.GET)
-                .path("v1/dppsByProductId/" + EncodingHelper.base64UrlEncode(productId))
+                .path("v1/dppsByProductId/" + EncodingHelper.urlEncode(productId))
                 .build());
         Assert.assertEquals(expected, actual);
     }
 
 
     @Test
-    public void testReadDPPIdsByProductIds() throws InvalidRequestException, MethodNotAllowedException, SerializationException {
+    public void testReadDPPIdsByProductIds() throws InvalidRequestException, SerializationException {
         List<String> productIds = List.of("http://example.org/productId1", "http://example.org/productId2");
-        Request expected = ReadDPPIdsByProductIdsRequest.builder()
+        Request expected = ReadDppIdsByProductIdsRequest.builder()
                 .productIds(productIds)
                 .build();
         Request actual = mappingManager.map(HttpRequest.builder()

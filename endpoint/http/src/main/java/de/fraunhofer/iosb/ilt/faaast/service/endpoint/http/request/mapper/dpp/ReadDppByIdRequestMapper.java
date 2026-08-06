@@ -16,11 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.dpp;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractRequestMapperWithOutputModifier;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.dpp.ReadDPPByIdRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.dpp.ReadDPPByIdResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.dpp.ReadDppByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
@@ -31,20 +27,21 @@ import java.util.Map;
 /**
  * class to map HTTP-GET-Request path: v1/dpps/{dppIdentifier}.
  */
-public class ReadDPPByIdRequestMapper extends AbstractRequestMapperWithOutputModifier<ReadDPPByIdRequest, ReadDPPByIdResponse> {
+public class ReadDppByIdRequestMapper extends AbstractDppRequestMapperWithSerializationMode {
 
     private static final String DPP_ID = RegExHelper.uniqueGroupName();
     private static final String PATTERN = String.format("v1/dpps/%s", pathElement(DPP_ID));
 
-    public ReadDPPByIdRequestMapper(ServiceContext serviceContext) {
-        super(serviceContext, HttpMethod.GET, PATTERN, Content.REFERENCE);
+    public ReadDppByIdRequestMapper(ServiceContext serviceContext) {
+        super(serviceContext, HttpMethod.GET, PATTERN);
     }
 
 
     @Override
-    public ReadDPPByIdRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) throws InvalidRequestException {
-        return ReadDPPByIdRequest.builder()
-                .dppId(getParameterBase64UrlEncoded(urlParameters, DPP_ID))
+    public ReadDppByIdRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters) throws InvalidRequestException {
+        return ReadDppByIdRequest.builder()
+                .id(getParameterUrlEncoded(urlParameters, DPP_ID))
+                .dppSerializationMode(parseSerializationMode(httpRequest.getQueryParameter("representation")))
                 .build();
     }
 }

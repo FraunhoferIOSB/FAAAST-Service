@@ -15,7 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler.dpp;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.dpp.ReadDPPByIdRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.dpp.ReadDppByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.dpp.ReadDPPByIdResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.dpp.DigitalProductPassport;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
@@ -23,14 +23,14 @@ import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 
 
 /**
- * Class to handle a {@link ReadDPPByIdRequest} in the service and to send the corresponding
+ * Class to handle a {@link ReadDppByIdRequest} in the service and to send the corresponding
  * {@link ReadDPPByIdResponse}.
  * Is responsible for communication with the persistence and sends the corresponding events to the message bus.
  */
-public class ReadDPPByIdRequestHandler extends AbstractDPPRequestHandler<ReadDPPByIdRequest, ReadDPPByIdResponse> {
+public class ReadDppByIdRequestHandler extends AbstractDppRequestHandler<ReadDppByIdRequest, ReadDPPByIdResponse> {
     @Override
-    public ReadDPPByIdResponse process(ReadDPPByIdRequest request, RequestExecutionContext context) throws Exception {
-        AssetAdministrationShell aas = context.getPersistence().getAssetAdministrationShell(request.getDppId(), QueryModifier.MAXIMAL);
+    public ReadDPPByIdResponse process(ReadDppByIdRequest request, RequestExecutionContext context) throws Exception {
+        AssetAdministrationShell aas = context.getPersistence().getAssetAdministrationShell(request.getId(), QueryModifier.MAXIMAL);
 
         DigitalProductPassport dpp = buildFrom(aas, context.getPersistence());
 

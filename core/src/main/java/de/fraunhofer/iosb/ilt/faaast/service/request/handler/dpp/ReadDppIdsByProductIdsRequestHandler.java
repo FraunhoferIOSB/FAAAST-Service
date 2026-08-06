@@ -17,7 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.request.handler.dpp;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.dpp.ReadDPPIdsByProductIdsRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.dpp.ReadDppIdsByProductIdsRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.dpp.ReadDPPIdsByProductIdsResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.asset.GlobalAssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.AssetAdministrationShellSearchCriteria;
@@ -29,13 +29,13 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Identifiable;
 
 
 /**
- * Class to handle a {@link ReadDPPIdsByProductIdsRequest} in the service and to send the corresponding
+ * Class to handle a {@link ReadDppIdsByProductIdsRequest} in the service and to send the corresponding
  * {@link ReadDPPIdsByProductIdsResponse}.
  * Is responsible for communication with the persistence and sends the corresponding events to the message bus.
  */
-public class ReadDPPIdsByProductIdsRequestHandler extends AbstractRequestHandler<ReadDPPIdsByProductIdsRequest, ReadDPPIdsByProductIdsResponse> {
+public class ReadDppIdsByProductIdsRequestHandler extends AbstractRequestHandler<ReadDppIdsByProductIdsRequest, ReadDPPIdsByProductIdsResponse> {
     @Override
-    public ReadDPPIdsByProductIdsResponse process(ReadDPPIdsByProductIdsRequest request, RequestExecutionContext context) throws Exception {
+    public ReadDPPIdsByProductIdsResponse process(ReadDppIdsByProductIdsRequest request, RequestExecutionContext context) throws Exception {
         AssetAdministrationShellSearchCriteria.Builder criteriaBuilder = AssetAdministrationShellSearchCriteria.builder();
 
         request.getProductIds().stream().map(id -> GlobalAssetIdentification.builder().value(id).build()).forEach(criteriaBuilder::assetId);

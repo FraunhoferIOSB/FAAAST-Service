@@ -36,6 +36,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.fileupload.MultipartStream;
@@ -251,6 +252,25 @@ public abstract class AbstractRequestMapper {
      * @throws InvalidRequestException if the query parameter is unkown or is not valid base64
      */
     protected String getParameterBase64UrlEncoded(Map<String, String> urlParameters, String parameterName) throws InvalidRequestException {
+        return getParameterEncoded(urlParameters, parameterName, EncodingHelper::base64UrlDecode, "base64Url");
+    }
+
+
+    /**
+     * Reads and decodes a url-encoded (percent-encoded) query parameter.
+     *
+     * @param urlParameters the map of known query parameters and their original values
+     * @param parameterName the name of the parameter to read
+     * @return the decoded value of the query parameter.
+     * @throws InvalidRequestException if the query parameter is unkown or is not valid url-encoded
+     */
+    protected String getParameterUrlEncoded(Map<String, String> urlParameters, String parameterName) throws InvalidRequestException {
+        return getParameterEncoded(urlParameters, parameterName, EncodingHelper::urlDecode, "url-/percent");
+    }
+
+
+    private String getParameterEncoded(Map<String, String> urlParameters, String parameterName, Function<String, String> decoder, String encodingName)
+            throws InvalidRequestException {
         Ensure.requireNonNull(urlParameters, "urlParameter must be non-null");
         Ensure.requireNonNull(parameterName, "parameterName must be non-null");
         String value = urlParameters.get(parameterName);
@@ -258,16 +278,19 @@ public abstract class AbstractRequestMapper {
             return null;
         }
         try {
-            return EncodingHelper.base64UrlDecode(value);
+
+            return decoder.apply(value);
         }
         catch (IllegalArgumentException e) {
             if (RegExHelper.isGroupName(parameterName)) {
                 throw new InvalidRequestException(String.format(
-                        "invalid URL path segment, must be base64Url-encoded (value: %s)",
+                        "invalid URL path segment, must be %s-encoded (value: %s)",
+                        encodingName,
                         urlParameters.get(parameterName)));
             }
             throw new InvalidRequestException(String.format(
-                    "invalid query parameter, must be base64Url-encoded (name: %s, value: %s)",
+                    "invalid query parameter, must be %s-encoded (name: %s, value: %s)",
+                    encodingName,
                     parameterName,
                     urlParameters.get(parameterName)));
         }

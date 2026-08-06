@@ -16,6 +16,8 @@ package de.fraunhofer.iosb.ilt.faaast.service.dataformat.dpp;
 
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.dpp.DigitalProductPassport;
+import de.fraunhofer.iosb.ilt.faaast.service.model.dpp.DppSerializationMode;
+
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 

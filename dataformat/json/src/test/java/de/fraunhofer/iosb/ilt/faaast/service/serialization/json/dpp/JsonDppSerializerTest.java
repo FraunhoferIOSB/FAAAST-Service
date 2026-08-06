@@ -15,9 +15,9 @@ package de.fraunhofer.iosb.ilt.faaast.service.serialization.json.dpp;
 
 import static de.fraunhofer.iosb.ilt.faaast.service.model.DPP.DPP_1;
 
-import de.fraunhofer.iosb.ilt.faaast.service.dataformat.dpp.DppSerializationMode;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.dpp.JsonDppSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.dpp.DigitalProductPassport;
+import de.fraunhofer.iosb.ilt.faaast.service.model.dpp.DppSerializationMode;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.fixture.DppExamples;
 import java.io.File;
 import java.nio.file.Files;

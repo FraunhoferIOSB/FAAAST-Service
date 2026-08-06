@@ -49,9 +49,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescriptio
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.PostConceptDescriptionRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.PutConceptDescriptionByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.description.GetSelfDescriptionRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.dpp.ReadDPPByIdRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.dpp.ReadDPPByProductIdRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.dpp.ReadDPPIdsByProductIdsRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.dpp.ReadDppByIdRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.dpp.ReadDppByProductIdRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.dpp.ReadDppIdsByProductIdsRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.proprietary.DeleteOperationProviderByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.proprietary.ImportRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.proprietary.PostOperationProviderByPathRequest;
@@ -461,11 +461,11 @@ public enum ServiceSpecificationProfile {
             List.of(
                     PostOperationProviderByPathRequest.class,
                     DeleteOperationProviderByPathRequest.class)),
-    DPP("https://todo.invalid/find-out/correct-url",
+    DPP("https://jtc24/dpp/API",
             List.of(),
-            List.of(ReadDPPByIdRequest.class,
-                    ReadDPPByProductIdRequest.class,
-                    ReadDPPIdsByProductIdsRequest.class));
+            List.of(ReadDppByIdRequest.class,
+                    ReadDppByProductIdRequest.class,
+                    ReadDppIdsByProductIdsRequest.class));
 
     public static List<ServiceSpecificationProfile> ALL = Arrays.asList(ServiceSpecificationProfile.values());
 

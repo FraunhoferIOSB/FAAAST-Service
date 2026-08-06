@@ -14,13 +14,10 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.response.mapper;
 
-import static de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content.VALUE;
-
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
-import de.fraunhofer.iosb.ilt.faaast.service.dataformat.dpp.DppSerializationMode;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.dpp.JsonDppSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.dpp.AbstractDPPRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.dpp.AbstractDppRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.dpp.AbstractDPPResponse;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -28,18 +25,18 @@ import jakarta.servlet.http.HttpServletResponse;
 /**
  * Response mapper for {@link AbstractDPPResponse}.
  */
-public class ReadDPPResponseMapper extends ResponseWithPayloadResponseMapper<AbstractDPPResponse, AbstractDPPRequest<AbstractDPPResponse>> {
-    public ReadDPPResponseMapper(ServiceContext serviceContext) {
+public class ReadDppResponseMapper extends ResponseWithPayloadResponseMapper<AbstractDPPResponse, AbstractDppRequest<AbstractDPPResponse>> {
+    public ReadDppResponseMapper(ServiceContext serviceContext) {
         super(serviceContext);
     }
 
 
     @Override
-    public void map(AbstractDPPRequest<AbstractDPPResponse> dppRequest, AbstractDPPResponse dppResponse, HttpServletResponse httpResponse) throws Exception {
+    public void map(AbstractDppRequest<AbstractDPPResponse> dppRequest, AbstractDPPResponse dppResponse, HttpServletResponse httpResponse) throws Exception {
         HttpHelper.sendJson(httpResponse,
                 dppResponse.getStatusCode(),
                 new JsonDppSerializer().write(
                         dppResponse.getPayload(),
-                        VALUE == dppRequest.getOutputModifier().getContent() ? DppSerializationMode.EXPANDED : DppSerializationMode.COMPRESSED));
+                        dppRequest.getDppSerializationMode()));
     }
 }

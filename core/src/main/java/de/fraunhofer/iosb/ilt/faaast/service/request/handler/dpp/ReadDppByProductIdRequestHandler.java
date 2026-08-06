@@ -17,7 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.request.handler.dpp;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.dpp.ReadDPPByProductIdRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.dpp.ReadDppByProductIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.dpp.ReadDPPByProductIdResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.asset.AssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.asset.GlobalAssetIdentification;
@@ -29,14 +29,14 @@ import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 
 
 /**
- * Class to handle a {@link ReadDPPByProductIdRequest} in the service and to send the corresponding
+ * Class to handle a {@link ReadDppByProductIdRequest} in the service and to send the corresponding
  * {@link ReadDPPByProductIdResponse}.
  * Is responsible for communication with the persistence and sends the corresponding events to the message bus.
  */
-public class ReadDPPByProductIdRequestHandler extends AbstractDPPRequestHandler<ReadDPPByProductIdRequest, ReadDPPByProductIdResponse> {
+public class ReadDppByProductIdRequestHandler extends AbstractDppRequestHandler<ReadDppByProductIdRequest, ReadDPPByProductIdResponse> {
     @Override
-    public ReadDPPByProductIdResponse process(ReadDPPByProductIdRequest request, RequestExecutionContext context) throws Exception {
-        AssetIdentification globalAssetId = GlobalAssetIdentification.builder().value(request.getProductId()).build();
+    public ReadDPPByProductIdResponse process(ReadDppByProductIdRequest request, RequestExecutionContext context) throws Exception {
+        AssetIdentification globalAssetId = GlobalAssetIdentification.builder().value(request.getId()).build();
         List<AssetAdministrationShell> aas = context.getPersistence()
                 .findAssetAdministrationShells(AssetAdministrationShellSearchCriteria.builder().assetId(globalAssetId).build(), QueryModifier.MAXIMAL,
                         PagingInfo.ALL)

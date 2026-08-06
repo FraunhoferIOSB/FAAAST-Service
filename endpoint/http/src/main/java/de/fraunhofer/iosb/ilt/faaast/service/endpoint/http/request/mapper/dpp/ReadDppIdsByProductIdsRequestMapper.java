@@ -19,7 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractRequestMapperWithPaging;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.dpp.ReadDPPIdsByProductIdsRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.dpp.ReadDppIdsByProductIdsRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.dpp.ReadDPPIdsByProductIdsResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
@@ -30,19 +30,19 @@ import java.util.Map;
 /**
  * class to map HTTP-POST-Request path: v1/dppsByProductIds.
  */
-public class ReadDPPIdsByProductIdsRequestMapper extends AbstractRequestMapperWithPaging<ReadDPPIdsByProductIdsRequest, ReadDPPIdsByProductIdsResponse> {
+public class ReadDppIdsByProductIdsRequestMapper extends AbstractRequestMapperWithPaging<ReadDppIdsByProductIdsRequest, ReadDPPIdsByProductIdsResponse> {
 
     private static final String PATTERN = "v1/dppsByProductIds";
 
-    public ReadDPPIdsByProductIdsRequestMapper(ServiceContext serviceContext) {
+    public ReadDppIdsByProductIdsRequestMapper(ServiceContext serviceContext) {
         super(serviceContext, HttpMethod.POST, PATTERN);
     }
 
 
     @Override
-    public ReadDPPIdsByProductIdsRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, PagingInfo pagingInfo) throws InvalidRequestException {
+    public ReadDppIdsByProductIdsRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, PagingInfo pagingInfo) throws InvalidRequestException {
         try {
-            return ReadDPPIdsByProductIdsRequest.builder()
+            return ReadDppIdsByProductIdsRequest.builder()
                     .productIds(deserializer.readList(httpRequest.getBodyAsString(), String.class))
                     .build();
         }

@@ -24,7 +24,7 @@ import java.util.Objects;
 /**
  * Request class for ReadDPPIdsByProductIdsRequest.
  */
-public class ReadDPPIdsByProductIdsRequest extends AbstractRequestWithPaging<ReadDPPIdsByProductIdsResponse> {
+public class ReadDppIdsByProductIdsRequest extends AbstractRequestWithPaging<ReadDPPIdsByProductIdsResponse> {
 
     private List<String> productIds;
 
@@ -36,7 +36,7 @@ public class ReadDPPIdsByProductIdsRequest extends AbstractRequestWithPaging<Rea
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        ReadDPPIdsByProductIdsRequest that = (ReadDPPIdsByProductIdsRequest) o;
+        ReadDppIdsByProductIdsRequest that = (ReadDppIdsByProductIdsRequest) o;
         return super.equals(that) &&
                 this.productIds.equals(that.productIds);
     }
@@ -62,7 +62,7 @@ public class ReadDPPIdsByProductIdsRequest extends AbstractRequestWithPaging<Rea
         return new Builder();
     }
 
-    public static class Builder extends AbstractBuilder<ReadDPPIdsByProductIdsRequest, Builder> {
+    public static class Builder extends AbstractBuilder<ReadDppIdsByProductIdsRequest, Builder> {
 
         @Override
         protected Builder getSelf() {
@@ -77,8 +77,8 @@ public class ReadDPPIdsByProductIdsRequest extends AbstractRequestWithPaging<Rea
 
 
         @Override
-        protected ReadDPPIdsByProductIdsRequest newBuildingInstance() {
-            return new ReadDPPIdsByProductIdsRequest();
+        protected ReadDppIdsByProductIdsRequest newBuildingInstance() {
+            return new ReadDppIdsByProductIdsRequest();
         }
     }
 }

@@ -14,17 +14,29 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.dpp;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.dpp.ReadDPPByProductIdResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithId;
+import de.fraunhofer.iosb.ilt.faaast.service.model.dpp.DppSerializationMode;
 
 import java.util.Objects;
 
 
 /**
- * Request class for ReadDPPByProductIdRequest.
+ * Abstract request class for DPP requests with content.
  */
-public class ReadDPPByProductIdRequest extends AbstractDPPRequest<ReadDPPByProductIdResponse> {
+public abstract class AbstractDppRequest<T extends Response> extends AbstractRequestWithId<T> {
 
-    private String productId;
+    private DppSerializationMode dppSerializationMode;
+
+    public DppSerializationMode getDppSerializationMode() {
+        return dppSerializationMode;
+    }
+
+
+    public void setDppSerializationMode(DppSerializationMode dppSerializationMode) {
+        this.dppSerializationMode = dppSerializationMode;
+    }
+
 
     @Override
     public boolean equals(Object o) {
@@ -34,19 +46,9 @@ public class ReadDPPByProductIdRequest extends AbstractDPPRequest<ReadDPPByProdu
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        ReadDPPByProductIdRequest that = (ReadDPPByProductIdRequest) o;
+        AbstractDppRequest that = (AbstractDppRequest) o;
         return super.equals(that) &&
-                this.productId.equals(that.productId);
-    }
-
-
-    public String getProductId() {
-        return productId;
-    }
-
-
-    public void setProductId(String productId) {
-        this.productId = productId;
+                this.dppSerializationMode == that.dppSerializationMode;
     }
 
 
@@ -55,28 +57,11 @@ public class ReadDPPByProductIdRequest extends AbstractDPPRequest<ReadDPPByProdu
         return Objects.hash(super.hashCode());
     }
 
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    public static class Builder extends AbstractBuilder<ReadDPPByProductIdRequest, Builder> {
-
-        @Override
-        protected Builder getSelf() {
-            return this;
-        }
-
-
-        public Builder productId(String value) {
-            getBuildingInstance().setProductId(value);
+    public abstract static class AbstractBuilder<T extends AbstractDppRequest, B extends ReadDppByIdRequest.AbstractBuilder<T, B>>
+            extends AbstractRequestWithId.AbstractBuilder<T, B> {
+        public B dppSerializationMode(DppSerializationMode value) {
+            getBuildingInstance().setDppSerializationMode(value);
             return getSelf();
-        }
-
-
-        @Override
-        protected ReadDPPByProductIdRequest newBuildingInstance() {
-            return new ReadDPPByProductIdRequest();
         }
     }
 }

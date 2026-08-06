@@ -17,7 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.request.handler.dpp;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.dpp.AbstractDPPRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.dpp.AbstractDppRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.dpp.AbstractDPPResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.dpp.DigitalProductPassport;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
@@ -40,7 +40,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
  * @param <T> type of the DPP request
  * @param <U> type of the corresponding DPP response
  */
-public abstract class AbstractDPPRequestHandler<T extends AbstractDPPRequest<U>, U extends AbstractDPPResponse> extends AbstractRequestHandler<T, U> {
+public abstract class AbstractDppRequestHandler<T extends AbstractDppRequest<U>, U extends AbstractDPPResponse> extends AbstractRequestHandler<T, U> {
 
     /**
      * Get and build a DPP from an AAS as source, fetching its metadata and content submodels.

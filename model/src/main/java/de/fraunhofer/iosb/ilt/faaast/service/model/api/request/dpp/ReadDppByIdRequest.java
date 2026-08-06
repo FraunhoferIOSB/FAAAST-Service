@@ -16,51 +16,17 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.dpp;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.dpp.ReadDPPByIdResponse;
 
-import java.util.Objects;
-
 
 /**
  * Request class for ReadDPPByIdRequest.
  */
-public class ReadDPPByIdRequest extends AbstractDPPRequest<ReadDPPByIdResponse> {
-
-    private String dppId;
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        ReadDPPByIdRequest that = (ReadDPPByIdRequest) o;
-        return super.equals(that) &&
-                this.dppId.equals(that.dppId);
-    }
-
-
-    public String getDppId() {
-        return dppId;
-    }
-
-
-    public void setDppId(String dppId) {
-        this.dppId = dppId;
-    }
-
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode());
-    }
-
+public class ReadDppByIdRequest extends AbstractDppRequest<ReadDPPByIdResponse> {
 
     public static Builder builder() {
         return new Builder();
     }
 
-    public static class Builder extends AbstractBuilder<ReadDPPByIdRequest, Builder> {
+    public static class Builder extends AbstractBuilder<ReadDppByIdRequest, Builder> {
 
         @Override
         protected Builder getSelf() {
@@ -68,15 +34,9 @@ public class ReadDPPByIdRequest extends AbstractDPPRequest<ReadDPPByIdResponse> 
         }
 
 
-        public Builder dppId(String value) {
-            getBuildingInstance().setDppId(value);
-            return getSelf();
-        }
-
-
         @Override
-        protected ReadDPPByIdRequest newBuildingInstance() {
-            return new ReadDPPByIdRequest();
+        protected ReadDppByIdRequest newBuildingInstance() {
+            return new ReadDppByIdRequest();
         }
     }
 }

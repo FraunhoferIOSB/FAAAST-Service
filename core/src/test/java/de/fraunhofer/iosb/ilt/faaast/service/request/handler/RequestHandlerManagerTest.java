@@ -81,9 +81,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescriptio
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.GetConceptDescriptionByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.PostConceptDescriptionRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.PutConceptDescriptionByIdRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.dpp.ReadDPPByIdRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.dpp.ReadDPPByProductIdRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.dpp.ReadDPPIdsByProductIdsRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.dpp.ReadDppByIdRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.dpp.ReadDppByProductIdRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.dpp.ReadDppIdsByProductIdsRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.proprietary.DeleteOperationProviderByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.proprietary.PostOperationProviderByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.DeleteSubmodelElementByPathRequest;
@@ -1904,8 +1904,8 @@ public class RequestHandlerManagerTest {
     public void testReadDPPByIdRequest() throws Exception {
         mockReturnDPP();
 
-        ReadDPPByIdRequest request = ReadDPPByIdRequest.builder()
-                .dppId(DPP_1.getAAS().getId())
+        ReadDppByIdRequest request = ReadDppByIdRequest.builder()
+                .id(DPP_1.getAAS().getId())
                 .build();
         ReadDPPByIdResponse actual = manager.execute(request, context);
 
@@ -1922,8 +1922,8 @@ public class RequestHandlerManagerTest {
                 .when(persistence)
                 .getAssetAdministrationShell(eq("non-existent-id"), any());
 
-        ReadDPPByIdRequest request = ReadDPPByIdRequest.builder()
-                .dppId("non-existent-id")
+        ReadDppByIdRequest request = ReadDppByIdRequest.builder()
+                .id("non-existent-id")
                 .build();
         ReadDPPByIdResponse actual = manager.execute(request, context);
 
@@ -1935,8 +1935,8 @@ public class RequestHandlerManagerTest {
     public void testReadDPPByIdRequestInternal() throws Exception {
         mockReturnDPP();
 
-        ReadDPPByIdRequest request = ReadDPPByIdRequest.builder()
-                .dppId(DPP_1.getAAS().getId())
+        ReadDppByIdRequest request = ReadDppByIdRequest.builder()
+                .id(DPP_1.getAAS().getId())
                 .internal(true)
                 .build();
         ReadDPPByIdResponse actual = manager.execute(request, context);
@@ -1988,8 +1988,8 @@ public class RequestHandlerManagerTest {
                         any(),
                         any());
 
-        ReadDPPByProductIdRequest request = ReadDPPByProductIdRequest.builder()
-                .productId(globalAssetId)
+        ReadDppByProductIdRequest request = ReadDppByProductIdRequest.builder()
+                .id(globalAssetId)
                 .build();
 
         return manager.execute(request, context);
@@ -2011,8 +2011,8 @@ public class RequestHandlerManagerTest {
                         any(),
                         any());
 
-        ReadDPPByProductIdRequest request = ReadDPPByProductIdRequest.builder()
-                .productId(globalAssetId.getValue())
+        ReadDppByProductIdRequest request = ReadDppByProductIdRequest.builder()
+                .id(globalAssetId.getValue())
                 .build();
         ReadDPPByProductIdResponse actual = manager.execute(request, context);
 
@@ -2040,7 +2040,7 @@ public class RequestHandlerManagerTest {
                         any(),
                         any());
 
-        ReadDPPIdsByProductIdsRequest request = ReadDPPIdsByProductIdsRequest.builder()
+        ReadDppIdsByProductIdsRequest request = ReadDppIdsByProductIdsRequest.builder()
                 .productIds(List.of(globalAssetId1.getValue(), globalAssetId2.getValue()))
                 .build();
         ReadDPPIdsByProductIdsResponse actual = manager.execute(request, context);
@@ -2069,7 +2069,7 @@ public class RequestHandlerManagerTest {
                         any(),
                         any());
 
-        ReadDPPIdsByProductIdsRequest request = ReadDPPIdsByProductIdsRequest.builder()
+        ReadDppIdsByProductIdsRequest request = ReadDppIdsByProductIdsRequest.builder()
                 .productIds(List.of(globalAssetId.getValue()))
                 .build();
         ReadDPPIdsByProductIdsResponse actual = manager.execute(request, context);
