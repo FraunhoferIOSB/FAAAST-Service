@@ -14,7 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler.dpp;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.dpp.ReadDppByProductIdRequest;
@@ -22,16 +21,17 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.dpp.ReadDPPByPro
 import de.fraunhofer.iosb.ilt.faaast.service.model.asset.AssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.asset.GlobalAssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.dpp.DigitalProductPassport;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.AssetAdministrationShellSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
-import java.util.List;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
+
+import java.util.List;
 
 
 /**
- * Class to handle a {@link ReadDppByProductIdRequest} in the service and to send the corresponding
- * {@link ReadDPPByProductIdResponse}.
- * Is responsible for communication with the persistence and sends the corresponding events to the message bus.
+ * Class to handle a {@link ReadDppByProductIdRequest} in the service and to send the corresponding {@link ReadDPPByProductIdResponse}. Is responsible for communication with the
+ * persistence and sends the corresponding events to the message bus.
  */
 public class ReadDppByProductIdRequestHandler extends AbstractDppRequestHandler<ReadDppByProductIdRequest, ReadDPPByProductIdResponse> {
     @Override
@@ -42,8 +42,11 @@ public class ReadDppByProductIdRequestHandler extends AbstractDppRequestHandler<
                         PagingInfo.ALL)
                 .getContent();
 
-        if (aas.size() != 1) {
-            return ReadDPPByProductIdResponse.builder().statusCode(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND).build();
+        if (aas.isEmpty()) {
+            throw new ResourceNotFoundException(String.format("No DPP found for product ID %s", request.getId()));
+        }
+        else if (aas.size() > 1) {
+            throw new IllegalStateException(String.format("Multiple DPPs found for product ID %s", request.getId()));
         }
 
         DigitalProductPassport dpp = buildFrom(aas.get(0), context.getPersistence());

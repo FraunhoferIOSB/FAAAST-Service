@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request;
+package de.fraunhofer.iosb.ilt.faaast.service.endpoint.dpp.request;
 
 import static de.fraunhofer.iosb.ilt.faaast.service.model.DPP.DPP_1;
 import static org.mockito.ArgumentMatchers.any;
@@ -24,10 +24,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonpatch.mergepatch.JsonMergePatch;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.MethodNotAllowedException;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiSerializer;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpConstants;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.dpp.exception.MethodNotAllowedException;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.dpp.model.HttpRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.dpp.serialization.HttpJsonApiSerializer;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.dpp.util.HttpConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
 import de.fraunhofer.iosb.ilt.faaast.service.model.TypedInMemoryFile;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
@@ -587,6 +587,51 @@ public class RequestMappingManagerTest {
         Request actual = mappingManager.map(HttpRequest.builder()
                 .method(HttpMethod.GET)
                 .path("concept-descriptions/" + EncodingHelper.base64UrlEncode(CONCEPT_DESCRIPTION.getId()))
+                .build());
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testReadDPPById() throws InvalidRequestException {
+        String dppId = DPP_1.getAAS().getId();
+        Request expected = ReadDppByIdRequest.builder()
+                .id(dppId)
+                .dppSerializationMode(DppSerializationMode.DEFAULT)
+                .build();
+        Request actual = mappingManager.map(HttpRequest.builder()
+                .method(HttpMethod.GET)
+                .path("v1/dpps/" + EncodingHelper.urlEncode(dppId))
+                .build());
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testReadDPPByProductId() throws InvalidRequestException {
+        String productId = "http://example.org/productId";
+        Request expected = ReadDppByProductIdRequest.builder()
+                .id(productId)
+                .dppSerializationMode(DppSerializationMode.DEFAULT)
+                .build();
+        Request actual = mappingManager.map(HttpRequest.builder()
+                .method(HttpMethod.GET)
+                .path("v1/dppsByProductId/" + EncodingHelper.urlEncode(productId))
+                .build());
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testReadDPPIdsByProductIds() throws InvalidRequestException, SerializationException {
+        List<String> productIds = List.of("http://example.org/productId1", "http://example.org/productId2");
+        Request expected = ReadDppIdsByProductIdsRequest.builder()
+                .productIds(productIds)
+                .build();
+        Request actual = mappingManager.map(HttpRequest.builder()
+                .method(HttpMethod.POST)
+                .path("v1/dppsByProductIds")
+                .body(serializer.write(productIds))
                 .build());
         Assert.assertEquals(expected, actual);
     }

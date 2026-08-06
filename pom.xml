@@ -37,6 +37,7 @@
     <modules>
         <module>core</module>
         <module>model</module>
+        <module>endpoint/dpp</module>
         <module>endpoint/http</module>
         <module>messagebus/cloudevents</module>
         <module>messagebus/internal</module>

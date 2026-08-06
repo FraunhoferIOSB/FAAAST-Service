@@ -12,13 +12,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.dpp;
+package de.fraunhofer.iosb.ilt.faaast.service.endpoint.dpp.request.mapper.dpp;
 
 import static de.fraunhofer.iosb.ilt.faaast.service.model.dpp.DppSerializationMode.DEFAULT;
 import static java.util.Optional.ofNullable;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractRequestMapper;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.dpp.request.mapper.AbstractRequestMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.dpp.DppSerializationMode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
 import javax.annotation.Nonnull;

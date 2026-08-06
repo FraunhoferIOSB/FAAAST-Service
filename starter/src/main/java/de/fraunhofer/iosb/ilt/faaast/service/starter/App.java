@@ -35,6 +35,7 @@ import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
 import de.fraunhofer.iosb.ilt.faaast.service.config.ServiceConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentSerializationManager;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.dpp.DppEndpointConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpointConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.OpcUaEndpointConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
@@ -596,7 +597,10 @@ public class App implements Runnable {
         if (LOGGER.isInfoEnabled()) {
             config.getEndpoints().forEach(x -> {
                 if (HttpEndpointConfig.class.isAssignableFrom(x.getClass())) {
-                    LOGGER.info("HTTP endpoint available on port {}", ((HttpEndpointConfig) x).getPort());
+                    LOGGER.info("HTTP endpoint available on port {}", ((DppEndpointConfig) x).getPort());
+                }
+                else if (DppEndpointConfig.class.isAssignableFrom(x.getClass())) {
+                    LOGGER.info("DPP endpoint available on port {}", ((DppEndpointConfig) x).getPort());
                 }
                 else if (OpcUaEndpointConfig.class.isAssignableFrom(x.getClass())) {
                     LOGGER.info("OPC UA endpoint available on port {}", ((OpcUaEndpointConfig) x).getTcpPort());

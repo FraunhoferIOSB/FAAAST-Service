@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper;
+package de.fraunhofer.iosb.ilt.faaast.service.endpoint.dpp.request.mapper;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -20,8 +20,8 @@ import com.github.fge.jsonpatch.mergepatch.JsonMergePatch;
 import com.google.common.net.MediaType;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiDeserializer;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.dpp.model.HttpRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.dpp.serialization.HttpJsonApiDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.TypedInMemoryFile;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
@@ -252,25 +252,6 @@ public abstract class AbstractRequestMapper {
      * @throws InvalidRequestException if the query parameter is unkown or is not valid base64
      */
     protected String getParameterBase64UrlEncoded(Map<String, String> urlParameters, String parameterName) throws InvalidRequestException {
-        return getParameterEncoded(urlParameters, parameterName, EncodingHelper::base64UrlDecode, "base64Url");
-    }
-
-
-    /**
-     * Reads and decodes a url-encoded (percent-encoded) query parameter.
-     *
-     * @param urlParameters the map of known query parameters and their original values
-     * @param parameterName the name of the parameter to read
-     * @return the decoded value of the query parameter.
-     * @throws InvalidRequestException if the query parameter is unkown or is not valid url-encoded
-     */
-    protected String getParameterUrlEncoded(Map<String, String> urlParameters, String parameterName) throws InvalidRequestException {
-        return getParameterEncoded(urlParameters, parameterName, EncodingHelper::urlDecode, "url-/percent");
-    }
-
-
-    private String getParameterEncoded(Map<String, String> urlParameters, String parameterName, UnaryOperator<String> decoder, String encodingName)
-            throws InvalidRequestException {
         Ensure.requireNonNull(urlParameters, "urlParameter must be non-null");
         Ensure.requireNonNull(parameterName, "parameterName must be non-null");
         String value = urlParameters.get(parameterName);
@@ -279,18 +260,16 @@ public abstract class AbstractRequestMapper {
         }
         try {
 
-            return decoder.apply(value);
+            return EncodingHelper.base64Decode(value);
         }
         catch (IllegalArgumentException e) {
             if (RegExHelper.isGroupName(parameterName)) {
                 throw new InvalidRequestException(String.format(
-                        "invalid URL path segment, must be %s-encoded (value: %s)",
-                        encodingName,
+                        "invalid URL path segment, must be base64Url-encoded (value: %s)",
                         urlParameters.get(parameterName)));
             }
             throw new InvalidRequestException(String.format(
-                    "invalid query parameter, must be %s-encoded (name: %s, value: %s)",
-                    encodingName,
+                    "invalid query parameter, must be base64Url-encoded (name: %s, value: %s)",
                     parameterName,
                     urlParameters.get(parameterName)));
         }

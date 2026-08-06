@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.starter.model;
 
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.Endpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.EndpointConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.dpp.DppEndpointConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpointConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.OpcUaEndpointConfig;
 
@@ -25,6 +26,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.OpcUaEndpointConfig;
  */
 public enum EndpointType {
     HTTP(HttpEndpointConfig.class.getName()),
+    DPP(DppEndpointConfig.class.getName()),
     OPCUA(OpcUaEndpointConfig.class.getName());
 
     private final String implementationClass;

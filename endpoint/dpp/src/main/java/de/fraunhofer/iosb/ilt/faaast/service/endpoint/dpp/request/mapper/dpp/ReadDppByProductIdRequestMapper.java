@@ -12,11 +12,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.dpp;
+package de.fraunhofer.iosb.ilt.faaast.service.endpoint.dpp.request.mapper.dpp;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.dpp.ReadDppByIdRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.dpp.model.HttpRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.dpp.ReadDppByProductIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
@@ -25,22 +25,22 @@ import java.util.Map;
 
 
 /**
- * class to map HTTP-GET-Request path: v1/dpps/{dppIdentifier}.
+ * class to map HTTP-GET-Request path: v1/dppsByProductId/{productId}.
  */
-public class ReadDppByIdRequestMapper extends AbstractDppRequestMapperWithSerializationMode {
+public class ReadDppByProductIdRequestMapper extends AbstractDppRequestMapperWithSerializationMode {
 
-    private static final String DPP_ID = RegExHelper.uniqueGroupName();
-    private static final String PATTERN = String.format("v1/dpps/%s", pathElement(DPP_ID));
+    private static final String PRODUCT_ID = RegExHelper.uniqueGroupName();
+    private static final String PATTERN = String.format("v1/dppsByProductId/%s", pathElement(PRODUCT_ID));
 
-    public ReadDppByIdRequestMapper(ServiceContext serviceContext) {
+    public ReadDppByProductIdRequestMapper(ServiceContext serviceContext) {
         super(serviceContext, HttpMethod.GET, PATTERN);
     }
 
 
     @Override
-    public ReadDppByIdRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters) throws InvalidRequestException {
-        return ReadDppByIdRequest.builder()
-                .id(getParameterUrlEncoded(urlParameters, DPP_ID))
+    public ReadDppByProductIdRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters) throws InvalidRequestException {
+        return ReadDppByProductIdRequest.builder()
+                .id(getParameterBase64UrlEncoded(urlParameters, PRODUCT_ID))
                 .dppSerializationMode(parseSerializationMode(httpRequest.getQueryParameter("representation")))
                 .build();
     }

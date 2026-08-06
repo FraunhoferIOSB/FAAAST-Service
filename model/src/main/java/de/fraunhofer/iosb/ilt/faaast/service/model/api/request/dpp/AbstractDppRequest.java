@@ -57,7 +57,7 @@ public abstract class AbstractDppRequest<T extends Response> extends AbstractReq
         return Objects.hash(super.hashCode());
     }
 
-    public abstract static class AbstractBuilder<T extends AbstractDppRequest, B extends ReadDppByIdRequest.AbstractBuilder<T, B>>
+    public abstract static class AbstractBuilder<T extends AbstractDppRequest, B extends AbstractBuilder<T, B>>
             extends AbstractRequestWithId.AbstractBuilder<T, B> {
         public B dppSerializationMode(DppSerializationMode value) {
             getBuildingInstance().setDppSerializationMode(value);

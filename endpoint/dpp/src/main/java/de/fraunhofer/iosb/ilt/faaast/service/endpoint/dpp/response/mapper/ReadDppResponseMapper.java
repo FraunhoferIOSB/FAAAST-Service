@@ -12,11 +12,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.response.mapper;
+package de.fraunhofer.iosb.ilt.faaast.service.endpoint.dpp.response.mapper;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.dpp.JsonDppSerializer;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.dpp.util.HttpHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.dpp.AbstractDppRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.dpp.AbstractDPPResponse;
 import jakarta.servlet.http.HttpServletResponse;

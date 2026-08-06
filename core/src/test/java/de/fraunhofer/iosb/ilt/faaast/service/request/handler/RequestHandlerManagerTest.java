@@ -2014,10 +2014,8 @@ public class RequestHandlerManagerTest {
         ReadDppByProductIdRequest request = ReadDppByProductIdRequest.builder()
                 .id(globalAssetId.getValue())
                 .build();
-        ReadDPPByProductIdResponse actual = manager.execute(request, context);
 
-        // TODO is this the correct return code?
-        Assert.assertEquals(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND, actual.getStatusCode());
+        Assert.assertThrows(IllegalStateException.class, () -> manager.execute(request, context));
     }
 
 
