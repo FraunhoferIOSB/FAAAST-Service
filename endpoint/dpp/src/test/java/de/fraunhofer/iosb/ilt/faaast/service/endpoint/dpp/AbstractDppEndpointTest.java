@@ -18,7 +18,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
-import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.dpp.serialization.HttpJsonApiDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.dpp.serialization.HttpJsonApiSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.filestorage.FileStorage;
@@ -33,7 +32,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasrepository.Ge
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetSubmodelElementByPathResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetSubmodelResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodelrepository.PostSubmodelResponse;
-import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.HashHelper;
@@ -292,38 +290,8 @@ public abstract class AbstractDppEndpointTest {
     }
 
 
-    protected ContentResponse execute(HttpMethod method, String path, Map<String, String> parameters)
-            throws Exception {
-        return execute(method, path, parameters, null, null, null, null);
-    }
-
-
     protected ContentResponse execute(HttpMethod method, String path) throws Exception {
         return execute(method, path, null, null, null, null, null);
-    }
-
-
-    protected ContentResponse execute(HttpMethod method, String path, Object payload) throws Exception {
-        return execute(
-                method,
-                path,
-                null,
-                null,
-                serializer.write(payload),
-                DataFormat.JSON.getContentType().toString(),
-                null);
-    }
-
-
-    protected ContentResponse execute(HttpMethod method, String path, Content contentModifier) throws Exception {
-        return execute(
-                method,
-                path,
-                null,
-                contentModifier,
-                null,
-                null,
-                null);
     }
 
 
@@ -383,19 +351,5 @@ public abstract class AbstractDppEndpointTest {
             }
         }
         return request.send();
-    }
-
-
-    private void assertContainsErrorText(ContentResponse response, int status, String... textSnippets)
-            throws DeserializationException {
-        Assert.assertEquals(status, response.getStatus());
-        Result actual = new HttpJsonApiDeserializer().read(response.getContentAsString(), Result.class);
-        Assert.assertNotNull(actual.getMessages());
-        Assert.assertEquals(1, actual.getMessages().size());
-        if (Objects.nonNull(textSnippets)) {
-            for (var text: textSnippets) {
-                Assert.assertTrue(actual.getMessages().get(0).getText().contains(text));
-            }
-        }
     }
 }
