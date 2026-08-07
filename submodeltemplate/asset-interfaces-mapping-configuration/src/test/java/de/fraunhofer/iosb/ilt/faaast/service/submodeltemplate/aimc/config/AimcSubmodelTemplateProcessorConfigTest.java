@@ -17,6 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.config;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import de.fraunhofer.iosb.ilt.faaast.service.config.CertificateConfig;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -36,13 +37,22 @@ public class AimcSubmodelTemplateProcessorConfigTest {
     private static final File CONFIG_FILE = new File("src/test/resources/Example-config.json");
     private static final ObjectMapper MAPPER = new JsonMapperFactory()
             .create(new SimpleAbstractTypeResolverFactory().create())
-            .setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+            .setDefaultPropertyInclusion(JsonInclude.Include.NON_EMPTY);
     private static final AimcSubmodelTemplateProcessorConfig CONFIG = new AimcSubmodelTemplateProcessorConfig.Builder()
             .connectionLevelCredentials(Map.of(
                     "http://plugfest.thingweb.io:8083",
                     List.of(
                             new BasicCredentials("user1", "pw1"),
-                            new BasicCredentials("user2", "pw2"))))
+                            new BasicCredentials("user2", "pw2")),
+                    "opc.tcp://example.com:9999",
+                    List.of(new CertificateCredentials(new CertificateConfig.Builder()
+                            .keyStoreType("PKCS12")
+                            .keyStorePath(".\\user_certificate.pfx")
+                            .keyStorePassword("storepw")
+                            .keyPassword("keypw")
+                            .keyAlias("user1")
+                            .build()))))
+            .subscriptionInterval(0)
             .build();
 
     @Test

@@ -61,4 +61,5 @@ public class Constants {
     public static final String SEMANTIC_ID_PROPERTY_UNIT = "http://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/3/1";
     public static final String SEMANTIC_ID_PROPERTY_FORMS = "https://www.w3.org/2019/wot/td#hasForm";
     public static final String SEMANTIC_ID_PROPERTY_HREF = "https://www.w3.org/2019/wot/hypermedia#hasTarget";
+    public static final String SEMANTIC_ID_INTERFACE_OPC_UA = "http://opcfoundation.org/UA/WoT-Binding/";
 }

@@ -73,7 +73,7 @@
         <checkstyle.version>12.3.1</checkstyle.version>
         <classgraph.version>4.8.186</classgraph.version>
         <cloudevents.version>5.0.0</cloudevents.version>
-        <commons.codec.version>1.22.0</commons.codec.version>
+        <commons.codec.version>1.22.1</commons.codec.version>
         <commons.compress.version>1.28.0</commons.compress.version>
         <commons.fileupload.version>1.6.0</commons.fileupload.version>
         <commons.io.version>2.22.0</commons.io.version>
@@ -131,8 +131,8 @@
         <mockito.version>5.23.0</mockito.version>
         <mongodb.version>5.9.1</mongodb.version>
         <moquette.version>0.18.6</moquette.version>
-        <netty.version>4.2.16.Final</netty.version>
-        <org.apache.httpcomponents.client5.version>5.6.2</org.apache.httpcomponents.client5.version>
+        <netty.version>4.2.17.Final</netty.version>
+        <org.apache.httpcomponents.client5.version>5.6.3</org.apache.httpcomponents.client5.version>
         <org.apache.log4j-to-slf4j>2.26.1</org.apache.log4j-to-slf4j>
         <paho.version>1.2.5</paho.version>
         <parsson.version>1.1.9</parsson.version>
