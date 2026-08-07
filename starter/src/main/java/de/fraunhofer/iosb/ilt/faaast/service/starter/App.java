@@ -597,7 +597,7 @@ public class App implements Runnable {
         if (LOGGER.isInfoEnabled()) {
             config.getEndpoints().forEach(x -> {
                 if (HttpEndpointConfig.class.isAssignableFrom(x.getClass())) {
-                    LOGGER.info("HTTP endpoint available on port {}", ((DppEndpointConfig) x).getPort());
+                    LOGGER.info("HTTP endpoint available on port {}", ((HttpEndpointConfig) x).getPort());
                 }
                 else if (DppEndpointConfig.class.isAssignableFrom(x.getClass())) {
                     LOGGER.info("DPP endpoint available on port {}", ((DppEndpointConfig) x).getPort());
