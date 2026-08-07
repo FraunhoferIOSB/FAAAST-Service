@@ -14,7 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request;
 
-import static de.fraunhofer.iosb.ilt.faaast.service.model.DPP.DPP_1;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -67,9 +66,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescriptio
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.PostConceptDescriptionRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.PutConceptDescriptionByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.description.GetSelfDescriptionRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.dpp.ReadDppByIdRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.dpp.ReadDppByProductIdRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.dpp.ReadDppIdsByProductIdsRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.proprietary.DeleteOperationProviderByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.proprietary.ImportRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.proprietary.PostOperationProviderByPathRequest;
@@ -100,7 +96,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepositor
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.GetAllSubmodelsRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.PostSubmodelRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetSubmodelElementByPathResponse;
-import de.fraunhofer.iosb.ilt.faaast.service.model.dpp.DppSerializationMode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;

@@ -15,98 +15,47 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.dpp;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.dpp.request.mapper.QueryParameters;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.dpp.serialization.HttpJsonApiDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.dpp.serialization.HttpJsonApiSerializer;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.dpp.util.HttpConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.filestorage.FileStorage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
-import de.fraunhofer.iosb.ilt.faaast.service.model.EnvironmentContext;
-import de.fraunhofer.iosb.ilt.faaast.service.model.TypedInMemoryFile;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationHandle;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingMetadata;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.PutThumbnailRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasserialization.GenerateSerializationByIdsRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOperationAsyncRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.GetAssetAdministrationShellResponse;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.PutThumbnailResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasrepository.GetAllAssetAdministrationShellsResponse;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasrepository.PostAssetAdministrationShellResponse;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasserialization.GenerateSerializationByIdsResponse;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.conceptdescription.PostConceptDescriptionResponse;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.proprietary.ImportResponse;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.proprietary.ImportResult;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetAllSubmodelElementsReferenceResponse;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetAllSubmodelElementsResponse;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetOperationAsyncResultResponse;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetOperationAsyncStatusResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetSubmodelElementByPathResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetSubmodelResponse;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.InvokeOperationAsyncResponse;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.PostSubmodelElementResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodelrepository.PostSubmodelResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
-import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeExtractor;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.HashHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ResponseHelper;
-import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-import org.apache.hc.core5.http.ContentType;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
-import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
 import org.eclipse.digitaltwin.aas4j.v3.model.Endpoint;
-import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
-import org.eclipse.digitaltwin.aas4j.v3.model.ExecutionState;
 import org.eclipse.digitaltwin.aas4j.v3.model.MessageType;
 import org.eclipse.digitaltwin.aas4j.v3.model.ProtocolInformation;
-import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.Result;
-import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
-import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetAdministrationShell;
-import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultBaseOperationResult;
-import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultConceptDescription;
-import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEnvironment;
-import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperationResult;
-import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty;
-import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultRange;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultResult;
-import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodel;
-import org.eclipse.jetty.client.BytesRequestContent;
 import org.eclipse.jetty.client.ContentResponse;
 import org.eclipse.jetty.client.HttpClient;
-import org.eclipse.jetty.client.MultiPartRequestContent;
 import org.eclipse.jetty.client.Request;
 import org.eclipse.jetty.client.StringRequestContent;
 import org.eclipse.jetty.http.HttpFields;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.http.HttpStatus;
-import org.eclipse.jetty.http.MultiPart;
 import org.eclipse.jetty.server.Server;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -178,6 +127,7 @@ public abstract class AbstractDppEndpointTest {
         ContentResponse response = execute(HttpMethod.GET, "/foo/bar");
         Assert.assertEquals(HttpStatus.BAD_REQUEST_400, response.getStatus());
     }
+
 
     @Test
     public void testConfigHttpResponseHeaderServerVersionNotFound() throws Exception {
@@ -301,7 +251,6 @@ public abstract class AbstractDppEndpointTest {
         ContentResponse response = execute(HttpMethod.POST, "/submodels");
         Assert.assertEquals(HttpStatus.BAD_REQUEST_400, response.getStatus());
     }
-
 
 
     @Test

@@ -24,13 +24,13 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.dpp.DigitalProductPassport;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.AssetAdministrationShellSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
-import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
-
 import java.util.List;
+import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 
 
 /**
- * Class to handle a {@link ReadDppByProductIdRequest} in the service and to send the corresponding {@link ReadDPPByProductIdResponse}. Is responsible for communication with the
+ * Class to handle a {@link ReadDppByProductIdRequest} in the service and to send the corresponding
+ * {@link ReadDPPByProductIdResponse}. Is responsible for communication with the
  * persistence and sends the corresponding events to the message bus.
  */
 public class ReadDppByProductIdRequestHandler extends AbstractDppRequestHandler<ReadDppByProductIdRequest, ReadDPPByProductIdResponse> {
