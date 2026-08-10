@@ -1,5 +1,20 @@
+/*
+ * Copyright (c) 2021 Fraunhofer IOSB, eine rechtlich nicht selbstaendige
+ * Einrichtung der Fraunhofer-Gesellschaft zur Foerderung der angewandten
+ * Forschung e.V.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package de.fraunhofer.iosb.ilt.faaast.service.model.query.comparison;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.Operand;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.BooleanLiteral;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.Literal;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.NumberLiteral;
@@ -9,14 +24,25 @@ import java.util.function.BiFunction;
 
 public class EqualsOperation extends AbstractBinaryComparison {
 
-    @Override
-    protected BiFunction<NumberLiteral, NumberLiteral, BooleanLiteral> numberOperation() {
-        return (x, y) -> new BooleanLiteral(x.getValue().doubleValue() == y.getValue().doubleValue());
+    public EqualsOperation(Operand left, Operand right) {
+        super(left, right);
     }
 
 
     @Override
-    protected <T extends Literal<?>> BiFunction<T, T, BooleanLiteral> defaultOperation() {
-        return (x, y) -> new BooleanLiteral(x.getValue().equals(y.getValue()));
+    protected BiFunction<NumberLiteral, NumberLiteral, BooleanLiteral> numberOperation() {
+        return (x, y) -> new BooleanLiteral(x.value().doubleValue() == y.value().doubleValue());
+    }
+
+
+    @Override
+    protected <T extends Literal> BiFunction<T, T, BooleanLiteral> defaultOperation() {
+        return (x, y) -> new BooleanLiteral(x.value().equals(y.value()));
+    }
+
+
+    @Override
+    protected AbstractBinaryComparison withOperands(Operand left, Operand right) {
+        return new EqualsOperation(left, right);
     }
 }

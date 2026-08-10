@@ -1,8 +1,22 @@
+/*
+ * Copyright (c) 2021 Fraunhofer IOSB, eine rechtlich nicht selbstaendige
+ * Einrichtung der Fraunhofer-Gesellschaft zur Foerderung der angewandten
+ * Forschung e.V.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package de.fraunhofer.iosb.ilt.faaast.service.model.query.comparison;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.EvaluationContext;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.comparison.operator.ComparisonOperator;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.LogicalExpression;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.Operand;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.BooleanLiteral;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.DateTimeLiteral;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.HexLiteral;
@@ -17,62 +31,69 @@ import java.util.function.BiFunction;
 
 public abstract class AbstractBinaryComparison implements LogicalExpression {
 
-    private ComparisonOperator comparisonOperator;
-    private Literal<?> left;
-    private Literal<?> right;
+    private final Operand left;
+    private final Operand right;
+
+    protected AbstractBinaryComparison(Operand left, Operand right) {
+        this.left = left;
+        this.right = right;
+    }
 
 
-    @Override
-    public LogicalExpression evaluatePartially(EvaluationContext evaluationContext) {
-        LogicalExpression leftEvaluated = left.evaluatePartially(evaluationContext);
-        LogicalExpression rightEvaluated = right.evaluatePartially(evaluationContext);
+    public Operand getLeft() {
+        return left;
+    }
 
-        if (leftEvaluated.isValue()) {
-            left = leftEvaluated.asValue();
-        }
 
-        List<LogicalExpression> operands = getOperands().stream()
-                .map(e -> e.evaluatePartially(evaluationContext))
-                .toList();
+    public Operand getRight() {
+        return right;
+    }
 
-        if (!operands.stream().allMatch(LogicalExpression::isValue)) {
-            return this;
-        }
 
-        validate(operands);
-
-        List<Literal> operandStrings = operands.stream()
-                .map(LogicalExpression::asValue)
-                .map(Literal::asValue)
-                .toList();
-
-        Literal<?> left = operandStrings.get(0);
-        Literal<?> right = operandStrings.get(1);
-
-        if (left.isString()) {
-            return stringOperation().apply(left.asString(), right.asString());
-        }
-        else if (left.isNumber()) {
-            return numberOperation().apply(left.asNumber(), right.asNumber());
-        }
-        else if (left.isHex()) {
-            return hexOperation().apply(left.asHex(), right.asHex());
-        }
-        else if (left.isBoolean()) {
-            return booleanOperation().apply(left.asBoolean(), right.asBoolean());
-        }
-        else if (left.isDateTime()) {
-            return dateTimeOperation().apply(left.asDateTime(), right.asDateTime());
-        }
-        else {
-            return timeOperation().apply(left.asTime(), right.asTime());
-        }
+    public List<Operand> getOperands() {
+        return List.of(left, right);
     }
 
 
     @Override
-    protected void validate(List<LogicalExpression> operands) throws IllegalArgumentException {
-        if (!operands.stream().map(LogicalExpression::asValue).allMatch(Literal::isValue)
+    public LogicalExpression evaluatePartially(EvaluationContext evaluationContext) {
+        Operand leftEvaluated = left.evaluatePartially(evaluationContext);
+        Operand rightEvaluated = right.evaluatePartially(evaluationContext);
+
+        if (leftEvaluated.isLiteral() && rightEvaluated.isLiteral()) {
+            validate(List.of(leftEvaluated, rightEvaluated));
+            Literal leftLiteral = leftEvaluated.asLiteral();
+            Literal rightLiteral = rightEvaluated.asLiteral();
+
+            if (leftLiteral.isString()) {
+                return stringOperation().apply(leftLiteral.asString(), rightLiteral.asString());
+            }
+            else if (leftLiteral.isNumber()) {
+                return numberOperation().apply(leftLiteral.asNumber(), rightLiteral.asNumber());
+            }
+            else if (leftLiteral.isHex()) {
+                return hexOperation().apply(leftLiteral.asHex(), rightLiteral.asHex());
+            }
+            else if (leftLiteral.isBoolean()) {
+                return booleanOperation().apply(leftLiteral.asBoolean(), rightLiteral.asBoolean());
+            }
+            else if (leftLiteral.isDateTime()) {
+                return dateTimeOperation().apply(leftLiteral.asDateTime(), rightLiteral.asDateTime());
+            }
+            else {
+                return timeOperation().apply(leftLiteral.asTime(), rightLiteral.asTime());
+            }
+        }
+
+        if (leftEvaluated != left || rightEvaluated != right) {
+            return withOperands(leftEvaluated, rightEvaluated);
+        }
+        return this;
+    }
+
+
+    protected void validate(List<? extends LogicalExpression> operands) throws IllegalArgumentException {
+        if (!operands.stream().allMatch(LogicalExpression::isLiteral)
                 || operands.stream().map(Object::getClass).distinct().count() != 1) {
             throw new IllegalArgumentException(String.format("operands to %s are not of same type", this.getClass().getSimpleName()));
         }
@@ -80,6 +101,9 @@ public abstract class AbstractBinaryComparison implements LogicalExpression {
             throw new IllegalArgumentException(String.format("%s can not handle %d operands", this.getClass().getSimpleName(), operands.size()));
         }
     }
+
+
+    protected abstract AbstractBinaryComparison withOperands(Operand left, Operand right);
 
 
     protected BiFunction<StringLiteral, StringLiteral, BooleanLiteral> stringOperation() {
@@ -112,15 +136,10 @@ public abstract class AbstractBinaryComparison implements LogicalExpression {
     }
 
 
-    protected <T extends Literal<?>> BiFunction<T, T, BooleanLiteral> defaultOperation() {
+    protected <T extends Literal> BiFunction<T, T, BooleanLiteral> defaultOperation() {
         return (x, y) -> {
             throw new IllegalArgumentException(String.format("%s not possible for input %s", this.getClass().getSimpleName(), x.getClass().getSimpleName()));
         };
-    }
-
-
-    protected BooleanLiteral defaultOperation(T left, T right) {
-        throw new IllegalArgumentException(String.format("%s not possible for input %s", this.getClass().getSimpleName(), left.getClass().getSimpleName()));
     }
 
 }
