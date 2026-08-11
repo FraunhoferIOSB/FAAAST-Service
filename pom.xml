@@ -95,7 +95,7 @@
         <jetty.version>12.1.12</jetty.version>
         <json-patch.version>1.13</json-patch.version>
         <json-smart.version>2.6.0</json-smart.version>
-        <jsonassert.version>1.5.3</jsonassert.version>
+        <jsonassert.version>2.0-rc1</jsonassert.version>
         <jsonpath.version>3.0.0</jsonpath.version>
         <junit.version>4.13.2</junit.version>
         <log4j.api.version>2.26.1</log4j.api.version>
