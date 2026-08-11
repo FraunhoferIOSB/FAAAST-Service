@@ -22,9 +22,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.StringL
 import java.util.function.BiFunction;
 
 
-public class RegexOperation extends AbstractStringOperation {
+public class RegexComparison extends AbstractStringComparison {
 
-    public RegexOperation(Operand left, Operand right) {
+    public RegexComparison(Operand left, Operand right) {
         super(left, right);
     }
 
@@ -37,6 +37,6 @@ public class RegexOperation extends AbstractStringOperation {
 
     @Override
     protected AbstractBinaryComparison withOperands(Operand left, Operand right) {
-        return new RegexOperation(left, right);
+        return new RegexComparison(left, right);
     }
 }

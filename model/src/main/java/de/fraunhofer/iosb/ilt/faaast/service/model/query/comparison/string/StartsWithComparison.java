@@ -22,22 +22,21 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.StringL
 import java.util.function.BiFunction;
 
 
-public class EndsWithOperation extends AbstractStringOperation {
+public class StartsWithComparison extends AbstractStringComparison {
 
-    public EndsWithOperation(Operand left, Operand right) {
+    public StartsWithComparison(Operand left, Operand right) {
         super(left, right);
     }
 
 
     @Override
     protected BiFunction<StringLiteral, StringLiteral, BooleanLiteral> stringOperation() {
-        return (x, y) -> new BooleanLiteral(y.value().endsWith(x.value()));
+        return (x, y) -> new BooleanLiteral(y.value().startsWith(x.value()));
     }
 
 
     @Override
     protected AbstractBinaryComparison withOperands(Operand left, Operand right) {
-        return new EndsWithOperation(left, right);
+        return new StartsWithComparison(left, right);
     }
-
 }

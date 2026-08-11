@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.query.comparison;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.EvaluationContext;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.LogicalExpression;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.match.MatchElement;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.Operand;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.BooleanLiteral;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.DateTimeLiteral;
@@ -29,7 +30,7 @@ import java.util.List;
 import java.util.function.BiFunction;
 
 
-public abstract class AbstractBinaryComparison implements LogicalExpression {
+public abstract class AbstractBinaryComparison implements LogicalExpression, MatchElement {
 
     private final Operand left;
     private final Operand right;

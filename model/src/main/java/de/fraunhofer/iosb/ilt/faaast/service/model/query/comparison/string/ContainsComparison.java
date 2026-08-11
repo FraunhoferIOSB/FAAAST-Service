@@ -22,9 +22,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.StringL
 import java.util.function.BiFunction;
 
 
-public class ContainsOperation extends AbstractStringOperation {
+public class ContainsComparison extends AbstractStringComparison {
 
-    public ContainsOperation(Operand left, Operand right) {
+    public ContainsComparison(Operand left, Operand right) {
         super(left, right);
     }
 
@@ -37,7 +37,7 @@ public class ContainsOperation extends AbstractStringOperation {
 
     @Override
     protected AbstractBinaryComparison withOperands(Operand left, Operand right) {
-        return new ContainsOperation(left, right);
+        return new ContainsComparison(left, right);
     }
 
 }

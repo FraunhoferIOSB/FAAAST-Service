@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.query.comparison;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.match.MatchElement;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.Operand;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.BooleanLiteral;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.Literal;
@@ -22,7 +23,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.NumberL
 import java.util.function.BiFunction;
 
 
-public class EqualsOperation extends AbstractBinaryComparison {
+public class EqualsOperation extends AbstractBinaryComparison implements MatchElement {
 
     public EqualsOperation(Operand left, Operand right) {
         super(left, right);

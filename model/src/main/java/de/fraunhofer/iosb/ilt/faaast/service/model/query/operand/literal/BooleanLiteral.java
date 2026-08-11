@@ -14,10 +14,13 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.match.MatchElement;
+
+
 /**
  * Note: This class is not defined in the QueryLanguage
  */
-public record BooleanLiteral(Boolean value) implements Literal {
+public record BooleanLiteral(Boolean value) implements Literal, MatchElement {
 
     public static BooleanLiteral parse(String value) {
         return new BooleanLiteral(Boolean.parseBoolean(value));
