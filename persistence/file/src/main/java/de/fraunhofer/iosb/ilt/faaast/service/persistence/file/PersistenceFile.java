@@ -37,7 +37,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.LogicalExpression;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.IdtaLogicalExpression;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.AssetAdministrationShellSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.ConceptDescriptionSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
@@ -138,32 +138,32 @@ public class PersistenceFile implements Persistence<PersistenceFileConfig> {
 
 
     @Override
-    public AssetAdministrationShell getAssetAdministrationShell(String id, QueryModifier modifier, LogicalExpression formula) throws ResourceNotFoundException {
+    public AssetAdministrationShell getAssetAdministrationShell(String id, QueryModifier modifier, IdtaLogicalExpression formula) throws ResourceNotFoundException {
         return persistence.getAssetAdministrationShell(id, modifier, formula);
     }
 
 
     @Override
-    public Submodel getSubmodel(String id, QueryModifier modifier, LogicalExpression formula) throws ResourceNotFoundException, PersistenceException {
+    public Submodel getSubmodel(String id, QueryModifier modifier, IdtaLogicalExpression formula) throws ResourceNotFoundException, PersistenceException {
         return persistence.getSubmodel(id, modifier, formula);
     }
 
 
     @Override
-    public ConceptDescription getConceptDescription(String id, QueryModifier modifier, LogicalExpression formula) throws ResourceNotFoundException, PersistenceException {
+    public ConceptDescription getConceptDescription(String id, QueryModifier modifier, IdtaLogicalExpression formula) throws ResourceNotFoundException, PersistenceException {
         return persistence.getConceptDescription(id, modifier, formula);
     }
 
 
     @Override
-    public SubmodelElement getSubmodelElement(SubmodelElementIdentifier identifier, QueryModifier modifier, LogicalExpression formula)
+    public SubmodelElement getSubmodelElement(SubmodelElementIdentifier identifier, QueryModifier modifier, IdtaLogicalExpression formula)
             throws ResourceNotFoundException, PersistenceException {
         return persistence.getSubmodelElement(identifier, modifier, formula);
     }
 
 
     @Override
-    public Page<Reference> getSubmodelRefs(String aasId, PagingInfo paging, LogicalExpression formula) throws ResourceNotFoundException {
+    public Page<Reference> getSubmodelRefs(String aasId, PagingInfo paging, IdtaLogicalExpression formula) throws ResourceNotFoundException {
         return persistence.getSubmodelRefs(aasId, paging, formula);
     }
 
@@ -176,26 +176,26 @@ public class PersistenceFile implements Persistence<PersistenceFileConfig> {
 
     @Override
     public Page<AssetAdministrationShell> findAssetAdministrationShells(AssetAdministrationShellSearchCriteria criteria, QueryModifier modifier, PagingInfo paging,
-                                                                        LogicalExpression formula) {
+                                                                        IdtaLogicalExpression formula) {
         return persistence.findAssetAdministrationShells(criteria, modifier, paging, formula);
     }
 
 
     @Override
-    public Page<Submodel> findSubmodels(SubmodelSearchCriteria criteria, QueryModifier modifier, PagingInfo paging, LogicalExpression formula) throws PersistenceException {
+    public Page<Submodel> findSubmodels(SubmodelSearchCriteria criteria, QueryModifier modifier, PagingInfo paging, IdtaLogicalExpression formula) throws PersistenceException {
         return persistence.findSubmodels(criteria, modifier, paging, formula);
     }
 
 
     @Override
-    public Page<SubmodelElement> findSubmodelElements(SubmodelElementSearchCriteria criteria, QueryModifier modifier, PagingInfo paging, LogicalExpression formula)
+    public Page<SubmodelElement> findSubmodelElements(SubmodelElementSearchCriteria criteria, QueryModifier modifier, PagingInfo paging, IdtaLogicalExpression formula)
             throws ResourceNotFoundException, PersistenceException {
         return persistence.findSubmodelElements(criteria, modifier, paging, formula);
     }
 
 
     @Override
-    public Page<ConceptDescription> findConceptDescriptions(ConceptDescriptionSearchCriteria criteria, QueryModifier modifier, PagingInfo paging, LogicalExpression formula)
+    public Page<ConceptDescription> findConceptDescriptions(ConceptDescriptionSearchCriteria criteria, QueryModifier modifier, PagingInfo paging, IdtaLogicalExpression formula)
             throws PersistenceException {
         return persistence.findConceptDescriptions(criteria, modifier, paging, formula);
     }

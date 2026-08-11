@@ -24,7 +24,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContain
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ElementReadEventMessage;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.LogicalExpression;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.IdtaLogicalExpression;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.SubmodelSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
@@ -48,7 +48,7 @@ public class QuerySubmodelsRequestHandler extends AbstractRequestHandler<QuerySu
     @Override
     public QuerySubmodelsResponse process(QuerySubmodelsRequest request, RequestExecutionContext context)
             throws MessageBusException, PersistenceException, ResourceNotAContainerElementException, ValueMappingException, ResourceNotFoundException, AssetConnectionException {
-        LogicalExpression queryAndAccessControl = new LogicalExpression();
+        IdtaLogicalExpression queryAndAccessControl = new IdtaLogicalExpression();
         queryAndAccessControl.set$and(List.of(request.getQuery().get$condition(), request.getFormula()));
 
         Page<Submodel> page = context.getPersistence().findSubmodels(

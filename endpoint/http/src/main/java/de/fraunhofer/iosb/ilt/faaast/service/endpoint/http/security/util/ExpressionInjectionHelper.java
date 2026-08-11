@@ -16,7 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.util;
 
 import com.auth0.jwt.interfaces.Claim;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AttributeItem;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.LogicalExpression;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.IdtaLogicalExpression;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.MatchExpression;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.StringValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.Value;
@@ -43,7 +43,7 @@ public class ExpressionInjectionHelper {
 
 
     /**
-     * Inject a set of claims and global attributes into a LogicalExpression ("formula").
+     * Inject a set of claims and global attributes into a IdtaLogicalExpression ("formula").
      *
      * @param formula The formula to inject into.
      * @param claims The claims to inject.

@@ -22,7 +22,7 @@ import static org.junit.Assert.assertTrue;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AccessPermissionRule;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AttributeItem;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.LogicalExpression;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.IdtaLogicalExpression;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import org.junit.Test;
@@ -72,21 +72,21 @@ public class AclAttributeInjectionInterceptorTest extends AbstractAclFilterTest 
     }
 
 
-    private LogicalExpression formulaWithAttributes() {
+    private IdtaLogicalExpression formulaWithAttributes() {
         AttributeItem claimAttribute = new AttributeItem();
         claimAttribute.setClaim("name");
         AttributeItem utcNow = global(AttributeItem.Global.UTCNOW);
         AttributeItem clientNow = global(AttributeItem.Global.CLIENTNOW);
         AttributeItem localNow = global(AttributeItem.Global.LOCALNOW);
         AttributeItem anonymous = global(AttributeItem.Global.ANONYMOUS);
-        LogicalExpression formula = new LogicalExpression();
+        IdtaLogicalExpression formula = new IdtaLogicalExpression();
 
         formula.set$and(List.of(
-                fn(claimAttribute, JOHN_DOE.get(claimAttribute.getClaim()), LogicalExpression::set$eq),
-                fn(utcNow, "0:00", LogicalExpression::set$ge),
-                fn(clientNow, "23:59:59", LogicalExpression::set$le),
-                fn(localNow, "0:00", LogicalExpression::set$lt),
-                fn(anonymous, "abc-test", LogicalExpression::set$gt)));
+                fn(claimAttribute, JOHN_DOE.get(claimAttribute.getClaim()), IdtaLogicalExpression::set$eq),
+                fn(utcNow, "0:00", IdtaLogicalExpression::set$ge),
+                fn(clientNow, "23:59:59", IdtaLogicalExpression::set$le),
+                fn(localNow, "0:00", IdtaLogicalExpression::set$lt),
+                fn(anonymous, "abc-test", IdtaLogicalExpression::set$gt)));
         return formula;
     }
 }

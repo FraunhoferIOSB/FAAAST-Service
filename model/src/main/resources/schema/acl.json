@@ -340,14 +340,14 @@
       ],
       "additionalProperties": false
     },
-    "logicalExpression": {
+    "IdtaLogicalExpression": {
       "type": "object",
       "properties": {
         "$and": {
           "type": "array",
           "minItems": 2,
           "items": {
-            "$ref": "#/definitions/logicalExpression"
+            "$ref": "#/definitions/IdtaLogicalExpression"
           }
         },
         "$match": {
@@ -361,11 +361,11 @@
           "type": "array",
           "minItems": 2,
           "items": {
-            "$ref": "#/definitions/logicalExpression"
+            "$ref": "#/definitions/IdtaLogicalExpression"
           }
         },
         "$not": {
-          "$ref": "#/definitions/logicalExpression"
+          "$ref": "#/definitions/IdtaLogicalExpression"
         },
         "$eq": {
           "$ref": "#/definitions/comparisonItems"
@@ -644,7 +644,7 @@
           }
         },
         "FORMULA": {
-          "$ref": "#/definitions/logicalExpression",
+          "$ref": "#/definitions/IdtaLogicalExpression",
           "additionalProperties": false
         },
         "USEFORMULA": {
@@ -708,7 +708,7 @@
           "type": "string"
         },
         "CONDITION": {
-          "$ref": "#/definitions/logicalExpression"
+          "$ref": "#/definitions/IdtaLogicalExpression"
         },
         "USEFORMULA": {
           "type": "string"
@@ -739,7 +739,7 @@
           "pattern": "^id$"
         },
         "$condition": {
-          "$ref": "#/definitions/logicalExpression"
+          "$ref": "#/definitions/IdtaLogicalExpression"
         }
       },
       "required": [
@@ -839,7 +839,7 @@
                 "type": "string"
               },
               "formula": {
-                "$ref": "#/definitions/logicalExpression"
+                "$ref": "#/definitions/IdtaLogicalExpression"
               }
             },
             "required": [

@@ -20,7 +20,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescriptio
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.conceptdescription.QueryConceptDescriptionsResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ElementReadEventMessage;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.LogicalExpression;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.IdtaLogicalExpression;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.ConceptDescriptionSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
@@ -43,7 +43,7 @@ public class QueryConceptDescriptionsRequestHandler extends AbstractRequestHandl
     @Override
     public QueryConceptDescriptionsResponse process(QueryConceptDescriptionsRequest request, RequestExecutionContext context)
             throws MessageBusException, PersistenceException {
-        LogicalExpression queryAndAccessControl = new LogicalExpression();
+        IdtaLogicalExpression queryAndAccessControl = new IdtaLogicalExpression();
         queryAndAccessControl.set$and(List.of(request.getQuery().get$condition(), request.getFormula()));
 
         Page<ConceptDescription> page = context.getPersistence().findConceptDescriptions(

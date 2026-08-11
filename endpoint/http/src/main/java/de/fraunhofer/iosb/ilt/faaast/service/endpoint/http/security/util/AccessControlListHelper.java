@@ -22,7 +22,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.Defacl;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.Defattribute;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.Defformula;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.Defobject;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.LogicalExpression;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.IdtaLogicalExpression;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.ObjectItem;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.SecurityQueryFilter;
 
@@ -116,7 +116,7 @@ public class AccessControlListHelper {
      * @param allAccess Rule environment
      * @return The FORMULA.
      */
-    public static LogicalExpression getFormula(AccessPermissionRule rule, AllAccessPermissionRules allAccess) {
+    public static IdtaLogicalExpression getFormula(AccessPermissionRule rule, AllAccessPermissionRules allAccess) {
         if (rule.getFormula() != null) {
             return rule.getFormula();
         }

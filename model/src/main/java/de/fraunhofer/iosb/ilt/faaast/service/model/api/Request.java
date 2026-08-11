@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.LogicalExpression;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.IdtaLogicalExpression;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
@@ -27,11 +27,11 @@ import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 public abstract class Request<T extends Response> {
 
     private boolean internal;
-    private LogicalExpression formula;
+    private IdtaLogicalExpression formula;
 
     protected Request() {
         this.internal = false;
-        this.formula = new LogicalExpression();
+        this.formula = new IdtaLogicalExpression();
         this.formula.set$boolean(true);
     }
 
@@ -41,7 +41,7 @@ public abstract class Request<T extends Response> {
      *
      * @return The formula.
      */
-    public LogicalExpression getFormula() {
+    public IdtaLogicalExpression getFormula() {
         return formula;
     }
 
@@ -51,7 +51,7 @@ public abstract class Request<T extends Response> {
      *
      * @param formula The formula.
      */
-    public void setFormula(LogicalExpression formula) {
+    public void setFormula(IdtaLogicalExpression formula) {
         this.formula = formula;
     }
 
@@ -99,7 +99,7 @@ public abstract class Request<T extends Response> {
         }
 
 
-        public B formula(LogicalExpression value) {
+        public B formula(IdtaLogicalExpression value) {
             getBuildingInstance().setFormula(value);
             return getSelf();
         }

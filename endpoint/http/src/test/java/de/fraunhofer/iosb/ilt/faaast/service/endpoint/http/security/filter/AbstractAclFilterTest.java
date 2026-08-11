@@ -23,7 +23,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AccessPermissionRule;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.Acl;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AttributeItem;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.LogicalExpression;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.IdtaLogicalExpression;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.ObjectItem;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.RightsEnum;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.Value;
@@ -85,14 +85,14 @@ public abstract class AbstractAclFilterTest extends JwtAuthorizationFilterTest {
         AttributeItem localNow = global(AttributeItem.Global.LOCALNOW);
         AttributeItem anonymous = global(AttributeItem.Global.ANONYMOUS);
 
-        LogicalExpression formula = new LogicalExpression();
+        IdtaLogicalExpression formula = new IdtaLogicalExpression();
 
         formula.set$and(List.of(
-                fn(claimAttribute, JOHN_DOE.get(claimAttribute.getClaim()), LogicalExpression::set$eq),
-                fn(utcNow, "0:00", LogicalExpression::set$ge),
-                fn(clientNow, "23:59:59", LogicalExpression::set$le),
-                fn(localNow, "0:00", LogicalExpression::set$lt),
-                fn(anonymous, "abc-test", LogicalExpression::set$gt)));
+                fn(claimAttribute, JOHN_DOE.get(claimAttribute.getClaim()), IdtaLogicalExpression::set$eq),
+                fn(utcNow, "0:00", IdtaLogicalExpression::set$ge),
+                fn(clientNow, "23:59:59", IdtaLogicalExpression::set$le),
+                fn(localNow, "0:00", IdtaLogicalExpression::set$lt),
+                fn(anonymous, "abc-test", IdtaLogicalExpression::set$gt)));
 
         var routeNoWildcard = objectRoute("/shells/12345/submodels/67890/submodel-elements/Abc.Def.Ghi/invoke-async/$value");
         var routePrefixWildcard = objectRoute("*/12345/submodels/67890/submodel-elements/Abc.Def.Ghi/invoke-async/$value");
@@ -129,7 +129,7 @@ public abstract class AbstractAclFilterTest extends JwtAuthorizationFilterTest {
     }
 
 
-    protected static AccessPermissionRule rule(boolean disabled, List<RightsEnum> rights, List<AttributeItem> attributes, LogicalExpression formula, List<ObjectItem> objects) {
+    protected static AccessPermissionRule rule(boolean disabled, List<RightsEnum> rights, List<AttributeItem> attributes, IdtaLogicalExpression formula, List<ObjectItem> objects) {
         var rule = new AccessPermissionRule();
         var acl = new Acl();
         acl.setAccess(disabled ? Acl.Access.DISABLED : Acl.Access.ALLOW);
@@ -143,8 +143,8 @@ public abstract class AbstractAclFilterTest extends JwtAuthorizationFilterTest {
     }
 
 
-    protected static LogicalExpression fn(AttributeItem attribute, String string, BiConsumer<LogicalExpression, List<Value>> appliedFunction) {
-        LogicalExpression eqFormula = new LogicalExpression();
+    protected static IdtaLogicalExpression fn(AttributeItem attribute, String string, BiConsumer<LogicalExpression, List<Value>> appliedFunction) {
+        IdtaLogicalExpression eqFormula = new IdtaLogicalExpression();
         Value claimValue = new Value();
         claimValue.set$attribute(attribute);
         Value claimEqValue = new Value();

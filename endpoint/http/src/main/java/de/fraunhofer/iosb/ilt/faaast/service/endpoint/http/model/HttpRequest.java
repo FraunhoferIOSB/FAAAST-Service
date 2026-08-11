@@ -18,7 +18,7 @@ import static de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence.iden
 
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.LogicalExpression;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.IdtaLogicalExpression;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,7 +38,7 @@ public class HttpRequest extends HttpMessage {
     private String path;
     private Map<String, String> queryParameters;
     private List<String> pathElements;
-    private LogicalExpression formula;
+    private IdtaLogicalExpression formula;
 
     public static Builder builder() {
         return new Builder();
@@ -169,7 +169,7 @@ public class HttpRequest extends HttpMessage {
      *
      * @return List of formula.
      */
-    public LogicalExpression getFormula() {
+    public IdtaLogicalExpression getFormula() {
         return formula;
     }
 

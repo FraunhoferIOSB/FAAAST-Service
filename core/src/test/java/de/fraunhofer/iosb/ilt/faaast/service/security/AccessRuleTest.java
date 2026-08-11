@@ -22,7 +22,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AccessPermissionRu
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.Acl;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AllAccessPermissionRules;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AttributeItem;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.LogicalExpression;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.IdtaLogicalExpression;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.ObjectItem;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.RightsEnum;
 import java.io.IOException;
@@ -48,7 +48,7 @@ public class AccessRuleTest {
         obj.setRoute("*");
 
         // Create FORMULA with a simple (boolean) expression
-        LogicalExpression formula = new LogicalExpression();
+        IdtaLogicalExpression formula = new IdtaLogicalExpression();
         formula.set$boolean(true);
 
         // Create a Rule

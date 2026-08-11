@@ -24,7 +24,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceExceptio
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceAlreadyExistsException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.LogicalExpression;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.IdtaLogicalExpression;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.Objects;
@@ -76,7 +76,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      *             {@code org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell} with the given id
      * @throws PersistenceException if there was an error with the storage.
      */
-    public AssetAdministrationShell getAssetAdministrationShell(String id, QueryModifier modifier, LogicalExpression formula) throws ResourceNotFoundException,
+    public AssetAdministrationShell getAssetAdministrationShell(String id, QueryModifier modifier, IdtaLogicalExpression formula) throws ResourceNotFoundException,
             PersistenceException;
 
 
@@ -93,7 +93,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      *             {@code org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell} with the given id
      * @throws PersistenceException if there was an error with the storage.
      */
-    public Page<Reference> getSubmodelRefs(String aasId, PagingInfo paging, LogicalExpression formula) throws ResourceNotFoundException, PersistenceException;
+    public Page<Reference> getSubmodelRefs(String aasId, PagingInfo paging, IdtaLogicalExpression formula) throws ResourceNotFoundException, PersistenceException;
 
 
     /**
@@ -107,7 +107,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      *             given id
      * @throws PersistenceException if there was an error with the storage.
      */
-    public Submodel getSubmodel(String id, QueryModifier modifier, LogicalExpression formula) throws ResourceNotFoundException, PersistenceException;
+    public Submodel getSubmodel(String id, QueryModifier modifier, IdtaLogicalExpression formula) throws ResourceNotFoundException, PersistenceException;
 
 
     /**
@@ -121,7 +121,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      *             with the given id
      * @throws PersistenceException if there was an error with the storage.
      */
-    public ConceptDescription getConceptDescription(String id, QueryModifier modifier, LogicalExpression formula) throws ResourceNotFoundException, PersistenceException;
+    public ConceptDescription getConceptDescription(String id, QueryModifier modifier, IdtaLogicalExpression formula) throws ResourceNotFoundException, PersistenceException;
 
 
     /**
@@ -135,7 +135,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      *             the given path
      * @throws PersistenceException if there was an error with the storage.
      */
-    public SubmodelElement getSubmodelElement(SubmodelElementIdentifier identifier, QueryModifier modifier, LogicalExpression formula) throws ResourceNotFoundException,
+    public SubmodelElement getSubmodelElement(SubmodelElementIdentifier identifier, QueryModifier modifier, IdtaLogicalExpression formula) throws ResourceNotFoundException,
             PersistenceException;
 
 
@@ -158,7 +158,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      *             cannot have any child elements
      * @throws PersistenceException if there was an error with the storage.
      */
-    public default Page<SubmodelElement> getSubmodelElements(SubmodelElementIdentifier identifier, QueryModifier modifier, PagingInfo paging, LogicalExpression formula)
+    public default Page<SubmodelElement> getSubmodelElements(SubmodelElementIdentifier identifier, QueryModifier modifier, PagingInfo paging, IdtaLogicalExpression formula)
             throws ResourceNotFoundException, PersistenceException, ResourceNotAContainerElementException {
         return findSubmodelElements(
                 SubmodelElementSearchCriteria.builder()
@@ -190,7 +190,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      *             cannot have any child elements
      * @throws PersistenceException if there was an error with the storage.
      */
-    public default Page<SubmodelElement> getSubmodelElementsValueOnly(SubmodelElementIdentifier identifier, QueryModifier modifier, PagingInfo paging, LogicalExpression formula)
+    public default Page<SubmodelElement> getSubmodelElementsValueOnly(SubmodelElementIdentifier identifier, QueryModifier modifier, PagingInfo paging, IdtaLogicalExpression formula)
             throws ResourceNotFoundException, PersistenceException, ResourceNotAContainerElementException {
         return findSubmodelElements(
                 SubmodelElementSearchCriteria.builder()
@@ -224,7 +224,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      *             i.e. cannot have any child elements
      * @throws PersistenceException if there was an error with the storage.
      */
-    public default Page<SubmodelElement> getSubmodelElementsValueOnly(Reference reference, QueryModifier modifier, PagingInfo paging, LogicalExpression formula)
+    public default Page<SubmodelElement> getSubmodelElementsValueOnly(Reference reference, QueryModifier modifier, PagingInfo paging, IdtaLogicalExpression formula)
             throws ResourceNotFoundException, PersistenceException, ResourceNotAContainerElementException {
         return getSubmodelElementsValueOnly(SubmodelElementIdentifier.fromReference(reference), modifier, paging, formula);
     }
@@ -267,7 +267,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      * @throws PersistenceException if there was an error with the storage.
      */
     public Page<AssetAdministrationShell> findAssetAdministrationShells(AssetAdministrationShellSearchCriteria criteria, QueryModifier modifier, PagingInfo paging,
-                                                                        LogicalExpression formula)
+                                                                        IdtaLogicalExpression formula)
             throws PersistenceException;
 
 
@@ -281,7 +281,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      * @return the found {@code org.eclipse.digitaltwin.aas4j.v3.model.Submodel}s
      * @throws PersistenceException if there was an error with the storage.
      */
-    public Page<Submodel> findSubmodels(SubmodelSearchCriteria criteria, QueryModifier modifier, PagingInfo paging, LogicalExpression formula) throws PersistenceException;
+    public Page<Submodel> findSubmodels(SubmodelSearchCriteria criteria, QueryModifier modifier, PagingInfo paging, IdtaLogicalExpression formula) throws PersistenceException;
 
 
     /**
@@ -295,7 +295,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      * @throws ResourceNotFoundException if the parent does not exist
      * @throws PersistenceException if there was an error with the storage.
      */
-    public Page<SubmodelElement> findSubmodelElements(SubmodelElementSearchCriteria criteria, QueryModifier modifier, PagingInfo paging, LogicalExpression formula)
+    public Page<SubmodelElement> findSubmodelElements(SubmodelElementSearchCriteria criteria, QueryModifier modifier, PagingInfo paging, IdtaLogicalExpression formula)
             throws ResourceNotFoundException, PersistenceException;
 
 
@@ -309,7 +309,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      * @return the found {@code org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription}s
      * @throws PersistenceException if there was an error with the storage.
      */
-    public Page<ConceptDescription> findConceptDescriptions(ConceptDescriptionSearchCriteria criteria, QueryModifier modifier, PagingInfo paging, LogicalExpression formula)
+    public Page<ConceptDescription> findConceptDescriptions(ConceptDescriptionSearchCriteria criteria, QueryModifier modifier, PagingInfo paging, IdtaLogicalExpression formula)
             throws PersistenceException;
 
 
@@ -520,7 +520,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      * @throws ClassCastException if casting fails
      * @throws PersistenceException if there was an error with the storage.
      */
-    public default <T extends SubmodelElement> T getSubmodelElement(SubmodelElementIdentifier identifier, QueryModifier modifier, Class<T> type, LogicalExpression formula)
+    public default <T extends SubmodelElement> T getSubmodelElement(SubmodelElementIdentifier identifier, QueryModifier modifier, Class<T> type, IdtaLogicalExpression formula)
             throws ResourceNotFoundException, PersistenceException {
         Ensure.requireNonNull(type, "type must be non-null");
         return type.cast(getSubmodelElement(identifier, modifier, formula));
@@ -538,7 +538,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      *             the given path
      * @throws PersistenceException if there was an error with the storage.
      */
-    public default SubmodelElement getSubmodelElement(Reference reference, QueryModifier modifier, LogicalExpression formula) throws ResourceNotFoundException,
+    public default SubmodelElement getSubmodelElement(Reference reference, QueryModifier modifier, IdtaLogicalExpression formula) throws ResourceNotFoundException,
             PersistenceException {
         String submodelId = ReferenceHelper.findFirstKeyType(reference, KeyTypes.SUBMODEL);
         if (Objects.isNull(submodelId)) {
@@ -561,7 +561,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      *             the given reference
      * @throws PersistenceException if there was an error with the storage.
      */
-    public default <T extends SubmodelElement> T getSubmodelElement(Reference reference, QueryModifier modifier, Class<T> type, LogicalExpression formula)
+    public default <T extends SubmodelElement> T getSubmodelElement(Reference reference, QueryModifier modifier, Class<T> type, IdtaLogicalExpression formula)
             throws ResourceNotFoundException, PersistenceException {
         String submodelId = ReferenceHelper.findFirstKeyType(reference, KeyTypes.SUBMODEL);
         if (Objects.isNull(submodelId)) {
@@ -590,7 +590,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      *             i.e. cannot have any child elements
      * @throws PersistenceException if there was an error with the storage.
      */
-    public default Page<SubmodelElement> getSubmodelElements(Reference reference, QueryModifier modifier, PagingInfo paging, LogicalExpression formula)
+    public default Page<SubmodelElement> getSubmodelElements(Reference reference, QueryModifier modifier, PagingInfo paging, IdtaLogicalExpression formula)
             throws ResourceNotFoundException, PersistenceException, ResourceNotAContainerElementException {
         return getSubmodelElements(SubmodelElementIdentifier.fromReference(reference), modifier, paging, formula);
     }
@@ -605,7 +605,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      * @return all {@code org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell}s
      * @throws PersistenceException if there was an error with the storage.
      */
-    public default Page<AssetAdministrationShell> getAllAssetAdministrationShells(QueryModifier modifier, PagingInfo paging, LogicalExpression formula)
+    public default Page<AssetAdministrationShell> getAllAssetAdministrationShells(QueryModifier modifier, PagingInfo paging, IdtaLogicalExpression formula)
             throws PersistenceException {
         return findAssetAdministrationShells(AssetAdministrationShellSearchCriteria.NONE, modifier, paging, formula);
     }
@@ -620,7 +620,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      * @return all {@code org.eclipse.digitaltwin.aas4j.v3.model.Submodel}s
      * @throws PersistenceException if there was an error with the storage.
      */
-    public default Page<Submodel> getAllSubmodels(QueryModifier modifier, PagingInfo paging, LogicalExpression formula) throws PersistenceException {
+    public default Page<Submodel> getAllSubmodels(QueryModifier modifier, PagingInfo paging, IdtaLogicalExpression formula) throws PersistenceException {
         return findSubmodels(SubmodelSearchCriteria.NONE, modifier, paging, formula);
     }
 
@@ -634,7 +634,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      * @return all {@code org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription}s
      * @throws PersistenceException if there was an error with the storage.
      */
-    public default Page<ConceptDescription> getAllConceptDescriptions(QueryModifier modifier, PagingInfo paging, LogicalExpression formula) throws PersistenceException {
+    public default Page<ConceptDescription> getAllConceptDescriptions(QueryModifier modifier, PagingInfo paging, IdtaLogicalExpression formula) throws PersistenceException {
         return findConceptDescriptions(ConceptDescriptionSearchCriteria.NONE, modifier, paging, formula);
     }
 
@@ -648,7 +648,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      * @return all {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}s
      * @throws PersistenceException if there was an error with the storage.
      */
-    public default Page<SubmodelElement> getAllSubmodelElements(QueryModifier modifier, PagingInfo paging, LogicalExpression formula) throws PersistenceException {
+    public default Page<SubmodelElement> getAllSubmodelElements(QueryModifier modifier, PagingInfo paging, IdtaLogicalExpression formula) throws PersistenceException {
         try {
             return findSubmodelElements(SubmodelElementSearchCriteria.NONE, modifier, paging, formula);
         }
@@ -743,8 +743,8 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      *
      * @return "True" as a formula
      */
-    public static LogicalExpression identity() {
-        LogicalExpression identity = new LogicalExpression();
+    public static IdtaLogicalExpression identity() {
+        IdtaLogicalExpression identity = new IdtaLogicalExpression();
         identity.set$boolean(true);
         return identity;
     }
