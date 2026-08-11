@@ -24,9 +24,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AccessPermissionRu
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.Acl;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AttributeItem;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.IdtaLogicalExpression;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.IdtaValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.ObjectItem;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.RightsEnum;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.Value;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Arrays;
 import java.util.List;
@@ -119,7 +119,7 @@ public abstract class AbstractAclFilterTest extends JwtAuthorizationFilterTest {
     }
 
 
-    protected static AccessPermissionRule rule(LogicalExpression formula) {
+    protected static AccessPermissionRule rule(IdtaLogicalExpression formula) {
         return rule(false, null, null, formula, null);
     }
 
@@ -143,11 +143,11 @@ public abstract class AbstractAclFilterTest extends JwtAuthorizationFilterTest {
     }
 
 
-    protected static IdtaLogicalExpression fn(AttributeItem attribute, String string, BiConsumer<LogicalExpression, List<Value>> appliedFunction) {
+    protected static IdtaLogicalExpression fn(AttributeItem attribute, String string, BiConsumer<IdtaLogicalExpression, List<IdtaValue>> appliedFunction) {
         IdtaLogicalExpression eqFormula = new IdtaLogicalExpression();
-        Value claimValue = new Value();
+        IdtaValue claimValue = new IdtaValue();
         claimValue.set$attribute(attribute);
-        Value claimEqValue = new Value();
+        IdtaValue claimEqValue = new IdtaValue();
         claimEqValue.set$strVal(string);
         appliedFunction.accept(eqFormula, List.of(claimValue, claimEqValue));
         return eqFormula;

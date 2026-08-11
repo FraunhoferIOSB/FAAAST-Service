@@ -17,9 +17,9 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.util;
 import com.auth0.jwt.interfaces.Claim;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AttributeItem;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.IdtaLogicalExpression;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.MatchExpression;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.IdtaMatchExpression;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.IdtaValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.StringValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.Value;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -48,7 +48,7 @@ public class ExpressionInjectionHelper {
      * @param formula The formula to inject into.
      * @param claims The claims to inject.
      */
-    public static void injectLogicalExpression(LogicalExpression formula, Map<String, Claim> claims) {
+    public static void injectLogicalExpression(IdtaLogicalExpression formula, Map<String, Claim> claims) {
         if (!formula.get$and().isEmpty()) {
             // It is an AND expression
             formula.get$and().forEach(op -> injectLogicalExpression(op, claims));
@@ -106,7 +106,7 @@ public class ExpressionInjectionHelper {
     }
 
 
-    private static void injectMatchExpression(MatchExpression formula, Map<String, Claim> claims) {
+    private static void injectMatchExpression(IdtaMatchExpression formula, Map<String, Claim> claims) {
         if (!formula.get$match().isEmpty()) {
             // It is an AND expression
             formula.get$match().forEach(op -> injectMatchExpression(op, claims));
@@ -158,7 +158,7 @@ public class ExpressionInjectionHelper {
     }
 
 
-    private static void injectValue(Value value, Map<String, Claim> claims) {
+    private static void injectValue(IdtaValue value, Map<String, Claim> claims) {
         if (value.get$attribute() == null) {
             return;
         }

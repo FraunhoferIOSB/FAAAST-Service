@@ -711,7 +711,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
     }
 
 
-    private Environment getFilteredEnvironment(LogicalExpression formula, QueryModifier queryModifier) {
+    private Environment getFilteredEnvironment(IdtaLogicalExpression formula, QueryModifier queryModifier) {
         return new DefaultEnvironment.Builder()
                 .assetAdministrationShells(findAssetAdministrationShells(AssetAdministrationShellSearchCriteria.NONE, queryModifier, PagingInfo.ALL, formula).getContent())
                 .submodels(findSubmodels(SubmodelSearchCriteria.NONE, queryModifier, PagingInfo.ALL, formula).getContent())

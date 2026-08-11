@@ -179,7 +179,7 @@ public class HttpRequest extends HttpMessage {
      *
      * @param formula the applying formula.
      */
-    public void setFormula(LogicalExpression formula) {
+    public void setFormula(IdtaLogicalExpression formula) {
         this.formula = formula;
     }
 
@@ -240,7 +240,7 @@ public class HttpRequest extends HttpMessage {
         }
 
 
-        public B formula(LogicalExpression value) {
+        public B formula(IdtaLogicalExpression value) {
             getBuildingInstance().setFormula(value);
             return getSelf();
         }

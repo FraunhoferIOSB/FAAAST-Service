@@ -24,7 +24,7 @@
       "type": "string",
       "pattern": "^[0-9][0-9]:[0-9][0-9](:[0-9][0-9])?$"
     },
-    "Value": {
+    "IdtaValue": {
       "type": "object",
       "properties": {
         "$field": {
@@ -52,22 +52,22 @@
           "type": "boolean"
         },
         "$strCast": {
-          "$ref": "#/definitions/Value"
+          "$ref": "#/definitions/IdtaValue"
         },
         "$numCast": {
-          "$ref": "#/definitions/Value"
+          "$ref": "#/definitions/IdtaValue"
         },
         "$hexCast": {
-          "$ref": "#/definitions/Value"
+          "$ref": "#/definitions/IdtaValue"
         },
         "$boolCast": {
-          "$ref": "#/definitions/Value"
+          "$ref": "#/definitions/IdtaValue"
         },
         "$dateTimeCast": {
-          "$ref": "#/definitions/Value"
+          "$ref": "#/definitions/IdtaValue"
         },
         "$timeCast": {
-          "$ref": "#/definitions/Value"
+          "$ref": "#/definitions/IdtaValue"
         },
         "$dayOfWeek": {
           "$ref": "#/definitions/dateTimeLiteralPattern"
@@ -186,7 +186,7 @@
           "$ref": "#/definitions/standardString"
         },
         "$strCast": {
-          "$ref": "#/definitions/Value"
+          "$ref": "#/definitions/IdtaValue"
         },
         "$attribute": {
           "$ref": "#/definitions/attributeItem"
@@ -221,7 +221,7 @@
       "minItems": 2,
       "maxItems": 2,
       "items": {
-        "$ref": "#/definitions/Value"
+        "$ref": "#/definitions/IdtaValue"
       }
     },
     "stringItems": {

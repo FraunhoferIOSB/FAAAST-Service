@@ -15,9 +15,9 @@
 package de.fraunhofer.iosb.ilt.faaast.service.query;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.IdtaLogicalExpression;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.MatchExpression;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.IdtaMatchExpression;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.IdtaValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.StringValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.Value;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -117,7 +117,7 @@ public class QueryEvaluator {
      * @return true if expression matches the identifiable
      * 
      */
-    public boolean matches(LogicalExpression expr, Identifiable identifiable) {
+    public boolean matches(IdtaLogicalExpression expr, Identifiable identifiable) {
         if (expr == null || identifiable == null) {
             return false;
         }
@@ -148,16 +148,16 @@ public class QueryEvaluator {
     }
 
 
-    private boolean evaluateFirstValueOperator(LogicalExpression expr, Identifiable identifiable) {
-        List<OperationSpec<Value>> operations = Arrays.asList(
+    private boolean evaluateFirstValueOperator(IdtaLogicalExpression expr, Identifiable identifiable) {
+        List<OperationSpec<IdtaValue>> operations = Arrays.asList(
                 new OperationSpec<>(ComparisonOperator.EQ, expr::get$eq),
                 new OperationSpec<>(ComparisonOperator.NE, expr::get$ne),
                 new OperationSpec<>(ComparisonOperator.GT, expr::get$gt),
                 new OperationSpec<>(ComparisonOperator.GE, expr::get$ge),
                 new OperationSpec<>(ComparisonOperator.LT, expr::get$lt),
                 new OperationSpec<>(ComparisonOperator.LE, expr::get$le));
-        for (OperationSpec<Value> spec: operations) {
-            List<Value> args = spec.argumentProvider.get();
+        for (OperationSpec<IdtaValue> spec: operations) {
+            List<IdtaValue> args = spec.argumentProvider.get();
             if (args != null && !args.isEmpty()) {
                 return evaluateBinaryComparison(args, identifiable, spec.operator);
             }
@@ -166,7 +166,7 @@ public class QueryEvaluator {
     }
 
 
-    private boolean evaluateFirstStringOperator(LogicalExpression expr, Identifiable identifiable) {
+    private boolean evaluateFirstStringOperator(IdtaLogicalExpression expr, Identifiable identifiable) {
         List<OperationSpec<StringValue>> operations = Arrays.asList(
                 new OperationSpec<>(ComparisonOperator.CONTAINS, expr::get$contains),
                 new OperationSpec<>(ComparisonOperator.STARTS_WITH, expr::get$startsWith),
@@ -186,7 +186,7 @@ public class QueryEvaluator {
      */
     private record OperationSpec<T>(ComparisonOperator operator, Supplier<List<T>> argumentProvider) {}
 
-    private boolean evaluateBinaryComparison(List<Value> args, Identifiable identifiable, ComparisonOperator operator) {
+    private boolean evaluateBinaryComparison(List<IdtaValue> args, Identifiable identifiable, ComparisonOperator operator) {
         if (args.size() < 2) {
             LOGGER.error("Operator {} requires two arguments", operator);
             return false;
@@ -225,14 +225,14 @@ public class QueryEvaluator {
     /**
      * @param predicate checks if a value kind applies
      */
-    private record ValueKindCheck(ValueKind kind, Predicate<Value> predicate) {}
+    private record ValueKindCheck(ValueKind kind, Predicate<IdtaValue> predicate) {}
 
     /**
      * @param predicate checks if a string value kind applies
      */
     private record StringValueKindCheck(StringValueKind kind, Predicate<StringValue> predicate) {}
 
-    private ValueKind determineValueKind(Value v) {
+    private ValueKind determineValueKind(IdtaValue v) {
         if (v == null) {
             return ValueKind.NONE;
         }
@@ -258,7 +258,7 @@ public class QueryEvaluator {
     }
 
 
-    private List<Object> evaluateValue(Value v, Identifiable identifiable) {
+    private List<Object> evaluateValue(IdtaValue v, Identifiable identifiable) {
         return switch (determineValueKind(v)) {
             case FIELD -> nonNull(getFieldValues(v.get$field(), identifiable));
             case STR -> Collections.singletonList(v.get$strVal());
@@ -322,11 +322,11 @@ public class QueryEvaluator {
         }
     }
 
-    private record MatchOperation(ComparisonOperator operator, List<Value> args) {}
+    private record MatchOperation(ComparisonOperator operator, List<IdtaValue> args) {}
 
     private record MatchEvaluationContext(String commonPrefix, List<Condition> itemConditions, boolean directMismatch) {}
 
-    private boolean evaluateMatch(List<MatchExpression> matches, Identifiable identifiable) {
+    private boolean evaluateMatch(List<IdtaMatchExpression> matches, Identifiable identifiable) {
         if (matches == null || matches.isEmpty()) {
             return true;
         }
@@ -341,12 +341,12 @@ public class QueryEvaluator {
     }
 
 
-    private MatchEvaluationContext buildMatchEvaluationContext(List<MatchExpression> matches, Identifiable identifiable) {
+    private MatchEvaluationContext buildMatchEvaluationContext(List<IdtaMatchExpression> matches, Identifiable identifiable) {
         String commonPrefix = null;
         List<Condition> itemConditions = new ArrayList<>();
         boolean directMismatch = false;
 
-        for (MatchExpression m: matches) {
+        for (IdtaMatchExpression m: matches) {
             MatchOperation mo = getMatchOperation(m);
             if (mo == null) {
                 LOGGER.error("Unsupported operator in match");
@@ -359,8 +359,8 @@ public class QueryEvaluator {
                 break;
             }
 
-            Value left = mo.args.get(0);
-            Value right = mo.args.get(1);
+            IdtaValue left = mo.args.get(0);
+            IdtaValue right = mo.args.get(1);
             if (left.get$field() == null) {
                 LOGGER.error("Left side in $match must be a field: {}", left);
                 directMismatch = true;
@@ -467,7 +467,7 @@ public class QueryEvaluator {
     }
 
 
-    private MatchOperation getMatchOperation(MatchExpression m) {
+    private MatchOperation getMatchOperation(IdtaMatchExpression m) {
         List<MatchOperation> candidates = Arrays.asList(
                 new MatchOperation(ComparisonOperator.EQ, m.get$eq()),
                 new MatchOperation(ComparisonOperator.NE, m.get$ne()),

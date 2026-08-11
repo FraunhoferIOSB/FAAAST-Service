@@ -190,7 +190,8 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      *             cannot have any child elements
      * @throws PersistenceException if there was an error with the storage.
      */
-    public default Page<SubmodelElement> getSubmodelElementsValueOnly(SubmodelElementIdentifier identifier, QueryModifier modifier, PagingInfo paging, IdtaLogicalExpression formula)
+    public default Page<SubmodelElement> getSubmodelElementsValueOnly(SubmodelElementIdentifier identifier, QueryModifier modifier, PagingInfo paging,
+                                                                      IdtaLogicalExpression formula)
             throws ResourceNotFoundException, PersistenceException, ResourceNotAContainerElementException {
         return findSubmodelElements(
                 SubmodelElementSearchCriteria.builder()
