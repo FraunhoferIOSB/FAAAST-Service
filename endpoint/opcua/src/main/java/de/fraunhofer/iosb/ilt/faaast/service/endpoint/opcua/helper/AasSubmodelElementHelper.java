@@ -99,7 +99,7 @@ public class AasSubmodelElementHelper {
         Ensure.requireNonNull(value, VALUE_NULL);
 
         LOGGER.debug("setRelationshipValue not yet implemented");
-        
+
         //AasReferenceCreator.setAasReferenceData(value.getFirst(), aasElement.getFirstNode(), false);
         //AasReferenceCreator.setAasReferenceData(value.getSecond(), aasElement.getSecondNode(), false);
 
@@ -135,7 +135,8 @@ public class AasSubmodelElementHelper {
      * @throws StatusException If the operation fails
      * @throws ValueFormatException The data format of the value is invalid
      */
-    public static void setSubmodelElementValue(AASSubmodelElementVariableType subElem, ElementValue value, NodeManagerUaNode nodeManager) throws StatusException, ValueFormatException {
+    public static void setSubmodelElementValue(AASSubmodelElementVariableType subElem, ElementValue value, NodeManagerUaNode nodeManager)
+            throws StatusException, ValueFormatException {
         LOGGER.trace("setSubmodelElementValue: {}", subElem.getBrowseName().getName());
 
         // changed the order because of an error in the derivation hierarchy of ElementValue
@@ -191,29 +192,28 @@ public class AasSubmodelElementHelper {
         fileNode.addProperty(property);
     }
 
-
-//    /**
-//     * Adds the Value Node for the MultiLanguageProperty.
-//     *
-//     * @param node The desired MultiLanguageProperty Node
-//     * @param arraySize The desired Array Size.
-//     * @param nodeManager The corresponding Node Manager.
-//     */
-//    public static void addMultiLanguageValueNode(UaNode node, int arraySize, NodeManagerUaNode nodeManager) {
-//        //NodeId propertyId = new NodeId(nodeManager.getNamespaceIndex(), node.getNodeId().getValue().toString() + "." + AASMultiLanguagePropertyType.VALUE);
-//        NodeId propertyId = new NodeId(nodeManager.getNamespaceIndex(), node.getNodeId().getValue().toString());
-//        PlainProperty<LocalizedText[]> myLTProperty = new PlainProperty<>(nodeManager, propertyId,
-//                UaQualifiedName.from(opc.ua.aas.VariableTypeIds.AASMultiLanguagePropertyType.getNamespaceUri(), AASMultiLanguagePropertyType.VALUE)
-//                        .toQualifiedName(nodeManager.getNamespaceTable()),
-//                LocalizedText.english(AASMultiLanguagePropertyType.VALUE));
-//        myLTProperty.setDataTypeId(Identifiers.LocalizedText);
-//        myLTProperty.setValueRank(ValueRanks.OneDimension);
-//        myLTProperty.setArrayDimensions(new UnsignedInteger[] {
-//                UnsignedInteger.valueOf(arraySize)
-//        });
-//        node.addProperty(myLTProperty);
-//        myLTProperty.setDescription(new LocalizedText("", ""));
-//    }
+    //    /**
+    //     * Adds the Value Node for the MultiLanguageProperty.
+    //     *
+    //     * @param node The desired MultiLanguageProperty Node
+    //     * @param arraySize The desired Array Size.
+    //     * @param nodeManager The corresponding Node Manager.
+    //     */
+    //    public static void addMultiLanguageValueNode(UaNode node, int arraySize, NodeManagerUaNode nodeManager) {
+    //        //NodeId propertyId = new NodeId(nodeManager.getNamespaceIndex(), node.getNodeId().getValue().toString() + "." + AASMultiLanguagePropertyType.VALUE);
+    //        NodeId propertyId = new NodeId(nodeManager.getNamespaceIndex(), node.getNodeId().getValue().toString());
+    //        PlainProperty<LocalizedText[]> myLTProperty = new PlainProperty<>(nodeManager, propertyId,
+    //                UaQualifiedName.from(opc.ua.aas.VariableTypeIds.AASMultiLanguagePropertyType.getNamespaceUri(), AASMultiLanguagePropertyType.VALUE)
+    //                        .toQualifiedName(nodeManager.getNamespaceTable()),
+    //                LocalizedText.english(AASMultiLanguagePropertyType.VALUE));
+    //        myLTProperty.setDataTypeId(Identifiers.LocalizedText);
+    //        myLTProperty.setValueRank(ValueRanks.OneDimension);
+    //        myLTProperty.setArrayDimensions(new UnsignedInteger[] {
+    //                UnsignedInteger.valueOf(arraySize)
+    //        });
+    //        node.addProperty(myLTProperty);
+    //        myLTProperty.setDescription(new LocalizedText("", ""));
+    //    }
 
 
     /**
@@ -265,7 +265,8 @@ public class AasSubmodelElementHelper {
                 case FLOAT -> setFloatPropertyValue(valueData, typedValue, prop);
 
                 case STRING, ANY_URI, TIME, DURATION, GDAY, GMONTH, GMONTH_DAY, GYEAR, GYEAR_MONTH, DECIMAL, INTEGER, POSITIVE_INTEGER, NON_POSITIVE_INTEGER, NEGATIVE_INTEGER,
-                        NON_NEGATIVE_INTEGER, DATE -> setStringValue(valueData, typedValue, prop);
+                        NON_NEGATIVE_INTEGER, DATE ->
+                    setStringValue(valueData, typedValue, prop);
 
                 case BASE64BINARY, HEX_BINARY -> setByteStringPropertyValue(valueData, typedValue, prop);
 
@@ -479,18 +480,17 @@ public class AasSubmodelElementHelper {
         prop.addProperty(createByteStringProperty(valueData, typedValue != null ? typedValue.getValue() : null));
     }
 
-
-//    private static void setByteStringRangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, AASRangeType range, String maxValue, ValueData maxData,
-//                                                 TypedValue<?> maxTypedValue)
-//            throws StatusException {
-//        if (minValue != null) {
-//            range.addProperty(createByteStringProperty(minData, minTypedValue));
-//        }
-//
-//        if (maxValue != null) {
-//            range.addProperty(createByteStringProperty(maxData, maxTypedValue));
-//        }
-//    }
+    //    private static void setByteStringRangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, AASRangeType range, String maxValue, ValueData maxData,
+    //                                                 TypedValue<?> maxTypedValue)
+    //            throws StatusException {
+    //        if (minValue != null) {
+    //            range.addProperty(createByteStringProperty(minData, minTypedValue));
+    //        }
+    //
+    //        if (maxValue != null) {
+    //            range.addProperty(createByteStringProperty(maxData, maxTypedValue));
+    //        }
+    //    }
 
 
     private static PlainProperty<ByteString> createByteStringProperty(ValueData valueData, TypedValue<?> typedValue) throws StatusException {
@@ -504,262 +504,259 @@ public class AasSubmodelElementHelper {
         return byteStringProperty;
     }
 
+    //    public static void setRangeValueAndType(DataTypeDefXsd valueType, String minValue, String maxValue, AASRangeType range, ValueData minData,
+    //                                            ValueData maxData)
+    //            throws StatusException {
+    //        try {
+    //            TypedValue<?> minTypedValue = TypedValueFactory.create(valueType, minValue);
+    //            TypedValue<?> maxTypedValue = TypedValueFactory.create(valueType, maxValue);
+    //            AASDataTypeDefXsd valueDataType = getValueType(minTypedValue, valueType);
+    //            range.setValueType(valueDataType);
+    //
+    //            switch (valueDataType) {
+    //                case Boolean:
+    //                    setBooleanRangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
+    //                    break;
+    //
+    //                case DateTime:
+    //                    setDateTimeRangeValues(minValue, minData, minTypedValue, maxValue, maxData, maxTypedValue, range);
+    //                    break;
+    //
+    //                case Int:
+    //                    setInt32RangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
+    //                    break;
+    //
+    //                case UnsignedInt:
+    //                    setUInt32RangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
+    //                    break;
+    //
+    //                case Long:
+    //                    setInt64RangeValues(minValue, minData, minTypedValue, maxValue, maxData, maxTypedValue, range);
+    //                    break;
+    //
+    //                case UnsignedLong:
+    //                    setUInt64RangeValues(minValue, minData, minTypedValue, maxValue, maxData, maxTypedValue, range);
+    //                    break;
+    //
+    //                case Short:
+    //                    setInt16RangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
+    //                    break;
+    //
+    //                case UnsignedShort:
+    //                    setUInt16RangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
+    //                    break;
+    //
+    //                case Byte:
+    //                    setSByteRangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
+    //                    break;
+    //
+    //                case UnsignedByte:
+    //                    setByteRangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
+    //                    break;
+    //
+    //                case Double:
+    //                    setDoubleRangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
+    //                    break;
+    //
+    //                case Float:
+    //                    setFloatRangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
+    //                    break;
+    //
+    //                case String, AnyUri, Time, Duration, GDay, GMonth, GMonthDay, GYear, GYearMonth, Decimal, Integer, PositiveInteger, NonPositiveInteger, NegativeInteger,
+    //                        NonNegativeInteger, Date:
+    //                    setStringRangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
+    //                    break;
+    //
+    //                case Base64Binary, HexBinary:
+    //                    setByteStringRangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
+    //                    break;
+    //
+    //                default:
+    //                    LOG.warn("setRangeValueAndType: Range {}: Unknown type: {}; use string as default", range.getBrowseName().getName(), valueType);
+    //                    setStringRangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
+    //                    break;
+    //            }
+    //        }
+    //        catch (Exception ex) {
+    //            LOG.error("setRangeValueAndType Exception", ex);
+    //        }
+    //    }
 
-//    public static void setRangeValueAndType(DataTypeDefXsd valueType, String minValue, String maxValue, AASRangeType range, ValueData minData,
-//                                            ValueData maxData)
-//            throws StatusException {
-//        try {
-//            TypedValue<?> minTypedValue = TypedValueFactory.create(valueType, minValue);
-//            TypedValue<?> maxTypedValue = TypedValueFactory.create(valueType, maxValue);
-//            AASDataTypeDefXsd valueDataType = getValueType(minTypedValue, valueType);
-//            range.setValueType(valueDataType);
-//
-//            switch (valueDataType) {
-//                case Boolean:
-//                    setBooleanRangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
-//                    break;
-//
-//                case DateTime:
-//                    setDateTimeRangeValues(minValue, minData, minTypedValue, maxValue, maxData, maxTypedValue, range);
-//                    break;
-//
-//                case Int:
-//                    setInt32RangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
-//                    break;
-//
-//                case UnsignedInt:
-//                    setUInt32RangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
-//                    break;
-//
-//                case Long:
-//                    setInt64RangeValues(minValue, minData, minTypedValue, maxValue, maxData, maxTypedValue, range);
-//                    break;
-//
-//                case UnsignedLong:
-//                    setUInt64RangeValues(minValue, minData, minTypedValue, maxValue, maxData, maxTypedValue, range);
-//                    break;
-//
-//                case Short:
-//                    setInt16RangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
-//                    break;
-//
-//                case UnsignedShort:
-//                    setUInt16RangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
-//                    break;
-//
-//                case Byte:
-//                    setSByteRangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
-//                    break;
-//
-//                case UnsignedByte:
-//                    setByteRangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
-//                    break;
-//
-//                case Double:
-//                    setDoubleRangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
-//                    break;
-//
-//                case Float:
-//                    setFloatRangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
-//                    break;
-//
-//                case String, AnyUri, Time, Duration, GDay, GMonth, GMonthDay, GYear, GYearMonth, Decimal, Integer, PositiveInteger, NonPositiveInteger, NegativeInteger,
-//                        NonNegativeInteger, Date:
-//                    setStringRangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
-//                    break;
-//
-//                case Base64Binary, HexBinary:
-//                    setByteStringRangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
-//                    break;
-//
-//                default:
-//                    LOG.warn("setRangeValueAndType: Range {}: Unknown type: {}; use string as default", range.getBrowseName().getName(), valueType);
-//                    setStringRangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
-//                    break;
-//            }
-//        }
-//        catch (Exception ex) {
-//            LOG.error("setRangeValueAndType Exception", ex);
-//        }
-//    }
+    //    private static AASDataTypeDefXsd getValueType(TypedValue<?> typedValue, DataTypeDefXsd valueType) {
+    //        AASDataTypeDefXsd valueDataType;
+    //        if (typedValue != null) {
+    //            valueDataType = ValueConverter.datatypeToOpcDataType(typedValue.getDataType());
+    //        }
+    //        else {
+    //            valueDataType = ValueConverter.convertDataTypeDefXsd(valueType);
+    //        }
+    //        return valueDataType;
+    //    }
 
-
-//    private static AASDataTypeDefXsd getValueType(TypedValue<?> typedValue, DataTypeDefXsd valueType) {
-//        AASDataTypeDefXsd valueDataType;
-//        if (typedValue != null) {
-//            valueDataType = ValueConverter.datatypeToOpcDataType(typedValue.getDataType());
-//        }
-//        else {
-//            valueDataType = ValueConverter.convertDataTypeDefXsd(valueType);
-//        }
-//        return valueDataType;
-//    }
-
-
-//    private static void setStringRangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, AASRangeType range, String maxValue, ValueData maxData,
-//                                             TypedValue<?> maxTypedValue)
-//            throws StatusException {
-//        if (minValue != null) {
-//            range.addProperty(UaHelper.createStringProperty(minData, minTypedValue));
-//        }
-//
-//        if (maxValue != null) {
-//            range.addProperty(UaHelper.createStringProperty(maxData, maxTypedValue));
-//        }
-//    }
-//
-//
-//    private static void setFloatRangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, AASRangeType range, String maxValue, ValueData maxData,
-//                                            TypedValue<?> maxTypedValue)
-//            throws StatusException {
-//        if (minValue != null) {
-//            range.addProperty(createFloatProperty(minData, minTypedValue));
-//        }
-//
-//        if (maxValue != null) {
-//            range.addProperty(createFloatProperty(maxData, maxTypedValue));
-//        }
-//    }
-//
-//
-//    private static void setDoubleRangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, AASRangeType range, String maxValue, ValueData maxData,
-//                                             TypedValue<?> maxTypedValue)
-//            throws StatusException {
-//        if (minValue != null) {
-//            range.addProperty(createDoubleProperty(minData, minTypedValue));
-//        }
-//
-//        if (maxValue != null) {
-//            range.addProperty(createDoubleProperty(maxData, maxTypedValue));
-//        }
-//    }
-//
-//
-//    private static void setSByteRangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, AASRangeType range, String maxValue, ValueData maxData,
-//                                            TypedValue<?> maxTypedValue)
-//            throws StatusException {
-//        if (minValue != null) {
-//            range.addProperty(createSByteProperty(minData, minTypedValue));
-//        }
-//
-//        if (maxValue != null) {
-//            range.addProperty(createSByteProperty(maxData, maxTypedValue));
-//        }
-//    }
-//
-//
-//    private static void setByteRangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, AASRangeType range, String maxValue, ValueData maxData,
-//                                           TypedValue<?> maxTypedValue)
-//            throws StatusException {
-//        if (minValue != null) {
-//            range.addProperty(createByteProperty(minData, minTypedValue));
-//        }
-//
-//        if (maxValue != null) {
-//            range.addProperty(createByteProperty(maxData, maxTypedValue));
-//        }
-//    }
-//
-//
-//    private static void setInt16RangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, AASRangeType range, String maxValue, ValueData maxData,
-//                                            TypedValue<?> maxTypedValue)
-//            throws StatusException {
-//        if (minValue != null) {
-//            range.addProperty(createInt16Property(minData, minTypedValue));
-//        }
-//
-//        if (maxValue != null) {
-//            range.addProperty(createInt16Property(maxData, maxTypedValue));
-//        }
-//    }
-//
-//
-//    private static void setUInt16RangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, AASRangeType range, String maxValue, ValueData maxData,
-//                                             TypedValue<?> maxTypedValue)
-//            throws StatusException {
-//        if (minValue != null) {
-//            range.addProperty(createUInt16Property(minData, minTypedValue));
-//        }
-//
-//        if (maxValue != null) {
-//            range.addProperty(createUInt16Property(maxData, maxTypedValue));
-//        }
-//    }
-//
-//
-//    private static void setInt64RangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, String maxValue, ValueData maxData, TypedValue<?> maxTypedValue,
-//                                            AASRangeType range)
-//            throws NumberFormatException, StatusException {
-//        if (minValue != null) {
-//            range.addProperty(createInt64Property(minData, minTypedValue));
-//        }
-//        if (maxValue != null) {
-//            range.addProperty(createInt64Property(maxData, maxTypedValue));
-//        }
-//    }
-//
-//
-//    private static void setUInt64RangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, String maxValue, ValueData maxData, TypedValue<?> maxTypedValue,
-//                                             AASRangeType range)
-//            throws NumberFormatException, StatusException {
-//        if (minValue != null) {
-//            range.addProperty(createUInt64Property(minData, minTypedValue));
-//        }
-//        if (maxValue != null) {
-//            range.addProperty(createUInt64Property(maxData, maxTypedValue));
-//        }
-//    }
-//
-//
-//    private static void setInt32RangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, AASRangeType range, String maxValue, ValueData maxData,
-//                                            TypedValue<?> maxTypedValue)
-//            throws StatusException {
-//        if (minValue != null) {
-//            range.addProperty(createInt32Property(minData, minTypedValue));
-//        }
-//
-//        if (maxValue != null) {
-//            range.addProperty(createInt32Property(maxData, maxTypedValue));
-//        }
-//    }
-//
-//
-//    private static void setUInt32RangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, AASRangeType range, String maxValue, ValueData maxData,
-//                                             TypedValue<?> maxTypedValue)
-//            throws StatusException {
-//        if (minValue != null) {
-//            range.addProperty(createUInt32Property(minData, minTypedValue));
-//        }
-//
-//        if (maxValue != null) {
-//            range.addProperty(createUInt32Property(maxData, maxTypedValue));
-//        }
-//    }
-//
-//
-//    private static void setDateTimeRangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, String maxValue, ValueData maxData, TypedValue<?> maxTypedValue,
-//                                               AASRangeType range)
-//            throws StatusException {
-//        if (minValue != null) {
-//            range.addProperty(createDateTimeProperty(minData, minTypedValue));
-//        }
-//        if (maxValue != null) {
-//            range.addProperty(createDateTimeProperty(maxData, maxTypedValue));
-//        }
-//    }
-//
-//
-//    private static void setBooleanRangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, AASRangeType range, String maxValue, ValueData maxData,
-//                                              TypedValue<?> maxTypedValue)
-//            throws StatusException {
-//        if (minValue != null) {
-//            range.addProperty(UaHelper.createBooleanProperty(minData, minTypedValue));
-//        }
-//
-//        if (maxValue != null) {
-//            range.addProperty(UaHelper.createBooleanProperty(maxData, maxTypedValue));
-//        }
-//    }
+    //    private static void setStringRangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, AASRangeType range, String maxValue, ValueData maxData,
+    //                                             TypedValue<?> maxTypedValue)
+    //            throws StatusException {
+    //        if (minValue != null) {
+    //            range.addProperty(UaHelper.createStringProperty(minData, minTypedValue));
+    //        }
+    //
+    //        if (maxValue != null) {
+    //            range.addProperty(UaHelper.createStringProperty(maxData, maxTypedValue));
+    //        }
+    //    }
+    //
+    //
+    //    private static void setFloatRangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, AASRangeType range, String maxValue, ValueData maxData,
+    //                                            TypedValue<?> maxTypedValue)
+    //            throws StatusException {
+    //        if (minValue != null) {
+    //            range.addProperty(createFloatProperty(minData, minTypedValue));
+    //        }
+    //
+    //        if (maxValue != null) {
+    //            range.addProperty(createFloatProperty(maxData, maxTypedValue));
+    //        }
+    //    }
+    //
+    //
+    //    private static void setDoubleRangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, AASRangeType range, String maxValue, ValueData maxData,
+    //                                             TypedValue<?> maxTypedValue)
+    //            throws StatusException {
+    //        if (minValue != null) {
+    //            range.addProperty(createDoubleProperty(minData, minTypedValue));
+    //        }
+    //
+    //        if (maxValue != null) {
+    //            range.addProperty(createDoubleProperty(maxData, maxTypedValue));
+    //        }
+    //    }
+    //
+    //
+    //    private static void setSByteRangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, AASRangeType range, String maxValue, ValueData maxData,
+    //                                            TypedValue<?> maxTypedValue)
+    //            throws StatusException {
+    //        if (minValue != null) {
+    //            range.addProperty(createSByteProperty(minData, minTypedValue));
+    //        }
+    //
+    //        if (maxValue != null) {
+    //            range.addProperty(createSByteProperty(maxData, maxTypedValue));
+    //        }
+    //    }
+    //
+    //
+    //    private static void setByteRangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, AASRangeType range, String maxValue, ValueData maxData,
+    //                                           TypedValue<?> maxTypedValue)
+    //            throws StatusException {
+    //        if (minValue != null) {
+    //            range.addProperty(createByteProperty(minData, minTypedValue));
+    //        }
+    //
+    //        if (maxValue != null) {
+    //            range.addProperty(createByteProperty(maxData, maxTypedValue));
+    //        }
+    //    }
+    //
+    //
+    //    private static void setInt16RangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, AASRangeType range, String maxValue, ValueData maxData,
+    //                                            TypedValue<?> maxTypedValue)
+    //            throws StatusException {
+    //        if (minValue != null) {
+    //            range.addProperty(createInt16Property(minData, minTypedValue));
+    //        }
+    //
+    //        if (maxValue != null) {
+    //            range.addProperty(createInt16Property(maxData, maxTypedValue));
+    //        }
+    //    }
+    //
+    //
+    //    private static void setUInt16RangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, AASRangeType range, String maxValue, ValueData maxData,
+    //                                             TypedValue<?> maxTypedValue)
+    //            throws StatusException {
+    //        if (minValue != null) {
+    //            range.addProperty(createUInt16Property(minData, minTypedValue));
+    //        }
+    //
+    //        if (maxValue != null) {
+    //            range.addProperty(createUInt16Property(maxData, maxTypedValue));
+    //        }
+    //    }
+    //
+    //
+    //    private static void setInt64RangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, String maxValue, ValueData maxData, TypedValue<?> maxTypedValue,
+    //                                            AASRangeType range)
+    //            throws NumberFormatException, StatusException {
+    //        if (minValue != null) {
+    //            range.addProperty(createInt64Property(minData, minTypedValue));
+    //        }
+    //        if (maxValue != null) {
+    //            range.addProperty(createInt64Property(maxData, maxTypedValue));
+    //        }
+    //    }
+    //
+    //
+    //    private static void setUInt64RangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, String maxValue, ValueData maxData, TypedValue<?> maxTypedValue,
+    //                                             AASRangeType range)
+    //            throws NumberFormatException, StatusException {
+    //        if (minValue != null) {
+    //            range.addProperty(createUInt64Property(minData, minTypedValue));
+    //        }
+    //        if (maxValue != null) {
+    //            range.addProperty(createUInt64Property(maxData, maxTypedValue));
+    //        }
+    //    }
+    //
+    //
+    //    private static void setInt32RangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, AASRangeType range, String maxValue, ValueData maxData,
+    //                                            TypedValue<?> maxTypedValue)
+    //            throws StatusException {
+    //        if (minValue != null) {
+    //            range.addProperty(createInt32Property(minData, minTypedValue));
+    //        }
+    //
+    //        if (maxValue != null) {
+    //            range.addProperty(createInt32Property(maxData, maxTypedValue));
+    //        }
+    //    }
+    //
+    //
+    //    private static void setUInt32RangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, AASRangeType range, String maxValue, ValueData maxData,
+    //                                             TypedValue<?> maxTypedValue)
+    //            throws StatusException {
+    //        if (minValue != null) {
+    //            range.addProperty(createUInt32Property(minData, minTypedValue));
+    //        }
+    //
+    //        if (maxValue != null) {
+    //            range.addProperty(createUInt32Property(maxData, maxTypedValue));
+    //        }
+    //    }
+    //
+    //
+    //    private static void setDateTimeRangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, String maxValue, ValueData maxData, TypedValue<?> maxTypedValue,
+    //                                               AASRangeType range)
+    //            throws StatusException {
+    //        if (minValue != null) {
+    //            range.addProperty(createDateTimeProperty(minData, minTypedValue));
+    //        }
+    //        if (maxValue != null) {
+    //            range.addProperty(createDateTimeProperty(maxData, maxTypedValue));
+    //        }
+    //    }
+    //
+    //
+    //    private static void setBooleanRangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, AASRangeType range, String maxValue, ValueData maxData,
+    //                                              TypedValue<?> maxTypedValue)
+    //            throws StatusException {
+    //        if (minValue != null) {
+    //            range.addProperty(UaHelper.createBooleanProperty(minData, minTypedValue));
+    //        }
+    //
+    //        if (maxValue != null) {
+    //            range.addProperty(UaHelper.createBooleanProperty(maxData, maxTypedValue));
+    //        }
+    //    }
 
 
     /**
@@ -902,22 +899,21 @@ public class AasSubmodelElementHelper {
         AasReferenceCreator.setAasReferenceData(value.getValue(), refElement);
     }
 
-
-//    /**
-//     * Sets the value for the given Range.
-//     *
-//     * @param range The desired Range.
-//     * @param value The new value
-//     * @throws StatusException If the operation fails
-//     */
-//    private static void setRangeValue(AASRangeType range, RangeValue<?> value) throws StatusException {
-//        if (range.getMinNode() != null) {
-//            range.setMin(ValueConverter.convertTypedValue(value.getMin()));
-//        }
-//        if (range.getMaxNode() != null) {
-//            range.setMax(ValueConverter.convertTypedValue(value.getMax()));
-//        }
-//    }
+    //    /**
+    //     * Sets the value for the given Range.
+    //     *
+    //     * @param range The desired Range.
+    //     * @param value The new value
+    //     * @throws StatusException If the operation fails
+    //     */
+    //    private static void setRangeValue(AASRangeType range, RangeValue<?> value) throws StatusException {
+    //        if (range.getMinNode() != null) {
+    //            range.setMin(ValueConverter.convertTypedValue(value.getMin()));
+    //        }
+    //        if (range.getMaxNode() != null) {
+    //            range.setMax(ValueConverter.convertTypedValue(value.getMax()));
+    //        }
+    //    }
 
 
     /**

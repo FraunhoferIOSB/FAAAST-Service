@@ -31,13 +31,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatExceptio
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValueFactory;
-import opc.i4aas.datatypes.AASDataTypeDefXsd;
-import opc.i4aas.datatypes.AASModellingKindDataType;
-import opc.i4aas.datatypes.AASQualifierKindDataType;
-import opc.i4aas.datatypes.AASSubmodelElementsDataType;
+import opc.ua.aas.datatypes.AASQualifierKind;
+import opc.ua.aas.datatypes.AASSubmodelElements;
 import org.eclipse.digitaltwin.aas4j.v3.model.AasSubmodelElements;
-import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
-import org.eclipse.digitaltwin.aas4j.v3.model.ModellingKind;
 import org.eclipse.digitaltwin.aas4j.v3.model.QualifierKind;
 
 
@@ -130,7 +126,6 @@ public class UaHelper {
                 createBooleanProperty(new ValueData(nodeId, browseName, displayName, nodeManager), TypedValueFactory.create(Datatype.BOOLEAN, Boolean.toString(value))));
     }
 
-
     /**
      * Creates a kind property.
      *
@@ -139,17 +134,16 @@ public class UaHelper {
      * @return The created property.
      * @throws StatusException If an error occurs
      */
-    public static PlainProperty<AASModellingKindDataType> createKindProperty(ValueData valueData, ModellingKind kind) throws StatusException {
-        PlainProperty<AASModellingKindDataType> kindProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(),
-                valueData.getDisplayName());
-        kindProperty.setDataTypeId(AASModellingKindDataType.SPECIFICATION.getTypeId().asNodeId(valueData.getNodeManager().getNamespaceTable()));
-        kindProperty.setDescription(new LocalizedText("", ""));
-        DataValue value = new DataValue(new Variant(ValueConverter.convertModellingKind(kind).getValue()));
-        kindProperty.setValue(value);
+    //public static PlainProperty<AASModellingKindDataType> createKindProperty(ValueData valueData, ModellingKind kind) throws StatusException {
+    //    PlainProperty<AASModellingKindDataType> kindProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(),
+    //            valueData.getDisplayName());
+    //    kindProperty.setDataTypeId(AASModellingKindDataType.SPECIFICATION.getTypeId().asNodeId(valueData.getNodeManager().getNamespaceTable()));
+    //    kindProperty.setDescription(new LocalizedText("", ""));
+    //    DataValue value = new DataValue(new Variant(ValueConverter.convertModellingKind(kind).getValue()));
+    //    kindProperty.setValue(value);
 
-        return kindProperty;
-    }
-
+    //    return kindProperty;
+    //}
 
     /**
      * Adds a kind property to the given node.
@@ -161,9 +155,9 @@ public class UaHelper {
      * @param namespaceUri The URI of the desired Namespace.
      * @throws StatusException If an error occurs
      */
-    public static void addKindProperty(UaNode parentNode, NodeManagerUaNode nodeManager, String name, ModellingKind value, String namespaceUri) throws StatusException {
-        parentNode.addProperty(createKindProperty(createValueData(parentNode, nodeManager, name, namespaceUri), value));
-    }
+    //public static void addKindProperty(UaNode parentNode, NodeManagerUaNode nodeManager, String name, ModellingKind value, String namespaceUri) throws StatusException {
+    //    parentNode.addProperty(createKindProperty(createValueData(parentNode, nodeManager, name, namespaceUri), value));
+    //}
 
 
     /**
@@ -174,10 +168,10 @@ public class UaHelper {
      * @return The created OPC UA property
      * @throws StatusException If an error occurs
      */
-    public static PlainProperty<AASQualifierKindDataType> createQualifierKindProperty(ValueData valueData, QualifierKind kind) throws StatusException {
-        PlainProperty<AASQualifierKindDataType> kindProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(),
+    public static PlainProperty<AASQualifierKind> createQualifierKindProperty(ValueData valueData, QualifierKind kind) throws StatusException {
+        PlainProperty<AASQualifierKind> kindProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(),
                 valueData.getDisplayName());
-        kindProperty.setDataTypeId(AASQualifierKindDataType.SPECIFICATION.getTypeId().asNodeId(valueData.getNodeManager().getNamespaceTable()));
+        kindProperty.setDataTypeId(AASQualifierKind.SPECIFICATION.getTypeId().asNodeId(valueData.getNodeManager().getNamespaceTable()));
         kindProperty.setDescription(new LocalizedText("", ""));
         DataValue value = new DataValue(new Variant(ValueConverter.convertQualifierKind(kind).getValue()));
         kindProperty.setValue(value);
@@ -200,7 +194,6 @@ public class UaHelper {
         parentNode.addProperty(createQualifierKindProperty(createValueData(parentNode, nodeManager, name, namespaceUri), value));
     }
 
-
     /**
      * Creates a DataTypeDefXsd property.
      *
@@ -209,17 +202,16 @@ public class UaHelper {
      * @return The created property.
      * @throws StatusException If an error occurs
      */
-    public static PlainProperty<AASDataTypeDefXsd> createDataTypeDefProperty(ValueData valueData, DataTypeDefXsd datatype) throws StatusException {
-        PlainProperty<AASDataTypeDefXsd> datatypeProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(),
-                valueData.getDisplayName());
-        datatypeProperty.setDataTypeId(AASDataTypeDefXsd.SPECIFICATION.getTypeId().asNodeId(valueData.getNodeManager().getNamespaceTable()));
-        datatypeProperty.setDescription(new LocalizedText("", ""));
-        DataValue value = new DataValue(new Variant(ValueConverter.convertDataTypeDefXsd(datatype).getValue()));
-        datatypeProperty.setValue(value);
+    //public static PlainProperty<AASDataTypeDefXsd> createDataTypeDefProperty(ValueData valueData, DataTypeDefXsd datatype) throws StatusException {
+    //    PlainProperty<AASDataTypeDefXsd> datatypeProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(),
+    //            valueData.getDisplayName());
+    //    datatypeProperty.setDataTypeId(AASDataTypeDefXsd.SPECIFICATION.getTypeId().asNodeId(valueData.getNodeManager().getNamespaceTable()));
+    //    datatypeProperty.setDescription(new LocalizedText("", ""));
+    //    DataValue value = new DataValue(new Variant(ValueConverter.convertDataTypeDefXsd(datatype).getValue()));
+    //    datatypeProperty.setValue(value);
 
-        return datatypeProperty;
-    }
-
+    //    return datatypeProperty;
+    //}
 
     /**
      * Adds a DataTypeDefXsd property to the given node.
@@ -231,9 +223,9 @@ public class UaHelper {
      * @param namespaceUri The URI of the desired Namespace.
      * @throws StatusException If an error occurs
      */
-    public static void addDataTypeDefProperty(UaNode parentNode, NodeManagerUaNode nodeManager, String name, DataTypeDefXsd value, String namespaceUri) throws StatusException {
-        parentNode.addProperty(createDataTypeDefProperty(createValueData(parentNode, nodeManager, name, namespaceUri), value));
-    }
+    //public static void addDataTypeDefProperty(UaNode parentNode, NodeManagerUaNode nodeManager, String name, DataTypeDefXsd value, String namespaceUri) throws StatusException {
+    //    parentNode.addProperty(createDataTypeDefProperty(createValueData(parentNode, nodeManager, name, namespaceUri), value));
+    //}
 
 
     /**
@@ -244,10 +236,10 @@ public class UaHelper {
      * @return The created property.
      * @throws StatusException If an error occurs
      */
-    public static PlainProperty<AASSubmodelElementsDataType> createAasSubmodelElementsProperty(ValueData valueData, AasSubmodelElements submodelElement) throws StatusException {
-        PlainProperty<AASSubmodelElementsDataType> smelemProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(),
+    public static PlainProperty<AASSubmodelElements> createAasSubmodelElementsProperty(ValueData valueData, AasSubmodelElements submodelElement) throws StatusException {
+        PlainProperty<AASSubmodelElements> smelemProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(),
                 valueData.getDisplayName());
-        smelemProperty.setDataTypeId(AASSubmodelElementsDataType.SPECIFICATION.getTypeId().asNodeId(valueData.getNodeManager().getNamespaceTable()));
+        smelemProperty.setDataTypeId(AASSubmodelElements.SPECIFICATION.getTypeId().asNodeId(valueData.getNodeManager().getNamespaceTable()));
         smelemProperty.setDescription(new LocalizedText("", ""));
         DataValue value = new DataValue(new Variant(ValueConverter.getAasSubmodelElementsType(submodelElement).getValue()));
         smelemProperty.setValue(value);

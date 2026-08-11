@@ -19,14 +19,7 @@ import com.prosysopc.ua.nodes.UaNode;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import java.util.List;
-import opc.i4aas.objecttypes.AASAssetAdministrationShellType;
-import opc.i4aas.objecttypes.AASConceptDescriptionType;
-import opc.i4aas.objecttypes.AASDataSpecificationContentType;
-import opc.i4aas.objecttypes.AASEmbeddedDataSpecificationList;
-import opc.i4aas.objecttypes.AASEmbeddedDataSpecificationType;
-import opc.i4aas.objecttypes.AASReferenceType;
-import opc.i4aas.objecttypes.AASSubmodelElementType;
-import opc.i4aas.objecttypes.AASSubmodelType;
+import opc.ua.aas.objecttypes.AASAssetAdministrationShellType;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataSpecificationContent;
 import org.eclipse.digitaltwin.aas4j.v3.model.EmbeddedDataSpecification;
 

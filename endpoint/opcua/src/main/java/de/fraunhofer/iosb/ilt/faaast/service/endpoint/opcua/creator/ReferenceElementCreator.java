@@ -22,9 +22,7 @@ import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.QualifiedName;
 import com.prosysopc.ua.stack.core.Identifiers;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
-import opc.i4aas.objecttypes.AASReferenceElementType;
+import opc.ua.aas.variabletypes.AASReferenceElementType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
@@ -59,20 +57,21 @@ public class ReferenceElementCreator extends SubmodelElementCreator {
                 if ((name == null) || name.isEmpty()) {
                     name = getNameFromReference(refElemRef);
                 }
-                QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASReferenceElementType.getNamespaceUri(), name)
+                QualifiedName browseName = UaQualifiedName.from(opc.ua.aas.VariableTypeIds.AASReferenceElementType.getNamespaceUri(), name)
                         .toQualifiedName(nodeManager.getNamespaceTable());
                 NodeId nid = nodeManager.getDefaultNodeId();
                 AASReferenceElementType refElemNode = nodeManager.createInstance(AASReferenceElementType.class, nid, browseName, LocalizedText.english(name));
-                addSubmodelElementBaseData(refElemNode, aasRefElem, nodeManager);
+                //addSubmodelElementBaseData(refElemNode, aasRefElem, nodeManager);
 
-                setValue(aasRefElem, refElemNode, nodeManager);
+                //setValue(aasRefElem, refElemNode, nodeManager);
+                AasReferenceCreator.setAasReferenceData(aasRefElem.getValue(), refElemNode, false);
 
-                if (refElemNode.getValueNode() != null) {
-                    nodeManager.addSubmodelElementAasMap(refElemNode.getValueNode().getKeysNode().getNodeId(),
-                            new SubmodelElementData(aasRefElem, submodel, SubmodelElementData.Type.REFERENCE_ELEMENT_VALUE, refElemRef));
-                }
+                //if (refElemNode != null) {
+                //    nodeManager.addSubmodelElementAasMap(refElemNode.getKeysNode().getNodeId(),
+                //            new SubmodelElementData(aasRefElem, submodel, SubmodelElementData.Type.REFERENCE_ELEMENT_VALUE, refElemRef));
+                //}
 
-                nodeManager.addSubmodelElementOpcUA(refElemRef, refElemNode);
+                //nodeManager.addSubmodelElementOpcUA(refElemRef, refElemNode);
 
                 if (ordered) {
                     node.addReference(refElemNode, Identifiers.HasOrderedComponent, false);
@@ -81,7 +80,7 @@ public class ReferenceElementCreator extends SubmodelElementCreator {
                     node.addComponent(refElemNode);
                 }
 
-                nodeManager.addReferable(refElemRef, new ObjectData(aasRefElem, refElemNode, submodel));
+                //nodeManager.addReferable(refElemRef, new ObjectData(aasRefElem, refElemNode, submodel));
             }
         }
         catch (Exception ex) {
@@ -89,18 +88,17 @@ public class ReferenceElementCreator extends SubmodelElementCreator {
         }
     }
 
-
-    private static void setValue(ReferenceElement aasRefElem, AASReferenceElementType refElemNode, AasServiceNodeManager nodeManager) throws StatusException {
-        if (aasRefElem.getValue() != null) {
-            if (refElemNode.getValueNode() == null) {
-                AasReferenceCreator.addAasReference(refElemNode, aasRefElem.getValue(), AASReferenceElementType.VALUE,
-                        opc.i4aas.ObjectTypeIds.AASReferenceElementType.getNamespaceUri(), false,
-                        nodeManager);
-            }
-            else {
-                AasReferenceCreator.setAasReferenceData(aasRefElem.getValue(), refElemNode.getValueNode(), false);
-            }
-        }
-    }
+    //    private static void setValue(ReferenceElement aasRefElem, AASReferenceElementType refElemNode, AasServiceNodeManager nodeManager) throws StatusException {
+    //        if (aasRefElem.getValue() != null) {
+    //            if (refElemNode == null) {
+    //                AasReferenceCreator.addAasReference(refElemNode, aasRefElem.getValue(), AASReferenceElementType.VALUE,
+    //                        opc.ua.aas.ObjectTypeIds.AASReferenceElementType.getNamespaceUri(), false,
+    //                        nodeManager);
+    //            }
+    //            else {
+    //                AasReferenceCreator.setAasReferenceData(aasRefElem.getValue(), refElemNode.getValueNode(), false);
+    //            }
+    //        }
+    //    }
 
 }

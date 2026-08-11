@@ -123,7 +123,7 @@ public class ValueConverter {
         public DatatypeMapper(NodeId typeNode, Datatype datatype) {
             this.typeNode = typeNode;
             this.datatype = datatype;
-        //    this.dataTypeDefXsd = dataTypeDefXsd;
+            //    this.dataTypeDefXsd = dataTypeDefXsd;
         }
     }
 
@@ -139,36 +139,36 @@ public class ValueConverter {
 
     static {
         typeList = new ArrayList<>();
-//        typeList.add(new DatatypeMapper(Identifiers.ByteString, Datatype.BASE64_BINARY, AASDataTypeDefXsd.Base64Binary));
-//        typeList.add(new DatatypeMapper(Identifiers.ByteString, Datatype.HEX_BINARY, AASDataTypeDefXsd.HexBinary));
-//        typeList.add(new DatatypeMapper(Identifiers.Boolean, Datatype.BOOLEAN, AASDataTypeDefXsd.Boolean));
-//        typeList.add(new DatatypeMapper(Identifiers.DateTime, Datatype.DATE_TIME, AASDataTypeDefXsd.DateTime));
-//        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.DECIMAL, AASDataTypeDefXsd.Decimal));
-//        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.INTEGER, AASDataTypeDefXsd.Integer));
-//        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.POSITIVE_INTEGER, AASDataTypeDefXsd.PositiveInteger));
-//        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.NON_NEGATIVE_INTEGER, AASDataTypeDefXsd.NonNegativeInteger));
-//        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.NEGATIVE_INTEGER, AASDataTypeDefXsd.NegativeInteger));
-//        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.NON_POSITIVE_INTEGER, AASDataTypeDefXsd.NonPositiveInteger));
-//        typeList.add(new DatatypeMapper(Identifiers.Int32, Datatype.INT, AASDataTypeDefXsd.Int));
-//        typeList.add(new DatatypeMapper(Identifiers.UInt32, Datatype.UNSIGNED_INT, AASDataTypeDefXsd.UnsignedInt));
-//        typeList.add(new DatatypeMapper(Identifiers.Int64, Datatype.LONG, AASDataTypeDefXsd.Long));
-//        typeList.add(new DatatypeMapper(Identifiers.UInt64, Datatype.UNSIGNED_LONG, AASDataTypeDefXsd.UnsignedLong));
-//        typeList.add(new DatatypeMapper(Identifiers.Int16, Datatype.SHORT, AASDataTypeDefXsd.Short));
-//        typeList.add(new DatatypeMapper(Identifiers.UInt16, Datatype.UNSIGNED_SHORT, AASDataTypeDefXsd.UnsignedShort));
-//        typeList.add(new DatatypeMapper(Identifiers.SByte, Datatype.BYTE, AASDataTypeDefXsd.Byte));
-//        typeList.add(new DatatypeMapper(Identifiers.Byte, Datatype.UNSIGNED_BYTE, AASDataTypeDefXsd.UnsignedByte));
-//        typeList.add(new DatatypeMapper(Identifiers.Double, Datatype.DOUBLE, AASDataTypeDefXsd.Double));
-//        typeList.add(new DatatypeMapper(Identifiers.Float, Datatype.FLOAT, AASDataTypeDefXsd.Float));
-//        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.STRING, AASDataTypeDefXsd.String));
-//        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.ANY_URI, AASDataTypeDefXsd.AnyUri));
-//        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.DATE, AASDataTypeDefXsd.Date));
-//        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.TIME, AASDataTypeDefXsd.Time));
-//        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.DURATION, AASDataTypeDefXsd.Duration));
-//        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.GDAY, AASDataTypeDefXsd.GDay));
-//        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.GMONTH, AASDataTypeDefXsd.GMonth));
-//        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.GMONTH_DAY, AASDataTypeDefXsd.GMonthDay));
-//        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.GYEAR, AASDataTypeDefXsd.GYear));
-//        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.GYEAR_MONTH, AASDataTypeDefXsd.GYearMonth));
+        //        typeList.add(new DatatypeMapper(Identifiers.ByteString, Datatype.BASE64_BINARY, AASDataTypeDefXsd.Base64Binary));
+        //        typeList.add(new DatatypeMapper(Identifiers.ByteString, Datatype.HEX_BINARY, AASDataTypeDefXsd.HexBinary));
+        //        typeList.add(new DatatypeMapper(Identifiers.Boolean, Datatype.BOOLEAN, AASDataTypeDefXsd.Boolean));
+        //        typeList.add(new DatatypeMapper(Identifiers.DateTime, Datatype.DATE_TIME, AASDataTypeDefXsd.DateTime));
+        //        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.DECIMAL, AASDataTypeDefXsd.Decimal));
+        //        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.INTEGER, AASDataTypeDefXsd.Integer));
+        //        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.POSITIVE_INTEGER, AASDataTypeDefXsd.PositiveInteger));
+        //        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.NON_NEGATIVE_INTEGER, AASDataTypeDefXsd.NonNegativeInteger));
+        //        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.NEGATIVE_INTEGER, AASDataTypeDefXsd.NegativeInteger));
+        //        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.NON_POSITIVE_INTEGER, AASDataTypeDefXsd.NonPositiveInteger));
+        //        typeList.add(new DatatypeMapper(Identifiers.Int32, Datatype.INT, AASDataTypeDefXsd.Int));
+        //        typeList.add(new DatatypeMapper(Identifiers.UInt32, Datatype.UNSIGNED_INT, AASDataTypeDefXsd.UnsignedInt));
+        //        typeList.add(new DatatypeMapper(Identifiers.Int64, Datatype.LONG, AASDataTypeDefXsd.Long));
+        //        typeList.add(new DatatypeMapper(Identifiers.UInt64, Datatype.UNSIGNED_LONG, AASDataTypeDefXsd.UnsignedLong));
+        //        typeList.add(new DatatypeMapper(Identifiers.Int16, Datatype.SHORT, AASDataTypeDefXsd.Short));
+        //        typeList.add(new DatatypeMapper(Identifiers.UInt16, Datatype.UNSIGNED_SHORT, AASDataTypeDefXsd.UnsignedShort));
+        //        typeList.add(new DatatypeMapper(Identifiers.SByte, Datatype.BYTE, AASDataTypeDefXsd.Byte));
+        //        typeList.add(new DatatypeMapper(Identifiers.Byte, Datatype.UNSIGNED_BYTE, AASDataTypeDefXsd.UnsignedByte));
+        //        typeList.add(new DatatypeMapper(Identifiers.Double, Datatype.DOUBLE, AASDataTypeDefXsd.Double));
+        //        typeList.add(new DatatypeMapper(Identifiers.Float, Datatype.FLOAT, AASDataTypeDefXsd.Float));
+        //        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.STRING, AASDataTypeDefXsd.String));
+        //        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.ANY_URI, AASDataTypeDefXsd.AnyUri));
+        //        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.DATE, AASDataTypeDefXsd.Date));
+        //        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.TIME, AASDataTypeDefXsd.Time));
+        //        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.DURATION, AASDataTypeDefXsd.Duration));
+        //        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.GDAY, AASDataTypeDefXsd.GDay));
+        //        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.GMONTH, AASDataTypeDefXsd.GMonth));
+        //        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.GMONTH_DAY, AASDataTypeDefXsd.GMonthDay));
+        //        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.GYEAR, AASDataTypeDefXsd.GYear));
+        //        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.GYEAR_MONTH, AASDataTypeDefXsd.GYearMonth));
         // TODO: check mappings
         typeList.add(new DatatypeMapper(Identifiers.ByteString, Datatype.BASE64_BINARY));
         typeList.add(new DatatypeMapper(Identifiers.ByteString, Datatype.HEX_BINARY));
@@ -303,52 +303,50 @@ public class ValueConverter {
         return retval;
     }
 
+    //    /**
+    //     * Converts the given datatype to the corresponding AASDataTypeDefXsd.
+    //     *
+    //     * @param type The desired datatype
+    //     * @return The corresponding AASDataTypeDefXsd
+    //     */
+    //    public static AASDataTypeDefXsd datatypeToOpcDataType(Datatype type) {
+    //        AASDataTypeDefXsd retval;
+    //
+    //        Ensure.requireNonNull(type, "type must not be null");
+    //        Optional<DatatypeMapper> rv = typeList.stream().filter(t -> t.datatype == type).findAny();
+    //        if (rv.isEmpty()) {
+    //            LOGGER.warn("datatypeToOpcDataType: unknown type: {}", type);
+    //            throw new IllegalArgumentException("unknown type: " + type);
+    //        }
+    //        else {
+    //            retval = rv.get().dataTypeDefXsd;
+    //        }
+    //
+    //        return retval;
+    //    }
 
-//    /**
-//     * Converts the given datatype to the corresponding AASDataTypeDefXsd.
-//     *
-//     * @param type The desired datatype
-//     * @return The corresponding AASDataTypeDefXsd
-//     */
-//    public static AASDataTypeDefXsd datatypeToOpcDataType(Datatype type) {
-//        AASDataTypeDefXsd retval;
-//
-//        Ensure.requireNonNull(type, "type must not be null");
-//        Optional<DatatypeMapper> rv = typeList.stream().filter(t -> t.datatype == type).findAny();
-//        if (rv.isEmpty()) {
-//            LOGGER.warn("datatypeToOpcDataType: unknown type: {}", type);
-//            throw new IllegalArgumentException("unknown type: " + type);
-//        }
-//        else {
-//            retval = rv.get().dataTypeDefXsd;
-//        }
-//
-//        return retval;
-//    }
-
-
-//    /**
-//     * Converts the given DataTypeDefXsd to the corresponding AASDataTypeDefXsd
-//     *
-//     * @param value The desired value.
-//     * @return The corresponding AASDataTypeDefXsd
-//     */
-//    public static AASDataTypeDefXsd convertDataTypeDefXsd(DataTypeDefXsd value) {
-//        AASDataTypeDefXsd retval = null;
-//
-//        Optional<DatatypeMapper> rv = typeList.stream()
-//                .filter(t -> (t.datatype != null) && Objects.equal(t.datatype.getAas4jDatatype(), value))
-//                .findAny();
-//        if (rv.isEmpty()) {
-//            LOGGER.warn("convertDataTypeDefXsd: unknown value: {}", value);
-//            throw new IllegalArgumentException("unknown value: " + value);
-//        }
-//        else {
-//            retval = rv.get().dataTypeDefXsd;
-//        }
-//
-//        return retval;
-//    }
+    //    /**
+    //     * Converts the given DataTypeDefXsd to the corresponding AASDataTypeDefXsd
+    //     *
+    //     * @param value The desired value.
+    //     * @return The corresponding AASDataTypeDefXsd
+    //     */
+    //    public static AASDataTypeDefXsd convertDataTypeDefXsd(DataTypeDefXsd value) {
+    //        AASDataTypeDefXsd retval = null;
+    //
+    //        Optional<DatatypeMapper> rv = typeList.stream()
+    //                .filter(t -> (t.datatype != null) && Objects.equal(t.datatype.getAas4jDatatype(), value))
+    //                .findAny();
+    //        if (rv.isEmpty()) {
+    //            LOGGER.warn("convertDataTypeDefXsd: unknown value: {}", value);
+    //            throw new IllegalArgumentException("unknown value: " + value);
+    //        }
+    //        else {
+    //            retval = rv.get().dataTypeDefXsd;
+    //        }
+    //
+    //        return retval;
+    //    }
 
 
     /**
@@ -584,44 +582,44 @@ public class ValueConverter {
     public static boolean setSubmodelElementValue(SubmodelElement submodelElement, SubmodelElementData.Type type, Variant variant) {
         boolean retval = true;
         switch (type) {
-            case PROPERTY_VALUE ->  {
+            case PROPERTY_VALUE -> {
                 Property aasProp = (Property) submodelElement;
                 String newValue = convertVariantValueToString(variant, aasProp.getValueType());
                 retval = checkValue(aasProp.getValueType(), newValue);
                 aasProp.setValue(newValue);
             }
-            case RANGE_MIN ->  {
+            case RANGE_MIN -> {
                 Range aasRange = (Range) submodelElement;
                 String newValue = convertVariantValueToString(variant, aasRange.getValueType());
                 retval = checkValue(aasRange.getValueType(), newValue);
                 aasRange.setMin(newValue);
             }
-            case RANGE_MAX ->  {
+            case RANGE_MAX -> {
                 Range aasRange = (Range) submodelElement;
                 String newValue = convertVariantValueToString(variant, aasRange.getValueType());
                 retval = checkValue(aasRange.getValueType(), newValue);
                 aasRange.setMax(newValue);
             }
-            case BLOB_VALUE ->  {
+            case BLOB_VALUE -> {
                 setBlobValue(submodelElement, variant);
             }
-            case MULTI_LANGUAGE_VALUE ->  {
+            case MULTI_LANGUAGE_VALUE -> {
                 setMultiLanguageValue(submodelElement, variant);
             }
-            case REFERENCE_ELEMENT_VALUE ->  {
+            case REFERENCE_ELEMENT_VALUE -> {
                 setReferenceElementValue(submodelElement, variant);
             }
-            case RELATIONSHIP_ELEMENT_FIRST ->  {
+            case RELATIONSHIP_ELEMENT_FIRST -> {
                 setRelationshipElementFirstValue(submodelElement, variant);
             }
-            case RELATIONSHIP_ELEMENT_SECOND ->  {
+            case RELATIONSHIP_ELEMENT_SECOND -> {
                 setRelationshipElementSecondValue(submodelElement, variant);
             }
-            case ENTITY_GLOBAL_ASSET_ID ->  {
+            case ENTITY_GLOBAL_ASSET_ID -> {
                 Entity aasEntity = (Entity) submodelElement;
                 aasEntity.setGlobalAssetId(convertVariantValueToString(variant, DataTypeDefXsd.STRING));
             }
-            case ENTITY_TYPE ->  {
+            case ENTITY_TYPE -> {
                 setEntityValue(submodelElement, variant);
             }
             default -> {

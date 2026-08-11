@@ -28,7 +28,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.Collection;
 import java.util.List;
-import opc.i4aas.objecttypes.AASSubmodelElementType;
+import opc.ua.aas.objecttypes.AASSubmodelElementObjectType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Capability;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.Entity;
@@ -163,12 +163,12 @@ public class SubmodelElementCreator {
      * @throws StatusException If the operation fails
      * @param nodeManager The corresponding Node Manager
      */
-    public static void addSubmodelElementBaseData(AASSubmodelElementType node, SubmodelElement element, AasServiceNodeManager nodeManager)
+    public static void addSubmodelElementBaseData(AASSubmodelElementObjectType node, SubmodelElement element, AasServiceNodeManager nodeManager)
             throws StatusException {
         if ((node != null) && (element != null)) {
             // Category
             String category = element.getCategory();
-            node.setCategory(category != null ? category : "");
+            //node.setCategory(category != null ? category : "");
 
             // DataSpecifications
             EmbeddedDataSpecificationCreator.addEmbeddedDataSpecifications(node, element.getEmbeddedDataSpecifications(), nodeManager);
