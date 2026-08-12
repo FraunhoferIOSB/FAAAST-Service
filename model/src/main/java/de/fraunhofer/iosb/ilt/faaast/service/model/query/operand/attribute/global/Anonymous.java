@@ -18,9 +18,21 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.EvaluationContext;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.BooleanLiteral;
 
 
-public class Anonymous extends GlobalAttribute {
+public class Anonymous implements GlobalAttribute {
     @Override
     public BooleanLiteral evaluatePartially(EvaluationContext evaluationContext) {
         return new BooleanLiteral(evaluationContext.isAnonymous());
+    }
+
+
+    @Override
+    public boolean isAnonymous() {
+        return true;
+    }
+
+
+    @Override
+    public Anonymous asAnonymous() {
+        return this;
     }
 }

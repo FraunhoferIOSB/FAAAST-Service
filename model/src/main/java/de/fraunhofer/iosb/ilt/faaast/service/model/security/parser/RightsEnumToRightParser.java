@@ -12,23 +12,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.match;
+package de.fraunhofer.iosb.ilt.faaast.service.model.security.parser;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.EvaluationContext;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.LogicalExpression;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.RightsEnum;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.parser.Parser;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.Right;
 
-import java.util.List;
 
-
-public record MatchExpression(List<MatchElement> elements) implements MatchElement {
+public class RightsEnumToRightParser implements Parser<RightsEnum, Right> {
     @Override
-    public boolean isMatch() {
-        return true;
-    }
-
-
-    @Override
-    public LogicalExpression evaluatePartially(EvaluationContext evaluationContext) {
-        throw new UnsupportedOperationException("not yet implemented");
+    public Right parse(RightsEnum idtaRight) {
+        return switch (idtaRight) {
+            case CREATE -> Right.CREATE;
+            case READ -> Right.READ;
+            case UPDATE -> Right.UPDATE;
+            case DELETE -> Right.DELETE;
+            case EXECUTE -> Right.EXECUTE;
+            case VIEW -> Right.VIEW;
+            case ALL -> Right.ALL;
+        };
     }
 }

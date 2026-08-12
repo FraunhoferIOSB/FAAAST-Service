@@ -12,23 +12,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.match;
+package de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.referable.identifiable;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.EvaluationContext;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.LogicalExpression;
+public class SubmodelObject extends IdentifiableObject {
+    public static final String NOTATION = "$sm";
 
-import java.util.List;
-
-
-public record MatchExpression(List<MatchElement> elements) implements MatchElement {
-    @Override
-    public boolean isMatch() {
-        return true;
+    public SubmodelObject(String identifier) {
+        super(identifier);
     }
 
 
     @Override
-    public LogicalExpression evaluatePartially(EvaluationContext evaluationContext) {
-        throw new UnsupportedOperationException("not yet implemented");
+    public String getNotation() {
+        return NOTATION;
     }
+
 }

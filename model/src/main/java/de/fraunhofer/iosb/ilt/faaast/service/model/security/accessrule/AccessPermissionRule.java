@@ -12,14 +12,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.model.query;
+package de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.LogicalExpression;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.filter.QueryFilter;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.AccessObject;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.AccessRule;
 
 import java.util.List;
 
 
-public record Query(boolean selectId, LogicalExpression condition, List<QueryFilter> filters) {
+public record AccessPermissionRule(AccessRule rule, List<AccessObject> objects, LogicalExpression formula, List<QueryFilter> filters) {
 
+    public AccessPermissionRule(AccessRule rule, List<AccessObject> objects, LogicalExpression formula) {
+        this(rule, objects, formula, List.of());
+    }
+
+
+    public AccessPermissionRule(AccessRule rule, AccessObject object, LogicalExpression formula) {
+        this(rule, List.of(object), formula, List.of());
+    }
+
+
+    public boolean isEnabled() {
+        return rule.enabled();
+    }
 }

@@ -15,12 +15,13 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.field.path;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.field.FieldIdentifierAttribute;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.field.FieldIdentifier;
 
 import java.util.Objects;
 
 
-public class SubmodelElementFieldIdentifier extends FieldIdentifierAttribute {
+public class SubmodelElementFieldIdentifier extends FieldIdentifier {
+    public static final String NOTATION = "$sme";
 
     private final IdShortPath idShortPath;
 
@@ -44,8 +45,8 @@ public class SubmodelElementFieldIdentifier extends FieldIdentifierAttribute {
     @Override
     protected String getScopeSyntax() {
         return idShortPath == null
-                ? "$sme"
-                : "$sme." + idShortPath;
+                ? NOTATION
+                : NOTATION + "." + idShortPath;
     }
 
 

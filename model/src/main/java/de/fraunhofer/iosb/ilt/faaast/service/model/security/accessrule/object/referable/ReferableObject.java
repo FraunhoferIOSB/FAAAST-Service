@@ -12,23 +12,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.match;
+package de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.referable;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.EvaluationContext;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.LogicalExpression;
-
-import java.util.List;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.AccessObject;
 
 
-public record MatchExpression(List<MatchElement> elements) implements MatchElement {
-    @Override
-    public boolean isMatch() {
-        return true;
+public abstract class ReferableObject implements AccessObject {
+    private static final String WILDCARD = "(\"*\")";
+    private final String identifier;
+
+    protected ReferableObject(String input) {
+        this.identifier = input.substring(getNotation().length() + 1, input.lastIndexOf(")") + 1);
     }
 
 
-    @Override
-    public LogicalExpression evaluatePartially(EvaluationContext evaluationContext) {
-        throw new UnsupportedOperationException("not yet implemented");
+    public String getIdentifier() {
+        return identifier;
     }
+
+
+    public boolean isWildcard() {
+        return identifier.equals(WILDCARD);
+    }
+
+
+    public abstract String getNotation();
 }

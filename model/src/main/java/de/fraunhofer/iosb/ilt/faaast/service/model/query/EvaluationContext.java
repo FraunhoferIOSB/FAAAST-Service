@@ -14,24 +14,34 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.query;
 
-import java.time.Instant;
 import java.util.Map;
-import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
-import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import java.util.Optional;
 
 
 public class EvaluationContext {
 
-    Map<String, String> claims = Map.ofEntries(
-            Map.entry("iat", Instant.now().toString()),
-            Map.entry("test", "itsTheNameOfTheClaim"));
+    private final Map<String, String> claims;
+    private final String route;
 
-    private KeyTypes requestedResourceType;
+    public EvaluationContext(Map<String, String> claims, String route) {
+        this.claims = claims;
+        this.route = route;
+    }
 
-    private Reference requestedResource;
+
+    public EvaluationContext(Map<String, String> claims) {
+        this.claims = claims;
+        this.route = null;
+    }
+
 
     public String getClaim(String claimName) {
         return claims.getOrDefault(claimName, "does not exist :-D");
+    }
+
+
+    public Optional<String> getRoute() {
+        return Optional.ofNullable(route);
     }
 
 
@@ -39,13 +49,4 @@ public class EvaluationContext {
         return claims.isEmpty();
     }
 
-
-    public KeyTypes getRequestedResourceType() {
-        return requestedResourceType;
-    }
-
-
-    public Reference getRequestedResource() {
-        return requestedResource;
-    }
 }

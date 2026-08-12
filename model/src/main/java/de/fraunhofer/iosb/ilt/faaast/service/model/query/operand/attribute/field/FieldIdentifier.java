@@ -22,15 +22,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.field
 import java.util.Objects;
 
 
-public abstract class FieldIdentifierAttribute extends Attribute {
+public abstract class FieldIdentifier implements Attribute {
     protected final FieldPath fieldPath;
 
-    public FieldIdentifierAttribute(FieldPath fieldPath) {
+    public FieldIdentifier(FieldPath fieldPath) {
         this.fieldPath = fieldPath;
     }
-
-
-    protected abstract String getScopeSyntax();
 
 
     @Override
@@ -47,7 +44,7 @@ public abstract class FieldIdentifierAttribute extends Attribute {
         if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
-        FieldIdentifierAttribute other = (FieldIdentifierAttribute) obj;
+        FieldIdentifier other = (FieldIdentifier) obj;
         return Objects.equals(fieldPath, other.fieldPath);
     }
 
@@ -62,4 +59,8 @@ public abstract class FieldIdentifierAttribute extends Attribute {
     public String toString() {
         return getScopeSyntax() + "#" + fieldPath;
     }
+
+
+    protected abstract String getScopeSyntax();
+
 }

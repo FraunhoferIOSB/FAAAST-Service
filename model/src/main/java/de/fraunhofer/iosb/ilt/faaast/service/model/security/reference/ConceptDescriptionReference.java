@@ -12,23 +12,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.match;
-
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.EvaluationContext;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.LogicalExpression;
+package de.fraunhofer.iosb.ilt.faaast.service.model.security.reference;
 
 import java.util.List;
+import java.util.function.Function;
+import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
+import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 
 
-public record MatchExpression(List<MatchElement> elements) implements MatchElement {
-    @Override
-    public boolean isMatch() {
-        return true;
-    }
-
-
-    @Override
-    public LogicalExpression evaluatePartially(EvaluationContext evaluationContext) {
-        throw new UnsupportedOperationException("not yet implemented");
+public class ConceptDescriptionReference extends ReferenceAttribute {
+    protected Function<Environment, List<ConceptDescription>> identifiableAccessor() {
+        return Environment::getConceptDescriptions;
     }
 }

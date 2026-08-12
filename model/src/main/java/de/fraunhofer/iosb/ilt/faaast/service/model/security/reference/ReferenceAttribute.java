@@ -12,23 +12,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.match;
+package de.fraunhofer.iosb.ilt.faaast.service.model.security.reference;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.EvaluationContext;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.LogicalExpression;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.Operand;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.Attribute;
 
-import java.util.List;
 
-
-public record MatchExpression(List<MatchElement> elements) implements MatchElement {
-    @Override
-    public boolean isMatch() {
-        return true;
-    }
-
+/**
+ * @deprecated did not find this in the grammars anymore
+ */
+@Deprecated
+public abstract class ReferenceAttribute implements Attribute {
 
     @Override
-    public LogicalExpression evaluatePartially(EvaluationContext evaluationContext) {
-        throw new UnsupportedOperationException("not yet implemented");
+    public Operand evaluatePartially(EvaluationContext evaluationContext) {
+        return this;
     }
 }

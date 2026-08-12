@@ -12,23 +12,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.match;
+package de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.EvaluationContext;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.LogicalExpression;
+public interface AccessRuleEntity<T> {
 
-import java.util.List;
-
-
-public record MatchExpression(List<MatchElement> elements) implements MatchElement {
-    @Override
-    public boolean isMatch() {
-        return true;
+    default boolean isUse() {
+        return false;
     }
 
 
-    @Override
-    public LogicalExpression evaluatePartially(EvaluationContext evaluationContext) {
-        throw new UnsupportedOperationException("not yet implemented");
+    default String getUseName() {
+        throw new IllegalArgumentException("Not supported");
+    }
+
+
+    default T getInstance() {
+        throw new IllegalArgumentException("Not supported");
     }
 }

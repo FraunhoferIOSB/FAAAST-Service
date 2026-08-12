@@ -12,23 +12,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter;
+package de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object;
 
-import static de.fraunhofer.iosb.ilt.faaast.service.model.query.json.Acl.Access.DISABLED;
-
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AccessPermissionRule;
-import jakarta.servlet.http.HttpServletRequest;
-import java.util.List;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.UseEntity;
 
 
-/**
- * Filters applicable AAS ACL rules using the rules' "Access" field.
- */
-public class AclAccessFilter extends AbstractAclFilter {
-    @Override
-    protected List<AccessPermissionRule> doFilter(HttpServletRequest request, List<AccessPermissionRule> rules) {
-        return rules.stream()
-                .filter(rule -> DISABLED != rule.getAcl().getAccess())
-                .toList();
+public class UseObject extends UseEntity<AccessObject> implements AccessObject {
+
+    public UseObject(String name) {
+        super(name);
     }
 }

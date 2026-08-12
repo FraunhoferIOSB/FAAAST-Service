@@ -31,6 +31,12 @@ public abstract class AbstractLogicalOperation extends NAryExpression {
 
 
     @Override
+    public boolean isLogical() {
+        return true;
+    }
+
+
+    @Override
     public LogicalExpression evaluatePartially(EvaluationContext evaluationContext) {
         List<LogicalExpression> evaluated = new ArrayList<>();
         boolean changed = false;

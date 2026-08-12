@@ -15,6 +15,27 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.Operand;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.global.GlobalAttribute;
 
 
-public abstract class Attribute implements Operand {}
+public interface Attribute extends Operand {
+    default boolean isGlobal() {
+        return false;
+    }
+
+
+    default GlobalAttribute asGlobal() {
+        throw new UnsupportedOperationException("%s is not a global attribute");
+    }
+
+
+    default boolean isClaim() {
+        return false;
+    }
+
+
+    default ClaimAttribute asClaim() {
+        throw new UnsupportedOperationException("%s is not a claim attribute");
+
+    }
+}

@@ -19,6 +19,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.LogicalExpre
 
 
 public interface Operand extends LogicalExpression {
+    @Override
+    default boolean isOperand() {
+        return true;
+    }
+
 
     @Override
     Operand evaluatePartially(EvaluationContext evaluationContext);

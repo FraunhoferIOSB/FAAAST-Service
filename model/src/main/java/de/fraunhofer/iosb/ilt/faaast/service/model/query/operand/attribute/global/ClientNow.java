@@ -18,7 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.EvaluationContext;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.DateTimeLiteral;
 
 
-public class ClientNow extends GlobalAttribute {
+public class ClientNow implements GlobalAttribute {
     private static final String ISSUED_AT_CLAIM = "iat";
 
     @Override
@@ -28,5 +28,17 @@ public class ClientNow extends GlobalAttribute {
             throw new IllegalArgumentException("Help");
         }
         return DateTimeLiteral.parse(iat);
+    }
+
+
+    @Override
+    public boolean isClientNow() {
+        return true;
+    }
+
+
+    @Override
+    public ClientNow asClientNow() {
+        return this;
     }
 }

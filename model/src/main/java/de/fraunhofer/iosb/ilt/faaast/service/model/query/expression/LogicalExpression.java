@@ -16,11 +16,33 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.query.expression;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.EvaluationContext;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.Literal;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.AccessRuleEntity;
 
 
-public interface LogicalExpression {
+public interface LogicalExpression extends AccessRuleEntity<LogicalExpression> {
 
     LogicalExpression evaluatePartially(EvaluationContext evaluationContext);
+
+
+    @Override
+    default LogicalExpression getInstance() {
+        return this;
+    }
+
+
+    default boolean isLogical() {
+        return false;
+    }
+
+
+    default boolean isMatch() {
+        return false;
+    }
+
+
+    default boolean isOperand() {
+        return false;
+    }
 
 
     default boolean isLiteral() {

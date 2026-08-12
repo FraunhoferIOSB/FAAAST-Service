@@ -20,7 +20,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.EvaluationContext;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.StringLiteral;
 
 
-public class ClaimAttribute extends Attribute {
+public class ClaimAttribute implements Attribute {
 
     private final String claim;
 
@@ -33,6 +33,23 @@ public class ClaimAttribute extends Attribute {
         if (claim == null) {
             throw new IllegalArgumentException("Operand to claim attribute is null");
         }
+    }
+
+
+    public String getClaim() {
+        return claim;
+    }
+
+
+    @Override
+    public boolean isClaim() {
+        return true;
+    }
+
+
+    @Override
+    public ClaimAttribute asClaim() {
+        return this;
     }
 
 

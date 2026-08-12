@@ -12,23 +12,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.match;
+package de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.referable;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.EvaluationContext;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.LogicalExpression;
-
-import java.util.List;
+import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
 
 
-public record MatchExpression(List<MatchElement> elements) implements MatchElement {
-    @Override
-    public boolean isMatch() {
-        return true;
+public class SubmodelElementObject extends ReferableObject {
+    public static final String NOTATION = "$sme";
+
+    private final IdShortPath idShortPath;
+
+    protected SubmodelElementObject(String input) {
+        super(input.substring(0, input.lastIndexOf(")")));
+
+        // $sme(SomeIdentifier).<IdShortPath>
+        String idShortPathString = input.substring(input.lastIndexOf(")") + 2);
+
+        this.idShortPath = IdShortPath.parse(idShortPathString);
     }
 
 
     @Override
-    public LogicalExpression evaluatePartially(EvaluationContext evaluationContext) {
-        throw new UnsupportedOperationException("not yet implemented");
+    public String getNotation() {
+        return NOTATION;
+    }
+
+
+    public IdShortPath getIdShortPath() {
+        return idShortPath;
     }
 }

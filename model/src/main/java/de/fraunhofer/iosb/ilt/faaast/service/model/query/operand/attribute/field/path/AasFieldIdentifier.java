@@ -14,10 +14,12 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.field.path;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.field.FieldIdentifierAttribute;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.field.FieldIdentifier;
 
 
-public class AasFieldIdentifier extends FieldIdentifierAttribute {
+public class AasFieldIdentifier extends FieldIdentifier {
+    public static final String NOTATION = "$aas";
+
     public AasFieldIdentifier(FieldPath fieldPath) {
         super(fieldPath);
     }
@@ -25,6 +27,6 @@ public class AasFieldIdentifier extends FieldIdentifierAttribute {
 
     @Override
     protected String getScopeSyntax() {
-        return "$aas";
+        return NOTATION;
     }
 }

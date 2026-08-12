@@ -15,25 +15,8 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.query.filter;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.LogicalExpression;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.field.FieldIdentifierAttribute;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.field.FieldIdentifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.AccessRuleEntity;
 
 
-public class QueryFilter {
-    private final FieldIdentifierAttribute fragment;
-    private final LogicalExpression condition;
-
-    public QueryFilter(FieldIdentifierAttribute fragment, LogicalExpression condition) {
-        this.fragment = fragment;
-        this.condition = condition;
-    }
-
-
-    public FieldIdentifierAttribute getFragment() {
-        return fragment;
-    }
-
-
-    public LogicalExpression getCondition() {
-        return condition;
-    }
-}
+public record QueryFilter(FieldIdentifier fragment, LogicalExpression condition) implements AccessRuleEntity<QueryFilter> {}

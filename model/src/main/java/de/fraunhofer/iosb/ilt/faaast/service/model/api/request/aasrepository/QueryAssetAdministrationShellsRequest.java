@@ -17,7 +17,8 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithModifierAndPaging;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasrepository.QueryAssetAdministrationShellsResponse;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.Query;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.Query;
+
 import java.util.Objects;
 
 

@@ -14,10 +14,12 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.field.path;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.field.FieldIdentifierAttribute;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.field.FieldIdentifier;
 
 
-public class ConceptDescriptionFieldIdentifier extends FieldIdentifierAttribute {
+public class ConceptDescriptionFieldIdentifier extends FieldIdentifier {
+    public static final String NOTATION = "$cd";
+
     public ConceptDescriptionFieldIdentifier(FieldPath fieldPath) {
         super(fieldPath);
     }
@@ -25,6 +27,6 @@ public class ConceptDescriptionFieldIdentifier extends FieldIdentifierAttribute 
 
     @Override
     protected String getScopeSyntax() {
-        return "$cd";
+        return NOTATION;
     }
 }

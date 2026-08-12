@@ -15,15 +15,30 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.global;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.EvaluationContext;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.Operand;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.DateTimeLiteral;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 
 
-public class LocalNow extends GlobalAttribute {
+public class LocalNow implements GlobalAttribute {
+
     @Override
-    public DateTimeLiteral evaluatePartially(EvaluationContext evaluationContext) {
+    public Operand evaluatePartially(EvaluationContext evaluationContext) {
         return new DateTimeLiteral(LocalDateTime.now().atZone(ZoneId.systemDefault()));
     }
+
+
+    @Override
+    public boolean isLocalNow() {
+        return true;
+    }
+
+
+    @Override
+    public LocalNow asLocalNow() {
+        return this;
+    }
+
 }

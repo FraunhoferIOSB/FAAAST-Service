@@ -21,10 +21,22 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.DateTim
 import java.time.LocalDateTime;
 
 
-public class UtcNow extends GlobalAttribute {
+public class UtcNow implements GlobalAttribute {
 
     @Override
     public DateTimeLiteral evaluatePartially(EvaluationContext evaluationContext) {
         return new DateTimeLiteral(LocalDateTime.now().atZone(UTC));
+    }
+
+
+    @Override
+    public boolean isUtcNow() {
+        return true;
+    }
+
+
+    @Override
+    public UtcNow asUtcNow() {
+        return this;
     }
 }

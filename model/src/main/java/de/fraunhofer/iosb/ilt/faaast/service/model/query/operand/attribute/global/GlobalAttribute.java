@@ -17,6 +17,57 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.glob
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.Attribute;
 
 
-public abstract class GlobalAttribute extends Attribute {
+public interface GlobalAttribute extends Attribute {
+
+    @Override
+    default boolean isGlobal() {
+        return true;
+    }
+
+
+    @Override
+    default GlobalAttribute asGlobal() {
+        return this;
+    }
+
+
+    default boolean isAnonymous() {
+        return false;
+    }
+
+
+    default Anonymous asAnonymous() {
+        throw new UnsupportedOperationException("%s is not Anonymous");
+    }
+
+
+    default boolean isClientNow() {
+        return false;
+    }
+
+
+    default ClientNow asClientNow() {
+        throw new UnsupportedOperationException("%s is not ClientNow");
+    }
+
+
+    default boolean isLocalNow() {
+        return false;
+    }
+
+
+    default LocalNow asLocalNow() {
+        throw new UnsupportedOperationException("%s is not LocalNow");
+    }
+
+
+    default boolean isUtcNow() {
+        return false;
+    }
+
+
+    default UtcNow asUtcNow() {
+        throw new UnsupportedOperationException("%s is not UtcNow");
+    }
 
 }
