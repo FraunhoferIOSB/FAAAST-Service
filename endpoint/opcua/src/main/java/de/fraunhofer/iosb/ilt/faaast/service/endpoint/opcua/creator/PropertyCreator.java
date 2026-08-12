@@ -66,10 +66,9 @@ public class PropertyCreator extends SubmodelElementCreator {
             //addSubmodelElementBaseData(prop, aasProperty, nodeManager);
 
             // ValueId
-            Reference ref = aasProperty.getValueId();
-            if (ref != null) {
-                AasReferenceCreator.addAasReferenceAasNS(prop, ref, AASPropertyType.VALUE_ID, nodeManager);
-            }
+            //Reference ref = aasProperty.getValueId();
+            //AasReferenceCreator.addAasReferenceAasNS(prop, ref, AASPropertyType.VALUE_ID, nodeManager);
+            prop.setValueId(AasReferenceCreator.getAasReference(aasProperty.getValueId()));
 
             // here Value and ValueType are set
             //addOpcUaProperty(aasProperty, submodel, prop, propertyRef, nodeManager);
@@ -90,7 +89,7 @@ public class PropertyCreator extends SubmodelElementCreator {
             }
 
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("addAasProperty: add Property {}, Reference: {}", nid, ReferenceHelper.toString(ref));
+                LOGGER.debug("addAasProperty: add Property {}, Reference: {}", nid, ReferenceHelper.toString(propertyRef));
             }
 
             if (ordered) {

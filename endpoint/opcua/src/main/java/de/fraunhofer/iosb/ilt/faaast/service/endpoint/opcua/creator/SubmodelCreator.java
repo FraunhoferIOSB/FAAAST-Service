@@ -23,14 +23,12 @@ import com.prosysopc.ua.stack.builtintypes.LocalizedText;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.QualifiedName;
 import com.prosysopc.ua.stack.common.ServiceResultException;
-import com.prosysopc.ua.stack.core.AccessLevelType;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.UaHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import java.util.List;
-import opc.i4aas.objecttypes.AASSubmodelType;
+import opc.ua.aas.objecttypes.AASSubmodelType;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.ModellingKind;
 import org.eclipse.digitaltwin.aas4j.v3.model.Qualifier;
@@ -75,7 +73,7 @@ public class SubmodelCreator {
             shortId = "Submodel";
         }
         String displayName = "Submodel:" + shortId;
-        QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASSubmodelType.getNamespaceUri(), shortId)
+        QualifiedName browseName = UaQualifiedName.from(opc.ua.aas.ObjectTypeIds.AASSubmodelType.getNamespaceUri(), shortId)
                 .toQualifiedName(nodeManager.getNamespaceTable());
         NodeId nid = nodeManager.createNodeId(node, browseName);
         if (nodeManager.hasNode(nid)) {
@@ -86,7 +84,7 @@ public class SubmodelCreator {
         LOGGER.trace("addSubmodel: create Submodel {}; NodeId: {}; Kind {}", submodel.getIdShort(), nid, submodel.getKind());
         AASSubmodelType smNode = nodeManager.createInstance(AASSubmodelType.class, nid, browseName, LocalizedText.english(displayName));
 
-        IdentifiableCreator.addIdentifiable(smNode, submodel.getId(), submodel.getAdministration(), submodel.getCategory(), nodeManager);
+        IdentifiableCreator.addIdentifiable(smNode.getCommonAttributes().getIdentifiable(), submodel.getId(), submodel.getAdministration(), submodel.getCategory(), nodeManager);
 
         setKind(submodel.getKind(), smNode, nodeManager);
 
@@ -110,9 +108,9 @@ public class SubmodelCreator {
         // SubmodelElements
         SubmodelElementCreator.addSubmodelElements(smNode, submodel.getSubmodelElements(), submodel, refSubmodel, nodeManager);
 
-        if ((AasServiceNodeManager.VALUES_READ_ONLY) && (smNode.getKindNode() != null)) {
-            smNode.getKindNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
-        }
+        //if ((AasServiceNodeManager.VALUES_READ_ONLY) && (smNode.getKindNode() != null)) {
+        //    smNode.getKindNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
+        //}
 
         nodeManager.addSubmodelOpcUA(AasUtils.toReference(submodel), smNode);
 
@@ -125,24 +123,24 @@ public class SubmodelCreator {
     private static void setKind(ModellingKind kind, AASSubmodelType smNode, AasServiceNodeManager nodeManager) throws StatusException {
         // Kind
         if (kind != null) {
-            if (smNode.getKindNode() == null) {
-                UaHelper.addKindProperty(smNode, nodeManager, AASSubmodelType.KIND, kind,
-                        opc.i4aas.ObjectTypeIds.AASSubmodelType.getNamespaceUri());
-            }
-            else {
-                smNode.setKind(ValueConverter.convertModellingKind(kind));
-            }
+            //if (smNode.getKindNode() == null) {
+            //    UaHelper.addKindProperty(smNode, nodeManager, AASSubmodelType.KIND, kind,
+            //            opc.i4aas.ObjectTypeIds.AASSubmodelType.getNamespaceUri());
+            //}
+            //else {
+            smNode.getCommonAttributes().setHasKind(ValueConverter.convertHasKind(kind));
+            //}
         }
     }
 
 
     private static void setQualifierData(List<Qualifier> qualifiers, AASSubmodelType smNode, AasServiceNodeManager nodeManager) throws StatusException {
         if ((qualifiers != null) && (!qualifiers.isEmpty())) {
-            if (smNode.getQualifierNode() == null) {
-                QualifierCreator.addQualifierNode(smNode, nodeManager);
-            }
+            //if (smNode.getQualifierNode() == null) {
+            //    QualifierCreator.addQualifierNode(smNode, nodeManager);
+            //}
 
-            QualifierCreator.addQualifiers(smNode.getQualifierNode(), qualifiers, nodeManager);
+            QualifierCreator.addQualifiers(smNode.getCommonAttributes().getQualifiable(), qualifiers, nodeManager);
         }
     }
 

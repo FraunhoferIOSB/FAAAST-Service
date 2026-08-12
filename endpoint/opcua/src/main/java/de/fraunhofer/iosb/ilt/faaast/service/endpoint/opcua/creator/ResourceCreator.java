@@ -23,7 +23,7 @@ import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.QualifiedName;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.UaHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
-import opc.i4aas.objecttypes.AASResourceType;
+import opc.ua.aas.objecttypes.AASResourceType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Resource;
 
 
@@ -52,7 +52,7 @@ public class ResourceCreator {
     public static void addAasResource(UaNode node, Resource aasResource, String name, NodeManagerUaNode nodeManager) throws StatusException, ValueFormatException {
         if ((node != null) && (aasResource != null)) {
             NodeId nodeId = new NodeId(nodeManager.getNamespaceIndex(), node.getNodeId().getValue().toString() + "." + name);
-            QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASResourceType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
+            QualifiedName browseName = UaQualifiedName.from(opc.ua.aas.ObjectTypeIds.AASResourceType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
             AASResourceType resourceNode = nodeManager.createInstance(AASResourceType.class, nodeId, browseName, LocalizedText.english(name));
 
             setResourceData(aasResource, resourceNode, nodeManager);
@@ -65,7 +65,7 @@ public class ResourceCreator {
         if (!aasResource.getContentType().isEmpty()) {
             if (resourceNode.getContentTypeNode() == null) {
                 UaHelper.addStringUaProperty(resourceNode, nodeManager, AASResourceType.CONTENT_TYPE, aasResource.getContentType(),
-                        opc.i4aas.ObjectTypeIds.AASResourceType.getNamespaceUri());
+                        opc.ua.aas.ObjectTypeIds.AASResourceType.getNamespaceUri());
             }
             else {
                 resourceNode.setContentType(aasResource.getContentType());
@@ -74,7 +74,7 @@ public class ResourceCreator {
 
         if (aasResource.getPath() != null) {
             if (resourceNode.getPathNode() == null) {
-                UaHelper.addStringUaProperty(resourceNode, nodeManager, AASResourceType.PATH, aasResource.getPath(), opc.i4aas.ObjectTypeIds.AASResourceType.getNamespaceUri());
+                UaHelper.addStringUaProperty(resourceNode, nodeManager, AASResourceType.PATH, aasResource.getPath(), opc.ua.aas.ObjectTypeIds.AASResourceType.getNamespaceUri());
             }
             else {
                 resourceNode.setPath(aasResource.getPath());

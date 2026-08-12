@@ -63,6 +63,7 @@ import java.util.Optional;
 import opc.ua.aas.datatypes.AASAssetKind;
 import opc.ua.aas.datatypes.AASDirection;
 import opc.ua.aas.datatypes.AASEntityEnumType;
+import opc.ua.aas.datatypes.AASHasKind;
 import opc.ua.aas.datatypes.AASKey;
 import opc.ua.aas.datatypes.AASKeyTypes;
 import opc.ua.aas.datatypes.AASModellingKind;
@@ -352,7 +353,7 @@ public class ValueConverter {
     /**
      * Converts the given ModellingKind to the corresponding AASModellingKindDataType.
      *
-     * @param value the desired ModellingKind
+     * @param value The desired ModellingKind
      * @return The corresponding AASModellingKindDataType
      */
     public static AASModellingKind convertModellingKind(ModellingKind value) {
@@ -370,6 +371,18 @@ public class ValueConverter {
             throw new IllegalArgumentException("unknown ModellingKind: " + value);
         }
 
+        return retval;
+    }
+
+
+    /**
+     * Converts the given ModellingKind to an OPC UA HasKind woth the corresponding ModellingKind.
+     *
+     * @param value The desired ModellingKind
+     * @return The corresponding OPC UA HasKind.
+     */
+    public static AASHasKind convertHasKind(ModellingKind value) {
+        AASHasKind retval = new AASHasKind(convertModellingKind(value));
         return retval;
     }
 
@@ -902,6 +915,17 @@ public class ValueConverter {
         }
 
         return retval;
+    }
+
+
+    /**
+     * Converts a DataTypeDefXsd to the corresponding xsd string.
+     *
+     * @param datatype The desired datatype.
+     * @return The corresponding xsd string.
+     */
+    public static String convertDataTypeDefToString(DataTypeDefXsd datatype) {
+        return Datatype.fromAas4jDatatype(datatype).getName();
     }
 
 

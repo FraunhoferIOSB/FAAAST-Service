@@ -29,7 +29,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.Locale;
-import opc.i4aas.objecttypes.AASOperationType;
+import opc.ua.aas.objecttypes.AASOperationType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Property;
@@ -63,7 +63,7 @@ public class OperationCreator extends SubmodelElementCreator {
             if ((name == null) || name.isEmpty()) {
                 name = getNameFromReference(operationRef);
             }
-            QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASOperationType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
+            QualifiedName browseName = UaQualifiedName.from(opc.ua.aas.ObjectTypeIds.AASOperationType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
             NodeId nid = nodeManager.getDefaultNodeId();
             AASOperationType oper = nodeManager.createInstance(AASOperationType.class, nid, browseName, LocalizedText.english(name));
             addSubmodelElementBaseData(oper, aasOperation, nodeManager);
@@ -120,8 +120,7 @@ public class OperationCreator extends SubmodelElementCreator {
      * @param var The corresponding Operation Variable
      */
     private static void setOperationArgument(Argument arg, OperationVariable operVar) {
-        if (operVar.getValue() instanceof Property) {
-            Property prop = (Property) operVar.getValue();
+        if (operVar.getValue() instanceof Property prop) {
             arg.setName(prop.getIdShort());
             arg.setValueRank(ValueRanks.Scalar);
             arg.setArrayDimensions(null);

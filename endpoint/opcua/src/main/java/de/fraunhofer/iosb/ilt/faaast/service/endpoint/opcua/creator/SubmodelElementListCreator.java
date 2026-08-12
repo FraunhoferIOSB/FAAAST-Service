@@ -31,7 +31,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatExceptio
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.List;
-import opc.i4aas.objecttypes.AASSubmodelElementListType;
+import opc.ua.aas.objecttypes.AASSubmodelElementListType;
 import org.eclipse.digitaltwin.aas4j.v3.model.AasSubmodelElements;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
@@ -71,7 +71,7 @@ public class SubmodelElementListCreator extends SubmodelElementCreator {
                 if ((name == null) || name.isEmpty()) {
                     name = getNameFromReference(listRef);
                 }
-                String namespaceUri = opc.i4aas.ObjectTypeIds.AASSubmodelElementListType.getNamespaceUri();
+                String namespaceUri = opc.ua.aas.ObjectTypeIds.AASSubmodelElementListType.getNamespaceUri();
                 QualifiedName browseName = UaQualifiedName.from(namespaceUri, name)
                         .toQualifiedName(nodeManager.getNamespaceTable());
                 NodeId nid = nodeManager.getDefaultNodeId();
@@ -111,12 +111,15 @@ public class SubmodelElementListCreator extends SubmodelElementCreator {
             throws StatusException {
         if (semanticIdElement != null) {
             if (collNode.getSemanticIdListElementNode() == null) {
-                AasReferenceCreator.addAasReference(collNode, semanticIdElement, AASSubmodelElementListType.SEMANTIC_ID_LIST_ELEMENT, namespaceUri, true,
-                        nodeManager);
+                UaHelper.addAasSubmodelElementsProperty(collNode, nodeManager, AASSubmodelElementListType.SEMANTIC_ID_LIST_ELEMENT, null,
+                        namespaceUri);
+                //    AasReferenceCreator.addAasReference(collNode, semanticIdElement, AASSubmodelElementListType.SEMANTIC_ID_LIST_ELEMENT, namespaceUri, true,
+                //            nodeManager);
             }
-            else {
-                AasReferenceCreator.setAasReferenceData(semanticIdElement, collNode.getSemanticIdListElementNode(), true);
-            }
+            collNode.setSemanticIdListElement(AasReferenceCreator.getAasReference(semanticIdElement));
+            //else {
+            //    AasReferenceCreator.setAasReferenceData(semanticIdElement, collNode.getSemanticIdListElement(), true);
+            //}
         }
     }
 
@@ -138,12 +141,13 @@ public class SubmodelElementListCreator extends SubmodelElementCreator {
     private static void setValueTypeListElement(DataTypeDefXsd datatype, AASSubmodelElementListType collNode, AasServiceNodeManager nodeManager, String namespaceUri)
             throws StatusException {
         if (datatype != null) {
-            if (collNode.getValueTypeListElementNode() == null) {
-                UaHelper.addDataTypeDefProperty(collNode, nodeManager, AASSubmodelElementListType.VALUE_TYPE_LIST_ELEMENT, datatype, namespaceUri);
-            }
-            else {
-                collNode.setValueTypeListElement(ValueConverter.convertDataTypeDefXsd(datatype));
-            }
+            //if (collNode.getValueTypeListElementNode() == null) {
+            //    UaHelper.addDataTypeDefProperty(collNode, nodeManager, AASSubmodelElementListType.VALUE_TYPE_LIST_ELEMENT, datatype, namespaceUri);
+            //}
+            //else {
+            //    collNode.setValueTypeListElement(ValueConverter.convertDataTypeDefXsd(datatype));
+            //}
+            collNode.setValueTypeListElement(ValueConverter.convertDataTypeDefToString(datatype));
         }
     }
 

@@ -15,17 +15,12 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator;
 
 import com.prosysopc.ua.StatusException;
-import com.prosysopc.ua.UaQualifiedName;
-import com.prosysopc.ua.nodes.UaNode;
-import com.prosysopc.ua.stack.builtintypes.LocalizedText;
-import com.prosysopc.ua.stack.builtintypes.NodeId;
-import com.prosysopc.ua.stack.builtintypes.QualifiedName;
-import com.prosysopc.ua.stack.core.AccessLevelType;
+import com.prosysopc.ua.ValueRanks;
+import com.prosysopc.ua.types.opcua.BaseDataVariableType;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
+import java.util.ArrayList;
 import java.util.List;
-import opc.i4aas.objecttypes.AASEntityType;
-import opc.i4aas.objecttypes.AASReferenceType;
-import opc.i4aas.objecttypes.AASSpecificAssetIdType;
+import opc.ua.aas.datatypes.AASSpecificAssetId;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
 import org.slf4j.Logger;
@@ -52,19 +47,31 @@ public class SpecificAssetIdCreator {
      * @param nodeManager The corresponding Node Manager
      * @throws StatusException If the operation fails
      */
-    public static void addSpecificAssetIdList(UaNode node, List<SpecificAssetId> specificAssetIds, AasServiceNodeManager nodeManager) throws StatusException {
+    public static void addSpecificAssetIdList(BaseDataVariableType node, List<SpecificAssetId> specificAssetIds, AasServiceNodeManager nodeManager) throws StatusException {
 
-        int index = 1;
+        //int index = 1;
+        List<AASSpecificAssetId> list = new ArrayList<>();
         for (var specificAssetId: specificAssetIds) {
-            String name = String.format("%s %d", AASEntityType.SPECIFIC_ASSET_ID, index);
-            if ((specificAssetId.getName() != null) && (!specificAssetId.getName().isEmpty())) {
-                name = specificAssetId.getName();
-            }
+            //String name = String.format("%s %d", AASEntityType.SPECIFIC_ASSET_ID, index);
+            //if ((specificAssetId.getName() != null) && (!specificAssetId.getName().isEmpty())) {
+            //    name = specificAssetId.getName();
+            //}
 
-            addSpecificAssetId(node, specificAssetId, name, AasServiceNodeManager.VALUES_READ_ONLY, nodeManager);
+            LOGGER.debug("addSpecificAssetIdList {}; to Node: {}", specificAssetId.getName(), node);
+            AASSpecificAssetId specificAssetIdNode = getSpecificAssetId(specificAssetId);
+            list.add(specificAssetIdNode);
+            //addSpecificAssetId(node, specificAssetId, name, AasServiceNodeManager.VALUES_READ_ONLY, nodeManager);
+        }
+
+        if (list.size() == 1) {
+            node.setValue(list.get(0));
+            node.setValueRank(ValueRanks.Scalar);
+        }
+        else if (list.size() > 1) {
+            node.setValue(list.toArray());
+            node.setValueRank(ValueRanks.OneDimension);
         }
     }
-
 
     /**
      * Adds a SpecificAssetId to the given Node.
@@ -75,10 +82,9 @@ public class SpecificAssetIdCreator {
      * @param nodeManager The corresponding Node Manager
      * @throws StatusException If the operation fails
      */
-    public static void addSpecificAssetId(UaNode node, SpecificAssetId specificAssetId, String name, AasServiceNodeManager nodeManager) throws StatusException {
-        addSpecificAssetId(node, specificAssetId, name, AasServiceNodeManager.VALUES_READ_ONLY, nodeManager);
-    }
-
+    //public static void addSpecificAssetId(BaseDataVariableType node, SpecificAssetId specificAssetId, String name, AasServiceNodeManager nodeManager) throws StatusException {
+    //    addSpecificAssetId(node, specificAssetId, name, AasServiceNodeManager.VALUES_READ_ONLY, nodeManager);
+    //}
 
     /**
      * Sets the data for the given IdentifierKeyValuePair Node from the corresponding AAS object.
@@ -88,11 +94,10 @@ public class SpecificAssetIdCreator {
      * @param nodeManager The corresponding Node Manager
      * @throws StatusException If the operation fails
      */
-    public static void setSpecificAssetIdData(AASSpecificAssetIdType specificAssetIdNode, SpecificAssetId aasIdentifierPair, AasServiceNodeManager nodeManager)
-            throws StatusException {
-        setSpecificAssetIdData(specificAssetIdNode, aasIdentifierPair, AasServiceNodeManager.VALUES_READ_ONLY, nodeManager);
-    }
-
+    //public static void setSpecificAssetIdData(AASSpecificAssetId specificAssetIdNode, SpecificAssetId aasIdentifierPair, AasServiceNodeManager nodeManager)
+    //        throws StatusException {
+    //    setSpecificAssetIdData(specificAssetIdNode, aasIdentifierPair, AasServiceNodeManager.VALUES_READ_ONLY, nodeManager);
+    //}
 
     /**
      * Adds an SpecificAssetId to the given Node.
@@ -104,25 +109,27 @@ public class SpecificAssetIdCreator {
      * @param nodeManager The corresponding Node Manager
      * @throws StatusException If the operation fails
      */
-    private static void addSpecificAssetId(UaNode node, SpecificAssetId specificAssetId, String name, boolean readOnly, AasServiceNodeManager nodeManager)
-            throws StatusException {
-        if (node == null) {
-            throw new IllegalArgumentException(AasServiceNodeManager.NODE_NULL);
-        }
-        else if (specificAssetId == null) {
-            throw new IllegalArgumentException("specificAssetId = null");
-        }
+    //private static void addSpecificAssetId(BaseDataVariableType node, SpecificAssetId specificAssetId, String name, boolean readOnly, AasServiceNodeManager nodeManager)
+    //        throws StatusException {
+    //    if (node == null) {
+    //        throw new IllegalArgumentException(AasServiceNodeManager.NODE_NULL);
+    //    }
+    //    else if (specificAssetId == null) {
+    //        throw new IllegalArgumentException("specificAssetId = null");
+    //    }
 
-        LOGGER.debug("addSpecificAssetId {}; to Node: {}", name, node);
-        QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASSpecificAssetIdType.getNamespaceUri(), name)
-                .toQualifiedName(nodeManager.getNamespaceTable());
-        NodeId nid = nodeManager.createNodeId(node, browseName);
-        AASSpecificAssetIdType specificAssetIdNode = nodeManager.createInstance(AASSpecificAssetIdType.class, nid, browseName, LocalizedText.english(name));
+    //    LOGGER.debug("addSpecificAssetId {}; to Node: {}", name, node);
+    //    //QualifiedName browseName = UaQualifiedName.from(opc.ua.aas.DataTypeIds.AASSpecificAssetId.getNamespaceUri(), name)
+    //    //        .toQualifiedName(nodeManager.getNamespaceTable());
+    //    //NodeId nid = nodeManager.createNodeId(node, browseName);
+    //    AASSpecificAssetId specificAssetIdNode = new AASSpecificAssetId();
+    //    //AASSpecificAssetId specificAssetIdNode = nodeManager.createInstance(AASSpecificAssetId.class, nid, browseName, LocalizedText.english(name));
 
-        setSpecificAssetIdData(specificAssetIdNode, specificAssetId, readOnly, nodeManager);
+    //    setSpecificAssetIdData(specificAssetIdNode, specificAssetId, readOnly, nodeManager);
 
-        node.addComponent(specificAssetIdNode);
-    }
+    //    //node.setValue(name);
+    //    node.addComponent(specificAssetIdNode);
+    //}
 
 
     /**
@@ -134,19 +141,20 @@ public class SpecificAssetIdCreator {
      * @param nodeManager The corresponding Node Manager
      * @throws StatusException If the operation fails
      */
-    private static void setSpecificAssetIdData(AASSpecificAssetIdType specificAssetIdNode, SpecificAssetId aasIdentifierPair, boolean readOnly,
+    private static void setSpecificAssetIdData(AASSpecificAssetId specificAssetIdNode, SpecificAssetId aasIdentifierPair, boolean readOnly,
                                                AasServiceNodeManager nodeManager)
             throws StatusException {
         // ExternalSubjectId
         Reference externalSubjectId = aasIdentifierPair.getExternalSubjectId();
         if (externalSubjectId != null) {
-            AASReferenceType extSubjectNode = specificAssetIdNode.getExternalSubjectIdNode();
-            if (extSubjectNode == null) {
-                AasReferenceCreator.addAasReferenceAasNS(specificAssetIdNode, externalSubjectId, AASSpecificAssetIdType.EXTERNAL_SUBJECT_ID, nodeManager);
-            }
-            else {
-                AasReferenceCreator.setAasReferenceData(externalSubjectId, extSubjectNode);
-            }
+            specificAssetIdNode.setExternalSubjectId(AasReferenceCreator.getAasReference(externalSubjectId));
+            //AASReference extSubjectNode = specificAssetIdNode.getExternalSubjectId();
+            //if (extSubjectNode == null) {
+            //    AasReferenceCreator.addAasReferenceAasNS(specificAssetIdNode, externalSubjectId, AASSpecificAssetIdType.EXTERNAL_SUBJECT_ID, nodeManager);
+            //}
+            //else {
+            //AasReferenceCreator.setAasReferenceData(externalSubjectId, extSubjectNode);
+            //}
         }
 
         // Key
@@ -155,10 +163,17 @@ public class SpecificAssetIdCreator {
         // Value
         specificAssetIdNode.setValue(aasIdentifierPair.getValue());
 
-        if (readOnly) {
-            specificAssetIdNode.getNameNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
-            specificAssetIdNode.getValueNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
-        }
+        //if (readOnly) {
+        //    specificAssetIdNode.getNameNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
+        //    specificAssetIdNode.getValueNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
+        //}
     }
 
+
+    private static AASSpecificAssetId getSpecificAssetId(SpecificAssetId aasIdentifierPair) throws StatusException {
+
+        AASSpecificAssetId specificAssetIdNode = new AASSpecificAssetId();
+        setSpecificAssetIdData(specificAssetIdNode, aasIdentifierPair, false, null);
+        return specificAssetIdNode;
+    }
 }

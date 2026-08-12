@@ -25,6 +25,7 @@ import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.QualifiedName;
 import com.prosysopc.ua.stack.common.ServiceResultException;
 import com.prosysopc.ua.stack.core.Identifiers;
+import com.prosysopc.ua.types.opcua.BaseDataVariableType;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
@@ -32,7 +33,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElement
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.UaHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import java.util.List;
-import opc.i4aas.objecttypes.AASSpecificAssetIdList;
 import opc.ua.aas.objecttypes.AASEntityType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Entity;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
@@ -73,7 +73,7 @@ public class EntityCreator extends SubmodelElementCreator {
                 if ((name == null) || name.isEmpty()) {
                     name = getNameFromReference(entityRef);
                 }
-                QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASEntityType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
+                QualifiedName browseName = UaQualifiedName.from(opc.ua.aas.ObjectTypeIds.AASEntityType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
                 NodeId nid = nodeManager.getDefaultNodeId();
                 AASEntityType entityNode = nodeManager.createInstance(AASEntityType.class, nid, browseName, LocalizedText.english(name));
                 addSubmodelElementBaseData(entityNode, aasEntity, nodeManager);
@@ -96,9 +96,9 @@ public class EntityCreator extends SubmodelElementCreator {
                 }
 
                 // Statements
-                SubmodelElementCreator.addSubmodelElements(entityNode.getStatementNode(), aasEntity.getStatements(), submodel, entityRef, nodeManager);
+                SubmodelElementCreator.addSubmodelElements(entityNode, aasEntity.getStatements(), submodel, entityRef, nodeManager);
 
-                nodeManager.addSubmodelElementOpcUA(entityRef, entityNode);
+                //nodeManager.addSubmodelElementOpcUA(entityRef, entityNode);
 
                 if (ordered) {
                     node.addReference(entityNode, Identifiers.HasOrderedComponent, false);
@@ -128,12 +128,12 @@ public class EntityCreator extends SubmodelElementCreator {
 
 
     private static void setSpecificAssetIdData(AASEntityType entityNode, List<SpecificAssetId> specificAssetId, AasServiceNodeManager nodeManager) throws StatusException {
-        AASSpecificAssetIdList listNode = entityNode.getSpecificAssetIdNode();
+        BaseDataVariableType listNode = entityNode.getSpecificAssetIdNode();
         if (listNode == null) {
-            QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASSpecificAssetIdList.getNamespaceUri(), AASEntityType.SPECIFIC_ASSET_ID)
+            QualifiedName browseName = UaQualifiedName.from(opc.ua.aas.ObjectTypeIds.AASEntityType.getNamespaceUri(), AASEntityType.SPECIFIC_ASSET_ID)
                     .toQualifiedName(nodeManager.getNamespaceTable());
             NodeId nid = nodeManager.createNodeId(entityNode, browseName);
-            listNode = nodeManager.createInstance(AASSpecificAssetIdList.class, nid, browseName, LocalizedText.english(AASEntityType.SPECIFIC_ASSET_ID));
+            listNode = nodeManager.createInstance(BaseDataVariableType.class, nid, browseName, LocalizedText.english(AASEntityType.SPECIFIC_ASSET_ID));
             entityNode.addComponent(listNode);
         }
 

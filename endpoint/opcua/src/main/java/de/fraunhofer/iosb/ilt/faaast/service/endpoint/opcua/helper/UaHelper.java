@@ -241,8 +241,10 @@ public class UaHelper {
                 valueData.getDisplayName());
         smelemProperty.setDataTypeId(AASSubmodelElements.SPECIFICATION.getTypeId().asNodeId(valueData.getNodeManager().getNamespaceTable()));
         smelemProperty.setDescription(new LocalizedText("", ""));
-        DataValue value = new DataValue(new Variant(ValueConverter.getAasSubmodelElementsType(submodelElement).getValue()));
-        smelemProperty.setValue(value);
+        if (submodelElement != null) {
+            DataValue value = new DataValue(new Variant(ValueConverter.getAasSubmodelElementsType(submodelElement).getValue()));
+            smelemProperty.setValue(value);
+        }
 
         return smelemProperty;
     }

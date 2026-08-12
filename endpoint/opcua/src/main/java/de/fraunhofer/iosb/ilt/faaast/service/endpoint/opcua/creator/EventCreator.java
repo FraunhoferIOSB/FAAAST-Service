@@ -15,18 +15,9 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator;
 
 import com.prosysopc.ua.StatusException;
-import com.prosysopc.ua.UaQualifiedName;
 import com.prosysopc.ua.nodes.UaNode;
-import com.prosysopc.ua.stack.builtintypes.LocalizedText;
-import com.prosysopc.ua.stack.builtintypes.NodeId;
-import com.prosysopc.ua.stack.builtintypes.QualifiedName;
-import com.prosysopc.ua.stack.core.Identifiers;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.UaHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
-import opc.i4aas.objecttypes.AASBasicEventElementType;
 import org.eclipse.digitaltwin.aas4j.v3.model.BasicEventElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.EventElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
@@ -79,122 +70,123 @@ public class EventCreator extends SubmodelElementCreator {
     private static void addAasBasicEventElement(UaNode node, BasicEventElement aasEvent, Reference eventRef, Submodel submodel, boolean ordered, AasServiceNodeManager nodeManager)
             throws StatusException, ValueFormatException {
         try {
-            String name = aasEvent.getIdShort();
-            if ((name == null) || name.isEmpty()) {
-                name = getNameFromReference(eventRef);
-            }
-            QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASBasicEventElementType.getNamespaceUri(), name)
-                    .toQualifiedName(nodeManager.getNamespaceTable());
-            NodeId nid = nodeManager.getDefaultNodeId();
-            AASBasicEventElementType eventNode = nodeManager.createInstance(AASBasicEventElementType.class, nid, browseName, LocalizedText.english(name));
-            addSubmodelElementBaseData(eventNode, aasEvent, nodeManager);
+            LOGGER.info("addAasBasicEventElement: not yet supported (experimental)");
 
-            setBasicEventElementData(eventNode, aasEvent, nodeManager);
-
-            if (ordered) {
-                node.addReference(eventNode, Identifiers.HasOrderedComponent, false);
-            }
-            else {
-                node.addComponent(eventNode);
-            }
-
-            nodeManager.addReferable(eventRef, new ObjectData(aasEvent, eventNode, submodel));
+            //            String name = aasEvent.getIdShort();
+            //            if ((name == null) || name.isEmpty()) {
+            //                name = getNameFromReference(eventRef);
+            //            }
+            //            QualifiedName browseName = UaQualifiedName.from(opc.ua.aas.ObjectTypeIds.AASBasicEventElementType.getNamespaceUri(), name)
+            //                    .toQualifiedName(nodeManager.getNamespaceTable());
+            //            NodeId nid = nodeManager.getDefaultNodeId();
+            //            AASBasicEventElementType eventNode = nodeManager.createInstance(AASBasicEventElementType.class, nid, browseName, LocalizedText.english(name));
+            //            addSubmodelElementBaseData(eventNode, aasEvent, nodeManager);
+            //
+            //            setBasicEventElementData(eventNode, aasEvent, nodeManager);
+            //
+            //            if (ordered) {
+            //                node.addReference(eventNode, Identifiers.HasOrderedComponent, false);
+            //            }
+            //            else {
+            //                node.addComponent(eventNode);
+            //            }
+            //
+            //            nodeManager.addReferable(eventRef, new ObjectData(aasEvent, eventNode, submodel));
         }
         catch (Exception ex) {
             LOGGER.error("addAasBasicEventElement Exception", ex);
         }
     }
 
-
-    private static void setBasicEventElementData(AASBasicEventElementType eventNode, BasicEventElement aasEvent, AasServiceNodeManager nodeManager)
-            throws StatusException, ValueFormatException {
-        if (aasEvent.getObserved() != null) {
-            AasReferenceCreator.setAasReferenceData(aasEvent.getObserved(), eventNode.getObservedNode(), true);
-        }
-
-        if (aasEvent.getDirection() != null) {
-            eventNode.setDirection(ValueConverter.getAasDirectionDataType(aasEvent.getDirection()));
-        }
-
-        if (aasEvent.getState() != null) {
-            eventNode.setState(ValueConverter.getAasStateOfEventType(aasEvent.getState()));
-        }
-
-        String namespaceUri = opc.i4aas.ObjectTypeIds.AASBasicEventElementType.getNamespaceUri();
-        setMessageTopic(aasEvent.getMessageTopic(), eventNode, nodeManager, namespaceUri);
-        setMessageBroker(aasEvent.getMessageBroker(), eventNode, namespaceUri, nodeManager);
-        setLastUpdate(aasEvent.getLastUpdate(), eventNode, nodeManager, namespaceUri);
-        setMinInterval(aasEvent.getMinInterval(), eventNode, nodeManager, namespaceUri);
-        setMaxInterval(aasEvent.getMaxInterval(), eventNode, nodeManager, namespaceUri);
-    }
-
-
-    private static void setMaxInterval(String maxInterval, AASBasicEventElementType eventNode, AasServiceNodeManager nodeManager, String namespaceUri)
-            throws ValueFormatException, StatusException {
-        if (maxInterval != null) {
-            if (eventNode.getMaxIntervalNode() == null) {
-                UaHelper.addStringUaProperty(eventNode, nodeManager, AASBasicEventElementType.MAX_INTERVAL, maxInterval,
-                        namespaceUri);
-            }
-            else {
-                eventNode.setMessageTopic(maxInterval);
-            }
-        }
-    }
-
-
-    private static void setMinInterval(String minInterval, AASBasicEventElementType eventNode, AasServiceNodeManager nodeManager, String namespaceUri)
-            throws StatusException, ValueFormatException {
-        if (minInterval != null) {
-            if (eventNode.getMinIntervalNode() == null) {
-                UaHelper.addStringUaProperty(eventNode, nodeManager, AASBasicEventElementType.MIN_INTERVAL, minInterval,
-                        namespaceUri);
-            }
-            else {
-                eventNode.setMessageTopic(minInterval);
-            }
-        }
-    }
-
-
-    private static void setLastUpdate(String lastUpdate, AASBasicEventElementType eventNode, AasServiceNodeManager nodeManager, String namespaceUri)
-            throws StatusException, ValueFormatException {
-        if (lastUpdate != null) {
-            if (eventNode.getLastUpdateNode() == null) {
-                UaHelper.addStringUaProperty(eventNode, nodeManager, AASBasicEventElementType.LAST_UPDATE, lastUpdate, namespaceUri);
-            }
-            else {
-                eventNode.setMessageTopic(lastUpdate);
-            }
-        }
-    }
-
-
-    private static void setMessageBroker(Reference messageBroker, AASBasicEventElementType eventNode, String namespaceUri, AasServiceNodeManager nodeManager)
-            throws StatusException {
-        if (messageBroker != null) {
-            if (eventNode.getMessageBrokerNode() == null) {
-                AasReferenceCreator.addAasReference(eventNode, messageBroker, AASBasicEventElementType.MESSAGE_BROKER,
-                        namespaceUri, false,
-                        nodeManager);
-            }
-            else {
-                AasReferenceCreator.setAasReferenceData(messageBroker, eventNode.getMessageBrokerNode(), true);
-            }
-        }
-    }
-
-
-    private static void setMessageTopic(String messageTopic, AASBasicEventElementType eventNode, AasServiceNodeManager nodeManager, String namespaceUri)
-            throws StatusException, ValueFormatException {
-        if (messageTopic != null) {
-            if (eventNode.getMessageTopicNode() == null) {
-                UaHelper.addStringUaProperty(eventNode, nodeManager, AASBasicEventElementType.MESSAGE_TOPIC, messageTopic, namespaceUri);
-            }
-            else {
-                eventNode.setMessageTopic(messageTopic);
-            }
-        }
-    }
+    //    private static void setBasicEventElementData(AASBasicEventElementType eventNode, BasicEventElement aasEvent, AasServiceNodeManager nodeManager)
+    //            throws StatusException, ValueFormatException {
+    //        if (aasEvent.getObserved() != null) {
+    //            AasReferenceCreator.setAasReferenceData(aasEvent.getObserved(), eventNode.getObservedNode(), true);
+    //        }
+    //
+    //        if (aasEvent.getDirection() != null) {
+    //            eventNode.setDirection(ValueConverter.getAasDirectionDataType(aasEvent.getDirection()));
+    //        }
+    //
+    //        if (aasEvent.getState() != null) {
+    //            eventNode.setState(ValueConverter.getAasStateOfEventType(aasEvent.getState()));
+    //        }
+    //
+    //        String namespaceUri = opc.i4aas.ObjectTypeIds.AASBasicEventElementType.getNamespaceUri();
+    //        setMessageTopic(aasEvent.getMessageTopic(), eventNode, nodeManager, namespaceUri);
+    //        setMessageBroker(aasEvent.getMessageBroker(), eventNode, namespaceUri, nodeManager);
+    //        setLastUpdate(aasEvent.getLastUpdate(), eventNode, nodeManager, namespaceUri);
+    //        setMinInterval(aasEvent.getMinInterval(), eventNode, nodeManager, namespaceUri);
+    //        setMaxInterval(aasEvent.getMaxInterval(), eventNode, nodeManager, namespaceUri);
+    //    }
+    //
+    //
+    //    private static void setMaxInterval(String maxInterval, AASBasicEventElementType eventNode, AasServiceNodeManager nodeManager, String namespaceUri)
+    //            throws ValueFormatException, StatusException {
+    //        if (maxInterval != null) {
+    //            if (eventNode.getMaxIntervalNode() == null) {
+    //                UaHelper.addStringUaProperty(eventNode, nodeManager, AASBasicEventElementType.MAX_INTERVAL, maxInterval,
+    //                        namespaceUri);
+    //            }
+    //            else {
+    //                eventNode.setMessageTopic(maxInterval);
+    //            }
+    //        }
+    //    }
+    //
+    //
+    //    private static void setMinInterval(String minInterval, AASBasicEventElementType eventNode, AasServiceNodeManager nodeManager, String namespaceUri)
+    //            throws StatusException, ValueFormatException {
+    //        if (minInterval != null) {
+    //            if (eventNode.getMinIntervalNode() == null) {
+    //                UaHelper.addStringUaProperty(eventNode, nodeManager, AASBasicEventElementType.MIN_INTERVAL, minInterval,
+    //                        namespaceUri);
+    //            }
+    //            else {
+    //                eventNode.setMessageTopic(minInterval);
+    //            }
+    //        }
+    //    }
+    //
+    //
+    //    private static void setLastUpdate(String lastUpdate, AASBasicEventElementType eventNode, AasServiceNodeManager nodeManager, String namespaceUri)
+    //            throws StatusException, ValueFormatException {
+    //        if (lastUpdate != null) {
+    //            if (eventNode.getLastUpdateNode() == null) {
+    //                UaHelper.addStringUaProperty(eventNode, nodeManager, AASBasicEventElementType.LAST_UPDATE, lastUpdate, namespaceUri);
+    //            }
+    //            else {
+    //                eventNode.setMessageTopic(lastUpdate);
+    //            }
+    //        }
+    //    }
+    //
+    //
+    //    private static void setMessageBroker(Reference messageBroker, AASBasicEventElementType eventNode, String namespaceUri, AasServiceNodeManager nodeManager)
+    //            throws StatusException {
+    //        if (messageBroker != null) {
+    //            if (eventNode.getMessageBrokerNode() == null) {
+    //                AasReferenceCreator.addAasReference(eventNode, messageBroker, AASBasicEventElementType.MESSAGE_BROKER,
+    //                        namespaceUri, false,
+    //                        nodeManager);
+    //            }
+    //            else {
+    //                AasReferenceCreator.setAasReferenceData(messageBroker, eventNode.getMessageBrokerNode(), true);
+    //            }
+    //        }
+    //    }
+    //
+    //
+    //    private static void setMessageTopic(String messageTopic, AASBasicEventElementType eventNode, AasServiceNodeManager nodeManager, String namespaceUri)
+    //            throws StatusException, ValueFormatException {
+    //        if (messageTopic != null) {
+    //            if (eventNode.getMessageTopicNode() == null) {
+    //                UaHelper.addStringUaProperty(eventNode, nodeManager, AASBasicEventElementType.MESSAGE_TOPIC, messageTopic, namespaceUri);
+    //            }
+    //            else {
+    //                eventNode.setMessageTopic(messageTopic);
+    //            }
+    //        }
+    //    }
 
 }

@@ -19,7 +19,6 @@ import com.prosysopc.ua.StatusException;
 import com.prosysopc.ua.client.AddressSpaceException;
 import com.prosysopc.ua.nodes.UaNode;
 import com.prosysopc.ua.stack.common.ServiceResultException;
-import com.prosysopc.ua.stack.core.AccessLevelType;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
@@ -125,29 +124,29 @@ public class SubmodelElementCreator {
      */
     public static void addSubmodelElement(SubmodelElement elem, UaNode node, Reference elementRef, Submodel submodel, boolean ordered, AasServiceNodeManager nodeManager)
             throws ServiceException, ServiceResultException, StatusException, AddressSpaceException, ValueFormatException {
-        if (elem instanceof DataElement) {
-            DataElementCreator.addAasDataElement(node, (DataElement) elem, elementRef, submodel, ordered, nodeManager);
+        if (elem instanceof DataElement dataElement) {
+            DataElementCreator.addAasDataElement(node, dataElement, elementRef, submodel, ordered, nodeManager);
         }
-        else if (elem instanceof Capability) {
-            CapabilityCreator.addAasCapability(node, (Capability) elem, elementRef, submodel, ordered, nodeManager);
+        else if (elem instanceof Capability capability) {
+            CapabilityCreator.addAasCapability(node, capability, elementRef, submodel, ordered, nodeManager);
         }
-        else if (elem instanceof Entity) {
-            EntityCreator.addAasEntity(node, (Entity) elem, elementRef, submodel, ordered, nodeManager);
+        else if (elem instanceof Entity entity) {
+            EntityCreator.addAasEntity(node, entity, elementRef, submodel, ordered, nodeManager);
         }
-        else if (elem instanceof Operation) {
-            OperationCreator.addAasOperation(node, (Operation) elem, elementRef, submodel, ordered, nodeManager);
+        else if (elem instanceof Operation operation) {
+            OperationCreator.addAasOperation(node, operation, elementRef, submodel, ordered, nodeManager);
         }
-        else if (elem instanceof EventElement) {
-            EventCreator.addAasEvent(node, (EventElement) elem, elementRef, submodel, ordered, nodeManager);
+        else if (elem instanceof EventElement eventElement) {
+            EventCreator.addAasEvent(node, eventElement, elementRef, submodel, ordered, nodeManager);
         }
-        else if (elem instanceof RelationshipElement) {
-            RelationshipElementCreator.addAasRelationshipElement(node, (RelationshipElement) elem, elementRef, submodel, ordered, nodeManager);
+        else if (elem instanceof RelationshipElement relationshipElement) {
+            RelationshipElementCreator.addAasRelationshipElement(node, relationshipElement, elementRef, submodel, ordered, nodeManager);
         }
-        else if (elem instanceof SubmodelElementCollection) {
-            SubmodelElementCollectionCreator.addAasSubmodelElementCollection(node, (SubmodelElementCollection) elem, elementRef, submodel, nodeManager);
+        else if (elem instanceof SubmodelElementCollection submodelElementCollection) {
+            SubmodelElementCollectionCreator.addAasSubmodelElementCollection(node, submodelElementCollection, elementRef, submodel, nodeManager);
         }
-        else if (elem instanceof SubmodelElementList) {
-            SubmodelElementListCreator.addAasSubmodelElementList(node, (SubmodelElementList) elem, elementRef, submodel, nodeManager);
+        else if (elem instanceof SubmodelElementList submodelElementList) {
+            SubmodelElementListCreator.addAasSubmodelElementList(node, submodelElementList, elementRef, submodel, nodeManager);
         }
         else if (elem != null) {
             LOGGER.warn("addSubmodelElements: unknown SubmodelElement: {}; Class {}", elem.getIdShort(), elem.getClass());
@@ -168,10 +167,10 @@ public class SubmodelElementCreator {
         if ((node != null) && (element != null)) {
             // Category
             String category = element.getCategory();
-            //node.setCategory(category != null ? category : "");
+            node.getCommonAttributes().getReferable().setCategory(category != null ? category : "");
 
             // DataSpecifications
-            EmbeddedDataSpecificationCreator.addEmbeddedDataSpecifications(node, element.getEmbeddedDataSpecifications(), nodeManager);
+            EmbeddedDataSpecificationCreator.addEmbeddedDataSpecifications(node.getCommonAttributes(), element.getEmbeddedDataSpecifications(), nodeManager);
 
             // SemanticId
             if (element.getSemanticId() != null) {
@@ -181,19 +180,19 @@ public class SubmodelElementCreator {
             // Qualifiers
             List<Qualifier> qualifiers = element.getQualifiers();
             if ((qualifiers != null) && (!qualifiers.isEmpty())) {
-                if (node.getQualifierNode() == null) {
-                    QualifierCreator.addQualifierNode(node, nodeManager);
-                }
+                //if (node.getQualifierNode() == null) {
+                //    QualifierCreator.addQualifierNode(node, nodeManager);
+                //}
 
-                QualifierCreator.addQualifiers(node.getQualifierNode(), qualifiers, nodeManager);
+                QualifierCreator.addQualifiers(node.getCommonAttributes().getQualifiable(), qualifiers, nodeManager);
             }
 
             // Description
             DescriptionCreator.addDescriptions(node, element.getDescription());
 
-            if (AasServiceNodeManager.VALUES_READ_ONLY) {
-                node.getCategoryNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
-            }
+            //if (AasServiceNodeManager.VALUES_READ_ONLY) {
+            //    node.getCategoryNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
+            //}
         }
     }
 
