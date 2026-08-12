@@ -22,11 +22,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.certificate.CertificateInformation;
 import de.fraunhofer.iosb.ilt.faaast.service.certificate.util.KeyStoreHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.AbstractEndpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.acl.repository.file.FileAclRepository;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.AclAccessFilter;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.AclAttributeFilter;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.AclAttributeInjectionInterceptor;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.AclObjectsFilter;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.AclRightsFilter;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.AclRulesInceptionFilter;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.JwtValidationFilter;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
@@ -130,15 +127,8 @@ public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
                 context.addFilter(new JwtValidationFilter(new UrlJwkProvider(parseJwkProviderUrl(config.getJwkProvider()))), "*", EnumSet.allOf(DispatcherType.class));
             }
             context.addFilter(new AclRulesInceptionFilter(FileAclRepository.createNewInstance(config.getAclFolder())), "*", EnumSet.allOf(DispatcherType.class));
-            // Remove ACL that are DISABLED.
-            context.addFilter(new AclAccessFilter(), "*", EnumSet.allOf(DispatcherType.class));
-            // Remove ACL that do not comply with the HTTP method of a request.
-            context.addFilter(new AclRightsFilter(), "*", EnumSet.allOf(DispatcherType.class));
             // Remove ACL that do not comply with the HTTP path of a request.
             context.addFilter(new AclObjectsFilter(config.getPathPrefix()), "*", EnumSet.allOf(DispatcherType.class));
-            // Remove ACL that do not comply with the JWT claims of a request.
-            context.addFilter(new AclAttributeFilter(), "*", EnumSet.allOf(DispatcherType.class));
-
             // Inject claims and global attributes into the remaining ACL rules.
             context.addFilter(new AclAttributeInjectionInterceptor(), "*", EnumSet.allOf(DispatcherType.class));
         }

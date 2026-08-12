@@ -21,16 +21,16 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.comparison.GreaterThanO
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.comparison.LessThanEqualsOperation;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.comparison.LessThanOperation;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.comparison.NotEqualsOperation;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.IdtaMatchExpression;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.MatchExpression;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.parser.expression.AbstractBinaryComparisonParser;
 
 import java.util.ArrayList;
 import java.util.List;
 
 
-public class MatchBinaryComparisonParser extends AbstractBinaryComparisonParser<IdtaMatchExpression, List<AbstractBinaryComparison>> {
+public class MatchBinaryComparisonParser extends AbstractBinaryComparisonParser<MatchExpression, List<AbstractBinaryComparison>> {
     @Override
-    public List<AbstractBinaryComparison> parse(IdtaMatchExpression expression) {
+    public List<AbstractBinaryComparison> parse(MatchExpression expression) {
         List<AbstractBinaryComparison> comparisons = new ArrayList<>();
         if (notNullNorEmpty(expression.get$eq())) {
             comparisons.add(buildComparison(EqualsOperation::new, expression.get$eq()));

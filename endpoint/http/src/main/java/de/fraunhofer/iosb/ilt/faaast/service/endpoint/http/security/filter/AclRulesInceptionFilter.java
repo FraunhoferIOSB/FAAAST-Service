@@ -14,11 +14,13 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter;
 
+import com.auth0.jwt.interfaces.Claim;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.acl.repository.AclRepository;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AccessPermissionRule;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.AccessPermissionRule;
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 
@@ -43,9 +45,11 @@ public class AclRulesInceptionFilter extends AbstractAclFilter {
 
     @Override
     protected List<AccessPermissionRule> doFilter(HttpServletRequest request, List<AccessPermissionRule> rules) {
+        Map<String, Claim> claims = extractClaims(request);
+
         if (rules != null) {
             throw new IllegalStateException(String.format(RULES_ALREADY_PRESENT_TEMPLATE, AclRulesInceptionFilter.class.getName(), rules));
         }
-        return aclRepository.getAccessPermissionRules();
+        return aclRepository.getActiveRules(claims.keySet());
     }
 }

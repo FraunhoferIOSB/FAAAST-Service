@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.query.parser.operand;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.IdtaValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.Value;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.Operand;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.cast.CastToBoolean;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.cast.CastToDateTime;
@@ -39,13 +39,13 @@ import java.time.ZonedDateTime;
 import java.util.Date;
 
 
-public class ValueToOperandParser extends AbstractParser<IdtaValue, Operand> {
+public class ValueToOperandParser extends AbstractParser<Value, Operand> {
 
     private final AttributeItemToAttributeParser attributeParser = new AttributeItemToAttributeParser();
     private final StringToFieldIdentifierParser stringToFieldIdentifierParser = new StringToFieldIdentifierParser();
 
     @Override
-    public Operand parse(IdtaValue value) {
+    public Operand parse(Value value) {
         if (value.get$attribute() != null) {
             return attributeParser.parse(value.get$attribute());
         }

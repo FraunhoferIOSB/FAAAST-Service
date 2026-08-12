@@ -19,21 +19,21 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.comparison.string.Conta
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.comparison.string.EndsWithComparison;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.comparison.string.RegexComparison;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.comparison.string.StartsWithComparison;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.IdtaMatchExpression;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.MatchExpression;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.parser.expression.AbstractStringComparisonParser;
 
 import java.util.ArrayList;
 import java.util.List;
 
 
-public class MatchStringComparisonParser extends AbstractStringComparisonParser<IdtaMatchExpression, List<AbstractStringComparison>> {
+public class MatchStringComparisonParser extends AbstractStringComparisonParser<MatchExpression, List<AbstractStringComparison>> {
     public MatchStringComparisonParser() {
         super();
     }
 
 
     @Override
-    public List<AbstractStringComparison> parse(IdtaMatchExpression expression) {
+    public List<AbstractStringComparison> parse(MatchExpression expression) {
 
         List<AbstractStringComparison> comparisons = new ArrayList<>();
 

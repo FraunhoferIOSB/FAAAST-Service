@@ -16,7 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.security.parser;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.LogicalExpression;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.filter.QueryFilter;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.IdtaAccessPermissionRule;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AccessPermissionRule;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.parser.Parser;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.parser.QueryFilterParser;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.parser.expression.logical.LogicalExpressionParser;
@@ -32,14 +32,14 @@ import java.util.List;
 import java.util.stream.Stream;
 
 
-public class AccessPermissionRuleParser implements Parser<IdtaAccessPermissionRule, UnresolvedAccessPermissionRule> {
+public class AccessPermissionRuleParser implements Parser<AccessPermissionRule, UnresolvedAccessPermissionRule> {
 
     private final AclToRuleParser ruleParser = new AclToRuleParser();
     private final ObjectItemToAccessObjectParser objectParser = new ObjectItemToAccessObjectParser();
     private final LogicalExpressionParser formulaParser = new LogicalExpressionParser();
     private final QueryFilterParser filterParser = new QueryFilterParser();
 
-    public UnresolvedAccessPermissionRule parse(IdtaAccessPermissionRule idtaAccessPermissionRule) {
+    public UnresolvedAccessPermissionRule parse(AccessPermissionRule idtaAccessPermissionRule) {
         AccessRuleEntity<Rule> accessRule;
         if (idtaAccessPermissionRule.getAcl() != null) {
             accessRule = ruleParser.parse(idtaAccessPermissionRule.getAcl());

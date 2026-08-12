@@ -14,8 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.acl.repository.file;
 
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.util.AccessControlListRulesValidator.validate;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.acl.repository.AbstractAclRepository;
@@ -84,8 +82,8 @@ public class FileAclRepository extends AbstractAclRepository<Path> implements Di
 
     private void update(Path path) {
         AllAccessPermissionRules acl = readFile(path);
-        if (acl != null && acl.getRules().stream().allMatch(rule -> validate(rule, acl))) {
-            remove(path);
+        if (acl != null) {
+            remove(path, false);
             add(path, acl);
         }
         else {
@@ -96,7 +94,8 @@ public class FileAclRepository extends AbstractAclRepository<Path> implements Di
 
     private void add(Path path) {
         AllAccessPermissionRules acl = readFile(path);
-        if (acl != null && acl.getRules().stream().allMatch(rule -> validate(rule, acl))) {
+
+        if (acl != null) {
             add(path, acl);
         }
         else {
@@ -107,7 +106,6 @@ public class FileAclRepository extends AbstractAclRepository<Path> implements Di
 
     private void warnInvalid(Path path) {
         LOGGER.warn("Tried to load invalid ACL: {}.", path);
-
     }
 
 

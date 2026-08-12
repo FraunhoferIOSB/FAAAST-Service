@@ -16,7 +16,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.query.parser.expression.matc
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.match.MatchElement;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.match.MatchExpression;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.IdtaMatchExpression;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.BooleanLiteral;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.parser.AbstractParser;
 
@@ -25,12 +24,12 @@ import java.util.List;
 import java.util.function.Function;
 
 
-public class MatchExpressionParser extends AbstractParser<IdtaMatchExpression, MatchExpression> {
+public class MatchExpressionParser extends AbstractParser<de.fraunhofer.iosb.ilt.faaast.service.model.query.json.MatchExpression, MatchExpression> {
     private final MatchBinaryComparisonParser binaryComparisonParser = new MatchBinaryComparisonParser();
     private final MatchStringComparisonParser stringComparisonParser = new MatchStringComparisonParser();
 
     @Override
-    public MatchExpression parse(IdtaMatchExpression expression) {
+    public MatchExpression parse(de.fraunhofer.iosb.ilt.faaast.service.model.query.json.MatchExpression expression) {
         if (!assertExpression(expression)) {
             throw new IllegalArgumentException("expression malformed: %s".formatted(expression));
         }
@@ -55,34 +54,34 @@ public class MatchExpressionParser extends AbstractParser<IdtaMatchExpression, M
     }
 
 
-    private boolean assertExpression(IdtaMatchExpression expression) {
+    private boolean assertExpression(de.fraunhofer.iosb.ilt.faaast.service.model.query.json.MatchExpression expression) {
         if (expression == null) {
             return false;
         }
 
         short nonNullNonEmptyElements = 0;
-        List<Function<IdtaMatchExpression, List<?>>> listAccessors = List.of(
-                IdtaMatchExpression::get$match,
-                IdtaMatchExpression::get$eq,
-                IdtaMatchExpression::get$ne,
-                IdtaMatchExpression::get$gt,
-                IdtaMatchExpression::get$ge,
-                IdtaMatchExpression::get$lt,
-                IdtaMatchExpression::get$le,
-                IdtaMatchExpression::get$contains,
-                IdtaMatchExpression::get$startsWith,
-                IdtaMatchExpression::get$endsWith,
-                IdtaMatchExpression::get$regex);
-        List<Function<IdtaMatchExpression, Object>> objectAccessors = List.of(
-                IdtaMatchExpression::get$boolean);
+        List<Function<de.fraunhofer.iosb.ilt.faaast.service.model.query.json.MatchExpression, List<?>>> listAccessors = List.of(
+                de.fraunhofer.iosb.ilt.faaast.service.model.query.json.MatchExpression::get$match,
+                de.fraunhofer.iosb.ilt.faaast.service.model.query.json.MatchExpression::get$eq,
+                de.fraunhofer.iosb.ilt.faaast.service.model.query.json.MatchExpression::get$ne,
+                de.fraunhofer.iosb.ilt.faaast.service.model.query.json.MatchExpression::get$gt,
+                de.fraunhofer.iosb.ilt.faaast.service.model.query.json.MatchExpression::get$ge,
+                de.fraunhofer.iosb.ilt.faaast.service.model.query.json.MatchExpression::get$lt,
+                de.fraunhofer.iosb.ilt.faaast.service.model.query.json.MatchExpression::get$le,
+                de.fraunhofer.iosb.ilt.faaast.service.model.query.json.MatchExpression::get$contains,
+                de.fraunhofer.iosb.ilt.faaast.service.model.query.json.MatchExpression::get$startsWith,
+                de.fraunhofer.iosb.ilt.faaast.service.model.query.json.MatchExpression::get$endsWith,
+                de.fraunhofer.iosb.ilt.faaast.service.model.query.json.MatchExpression::get$regex);
+        List<Function<de.fraunhofer.iosb.ilt.faaast.service.model.query.json.MatchExpression, Object>> objectAccessors = List.of(
+                de.fraunhofer.iosb.ilt.faaast.service.model.query.json.MatchExpression::get$boolean);
 
-        for (Function<IdtaMatchExpression, List<?>> listAccessor: listAccessors) {
+        for (Function<de.fraunhofer.iosb.ilt.faaast.service.model.query.json.MatchExpression, List<?>> listAccessor: listAccessors) {
             if (listAccessor.apply(expression) != null && !listAccessor.apply(expression).isEmpty()) {
                 nonNullNonEmptyElements++;
             }
         }
 
-        for (Function<IdtaMatchExpression, Object> objectAccessor: objectAccessors) {
+        for (Function<de.fraunhofer.iosb.ilt.faaast.service.model.query.json.MatchExpression, Object> objectAccessor: objectAccessors) {
             if (objectAccessor.apply(expression) != null) {
                 nonNullNonEmptyElements++;
             }

@@ -12,19 +12,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.acl.repository;
+package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.acl.repository.def.entity;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.AccessPermissionRule;
-
-import java.util.List;
-import java.util.Set;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 
-/**
- * Keeps an in-memory version of the aclFolder's rules. When access control rules are added/deleted/modified, updates
- * its own state accordingly.
- */
-public interface AclRepository {
+public abstract class DefEntity<T> extends ConcurrentHashMap<String, T> {
 
-    List<AccessPermissionRule> getActiveRules(Set<String> claims);
+    public DefEntity(Map<String, T> entries) {
+        super(entries);
+    }
+
+
+    public DefEntity<T> from(Map<String, T> entries) {
+        return getInstance(entries);
+    }
+
+
+    public abstract DefEntity<T> getInstance(Map<String, T> entries);
 }

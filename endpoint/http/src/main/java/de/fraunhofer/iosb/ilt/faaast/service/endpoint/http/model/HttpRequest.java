@@ -18,7 +18,8 @@ import static de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence.iden
 
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.IdtaLogicalExpression;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.LogicalExpression;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.filter.QueryFilter;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,7 +39,8 @@ public class HttpRequest extends HttpMessage {
     private String path;
     private Map<String, String> queryParameters;
     private List<String> pathElements;
-    private IdtaLogicalExpression formula;
+    private LogicalExpression formula;
+    private QueryFilter filter;
 
     public static Builder builder() {
         return new Builder();
@@ -169,7 +171,7 @@ public class HttpRequest extends HttpMessage {
      *
      * @return List of formula.
      */
-    public IdtaLogicalExpression getFormula() {
+    public LogicalExpression getFormula() {
         return formula;
     }
 
@@ -179,8 +181,28 @@ public class HttpRequest extends HttpMessage {
      *
      * @param formula the applying formula.
      */
-    public void setFormula(IdtaLogicalExpression formula) {
+    public void setFormula(LogicalExpression formula) {
         this.formula = formula;
+    }
+
+
+    /**
+     * Gets this request's applying filter according to AAS Security.
+     *
+     * @return Post-persistence filter.
+     */
+    public QueryFilter getFilter() {
+        return filter;
+    }
+
+
+    /**
+     * Sets this request's applying filter according to AAS Security.
+     *
+     * @param filter the post-persistence filter.
+     */
+    public void setFilter(QueryFilter filter) {
+        this.filter = filter;
     }
 
 
@@ -240,10 +262,17 @@ public class HttpRequest extends HttpMessage {
         }
 
 
-        public B formula(IdtaLogicalExpression value) {
+        public B formula(LogicalExpression value) {
             getBuildingInstance().setFormula(value);
             return getSelf();
         }
+
+
+        public B filter(QueryFilter value) {
+            getBuildingInstance().setFilter(value);
+            return getSelf();
+        }
+
     }
 
     public static class Builder extends AbstractBuilder<HttpRequest, Builder> {

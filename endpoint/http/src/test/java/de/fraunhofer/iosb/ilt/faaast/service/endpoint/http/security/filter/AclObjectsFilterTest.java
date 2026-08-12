@@ -17,8 +17,9 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter;
 import static org.junit.Assert.assertEquals;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AccessPermissionRule;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.ObjectItem;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.AccessPermissionRule;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.AccessObject;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.RouteObject;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import org.junit.Test;
@@ -35,8 +36,8 @@ public class AclObjectsFilterTest extends AbstractAclFilterTest {
     public void testKeepsObjects() {
         AccessPermissionRule unfilteredRule = rule();
 
-        ObjectItem[] invalidObjects = new ObjectItem[] {
-                objectRoute("/api/v3.2/*")
+        AccessObject[] invalidObjects = new AccessObject[] {
+                new RouteObject("/api/v3.2/*")
         };
         AccessPermissionRule filteredRule = rule(invalidObjects);
         List<AccessPermissionRule> rules = List.of(unfilteredRule, filteredRule);

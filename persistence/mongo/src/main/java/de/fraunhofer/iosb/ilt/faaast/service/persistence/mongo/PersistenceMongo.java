@@ -54,7 +54,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceAlreadyExis
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.UnsupportedModifierException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.IdtaLogicalExpression;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.LogicalExpression;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.AssetAdministrationShellSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.ConceptDescriptionSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
@@ -248,7 +248,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
     @Override
     public Page<AssetAdministrationShell> findAssetAdministrationShells(AssetAdministrationShellSearchCriteria criteria, QueryModifier modifier, PagingInfo paging,
-                                                                        IdtaLogicalExpression formula)
+                                                                        LogicalExpression formula)
             throws PersistenceException {
         LOGGER.warn(MONGODB_UNSUPPORTED);
         Ensure.requireNonNull(criteria, MSG_CRITERIA_NOT_NULL);
@@ -264,7 +264,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
 
     @Override
-    public Page<ConceptDescription> findConceptDescriptions(ConceptDescriptionSearchCriteria criteria, QueryModifier modifier, PagingInfo paging, IdtaLogicalExpression formula)
+    public Page<ConceptDescription> findConceptDescriptions(ConceptDescriptionSearchCriteria criteria, QueryModifier modifier, PagingInfo paging, LogicalExpression formula)
             throws PersistenceException {
         LOGGER.warn(MONGODB_UNSUPPORTED);
         Ensure.requireNonNull(criteria, MSG_CRITERIA_NOT_NULL);
@@ -282,7 +282,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
 
     @Override
-    public Page<Submodel> findSubmodels(SubmodelSearchCriteria criteria, QueryModifier modifier, PagingInfo paging, IdtaLogicalExpression formula) throws PersistenceException {
+    public Page<Submodel> findSubmodels(SubmodelSearchCriteria criteria, QueryModifier modifier, PagingInfo paging, LogicalExpression formula) throws PersistenceException {
         LOGGER.warn(MONGODB_UNSUPPORTED);
         Ensure.requireNonNull(criteria, MSG_CRITERIA_NOT_NULL);
         Ensure.requireNonNull(modifier, MSG_MODIFIER_NOT_NULL);
@@ -297,7 +297,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
 
     @Override
-    public Page<SubmodelElement> findSubmodelElements(SubmodelElementSearchCriteria criteria, QueryModifier modifier, PagingInfo paging, IdtaLogicalExpression formula)
+    public Page<SubmodelElement> findSubmodelElements(SubmodelElementSearchCriteria criteria, QueryModifier modifier, PagingInfo paging, LogicalExpression formula)
             throws PersistenceException, ResourceNotFoundException {
         LOGGER.warn(MONGODB_UNSUPPORTED);
         Ensure.requireNonNull(criteria, MSG_CRITERIA_NOT_NULL);
@@ -317,7 +317,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
 
     @Override
-    public AssetAdministrationShell getAssetAdministrationShell(String id, QueryModifier modifier, IdtaLogicalExpression formula)
+    public AssetAdministrationShell getAssetAdministrationShell(String id, QueryModifier modifier, LogicalExpression formula)
             throws ResourceNotFoundException, PersistenceException {
         LOGGER.warn(MONGODB_UNSUPPORTED);
         return prepareResult(
@@ -327,7 +327,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
 
     @Override
-    public ConceptDescription getConceptDescription(String id, QueryModifier modifier, IdtaLogicalExpression formula) throws PersistenceException, ResourceNotFoundException {
+    public ConceptDescription getConceptDescription(String id, QueryModifier modifier, LogicalExpression formula) throws PersistenceException, ResourceNotFoundException {
         LOGGER.warn(MONGODB_UNSUPPORTED);
         return prepareResult(
                 fetch(cdCollection, id, ConceptDescription.class),
@@ -336,7 +336,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
 
     @Override
-    public Submodel getSubmodel(String id, QueryModifier modifier, IdtaLogicalExpression formula) throws PersistenceException, ResourceNotFoundException {
+    public Submodel getSubmodel(String id, QueryModifier modifier, LogicalExpression formula) throws PersistenceException, ResourceNotFoundException {
         LOGGER.warn(MONGODB_UNSUPPORTED);
         return prepareResult(
                 fetch(submodelCollection, id, Submodel.class),
@@ -345,7 +345,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
 
     @Override
-    public SubmodelElement getSubmodelElement(SubmodelElementIdentifier identifier, QueryModifier modifier, IdtaLogicalExpression formula)
+    public SubmodelElement getSubmodelElement(SubmodelElementIdentifier identifier, QueryModifier modifier, LogicalExpression formula)
             throws PersistenceException, ResourceNotFoundException {
         return prepareResult(
                 fetch(identifier, SubmodelElement.class),
@@ -354,7 +354,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
 
     @Override
-    public Page<Reference> getSubmodelRefs(String aasId, PagingInfo paging, IdtaLogicalExpression formula) throws ResourceNotFoundException, PersistenceException {
+    public Page<Reference> getSubmodelRefs(String aasId, PagingInfo paging, LogicalExpression formula) throws ResourceNotFoundException, PersistenceException {
         LOGGER.warn(MONGODB_UNSUPPORTED);
         return preparePagedResult(
                 getAssetAdministrationShell(aasId, QueryModifier.MINIMAL, formula)

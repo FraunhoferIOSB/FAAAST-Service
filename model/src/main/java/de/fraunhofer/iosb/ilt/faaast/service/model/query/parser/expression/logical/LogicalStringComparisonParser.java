@@ -19,18 +19,18 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.comparison.string.Conta
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.comparison.string.EndsWithComparison;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.comparison.string.RegexComparison;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.comparison.string.StartsWithComparison;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.IdtaLogicalExpression;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.LogicalExpression;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.parser.expression.AbstractStringComparisonParser;
 
 
-public class LogicalStringComparisonParser extends AbstractStringComparisonParser<IdtaLogicalExpression, AbstractStringComparison> {
+public class LogicalStringComparisonParser extends AbstractStringComparisonParser<LogicalExpression, AbstractStringComparison> {
     public LogicalStringComparisonParser() {
         super();
     }
 
 
     @Override
-    public AbstractStringComparison parse(IdtaLogicalExpression expression) {
+    public AbstractStringComparison parse(LogicalExpression expression) {
 
         if (notNullNorEmpty(expression.get$contains())) {
             return (buildComparison(ContainsComparison::new, expression.get$contains()));

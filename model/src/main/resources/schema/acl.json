@@ -24,7 +24,7 @@
       "type": "string",
       "pattern": "^[0-9][0-9]:[0-9][0-9](:[0-9][0-9])?$"
     },
-    "IdtaValue": {
+    "Value": {
       "type": "object",
       "properties": {
         "$field": {
@@ -52,22 +52,22 @@
           "type": "boolean"
         },
         "$strCast": {
-          "$ref": "#/definitions/IdtaValue"
+          "$ref": "#/definitions/Value"
         },
         "$numCast": {
-          "$ref": "#/definitions/IdtaValue"
+          "$ref": "#/definitions/Value"
         },
         "$hexCast": {
-          "$ref": "#/definitions/IdtaValue"
+          "$ref": "#/definitions/Value"
         },
         "$boolCast": {
-          "$ref": "#/definitions/IdtaValue"
+          "$ref": "#/definitions/Value"
         },
         "$dateTimeCast": {
-          "$ref": "#/definitions/IdtaValue"
+          "$ref": "#/definitions/Value"
         },
         "$timeCast": {
-          "$ref": "#/definitions/IdtaValue"
+          "$ref": "#/definitions/Value"
         },
         "$dayOfWeek": {
           "$ref": "#/definitions/dateTimeLiteralPattern"
@@ -186,7 +186,7 @@
           "$ref": "#/definitions/standardString"
         },
         "$strCast": {
-          "$ref": "#/definitions/IdtaValue"
+          "$ref": "#/definitions/Value"
         },
         "$attribute": {
           "$ref": "#/definitions/attributeItem"
@@ -221,7 +221,7 @@
       "minItems": 2,
       "maxItems": 2,
       "items": {
-        "$ref": "#/definitions/IdtaValue"
+        "$ref": "#/definitions/Value"
       }
     },
     "stringItems": {
@@ -232,14 +232,14 @@
         "$ref": "#/definitions/stringValue"
       }
     },
-    "IdtaMatchExpression": {
+    "MatchExpression": {
       "type": "object",
       "properties": {
         "$match": {
           "type": "array",
           "minItems": 1,
           "items": {
-            "$ref": "#/definitions/IdtaMatchExpression"
+            "$ref": "#/definitions/MatchExpression"
           }
         },
         "$eq": {
@@ -340,32 +340,32 @@
       ],
       "additionalProperties": false
     },
-    "IdtaLogicalExpression": {
+    "LogicalExpression": {
       "type": "object",
       "properties": {
         "$and": {
           "type": "array",
           "minItems": 2,
           "items": {
-            "$ref": "#/definitions/IdtaLogicalExpression"
+            "$ref": "#/definitions/LogicalExpression"
           }
         },
         "$match": {
           "type": "array",
           "minItems": 1,
           "items": {
-            "$ref": "#/definitions/IdtaMatchExpression"
+            "$ref": "#/definitions/MatchExpression"
           }
         },
         "$or": {
           "type": "array",
           "minItems": 2,
           "items": {
-            "$ref": "#/definitions/IdtaLogicalExpression"
+            "$ref": "#/definitions/LogicalExpression"
           }
         },
         "$not": {
-          "$ref": "#/definitions/IdtaLogicalExpression"
+          "$ref": "#/definitions/LogicalExpression"
         },
         "$eq": {
           "$ref": "#/definitions/comparisonItems"
@@ -644,7 +644,7 @@
           }
         },
         "FORMULA": {
-          "$ref": "#/definitions/IdtaLogicalExpression",
+          "$ref": "#/definitions/LogicalExpression",
           "additionalProperties": false
         },
         "USEFORMULA": {
@@ -708,7 +708,7 @@
           "type": "string"
         },
         "CONDITION": {
-          "$ref": "#/definitions/IdtaLogicalExpression"
+          "$ref": "#/definitions/LogicalExpression"
         },
         "USEFORMULA": {
           "type": "string"
@@ -739,7 +739,7 @@
           "pattern": "^id$"
         },
         "$condition": {
-          "$ref": "#/definitions/IdtaLogicalExpression"
+          "$ref": "#/definitions/LogicalExpression"
         }
       },
       "required": [
@@ -839,7 +839,7 @@
                 "type": "string"
               },
               "formula": {
-                "$ref": "#/definitions/IdtaLogicalExpression"
+                "$ref": "#/definitions/LogicalExpression"
               }
             },
             "required": [

@@ -15,22 +15,28 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter;
 
 import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.util.JwtTestHelper.JOHN_DOE;
-import static de.fraunhofer.iosb.ilt.faaast.service.model.query.json.RightsEnum.ALL;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AccessPermissionRule;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.Acl;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AttributeItem;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.IdtaLogicalExpression;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.IdtaValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.ObjectItem;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.RightsEnum;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.comparison.EqualsOperation;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.LogicalExpression;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.logical.AndOperation;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.Attribute;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.ClaimAttribute;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.global.Anonymous;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.global.ClientNow;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.global.LocalNow;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.global.UtcNow;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.StringLiteral;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.AccessPermissionRule;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.AccessObject;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.RouteObject;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.AccessRule;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.Right;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.BiConsumer;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -78,29 +84,26 @@ public abstract class AbstractAclFilterTest extends JwtAuthorizationFilterTest {
 
 
     protected static AccessPermissionRule rule() {
-        AttributeItem claimAttribute = new AttributeItem();
-        claimAttribute.setClaim("name");
-        AttributeItem utcNow = global(AttributeItem.Global.UTCNOW);
-        AttributeItem clientNow = global(AttributeItem.Global.CLIENTNOW);
-        AttributeItem localNow = global(AttributeItem.Global.LOCALNOW);
-        AttributeItem anonymous = global(AttributeItem.Global.ANONYMOUS);
+        ClaimAttribute claimAttribute = new ClaimAttribute("name");
+        UtcNow utcNow = new UtcNow();
+        ClientNow clientNow = new ClientNow();
+        LocalNow localNow = new LocalNow();
+        Anonymous anonymous = new Anonymous();
 
-        IdtaLogicalExpression formula = new IdtaLogicalExpression();
+        AndOperation formula = new AndOperation(List.of(
+                new EqualsOperation(claimAttribute, new StringLiteral(JOHN_DOE.get(claimAttribute.getClaim()))),
+                new EqualsOperation(utcNow, new StringLiteral("0:00")),
+                new EqualsOperation(clientNow, new StringLiteral("23:59:59")),
+                new EqualsOperation(localNow, new StringLiteral("0:00")),
+                new EqualsOperation(anonymous, new StringLiteral("abc-test"))));
 
-        formula.set$and(List.of(
-                fn(claimAttribute, JOHN_DOE.get(claimAttribute.getClaim()), IdtaLogicalExpression::set$eq),
-                fn(utcNow, "0:00", IdtaLogicalExpression::set$ge),
-                fn(clientNow, "23:59:59", IdtaLogicalExpression::set$le),
-                fn(localNow, "0:00", IdtaLogicalExpression::set$lt),
-                fn(anonymous, "abc-test", IdtaLogicalExpression::set$gt)));
+        var routeNoWildcard = new RouteObject("/shells/12345/submodels/67890/submodel-elements/Abc.Def.Ghi/invoke-async/$value");
+        var routePrefixWildcard = new RouteObject("*/12345/submodels/67890/submodel-elements/Abc.Def.Ghi/invoke-async/$value");
+        var routeSuffixWildcard = new RouteObject("/shells/12345/submodels/*");
 
-        var routeNoWildcard = objectRoute("/shells/12345/submodels/67890/submodel-elements/Abc.Def.Ghi/invoke-async/$value");
-        var routePrefixWildcard = objectRoute("*/12345/submodels/67890/submodel-elements/Abc.Def.Ghi/invoke-async/$value");
-        var routeSuffixWildcard = objectRoute("/shells/12345/submodels/*");
+        List<AccessObject> objects = List.of(routeNoWildcard, routePrefixWildcard, routeSuffixWildcard);
 
-        List<ObjectItem> objects = List.of(routeNoWildcard, routePrefixWildcard, routeSuffixWildcard);
-
-        return rule(false, List.of(ALL), List.of(claimAttribute, utcNow, clientNow, localNow), formula, objects);
+        return rule(false, List.of(Right.ALL), List.of(claimAttribute, utcNow, clientNow, localNow), formula, objects);
     }
 
 
@@ -109,62 +112,30 @@ public abstract class AbstractAclFilterTest extends JwtAuthorizationFilterTest {
     }
 
 
-    protected static AccessPermissionRule rule(RightsEnum right) {
+    protected static AccessPermissionRule rule(Right right) {
         return rule(false, List.of(right), null, null, null);
     }
 
 
-    protected static AccessPermissionRule rule(List<AttributeItem> attributes) {
+    protected static AccessPermissionRule rule(List<Attribute> attributes) {
         return rule(false, null, attributes, null, null);
     }
 
 
-    protected static AccessPermissionRule rule(IdtaLogicalExpression formula) {
+    protected static AccessPermissionRule rule(LogicalExpression formula) {
         return rule(false, null, null, formula, null);
     }
 
 
-    protected static AccessPermissionRule rule(ObjectItem... objects) {
+    protected static AccessPermissionRule rule(AccessObject... objects) {
         return rule(false, null, null, null, Arrays.asList(objects));
     }
 
 
-    protected static AccessPermissionRule rule(boolean disabled, List<RightsEnum> rights, List<AttributeItem> attributes, IdtaLogicalExpression formula, List<ObjectItem> objects) {
-        var rule = new AccessPermissionRule();
-        var acl = new Acl();
-        acl.setAccess(disabled ? Acl.Access.DISABLED : Acl.Access.ALLOW);
-        acl.setRights(rights);
+    protected static AccessPermissionRule rule(boolean disabled, List<Right> rights, List<Attribute> attributes, LogicalExpression formula,
+                                               List<AccessObject> objects) {
+        AccessRule accessRule = new AccessRule(!disabled, rights, attributes);
 
-        acl.setAttributes(attributes);
-        rule.setFormula(formula);
-        rule.setAcl(acl);
-        rule.setObjects(objects);
-        return rule;
+        return new AccessPermissionRule(accessRule, objects, formula, List.of());
     }
-
-
-    protected static IdtaLogicalExpression fn(AttributeItem attribute, String string, BiConsumer<IdtaLogicalExpression, List<IdtaValue>> appliedFunction) {
-        IdtaLogicalExpression eqFormula = new IdtaLogicalExpression();
-        IdtaValue claimValue = new IdtaValue();
-        claimValue.set$attribute(attribute);
-        IdtaValue claimEqValue = new IdtaValue();
-        claimEqValue.set$strVal(string);
-        appliedFunction.accept(eqFormula, List.of(claimValue, claimEqValue));
-        return eqFormula;
-    }
-
-
-    protected static AttributeItem global(AttributeItem.Global global) {
-        AttributeItem item = new AttributeItem();
-        item.setGlobal(global);
-        return item;
-    }
-
-
-    protected static ObjectItem objectRoute(String route) {
-        ObjectItem item = new ObjectItem();
-        item.setRoute(route);
-        return item;
-    }
-
 }

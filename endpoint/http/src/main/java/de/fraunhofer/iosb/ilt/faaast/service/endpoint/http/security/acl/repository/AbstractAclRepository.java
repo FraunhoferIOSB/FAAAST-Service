@@ -14,21 +14,29 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.acl.repository;
 
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.util.AccessControlListHelper.getAcl;
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.util.AccessControlListHelper.getAttributes;
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.util.AccessControlListHelper.getFilter;
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.util.AccessControlListHelper.getFormula;
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.util.AccessControlListHelper.getObjects;
-
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AccessPermissionRule;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.Acl;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.acl.repository.def.DefEntityStore;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.LogicalExpression;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.filter.QueryFilter;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AllAccessPermissionRules;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.Attribute;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.ClaimAttribute;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.AccessPermissionRule;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.AccessRuleEntity;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.UnresolvedAccessPermissionRule;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.AccessObject;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.AccessRule;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.Rule;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.UnresolvedAccessRule;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.parser.AccessPermissionRuleParser;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -39,22 +47,37 @@ import java.util.Map;
  */
 public abstract class AbstractAclRepository<T> implements AclRepository {
 
-    protected final Map<T, AllAccessPermissionRules> allAccessPermissionRules;
-
-    private List<AccessPermissionRule> resolved;
+    private final DefEntityStore<T> defEntityStore = new DefEntityStore<>();
+    private final AccessPermissionRuleParser aclParser = new AccessPermissionRuleParser();
+    protected final Map<T, List<UnresolvedAccessPermissionRule>> unresolved;
+    // The active rule set is the set of rules that are fully resolved (no USE*) and active
+    protected volatile List<AccessPermissionRule> activeRuleSet;
 
     /**
      * Class constructor.
      */
     protected AbstractAclRepository() {
-        this.allAccessPermissionRules = new HashMap<>();
-        this.resolved = new ArrayList<>();
+        this.unresolved = new HashMap<>();
+        this.activeRuleSet = new ArrayList<>();
     }
 
 
     @Override
-    public List<AccessPermissionRule> getAccessPermissionRules() {
-        return new ArrayList<>(resolved.stream().map(rule -> DeepCopyHelper.deepCopyAny(rule, AccessPermissionRule.class)).toList());
+    public List<AccessPermissionRule> getActiveRules(Set<String> claims) {
+        // Don't return rules where the claims don't match.
+        return new ArrayList<>(activeRuleSet.stream()
+                .filter(rule -> new HashSet<>(getRequiredClaims(rule.rule().attributes())).containsAll(claims)
+                        || rule.rule().attributes().stream().anyMatch(attr -> attr.isGlobal() && attr.asGlobal().isAnonymous()))
+                .map(rule -> DeepCopyHelper.deepCopyAny(rule, AccessPermissionRule.class)).toList());
+    }
+
+
+    private List<String> getRequiredClaims(List<Attribute> attributes) {
+        return attributes.stream()
+                .filter(Attribute::isClaim)
+                .map(Attribute::asClaim)
+                .map(ClaimAttribute::getClaim)
+                .toList();
     }
 
 
@@ -65,8 +88,23 @@ public abstract class AbstractAclRepository<T> implements AclRepository {
      * @param acl Rule environment to add.
      */
     public final void add(T identifier, AllAccessPermissionRules acl) {
-        allAccessPermissionRules.put(identifier, acl);
-        resolve(allAccessPermissionRules.values());
+        defEntityStore.addDefAcls(identifier, acl.getDefacls());
+        defEntityStore.addDefAttributes(identifier, acl.getDefattributes());
+        defEntityStore.addDefObjects(identifier, acl.getDefobjects());
+        defEntityStore.addDefFormulas(identifier, acl.getDefformulas());
+
+        unresolved.put(identifier, acl.getRules().stream().map(aclParser::parse).toList());
+        resolve();
+    }
+
+
+    /**
+     * Remove an environment from the current ACL along with its DEF* and re-resolve active rules
+     *
+     * @param identifier Identifier of rule to remove.
+     */
+    public final void remove(T identifier) {
+        remove(identifier, true);
     }
 
 
@@ -74,41 +112,69 @@ public abstract class AbstractAclRepository<T> implements AclRepository {
      * Remove an environment from the current ACL along with its DEF*.
      *
      * @param identifier Identifier of rule to remove.
+     * @param resolve Whether the set of active rules are to be resolved again.
      */
-    public final void remove(T identifier) {
-        if (allAccessPermissionRules.remove(identifier) != null) {
-            resolve(allAccessPermissionRules.values());
+    public final void remove(T identifier, boolean resolve) {
+        defEntityStore.delete(identifier);
+        if (unresolved.remove(identifier) != null && resolve) {
+            resolve();
         }
     }
 
 
-    private void resolve(Collection<AllAccessPermissionRules> unresolved) {
-        AllAccessPermissionRules unresolvedMerged = merge(unresolved);
-        List<AccessPermissionRule> resolvedRules = new ArrayList<>();
-        for (AccessPermissionRule rule: unresolvedMerged.getRules()) {
-            AccessPermissionRule resolvedRule = new AccessPermissionRule();
-            Acl acl = new Acl();
-            acl.setAccess(rule.getAcl().getAccess());
-            acl.setRights(rule.getAcl().getRights());
-            acl.setAttributes(getAttributes(getAcl(rule, unresolvedMerged), unresolvedMerged));
-            resolvedRule.setAcl(acl);
-            resolvedRule.setObjects(getObjects(rule, unresolvedMerged));
-            resolvedRule.setFormula(getFormula(rule, unresolvedMerged));
-            resolvedRule.setFilter(getFilter(rule, unresolvedMerged));
-            resolvedRules.add(resolvedRule);
-        }
+    private void resolve() {
 
-        resolved = resolvedRules;
+        for (Map.Entry<T, List<UnresolvedAccessPermissionRule>> rules: unresolved.entrySet()) {
+            activeRuleSet.addAll(rules.getValue().stream().map(this::resolve).filter(AccessPermissionRule::isEnabled).toList());
+        }
     }
 
 
-    private AllAccessPermissionRules merge(Collection<AllAccessPermissionRules> rulesList) {
-        AllAccessPermissionRules merged = new AllAccessPermissionRules();
-        merged.setRules(rulesList.stream().map(AllAccessPermissionRules::getRules).flatMap(Collection::stream).toList());
-        merged.setDefobjects(rulesList.stream().map(AllAccessPermissionRules::getDefobjects).flatMap(Collection::stream).toList());
-        merged.setDefformulas(rulesList.stream().map(AllAccessPermissionRules::getDefformulas).flatMap(Collection::stream).toList());
-        merged.setDefacls(rulesList.stream().map(AllAccessPermissionRules::getDefacls).flatMap(Collection::stream).toList());
-        merged.setDefattributes(rulesList.stream().map(AllAccessPermissionRules::getDefattributes).flatMap(Collection::stream).toList());
-        return merged;
+    private AccessPermissionRule resolve(UnresolvedAccessPermissionRule unresolved) {
+        AccessRule rule = resolve(unresolved.rule());
+        List<AccessObject> objects = resolve(unresolved.objects());
+        LogicalExpression formula;
+        if (unresolved.formula().isUse()) {
+            formula = defEntityStore.getFormula(unresolved.formula().getUseName());
+        }
+        else {
+            formula = unresolved.formula().getInstance();
+        }
+
+        List<QueryFilter> filters = unresolved.filters();
+
+        return new AccessPermissionRule(rule, objects, formula, filters);
+    }
+
+
+    private List<AccessObject> resolve(List<AccessRuleEntity<AccessObject>> unresolved) {
+        List<AccessObject> resolved = new ArrayList<>();
+        for (AccessRuleEntity<AccessObject> object: unresolved) {
+            if (object.isUse()) {
+                resolved.addAll(defEntityStore.getObjects(object.getUseName()));
+            }
+            else {
+                resolved.add(object.getInstance());
+            }
+        }
+        return resolved;
+    }
+
+
+    private AccessRule resolve(AccessRuleEntity<Rule> unresolved) {
+        Rule resolved = unresolved.getInstance();
+        if (unresolved.isUse()) {
+            resolved = defEntityStore.getAccessRule(unresolved.getUseName());
+        }
+
+        if (resolved instanceof UnresolvedAccessRule unresolvedAccessRule) {
+            List<Attribute> attributes = unresolvedAccessRule.attributes().stream()
+                    .map(attr -> attr.isUse() ? defEntityStore.getAttribute(attr.getUseName()) : List.of(attr.getInstance()))
+                    .flatMap(Collection::stream)
+                    .toList();
+            resolved = unresolvedAccessRule.from(attributes);
+        }
+
+        return (AccessRule) resolved;
     }
 }

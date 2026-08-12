@@ -21,13 +21,13 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.comparison.GreaterThanO
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.comparison.LessThanEqualsOperation;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.comparison.LessThanOperation;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.comparison.NotEqualsOperation;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.IdtaLogicalExpression;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.LogicalExpression;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.parser.expression.AbstractBinaryComparisonParser;
 
 
-public class LogicalBinaryComparisonParser extends AbstractBinaryComparisonParser<IdtaLogicalExpression, AbstractBinaryComparison> {
+public class LogicalBinaryComparisonParser extends AbstractBinaryComparisonParser<LogicalExpression, AbstractBinaryComparison> {
     @Override
-    public AbstractBinaryComparison parse(IdtaLogicalExpression expression) {
+    public AbstractBinaryComparison parse(LogicalExpression expression) {
         if (notNullNorEmpty(expression.get$eq())) {
             return buildComparison(EqualsOperation::new, expression.get$eq());
         }

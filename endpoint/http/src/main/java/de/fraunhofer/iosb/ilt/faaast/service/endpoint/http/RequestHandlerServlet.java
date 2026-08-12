@@ -27,8 +27,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AccessPermissionRule;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.IdtaLogicalExpression;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.LogicalExpression;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.logical.OrOperation;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.AccessPermissionRule;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
@@ -160,19 +161,17 @@ public class RequestHandlerServlet extends HttpServlet {
 
 
     /**
-     * Transforms a list of resolved access permission rules to a IdtaLogicalExpression, using OR to combine them.
+     * Transforms a list of resolved access permission rules to a LogicalExpression, using OR to combine them.
      *
      * @param rules The rules to OR-ify
-     * @return The IdtaLogicalExpression formula
+     * @return The LogicalExpression formula
      */
-    protected IdtaLogicalExpression rulesToFormula(List<AccessPermissionRule> rules) {
+    protected LogicalExpression rulesToFormula(List<AccessPermissionRule> rules) {
         // Security turned off
         if (rules == null) {
             return identity();
         }
-        IdtaLogicalExpression condition = new IdtaLogicalExpression();
-        condition.set$or(rules.stream().map(AccessPermissionRule::getFormula).toList());
-        return condition;
+        return new OrOperation(rules.stream().map(AccessPermissionRule::formula).toList());
     }
 
 }

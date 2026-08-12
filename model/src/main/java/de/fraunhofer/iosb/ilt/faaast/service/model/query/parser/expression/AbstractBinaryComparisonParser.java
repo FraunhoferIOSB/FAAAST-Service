@@ -15,11 +15,11 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.query.parser.expression;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.comparison.AbstractBinaryComparison;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.IdtaValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.Value;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.parser.operand.ValueToOperandParser;
 
 
-public abstract class AbstractBinaryComparisonParser<I, O> extends AbstractComparisonParser<I, O, IdtaValue, AbstractBinaryComparison> {
+public abstract class AbstractBinaryComparisonParser<I, O> extends AbstractComparisonParser<I, O, Value, AbstractBinaryComparison> {
     protected AbstractBinaryComparisonParser() {
         super(new ValueToOperandParser());
     }

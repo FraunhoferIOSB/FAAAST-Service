@@ -12,19 +12,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.acl.repository;
+package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.acl.repository.def.entity;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.AccessPermissionRule;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.AccessObject;
 
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 
-/**
- * Keeps an in-memory version of the aclFolder's rules. When access control rules are added/deleted/modified, updates
- * its own state accordingly.
- */
-public interface AclRepository {
+public class DefAccessObject extends DefEntity<List<AccessObject>> {
+    public DefAccessObject(Map<String, List<AccessObject>> entries) {
+        super(entries);
+    }
 
-    List<AccessPermissionRule> getActiveRules(Set<String> claims);
+
+    @Override
+    public DefAccessObject getInstance(Map<String, List<AccessObject>> entries) {
+        return new DefAccessObject(entries);
+    }
 }

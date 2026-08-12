@@ -17,12 +17,16 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter;
 import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.util.JwtTestHelper.JOHN_DOE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AccessPermissionRule;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AttributeItem;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.IdtaLogicalExpression;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.comparison.GreaterThanEqualsOperation;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.comparison.GreaterThanOperation;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.comparison.LessThanEqualsOperation;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.comparison.LessThanOperation;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.LogicalExpression;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.logical.AndOperation;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.ClaimAttribute;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.AccessPermissionRule;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import org.junit.Test;
@@ -37,56 +41,39 @@ public class AclAttributeInjectionInterceptorTest extends AbstractAclFilterTest 
 
     @Test
     public void testInjectAttributes() {
-        AccessPermissionRule uninjectedRule = rule(formulaWithAttributes());
+        AccessPermissionRule uninjectedRule = rule();
         List<AccessPermissionRule> rules = List.of(uninjectedRule);
 
         HttpServletRequest mockRequest = mockRequest(rules);
 
         List<AccessPermissionRule> actual = filter.doFilter(mockRequest, rules);
 
-        List<LogicalExpression> terms = actual.get(0).getFormula().get$and();
-        assertEquals(uninjectedRule.getFormula().get$and().size(), terms.size());
+        List<LogicalExpression> terms = ((AndOperation) actual.get(0).formula()).getOperands();
+        assertEquals(((AndOperation) uninjectedRule.formula()).getOperands().size(), terms.size());
 
         for (LogicalExpression term: terms) {
-            if (!term.get$eq().isEmpty()) {
-                assertEquals(JOHN_DOE.get("name"), term.get$eq().get(0).get$strVal());
-                assertNull(term.get$eq().get(0).get$attribute());
+            if (term instanceof ClaimAttribute claimAttribute) {
+                assertEquals(JOHN_DOE.get("name"), claimAttribute.getClaim());
             }
-            else if (!term.get$ge().isEmpty()) {
-                assertNotNull(term.get$ge().get(0).get$timeVal());
-                assertNull(term.get$ge().get(0).get$attribute());
+            else if (term instanceof GreaterThanEqualsOperation ge) {
+                assertNotNull(ge.getLeft());
+                assertNotNull(ge.getRight());
             }
-            else if (!term.get$le().isEmpty()) {
-                assertEquals(JOHN_DOE.get("iat"), term.get$le().get(0).get$timeVal());
-                assertNull(term.get$le().get(0).get$attribute());
+            else if (term instanceof LessThanEqualsOperation le) {
+                assertEquals(JOHN_DOE.get("iat"), le.getLeft().asLiteral().asString().value());
+                assertNotNull(le.getRight());
             }
-            else if (!term.get$lt().isEmpty()) {
-                assertNotNull(term.get$lt().get(0).get$timeVal());
-                assertNull(term.get$lt().get(0).get$attribute());
+            else if (term instanceof LessThanOperation lt) {
+                assertNotNull(lt.getLeft());
+                assertNotNull(lt.getRight());
             }
-            else if (!term.get$gt().isEmpty()) {
-                assertTrue(term.get$gt().get(0).get$boolean());
-                assertNull(term.get$gt().get(0).get$attribute());
+            else if (term instanceof GreaterThanOperation gt) {
+                assertTrue(gt.getLeft().asLiteral().asBoolean().value());
+                assertNotNull(gt.getRight());
+            }
+            else {
+                throw new IllegalStateException(String.format("Error at %s", term));
             }
         }
-    }
-
-
-    private IdtaLogicalExpression formulaWithAttributes() {
-        AttributeItem claimAttribute = new AttributeItem();
-        claimAttribute.setClaim("name");
-        AttributeItem utcNow = global(AttributeItem.Global.UTCNOW);
-        AttributeItem clientNow = global(AttributeItem.Global.CLIENTNOW);
-        AttributeItem localNow = global(AttributeItem.Global.LOCALNOW);
-        AttributeItem anonymous = global(AttributeItem.Global.ANONYMOUS);
-        IdtaLogicalExpression formula = new IdtaLogicalExpression();
-
-        formula.set$and(List.of(
-                fn(claimAttribute, JOHN_DOE.get(claimAttribute.getClaim()), IdtaLogicalExpression::set$eq),
-                fn(utcNow, "0:00", IdtaLogicalExpression::set$ge),
-                fn(clientNow, "23:59:59", IdtaLogicalExpression::set$le),
-                fn(localNow, "0:00", IdtaLogicalExpression::set$lt),
-                fn(anonymous, "abc-test", IdtaLogicalExpression::set$gt)));
-        return formula;
     }
 }

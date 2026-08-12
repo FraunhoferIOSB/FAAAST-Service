@@ -14,13 +14,14 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter;
 
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.util.ExpressionInjectionHelper.injectLogicalExpression;
-
 import com.auth0.jwt.interfaces.Claim;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AccessPermissionRule;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.EvaluationContext;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.AccessPermissionRule;
 import jakarta.servlet.http.HttpServletRequest;
+
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 
 /**
@@ -29,8 +30,13 @@ import java.util.Map;
 public class AclAttributeInjectionInterceptor extends AbstractAclFilter {
     @Override
     protected List<AccessPermissionRule> doFilter(HttpServletRequest request, List<AccessPermissionRule> rules) {
+        // TODO do this in request handler servlet
         Map<String, Claim> claims = extractClaims(request);
-        rules.forEach(rule -> injectLogicalExpression(rule.getFormula(), claims));
+        for (AccessPermissionRule rule: rules) {
+            rule.formula().evaluatePartially(new EvaluationContext(
+                    claims.entrySet().stream().map(e -> Map.entry(e.getKey(), e.getValue().toString())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)),
+                    request.getServletPath()));
+        }
         return rules;
     }
 }

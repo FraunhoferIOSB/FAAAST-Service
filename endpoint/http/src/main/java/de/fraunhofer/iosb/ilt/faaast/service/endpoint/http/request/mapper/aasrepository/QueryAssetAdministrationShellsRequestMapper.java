@@ -24,6 +24,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository.Que
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.Query;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.parser.QueryParser;
+
 import java.util.Map;
 
 
@@ -42,7 +44,8 @@ public class QueryAssetAdministrationShellsRequestMapper extends AbstractRequest
     @Override
     public Request doParse(HttpRequest httpRequest, Map<String, String> urlParameters) throws InvalidRequestException {
         Query query = parseBody(httpRequest, Query.class);
-        QueryAssetAdministrationShellsRequest.Builder request = QueryAssetAdministrationShellsRequest.builder().query(query);
+        QueryAssetAdministrationShellsRequest.Builder request = QueryAssetAdministrationShellsRequest.builder()
+                .query(new QueryParser().parse(query));
         if (query.get$select() != null) {
             // TODO need an 'id' output modifier?
             request.outputModifier(new OutputModifier.Builder().content(Content.PATH).build());

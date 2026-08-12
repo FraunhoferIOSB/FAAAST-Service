@@ -20,8 +20,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.LogicalExpre
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.logical.AndOperation;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.logical.NotOperation;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.logical.OrOperation;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.IdtaLogicalExpression;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.IdtaMatchExpression;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.MatchExpression;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.BooleanLiteral;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.parser.AbstractParser;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.parser.expression.match.MatchExpressionParser;
@@ -30,14 +29,14 @@ import java.util.List;
 import java.util.function.Function;
 
 
-public class LogicalExpressionParser extends AbstractParser<IdtaLogicalExpression, LogicalExpression> {
+public class LogicalExpressionParser extends AbstractParser<de.fraunhofer.iosb.ilt.faaast.service.model.query.json.LogicalExpression, LogicalExpression> {
 
     private final MatchExpressionParser matchExpressionParser = new MatchExpressionParser();
     private final LogicalBinaryComparisonParser binaryComparisonParser = new LogicalBinaryComparisonParser();
     private final LogicalStringComparisonParser stringComparisonParser = new LogicalStringComparisonParser();
 
     @Override
-    public LogicalExpression parse(IdtaLogicalExpression expression) {
+    public LogicalExpression parse(de.fraunhofer.iosb.ilt.faaast.service.model.query.json.LogicalExpression expression) {
         if (!assertExpression(expression)) {
             throw new IllegalArgumentException("expression malformed: %s".formatted(expression));
         }
@@ -54,7 +53,7 @@ public class LogicalExpressionParser extends AbstractParser<IdtaLogicalExpressio
             return new NotOperation(parse(expression.get$not()));
         }
         if (notNullNorEmpty(expression.get$match())) {
-            IdtaMatchExpression idtaMatchExpression = new IdtaMatchExpression();
+            MatchExpression idtaMatchExpression = new MatchExpression();
             idtaMatchExpression.set$match(expression.get$match());
             return matchExpressionParser.parse(idtaMatchExpression);
         }
@@ -75,36 +74,37 @@ public class LogicalExpressionParser extends AbstractParser<IdtaLogicalExpressio
     }
 
 
-    private boolean assertExpression(IdtaLogicalExpression expression) {
+    private boolean assertExpression(de.fraunhofer.iosb.ilt.faaast.service.model.query.json.LogicalExpression expression) {
         if (expression == null) {
             return false;
         }
 
         short nonNullNonEmptyElements = 0;
-        List<Function<IdtaLogicalExpression, List<?>>> listAccessors = List.of(
-                IdtaLogicalExpression::get$and,
-                IdtaLogicalExpression::get$match, IdtaLogicalExpression::get$or,
-                IdtaLogicalExpression::get$eq,
-                IdtaLogicalExpression::get$ne,
-                IdtaLogicalExpression::get$gt,
-                IdtaLogicalExpression::get$ge,
-                IdtaLogicalExpression::get$lt,
-                IdtaLogicalExpression::get$le,
-                IdtaLogicalExpression::get$contains,
-                IdtaLogicalExpression::get$startsWith,
-                IdtaLogicalExpression::get$endsWith,
-                IdtaLogicalExpression::get$regex);
-        List<Function<IdtaLogicalExpression, Object>> objectAccessors = List.of(
-                IdtaLogicalExpression::get$not,
-                IdtaLogicalExpression::get$boolean);
+        List<Function<de.fraunhofer.iosb.ilt.faaast.service.model.query.json.LogicalExpression, List<?>>> listAccessors = List.of(
+                de.fraunhofer.iosb.ilt.faaast.service.model.query.json.LogicalExpression::get$and,
+                de.fraunhofer.iosb.ilt.faaast.service.model.query.json.LogicalExpression::get$match,
+                de.fraunhofer.iosb.ilt.faaast.service.model.query.json.LogicalExpression::get$or,
+                de.fraunhofer.iosb.ilt.faaast.service.model.query.json.LogicalExpression::get$eq,
+                de.fraunhofer.iosb.ilt.faaast.service.model.query.json.LogicalExpression::get$ne,
+                de.fraunhofer.iosb.ilt.faaast.service.model.query.json.LogicalExpression::get$gt,
+                de.fraunhofer.iosb.ilt.faaast.service.model.query.json.LogicalExpression::get$ge,
+                de.fraunhofer.iosb.ilt.faaast.service.model.query.json.LogicalExpression::get$lt,
+                de.fraunhofer.iosb.ilt.faaast.service.model.query.json.LogicalExpression::get$le,
+                de.fraunhofer.iosb.ilt.faaast.service.model.query.json.LogicalExpression::get$contains,
+                de.fraunhofer.iosb.ilt.faaast.service.model.query.json.LogicalExpression::get$startsWith,
+                de.fraunhofer.iosb.ilt.faaast.service.model.query.json.LogicalExpression::get$endsWith,
+                de.fraunhofer.iosb.ilt.faaast.service.model.query.json.LogicalExpression::get$regex);
+        List<Function<de.fraunhofer.iosb.ilt.faaast.service.model.query.json.LogicalExpression, Object>> objectAccessors = List.of(
+                de.fraunhofer.iosb.ilt.faaast.service.model.query.json.LogicalExpression::get$not,
+                de.fraunhofer.iosb.ilt.faaast.service.model.query.json.LogicalExpression::get$boolean);
 
-        for (Function<IdtaLogicalExpression, List<?>> listAccessor: listAccessors) {
+        for (Function<de.fraunhofer.iosb.ilt.faaast.service.model.query.json.LogicalExpression, List<?>> listAccessor: listAccessors) {
             if (listAccessor.apply(expression) != null && !listAccessor.apply(expression).isEmpty()) {
                 nonNullNonEmptyElements++;
             }
         }
 
-        for (Function<IdtaLogicalExpression, Object> objectAccessor: objectAccessors) {
+        for (Function<de.fraunhofer.iosb.ilt.faaast.service.model.query.json.LogicalExpression, Object> objectAccessor: objectAccessors) {
             if (objectAccessor.apply(expression) != null) {
                 nonNullNonEmptyElements++;
             }
