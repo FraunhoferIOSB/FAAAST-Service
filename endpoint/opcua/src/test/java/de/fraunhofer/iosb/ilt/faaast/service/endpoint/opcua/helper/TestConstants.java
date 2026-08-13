@@ -87,7 +87,7 @@ public class TestConstants {
     public static final String BILL_OF_MATERIAL_NAME = "BillOfMaterial";
     public static final String DEFAULT_THUMB_NAME = "DefaultThumbnail";
     public static final String GLOBAL_ASSET_ID_NAME = "GlobalAssetId";
-    public static final String SPECIFIC_ASSET_ID_NAME = "SpecificAssetId";
+    //public static final String SPECIFIC_ASSET_ID_NAME = "SpecificAssetId";
     public static final String ID_KEY_NAME = "Key";
     public static final String ID_VALUE_NAME = "Value";
     public static final String KEYS_VALUE_NAME = "Keys";
@@ -101,7 +101,7 @@ public class TestConstants {
     public static final int AAS_PROPERTY_TYPE_ID = 1013;
     public static final int AAS_IDENTIFIER_TYPE_ID = 1029;
     public static final int AAS_ADMIN_INFO_TYPE_ID = 1030;
-    public static final int AAS_ASSET_INFO_TYPE_ID = 1031;
+    public static final int AAS_ASSET_INFO_TYPE_ID = 1010;
     public static final int AAS_QUALIFIER_TYPE_ID = 1032;
     public static final int AAS_ID_KEY_VALUE_PAIR_ID = 1035;
     public static final int AAS_REFERENCE_LIST_ID = 1036;

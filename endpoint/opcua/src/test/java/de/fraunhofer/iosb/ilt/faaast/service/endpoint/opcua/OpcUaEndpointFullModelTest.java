@@ -47,6 +47,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementDeleteEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.util.PortHelper;
 import java.io.IOException;
 import java.time.Duration;
@@ -56,13 +57,13 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import opc.i4aas.VariableIds;
-import opc.i4aas.datatypes.AASDataTypeDefXsd;
-import opc.i4aas.datatypes.AASKeyDataType;
-import opc.i4aas.datatypes.AASKeyTypesDataType;
-import opc.i4aas.datatypes.AASModellingKindDataType;
-import opc.i4aas.objecttypes.AASEntityType;
-import opc.i4aas.objecttypes.AASRelationshipElementType;
+import opc.ua.aas.VariableIds;
+import opc.ua.aas.datatypes.AASKey;
+import opc.ua.aas.datatypes.AASKeyTypes;
+import opc.ua.aas.datatypes.AASModellingKind;
+import opc.ua.aas.datatypes.AASSubmodelElements;
+import opc.ua.aas.objecttypes.AASEntityType;
+import opc.ua.aas.objecttypes.AASRelationshipElementType;
 import org.awaitility.Awaitility;
 import org.eclipse.digitaltwin.aas4j.v3.model.AasSubmodelElements;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
@@ -245,18 +246,18 @@ public class OpcUaEndpointFullModelTest {
 
         NodeId writeNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
 
-        List<AASKeyDataType> oldValue = new ArrayList<>();
-        oldValue.add(new AASKeyDataType(AASKeyTypesDataType.Submodel, "https://acplt.org/Test_Submodel_Mandatory"));
-        oldValue.add(new AASKeyDataType(AASKeyTypesDataType.SubmodelElementList, "ExampleSubmodelElementListUnordered"));
-        oldValue.add(new AASKeyDataType(AASKeyTypesDataType.MultiLanguageProperty, "ExampleMultiLanguageProperty"));
+        List<AASKey> oldValue = new ArrayList<>();
+        oldValue.add(new AASKey(AASKeyTypes.Submodel, "https://acplt.org/Test_Submodel_Mandatory"));
+        oldValue.add(new AASKey(AASKeyTypes.SubmodelElementList, "ExampleSubmodelElementListUnordered"));
+        oldValue.add(new AASKey(AASKeyTypes.MultiLanguageProperty, "ExampleMultiLanguageProperty"));
 
         // The DataElementValueMapper changes the order of the elements
-        List<AASKeyDataType> newValue = new ArrayList<>();
-        newValue.add(new AASKeyDataType(AASKeyTypesDataType.Submodel, "https://acplt.org/Test_Submodel_Mandatory"));
-        newValue.add(new AASKeyDataType(AASKeyTypesDataType.SubmodelElementList, "ExampleSubmodelElementListUnordered"));
-        newValue.add(new AASKeyDataType(AASKeyTypesDataType.Range, "ExampleRange"));
+        List<AASKey> newValue = new ArrayList<>();
+        newValue.add(new AASKey(AASKeyTypes.Submodel, "https://acplt.org/Test_Submodel_Mandatory"));
+        newValue.add(new AASKey(AASKeyTypes.SubmodelElementList, "ExampleSubmodelElementListUnordered"));
+        newValue.add(new AASKey(AASKeyTypes.Range, "ExampleRange"));
 
-        TestUtils.writeNewValueArray(client, writeNode, oldValue.toArray(AASKeyDataType[]::new), newValue.toArray(AASKeyDataType[]::new));
+        TestUtils.writeNewValueArray(client, writeNode, oldValue.toArray(AASKey[]::new), newValue.toArray(AASKey[]::new));
 
         System.out.println("disconnect client");
         client.disconnect();
@@ -295,16 +296,16 @@ public class OpcUaEndpointFullModelTest {
 
         NodeId writeNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
 
-        List<AASKeyDataType> oldValue = new ArrayList<>();
-        oldValue.add(new AASKeyDataType(AASKeyTypesDataType.Submodel, "https://acplt.org/Test_Submodel_Missing"));
-        oldValue.add(new AASKeyDataType(AASKeyTypesDataType.SubmodelElementCollection, "ExampleSubmodelElementCollection"));
-        oldValue.add(new AASKeyDataType(AASKeyTypesDataType.File, "ExampleFile"));
+        List<AASKey> oldValue = new ArrayList<>();
+        oldValue.add(new AASKey(AASKeyTypes.Submodel, "https://acplt.org/Test_Submodel_Missing"));
+        oldValue.add(new AASKey(AASKeyTypes.SubmodelElementCollection, "ExampleSubmodelElementCollection"));
+        oldValue.add(new AASKey(AASKeyTypes.File, "ExampleFile"));
 
         // The DataElementValueMapper changes the order of the elements
-        List<AASKeyDataType> newValue = new ArrayList<>();
-        newValue.add(new AASKeyDataType(AASKeyTypesDataType.GlobalReference, "https://iosb.fraunhofer.de/TestValue1"));
+        List<AASKey> newValue = new ArrayList<>();
+        newValue.add(new AASKey(AASKeyTypes.GlobalReference, "https://iosb.fraunhofer.de/TestValue1"));
 
-        TestUtils.writeNewValueArray(client, writeNode, oldValue.toArray(AASKeyDataType[]::new), newValue.toArray(AASKeyDataType[]::new));
+        TestUtils.writeNewValueArray(client, writeNode, oldValue.toArray(AASKey[]::new), newValue.toArray(AASKey[]::new));
 
         System.out.println("disconnect client");
         client.disconnect();
@@ -753,7 +754,7 @@ public class OpcUaEndpointFullModelTest {
 
         DateTime dt = DateTime.fromInstant(ZonedDateTime.of(2022, 7, 8, 10, 22, 4, 0, ZoneId.systemDefault()).toInstant());
         TestUtils.checkAasPropertyObject(client, smNode, aasns, TestConstants.FULL_DATETIME_PROP_NAME, "Parameter",
-                AASDataTypeDefXsd.DateTime, dt, new ArrayList<>());
+                Datatype.DATE_TIME, dt, new ArrayList<>());
 
         OffsetDateTime odtnew = OffsetDateTime.now(ZoneId.systemDefault());
         DateTime dtnew = DateTime.fromInstant(odtnew.toInstant());
@@ -879,8 +880,8 @@ public class OpcUaEndpointFullModelTest {
         Assert.assertTrue("testSubmodelElementList TypeValueListElement empty", targets.length > 0);
         value = client.readValue(targets[0].getTargetId());
         Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
-        Integer tvListElementExpected = ValueConverter.getAasSubmodelElementsType(AasSubmodelElements.SUBMODEL_ELEMENT).ordinal();
-        Assert.assertEquals("TypeValueListElement not equal", tvListElementExpected, value.getValue().getValue());
+        AASSubmodelElements tvListElementExpected = ValueConverter.getAasSubmodelElementsType(AasSubmodelElements.SUBMODEL_ELEMENT);
+        Assert.assertEquals("TypeValueListElement not equal", tvListElementExpected, value.getValue().asOptionSet(AASSubmodelElements.SPECIFICATION));
 
         // SubmodelElementList type
         targets = bpres[3].getTargets();
@@ -1029,13 +1030,13 @@ public class OpcUaEndpointFullModelTest {
                         return false;
                     }
 
-                    List<AASKeyDataType> smeValue = new ArrayList<>();
-                    smeValue.add(new AASKeyDataType(AASKeyTypesDataType.Submodel, "http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial"));
-                    smeValue.add(new AASKeyDataType(AASKeyTypesDataType.Entity, "ExampleEntity"));
-                    smeValue.add(new AASKeyDataType(AASKeyTypesDataType.Property, "ExampleProperty2"));
+                    List<AASKey> smeValue = new ArrayList<>();
+                    smeValue.add(new AASKey(AASKeyTypes.Submodel, "http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial"));
+                    smeValue.add(new AASKey(AASKeyTypes.Entity, "ExampleEntity"));
+                    smeValue.add(new AASKey(AASKeyTypes.Property, "ExampleProperty2"));
 
                     DataValue value = client.readValue(client.getAddressSpace().getNamespaceTable().toNodeId(targets2[0].getTargetId()));
-                    return value.getStatusCode().isGood() && Arrays.equals(smeValue.toArray(AASKeyDataType[]::new), (AASKeyDataType[]) value.getValue().getValue());
+                    return value.getStatusCode().isGood() && Arrays.equals(smeValue.toArray(AASKey[]::new), (AASKey[]) value.getValue().getValue());
                 });
 
         System.out.println("disconnect client");
@@ -1049,7 +1050,7 @@ public class OpcUaEndpointFullModelTest {
 
         TestUtils.checkIdentification(client, submodelNode, aasns, TestConstants.FULL_SUBMODEL_1_ID);
         TestUtils.checkAdministrationNode(client, submodelNode, aasns, "0", "9");
-        TestUtils.checkModelingKindNode(client, submodelNode, aasns, AASModellingKindDataType.Instance);
+        TestUtils.checkModelingKindNode(client, submodelNode, aasns, AASModellingKind.Instance);
         TestUtils.checkCategoryNode(client, submodelNode, aasns, "");
         TestUtils.checkEmbeddedDataSpecificationNode(client, submodelNode, aasns);
 
@@ -1066,7 +1067,7 @@ public class OpcUaEndpointFullModelTest {
                 .valueType(DataTypeDefXsd.INT)
                 .type("http://acplt.org/Qualifier/ExampleQualifier2")
                 .build());
-        TestUtils.checkAasPropertyString(client, submodelNode, aasns, "ManufacturerName", "", AASDataTypeDefXsd.String,
+        TestUtils.checkAasPropertyString(client, submodelNode, aasns, "ManufacturerName", "", Datatype.STRING,
                 "http://acplt.org/ValueId/ACPLT", list);
     }
 }

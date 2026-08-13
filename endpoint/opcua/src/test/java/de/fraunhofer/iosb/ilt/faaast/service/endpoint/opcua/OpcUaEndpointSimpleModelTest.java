@@ -48,19 +48,19 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.PostSubm
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.PostSubmodelElementResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.util.PortHelper;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import opc.i4aas.VariableIds;
-import opc.i4aas.datatypes.AASDataTypeDefXsd;
-import opc.i4aas.datatypes.AASKeyDataType;
-import opc.i4aas.datatypes.AASKeyTypesDataType;
-import opc.i4aas.datatypes.AASModellingKindDataType;
-import opc.i4aas.objecttypes.AASEntityType;
-import opc.i4aas.objecttypes.AASRelationshipElementType;
+import opc.ua.aas.VariableIds;
+import opc.ua.aas.datatypes.AASKey;
+import opc.ua.aas.datatypes.AASKeyTypes;
+import opc.ua.aas.datatypes.AASModellingKind;
+import opc.ua.aas.objecttypes.AASEntityType;
+import opc.ua.aas.objecttypes.AASRelationshipElementType;
 import org.awaitility.Awaitility;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
 import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
@@ -164,20 +164,12 @@ public class OpcUaEndpointSimpleModelTest {
         NodeId submodelOperDataNode = null;
         for (ReferenceDescription ref: refs) {
             switch (ref.getBrowseName().getName()) {
-                case TestConstants.SIMPLE_AAS_NAME:
-                    aasNode = client.getAddressSpace().getNamespaceTable().toNodeId(ref.getNodeId());
-                    break;
-                case TestConstants.SUBMODEL_DOC_NODE_NAME:
-                    submodelDocNode = client.getAddressSpace().getNamespaceTable().toNodeId(ref.getNodeId());
-                    break;
-                case TestConstants.SUBMODEL_OPER_DATA_NODE_NAME:
-                    submodelOperDataNode = client.getAddressSpace().getNamespaceTable().toNodeId(ref.getNodeId());
-                    break;
-                case TestConstants.SUBMODEL_TECH_DATA_NODE_NAME:
-                    submodelTechDataNode = client.getAddressSpace().getNamespaceTable().toNodeId(ref.getNodeId());
-                    break;
-                default:
-                    break;
+                case TestConstants.SIMPLE_AAS_NAME -> aasNode = client.getAddressSpace().getNamespaceTable().toNodeId(ref.getNodeId());
+                case TestConstants.SUBMODEL_DOC_NODE_NAME -> submodelDocNode = client.getAddressSpace().getNamespaceTable().toNodeId(ref.getNodeId());
+                case TestConstants.SUBMODEL_OPER_DATA_NODE_NAME -> submodelOperDataNode = client.getAddressSpace().getNamespaceTable().toNodeId(ref.getNodeId());
+                case TestConstants.SUBMODEL_TECH_DATA_NODE_NAME -> submodelTechDataNode = client.getAddressSpace().getNamespaceTable().toNodeId(ref.getNodeId());
+                default -> {
+                }
             }
         }
 
@@ -357,16 +349,16 @@ public class OpcUaEndpointSimpleModelTest {
 
         NodeId writeNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
 
-        List<AASKeyDataType> oldValue = new ArrayList<>();
-        oldValue.add(new AASKeyDataType(AASKeyTypesDataType.Submodel, TestConstants.SUBMODEL_TECH_DATA_NAME));
-        oldValue.add(new AASKeyDataType(AASKeyTypesDataType.Property, TestConstants.MAX_ROTATION_SPEED_NAME));
+        List<AASKey> oldValue = new ArrayList<>();
+        oldValue.add(new AASKey(AASKeyTypes.Submodel, TestConstants.SUBMODEL_TECH_DATA_NAME));
+        oldValue.add(new AASKey(AASKeyTypes.Property, TestConstants.MAX_ROTATION_SPEED_NAME));
 
         // The DataElementValueMapper changes the order of the elements
-        List<AASKeyDataType> newValue = new ArrayList<>();
-        newValue.add(new AASKeyDataType(AASKeyTypesDataType.Submodel, TestConstants.SUBMODEL_TECH_DATA_NAME));
-        newValue.add(new AASKeyDataType(AASKeyTypesDataType.Property, "Another property"));
+        List<AASKey> newValue = new ArrayList<>();
+        newValue.add(new AASKey(AASKeyTypes.Submodel, TestConstants.SUBMODEL_TECH_DATA_NAME));
+        newValue.add(new AASKey(AASKeyTypes.Property, "Another property"));
 
-        TestUtils.writeNewValueArray(client, writeNode, oldValue.toArray(AASKeyDataType[]::new), newValue.toArray(AASKeyDataType[]::new));
+        TestUtils.writeNewValueArray(client, writeNode, oldValue.toArray(AASKey[]::new), newValue.toArray(AASKey[]::new));
 
         System.out.println("testWriteReferenceElementValue: disconnect client");
         client.disconnect();
@@ -685,11 +677,9 @@ public class OpcUaEndpointSimpleModelTest {
         for (ReferenceDescription ref: refs) {
             NodeId nid = client.getAddressSpace().getNamespaceTable().toNodeId(ref.getNodeId());
             switch (ref.getBrowseName().getName()) {
-                case TestConstants.OPERATING_MANUAL_NAME:
-                    operatingManualNode = nid;
-                    break;
-                default:
-                    break;
+                case TestConstants.OPERATING_MANUAL_NAME -> operatingManualNode = nid;
+                default -> {
+                }
             }
         }
 
@@ -697,7 +687,7 @@ public class OpcUaEndpointSimpleModelTest {
 
         TestUtils.checkIdentification(client, submodelNode, aasns, TestConstants.SUBMODEL_DOC_NAME);
         TestUtils.checkAdministrationNode(client, submodelNode, aasns, "11", "159");
-        TestUtils.checkModelingKindNode(client, submodelNode, aasns, AASModellingKindDataType.Instance);
+        TestUtils.checkModelingKindNode(client, submodelNode, aasns, AASModellingKind.Instance);
         TestUtils.checkCategoryNode(client, submodelNode, aasns, "");
         TestUtils.checkEmbeddedDataSpecificationNode(client, submodelNode, aasns);
         TestUtils.checkQualifierNode(client, submodelNode, aasns, new ArrayList<>());
@@ -712,10 +702,10 @@ public class OpcUaEndpointSimpleModelTest {
         TestUtils.checkIdentification(client, submodelNode, aasns, TestConstants.SUBMODEL_OPER_DATA_NAME);
         TestUtils.checkAdministrationNode(client, submodelNode, aasns, null, null);
         TestUtils.checkCategoryNode(client, submodelNode, aasns, "");
-        TestUtils.checkModelingKindNode(client, submodelNode, aasns, AASModellingKindDataType.Instance);
+        TestUtils.checkModelingKindNode(client, submodelNode, aasns, AASModellingKind.Instance);
         TestUtils.checkEmbeddedDataSpecificationNode(client, submodelNode, aasns);
         TestUtils.checkQualifierNode(client, submodelNode, aasns, new ArrayList<>());
-        TestUtils.checkAasPropertyObject(client, submodelNode, aasns, TestConstants.ROTATION_SPEED_NAME, "VARIABLE", AASDataTypeDefXsd.Integer,
+        TestUtils.checkAasPropertyObject(client, submodelNode, aasns, TestConstants.ROTATION_SPEED_NAME, "VARIABLE", Datatype.INTEGER,
                 "4370", new ArrayList<>());
     }
 
@@ -728,13 +718,13 @@ public class OpcUaEndpointSimpleModelTest {
         TestUtils.checkAdministrationNode(client, submodelNode, aasns, null, null);
         TestUtils.checkCategoryNode(client, submodelNode, aasns, "");
         // no kind available here, check for null
-        TestUtils.checkModelingKindNode(client, submodelNode, aasns, AASModellingKindDataType.Instance);
+        TestUtils.checkModelingKindNode(client, submodelNode, aasns, AASModellingKind.Instance);
         TestUtils.checkEmbeddedDataSpecificationNode(client, submodelNode, aasns);
         TestUtils.checkQualifierNode(client, submodelNode, aasns, new ArrayList<>());
         TestUtils.checkAasPropertyObject(client, submodelNode, aasns, TestConstants.MAX_ROTATION_SPEED_NAME, "PARAMETER",
-                AASDataTypeDefXsd.Integer, "5000", new ArrayList<>());
+                Datatype.INTEGER, "5000", new ArrayList<>());
         TestUtils.checkAasPropertyObject(client, submodelNode, aasns, TestConstants.DECIMAL_PROPERTY, "PARAMETER",
-                AASDataTypeDefXsd.Decimal, "123456", new ArrayList<>());
+                Datatype.DECIMAL, "123456", new ArrayList<>());
     }
 
 
@@ -744,7 +734,7 @@ public class OpcUaEndpointSimpleModelTest {
         TestUtils.checkCategoryNode(client, node, aasns, "");
         TestUtils.checkEmbeddedDataSpecificationNode(client, node, aasns);
         TestUtils.checkQualifierNode(client, node, aasns, new ArrayList<>());
-        TestUtils.checkAasPropertyFile(client, node, aasns, "DigitalFile_PDF", AASModellingKindDataType.Instance, "", "application/pdf", "file:///aasx/OperatingManual.pdf", 0);
+        TestUtils.checkAasPropertyFile(client, node, aasns, "DigitalFile_PDF", AASModellingKind.Instance, "", "application/pdf", "file:///aasx/OperatingManual.pdf", 0);
     }
 
 
