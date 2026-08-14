@@ -33,6 +33,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.AmbiguousElementExc
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EnvironmentHelper;
 import java.util.List;
+import opc.ua.aas.datatypes.AASAssetAdministrationShellCommonAttributes;
+import opc.ua.aas.datatypes.AASIdentifiable;
 import opc.ua.aas.datatypes.AASReference;
 import opc.ua.aas.objecttypes.AASAssetAdministrationShellType;
 import opc.ua.aas.objecttypes.AASAssetInformationType;
@@ -93,6 +95,16 @@ public class AssetAdministrationShellCreator {
         }
 
         AASAssetAdministrationShellType aasShell = nodeManager.createInstance(AASAssetAdministrationShellType.class, nid, browseName, LocalizedText.english(displayName));
+        if ((derivedFrom != null) && (aasShell.getDerivedFromNode() == null)) {
+            LOGGER.info("addAssetAdministrationShell: DerivedFrom not created!");
+        }
+
+        if (aasShell.getCommonAttributes() == null) {
+            aasShell.setCommonAttributes(new AASAssetAdministrationShellCommonAttributes());
+        }
+        if (aasShell.getCommonAttributes().getIdentifiable() == null) {
+            aasShell.getCommonAttributes().setIdentifiable(new AASIdentifiable());
+        }
         IdentifiableCreator.addIdentifiable(aasShell.getCommonAttributes().getIdentifiable(), aas.getId(), aas.getAdministration(), aas.getCategory(), nodeManager);
 
         // EmbeddedDataSpecifications

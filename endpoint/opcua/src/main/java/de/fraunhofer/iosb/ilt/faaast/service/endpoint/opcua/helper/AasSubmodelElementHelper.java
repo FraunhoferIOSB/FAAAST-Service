@@ -20,13 +20,8 @@ import com.prosysopc.ua.nodes.UaNode;
 import com.prosysopc.ua.server.NodeManagerUaNode;
 import com.prosysopc.ua.server.nodes.PlainProperty;
 import com.prosysopc.ua.stack.builtintypes.ByteString;
-import com.prosysopc.ua.stack.builtintypes.DateTime;
 import com.prosysopc.ua.stack.builtintypes.LocalizedText;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
-import com.prosysopc.ua.stack.builtintypes.UnsignedByte;
-import com.prosysopc.ua.stack.builtintypes.UnsignedInteger;
-import com.prosysopc.ua.stack.builtintypes.UnsignedLong;
-import com.prosysopc.ua.stack.builtintypes.UnsignedShort;
 import com.prosysopc.ua.stack.core.AccessLevelType;
 import com.prosysopc.ua.stack.core.Identifiers;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
@@ -227,7 +222,7 @@ public class AasSubmodelElementHelper {
     public static void setPropertyValueAndType(Property aasProperty, AASPropertyType prop, ValueData valueData)
             throws StatusException {
         try {
-            LOGGER.atTrace().log("setPropertyValueAndType: {}", aasProperty.getIdShort());
+            LOGGER.atInfo().log("setPropertyValueAndType: {}", aasProperty.getIdShort());
             //AASDataTypeDefXsd valueDataType;
             PropertyValue typedValue = ElementValueMapper.toValue(aasProperty, PropertyValue.class);
             //if ((typedValue != null) && (typedValue.getValue() != null)) {
@@ -237,49 +232,54 @@ public class AasSubmodelElementHelper {
             //    valueDataType = ValueConverter.convertDataTypeDefXsd(aasProperty.getValueType());
             //}
 
+            UaNode test = valueData.getNodeManager().findNode(valueData.getNodeId());
+            LOGGER.info("setPropertyValueAndType: Read (1): {}", test);
+
             //prop.setValueType(valueDataType);
 
-            switch (aasProperty.getValueType()) {
-                case BOOLEAN -> setBooleanPropertyValue(valueData, typedValue, prop);
-
-                case DATE_TIME -> setDateTimePropertyValue(valueData, typedValue, prop);
-
-                case INT -> setInt32PropertyValue(valueData, typedValue, prop);
-
-                case UNSIGNED_INT -> setUInt32PropertyValue(valueData, typedValue, prop);
-
-                case LONG -> setInt64PropertyValue(valueData, typedValue, prop);
-
-                case UNSIGNED_LONG -> setUInt64PropertyValue(valueData, typedValue, prop);
-
-                case SHORT -> setInt16PropertyValue(valueData, typedValue, prop);
-
-                case UNSIGNED_SHORT -> setUInt16PropertyValue(valueData, typedValue, prop);
-
-                case BYTE -> setSBytePropertyValue(valueData, typedValue, prop);
-
-                case UNSIGNED_BYTE -> setBytePropertyValue(valueData, typedValue, prop);
-
-                case DOUBLE -> setDoublePropertyValue(valueData, typedValue, prop);
-
-                case FLOAT -> setFloatPropertyValue(valueData, typedValue, prop);
-
-                case STRING, ANY_URI, TIME, DURATION, GDAY, GMONTH, GMONTH_DAY, GYEAR, GYEAR_MONTH, DECIMAL, INTEGER, POSITIVE_INTEGER, NON_POSITIVE_INTEGER, NEGATIVE_INTEGER,
-                        NON_NEGATIVE_INTEGER, DATE ->
-                    setStringValue(valueData, typedValue, prop);
-
-                case BASE64BINARY, HEX_BINARY -> setByteStringPropertyValue(valueData, typedValue, prop);
-
-                default -> {
-                    LOGGER.warn("setPropertyValueAndType: Property {}: Unknown type: {}; use string as default", prop.getBrowseName().getName(), aasProperty.getValueType());
-                    PlainProperty<String> myDefaultProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(),
-                            valueData.getDisplayName());
-                    myDefaultProperty.setDataTypeId(Identifiers.String);
-                    myDefaultProperty.setValue(aasProperty.getValue());
-                    prop.addProperty(myDefaultProperty);
-                }
-
-            }
+            setPropertyValue(prop, typedValue);
+            //            switch (aasProperty.getValueType()) {
+            //                case BOOLEAN -> setBooleanPropertyValue(valueData, typedValue, prop);
+            //
+            //                case DATE_TIME -> setDateTimePropertyValue(valueData, typedValue, prop);
+            //
+            //                case INT -> setInt32PropertyValue(valueData, typedValue, prop);
+            //
+            //                case UNSIGNED_INT -> setUInt32PropertyValue(valueData, typedValue, prop);
+            //
+            //                case LONG -> setInt64PropertyValue(valueData, typedValue, prop);
+            //
+            //                case UNSIGNED_LONG -> setUInt64PropertyValue(valueData, typedValue, prop);
+            //
+            //                case SHORT -> setInt16PropertyValue(valueData, typedValue, prop);
+            //
+            //                case UNSIGNED_SHORT -> setUInt16PropertyValue(valueData, typedValue, prop);
+            //
+            //                case BYTE -> setSBytePropertyValue(valueData, typedValue, prop);
+            //
+            //                case UNSIGNED_BYTE -> setBytePropertyValue(valueData, typedValue, prop);
+            //
+            //                case DOUBLE -> setDoublePropertyValue(valueData, typedValue, prop);
+            //
+            //                case FLOAT -> setFloatPropertyValue(valueData, typedValue, prop);
+            //
+            //                case STRING, ANY_URI, TIME, DURATION, GDAY, GMONTH, GMONTH_DAY, GYEAR, GYEAR_MONTH, DECIMAL, INTEGER, POSITIVE_INTEGER, NON_POSITIVE_INTEGER, NEGATIVE_INTEGER,
+            //                        NON_NEGATIVE_INTEGER, DATE ->
+            //                    setStringValue(valueData, typedValue, prop);
+            //
+            //                case BASE64BINARY, HEX_BINARY -> setByteStringPropertyValue(valueData, typedValue, prop);
+            //
+            //                default -> {
+            //                    LOGGER.warn("setPropertyValueAndType: Property {}: Unknown type: {}; use string as default", prop.getBrowseName().getName(), aasProperty.getValueType());
+            //                    PlainProperty<String> myDefaultProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(),
+            //                            valueData.getDisplayName());
+            //                    myDefaultProperty.setDataTypeId(Identifiers.String);
+            //                    myDefaultProperty.setValue(aasProperty.getValue());
+            //                    prop.addProperty(myDefaultProperty);
+            //                }
+            //            }
+            test = valueData.getNodeManager().findNode(valueData.getNodeId());
+            LOGGER.info("setPropertyValueAndType: Read (1): {}", test);
             if (prop.getDescription() == null) {
                 prop.setDescription(new LocalizedText("", ""));
             }
@@ -289,65 +289,56 @@ public class AasSubmodelElementHelper {
         }
     }
 
+    //private static void setBooleanPropertyValue(ValueData valueData, PropertyValue typedValue, AASPropertyType prop) throws StatusException {
+    //    prop.addProperty(UaHelper.createBooleanProperty(valueData, typedValue != null ? typedValue.getValue() : null));
+    //}
 
-    private static void setBooleanPropertyValue(ValueData valueData, PropertyValue typedValue, AASPropertyType prop) throws StatusException {
-        prop.addProperty(UaHelper.createBooleanProperty(valueData, typedValue != null ? typedValue.getValue() : null));
-    }
+    //private static void setDateTimePropertyValue(ValueData valueData, PropertyValue typedValue, AASPropertyType prop) throws StatusException {
+    //    prop.addProperty(createDateTimeProperty(valueData, typedValue != null ? typedValue.getValue() : null));
+    //}
 
+    //private static void setInt16PropertyValue(ValueData valueData, PropertyValue typedValue, AASPropertyType prop) throws StatusException {
+    //    prop.addProperty(createInt16Property(valueData, typedValue != null ? typedValue.getValue() : null));
+    //}
 
-    private static void setDateTimePropertyValue(ValueData valueData, PropertyValue typedValue, AASPropertyType prop) throws StatusException {
-        prop.addProperty(createDateTimeProperty(valueData, typedValue != null ? typedValue.getValue() : null));
-    }
+    //private static void setUInt16PropertyValue(ValueData valueData, PropertyValue typedValue, AASPropertyType prop) throws StatusException {
+    //    prop.addProperty(createUInt16Property(valueData, typedValue != null ? typedValue.getValue() : null));
+    //}
 
+    //private static void setInt32PropertyValue(ValueData valueData, PropertyValue typedValue, AASPropertyType prop) throws StatusException {
+    //    prop.addProperty(createInt32Property(valueData, typedValue != null ? typedValue.getValue() : null));
+    //}
 
-    private static void setInt16PropertyValue(ValueData valueData, PropertyValue typedValue, AASPropertyType prop) throws StatusException {
-        prop.addProperty(createInt16Property(valueData, typedValue != null ? typedValue.getValue() : null));
-    }
+    //private static void setUInt32PropertyValue(ValueData valueData, PropertyValue typedValue, AASPropertyType prop) throws StatusException {
+    //    prop.addProperty(createUInt32Property(valueData, typedValue != null ? typedValue.getValue() : null));
+    //}
 
+    //private static void setInt64PropertyValue(ValueData valueData, PropertyValue typedValue, AASPropertyType prop) throws StatusException {
+    //    prop.addProperty(createInt64Property(valueData, typedValue != null ? typedValue.getValue() : null));
+    //}
 
-    private static void setUInt16PropertyValue(ValueData valueData, PropertyValue typedValue, AASPropertyType prop) throws StatusException {
-        prop.addProperty(createUInt16Property(valueData, typedValue != null ? typedValue.getValue() : null));
-    }
+    //private static void setUInt64PropertyValue(ValueData valueData, PropertyValue typedValue, AASPropertyType prop) throws StatusException {
+    //    prop.addProperty(createUInt64Property(valueData, typedValue != null ? typedValue.getValue() : null));
+    //}
 
+    //private static void setSBytePropertyValue(ValueData valueData, PropertyValue typedValue, AASPropertyType prop) throws StatusException {
+    //    prop.addProperty(createSByteProperty(valueData, typedValue != null ? typedValue.getValue() : null));
+    //}
 
-    private static void setInt32PropertyValue(ValueData valueData, PropertyValue typedValue, AASPropertyType prop) throws StatusException {
-        prop.addProperty(createInt32Property(valueData, typedValue != null ? typedValue.getValue() : null));
-    }
+    //private static void setBytePropertyValue(ValueData valueData, PropertyValue typedValue, AASPropertyType prop) throws StatusException {
+    //    //prop.addProperty(createByteProperty(valueData, typedValue != null ? typedValue.getValue() : null));
+    //}
 
+    //private static void setDoubleValue(ValueData valueData, PropertyValue typedValue, AASPropertyType prop) throws StatusException {
+    //    //prop.addProperty(UaHelper.createStringProperty(valueData, typedValue != null ? typedValue.getValue() : null));
+    //    if (typedValue != null) {
+    //        prop.setValue(typedValue.getValue());
+    //    }
+    //}
 
-    private static void setUInt32PropertyValue(ValueData valueData, PropertyValue typedValue, AASPropertyType prop) throws StatusException {
-        prop.addProperty(createUInt32Property(valueData, typedValue != null ? typedValue.getValue() : null));
-    }
-
-
-    private static void setInt64PropertyValue(ValueData valueData, PropertyValue typedValue, AASPropertyType prop) throws StatusException {
-        prop.addProperty(createInt64Property(valueData, typedValue != null ? typedValue.getValue() : null));
-    }
-
-
-    private static void setUInt64PropertyValue(ValueData valueData, PropertyValue typedValue, AASPropertyType prop) throws StatusException {
-        prop.addProperty(createUInt64Property(valueData, typedValue != null ? typedValue.getValue() : null));
-    }
-
-
-    private static void setSBytePropertyValue(ValueData valueData, PropertyValue typedValue, AASPropertyType prop) throws StatusException {
-        prop.addProperty(createSByteProperty(valueData, typedValue != null ? typedValue.getValue() : null));
-    }
-
-
-    private static void setBytePropertyValue(ValueData valueData, PropertyValue typedValue, AASPropertyType prop) throws StatusException {
-        prop.addProperty(createByteProperty(valueData, typedValue != null ? typedValue.getValue() : null));
-    }
-
-
-    private static void setStringValue(ValueData valueData, PropertyValue typedValue, AASPropertyType prop) throws StatusException {
-        prop.addProperty(UaHelper.createStringProperty(valueData, typedValue != null ? typedValue.getValue() : null));
-    }
-
-
-    private static void setFloatPropertyValue(ValueData valueData, PropertyValue typedValue, AASPropertyType prop) throws StatusException {
-        prop.addProperty(createFloatProperty(valueData, typedValue != null ? typedValue.getValue() : null));
-    }
+    //private static void setFloatPropertyValue(ValueData valueData, PropertyValue typedValue, AASPropertyType prop) throws StatusException {
+    //    prop.addProperty(createFloatProperty(valueData, typedValue != null ? typedValue.getValue() : null));
+    //}
 
 
     private static PlainProperty<Float> createFloatProperty(ValueData valueData, TypedValue<?> typedValue) throws StatusException {
@@ -360,125 +351,113 @@ public class AasSubmodelElementHelper {
         return floatProperty;
     }
 
+    //private static void setDoublePropertyValue(ValueData valueData, PropertyValue typedValue, AASPropertyType prop) throws StatusException {
+    //    prop.addProperty(createDoubleProperty(valueData, typedValue != null ? typedValue.getValue() : null));
+    //}
 
-    private static void setDoublePropertyValue(ValueData valueData, PropertyValue typedValue, AASPropertyType prop) throws StatusException {
-        prop.addProperty(createDoubleProperty(valueData, typedValue != null ? typedValue.getValue() : null));
-    }
+    //    private static PlainProperty<Double> createDoubleProperty(ValueData valueData, TypedValue<?> typedValue) throws StatusException {
+    //        PlainProperty<Double> doubleProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
+    //        doubleProperty.setDataTypeId(Identifiers.Double);
+    //        doubleProperty.setDescription(new LocalizedText("", ""));
+    //        if ((typedValue != null) && (typedValue.getValue() != null)) {
+    //            doubleProperty.setValue(typedValue.getValue());
+    //        }
+    //        return doubleProperty;
+    //    }
 
+    //    private static PlainProperty<Byte> createSByteProperty(ValueData valueData, TypedValue<?> typedValue) throws StatusException {
+    //        PlainProperty<Byte> sbyteProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
+    //        sbyteProperty.setDataTypeId(Identifiers.SByte);
+    //        sbyteProperty.setDescription(new LocalizedText("", ""));
+    //        if ((typedValue != null) && (typedValue.getValue() != null)) {
+    //            sbyteProperty.setValue(typedValue.getValue());
+    //        }
+    //        return sbyteProperty;
+    //    }
 
-    private static PlainProperty<Double> createDoubleProperty(ValueData valueData, TypedValue<?> typedValue) throws StatusException {
-        PlainProperty<Double> doubleProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
-        doubleProperty.setDataTypeId(Identifiers.Double);
-        doubleProperty.setDescription(new LocalizedText("", ""));
-        if ((typedValue != null) && (typedValue.getValue() != null)) {
-            doubleProperty.setValue(typedValue.getValue());
-        }
-        return doubleProperty;
-    }
+    //    private static PlainProperty<UnsignedByte> createByteProperty(ValueData valueData, TypedValue<?> typedValue) throws StatusException {
+    //        PlainProperty<UnsignedByte> usbyteProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
+    //        usbyteProperty.setDataTypeId(Identifiers.Byte);
+    //        usbyteProperty.setDescription(new LocalizedText("", ""));
+    //        if ((typedValue != null) && (typedValue.getValue() != null)) {
+    //            usbyteProperty.setValue(ValueConverter.convertTypedValue(typedValue));
+    //        }
+    //        return usbyteProperty;
+    //    }
 
+    //    private static PlainProperty<Short> createInt16Property(ValueData valueData, TypedValue<?> typedValue) throws StatusException {
+    //        PlainProperty<Short> int16Property = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
+    //        int16Property.setDataTypeId(Identifiers.Int16);
+    //        int16Property.setDescription(new LocalizedText("", ""));
+    //        if ((typedValue != null) && (typedValue.getValue() != null)) {
+    //            int16Property.setValue(typedValue.getValue());
+    //        }
+    //        return int16Property;
+    //    }
 
-    private static PlainProperty<Byte> createSByteProperty(ValueData valueData, TypedValue<?> typedValue) throws StatusException {
-        PlainProperty<Byte> sbyteProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
-        sbyteProperty.setDataTypeId(Identifiers.SByte);
-        sbyteProperty.setDescription(new LocalizedText("", ""));
-        if ((typedValue != null) && (typedValue.getValue() != null)) {
-            sbyteProperty.setValue(typedValue.getValue());
-        }
-        return sbyteProperty;
-    }
+    //    private static PlainProperty<UnsignedShort> createUInt16Property(ValueData valueData, TypedValue<?> typedValue) throws StatusException {
+    //        PlainProperty<UnsignedShort> uint16Property = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
+    //        uint16Property.setDataTypeId(Identifiers.UInt16);
+    //        uint16Property.setDescription(new LocalizedText("", ""));
+    //        if ((typedValue != null) && (typedValue.getValue() != null)) {
+    //            uint16Property.setValue(ValueConverter.convertTypedValue(typedValue));
+    //        }
+    //        return uint16Property;
+    //    }
 
+    //    private static PlainProperty<Long> createInt64Property(ValueData valueData, TypedValue<?> typedValue) throws NumberFormatException, StatusException {
+    //        PlainProperty<Long> longProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
+    //        longProperty.setDataTypeId(Identifiers.Int64);
+    //        longProperty.setDescription(new LocalizedText("", ""));
+    //        if (typedValue != null) {
+    //            longProperty.setValue(ValueConverter.convertTypedValue(typedValue));
+    //        }
+    //        return longProperty;
+    //    }
 
-    private static PlainProperty<UnsignedByte> createByteProperty(ValueData valueData, TypedValue<?> typedValue) throws StatusException {
-        PlainProperty<UnsignedByte> usbyteProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
-        usbyteProperty.setDataTypeId(Identifiers.Byte);
-        usbyteProperty.setDescription(new LocalizedText("", ""));
-        if ((typedValue != null) && (typedValue.getValue() != null)) {
-            usbyteProperty.setValue(ValueConverter.convertTypedValue(typedValue));
-        }
-        return usbyteProperty;
-    }
+    //    private static PlainProperty<UnsignedLong> createUInt64Property(ValueData valueData, TypedValue<?> typedValue) throws NumberFormatException, StatusException {
+    //        PlainProperty<UnsignedLong> ulongProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
+    //        ulongProperty.setDataTypeId(Identifiers.UInt64);
+    //        ulongProperty.setDescription(new LocalizedText("", ""));
+    //        if (typedValue != null) {
+    //            ulongProperty.setValue(ValueConverter.convertTypedValue(typedValue));
+    //        }
+    //        return ulongProperty;
+    //    }
 
+    //    private static PlainProperty<Integer> createInt32Property(ValueData valueData, TypedValue<?> typedValue) throws StatusException {
+    //        PlainProperty<Integer> intProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
+    //        intProperty.setDataTypeId(Identifiers.Int32);
+    //        intProperty.setDescription(new LocalizedText("", ""));
+    //        if ((typedValue != null) && (typedValue.getValue() != null)) {
+    //            intProperty.setValue(typedValue.getValue());
+    //        }
+    //        return intProperty;
+    //    }
 
-    private static PlainProperty<Short> createInt16Property(ValueData valueData, TypedValue<?> typedValue) throws StatusException {
-        PlainProperty<Short> int16Property = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
-        int16Property.setDataTypeId(Identifiers.Int16);
-        int16Property.setDescription(new LocalizedText("", ""));
-        if ((typedValue != null) && (typedValue.getValue() != null)) {
-            int16Property.setValue(typedValue.getValue());
-        }
-        return int16Property;
-    }
+    //    private static PlainProperty<UnsignedInteger> createUInt32Property(ValueData valueData, TypedValue<?> typedValue) throws StatusException {
+    //        PlainProperty<UnsignedInteger> uintProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
+    //        uintProperty.setDataTypeId(Identifiers.UInt32);
+    //        uintProperty.setDescription(new LocalizedText("", ""));
+    //        if ((typedValue != null) && (typedValue.getValue() != null)) {
+    //            uintProperty.setValue(ValueConverter.convertTypedValue(typedValue));
+    //        }
+    //        return uintProperty;
+    //    }
 
+    //    private static PlainProperty<DateTime> createDateTimeProperty(ValueData valueData, TypedValue<?> typedValue) throws StatusException {
+    //        PlainProperty<DateTime> dateTimeProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
+    //        dateTimeProperty.setDataTypeId(Identifiers.DateTime);
+    //        dateTimeProperty.setDescription(new LocalizedText("", ""));
+    //        if ((typedValue != null) && (typedValue.getValue() != null)) {
+    //            dateTimeProperty.setValue(ValueConverter.convertTypedValue(typedValue));
+    //        }
+    //        return dateTimeProperty;
+    //    }
 
-    private static PlainProperty<UnsignedShort> createUInt16Property(ValueData valueData, TypedValue<?> typedValue) throws StatusException {
-        PlainProperty<UnsignedShort> uint16Property = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
-        uint16Property.setDataTypeId(Identifiers.UInt16);
-        uint16Property.setDescription(new LocalizedText("", ""));
-        if ((typedValue != null) && (typedValue.getValue() != null)) {
-            uint16Property.setValue(ValueConverter.convertTypedValue(typedValue));
-        }
-        return uint16Property;
-    }
-
-
-    private static PlainProperty<Long> createInt64Property(ValueData valueData, TypedValue<?> typedValue) throws NumberFormatException, StatusException {
-        PlainProperty<Long> longProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
-        longProperty.setDataTypeId(Identifiers.Int64);
-        longProperty.setDescription(new LocalizedText("", ""));
-        if (typedValue != null) {
-            longProperty.setValue(ValueConverter.convertTypedValue(typedValue));
-        }
-        return longProperty;
-    }
-
-
-    private static PlainProperty<UnsignedLong> createUInt64Property(ValueData valueData, TypedValue<?> typedValue) throws NumberFormatException, StatusException {
-        PlainProperty<UnsignedLong> ulongProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
-        ulongProperty.setDataTypeId(Identifiers.UInt64);
-        ulongProperty.setDescription(new LocalizedText("", ""));
-        if (typedValue != null) {
-            ulongProperty.setValue(ValueConverter.convertTypedValue(typedValue));
-        }
-        return ulongProperty;
-    }
-
-
-    private static PlainProperty<Integer> createInt32Property(ValueData valueData, TypedValue<?> typedValue) throws StatusException {
-        PlainProperty<Integer> intProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
-        intProperty.setDataTypeId(Identifiers.Int32);
-        intProperty.setDescription(new LocalizedText("", ""));
-        if ((typedValue != null) && (typedValue.getValue() != null)) {
-            intProperty.setValue(typedValue.getValue());
-        }
-        return intProperty;
-    }
-
-
-    private static PlainProperty<UnsignedInteger> createUInt32Property(ValueData valueData, TypedValue<?> typedValue) throws StatusException {
-        PlainProperty<UnsignedInteger> uintProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
-        uintProperty.setDataTypeId(Identifiers.UInt32);
-        uintProperty.setDescription(new LocalizedText("", ""));
-        if ((typedValue != null) && (typedValue.getValue() != null)) {
-            uintProperty.setValue(ValueConverter.convertTypedValue(typedValue));
-        }
-        return uintProperty;
-    }
-
-
-    private static PlainProperty<DateTime> createDateTimeProperty(ValueData valueData, TypedValue<?> typedValue) throws StatusException {
-        PlainProperty<DateTime> dateTimeProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
-        dateTimeProperty.setDataTypeId(Identifiers.DateTime);
-        dateTimeProperty.setDescription(new LocalizedText("", ""));
-        if ((typedValue != null) && (typedValue.getValue() != null)) {
-            dateTimeProperty.setValue(ValueConverter.convertTypedValue(typedValue));
-        }
-        return dateTimeProperty;
-    }
-
-
-    private static void setByteStringPropertyValue(ValueData valueData, PropertyValue typedValue, AASPropertyType prop) throws StatusException {
-        prop.addProperty(createByteStringProperty(valueData, typedValue != null ? typedValue.getValue() : null));
-    }
+    //    private static void setByteStringPropertyValue(ValueData valueData, PropertyValue typedValue, AASPropertyType prop) throws StatusException {
+    //        prop.addProperty(createByteStringProperty(valueData, typedValue != null ? typedValue.getValue() : null));
+    //    }
 
     //    private static void setByteStringRangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, AASRangeType range, String maxValue, ValueData maxData,
     //                                                 TypedValue<?> maxTypedValue)
@@ -492,17 +471,16 @@ public class AasSubmodelElementHelper {
     //        }
     //    }
 
-
-    private static PlainProperty<ByteString> createByteStringProperty(ValueData valueData, TypedValue<?> typedValue) throws StatusException {
-        PlainProperty<ByteString> byteStringProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(),
-                valueData.getDisplayName());
-        byteStringProperty.setDataTypeId(Identifiers.ByteString);
-        byteStringProperty.setDescription(new LocalizedText("", ""));
-        if ((typedValue != null) && (typedValue.getValue() != null)) {
-            byteStringProperty.setValue(ValueConverter.convertTypedValue(typedValue));
-        }
-        return byteStringProperty;
-    }
+    //    private static PlainProperty<ByteString> createByteStringProperty(ValueData valueData, TypedValue<?> typedValue) throws StatusException {
+    //        PlainProperty<ByteString> byteStringProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(),
+    //                valueData.getDisplayName());
+    //        byteStringProperty.setDataTypeId(Identifiers.ByteString);
+    //        byteStringProperty.setDescription(new LocalizedText("", ""));
+    //        if ((typedValue != null) && (typedValue.getValue() != null)) {
+    //            byteStringProperty.setValue(ValueConverter.convertTypedValue(typedValue));
+    //        }
+    //        return byteStringProperty;
+    //    }
 
     //    public static void setRangeValueAndType(DataTypeDefXsd valueType, String minValue, String maxValue, AASRangeType range, ValueData minData,
     //                                            ValueData maxData)
@@ -916,14 +894,6 @@ public class AasSubmodelElementHelper {
     //    }
 
 
-    /**
-     * Sets the values for the given MultiLanguageProperty.
-     *
-     * @param multiLangProp The desired MultiLanguageProperty.
-     * @param value The new value
-     * @param nodeManager The corresponding Node Manager.
-     * @throws StatusException If the operation fails
-     */
     private static void setMultiLanguagePropertyValue(AASMultiLanguagePropertyType multiLangProp, MultiLanguagePropertyValue value, NodeManagerUaNode nodeManager)
             throws StatusException {
         List<LangStringTextType> values = new ArrayList<>(value.getLangStringSet());

@@ -19,10 +19,13 @@ import com.prosysopc.ua.SecureIdentityException;
 import com.prosysopc.ua.UaApplication;
 import com.prosysopc.ua.UaApplication.Protocol;
 import com.prosysopc.ua.UserTokenPolicies;
+import com.prosysopc.ua.nodes.UaNode;
 import com.prosysopc.ua.server.UaServer;
 import com.prosysopc.ua.server.UaServerException;
 import com.prosysopc.ua.stack.builtintypes.DateTime;
+import com.prosysopc.ua.stack.builtintypes.ExpandedNodeId;
 import com.prosysopc.ua.stack.builtintypes.LocalizedText;
+import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.UnsignedShort;
 import com.prosysopc.ua.stack.cert.DefaultCertificateValidator;
 import com.prosysopc.ua.stack.cert.DefaultCertificateValidatorListener;
@@ -50,6 +53,7 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
+import opc.ua.aas.objecttypes.AASEnvironmentType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,6 +69,7 @@ public class Server {
     private static final String APPLICATION_URI = "urn:hostname:Fraunhofer:OPCUA:AasServer";
     private static final int CERT_KEY_SIZE = 2048;
     private static final String ISSUERS_PATH = "issuers";
+    private static final int AAS_ENVIRONMENT_ID = 5020;
 
     private final int tcpPort;
     private final Environment aasEnvironment;
@@ -282,14 +287,16 @@ public class Server {
 
     private static UserTokenPolicy getUserTokenPolicy(UserTokenType userTokenType) {
         switch (userTokenType) {
-            case Anonymous:
+            case Anonymous -> {
                 return UserTokenPolicies.ANONYMOUS;
-            case UserName:
+            }
+            case UserName -> {
                 return UserTokenPolicies.SECURE_USERNAME_PASSWORD_BASIC256SHA256;
-            case Certificate:
+            }
+            case Certificate -> {
                 return UserTokenPolicies.SECURE_CERTIFICATE_BASIC256SHA256;
-            default:
-                throw new IllegalArgumentException(String.format("unsupported UserTokenType '%s'", userTokenType));
+            }
+            default -> throw new IllegalArgumentException(String.format("unsupported UserTokenType '%s'", userTokenType));
         }
     }
 
@@ -300,7 +307,16 @@ public class Server {
     private void createAddressSpace() {
         try {
             loadAasNodes();
-            AasServiceNodeManager aasNodeManager = new AasServiceNodeManager(uaServer, AasServiceNodeManager.NAMESPACE_URI, aasEnvironment, endpoint);
+
+            NodeId nodeId = uaServer.getNamespaceTable().toNodeId(new ExpandedNodeId(opc.ua.aas.ObjectTypeIds.AASEnvironmentType.getNamespaceUri(), AAS_ENVIRONMENT_ID));
+            UaNode node = uaServer.getAddressSpace().findNode(nodeId);
+            AASEnvironmentType envNode = null;
+            if (node instanceof AASEnvironmentType aasEnvironmentType) {
+                envNode = aasEnvironmentType;
+            }
+            LOGGER.info("createAddressSpace: {}", envNode);
+
+            AasServiceNodeManager aasNodeManager = new AasServiceNodeManager(uaServer, AasServiceNodeManager.NAMESPACE_URI, aasEnvironment, endpoint, envNode);
             aasNodeManager.getIoManager().addListeners(new AasServiceIoManagerListener(endpoint, aasNodeManager));
         }
         catch (Exception ex) {

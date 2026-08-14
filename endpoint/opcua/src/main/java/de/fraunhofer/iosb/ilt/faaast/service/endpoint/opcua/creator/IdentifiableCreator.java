@@ -16,7 +16,9 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator;
 
 import com.prosysopc.ua.StatusException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
+import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import opc.ua.aas.datatypes.AASIdentifiable;
+import opc.ua.aas.datatypes.AASReferable;
 import org.eclipse.digitaltwin.aas4j.v3.model.AdministrativeInformation;
 
 
@@ -45,12 +47,16 @@ public class IdentifiableCreator {
     public static void addIdentifiable(AASIdentifiable identifiableNode, String identifier, AdministrativeInformation adminInfo, String category,
                                        AasServiceNodeManager nodeManager)
             throws StatusException {
+        Ensure.requireNonNull(identifiableNode);
         if (identifier != null) {
             identifiableNode.setId(identifier);
         }
 
         AdministrativeInformationCreator.addAdminInformationProperties(identifiableNode.getAdministration(), adminInfo, nodeManager);
 
+        if (identifiableNode.getReferable() == null) {
+            identifiableNode.setReferable(new AASReferable());
+        }
         identifiableNode.getReferable().setCategory(category != null ? category : "");
 
         //if (AasServiceNodeManager.VALUES_READ_ONLY) {

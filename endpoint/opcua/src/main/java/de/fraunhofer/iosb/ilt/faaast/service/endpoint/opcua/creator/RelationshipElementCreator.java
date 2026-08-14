@@ -17,12 +17,16 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator;
 import com.prosysopc.ua.StatusException;
 import com.prosysopc.ua.UaQualifiedName;
 import com.prosysopc.ua.nodes.UaNode;
+import com.prosysopc.ua.server.NodeBuilderException;
+import com.prosysopc.ua.server.instantiation.NodeBuilder;
+import com.prosysopc.ua.server.instantiation.NodeBuilderConfiguration;
 import com.prosysopc.ua.stack.builtintypes.LocalizedText;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.QualifiedName;
 import com.prosysopc.ua.stack.core.Identifiers;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
+import opc.ua.aas.VariableIds;
 import opc.ua.aas.objecttypes.AASAnnotatedRelationshipElementType;
 import opc.ua.aas.objecttypes.AASRelationshipElementType;
 import org.eclipse.digitaltwin.aas4j.v3.model.AnnotatedRelationshipElement;
@@ -66,11 +70,22 @@ public class RelationshipElementCreator extends SubmodelElementCreator {
                 QualifiedName browseName = UaQualifiedName.from(opc.ua.aas.ObjectTypeIds.AASRelationshipElementType.getNamespaceUri(), name)
                         .toQualifiedName(nodeManager.getNamespaceTable());
                 NodeId nid = nodeManager.getDefaultNodeId();
+
+                NodeBuilderConfiguration conf = new NodeBuilderConfiguration();
+                conf.addOptional(VariableIds.AASRelationshipElementType_First);
+                conf.addOptional(VariableIds.AASRelationshipElementType_Second);
+
                 if (aasRelElem instanceof AnnotatedRelationshipElement annotatedRelationshipElement) {
-                    relElemNode = createAnnotatedRelationshipElement(annotatedRelationshipElement, relElemRef, submodel, nid, nodeManager);
+                    relElemNode = createAnnotatedRelationshipElement(annotatedRelationshipElement, relElemRef, submodel, nid, nodeManager, conf);
                 }
                 else {
-                    relElemNode = nodeManager.createInstance(AASRelationshipElementType.class, nid, browseName, LocalizedText.english(name));
+                    NodeBuilder nb = nodeManager.createNodeBuilder(AASRelationshipElementType.class, conf);
+                    nb.setBrowseName(browseName);
+                    nb.setDisplayName(LocalizedText.english(name));
+                    nb.setNodeId(nid);
+                    relElemNode = (AASRelationshipElementType) nb.build();
+
+                    //relElemNode = nodeManager.createInstance(AASRelationshipElementType.class, nid, browseName, LocalizedText.english(name));
                 }
 
                 if (relElemNode != null) {
@@ -113,19 +128,30 @@ public class RelationshipElementCreator extends SubmodelElementCreator {
      * @param submodel The corresponding Submodel as parent object of the data element
      * @param nodeId The desired NodeId for the node to be created
      * @param nodeManager The corresponding Node Manager
+     * @param conf The desired NodeBuilder Configuration
      * @return The create UA Annotated Relationship Element
      * @throws StatusException If the operation fails
      */
     private static AASRelationshipElementType createAnnotatedRelationshipElement(AnnotatedRelationshipElement aasRelElem, Reference relElemRef, Submodel submodel, NodeId nodeId,
-                                                                                 AasServiceNodeManager nodeManager)
-            throws StatusException {
+                                                                                 AasServiceNodeManager nodeManager, NodeBuilderConfiguration conf)
+            throws StatusException, NodeBuilderException {
         AASRelationshipElementType retval;
 
-        AASAnnotatedRelationshipElementType relElemNode = nodeManager.createInstance(
-                AASAnnotatedRelationshipElementType.class, nodeId, UaQualifiedName
-                        .from(opc.ua.aas.ObjectTypeIds.AASAnnotatedRelationshipElementType.getNamespaceUri(), aasRelElem.getIdShort())
-                        .toQualifiedName(nodeManager.getNamespaceTable()),
-                LocalizedText.english(aasRelElem.getIdShort()));
+        QualifiedName browseName = UaQualifiedName
+                .from(opc.ua.aas.ObjectTypeIds.AASAnnotatedRelationshipElementType.getNamespaceUri(), aasRelElem.getIdShort())
+                .toQualifiedName(nodeManager.getNamespaceTable());
+
+        NodeBuilder nb = nodeManager.createNodeBuilder(AASAnnotatedRelationshipElementType.class, conf);
+        nb.setBrowseName(browseName);
+        nb.setDisplayName(LocalizedText.english(aasRelElem.getIdShort()));
+        nb.setNodeId(nodeId);
+        AASAnnotatedRelationshipElementType relElemNode = (AASAnnotatedRelationshipElementType) nb.build();
+
+        //AASAnnotatedRelationshipElementType relElemNode = nodeManager.createInstance(
+        //        AASAnnotatedRelationshipElementType.class, nodeId, UaQualifiedName
+        //                .from(opc.ua.aas.ObjectTypeIds.AASAnnotatedRelationshipElementType.getNamespaceUri(), aasRelElem.getIdShort())
+        //                .toQualifiedName(nodeManager.getNamespaceTable()),
+        //        LocalizedText.english(aasRelElem.getIdShort()));
 
         // Annotations 
         for (DataElement de: aasRelElem.getAnnotations()) {

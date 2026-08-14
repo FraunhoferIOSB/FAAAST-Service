@@ -131,14 +131,14 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     private final OpcUaEndpoint endpoint;
 
     /**
+     * The OPC UA Node for the AAS Environment
+     */
+    private final AASEnvironmentType aasEnvironmentNode;
+
+    /**
      * The AAS environment associated with this Node Manager
      */
     private Environment aasEnvironment;
-
-    /**
-     * The OPC UA Node for the AAS Environment
-     */
-    private AASEnvironmentType aasEnvironmentNode;
 
     /**
      * Maps NodeIds to AAS Data (e.g. Properties and operations)
@@ -182,14 +182,16 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @param namespaceUri the namespace URI for the nodes
      * @param aasEnvironment the AAS environment
      * @param endpoint the associated endpoint
+     * @param environmentNode The environment node in the Address space.
      */
-    public AasServiceNodeManager(UaServer server, String namespaceUri, Environment aasEnvironment, OpcUaEndpoint endpoint) {
+    public AasServiceNodeManager(UaServer server, String namespaceUri, Environment aasEnvironment, OpcUaEndpoint endpoint, AASEnvironmentType environmentNode) {
         super(server, namespaceUri);
         Ensure.requireNonNull(aasEnvironment, "aasEnvironment must not be null");
         Ensure.requireNonNull(endpoint, "endpoint must not be null");
 
         this.aasEnvironment = aasEnvironment;
         this.endpoint = endpoint;
+        this.aasEnvironmentNode = environmentNode;
         submodelElementAasMap = new ConcurrentHashMap<>();
         submodelElementVariableOpcUaMap = new ConcurrentHashMap<>();
         submodelOpcUAMap = new ConcurrentHashMap<>();
@@ -281,7 +283,8 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @throws ValueFormatException The data format of the value is invalid
      * @throws AmbiguousElementException if there are multiple matching elements in the environment
      */
-    private void createAasNodes() throws StatusException, ServiceResultException, ServiceException, AddressSpaceException, ValueFormatException, AmbiguousElementException {
+    private void createAasNodes()
+            throws StatusException, ServiceResultException, ServiceException, AddressSpaceException, ValueFormatException, AmbiguousElementException {
         addAasEnvironmentNode();
 
         ConceptDescriptionCreator.addConceptDescriptions(aasEnvironment.getConceptDescriptions(), this);
@@ -304,15 +307,23 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     /**
      * Adds the AASEnvironment Node.
      */
-    private void addAasEnvironmentNode() {
-        //final UaObject objectsFolder = getServer().getNodeManagerRoot().getObjectsFolder();
-        //LOG.debug("addAasEnvironmentNode {}; to ObjectsFolder", AAS_ENVIRONMENT_NAME);
-        //QualifiedName browseName = UaQualifiedName.from(opc.ua.aas.ObjectTypeIds.AASEnvironmentType.getNamespaceUri(), AAS_ENVIRONMENT_NAME).toQualifiedName(getNamespaceTable());
-        //aasEnvironmentNode = createInstance(AASEnvironmentType.class, createNodeId(objectsFolder, browseName), browseName, LocalizedText.english(AAS_ENVIRONMENT_NAME));
-        //LOG.debug("addAasEnvironmentNode: Created class: {}", aasEnvironmentNode.getClass().getName());
+    private void addAasEnvironmentNode() throws StatusException, ServiceResultException {
 
-        //objectsFolder.addComponent(aasEnvironmentNode);
-        LOGGER.info("skip environment node");
+        //aasEnvironmentNode = (AASEnvironmentType) getNode(new NodeId(opc.ua.aas.ObjectTypeIds.AASEnvironmentType.getNamespaceIndex(), AAS_ENVIRONMENT_ID));
+
+        //        NodeId nodeId = getNamespaceTable().toNodeId(new ExpandedNodeId(opc.ua.aas.ObjectTypeIds.AASEnvironmentType.getNamespaceUri(), AAS_ENVIRONMENT_ID));
+        //        UaNode node = getServer().getNodeManagerRoot().findNode(nodeId);
+        //        //get
+        //
+        //        final UaObject objectsFolder = getServer().getNodeManagerRoot().getObjectsFolder();
+        //        LOGGER.debug("addAasEnvironmentNode {}; to ObjectsFolder", AAS_ENVIRONMENT_NAME);
+        //        QualifiedName browseName = UaQualifiedName.from(opc.ua.aas.ObjectTypeIds.AASEnvironmentType.getNamespaceUri(), AAS_ENVIRONMENT_NAME).toQualifiedName(getNamespaceTable());
+        //        //aasEnvironmentNode = createInstance(AASEnvironmentType.class, createNodeId(objectsFolder, browseName), browseName, LocalizedText.english(AAS_ENVIRONMENT_NAME));
+        //        aasEnvironmentNode = createInstance(AASEnvironmentType.class, nodeId, browseName, LocalizedText.english(AAS_ENVIRONMENT_NAME));
+        //        LOGGER.debug("addAasEnvironmentNode: Created class: {}", aasEnvironmentNode.getClass().getName());
+        //
+        //        objectsFolder.addComponent(aasEnvironmentNode);
+        LOGGER.info("skip environment node: {}", aasEnvironmentNode);
     }
 
 
@@ -769,6 +780,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
 
     private void addQualifier(ObjectData parent, Referable value) throws StatusException {
+        // TODO: implement
         LOGGER.debug("addQualifier not yet implemented");
         //if (parent.getNode() instanceof AASSubmodelType aasSubmodelType) {
         //    QualifierCreator.addQualifiers(aasSubmodelType.getQualifierNode(), List.of((Qualifier) value), this);

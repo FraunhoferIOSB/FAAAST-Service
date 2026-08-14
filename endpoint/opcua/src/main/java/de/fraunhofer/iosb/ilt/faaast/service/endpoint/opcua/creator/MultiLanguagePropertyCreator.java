@@ -17,6 +17,8 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator;
 import com.prosysopc.ua.StatusException;
 import com.prosysopc.ua.UaQualifiedName;
 import com.prosysopc.ua.nodes.UaNode;
+import com.prosysopc.ua.server.instantiation.NodeBuilder;
+import com.prosysopc.ua.server.instantiation.NodeBuilderConfiguration;
 import com.prosysopc.ua.stack.builtintypes.LocalizedText;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.QualifiedName;
@@ -25,6 +27,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManage
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
 import java.util.List;
+import opc.ua.aas.VariableIds;
 import opc.ua.aas.variabletypes.AASMultiLanguagePropertyType;
 import org.eclipse.digitaltwin.aas4j.v3.model.LangStringTextType;
 import org.eclipse.digitaltwin.aas4j.v3.model.MultiLanguageProperty;
@@ -65,7 +68,16 @@ public class MultiLanguagePropertyCreator extends SubmodelElementCreator {
                 QualifiedName browseName = UaQualifiedName.from(opc.ua.aas.VariableTypeIds.AASMultiLanguagePropertyType.getNamespaceUri(), name)
                         .toQualifiedName(nodeManager.getNamespaceTable());
                 NodeId nid = nodeManager.getDefaultNodeId();
-                AASMultiLanguagePropertyType multiLangNode = nodeManager.createInstance(AASMultiLanguagePropertyType.class, nid, browseName, LocalizedText.english(name));
+
+                NodeBuilderConfiguration conf = new NodeBuilderConfiguration();
+                conf.addOptional(VariableIds.AASMultiLanguagePropertyType_ValueId);
+                NodeBuilder nb = nodeManager.createNodeBuilder(AASMultiLanguagePropertyType.class, conf);
+                nb.setBrowseName(browseName);
+                nb.setDisplayName(LocalizedText.english(name));
+                nb.setNodeId(nid);
+                AASMultiLanguagePropertyType multiLangNode = (AASMultiLanguagePropertyType) nb.build();
+
+                //AASMultiLanguagePropertyType multiLangNode = nodeManager.createInstance(AASMultiLanguagePropertyType.class, nid, browseName, LocalizedText.english(name));
                 //addSubmodelElementBaseData(multiLangNode, aasMultiLang, nodeManager);
 
                 setMultiLanguagePropertyValues(aasMultiLang, multiLangNode, nodeManager);

@@ -19,6 +19,8 @@ import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNod
 import com.prosysopc.ua.StatusException;
 import com.prosysopc.ua.UaQualifiedName;
 import com.prosysopc.ua.nodes.UaNode;
+import com.prosysopc.ua.server.instantiation.NodeBuilder;
+import com.prosysopc.ua.server.instantiation.NodeBuilderConfiguration;
 import com.prosysopc.ua.stack.builtintypes.LocalizedText;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.QualifiedName;
@@ -27,6 +29,7 @@ import com.prosysopc.ua.stack.core.Identifiers;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.AasSubmodelElementHelper;
+import opc.ua.aas.VariableIds;
 import opc.ua.aas.objecttypes.AASFileType;
 import org.eclipse.digitaltwin.aas4j.v3.model.File;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
@@ -69,7 +72,21 @@ public class FileCreator extends SubmodelElementCreator {
 
                 QualifiedName browseName = UaQualifiedName.from(opc.ua.aas.ObjectTypeIds.AASFileType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
                 NodeId nid = nodeManager.getDefaultNodeId();
-                AASFileType fileNode = nodeManager.createInstance(AASFileType.class, nid, browseName, LocalizedText.english(name));
+
+                NodeBuilderConfiguration conf = new NodeBuilderConfiguration();
+                if (!aasFile.getContentType().isEmpty()) {
+                    conf.addOptional(VariableIds.AASFileType_ContentType);
+                }
+                if (aasFile.getValue() != null) {
+                    conf.addOptional(VariableIds.AASFileType_Value);
+                }
+                NodeBuilder nb = nodeManager.createNodeBuilder(AASFileType.class, conf);
+                nb.setBrowseName(browseName);
+                nb.setDisplayName(LocalizedText.english(name));
+                nb.setNodeId(nid);
+                AASFileType fileNode = (AASFileType) nb.build();
+
+                //AASFileType fileNode = nodeManager.createInstance(AASFileType.class, nid, browseName, LocalizedText.english(name));
                 addSubmodelElementBaseData(fileNode, aasFile, nodeManager);
 
                 setFileData(aasFile, fileNode, nodeManager);

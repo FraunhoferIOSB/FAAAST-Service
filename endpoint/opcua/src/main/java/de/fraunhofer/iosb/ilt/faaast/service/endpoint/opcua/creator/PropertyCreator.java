@@ -18,6 +18,8 @@ import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNod
 
 import com.prosysopc.ua.UaQualifiedName;
 import com.prosysopc.ua.nodes.UaNode;
+import com.prosysopc.ua.server.instantiation.NodeBuilder;
+import com.prosysopc.ua.server.instantiation.NodeBuilderConfiguration;
 import com.prosysopc.ua.stack.builtintypes.LocalizedText;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.QualifiedName;
@@ -27,6 +29,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManage
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ValueData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.AasSubmodelElementHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
+import opc.ua.aas.VariableIds;
 import opc.ua.aas.variabletypes.AASPropertyType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Property;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
@@ -62,17 +65,45 @@ public class PropertyCreator extends SubmodelElementCreator {
             QualifiedName browseName = UaQualifiedName.from(opc.ua.aas.VariableTypeIds.AASPropertyType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
             NodeId nid = nodeManager.getDefaultNodeId();
 
-            AASPropertyType prop = nodeManager.createInstance(AASPropertyType.class, nid, browseName, LocalizedText.english(name));
+            //UaNode test = nodeManager.findNode(nid);
+            //LOGGER.info("addAasProperty: Read (1): {}", test);
+
+            NodeBuilderConfiguration conf = new NodeBuilderConfiguration();
+            conf.addOptional(VariableIds.AASPropertyType_ValueId);
+            NodeBuilder nb = nodeManager.createNodeBuilder(AASPropertyType.class, conf);
+            nb.setBrowseName(browseName);
+            nb.setDisplayName(LocalizedText.english(name));
+            nb.setNodeId(nid);
+            AASPropertyType prop = (AASPropertyType) nb.build();
+
+            LOGGER.info("addAasProperty: create {}", nid);
+            //nodeManager.setNodeBuilderConfiguration(conf);
+            //AASPropertyType prop = nodeManager.createInstance(AASPropertyType.class, nid, browseName, LocalizedText.english(name));
+
+            //test = nodeManager.findNode(nid);
+            //LOGGER.info("addAasProperty: Read (2): {}", test);
+
             //addSubmodelElementBaseData(prop, aasProperty, nodeManager);
 
             // ValueId
             //Reference ref = aasProperty.getValueId();
             //AasReferenceCreator.addAasReferenceAasNS(prop, ref, AASPropertyType.VALUE_ID, nodeManager);
-            prop.setValueId(AasReferenceCreator.getAasReference(aasProperty.getValueId()));
+            if (prop.getValueIdNode() == null) {
+                LOGGER.info("addAasProperty: ValueIdNode null");
+            }
+            else {
+                prop.setValueId(AasReferenceCreator.getAasReference(aasProperty.getValueId()));
+            }
+
+            //test = nodeManager.findNode(nid);
+            //LOGGER.info("addAasProperty: Read (3): {}", test);
 
             // here Value and ValueType are set
             //addOpcUaProperty(aasProperty, submodel, prop, propertyRef, nodeManager);
             AasSubmodelElementHelper.setPropertyValueAndType(aasProperty, prop, new ValueData(nid, browseName, node.getDisplayName(), nodeManager));
+
+            //test = nodeManager.findNode(nid);
+            //LOGGER.info("addAasProperty: Read (4): {}", test);
 
             //if (propertyRef != null) {
             //    nodeManager.addSubmodelElementOpcUA(propertyRef, prop);
@@ -88,10 +119,10 @@ public class PropertyCreator extends SubmodelElementCreator {
                 //}
             }
 
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("addAasProperty: add Property {}, Reference: {}", nid, ReferenceHelper.toString(propertyRef));
-            }
+            LOGGER.atInfo().log("addAasProperty: add Property {}, Reference: {}", nid, ReferenceHelper.toString(propertyRef));
 
+            //test = nodeManager.findNode(nid);
+            //LOGGER.info("addAasProperty: Read (5): {}", test);
             if (ordered) {
                 node.addReference(prop, Identifiers.HasOrderedComponent, false);
             }

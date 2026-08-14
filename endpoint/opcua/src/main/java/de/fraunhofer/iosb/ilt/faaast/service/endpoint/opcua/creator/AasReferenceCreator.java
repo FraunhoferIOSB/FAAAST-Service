@@ -154,9 +154,13 @@ public class AasReferenceCreator {
      * @throws StatusException If the operation fails
      */
     public static void setAasReferenceData(Reference ref, AASReferenceElementType refNode) throws StatusException {
-        // TODO: the AASReference is the value of the AASReferenceElementType
+        if (ref == null) {
+            return;
+        }
         LOGGER.info("setAasReferenceData: TODO");
-        //setAasReferenceData(ref, refNode, AasServiceNodeManager.VALUES_READ_ONLY);
+        AASReference aasref = new AASReference();
+        setAasReferenceData(ref, aasref);
+        refNode.setValue(aasref);
     }
 
 

@@ -24,6 +24,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import opc.ua.aas.datatypes.AASConceptDescription;
+import opc.ua.aas.datatypes.AASConceptDescriptionCommonAttributes;
+import opc.ua.aas.datatypes.AASIdentifiable;
 import org.eclipse.digitaltwin.aas4j.v3.model.AdministrativeInformation;
 import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
@@ -81,7 +83,13 @@ public class ConceptDescriptionCreator {
             }
 
             //AASConceptDescriptionType desriptionNode = nodeManager.createInstance(AASConceptDescriptionType.class, name, nid);
-            AASConceptDescription desriptionNode = new AASConceptDescription();
+            AASConceptDescription descriptionNode = new AASConceptDescription();
+
+            // check CommonAttributes
+            if (descriptionNode.getCommonAttributes() == null) {
+                AASConceptDescriptionCommonAttributes common = new AASConceptDescriptionCommonAttributes();
+                descriptionNode.setCommonAttributes(common);
+            }
             //AASReferenceList listNode = desriptionNode.getIsCaseOfNode();
             //if (listNode == null) {
             //    AasReferenceCreator.addAasReferenceListNode(desriptionNode, c.getIsCaseOf(), AASConceptDescriptionType.IS_CASE_OF, nodeManager);
@@ -90,7 +98,7 @@ public class ConceptDescriptionCreator {
             //    AasReferenceCreator.addAasReferencesToList(listNode, c.getIsCaseOf(), AASConceptDescriptionType.IS_CASE_OF, nodeManager);
             //}
 
-            addIdentifiableData(desriptionNode, c.getId(), c.getAdministration(), name, nodeManager);
+            addIdentifiableData(descriptionNode, c.getId(), c.getAdministration(), name, nodeManager);
             //addConceptDescriptionReference(desriptionNode, AasUtils.toReference(c), nodeManager);
             //dictEntriesFolder.addComponent(desriptionNode);
             //dictionaryMap.put(AasUtils.toReference(c), desriptionNode);
@@ -149,6 +157,9 @@ public class ConceptDescriptionCreator {
     private static void addIdentifiableData(AASConceptDescription conceptDescriptionNode, String identifier, AdministrativeInformation adminInfo, String category,
                                             AasServiceNodeManager nodeManager)
             throws StatusException {
+        if (conceptDescriptionNode.getCommonAttributes().getIdentifiable() == null) {
+            conceptDescriptionNode.getCommonAttributes().setIdentifiable(new AASIdentifiable());
+        }
         IdentifiableCreator.addIdentifiable(conceptDescriptionNode.getCommonAttributes().getIdentifiable(), identifier, adminInfo, category, nodeManager);
 
         //        if (identifier != null) {

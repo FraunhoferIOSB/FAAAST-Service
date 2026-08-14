@@ -20,6 +20,8 @@ import com.prosysopc.ua.UaQualifiedName;
 import com.prosysopc.ua.client.AddressSpaceException;
 import com.prosysopc.ua.nodes.UaNode;
 import com.prosysopc.ua.server.NodeManagerUaNode;
+import com.prosysopc.ua.server.instantiation.NodeBuilder;
+import com.prosysopc.ua.server.instantiation.NodeBuilderConfiguration;
 import com.prosysopc.ua.stack.builtintypes.LocalizedText;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.QualifiedName;
@@ -33,6 +35,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElement
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.UaHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import java.util.List;
+import opc.ua.aas.VariableIds;
 import opc.ua.aas.objecttypes.AASEntityType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Entity;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
@@ -75,7 +78,24 @@ public class EntityCreator extends SubmodelElementCreator {
                 }
                 QualifiedName browseName = UaQualifiedName.from(opc.ua.aas.ObjectTypeIds.AASEntityType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
                 NodeId nid = nodeManager.getDefaultNodeId();
-                AASEntityType entityNode = nodeManager.createInstance(AASEntityType.class, nid, browseName, LocalizedText.english(name));
+
+                NodeBuilderConfiguration conf = new NodeBuilderConfiguration();
+                if (aasEntity.getEntityType() != null) {
+                    conf.addOptional(VariableIds.AASEntityType_EntityType);
+                }
+                if (aasEntity.getGlobalAssetId() != null) {
+                    conf.addOptional(VariableIds.AASEntityType_GlobalAssetId);
+                }
+                if (aasEntity.getSpecificAssetIds() != null) {
+                    conf.addOptional(VariableIds.AASEntityType_SpecificAssetId);
+                }
+                NodeBuilder nb = nodeManager.createNodeBuilder(AASEntityType.class, conf);
+                nb.setBrowseName(browseName);
+                nb.setDisplayName(LocalizedText.english(name));
+                nb.setNodeId(nid);
+                AASEntityType entityNode = (AASEntityType) nb.build();
+
+                //AASEntityType entityNode = nodeManager.createInstance(AASEntityType.class, nid, browseName, LocalizedText.english(name));
                 addSubmodelElementBaseData(entityNode, aasEntity, nodeManager);
 
                 // EntityType

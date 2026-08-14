@@ -28,6 +28,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import java.util.List;
+import opc.ua.aas.datatypes.AASIdentifiable;
+import opc.ua.aas.datatypes.AASSubmodelCommonAttributes;
 import opc.ua.aas.objecttypes.AASSubmodelType;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.ModellingKind;
@@ -82,8 +84,23 @@ public class SubmodelCreator {
         }
 
         LOGGER.trace("addSubmodel: create Submodel {}; NodeId: {}; Kind {}", submodel.getIdShort(), nid, submodel.getKind());
+        //NodeBuilderConfiguration conf = new NodeBuilderConfiguration();
+        ////conf.addOptional(AASSubmodelType.COMMON_ATTRIBUTES);
+        //conf.addOptional(VariableIds.AASSubmodelType_CommonAttributes);
+        //NodeBuilder nb = nodeManager.createNodeBuilder(AASSubmodelType.class, conf);
+        //nb.setBrowseName(browseName);
+        //nb.setDisplayName(LocalizedText.english(displayName));
+        //nb.setNodeId(nid);
+        //AASSubmodelType smNode = (AASSubmodelType) nb.build();
+
         AASSubmodelType smNode = nodeManager.createInstance(AASSubmodelType.class, nid, browseName, LocalizedText.english(displayName));
 
+        if (smNode.getCommonAttributes() == null) {
+            smNode.setCommonAttributes(new AASSubmodelCommonAttributes());
+        }
+        if (smNode.getCommonAttributes().getIdentifiable() == null) {
+            smNode.getCommonAttributes().setIdentifiable(new AASIdentifiable());
+        }
         IdentifiableCreator.addIdentifiable(smNode.getCommonAttributes().getIdentifiable(), submodel.getId(), submodel.getAdministration(), submodel.getCategory(), nodeManager);
 
         setKind(submodel.getKind(), smNode, nodeManager);

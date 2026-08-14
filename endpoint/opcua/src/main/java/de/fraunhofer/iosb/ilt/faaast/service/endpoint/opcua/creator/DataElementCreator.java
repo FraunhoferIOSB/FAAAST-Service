@@ -52,23 +52,23 @@ public class DataElementCreator extends SubmodelElementCreator {
     public static void addAasDataElement(UaNode node, DataElement aasDataElement, Reference elementRef, Submodel submodel, boolean ordered, AasServiceNodeManager nodeManager)
             throws StatusException {
         if ((node != null) && (aasDataElement != null)) {
-            if (aasDataElement instanceof Property) {
-                PropertyCreator.addAasProperty(node, (Property) aasDataElement, elementRef, submodel, ordered, nodeManager);
+            if (aasDataElement instanceof Property property) {
+                PropertyCreator.addAasProperty(node, property, elementRef, submodel, ordered, nodeManager);
             }
-            else if (aasDataElement instanceof File) {
-                FileCreator.addAasFile(node, (File) aasDataElement, elementRef, submodel, ordered, null, nodeManager);
+            else if (aasDataElement instanceof File file) {
+                FileCreator.addAasFile(node, file, elementRef, submodel, ordered, null, nodeManager);
             }
-            else if (aasDataElement instanceof Blob) {
-                BlobCreator.addAasBlob(node, (Blob) aasDataElement, elementRef, submodel, ordered, nodeManager);
+            else if (aasDataElement instanceof Blob blob) {
+                BlobCreator.addAasBlob(node, blob, elementRef, submodel, ordered, nodeManager);
             }
-            else if (aasDataElement instanceof ReferenceElement) {
-                ReferenceElementCreator.addAasReferenceElement(node, (ReferenceElement) aasDataElement, elementRef, submodel, ordered, nodeManager);
+            else if (aasDataElement instanceof ReferenceElement referenceElement) {
+                ReferenceElementCreator.addAasReferenceElement(node, referenceElement, elementRef, submodel, ordered, nodeManager);
             }
-            else if (aasDataElement instanceof Range) {
-                RangeCreator.addAasRange(node, (Range) aasDataElement, elementRef, submodel, ordered, nodeManager);
+            else if (aasDataElement instanceof Range range) {
+                RangeCreator.addAasRange(node, range, elementRef, submodel, ordered, nodeManager);
             }
-            else if (aasDataElement instanceof MultiLanguageProperty) {
-                MultiLanguagePropertyCreator.addAasMultiLanguageProperty(node, (MultiLanguageProperty) aasDataElement, elementRef, submodel, ordered, nodeManager);
+            else if (aasDataElement instanceof MultiLanguageProperty multiLanguageProperty) {
+                MultiLanguagePropertyCreator.addAasMultiLanguageProperty(node, multiLanguageProperty, elementRef, submodel, ordered, nodeManager);
             }
             else {
                 LOGGER.warn("addAasDataElement: unknown DataElement: {}; Class {}", aasDataElement.getIdShort(), aasDataElement.getClass());
