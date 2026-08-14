@@ -73,7 +73,7 @@ public class AdministrativeInformationCreator {
     //        NodeId myPropertyId = new NodeId(nodeManager.getNamespaceIndex(),
     //                adminInfNode.getNodeId().getValue().toString() + "." + AASAdministrativeInformationType.REVISION);
     //        PlainProperty<String> myProperty = new PlainProperty<>(nodeManager, myPropertyId,
-    //                UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASAssetAdministrationShellType.getNamespaceUri(), AASAdministrativeInformationType.REVISION)
+    //                UaQualifiedName.from(ObjectTypeIds.AASAssetAdministrationShellType.getNamespaceUri(), AASAdministrativeInformationType.REVISION)
     //                        .toQualifiedName(nodeManager.getNamespaceTable()),
     //                LocalizedText.english(AASAdministrativeInformationType.REVISION));
     //        myProperty.setDataTypeId(Identifiers.String);
@@ -89,7 +89,7 @@ public class AdministrativeInformationCreator {
     //        NodeId myPropertyId = new NodeId(nodeManager.getNamespaceIndex(),
     //                adminInfNode.getNodeId().getValue().toString() + "." + AASAdministrativeInformationType.VERSION);
     //        PlainProperty<String> myProperty = new PlainProperty<>(nodeManager, myPropertyId,
-    //                UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASAssetAdministrationShellType.getNamespaceUri(), AASAdministrativeInformationType.VERSION)
+    //                UaQualifiedName.from(ObjectTypeIds.AASAssetAdministrationShellType.getNamespaceUri(), AASAdministrativeInformationType.VERSION)
     //                        .toQualifiedName(nodeManager.getNamespaceTable()),
     //                LocalizedText.english(AASAdministrativeInformationType.VERSION));
     //        myProperty.setDataTypeId(Identifiers.String);

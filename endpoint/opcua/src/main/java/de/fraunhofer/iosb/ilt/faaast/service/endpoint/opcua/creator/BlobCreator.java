@@ -29,6 +29,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManage
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.AasSubmodelElementHelper;
+import opc.ua.aas.ObjectTypeIds;
 import opc.ua.aas.VariableIds;
 import opc.ua.aas.objecttypes.AASBlobType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Blob;
@@ -65,7 +66,7 @@ public class BlobCreator extends SubmodelElementCreator {
                 if ((name == null) || name.isEmpty()) {
                     name = getNameFromReference(blobRef);
                 }
-                QualifiedName browseName = UaQualifiedName.from(opc.ua.aas.ObjectTypeIds.AASBlobType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
+                QualifiedName browseName = UaQualifiedName.from(ObjectTypeIds.AASBlobType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
                 NodeId nid = nodeManager.getDefaultNodeId();
 
                 NodeBuilderConfiguration conf = new NodeBuilderConfiguration();

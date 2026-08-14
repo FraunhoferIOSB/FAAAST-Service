@@ -133,7 +133,7 @@ public class ConceptDescriptionCreator {
     //    private static void addConceptDescriptionReference(AASConceptDescription node, Reference ref, AasServiceNodeManager nodeManager) throws StatusException {
     //        if (ref != null) {
     //            String name = "ConceptDescription";
-    //            QualifiedName browseName = UaQualifiedName.from(opc.ua.aas.ObjectTypeIds.AASSubmodelType.getNamespaceUri(), name)
+    //            QualifiedName browseName = UaQualifiedName.from(ObjectTypeIds.AASSubmodelType.getNamespaceUri(), name)
     //                    .toQualifiedName(nodeManager.getNamespaceTable());
     //            NodeId nid = nodeManager.createNodeId(node, browseName);
     //            AASReferenceType nodeRef = nodeManager.createInstance(AASReferenceTypeNode.class, nid, browseName, LocalizedText.english(name));

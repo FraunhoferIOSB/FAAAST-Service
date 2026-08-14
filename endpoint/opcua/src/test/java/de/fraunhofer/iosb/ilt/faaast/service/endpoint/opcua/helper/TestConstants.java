@@ -92,10 +92,12 @@ public class TestConstants {
     public static final String ID_VALUE_NAME = "Value";
     public static final String KEYS_VALUE_NAME = "Keys";
 
+    public static final String COMMON_ATTRIBUTES = "CommonAttributes";
+
     public static final int AAS_AAS_TYPE_ID = 1002;
     public static final int AAS_REFERENCE_TYPE_ID = 1004;
     public static final int AAS_ASSET_TYPE_ID = 1005;
-    public static final int AAS_SUBMODEL_TYPE_ID = 1006;
+    //public static final int AAS_SUBMODEL_TYPE_ID = 1006;
     public static final int AAS_SUBMODEL_ELEM_COLL_TYPE_ID = 1010;
     public static final int AAS_OREDER_SM_ELEM_COLL_TYPE_ID = 1011;
     public static final int AAS_PROPERTY_TYPE_ID = 1013;

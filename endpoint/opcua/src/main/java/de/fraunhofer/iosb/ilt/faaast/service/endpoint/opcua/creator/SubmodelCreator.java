@@ -28,6 +28,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import java.util.List;
+import opc.ua.aas.ObjectTypeIds;
 import opc.ua.aas.datatypes.AASIdentifiable;
 import opc.ua.aas.datatypes.AASSubmodelCommonAttributes;
 import opc.ua.aas.objecttypes.AASSubmodelType;
@@ -75,7 +76,7 @@ public class SubmodelCreator {
             shortId = "Submodel";
         }
         String displayName = "Submodel:" + shortId;
-        QualifiedName browseName = UaQualifiedName.from(opc.ua.aas.ObjectTypeIds.AASSubmodelType.getNamespaceUri(), shortId)
+        QualifiedName browseName = UaQualifiedName.from(ObjectTypeIds.AASSubmodelType.getNamespaceUri(), shortId)
                 .toQualifiedName(nodeManager.getNamespaceTable());
         NodeId nid = nodeManager.createNodeId(node, browseName);
         if (nodeManager.hasNode(nid)) {
@@ -142,7 +143,7 @@ public class SubmodelCreator {
         if (kind != null) {
             //if (smNode.getKindNode() == null) {
             //    UaHelper.addKindProperty(smNode, nodeManager, AASSubmodelType.KIND, kind,
-            //            opc.i4aas.ObjectTypeIds.AASSubmodelType.getNamespaceUri());
+            //            ObjectTypeIds.AASSubmodelType.getNamespaceUri());
             //}
             //else {
             smNode.getCommonAttributes().setHasKind(ValueConverter.convertHasKind(kind));

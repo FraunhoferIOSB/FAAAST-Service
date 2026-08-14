@@ -57,7 +57,7 @@ public class AasReferenceCreator {
     //        }
     //
     //        LOGGER.debug("addAasReferenceList {}; to Node: {}", name, node);
-    //        QualifiedName browseName = UaQualifiedName.from(opc.ua.aas.ObjectTypeIds.AASReferenceList.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
+    //        QualifiedName browseName = UaQualifiedName.from(ObjectTypeIds.AASReferenceList.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
     //        NodeId nid = nodeManager.getDefaultNodeId();
     //        AASReferenceList referenceListNode = nodeManager.createInstance(AASReferenceList.class, nid, browseName, LocalizedText.english(name));
     //

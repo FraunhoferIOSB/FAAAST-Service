@@ -76,7 +76,7 @@ public class EventCreator extends SubmodelElementCreator {
             //            if ((name == null) || name.isEmpty()) {
             //                name = getNameFromReference(eventRef);
             //            }
-            //            QualifiedName browseName = UaQualifiedName.from(opc.ua.aas.ObjectTypeIds.AASBasicEventElementType.getNamespaceUri(), name)
+            //            QualifiedName browseName = UaQualifiedName.from(ObjectTypeIds.AASBasicEventElementType.getNamespaceUri(), name)
             //                    .toQualifiedName(nodeManager.getNamespaceTable());
             //            NodeId nid = nodeManager.getDefaultNodeId();
             //            AASBasicEventElementType eventNode = nodeManager.createInstance(AASBasicEventElementType.class, nid, browseName, LocalizedText.english(name));
@@ -112,7 +112,7 @@ public class EventCreator extends SubmodelElementCreator {
     //            eventNode.setState(ValueConverter.getAasStateOfEventType(aasEvent.getState()));
     //        }
     //
-    //        String namespaceUri = opc.i4aas.ObjectTypeIds.AASBasicEventElementType.getNamespaceUri();
+    //        String namespaceUri = ObjectTypeIds.AASBasicEventElementType.getNamespaceUri();
     //        setMessageTopic(aasEvent.getMessageTopic(), eventNode, nodeManager, namespaceUri);
     //        setMessageBroker(aasEvent.getMessageBroker(), eventNode, namespaceUri, nodeManager);
     //        setLastUpdate(aasEvent.getLastUpdate(), eventNode, nodeManager, namespaceUri);

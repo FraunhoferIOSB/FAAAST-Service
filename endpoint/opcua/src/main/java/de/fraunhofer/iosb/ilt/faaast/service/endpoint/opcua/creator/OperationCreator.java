@@ -29,6 +29,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.Locale;
+import opc.ua.aas.ObjectTypeIds;
 import opc.ua.aas.objecttypes.AASOperationType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
@@ -63,7 +64,7 @@ public class OperationCreator extends SubmodelElementCreator {
             if ((name == null) || name.isEmpty()) {
                 name = getNameFromReference(operationRef);
             }
-            QualifiedName browseName = UaQualifiedName.from(opc.ua.aas.ObjectTypeIds.AASOperationType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
+            QualifiedName browseName = UaQualifiedName.from(ObjectTypeIds.AASOperationType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
             NodeId nid = nodeManager.getDefaultNodeId();
             AASOperationType oper = nodeManager.createInstance(AASOperationType.class, nid, browseName, LocalizedText.english(name));
             addSubmodelElementBaseData(oper, aasOperation, nodeManager);

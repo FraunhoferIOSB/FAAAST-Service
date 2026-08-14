@@ -38,9 +38,12 @@ import com.prosysopc.ua.stack.core.BrowseDirection;
 import com.prosysopc.ua.stack.core.BrowsePathResult;
 import com.prosysopc.ua.stack.core.BrowsePathTarget;
 import com.prosysopc.ua.stack.core.Identifiers;
+import com.prosysopc.ua.stack.core.NodeClass;
 import com.prosysopc.ua.stack.core.ReferenceDescription;
 import com.prosysopc.ua.stack.core.RelativePath;
 import com.prosysopc.ua.stack.core.RelativePathElement;
+import com.prosysopc.ua.stack.core.StatusCodes;
+import com.prosysopc.ua.types.opcua.BaseDataVariableType;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import java.io.IOException;
@@ -54,12 +57,16 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import opc.ua.aas.ObjectTypeIds;
+import opc.ua.aas.ReferenceTypeIds;
+import opc.ua.aas.datatypes.AASAssetAdministrationShellCommonAttributes;
 import opc.ua.aas.datatypes.AASAssetKind;
+import opc.ua.aas.datatypes.AASIdentifiable;
 import opc.ua.aas.datatypes.AASKey;
 import opc.ua.aas.datatypes.AASKeyTypes;
 import opc.ua.aas.datatypes.AASModellingKind;
 import opc.ua.aas.datatypes.AASQualifier;
 import opc.ua.aas.datatypes.AASSpecificAssetId;
+import opc.ua.aas.datatypes.AASSubmodelCommonAttributes;
 import opc.ua.aas.objecttypes.AASAssetInformationType;
 import org.awaitility.Awaitility;
 import org.eclipse.digitaltwin.aas4j.v3.model.Qualifier;
@@ -529,18 +536,24 @@ public class TestUtils {
     }
 
 
+    public static void checkType(UaClient client, NodeId node, ExpandedNodeId typeNode) throws ServiceException, AddressSpaceException, ServiceResultException {
+        checkType(client, node, client.getAddressSpace().getNamespaceTable().toNodeId(typeNode));
+    }
+
+
     public static void checkType(UaClient client, ExpandedNodeId node, NodeId typeNode) throws ServiceException, AddressSpaceException, ServiceResultException {
         checkType(client, client.getAddressSpace().getNamespaceTable().toNodeId(node), typeNode);
     }
 
 
     public static void checkType(UaClient client, NodeId node, NodeId typeNode) throws ServiceException, AddressSpaceException, ServiceResultException {
-        UaNode uanode = client.getAddressSpace().getNode(node);
-        Assert.assertNotNull("checkType UaNode Null", uanode);
-        UaReference ref = uanode.getReference(Identifiers.HasTypeDefinition, false);
-        Assert.assertNotNull("checkType Reference Null", ref);
+        //UaNode uanode = client.getAddressSpace().getNode(node);
+        //Assert.assertNotNull("checkType UaNode Null", uanode);
+        //UaReference ref = uanode.getReference(Identifiers.HasTypeDefinition, false);
+        //Assert.assertNotNull("checkType Reference Null", ref);
 
-        NodeId refId = client.getAddressSpace().getNamespaceTable().toNodeId(ref.getTargetId());
+        //NodeId refId = client.getAddressSpace().getNamespaceTable().toNodeId(ref.getTargetId());
+        NodeId refId = getType(client, node);
         Assert.assertEquals("type not equal", typeNode, refId);
     }
 
@@ -648,9 +661,11 @@ public class TestUtils {
 
     public static void checkIdentification(UaClient client, NodeId identificationNode, int aasns, String id)
             throws ServiceException, StatusException, AddressSpaceException, ServiceResultException {
+
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, "Id")));
+        browsePath.add(new RelativePathElement(client.getAddressSpace().getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasCommonAttribute), false, true,
+                new QualifiedName(aasns, TestConstants.COMMON_ATTRIBUTES)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(identificationNode, relPath.toArray(RelativePath[]::new));
@@ -658,11 +673,38 @@ public class TestUtils {
         Assert.assertEquals("checkIdentification Browse Result: size doesn't match", 1, bpres.length);
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
-        Assert.assertNotNull("checkIdentification Id Null", targets);
-        Assert.assertTrue("checkIdentification Id empty", targets.length > 0);
-        DataValue value = client.readValue(targets[0].getTargetId());
-        Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
-        Assert.assertEquals(id, value.getValue().toString());
+        Assert.assertNotNull("checkIdentification CommonAttributes Null", targets);
+        Assert.assertTrue("checkIdentification CommonAttributes empty", targets.length > 0);
+
+        NodeId type = getType(client, identificationNode);
+        if (client.getNamespaceTable().nodeIdEquals(type, ObjectTypeIds.AASSubmodelType)) {
+            checkIdentificationSubmodel(client, client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId()), id);
+        }
+        else if (client.getNamespaceTable().nodeIdEquals(type, ObjectTypeIds.AASAssetAdministrationShellType)) {
+            checkIdentificationAas(client, client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId()), id);
+        }
+
+        //List<RelativePath> relPath = new ArrayList<>();
+        //List<RelativePathElement> browsePath = new ArrayList<>();
+        //browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, "Id")));
+        //relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+
+        //BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(identificationNode, relPath.toArray(RelativePath[]::new));
+        //Assert.assertNotNull("checkIdentification Browse Result Null", bpres);
+        //Assert.assertEquals("checkIdentification Browse Result: size doesn't match", 1, bpres.length);
+
+        //BrowsePathTarget[] targets = bpres[0].getTargets();
+        //Assert.assertNotNull("checkIdentification Id Null", targets);
+        //Assert.assertTrue("checkIdentification Id empty", targets.length > 0);
+        //DataValue value = client.readValue(targets[0].getTargetId());
+        //Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
+        //Assert.assertEquals(id, value.getValue().toString());
+    }
+
+
+    public static void checkIdentifiable(AASIdentifiable identifiable, String id) {
+        Assert.assertNotNull(identifiable);
+        Assert.assertEquals(id, identifiable.getId());
     }
 
 
@@ -872,6 +914,49 @@ public class TestUtils {
         //for (NodeId node: nodeList) {
         //    checkSpecificAssetIdNode(client, node, aasns, map);
         //}
+    }
+
+
+    private static NodeId getType(UaClient client, NodeId nodeId) throws ServiceException, AddressSpaceException, ServiceResultException {
+        UaNode uanode = client.getAddressSpace().getNode(nodeId);
+        Assert.assertNotNull("getType UaNode Null", uanode);
+        UaReference ref = uanode.getReference(Identifiers.HasTypeDefinition, false);
+        Assert.assertNotNull("getType Reference Null", ref);
+
+        return client.getAddressSpace().getNamespaceTable().toNodeId(ref.getTargetId());
+    }
+
+
+    private static void checkIdentificationAas(UaClient client, NodeId commonAttributesNodeId, String id)
+            throws ServiceResultException, ServiceException, AddressSpaceException {
+
+        Object value = getVariableValue(client, commonAttributesNodeId);
+        Assert.assertTrue(value instanceof AASAssetAdministrationShellCommonAttributes);
+        AASAssetAdministrationShellCommonAttributes commonAttributesValue = (AASAssetAdministrationShellCommonAttributes) value;
+        checkIdentifiable(commonAttributesValue.getIdentifiable(), id);
+    }
+
+
+    private static void checkIdentificationSubmodel(UaClient client, NodeId commonAttributesNodeId, String id)
+            throws ServiceResultException, ServiceException, AddressSpaceException {
+
+        Object value = getVariableValue(client, commonAttributesNodeId);
+        Assert.assertTrue(value instanceof AASSubmodelCommonAttributes);
+        AASSubmodelCommonAttributes commonAttributesValue = (AASSubmodelCommonAttributes) value;
+        checkIdentifiable(commonAttributesValue.getIdentifiable(), id);
+    }
+
+
+    private static Object getVariableValue(UaClient client, NodeId nodeId) throws AddressSpaceException, ServiceException {
+        UaNode uanode = client.getAddressSpace().getNode(nodeId);
+        Assert.assertEquals(NodeClass.Variable, uanode.getNodeClass());
+        BaseDataVariableType variableNode = (BaseDataVariableType) uanode;
+        DataValue dv = variableNode.getValue();
+        Assert.assertEquals(StatusCodes.Good, dv.getStatusCode().getValue());
+        Assert.assertNotNull(dv.getValue());
+        Object value = dv.getValue().getValue();
+        Assert.assertNotNull(value);
+        return value;
     }
 
     //    private static void checkSpecificAssetIdNode(UaClient client, NodeId node, int aasns, Map<String, String> map)

@@ -33,6 +33,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.AmbiguousElementExc
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EnvironmentHelper;
 import java.util.List;
+import opc.ua.aas.ObjectTypeIds;
 import opc.ua.aas.datatypes.AASAssetAdministrationShellCommonAttributes;
 import opc.ua.aas.datatypes.AASIdentifiable;
 import opc.ua.aas.datatypes.AASReference;
@@ -75,8 +76,8 @@ public class AssetAdministrationShellCreator {
         TypeDefinitionBasedNodeBuilderConfiguration.Builder conf = TypeDefinitionBasedNodeBuilderConfiguration.builder();
         Reference derivedFrom = aas.getDerivedFrom();
         if (derivedFrom != null) {
-            UaBrowseNamePath bp = UaBrowseNamePath.from(opc.ua.aas.ObjectTypeIds.AASAssetAdministrationShellType,
-                    UaQualifiedName.from(opc.ua.aas.ObjectTypeIds.AASAssetAdministrationShellType.getNamespaceUri(), AASAssetAdministrationShellType.DERIVED_FROM));
+            UaBrowseNamePath bp = UaBrowseNamePath.from(ObjectTypeIds.AASAssetAdministrationShellType,
+                    UaQualifiedName.from(ObjectTypeIds.AASAssetAdministrationShellType.getNamespaceUri(), AASAssetAdministrationShellType.DERIVED_FROM));
             conf.addOptional(bp);
         }
 
@@ -151,7 +152,7 @@ public class AssetAdministrationShellCreator {
         assetInfoNode = aasNode.getAssetInformationNode();
         if (assetInfoNode == null) {
             String displayName = "AssetInformation";
-            QualifiedName browseName = UaQualifiedName.from(opc.ua.aas.ObjectTypeIds.AASSubmodelType.getNamespaceUri(), displayName)
+            QualifiedName browseName = UaQualifiedName.from(ObjectTypeIds.AASSubmodelType.getNamespaceUri(), displayName)
                     .toQualifiedName(nodeManager.getNamespaceTable());
             NodeId nid = nodeManager.createNodeId(aasNode, browseName);
             assetInfoNode = nodeManager.createInstance(AASAssetInformationType.class, nid, browseName, LocalizedText.english(displayName));
@@ -179,7 +180,7 @@ public class AssetAdministrationShellCreator {
         if (assetType != null) {
             if (assetInfoNode.getAssetTypeNode() == null) {
                 UaHelper.addStringUaProperty(assetInfoNode, nodeManager, AASAssetInformationType.ASSET_TYPE, assetType,
-                        opc.ua.aas.ObjectTypeIds.AASAssetInformationType.getNamespaceUri());
+                        ObjectTypeIds.AASAssetInformationType.getNamespaceUri());
             }
             else {
                 assetInfoNode.setAssetType(assetType);
@@ -197,7 +198,7 @@ public class AssetAdministrationShellCreator {
         if (globalAssetId != null) {
             if (assetInfoNode.getGlobalAssetIdNode() == null) {
                 UaHelper.addStringUaProperty(assetInfoNode, nodeManager, AASAssetInformationType.GLOBAL_ASSET_ID, globalAssetId,
-                        opc.ua.aas.ObjectTypeIds.AASAssetInformationType.getNamespaceUri());
+                        ObjectTypeIds.AASAssetInformationType.getNamespaceUri());
             }
             else {
                 assetInfoNode.setGlobalAssetId(globalAssetId);
@@ -235,7 +236,7 @@ public class AssetAdministrationShellCreator {
         boolean created = false;
 
         if (listNode == null) {
-            QualifiedName browseName = UaQualifiedName.from(opc.ua.aas.ObjectTypeIds.AASAssetInformationType.getNamespaceUri(), name)
+            QualifiedName browseName = UaQualifiedName.from(ObjectTypeIds.AASAssetInformationType.getNamespaceUri(), name)
                     .toQualifiedName(nodeManager.getNamespaceTable());
             NodeId nid = nodeManager.createNodeId(assetInfoNode, browseName);
             listNode = nodeManager.createInstance(BaseDataVariableType.class, nid, browseName, LocalizedText.english(name));
@@ -271,7 +272,7 @@ public class AssetAdministrationShellCreator {
         LOGGER.debug("addSubmodelReferences: add {} Submodels to Node: {}", submodelRefs.size(), node);
         boolean added = false;
         if (referenceListNode == null) {
-            QualifiedName browseName = UaQualifiedName.from(opc.ua.aas.ObjectTypeIds.AASAssetAdministrationShellType.getNamespaceUri(), name)
+            QualifiedName browseName = UaQualifiedName.from(ObjectTypeIds.AASAssetAdministrationShellType.getNamespaceUri(), name)
                     .toQualifiedName(nodeManager.getNamespaceTable());
             NodeId nid = nodeManager.createNodeId(node, browseName);
             referenceListNode = nodeManager.createInstance(BaseDataVariableType.class, nid, browseName, LocalizedText.english(name));

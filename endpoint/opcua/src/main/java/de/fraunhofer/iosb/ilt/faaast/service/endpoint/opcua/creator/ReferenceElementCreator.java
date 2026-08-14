@@ -93,7 +93,7 @@ public class ReferenceElementCreator extends SubmodelElementCreator {
     //        if (aasRefElem.getValue() != null) {
     //            if (refElemNode == null) {
     //                AasReferenceCreator.addAasReference(refElemNode, aasRefElem.getValue(), AASReferenceElementType.VALUE,
-    //                        opc.ua.aas.ObjectTypeIds.AASReferenceElementType.getNamespaceUri(), false,
+    //                        AASReferenceElementType.getNamespaceUri(), false,
     //                        nodeManager);
     //            }
     //            else {

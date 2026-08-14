@@ -53,6 +53,7 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
+import opc.ua.aas.ObjectTypeIds;
 import opc.ua.aas.objecttypes.AASEnvironmentType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.slf4j.Logger;
@@ -308,7 +309,7 @@ public class Server {
         try {
             loadAasNodes();
 
-            NodeId nodeId = uaServer.getNamespaceTable().toNodeId(new ExpandedNodeId(opc.ua.aas.ObjectTypeIds.AASEnvironmentType.getNamespaceUri(), AAS_ENVIRONMENT_ID));
+            NodeId nodeId = uaServer.getNamespaceTable().toNodeId(new ExpandedNodeId(ObjectTypeIds.AASEnvironmentType.getNamespaceUri(), AAS_ENVIRONMENT_ID));
             UaNode node = uaServer.getAddressSpace().findNode(nodeId);
             AASEnvironmentType envNode = null;
             if (node instanceof AASEnvironmentType aasEnvironmentType) {

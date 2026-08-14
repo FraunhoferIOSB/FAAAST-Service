@@ -52,7 +52,7 @@ public class RangeCreator extends SubmodelElementCreator {
             //                if ((name == null) || name.isEmpty()) {
             //                    name = getNameFromReference(rangeRef);
             //                }
-            //                QualifiedName browseName = UaQualifiedName.from(opc.ua.aas.ObjectTypeIds.AASRangeType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
+            //                QualifiedName browseName = UaQualifiedName.from(ObjectTypeIds.AASRangeType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
             //                NodeId nid = nodeManager.getDefaultNodeId();
             //                AASRangeType rangeNode = nodeManager.createInstance(AASRangeType.class, nid, browseName, LocalizedText.english(name));
             //                addSubmodelElementBaseData(rangeNode, aasRange, nodeManager);
@@ -96,10 +96,10 @@ public class RangeCreator extends SubmodelElementCreator {
     //        NodeId myPropertyIdMin = new NodeId(nodeManager.getNamespaceIndex(), range.getNodeId().getValue().toString() + "." + AASRangeType.MIN);
     //        NodeId myPropertyIdMax = new NodeId(nodeManager.getNamespaceIndex(), range.getNodeId().getValue().toString() + "." + AASRangeType.MAX);
     //        DataTypeDefXsd valueType = aasRange.getValueType();
-    //        QualifiedName browseNameMin = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASRangeType.getNamespaceUri(), AASRangeType.MIN)
+    //        QualifiedName browseNameMin = UaQualifiedName.from(ObjectTypeIds.AASRangeType.getNamespaceUri(), AASRangeType.MIN)
     //                .toQualifiedName(nodeManager.getNamespaceTable());
     //        LocalizedText displayNameMin = LocalizedText.english(AASRangeType.MIN);
-    //        QualifiedName browseNameMax = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASRangeType.getNamespaceUri(), AASRangeType.MAX)
+    //        QualifiedName browseNameMax = UaQualifiedName.from(ObjectTypeIds.AASRangeType.getNamespaceUri(), AASRangeType.MAX)
     //                .toQualifiedName(nodeManager.getNamespaceTable());
     //        LocalizedText displayNameMax = LocalizedText.english(AASRangeType.MAX);
     //

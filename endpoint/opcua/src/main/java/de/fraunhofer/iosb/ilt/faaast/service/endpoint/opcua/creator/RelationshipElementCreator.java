@@ -26,6 +26,7 @@ import com.prosysopc.ua.stack.builtintypes.QualifiedName;
 import com.prosysopc.ua.stack.core.Identifiers;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
+import opc.ua.aas.ObjectTypeIds;
 import opc.ua.aas.VariableIds;
 import opc.ua.aas.objecttypes.AASAnnotatedRelationshipElementType;
 import opc.ua.aas.objecttypes.AASRelationshipElementType;
@@ -67,7 +68,7 @@ public class RelationshipElementCreator extends SubmodelElementCreator {
                     name = getNameFromReference(relElemRef);
                 }
                 AASRelationshipElementType relElemNode;
-                QualifiedName browseName = UaQualifiedName.from(opc.ua.aas.ObjectTypeIds.AASRelationshipElementType.getNamespaceUri(), name)
+                QualifiedName browseName = UaQualifiedName.from(ObjectTypeIds.AASRelationshipElementType.getNamespaceUri(), name)
                         .toQualifiedName(nodeManager.getNamespaceTable());
                 NodeId nid = nodeManager.getDefaultNodeId();
 
@@ -138,7 +139,7 @@ public class RelationshipElementCreator extends SubmodelElementCreator {
         AASRelationshipElementType retval;
 
         QualifiedName browseName = UaQualifiedName
-                .from(opc.ua.aas.ObjectTypeIds.AASAnnotatedRelationshipElementType.getNamespaceUri(), aasRelElem.getIdShort())
+                .from(ObjectTypeIds.AASAnnotatedRelationshipElementType.getNamespaceUri(), aasRelElem.getIdShort())
                 .toQualifiedName(nodeManager.getNamespaceTable());
 
         NodeBuilder nb = nodeManager.createNodeBuilder(AASAnnotatedRelationshipElementType.class, conf);
@@ -149,7 +150,7 @@ public class RelationshipElementCreator extends SubmodelElementCreator {
 
         //AASAnnotatedRelationshipElementType relElemNode = nodeManager.createInstance(
         //        AASAnnotatedRelationshipElementType.class, nodeId, UaQualifiedName
-        //                .from(opc.ua.aas.ObjectTypeIds.AASAnnotatedRelationshipElementType.getNamespaceUri(), aasRelElem.getIdShort())
+        //                .from(ObjectTypeIds.AASAnnotatedRelationshipElementType.getNamespaceUri(), aasRelElem.getIdShort())
         //                .toQualifiedName(nodeManager.getNamespaceTable()),
         //        LocalizedText.english(aasRelElem.getIdShort()));
 

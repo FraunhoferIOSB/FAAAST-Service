@@ -309,15 +309,15 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      */
     private void addAasEnvironmentNode() throws StatusException, ServiceResultException {
 
-        //aasEnvironmentNode = (AASEnvironmentType) getNode(new NodeId(opc.ua.aas.ObjectTypeIds.AASEnvironmentType.getNamespaceIndex(), AAS_ENVIRONMENT_ID));
+        //aasEnvironmentNode = (AASEnvironmentType) getNode(new NodeId(ObjectTypeIds.AASEnvironmentType.getNamespaceIndex(), AAS_ENVIRONMENT_ID));
 
-        //        NodeId nodeId = getNamespaceTable().toNodeId(new ExpandedNodeId(opc.ua.aas.ObjectTypeIds.AASEnvironmentType.getNamespaceUri(), AAS_ENVIRONMENT_ID));
+        //        NodeId nodeId = getNamespaceTable().toNodeId(new ExpandedNodeId(ObjectTypeIds.AASEnvironmentType.getNamespaceUri(), AAS_ENVIRONMENT_ID));
         //        UaNode node = getServer().getNodeManagerRoot().findNode(nodeId);
         //        //get
         //
         //        final UaObject objectsFolder = getServer().getNodeManagerRoot().getObjectsFolder();
         //        LOGGER.debug("addAasEnvironmentNode {}; to ObjectsFolder", AAS_ENVIRONMENT_NAME);
-        //        QualifiedName browseName = UaQualifiedName.from(opc.ua.aas.ObjectTypeIds.AASEnvironmentType.getNamespaceUri(), AAS_ENVIRONMENT_NAME).toQualifiedName(getNamespaceTable());
+        //        QualifiedName browseName = UaQualifiedName.from(ObjectTypeIds.AASEnvironmentType.getNamespaceUri(), AAS_ENVIRONMENT_NAME).toQualifiedName(getNamespaceTable());
         //        //aasEnvironmentNode = createInstance(AASEnvironmentType.class, createNodeId(objectsFolder, browseName), browseName, LocalizedText.english(AAS_ENVIRONMENT_NAME));
         //        aasEnvironmentNode = createInstance(AASEnvironmentType.class, nodeId, browseName, LocalizedText.english(AAS_ENVIRONMENT_NAME));
         //        LOGGER.debug("addAasEnvironmentNode: Created class: {}", aasEnvironmentNode.getClass().getName());

@@ -29,6 +29,7 @@ import com.prosysopc.ua.stack.core.Identifiers;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.AasSubmodelElementHelper;
+import opc.ua.aas.ObjectTypeIds;
 import opc.ua.aas.VariableIds;
 import opc.ua.aas.objecttypes.AASFileType;
 import org.eclipse.digitaltwin.aas4j.v3.model.File;
@@ -70,7 +71,7 @@ public class FileCreator extends SubmodelElementCreator {
                     name = getNameFromReference(fileRef);
                 }
 
-                QualifiedName browseName = UaQualifiedName.from(opc.ua.aas.ObjectTypeIds.AASFileType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
+                QualifiedName browseName = UaQualifiedName.from(ObjectTypeIds.AASFileType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
                 NodeId nid = nodeManager.getDefaultNodeId();
 
                 NodeBuilderConfiguration conf = new NodeBuilderConfiguration();

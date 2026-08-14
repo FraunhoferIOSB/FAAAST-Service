@@ -57,6 +57,7 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import opc.ua.aas.ObjectTypeIds;
 import opc.ua.aas.VariableIds;
 import opc.ua.aas.datatypes.AASKey;
 import opc.ua.aas.datatypes.AASKeyTypes;
@@ -198,13 +199,13 @@ public class OpcUaEndpointFullModelTest {
         for (ReferenceDescription ref: refs) {
             NodeId rid = client.getAddressSpace().getNamespaceTable().toNodeId(ref.getNodeId());
             switch (ref.getBrowseName().getName()) {
-                case TestConstants.FULL_SUBMODEL_1_NAME: {
+                case TestConstants.FULL_SUBMODEL_1_NAME -> {
                     submodel1Node = rid;
-                    break;
                 }
-                default:
-                    //intentionally left empty
+                default -> {
+                }
             }
+            //intentionally left empty
         }
 
         Assert.assertNotNull("Submodel 1 Node not found", submodel1Node);
@@ -1046,7 +1047,8 @@ public class OpcUaEndpointFullModelTest {
 
     private void testSubmodel1(UaClient client, NodeId submodelNode) throws ServiceException, AddressSpaceException, ServiceResultException, StatusException {
         TestUtils.checkDisplayName(client, submodelNode, "Submodel:" + TestConstants.FULL_SUBMODEL_1_NAME);
-        TestUtils.checkType(client, submodelNode, new NodeId(aasns, TestConstants.AAS_SUBMODEL_TYPE_ID));
+        //TestUtils.checkType(client, submodelNode, new NodeId(aasns, TestConstants.AAS_SUBMODEL_TYPE_ID));
+        TestUtils.checkType(client, submodelNode, ObjectTypeIds.AASSubmodelType);
 
         TestUtils.checkIdentification(client, submodelNode, aasns, TestConstants.FULL_SUBMODEL_1_ID);
         TestUtils.checkAdministrationNode(client, submodelNode, aasns, "0", "9");

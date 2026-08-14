@@ -55,6 +55,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import opc.ua.aas.ObjectTypeIds;
 import opc.ua.aas.VariableIds;
 import opc.ua.aas.datatypes.AASKey;
 import opc.ua.aas.datatypes.AASKeyTypes;
@@ -665,7 +666,8 @@ public class OpcUaEndpointSimpleModelTest {
     private void testSubmodelDoc(UaClient client, NodeId submodelNode)
             throws ServiceException, AddressSpaceException, StatusException, ServiceResultException {
         TestUtils.checkDisplayName(client, submodelNode, "Submodel:" + TestConstants.SUBMODEL_DOC_NODE_NAME);
-        TestUtils.checkType(client, submodelNode, new NodeId(aasns, TestConstants.AAS_SUBMODEL_TYPE_ID));
+        //TestUtils.checkType(client, submodelNode, new NodeId(aasns, TestConstants.AAS_SUBMODEL_TYPE_ID));
+        TestUtils.checkType(client, submodelNode, ObjectTypeIds.AASSubmodelType);
 
         String submodelName = "SubmodelOperationalData";
 
@@ -697,7 +699,8 @@ public class OpcUaEndpointSimpleModelTest {
 
     private void testSubmodelOperationalData(UaClient client, NodeId submodelNode) throws ServiceException, AddressSpaceException, StatusException, ServiceResultException {
         TestUtils.checkDisplayName(client, submodelNode, "Submodel:" + TestConstants.SUBMODEL_OPER_DATA_NODE_NAME);
-        TestUtils.checkType(client, submodelNode, new NodeId(aasns, TestConstants.AAS_SUBMODEL_TYPE_ID));
+        //TestUtils.checkType(client, submodelNode, new NodeId(aasns, TestConstants.AAS_SUBMODEL_TYPE_ID));
+        TestUtils.checkType(client, submodelNode, ObjectTypeIds.AASSubmodelType);
 
         TestUtils.checkIdentification(client, submodelNode, aasns, TestConstants.SUBMODEL_OPER_DATA_NAME);
         TestUtils.checkAdministrationNode(client, submodelNode, aasns, null, null);
@@ -712,7 +715,8 @@ public class OpcUaEndpointSimpleModelTest {
 
     private void testSubmodelTechnicalData(UaClient client, NodeId submodelNode) throws ServiceException, AddressSpaceException, StatusException, ServiceResultException {
         TestUtils.checkDisplayName(client, submodelNode, "Submodel:" + TestConstants.SUBMODEL_TECH_DATA_NODE_NAME);
-        TestUtils.checkType(client, submodelNode, new NodeId(aasns, TestConstants.AAS_SUBMODEL_TYPE_ID));
+        //TestUtils.checkType(client, submodelNode, new NodeId(aasns, TestConstants.AAS_SUBMODEL_TYPE_ID));
+        TestUtils.checkType(client, submodelNode, ObjectTypeIds.AASSubmodelType);
 
         TestUtils.checkIdentification(client, submodelNode, aasns, TestConstants.SUBMODEL_TECH_DATA_NAME);
         TestUtils.checkAdministrationNode(client, submodelNode, aasns, null, null);

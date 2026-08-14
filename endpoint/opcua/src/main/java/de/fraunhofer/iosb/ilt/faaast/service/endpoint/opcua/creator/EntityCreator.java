@@ -35,6 +35,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElement
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.UaHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import java.util.List;
+import opc.ua.aas.ObjectTypeIds;
 import opc.ua.aas.VariableIds;
 import opc.ua.aas.objecttypes.AASEntityType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Entity;
@@ -76,7 +77,7 @@ public class EntityCreator extends SubmodelElementCreator {
                 if ((name == null) || name.isEmpty()) {
                     name = getNameFromReference(entityRef);
                 }
-                QualifiedName browseName = UaQualifiedName.from(opc.ua.aas.ObjectTypeIds.AASEntityType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
+                QualifiedName browseName = UaQualifiedName.from(ObjectTypeIds.AASEntityType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
                 NodeId nid = nodeManager.getDefaultNodeId();
 
                 NodeBuilderConfiguration conf = new NodeBuilderConfiguration();
@@ -139,7 +140,7 @@ public class EntityCreator extends SubmodelElementCreator {
     public static void setGlobalAssetIdData(AASEntityType entityNode, String value, NodeManagerUaNode nodeManager) throws StatusException, ValueFormatException {
         if (entityNode.getGlobalAssetIdNode() == null) {
             // create node
-            UaHelper.addStringUaProperty(entityNode, nodeManager, AASEntityType.GLOBAL_ASSET_ID, value, opc.ua.aas.ObjectTypeIds.AASEntityType.getNamespaceUri());
+            UaHelper.addStringUaProperty(entityNode, nodeManager, AASEntityType.GLOBAL_ASSET_ID, value, ObjectTypeIds.AASEntityType.getNamespaceUri());
         }
         else {
             entityNode.setGlobalAssetId(value);
@@ -150,7 +151,7 @@ public class EntityCreator extends SubmodelElementCreator {
     private static void setSpecificAssetIdData(AASEntityType entityNode, List<SpecificAssetId> specificAssetId, AasServiceNodeManager nodeManager) throws StatusException {
         BaseDataVariableType listNode = entityNode.getSpecificAssetIdNode();
         if (listNode == null) {
-            QualifiedName browseName = UaQualifiedName.from(opc.ua.aas.ObjectTypeIds.AASEntityType.getNamespaceUri(), AASEntityType.SPECIFIC_ASSET_ID)
+            QualifiedName browseName = UaQualifiedName.from(ObjectTypeIds.AASEntityType.getNamespaceUri(), AASEntityType.SPECIFIC_ASSET_ID)
                     .toQualifiedName(nodeManager.getNamespaceTable());
             NodeId nid = nodeManager.createNodeId(entityNode, browseName);
             listNode = nodeManager.createInstance(BaseDataVariableType.class, nid, browseName, LocalizedText.english(AASEntityType.SPECIFIC_ASSET_ID));
