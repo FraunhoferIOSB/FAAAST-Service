@@ -14,8 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator;
 
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager.VALUES_READ_ONLY;
-
 import com.prosysopc.ua.UaQualifiedName;
 import com.prosysopc.ua.nodes.UaNode;
 import com.prosysopc.ua.server.instantiation.NodeBuilder;
@@ -23,9 +21,9 @@ import com.prosysopc.ua.server.instantiation.NodeBuilderConfiguration;
 import com.prosysopc.ua.stack.builtintypes.LocalizedText;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.QualifiedName;
-import com.prosysopc.ua.stack.core.AccessLevelType;
 import com.prosysopc.ua.stack.core.Identifiers;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ValueData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.AasSubmodelElementHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
@@ -105,19 +103,21 @@ public class PropertyCreator extends SubmodelElementCreator {
             //test = nodeManager.findNode(nid);
             //LOGGER.info("addAasProperty: Read (4): {}", test);
 
-            //if (propertyRef != null) {
-            //    nodeManager.addSubmodelElementOpcUA(propertyRef, prop);
+            if (propertyRef != null) {
+                nodeManager.addSubmodelElementOpcUA(propertyRef, prop);
+            }
+
+            //if (VALUES_READ_ONLY) {
+            //    // ValueType read-only
+            //    //prop.getValueTypeNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
+
+            //    // if the Submodel is null, we also make the value read-only
+            //    //if ((submodel == null) && (prop.getValueNode() != null)) {
+            //    prop.setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
+            //    //}
             //}
 
-            if (VALUES_READ_ONLY) {
-                // ValueType read-only
-                //prop.getValueTypeNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
-
-                // if the Submodel is null, we also make the value read-only
-                //if ((submodel == null) && (prop.getValueNode() != null)) {
-                prop.setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
-                //}
-            }
+            nodeManager.addSubmodelElementAasMap(nid, new SubmodelElementData(aasProperty, submodel, SubmodelElementData.Type.PROPERTY_VALUE, propertyRef));
 
             LOGGER.atInfo().log("addAasProperty: add Property {}, Reference: {}", nid, ReferenceHelper.toString(propertyRef));
 

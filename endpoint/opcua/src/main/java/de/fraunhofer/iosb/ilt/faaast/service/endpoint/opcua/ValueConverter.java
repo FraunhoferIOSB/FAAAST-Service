@@ -68,6 +68,7 @@ import opc.ua.aas.datatypes.AASKey;
 import opc.ua.aas.datatypes.AASKeyTypes;
 import opc.ua.aas.datatypes.AASModellingKind;
 import opc.ua.aas.datatypes.AASQualifierKind;
+import opc.ua.aas.datatypes.AASReferenceTypes;
 import opc.ua.aas.datatypes.AASStateOfEvent;
 import opc.ua.aas.datatypes.AASSubmodelElements;
 import org.eclipse.digitaltwin.aas4j.v3.model.AasSubmodelElements;
@@ -88,6 +89,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.QualifierKind;
 import org.eclipse.digitaltwin.aas4j.v3.model.Range;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceTypes;
 import org.eclipse.digitaltwin.aas4j.v3.model.RelationshipElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.StateOfEvent;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
@@ -109,6 +111,7 @@ public class ValueConverter {
     private static final Map<ModellingKind, AASModellingKind> MODELING_KIND_MAP;
     private static final Map<QualifierKind, AASQualifierKind> QUALIFIER_KIND_MAP;
     private static final Map<AssetKind, AASAssetKind> ASSET_KIND_MAP;
+    private static final Map<ReferenceTypes, AASReferenceTypes> REFERENCE_TYPES_MAP;
     private static final List<TypeMapper<EntityType, AASEntityEnumType>> ENTITY_TYPE_LIST;
     private static final List<TypeMapper<KeyTypes, AASKeyTypes>> KEY_ELEMENTS_LIST;
     private static final List<TypeMapper<Direction, AASDirection>> DIRECTION_LIST;
@@ -214,6 +217,10 @@ public class ValueConverter {
         ASSET_KIND_MAP = new EnumMap<>(AssetKind.class);
         ASSET_KIND_MAP.put(AssetKind.TYPE, AASAssetKind.of(AASAssetKind.Options.Type));
         ASSET_KIND_MAP.put(AssetKind.INSTANCE, AASAssetKind.of(AASAssetKind.Options.Instance));
+
+        REFERENCE_TYPES_MAP = new EnumMap<>(ReferenceTypes.class);
+        REFERENCE_TYPES_MAP.put(ReferenceTypes.MODEL_REFERENCE, AASReferenceTypes.of(AASReferenceTypes.Options.ModelReference));
+        REFERENCE_TYPES_MAP.put(ReferenceTypes.EXTERNAL_REFERENCE, AASReferenceTypes.of(AASReferenceTypes.Options.ExternalReference));
 
         ENTITY_TYPE_LIST = new ArrayList<>();
         ENTITY_TYPE_LIST.add(new TypeMapper<>(EntityType.CO_MANAGED_ENTITY, AASEntityEnumType.of(AASEntityEnumType.Options.CoManagedEntity)));
@@ -419,6 +426,10 @@ public class ValueConverter {
      * @return The corresponding AASAssetKindDataType
      */
     public static AASAssetKind convertAssetKind(AssetKind value) {
+        if (value == null) {
+            LOGGER.warn("convertAssetKind: value == null");
+            return null;
+        }
         AASAssetKind retval;
         if (ASSET_KIND_MAP.containsKey(value)) {
             retval = ASSET_KIND_MAP.get(value);
@@ -432,12 +443,39 @@ public class ValueConverter {
 
 
     /**
+     * Converts the given AssetKind to the corresponding AASAssetKindDataType.
+     *
+     * @param value The desired AssetKind
+     * @return The corresponding AASAssetKindDataType
+     */
+    public static AASReferenceTypes convertReferenceTypes(ReferenceTypes value) {
+        if (value == null) {
+            LOGGER.warn("convertReferenceTypes: value == null");
+            return null;
+        }
+        AASReferenceTypes retval;
+        if (REFERENCE_TYPES_MAP.containsKey(value)) {
+            retval = REFERENCE_TYPES_MAP.get(value);
+        }
+        else {
+            LOGGER.warn("convertReferenceTypes: unknown value {}", value);
+            throw new IllegalArgumentException(UNKNOWN_KEY_TYPE + value);
+        }
+        return retval;
+    }
+
+
+    /**
      * Converts the given EntityType to the corresponding AASEntityTypeDataType.
      *
      * @param value The desired EntityType
      * @return The corresponding AASEntityTypeDataType
      */
     public static AASEntityEnumType getAasEntityType(EntityType value) {
+        if (value == null) {
+            LOGGER.warn("getAasEntityType: value == null");
+            return null;
+        }
         AASEntityEnumType retval;
         var rv = ENTITY_TYPE_LIST.stream().filter(m -> m.aasObject == value).findAny();
         if (rv.isEmpty()) {

@@ -22,6 +22,7 @@ import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.QualifiedName;
 import com.prosysopc.ua.stack.core.Identifiers;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
 import opc.ua.aas.variabletypes.AASReferenceElementType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceElement;
@@ -67,12 +68,12 @@ public class ReferenceElementCreator extends SubmodelElementCreator {
                 //AasReferenceCreator.setAasReferenceData(aasRefElem.getValue(), refElemNode, false);
                 AasReferenceCreator.setAasReferenceData(aasRefElem.getValue(), refElemNode);
 
-                //if (refElemNode != null) {
-                //    nodeManager.addSubmodelElementAasMap(refElemNode.getKeysNode().getNodeId(),
-                //            new SubmodelElementData(aasRefElem, submodel, SubmodelElementData.Type.REFERENCE_ELEMENT_VALUE, refElemRef));
-                //}
+                if (refElemNode != null) {
+                    nodeManager.addSubmodelElementAasMap(refElemNode.getNodeId(),
+                            new SubmodelElementData(aasRefElem, submodel, SubmodelElementData.Type.REFERENCE_ELEMENT_VALUE, refElemRef));
+                }
 
-                //nodeManager.addSubmodelElementOpcUA(refElemRef, refElemNode);
+                nodeManager.addSubmodelElementOpcUA(refElemRef, refElemNode);
 
                 if (ordered) {
                     node.addReference(refElemNode, Identifiers.HasOrderedComponent, false);

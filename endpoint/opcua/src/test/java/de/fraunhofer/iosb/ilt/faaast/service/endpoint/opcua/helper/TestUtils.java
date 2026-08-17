@@ -65,6 +65,7 @@ import opc.ua.aas.datatypes.AASKey;
 import opc.ua.aas.datatypes.AASKeyTypes;
 import opc.ua.aas.datatypes.AASModellingKind;
 import opc.ua.aas.datatypes.AASQualifier;
+import opc.ua.aas.datatypes.AASReference;
 import opc.ua.aas.datatypes.AASSpecificAssetId;
 import opc.ua.aas.datatypes.AASSubmodelCommonAttributes;
 import opc.ua.aas.objecttypes.AASAssetInformationType;
@@ -160,7 +161,7 @@ public class TestUtils {
         BrowsePathTarget[] targets = bpres[0].getTargets();
         Assert.assertNotNull("Browse Category Null", targets);
         Assert.assertTrue("Category targets empty", targets.length > 0);
-        checkType(client, targets[0].getTargetId(), Identifiers.PropertyType);
+        checkType(client, targets[0].getTargetId(), new NodeId(aasns, TestConstants.AAS_PROPERTY_TYPE_ID));
 
         DataValue value = client.readValue(targets[0].getTargetId());
         Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
@@ -345,8 +346,8 @@ public class TestUtils {
         Assert.assertNotNull(assetInfoNode);
         Assert.assertNotEquals(NodeId.NULL, assetInfoNode);
 
-        //checkType(client, assetInfoNode, new NodeId(aasns, TestConstants.AAS_ASSET_INFO_TYPE_ID));
-        checkType(client, assetInfoNode, client.getAddressSpace().getNamespaceTable().toNodeId(ObjectTypeIds.AASAssetInformationType));
+        checkType(client, assetInfoNode, new NodeId(aasns, TestConstants.AAS_ASSET_INFO_TYPE_ID));
+        //checkType(client, assetInfoNode, client.getAddressSpace().getNamespaceTable().toNodeId(ObjectTypeIds.AASAssetInformationType));
         checkAssetKindNode(client, assetInfoNode, aasns, AASAssetKind.Instance);
         checkAasPropertyThumbnail(client, assetInfoNode, aasns, TestConstants.DEFAULT_THUMB_NAME, AASModellingKind.Instance, "", "image/png",
                 "file:///master/verwaltungsschale-detail-part1.png", 0);
@@ -612,6 +613,10 @@ public class TestUtils {
                 .atMost(MAX_TIMEOUT)
                 .until(() -> {
                     DataValue val = client.readValue(writeNode);
+                    if (val.getStatusCode().isGood()) {
+                        Object v = val.getValue().getValue();
+                        LOGGER.info("writeNewValueIntern: val: {}; old: {}; new: {}", v, oldValue, newValue);
+                    }
                     return val.getStatusCode().isGood() && (val.getValue() != null) && Objects.equals(val.getValue().getValue(), newValue);
                 });
     }
@@ -638,13 +643,16 @@ public class TestUtils {
     }
 
 
-    public static void writeNewValueArray(UaClient client, NodeId writeNode, AASKey[] oldValue, AASKey[] newValue)
+    //public static void writeNewValueArray(UaClient client, NodeId writeNode, AASKey[] oldValue, AASKey[] newValue)
+    public static void writeNewValueReference(UaClient client, NodeId writeNode, AASReference oldValue, AASReference newValue)
             throws ServiceException, StatusException {
         DataValue value = client.readValue(writeNode);
         Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
-        Assert.assertArrayEquals("intial value not equal", oldValue, (AASKey[]) value.getValue().getValue());
+        //Assert.assertArrayEquals("intial value not equal", oldValue, (AASKey[]) value.getValue().getValue());
+        Assert.assertEquals("intial value not equal", oldValue, (AASReference) value.getValue().getValue());
 
-        client.writeValue(writeNode, newValue);
+        boolean rv = client.writeValue(writeNode, newValue);
+        Assert.assertTrue(rv);
 
         // check new value
         // unable to deterministically know when the changes will materialize, therefore wait for some time
@@ -654,7 +662,12 @@ public class TestUtils {
                 .atMost(MAX_TIMEOUT)
                 .until(() -> {
                     DataValue val = client.readValue(writeNode);
-                    return val.getStatusCode().isGood() && (val.getValue() != null) && Arrays.equals((AASKey[]) val.getValue().getValue(), newValue);
+                    //if (val.getStatusCode().isGood()) {
+                    //    boolean eq = AasReferenceEquals((AASReference) val.getValue().getValue(), oldValue);
+                    //    LOGGER.info("writeNewValueArray: equal: {}; rv: {}; old: {}", eq, (AASReference) val.getValue().getValue(), oldValue);
+                    //}
+                    //return val.getStatusCode().isGood() && (val.getValue() != null) && Objects.equals((AASReference) val.getValue().getValue(), newValue);
+                    return val.getStatusCode().isGood() && (val.getValue() != null) && AasReferenceEquals((AASReference) val.getValue().getValue(), oldValue);
                 });
     }
 
@@ -835,7 +848,7 @@ public class TestUtils {
         Assert.assertNotNull("Property Keys Null", targetsProp);
         Assert.assertTrue("Property Keys empty", targetsProp.length > 0);
 
-        checkType(client, targetsProp[0].getTargetId(), Identifiers.PropertyType);
+        checkType(client, targetsProp[0].getTargetId(), new NodeId(aasns, TestConstants.AAS_PROPERTY_TYPE_ID));
         UaVariable variable = (UaVariable) client.getAddressSpace().getNode(targetsProp[0].getTargetId());
         UaType dataType = variable.getDataType();
         Assert.assertNotNull("DataType null", dataType);
@@ -994,4 +1007,9 @@ public class TestUtils {
     //        Assert.assertTrue("Key not found in Map", map.containsKey(key));
     //        Assert.assertEquals("Value not equal", map.get(key), value);
     //    }
+
+
+    private static boolean AasReferenceEquals(AASReference ref1, AASReference ref2) {
+        return ref1.getType() == ref2.getType() && ref1.getReferredSemanticId() == ref2.getReferredSemanticId() && Arrays.equals(ref1.getKey(), ref2.getKey());
+    }
 }

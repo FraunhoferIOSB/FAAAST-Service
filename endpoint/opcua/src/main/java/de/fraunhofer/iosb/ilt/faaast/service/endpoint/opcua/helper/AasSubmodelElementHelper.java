@@ -131,7 +131,7 @@ public class AasSubmodelElementHelper {
      * @throws StatusException If the operation fails
      * @throws ValueFormatException The data format of the value is invalid
      */
-    public static void setSubmodelElementValue(AASSubmodelElementVariableType subElem, ElementValue value, NodeManagerUaNode nodeManager)
+    public static void setSubmodelElementValue(UaNode subElem, ElementValue value, NodeManagerUaNode nodeManager)
             throws StatusException, ValueFormatException {
         LOGGER.trace("setSubmodelElementValue: {}", subElem.getBrowseName().getName());
 
@@ -147,7 +147,7 @@ public class AasSubmodelElementHelper {
             setDataElementValue(subElem, dataElementValue, nodeManager);
         }
         else {
-            LOGGER.warn("SubmodelElement {} type not supported", subElem.getBrowseName().getName());
+            LOGGER.warn("setSubmodelElementValue: SubmodelElement {} type not supported", subElem.getBrowseName().getName());
         }
     }
 

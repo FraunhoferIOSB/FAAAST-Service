@@ -57,11 +57,12 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import opc.ua.aas.ObjectTypeIds;
 import opc.ua.aas.VariableIds;
 import opc.ua.aas.datatypes.AASKey;
 import opc.ua.aas.datatypes.AASKeyTypes;
 import opc.ua.aas.datatypes.AASModellingKind;
+import opc.ua.aas.datatypes.AASReference;
+import opc.ua.aas.datatypes.AASReferenceTypes;
 import opc.ua.aas.datatypes.AASSubmodelElements;
 import opc.ua.aas.objecttypes.AASEntityType;
 import opc.ua.aas.objecttypes.AASRelationshipElementType;
@@ -247,18 +248,21 @@ public class OpcUaEndpointFullModelTest {
 
         NodeId writeNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
 
-        List<AASKey> oldValue = new ArrayList<>();
-        oldValue.add(new AASKey(AASKeyTypes.Submodel, "https://acplt.org/Test_Submodel_Mandatory"));
-        oldValue.add(new AASKey(AASKeyTypes.SubmodelElementList, "ExampleSubmodelElementListUnordered"));
-        oldValue.add(new AASKey(AASKeyTypes.MultiLanguageProperty, "ExampleMultiLanguageProperty"));
+        List<AASKey> oldKeys = new ArrayList<>();
+        oldKeys.add(new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Submodel), "https://acplt.org/Test_Submodel_Mandatory"));
+        oldKeys.add(new AASKey(AASKeyTypes.of(AASKeyTypes.Options.SubmodelElementList), "ExampleSubmodelElementListUnordered"));
+        oldKeys.add(new AASKey(AASKeyTypes.of(AASKeyTypes.Options.MultiLanguageProperty), "ExampleMultiLanguageProperty"));
+        AASReference oldValue = new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ModelReference), null, oldKeys.toArray(AASKey[]::new));
 
         // The DataElementValueMapper changes the order of the elements
-        List<AASKey> newValue = new ArrayList<>();
-        newValue.add(new AASKey(AASKeyTypes.Submodel, "https://acplt.org/Test_Submodel_Mandatory"));
-        newValue.add(new AASKey(AASKeyTypes.SubmodelElementList, "ExampleSubmodelElementListUnordered"));
-        newValue.add(new AASKey(AASKeyTypes.Range, "ExampleRange"));
+        List<AASKey> newKeys = new ArrayList<>();
+        newKeys.add(new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Submodel), "https://acplt.org/Test_Submodel_Mandatory"));
+        newKeys.add(new AASKey(AASKeyTypes.of(AASKeyTypes.Options.SubmodelElementList), "ExampleSubmodelElementListUnordered"));
+        newKeys.add(new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Range), "ExampleRange"));
+        AASReference newValue = new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ModelReference), null, newKeys.toArray(AASKey[]::new));
 
-        TestUtils.writeNewValueArray(client, writeNode, oldValue.toArray(AASKey[]::new), newValue.toArray(AASKey[]::new));
+        //TestUtils.writeNewValueArray(client, writeNode, oldValue.toArray(AASKey[]::new), newValue.toArray(AASKey[]::new));
+        TestUtils.writeNewValueReference(client, writeNode, oldValue, newValue);
 
         System.out.println("disconnect client");
         client.disconnect();
@@ -283,7 +287,7 @@ public class OpcUaEndpointFullModelTest {
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SM_ELEM_COLL_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SMEC_REF_ELEM_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.PROPERTY_VALUE_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.KEYS_VALUE_NAME)));
+        //browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.KEYS_VALUE_NAME)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
@@ -297,16 +301,18 @@ public class OpcUaEndpointFullModelTest {
 
         NodeId writeNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
 
-        List<AASKey> oldValue = new ArrayList<>();
-        oldValue.add(new AASKey(AASKeyTypes.Submodel, "https://acplt.org/Test_Submodel_Missing"));
-        oldValue.add(new AASKey(AASKeyTypes.SubmodelElementCollection, "ExampleSubmodelElementCollection"));
-        oldValue.add(new AASKey(AASKeyTypes.File, "ExampleFile"));
+        List<AASKey> oldKeys = new ArrayList<>();
+        oldKeys.add(new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Submodel), "https://acplt.org/Test_Submodel_Missing"));
+        oldKeys.add(new AASKey(AASKeyTypes.of(AASKeyTypes.Options.SubmodelElementCollection), "ExampleSubmodelElementCollection"));
+        oldKeys.add(new AASKey(AASKeyTypes.of(AASKeyTypes.Options.File), "ExampleFile"));
+        AASReference oldValue = new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ModelReference), null, oldKeys.toArray(AASKey[]::new));
 
         // The DataElementValueMapper changes the order of the elements
-        List<AASKey> newValue = new ArrayList<>();
-        newValue.add(new AASKey(AASKeyTypes.GlobalReference, "https://iosb.fraunhofer.de/TestValue1"));
+        List<AASKey> newKeys = new ArrayList<>();
+        newKeys.add(new AASKey(AASKeyTypes.of(AASKeyTypes.Options.GlobalReference), "https://iosb.fraunhofer.de/TestValue1"));
+        AASReference newValue = new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ModelReference), null, newKeys.toArray(AASKey[]::new));
 
-        TestUtils.writeNewValueArray(client, writeNode, oldValue.toArray(AASKey[]::new), newValue.toArray(AASKey[]::new));
+        TestUtils.writeNewValueReference(client, writeNode, oldValue, newValue);
 
         System.out.println("disconnect client");
         client.disconnect();
@@ -910,7 +916,7 @@ public class OpcUaEndpointFullModelTest {
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_6_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_INT64_PROP_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.PROPERTY_VALUE_NAME)));
+        //browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.PROPERTY_VALUE_NAME)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
@@ -1047,8 +1053,8 @@ public class OpcUaEndpointFullModelTest {
 
     private void testSubmodel1(UaClient client, NodeId submodelNode) throws ServiceException, AddressSpaceException, ServiceResultException, StatusException {
         TestUtils.checkDisplayName(client, submodelNode, "Submodel:" + TestConstants.FULL_SUBMODEL_1_NAME);
-        //TestUtils.checkType(client, submodelNode, new NodeId(aasns, TestConstants.AAS_SUBMODEL_TYPE_ID));
-        TestUtils.checkType(client, submodelNode, ObjectTypeIds.AASSubmodelType);
+        TestUtils.checkType(client, submodelNode, new NodeId(aasns, TestConstants.AAS_SUBMODEL_TYPE_ID));
+        //TestUtils.checkType(client, submodelNode, ObjectTypeIds.AASSubmodelType);
 
         TestUtils.checkIdentification(client, submodelNode, aasns, TestConstants.FULL_SUBMODEL_1_ID);
         TestUtils.checkAdministrationNode(client, submodelNode, aasns, "0", "9");

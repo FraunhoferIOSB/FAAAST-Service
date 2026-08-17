@@ -146,9 +146,15 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     private final Map<NodeId, SubmodelElementData> submodelElementAasMap;
 
     /**
-     * Maps AAS SubmodelElements to OPC UA SubmodelElements
+     * Maps AAS SubmodelElements to OPC UA SubmodelElement variables.
      */
-    private final Map<SubmodelElementIdentifier, AASSubmodelElementVariableType> submodelElementVariableOpcUaMap;
+    //private final Map<SubmodelElementIdentifier, AASSubmodelElementVariableType> submodelElementVariableOpcUaMap;
+    private final Map<SubmodelElementIdentifier, UaNode> submodelElementOpcUaMap;
+
+    /**
+     * Maps AAS SubmodelElements to OPC UA SubmodelElement objects.
+     */
+    //private final Map<SubmodelElementIdentifier, AASSubmodelElementObjectType> submodelElementObjectOpcUaMap;
 
     /**
      * Maps Submodel references to the OPC UA Submodel
@@ -193,7 +199,8 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         this.endpoint = endpoint;
         this.aasEnvironmentNode = environmentNode;
         submodelElementAasMap = new ConcurrentHashMap<>();
-        submodelElementVariableOpcUaMap = new ConcurrentHashMap<>();
+        submodelElementOpcUaMap = new ConcurrentHashMap<>();
+        //submodelElementObjectOpcUaMap = new ConcurrentHashMap<>();
         submodelOpcUAMap = new ConcurrentHashMap<>();
         referableMap = new ConcurrentHashMap<>();
 
@@ -479,9 +486,9 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         Ensure.requireNonNull(element, ELEMENT_NULL);
         Ensure.requireNonNull(value, VALUE_NULL);
 
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("elementUpdated called. Reference {}", ReferenceHelper.toString(element));
-        }
+        //if (LOGGER.isDebugEnabled()) {
+        LOGGER.atDebug().log("elementUpdated called. Reference {}", ReferenceHelper.toString(element));
+        //}
         // Currently we implement update as delete and create. 
         elementDeleted(element);
 
@@ -520,14 +527,14 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         Ensure.requireNonNull(newValue, "newValue must not be null");
 
         SubmodelElementIdentifier path = SubmodelElementIdentifier.fromReference(reference);
-        if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace("updateSubmodelElementValue Reference {}; Path {}", ReferenceHelper.toString(reference), dumpSubmodelElementIdentifier(path));
-        }
-        if (submodelElementVariableOpcUaMap.containsKey(path)) {
-            AasSubmodelElementHelper.setSubmodelElementValue(submodelElementVariableOpcUaMap.get(path), newValue, this);
+        //if (LOGGER.isTraceEnabled()) {
+        LOGGER.atInfo().log("updateSubmodelElementValue Reference {}; Path {}", ReferenceHelper.toString(reference), dumpSubmodelElementIdentifier(path));
+        //}
+        if (submodelElementOpcUaMap.containsKey(path)) {
+            AasSubmodelElementHelper.setSubmodelElementValue(submodelElementOpcUaMap.get(path), newValue, this);
         }
         else if (LOGGER.isWarnEnabled()) {
-            LOGGER.warn("SubmodelElement {} not found in submodelElementOpcUAMap", ReferenceHelper.toString(reference));
+            LOGGER.warn("updateSubmodelElementValue: SubmodelElement {} not found in submodelElementOpcUAMap", ReferenceHelper.toString(reference));
         }
     }
 
@@ -570,9 +577,9 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @param reference The reference to the desired SubmodelElement.
      * @param submodelElement The corresponding SubmodelElement node.
      */
-    public void addSubmodelElementVariableOpcUA(Reference reference, AASSubmodelElementVariableType submodelElement) {
+    public void addSubmodelElementOpcUA(Reference reference, UaNode submodelElement) {
         SubmodelElementIdentifier smid = SubmodelElementIdentifier.fromReference(reference);
-        submodelElementVariableOpcUaMap.put(smid, submodelElement);
+        submodelElementOpcUaMap.put(smid, submodelElement);
     }
 
 
@@ -647,7 +654,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             LOGGER.debug("doRemoveFromMaps: remove SubmodelElement {}", ReferenceHelper.toString(reference));
         }
         SubmodelElementIdentifier smid = SubmodelElementIdentifier.fromReference(reference);
-        AASSubmodelElementVariableType removedElement = submodelElementVariableOpcUaMap.remove(smid);
+        UaNode removedElement = submodelElementOpcUaMap.remove(smid);
         LOGGER.atDebug().log("doRemoveFromMaps: remove SubmodelElement from submodelElementOpcUAMap: {}", ReferenceHelper.toString(reference));
 
         if (element instanceof AASPropertyType prop) {

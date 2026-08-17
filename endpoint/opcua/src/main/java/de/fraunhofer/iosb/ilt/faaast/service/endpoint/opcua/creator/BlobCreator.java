@@ -125,9 +125,9 @@ public class BlobCreator extends SubmodelElementCreator {
                 LOGGER.debug("addAasBlob: NodeId {}; Blob: {}", blobNode.getValueNode().getNodeId(), aasBlob.getIdShort());
             }
 
-            //if (blobRef != null) {
-            //    nodeManager.addSubmodelElementOpcUA(blobRef, blobNode);
-            //}
+            if (blobRef != null) {
+                nodeManager.addSubmodelElementOpcUA(blobRef, blobNode);
+            }
 
             blobNode.setValue(ByteString.valueOf(aasBlob.getValue()));
         }

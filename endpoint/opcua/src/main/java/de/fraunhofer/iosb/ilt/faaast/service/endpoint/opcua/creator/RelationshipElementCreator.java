@@ -102,7 +102,7 @@ public class RelationshipElementCreator extends SubmodelElementCreator {
                     //nodeManager.addSubmodelElementAasMap(relElemNode.getSecondNode().getKeysNode().getNodeId(),
                     //        new SubmodelElementData(aasRelElem, submodel, SubmodelElementData.Type.RELATIONSHIP_ELEMENT_SECOND, relElemRef));
 
-                    //nodeManager.addSubmodelElementOpcUA(relElemRef, relElemNode);
+                    nodeManager.addSubmodelElementOpcUA(relElemRef, relElemNode);
 
                     if (ordered) {
                         node.addReference(relElemNode, Identifiers.HasOrderedComponent, false);

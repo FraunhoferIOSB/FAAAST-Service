@@ -119,7 +119,7 @@ public class EntityCreator extends SubmodelElementCreator {
                 // Statements
                 SubmodelElementCreator.addSubmodelElements(entityNode, aasEntity.getStatements(), submodel, entityRef, nodeManager);
 
-                //nodeManager.addSubmodelElementOpcUA(entityRef, entityNode);
+                nodeManager.addSubmodelElementOpcUA(entityRef, entityNode);
 
                 if (ordered) {
                     node.addReference(entityNode, Identifiers.HasOrderedComponent, false);

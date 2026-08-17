@@ -97,12 +97,12 @@ public class TestConstants {
     public static final int AAS_AAS_TYPE_ID = 1002;
     public static final int AAS_REFERENCE_TYPE_ID = 1004;
     public static final int AAS_ASSET_TYPE_ID = 1005;
-    //public static final int AAS_SUBMODEL_TYPE_ID = 1006;
+    public static final int AAS_SUBMODEL_TYPE_ID = 1002;
     public static final int AAS_SUBMODEL_ELEM_COLL_TYPE_ID = 1010;
     public static final int AAS_OREDER_SM_ELEM_COLL_TYPE_ID = 1011;
-    public static final int AAS_PROPERTY_TYPE_ID = 1013;
+    public static final int AAS_PROPERTY_TYPE_ID = 2000;
     public static final int AAS_IDENTIFIER_TYPE_ID = 1029;
-    public static final int AAS_ADMIN_INFO_TYPE_ID = 1030;
+    public static final int AAS_ADMIN_INFO_TYPE_ID = 3038;
     public static final int AAS_ASSET_INFO_TYPE_ID = 1010;
     public static final int AAS_QUALIFIER_TYPE_ID = 1032;
     public static final int AAS_ID_KEY_VALUE_PAIR_ID = 1035;

@@ -85,7 +85,7 @@ public class MultiLanguagePropertyCreator extends SubmodelElementCreator {
                 nodeManager.addSubmodelElementAasMap(multiLangNode.getNodeId(),
                         new SubmodelElementData(aasMultiLang, submodel, SubmodelElementData.Type.MULTI_LANGUAGE_VALUE, multiLangRef));
 
-                //nodeManager.addSubmodelElementOpcUA(multiLangRef, multiLangNode);
+                nodeManager.addSubmodelElementOpcUA(multiLangRef, multiLangNode);
 
                 if (ordered) {
                     node.addReference(multiLangNode, Identifiers.HasOrderedComponent, false);
