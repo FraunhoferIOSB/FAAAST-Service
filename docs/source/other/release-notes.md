@@ -22,7 +22,11 @@
 		- Fixed bug that Operation Provider failed in an operation with arguments when no template was configured.
 		- Extend Operation Provider to support asynchronous operations.
 - Endpoint
-	- HTTP
+    - DPP
+        - Added DPP endpoint
+        - API calls: ReadDPPById, ReadDPPByProductId, ReadDPPIdsByIds
+        - DPP serialization (compressed mode)
+    - HTTP
 		- URL prefix /api/v3.x is now optional
         - Default URL prefix is now /api/v3.1
 		- Add new config property `httpVersion`
@@ -30,9 +34,9 @@
 		- OperationProvider now supports use of input arguments via variables in headers
 		- Add support for runtime update of OperationProvider
         - Consolidated temporarily introduced `CoreConfig.callbackAddress` into `HttpEndpointConfig.hostname`. If `MessageBusCloudEvents` is used in combination with multiple `HttpEndpoints`, one of them will be chosen to fill a `CloudEvent`'s `source` URI. The implementation will prefer non-local hostnames (i.e. **not** `localhost`/`127.0.0.1`).
-        - Added configurability for registry synchronization's `subprotocol*` values (`Descriptor.Endpoint.ProtocolInformation.subprotocol*`). in `subprotocolBody`, `${id}` is substituted with the identifiable's identifier and `${id|hash}` with the sha256-hash value of it. Configurable in `HttpEndpointConfig`  
+        - Added configurability for registry synchronization's `subprotocol*` values (`Descriptor.Endpoint.ProtocolInformation.subprotocol*`). in `subprotocolBody`, `${id}` is substituted with the identifiable's identifier and `${id|hash}` with the sha256-hash value of it. Configurable in `HttpEndpointConfig`
 - SMT Processor
-	- Updated processor for SMT Asset Interfaces Description (AID) to support AID version 1.1 including OPC UA binding.
+    - Updated processor for SMT Asset Interfaces Description (AID) to support AID version 1.1 including OPC UA binding.
 
 **Internal changes & bugfixes**
 - General

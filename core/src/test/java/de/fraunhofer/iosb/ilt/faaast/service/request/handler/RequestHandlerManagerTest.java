@@ -14,7 +14,10 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.model.DPP.DPP_1;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.DPP.DPP_2;
 import static org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd.STRING;
+import static org.mockito.AdditionalMatchers.not;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
@@ -78,6 +81,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescriptio
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.GetConceptDescriptionByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.PostConceptDescriptionRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.PutConceptDescriptionByIdRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.dpp.ReadDppByIdRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.dpp.ReadDppByProductIdRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.dpp.ReadDppIdsByProductIdsRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.proprietary.DeleteOperationProviderByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.proprietary.PostOperationProviderByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.DeleteSubmodelElementByPathRequest;
@@ -122,6 +128,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.conceptdescripti
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.conceptdescription.GetConceptDescriptionByIdResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.conceptdescription.PostConceptDescriptionResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.conceptdescription.PutConceptDescriptionByIdResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.dpp.ReadDPPByIdResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.dpp.ReadDPPByProductIdResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.dpp.ReadDPPIdsByProductIdsResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.proprietary.DeleteOperationProviderByPathResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.proprietary.PostOperationProviderByPathResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.DeleteSubmodelElementByPathResponse;
@@ -170,6 +179,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
@@ -1887,6 +1897,199 @@ public class RequestHandlerManagerTest {
         DeleteOperationProviderByPathResponse response = manager.execute(deleteOperationProviderByPathRequest, context);
         Assert.assertEquals(StatusCode.SUCCESS_NO_CONTENT, response.getStatusCode());
         verify(assetConnectionManager).updateConnections(List.of(expectedConfig), List.of());
+    }
+
+
+    @Test
+    public void testReadDPPByIdRequest() throws Exception {
+        mockReturnDPP();
+
+        ReadDppByIdRequest request = ReadDppByIdRequest.builder()
+                .id(DPP_1.getAAS().getId())
+                .build();
+        ReadDPPByIdResponse actual = manager.execute(request, context);
+
+        Assert.assertNotNull(actual);
+        Assert.assertEquals(StatusCode.SUCCESS, actual.getStatusCode());
+        Assert.assertNotNull(actual.getPayload());
+        Assert.assertEquals(DPP_1, actual.getPayload());
+    }
+
+
+    @Test
+    public void testReadDPPByIdRequestNotFound() throws Exception {
+        doThrow(new ResourceNotFoundException("not found"))
+                .when(persistence)
+                .getAssetAdministrationShell(eq("non-existent-id"), any());
+
+        ReadDppByIdRequest request = ReadDppByIdRequest.builder()
+                .id("non-existent-id")
+                .build();
+        ReadDPPByIdResponse actual = manager.execute(request, context);
+
+        Assert.assertEquals(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND, actual.getStatusCode());
+    }
+
+
+    @Test
+    public void testReadDPPByIdRequestInternal() throws Exception {
+        mockReturnDPP();
+
+        ReadDppByIdRequest request = ReadDppByIdRequest.builder()
+                .id(DPP_1.getAAS().getId())
+                .internal(true)
+                .build();
+        ReadDPPByIdResponse actual = manager.execute(request, context);
+
+        Assert.assertEquals(StatusCode.SUCCESS, actual.getStatusCode());
+        verify(messageBus, times(0)).publish(any());
+    }
+
+
+    @Test
+    public void testReadDPPByProductIdRequest() throws Exception {
+        ReadDPPByProductIdResponse actual = doReadDPPByProductId(DPP_1.getAAS().getAssetInformation().getGlobalAssetId());
+
+        Assert.assertNotNull(actual);
+        Assert.assertEquals(StatusCode.SUCCESS, actual.getStatusCode());
+        Assert.assertNotNull(actual.getPayload());
+        Assert.assertEquals(DPP_1, actual.getPayload());
+    }
+
+
+    @Test
+    public void testReadDPPByProductIdRequestNotFound() throws Exception {
+        ReadDPPByProductIdResponse actual = doReadDPPByProductId("http://example.org/non-existent");
+
+        Assert.assertEquals(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND, actual.getStatusCode());
+    }
+
+
+    private ReadDPPByProductIdResponse doReadDPPByProductId(String globalAssetId) throws Exception {
+        GlobalAssetIdentification id = GlobalAssetIdentification.builder()
+                .value(DPP_1.getAAS().getAssetInformation().getGlobalAssetId())
+                .build();
+        mockReturnDPP();
+
+        doReturn(Page.of(DPP_1.getAAS()))
+                .when(persistence)
+                .findAssetAdministrationShells(
+                        eq(AssetAdministrationShellSearchCriteria.builder()
+                                .assetId(id)
+                                .build()),
+                        any(),
+                        any());
+        doReturn(Page.empty())
+                .when(persistence)
+                .findAssetAdministrationShells(
+                        not(eq(AssetAdministrationShellSearchCriteria.builder()
+                                .assetId(id)
+                                .build())),
+                        any(),
+                        any());
+
+        ReadDppByProductIdRequest request = ReadDppByProductIdRequest.builder()
+                .id(globalAssetId)
+                .build();
+
+        return manager.execute(request, context);
+    }
+
+
+    @Test
+    public void testReadDPPByProductIdRequestMultipleFound() throws Exception {
+        GlobalAssetIdentification globalAssetId = GlobalAssetIdentification.builder()
+                .value("http://example.org/multiple")
+                .build();
+
+        doReturn(Page.of(AAS, AASFull.AAS_2))
+                .when(persistence)
+                .findAssetAdministrationShells(
+                        eq(AssetAdministrationShellSearchCriteria.builder()
+                                .assetId(globalAssetId)
+                                .build()),
+                        any(),
+                        any());
+
+        ReadDppByProductIdRequest request = ReadDppByProductIdRequest.builder()
+                .id(globalAssetId.getValue())
+                .build();
+
+        Assert.assertThrows(IllegalStateException.class, () -> manager.execute(request, context));
+    }
+
+
+    @Test
+    public void testReadDPPIdsByProductIdsRequest() throws Exception {
+        GlobalAssetIdentification globalAssetId1 = GlobalAssetIdentification.builder()
+                .value(DPP_1.getAAS().getAssetInformation().getGlobalAssetId())
+                .build();
+        GlobalAssetIdentification globalAssetId2 = GlobalAssetIdentification.builder()
+                .value(DPP_2.getAAS().getAssetInformation().getGlobalAssetId())
+                .build();
+
+        doReturn(Page.of(DPP_1.getAAS(), DPP_2.getAAS()))
+                .when(persistence)
+                .findAssetAdministrationShells(
+                        eq(AssetAdministrationShellSearchCriteria.builder()
+                                .assetId(globalAssetId1)
+                                .assetId(globalAssetId2)
+                                .build()),
+                        any(),
+                        any());
+
+        ReadDppIdsByProductIdsRequest request = ReadDppIdsByProductIdsRequest.builder()
+                .productIds(List.of(globalAssetId1.getValue(), globalAssetId2.getValue()))
+                .build();
+        ReadDPPIdsByProductIdsResponse actual = manager.execute(request, context);
+
+        Assert.assertEquals(StatusCode.SUCCESS, actual.getStatusCode());
+        Assert.assertNotNull(actual.getPayload());
+        Assert.assertNotNull(actual.getPayload().getContent());
+        Assert.assertEquals(2, actual.getPayload().getContent().size());
+        Assert.assertTrue(actual.getPayload().getContent().contains(DPP_1.getAAS().getId()));
+        Assert.assertTrue(actual.getPayload().getContent().contains(DPP_2.getAAS().getId()));
+    }
+
+
+    @Test
+    public void testReadDPPIdsByProductIdsRequestNotFound() throws Exception {
+        GlobalAssetIdentification globalAssetId = GlobalAssetIdentification.builder()
+                .value("http://example.org/non-existent")
+                .build();
+
+        doReturn(Page.empty())
+                .when(persistence)
+                .findAssetAdministrationShells(
+                        eq(AssetAdministrationShellSearchCriteria.builder()
+                                .assetId(globalAssetId)
+                                .build()),
+                        any(),
+                        any());
+
+        ReadDppIdsByProductIdsRequest request = ReadDppIdsByProductIdsRequest.builder()
+                .productIds(List.of(globalAssetId.getValue()))
+                .build();
+        ReadDPPIdsByProductIdsResponse actual = manager.execute(request, context);
+
+        Assert.assertEquals(StatusCode.SUCCESS, actual.getStatusCode());
+        Assert.assertNotNull(actual.getPayload());
+        Assert.assertNotNull(actual.getPayload().getContent());
+        Assert.assertTrue(actual.getPayload().getContent().isEmpty());
+    }
+
+
+    private void mockReturnDPP() throws PersistenceException, ResourceNotFoundException {
+        doReturn(DPP_1.getAAS())
+                .when(persistence)
+                .getAssetAdministrationShell(eq(DPP_1.getAAS().getId()), any());
+        List<Submodel> allSubmodels = new ArrayList<>(DPP_1.getContents());
+        allSubmodels.add(DPP_1.getMetadata());
+        for (Submodel submodel: allSubmodels) {
+            doReturn(submodel)
+                    .when(persistence)
+                    .getSubmodel(eq(submodel.getId()), any());
+        }
     }
 
 

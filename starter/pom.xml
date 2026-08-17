@@ -48,6 +48,11 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>endpoint-dpp</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>endpoint-http</artifactId>
             <version>${project.version}</version>
         </dependency>

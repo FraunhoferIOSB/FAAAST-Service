@@ -26,17 +26,18 @@ import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
  */
 public class AssetAdministrationShellSearchCriteria {
 
-    public static final AssetAdministrationShellSearchCriteria NONE = new AssetAdministrationShellSearchCriteria();
-
+    // Need to be declared before NONE to ensure initialization
     private static final String DEFAULT_ID_SHORT = null;
-    private static final List<AssetIdentification> DEFAULT_ASSET_IDS = new ArrayList<>();
+    private static final List<AssetIdentification> DEFAULT_ASSET_IDS = List.of();
+
+    public static final AssetAdministrationShellSearchCriteria NONE = new AssetAdministrationShellSearchCriteria();
 
     private String idShort;
     private List<AssetIdentification> assetIds;
 
     public AssetAdministrationShellSearchCriteria() {
         this.idShort = DEFAULT_ID_SHORT;
-        this.assetIds = DEFAULT_ASSET_IDS;
+        this.assetIds = new ArrayList<>(DEFAULT_ASSET_IDS);
     }
 
 
