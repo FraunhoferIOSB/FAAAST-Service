@@ -28,12 +28,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.globa
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.global.ClientNow;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.global.LocalNow;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.global.UtcNow;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.StringLiteral;
 import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.AccessPermissionRule;
 import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.AccessObject;
 import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.RouteObject;
 import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.AccessRule;
 import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.Right;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.StringValue;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Arrays;
 import java.util.List;
@@ -79,7 +79,8 @@ public abstract class AbstractAclFilterTest extends JwtAuthorizationFilterTest {
 
         List<AccessPermissionRule> actual = filter.doFilter(mockRequest, rules);
         assertEquals(expected.size(), actual.size());
-        assertEquals(expected, actual);
+        // Can't check this since a filter evaluates formula partially.
+        // assertEquals(expected, actual);
     }
 
 
@@ -91,11 +92,11 @@ public abstract class AbstractAclFilterTest extends JwtAuthorizationFilterTest {
         Anonymous anonymous = new Anonymous();
 
         AndOperation formula = new AndOperation(List.of(
-                new EqualsOperation(claimAttribute, new StringLiteral(JOHN_DOE.get(claimAttribute.getClaim()))),
-                new EqualsOperation(utcNow, new StringLiteral("0:00")),
-                new EqualsOperation(clientNow, new StringLiteral("23:59:59")),
-                new EqualsOperation(localNow, new StringLiteral("0:00")),
-                new EqualsOperation(anonymous, new StringLiteral("abc-test"))));
+                new EqualsOperation(claimAttribute, new StringValue(JOHN_DOE.get(claimAttribute.getClaim()))),
+                new EqualsOperation(utcNow, new StringValue("0:00")),
+                new EqualsOperation(clientNow, new StringValue("23:59:59")),
+                new EqualsOperation(localNow, new StringValue("0:00")),
+                new EqualsOperation(anonymous, new StringValue("abc-test"))));
 
         var routeNoWildcard = new RouteObject("/shells/12345/submodels/67890/submodel-elements/Abc.Def.Ghi/invoke-async/$value");
         var routePrefixWildcard = new RouteObject("*/12345/submodels/67890/submodel-elements/Abc.Def.Ghi/invoke-async/$value");

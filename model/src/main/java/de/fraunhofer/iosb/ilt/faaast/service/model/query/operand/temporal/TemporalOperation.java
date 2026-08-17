@@ -16,8 +16,8 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.temporal;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.EvaluationContext;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.Operand;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.DateTimeLiteral;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.NumberLiteral;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DateTimeValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.IntValue;
 
 import java.util.function.Function;
 
@@ -35,15 +35,15 @@ public abstract class TemporalOperation implements Operand {
     public Operand evaluatePartially(EvaluationContext evaluationContext) {
         Operand evaluated = operand.evaluatePartially(evaluationContext);
 
-        if (!evaluated.isLiteral()) {
+        if (!evaluated.isTypedValue()) {
             return this;
         }
 
-        return operation().apply(operand.asLiteral().asDateTime());
+        return new IntValue(operation().apply(((DateTimeValue) operand.asTypedValue())));
     }
 
 
-    protected abstract Function<DateTimeLiteral, NumberLiteral> operation();
+    protected abstract Function<DateTimeValue, Integer> operation();
 
 
     protected abstract TemporalOperation withOperand(Operand operand);

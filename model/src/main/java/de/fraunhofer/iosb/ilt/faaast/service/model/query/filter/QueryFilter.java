@@ -19,4 +19,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.field
 import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.AccessRuleEntity;
 
 
-public record QueryFilter(FieldIdentifier fragment, LogicalExpression condition) implements AccessRuleEntity<QueryFilter> {}
+public record QueryFilter(FieldIdentifier fragment, LogicalExpression condition) implements AccessRuleEntity<QueryFilter> {
+    public static QueryFilter EMPTY = new QueryFilter(null, null);
+}

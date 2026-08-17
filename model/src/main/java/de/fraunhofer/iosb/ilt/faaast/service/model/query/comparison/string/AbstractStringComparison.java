@@ -14,12 +14,11 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.query.comparison.string;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.comparison.AbstractBinaryComparison;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.LogicalExpression;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.Operand;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.Literal;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype.STRING;
 
-import java.util.List;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.comparison.AbstractBinaryComparison;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.Operand;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
 
 
 /**
@@ -34,9 +33,9 @@ public abstract class AbstractStringComparison extends AbstractBinaryComparison 
 
 
     @Override
-    protected void validate(List<? extends LogicalExpression> operands) throws IllegalArgumentException {
-        super.validate(operands);
-        if (!operands.stream().map(LogicalExpression::asLiteral).allMatch(Literal::isString)) {
+    protected void validate(TypedValue<?> left, TypedValue<?> right) throws IllegalArgumentException {
+        super.validate(left, right);
+        if (left.getDataType() != STRING || right.getDataType() != STRING) {
             throw new IllegalArgumentException(String.format("operands to %s were not strings", this.getClass().getSimpleName()));
         }
     }

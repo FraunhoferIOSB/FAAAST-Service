@@ -14,12 +14,13 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.cast;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.EvaluationContext;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.Operand;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.Literal;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
 
 
-public abstract class Cast<O extends Literal> implements Operand {
+public abstract class Cast<O extends TypedValue<?>> implements Operand {
 
     private final Operand operand;
 
@@ -31,14 +32,8 @@ public abstract class Cast<O extends Literal> implements Operand {
     @Override
     public Operand evaluatePartially(EvaluationContext evaluationContext) {
         Operand evaluated = operand.evaluatePartially(evaluationContext);
-        if (evaluated.isLiteral()) {
-            try {
-                return cast(evaluated.asLiteral());
-            }
-            catch (Exception e) {
-                // TODO error handling?
-                throw new RuntimeException(e);
-            }
+        if (evaluated.isTypedValue()) {
+            return cast(evaluated.asTypedValue());
         }
         return evaluated == operand ? this : withOperand(evaluated);
     }
@@ -47,5 +42,17 @@ public abstract class Cast<O extends Literal> implements Operand {
     protected abstract Cast<O> withOperand(Operand evaluated);
 
 
-    protected abstract O cast(Literal input) throws Exception;
+    protected O cast(TypedValue<?> input) {
+        O o = instance();
+        try {
+            o.fromString(input.asString());
+        }
+        catch (ValueFormatException e) {
+            throw new IllegalStateException(String.format("Could not parse %s to %s", input, this.getClass().getSimpleName()), e);
+        }
+        return o;
+    }
+
+
+    protected abstract O instance();
 }

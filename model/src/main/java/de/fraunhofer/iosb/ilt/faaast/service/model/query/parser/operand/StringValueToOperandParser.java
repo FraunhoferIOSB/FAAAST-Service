@@ -14,22 +14,21 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.query.parser.operand;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.StringValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.Operand;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.cast.CastToString;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.StringLiteral;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.parser.AbstractParser;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.StringValue;
 
 import java.util.Objects;
 
 
-public class StringValueToOperandParser extends AbstractParser<StringValue, Operand> {
+public class StringValueToOperandParser extends AbstractParser<de.fraunhofer.iosb.ilt.faaast.service.model.query.json.StringValue, Operand> {
 
     private final AttributeItemToAttributeParser attributeParser = new AttributeItemToAttributeParser();
     private final ValueToOperandParser valueToOperandParser = new ValueToOperandParser();
 
     @Override
-    public Operand parse(StringValue value) {
+    public Operand parse(de.fraunhofer.iosb.ilt.faaast.service.model.query.json.StringValue value) {
         Objects.requireNonNull(value, "value must not be null");
         if (value.get$attribute() != null) {
             return attributeParser.parse(value.get$attribute());
@@ -38,7 +37,7 @@ public class StringValueToOperandParser extends AbstractParser<StringValue, Oper
             return stringToFieldIdentifierParser.parse(value.get$field());
         }
         if (value.get$strVal() != null) {
-            return StringLiteral.parse(value.get$strVal());
+            return new StringValue(value.get$strVal());
         }
         if (value.get$strCast() != null) {
             return new CastToString(valueToOperandParser.parse(value.get$strCast()));

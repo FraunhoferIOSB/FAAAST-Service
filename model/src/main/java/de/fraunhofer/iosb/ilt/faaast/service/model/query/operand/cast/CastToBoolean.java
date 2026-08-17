@@ -15,11 +15,10 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.cast;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.Operand;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.BooleanLiteral;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.Literal;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.BooleanValue;
 
 
-public class CastToBoolean extends Cast<BooleanLiteral> {
+public class CastToBoolean extends Cast<BooleanValue> {
 
     public CastToBoolean(Operand operand) {
         super(operand);
@@ -27,13 +26,13 @@ public class CastToBoolean extends Cast<BooleanLiteral> {
 
 
     @Override
-    protected Cast<BooleanLiteral> withOperand(Operand evaluated) {
+    protected Cast<BooleanValue> withOperand(Operand evaluated) {
         return new CastToBoolean(evaluated);
     }
 
 
     @Override
-    protected BooleanLiteral cast(Literal input) {
-        return input.asBoolean();
+    protected BooleanValue instance() {
+        return new BooleanValue();
     }
 }

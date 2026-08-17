@@ -15,8 +15,12 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.query.expression;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.EvaluationContext;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.Literal;
 import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.AccessRuleEntity;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.BooleanValue;
+
+import javax.annotation.Nullable;
 
 
 public interface LogicalExpression extends AccessRuleEntity<LogicalExpression> {
@@ -27,6 +31,16 @@ public interface LogicalExpression extends AccessRuleEntity<LogicalExpression> {
     @Override
     default LogicalExpression getInstance() {
         return this;
+    }
+
+
+    default boolean isBoolean() {
+        return this.isTypedValue() && ((TypedValue<?>) this).getDataType() == Datatype.BOOLEAN;
+    }
+
+
+    default @Nullable Boolean asBoolean() {
+        return this.isBoolean() ? ((BooleanValue) this).getValue() : null;
     }
 
 
@@ -45,13 +59,14 @@ public interface LogicalExpression extends AccessRuleEntity<LogicalExpression> {
     }
 
 
-    default boolean isLiteral() {
+    default boolean isTypedValue() {
         return false;
     }
 
 
-    default Literal asLiteral() {
-        throw new UnsupportedOperationException(String.format("%s cannot be transformed to literal", this.getClass().getSimpleName()));
+    default TypedValue<?> asTypedValue() {
+        throw new UnsupportedOperationException(String.format("%s cannot be transformed to typed value", this.getClass().getSimpleName()));
+
     }
 
 }

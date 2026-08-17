@@ -17,15 +17,15 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.glob
 import static java.time.ZoneOffset.UTC;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.EvaluationContext;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.DateTimeLiteral;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DateTimeValue;
 import java.time.LocalDateTime;
 
 
 public class UtcNow implements GlobalAttribute {
 
     @Override
-    public DateTimeLiteral evaluatePartially(EvaluationContext evaluationContext) {
-        return new DateTimeLiteral(LocalDateTime.now().atZone(UTC));
+    public DateTimeValue evaluatePartially(EvaluationContext evaluationContext) {
+        return new DateTimeValue(LocalDateTime.now().atOffset(UTC));
     }
 
 
@@ -38,5 +38,17 @@ public class UtcNow implements GlobalAttribute {
     @Override
     public UtcNow asUtcNow() {
         return this;
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        return o != null && getClass() == o.getClass();
+    }
+
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
     }
 }

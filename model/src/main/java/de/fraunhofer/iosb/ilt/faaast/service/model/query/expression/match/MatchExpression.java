@@ -20,7 +20,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.LogicalExpre
 import java.util.List;
 
 
-public record MatchExpression(List<MatchElement> elements) implements MatchElement {
+public record MatchExpression(List<QueryMatchElement> elements) implements QueryMatchElement {
     @Override
     public boolean isMatch() {
         return true;

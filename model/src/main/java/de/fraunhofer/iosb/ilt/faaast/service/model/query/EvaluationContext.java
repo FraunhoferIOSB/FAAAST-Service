@@ -15,33 +15,40 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.query;
 
 import java.util.Map;
-import java.util.Optional;
+import javax.annotation.Nullable;
+import org.eclipse.digitaltwin.aas4j.v3.model.Identifiable;
 
 
 public class EvaluationContext {
 
     private final Map<String, String> claims;
-    private final String route;
+    private final Identifiable identifiable;
 
-    public EvaluationContext(Map<String, String> claims, String route) {
+    public EvaluationContext(Map<String, String> claims, Identifiable identifiable) {
         this.claims = claims;
-        this.route = route;
+        this.identifiable = identifiable;
     }
 
 
     public EvaluationContext(Map<String, String> claims) {
         this.claims = claims;
-        this.route = null;
+        this.identifiable = null;
     }
 
 
-    public String getClaim(String claimName) {
-        return claims.getOrDefault(claimName, "does not exist :-D");
+    public EvaluationContext(Identifiable identifiable) {
+        this.claims = Map.of();
+        this.identifiable = identifiable;
     }
 
 
-    public Optional<String> getRoute() {
-        return Optional.ofNullable(route);
+    public @Nullable String getClaim(String claimName) {
+        return claims.get(claimName);
+    }
+
+
+    public @Nullable Identifiable getIdentifiable() {
+        return identifiable;
     }
 
 

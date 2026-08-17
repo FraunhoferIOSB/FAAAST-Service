@@ -372,10 +372,10 @@ public class SecurityIT extends AbstractIntegrationTest {
         assertNotFound(environment, ReferenceBuilder.forSubmodel(sm, smc, smc.getValue().get(0)), wrongCompany);
         assertAllowed(environment, ReferenceBuilder.forSubmodel(environment.getSubmodels().get(0)), authHeader, true);
         assertNotFound(environment, ReferenceBuilder.forSubmodel(environment.getSubmodels().get(0)), wrongCompany);
-        assertForbidden(environment, ReferenceBuilder.forAas(environment.getAssetAdministrationShells().get(0)), authHeader);
-        assertForbidden(environment, ReferenceBuilder.forAas(environment.getAssetAdministrationShells().get(0)), wrongCompany);
-        assertForbidden(environment, ReferenceBuilder.forConceptDescription(environment.getConceptDescriptions().get(0)), authHeader);
-        assertForbidden(environment, ReferenceBuilder.forConceptDescription(environment.getConceptDescriptions().get(0)), wrongCompany);
+        assertAllowed(environment, ReferenceBuilder.forAas(environment.getAssetAdministrationShells().get(0)), authHeader);
+        assertNotFound(environment, ReferenceBuilder.forAas(environment.getAssetAdministrationShells().get(0)), wrongCompany);
+        assertAllowed(environment, ReferenceBuilder.forConceptDescription(environment.getConceptDescriptions().get(0)), authHeader);
+        assertNotFound(environment, ReferenceBuilder.forConceptDescription(environment.getConceptDescriptions().get(0)), wrongCompany);
     }
 
 

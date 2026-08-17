@@ -36,4 +36,9 @@ public record FieldPath(List<FieldPathSegment> segments) {
         this.segments = List.copyOf(segments);
     }
 
+
+    @Override
+    public String toString() {
+        return String.join(".", segments.stream().map(Object::toString).toList());
+    }
 }

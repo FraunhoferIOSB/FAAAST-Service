@@ -15,11 +15,10 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.cast;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.Operand;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.HexLiteral;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.Literal;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.HexBinaryValue;
 
 
-public class CastToHex extends Cast<HexLiteral> {
+public class CastToHex extends Cast<HexBinaryValue> {
 
     public CastToHex(Operand operand) {
         super(operand);
@@ -27,13 +26,13 @@ public class CastToHex extends Cast<HexLiteral> {
 
 
     @Override
-    protected Cast<HexLiteral> withOperand(Operand evaluated) {
+    protected Cast<HexBinaryValue> withOperand(Operand evaluated) {
         return new CastToHex(evaluated);
     }
 
 
     @Override
-    protected HexLiteral cast(Literal input) {
-        return input.asHex();
+    protected HexBinaryValue instance() {
+        return new HexBinaryValue();
     }
 }

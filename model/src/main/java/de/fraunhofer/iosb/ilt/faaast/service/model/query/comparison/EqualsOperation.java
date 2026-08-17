@@ -14,16 +14,14 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.query.comparison;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.match.MatchElement;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.match.QueryMatchElement;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.Operand;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.BooleanLiteral;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.Literal;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.NumberLiteral;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
 
 import java.util.function.BiFunction;
 
 
-public class EqualsOperation extends AbstractBinaryComparison implements MatchElement {
+public class EqualsOperation extends AbstractBinaryComparison implements QueryMatchElement {
 
     public EqualsOperation(Operand left, Operand right) {
         super(left, right);
@@ -31,14 +29,8 @@ public class EqualsOperation extends AbstractBinaryComparison implements MatchEl
 
 
     @Override
-    protected BiFunction<NumberLiteral, NumberLiteral, BooleanLiteral> numberOperation() {
-        return (x, y) -> new BooleanLiteral(x.value().doubleValue() == y.value().doubleValue());
-    }
-
-
-    @Override
-    protected <T extends Literal> BiFunction<T, T, BooleanLiteral> defaultOperation() {
-        return (x, y) -> new BooleanLiteral(x.value().equals(y.value()));
+    protected <T extends TypedValue<?>> BiFunction<T, T, Boolean> defaultOperation() {
+        return (x, y) -> x.equals(y);
     }
 
 

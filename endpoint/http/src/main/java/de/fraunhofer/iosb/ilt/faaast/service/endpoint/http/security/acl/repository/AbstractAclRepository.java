@@ -28,12 +28,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.Acce
 import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.Rule;
 import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.UnresolvedAccessRule;
 import de.fraunhofer.iosb.ilt.faaast.service.model.security.parser.AccessPermissionRuleParser;
-import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -65,10 +63,16 @@ public abstract class AbstractAclRepository<T> implements AclRepository {
     @Override
     public List<AccessPermissionRule> getActiveRules(Set<String> claims) {
         // Don't return rules where the claims don't match.
-        return new ArrayList<>(activeRuleSet.stream()
-                .filter(rule -> new HashSet<>(getRequiredClaims(rule.rule().attributes())).containsAll(claims)
-                        || rule.rule().attributes().stream().anyMatch(attr -> attr.isGlobal() && attr.asGlobal().isAnonymous()))
-                .map(rule -> DeepCopyHelper.deepCopyAny(rule, AccessPermissionRule.class)).toList());
+        List<AccessPermissionRule> list = new ArrayList<>();
+        for (AccessPermissionRule rule: activeRuleSet) {
+            List<String> requiredClaims = getRequiredClaims(rule.rule().attributes());
+            if (requiredClaims.isEmpty()
+                    || claims.containsAll(requiredClaims)
+                    || rule.rule().attributes().stream().anyMatch(attr -> attr.isGlobal() && attr.asGlobal().isAnonymous())) {
+                list.add(rule);
+            }
+        }
+        return list;
     }
 
 

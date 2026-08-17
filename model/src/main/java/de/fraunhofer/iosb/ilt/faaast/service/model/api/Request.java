@@ -15,7 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.api;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.LogicalExpression;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.BooleanLiteral;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.BooleanValue;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
@@ -32,7 +32,7 @@ public abstract class Request<T extends Response> {
 
     protected Request() {
         this.internal = false;
-        this.formula = new BooleanLiteral(true);
+        this.formula = new BooleanValue(true);
     }
 
 

@@ -15,8 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.temporal;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.Operand;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.DateTimeLiteral;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.NumberLiteral;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DateTimeValue;
 
 import java.util.function.Function;
 
@@ -29,8 +28,8 @@ public class DayOfMonthOperation extends TemporalOperation {
 
 
     @Override
-    protected Function<DateTimeLiteral, NumberLiteral> operation() {
-        return dtv -> new NumberLiteral(dtv.value().getDayOfMonth());
+    protected Function<DateTimeValue, Integer> operation() {
+        return dtv -> dtv.getValue().getDayOfMonth();
     }
 
 

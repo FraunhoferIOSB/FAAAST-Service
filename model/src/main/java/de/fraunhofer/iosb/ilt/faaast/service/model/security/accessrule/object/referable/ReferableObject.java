@@ -16,6 +16,8 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.r
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.AccessObject;
 
+import java.util.Objects;
+
 
 public abstract class ReferableObject implements AccessObject {
     private static final String WILDCARD = "(\"*\")";
@@ -37,4 +39,19 @@ public abstract class ReferableObject implements AccessObject {
 
 
     public abstract String getNotation();
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass())
+            return false;
+        ReferableObject that = (ReferableObject) o;
+        return Objects.equals(identifier, that.identifier);
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(identifier);
+    }
 }

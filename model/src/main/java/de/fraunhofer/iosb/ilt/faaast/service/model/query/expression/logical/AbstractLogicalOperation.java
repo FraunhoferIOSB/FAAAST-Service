@@ -17,7 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.logical;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.EvaluationContext;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.LogicalExpression;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.NAryExpression;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.BooleanLiteral;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.BooleanValue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,10 +47,10 @@ public abstract class AbstractLogicalOperation extends NAryExpression {
                 changed = true;
             }
 
-            if (folded.isLiteral() && folded.asLiteral().isBoolean()) {
+            if (folded.isBoolean()) {
                 // E.g., AND (..., FALSE, ...) = FALSE
-                if (folded.asLiteral().asBoolean().value() != neutralElement()) {
-                    return folded.asLiteral().asBoolean();
+                if (Boolean.valueOf(neutralElement()).equals(folded.asBoolean())) {
+                    return folded.asTypedValue();
                 }
                 changed = true;
                 continue;
@@ -60,7 +60,7 @@ public abstract class AbstractLogicalOperation extends NAryExpression {
         }
 
         return switch (evaluated.size()) {
-            case 0 -> new BooleanLiteral(neutralElement());
+            case 0 -> new BooleanValue(neutralElement());
             case 1 -> evaluated.get(0);
             default -> changed ? withOperands(List.copyOf(evaluated)) : this;
         };

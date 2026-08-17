@@ -12,26 +12,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal;
+package de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.field;
 
-import java.util.HexFormat;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.field.path.FieldPath;
 
 
-public record HexLiteral(Long value) implements Literal {
+public class SubmodelFieldIdentifier extends FieldIdentifier {
+    public static final String NOTATION = "$sm";
 
-    public static HexLiteral parse(String value) {
-        return new HexLiteral(HexFormat.fromHexDigitsToLong(value));
+    public SubmodelFieldIdentifier(FieldPath fieldPath) {
+        super(fieldPath);
     }
 
 
     @Override
-    public boolean isHex() {
-        return true;
-    }
-
-
-    @Override
-    public HexLiteral asHex() {
-        return this;
+    protected String getScopeSyntax() {
+        return NOTATION;
     }
 }

@@ -15,9 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.query.comparison;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.Operand;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.BooleanLiteral;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.Literal;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.NumberLiteral;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
 
 import java.util.function.BiFunction;
 
@@ -30,14 +28,8 @@ public class NotEqualsOperation extends AbstractBinaryComparison {
 
 
     @Override
-    protected BiFunction<NumberLiteral, NumberLiteral, BooleanLiteral> numberOperation() {
-        return (x, y) -> new BooleanLiteral(x.value().doubleValue() != y.value().doubleValue());
-    }
-
-
-    @Override
-    protected <T extends Literal> BiFunction<T, T, BooleanLiteral> defaultOperation() {
-        return (x, y) -> new BooleanLiteral(!x.value().equals(y.value()));
+    protected <T extends TypedValue<?>> BiFunction<T, T, Boolean> defaultOperation() {
+        return (x, y) -> !x.equals(y);
     }
 
 

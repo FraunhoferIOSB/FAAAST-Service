@@ -15,13 +15,13 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.global;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.EvaluationContext;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.BooleanLiteral;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.BooleanValue;
 
 
 public class Anonymous implements GlobalAttribute {
     @Override
-    public BooleanLiteral evaluatePartially(EvaluationContext evaluationContext) {
-        return new BooleanLiteral(evaluationContext.isAnonymous());
+    public BooleanValue evaluatePartially(EvaluationContext evaluationContext) {
+        return new BooleanValue(evaluationContext.isAnonymous());
     }
 
 
@@ -34,5 +34,17 @@ public class Anonymous implements GlobalAttribute {
     @Override
     public Anonymous asAnonymous() {
         return this;
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        return o != null && getClass() == o.getClass();
+    }
+
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
     }
 }

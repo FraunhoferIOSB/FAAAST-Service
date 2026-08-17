@@ -15,11 +15,10 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.cast;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.Operand;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.Literal;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.TimeLiteral;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TimeValue;
 
 
-public class CastToTime extends Cast<TimeLiteral> {
+public class CastToTime extends Cast<TimeValue> {
 
     public CastToTime(Operand operand) {
         super(operand);
@@ -27,13 +26,13 @@ public class CastToTime extends Cast<TimeLiteral> {
 
 
     @Override
-    protected Cast<TimeLiteral> withOperand(Operand evaluated) {
+    protected Cast<TimeValue> withOperand(Operand evaluated) {
         return new CastToTime(evaluated);
     }
 
 
     @Override
-    protected TimeLiteral cast(Literal input) {
-        return input.asTime();
+    protected TimeValue instance() {
+        return new TimeValue();
     }
 }

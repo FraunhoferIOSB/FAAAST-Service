@@ -16,21 +16,21 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.query.comparison;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.EvaluationContext;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.LogicalExpression;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.match.MatchElement;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.match.QueryMatchElement;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.Operand;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.BooleanLiteral;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.DateTimeLiteral;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.HexLiteral;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.Literal;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.NumberLiteral;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.StringLiteral;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.TimeLiteral;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.BooleanValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DateTimeValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DoubleValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.HexBinaryValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.IntValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.StringValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TimeValue;
 
-import java.util.List;
 import java.util.function.BiFunction;
 
 
-public abstract class AbstractBinaryComparison implements LogicalExpression, MatchElement {
+public abstract class AbstractBinaryComparison implements LogicalExpression, QueryMatchElement {
 
     private final Operand left;
     private final Operand right;
@@ -51,39 +51,27 @@ public abstract class AbstractBinaryComparison implements LogicalExpression, Mat
     }
 
 
-    public List<Operand> getOperands() {
-        return List.of(left, right);
-    }
-
-
     @Override
     public LogicalExpression evaluatePartially(EvaluationContext evaluationContext) {
         Operand leftEvaluated = left.evaluatePartially(evaluationContext);
         Operand rightEvaluated = right.evaluatePartially(evaluationContext);
 
-        if (leftEvaluated.isLiteral() && rightEvaluated.isLiteral()) {
-            validate(List.of(leftEvaluated, rightEvaluated));
-            Literal leftLiteral = leftEvaluated.asLiteral();
-            Literal rightLiteral = rightEvaluated.asLiteral();
+        if (leftEvaluated.isTypedValue() && rightEvaluated.isTypedValue()) {
+            TypedValue<?> leftValue = leftEvaluated.asTypedValue();
+            TypedValue<?> rightValue = rightEvaluated.asTypedValue();
+            validate(leftValue, rightValue);
 
-            if (leftLiteral.isString()) {
-                return stringOperation().apply(leftLiteral.asString(), rightLiteral.asString());
-            }
-            else if (leftLiteral.isNumber()) {
-                return numberOperation().apply(leftLiteral.asNumber(), rightLiteral.asNumber());
-            }
-            else if (leftLiteral.isHex()) {
-                return hexOperation().apply(leftLiteral.asHex(), rightLiteral.asHex());
-            }
-            else if (leftLiteral.isBoolean()) {
-                return booleanOperation().apply(leftLiteral.asBoolean(), rightLiteral.asBoolean());
-            }
-            else if (leftLiteral.isDateTime()) {
-                return dateTimeOperation().apply(leftLiteral.asDateTime(), rightLiteral.asDateTime());
-            }
-            else {
-                return timeOperation().apply(leftLiteral.asTime(), rightLiteral.asTime());
-            }
+            return new BooleanValue(
+                    switch (leftValue.getDataType()) {
+                        case STRING -> stringOperation().apply((StringValue) leftValue, (StringValue) rightValue);
+                        case DOUBLE -> doubleOperation().apply((DoubleValue) leftValue, (DoubleValue) rightValue);
+                        case INT -> intOperation().apply((IntValue) leftEvaluated, (IntValue) rightValue);
+                        case HEX_BINARY -> hexOperation().apply((HexBinaryValue) leftValue, (HexBinaryValue) rightValue);
+                        case BOOLEAN -> booleanOperation().apply((BooleanValue) leftEvaluated, (BooleanValue) rightEvaluated);
+                        case DATE_TIME -> dateTimeOperation().apply((DateTimeValue) leftValue, (DateTimeValue) rightValue);
+                        case TIME -> timeOperation().apply((TimeValue) leftValue, (TimeValue) rightValue);
+                        default -> throw new IllegalArgumentException(String.format("Cannot compare %s", leftValue.getDataType()));
+                    });
         }
 
         if (leftEvaluated != left || rightEvaluated != right) {
@@ -93,13 +81,9 @@ public abstract class AbstractBinaryComparison implements LogicalExpression, Mat
     }
 
 
-    protected void validate(List<? extends LogicalExpression> operands) throws IllegalArgumentException {
-        if (!operands.stream().allMatch(LogicalExpression::isLiteral)
-                || operands.stream().map(Object::getClass).distinct().count() != 1) {
+    protected void validate(TypedValue<?> left, TypedValue<?> right) throws IllegalArgumentException {
+        if (!left.getDataType().equals(right.getDataType())) {
             throw new IllegalArgumentException(String.format("operands to %s are not of same type", this.getClass().getSimpleName()));
-        }
-        if (operands.size() != 2) {
-            throw new IllegalArgumentException(String.format("%s can not handle %d operands", this.getClass().getSimpleName(), operands.size()));
         }
     }
 
@@ -107,37 +91,42 @@ public abstract class AbstractBinaryComparison implements LogicalExpression, Mat
     protected abstract AbstractBinaryComparison withOperands(Operand left, Operand right);
 
 
-    protected BiFunction<StringLiteral, StringLiteral, BooleanLiteral> stringOperation() {
+    protected BiFunction<StringValue, StringValue, Boolean> stringOperation() {
         return defaultOperation();
     }
 
 
-    protected BiFunction<NumberLiteral, NumberLiteral, BooleanLiteral> numberOperation() {
+    protected BiFunction<DoubleValue, DoubleValue, Boolean> doubleOperation() {
         return defaultOperation();
     }
 
 
-    protected BiFunction<HexLiteral, HexLiteral, BooleanLiteral> hexOperation() {
+    protected BiFunction<IntValue, IntValue, Boolean> intOperation() {
         return defaultOperation();
     }
 
 
-    protected BiFunction<DateTimeLiteral, DateTimeLiteral, BooleanLiteral> dateTimeOperation() {
+    protected BiFunction<HexBinaryValue, HexBinaryValue, Boolean> hexOperation() {
         return defaultOperation();
     }
 
 
-    protected BiFunction<TimeLiteral, TimeLiteral, BooleanLiteral> timeOperation() {
+    protected BiFunction<DateTimeValue, DateTimeValue, Boolean> dateTimeOperation() {
         return defaultOperation();
     }
 
 
-    protected BiFunction<BooleanLiteral, BooleanLiteral, BooleanLiteral> booleanOperation() {
+    protected BiFunction<TimeValue, TimeValue, Boolean> timeOperation() {
         return defaultOperation();
     }
 
 
-    protected <T extends Literal> BiFunction<T, T, BooleanLiteral> defaultOperation() {
+    protected BiFunction<BooleanValue, BooleanValue, Boolean> booleanOperation() {
+        return defaultOperation();
+    }
+
+
+    protected <T extends TypedValue<?>> BiFunction<T, T, Boolean> defaultOperation() {
         return (x, y) -> {
             throw new IllegalArgumentException(String.format("%s not possible for input %s", this.getClass().getSimpleName(), x.getClass().getSimpleName()));
         };

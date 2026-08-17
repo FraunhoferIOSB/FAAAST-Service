@@ -17,6 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.Attribute;
 
 import java.util.List;
+import java.util.Objects;
 
 
 public record AccessRule(boolean enabled, List<Right> rights, List<Attribute> attributes) implements Rule {
@@ -38,5 +39,20 @@ public record AccessRule(boolean enabled, List<Right> rights, List<Attribute> at
     @Override
     public AccessRule getInstance() {
         return this;
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass())
+            return false;
+        AccessRule that = (AccessRule) o;
+        return enabled == that.enabled && Objects.equals(rights, that.rights) && Objects.equals(attributes, that.attributes);
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(enabled, rights, attributes);
     }
 }

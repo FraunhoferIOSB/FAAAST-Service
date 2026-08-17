@@ -17,7 +17,8 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute;
 import static java.util.Optional.ofNullable;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.EvaluationContext;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.StringLiteral;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.StringValue;
+import java.util.Objects;
 
 
 public class ClaimAttribute implements Attribute {
@@ -54,9 +55,25 @@ public class ClaimAttribute implements Attribute {
 
 
     @Override
-    public StringLiteral evaluatePartially(EvaluationContext evaluationContext) {
+    public StringValue evaluatePartially(EvaluationContext evaluationContext) {
         return ofNullable(evaluationContext.getClaim(claim))
-                .map(StringLiteral::parse)
+                .map(StringValue::new)
                 .orElseThrow(() -> new IllegalStateException(String.format("Claim %s not present in context", claim)));
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ClaimAttribute that = (ClaimAttribute) o;
+        return Objects.equals(claim, that.claim);
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(claim);
     }
 }

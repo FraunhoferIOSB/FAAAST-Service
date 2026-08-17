@@ -15,11 +15,10 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.cast;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.Operand;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.Literal;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.NumberLiteral;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DoubleValue;
 
 
-public class CastToNumber extends Cast<NumberLiteral> {
+public class CastToNumber extends Cast<DoubleValue> {
 
     public CastToNumber(Operand operand) {
         super(operand);
@@ -27,13 +26,13 @@ public class CastToNumber extends Cast<NumberLiteral> {
 
 
     @Override
-    protected Cast<NumberLiteral> withOperand(Operand evaluated) {
+    protected Cast<DoubleValue> withOperand(Operand evaluated) {
         return new CastToNumber(evaluated);
     }
 
 
     @Override
-    protected NumberLiteral cast(Literal input) {
-        return input.asNumber();
+    protected DoubleValue instance() {
+        return new DoubleValue();
     }
 }

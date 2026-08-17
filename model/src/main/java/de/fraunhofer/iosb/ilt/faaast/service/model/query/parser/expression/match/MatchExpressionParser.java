@@ -14,11 +14,10 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.query.parser.expression.match;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.match.MatchElement;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.match.MatchExpression;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.BooleanLiteral;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.match.QueryMatchElement;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.parser.AbstractParser;
-
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.BooleanValue;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -34,7 +33,7 @@ public class MatchExpressionParser extends AbstractParser<de.fraunhofer.iosb.ilt
             throw new IllegalArgumentException("expression malformed: %s".formatted(expression));
         }
 
-        List<MatchElement> matchElements = new ArrayList<>();
+        List<QueryMatchElement> matchElements = new ArrayList<>();
 
         if (notNullNorEmpty(expression.get$match())) {
             List<MatchExpression> elements = expression.get$match().stream()
@@ -47,7 +46,7 @@ public class MatchExpressionParser extends AbstractParser<de.fraunhofer.iosb.ilt
         matchElements.addAll(stringComparisonParser.parse(expression));
 
         if (expression.get$boolean() != null) {
-            matchElements.add(new BooleanLiteral(expression.get$boolean()));
+            matchElements.add(new BooleanValue(expression.get$boolean()));
         }
 
         return new MatchExpression(matchElements);

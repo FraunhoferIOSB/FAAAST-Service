@@ -12,10 +12,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.field.path;
+package de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.field;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.field.FieldIdentifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.field.path.FieldPath;
 
 import java.util.Objects;
 

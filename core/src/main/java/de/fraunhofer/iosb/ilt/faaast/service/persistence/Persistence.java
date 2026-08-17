@@ -25,7 +25,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceAlreadyExis
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.LogicalExpression;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.BooleanLiteral;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.BooleanValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.Objects;
@@ -745,7 +745,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      *
      * @return "True" as a formula
      */
-    public static LogicalExpression identity() {
-        return new BooleanLiteral(true);
+    static LogicalExpression identity() {
+        return new BooleanValue(true);
     }
 }

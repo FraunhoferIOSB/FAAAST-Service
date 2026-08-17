@@ -15,17 +15,16 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.query.parser.operand;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.field.AasFieldIdentifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.field.ConceptDescriptionFieldIdentifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.field.FieldIdentifier;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.field.path.AasFieldIdentifier;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.field.path.ConceptDescriptionFieldIdentifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.field.SubmodelElementFieldIdentifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.field.SubmodelFieldIdentifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.field.path.FieldPath;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.field.path.SubmodelElementFieldIdentifier;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.field.path.SubmodelFieldIdentifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.field.path.segment.FieldPathSegment;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.field.path.segment.IndexSegment;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.field.path.segment.PropertySegment;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.parser.Parser;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;

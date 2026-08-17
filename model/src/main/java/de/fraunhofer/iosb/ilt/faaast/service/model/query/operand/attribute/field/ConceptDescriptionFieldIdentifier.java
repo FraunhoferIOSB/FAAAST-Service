@@ -12,23 +12,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal;
+package de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.field;
 
-public record NumberLiteral(Number value) implements Literal {
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.field.path.FieldPath;
 
-    public static NumberLiteral parse(String value) {
-        return new NumberLiteral(Double.parseDouble(value));
+
+public class ConceptDescriptionFieldIdentifier extends FieldIdentifier {
+    public static final String NOTATION = "$cd";
+
+    public ConceptDescriptionFieldIdentifier(FieldPath fieldPath) {
+        super(fieldPath);
     }
 
 
     @Override
-    public boolean isNumber() {
-        return true;
-    }
-
-
-    @Override
-    public NumberLiteral asNumber() {
-        return this;
+    protected String getScopeSyntax() {
+        return NOTATION;
     }
 }

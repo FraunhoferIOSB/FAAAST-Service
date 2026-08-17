@@ -16,10 +16,10 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.query.comparison.string;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.comparison.AbstractBinaryComparison;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.Operand;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.BooleanLiteral;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.StringLiteral;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.StringValue;
 
 import java.util.function.BiFunction;
+import java.util.regex.Pattern;
 
 
 public class RegexComparison extends AbstractStringComparison {
@@ -30,8 +30,8 @@ public class RegexComparison extends AbstractStringComparison {
 
 
     @Override
-    protected BiFunction<StringLiteral, StringLiteral, BooleanLiteral> stringOperation() {
-        return (x, y) -> new BooleanLiteral(x.value().matches(y.value()));
+    protected BiFunction<StringValue, StringValue, Boolean> stringOperation() {
+        return (x, y) -> Pattern.compile(y.getValue()).matcher(x.getValue()).matches();
     }
 
 

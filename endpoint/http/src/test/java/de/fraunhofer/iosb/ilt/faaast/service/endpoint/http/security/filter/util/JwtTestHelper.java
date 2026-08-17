@@ -25,9 +25,8 @@ import java.util.Map;
 
 public class JwtTestHelper {
 
-    public static JWTMock JOHN_DOE = new JWTMock("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
-            + ".eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0"
-            + ".KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30",
+    public static JWTMock JOHN_DOE = new JWTMock(
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30",
             Map.of("sub", "1234567890",
                     "name", "John Doe",
                     "admin", "true",

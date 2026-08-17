@@ -18,7 +18,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.EvaluationContext;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.Operand;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.Attribute;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.field.path.FieldPath;
-
 import java.util.Objects;
 
 
@@ -32,6 +31,7 @@ public abstract class FieldIdentifier implements Attribute {
 
     @Override
     public Operand evaluatePartially(EvaluationContext evaluationContext) {
+        // We cannot evaluate this part before looking into the persistence
         return this;
     }
 

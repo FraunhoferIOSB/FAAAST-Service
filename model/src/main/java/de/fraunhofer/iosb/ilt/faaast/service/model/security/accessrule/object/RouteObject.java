@@ -14,4 +14,15 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object;
 
-public record RouteObject(String route) implements AccessObject {}
+public record RouteObject(String route) implements AccessObject {
+    @Override
+    public boolean isRoute() {
+        return true;
+    }
+
+
+    @Override
+    public RouteObject asRoute() {
+        return this;
+    }
+}

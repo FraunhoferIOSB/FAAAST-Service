@@ -26,7 +26,10 @@ public class QueryFilterParser extends AbstractParser<SecurityQueryFilter, Query
     private final LogicalExpressionParser logicalExpressionParser = new LogicalExpressionParser();
 
     @Override
-    public QueryFilter parse(de.fraunhofer.iosb.ilt.faaast.service.model.query.json.SecurityQueryFilter input) {
+    public QueryFilter parse(SecurityQueryFilter input) {
+        if (input == null) {
+            return QueryFilter.EMPTY;
+        }
         FieldIdentifier fieldIdentifierAttribute = stringToFieldIdentifierParser.parse(input.getFragment());
         LogicalExpression condition = logicalExpressionParser.parse(input.getCondition());
         return new QueryFilter(fieldIdentifierAttribute, condition);

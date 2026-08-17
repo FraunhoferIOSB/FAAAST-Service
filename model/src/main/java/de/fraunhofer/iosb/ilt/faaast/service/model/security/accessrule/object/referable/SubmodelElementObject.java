@@ -16,6 +16,8 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.r
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
 
+import java.util.Objects;
+
 
 public class SubmodelElementObject extends ReferableObject {
     public static final String NOTATION = "$sme";
@@ -40,5 +42,24 @@ public class SubmodelElementObject extends ReferableObject {
 
     public IdShortPath getIdShortPath() {
         return idShortPath;
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+        SubmodelElementObject that = (SubmodelElementObject) o;
+        return Objects.equals(idShortPath, that.idShortPath);
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), idShortPath);
     }
 }

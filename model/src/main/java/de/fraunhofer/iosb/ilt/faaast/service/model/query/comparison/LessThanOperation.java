@@ -15,13 +15,13 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.query.comparison;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.Operand;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.BooleanLiteral;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.DateTimeLiteral;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.HexLiteral;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.NumberLiteral;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.StringLiteral;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.TimeLiteral;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DateTimeValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DoubleValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.HexBinaryValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.StringValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TimeValue;
 
+import java.util.Arrays;
 import java.util.function.BiFunction;
 
 
@@ -33,32 +33,32 @@ public class LessThanOperation extends AbstractBinaryComparison {
 
 
     @Override
-    protected BiFunction<NumberLiteral, NumberLiteral, BooleanLiteral> numberOperation() {
-        return (x, y) -> new BooleanLiteral(x.value().doubleValue() < y.value().doubleValue());
+    protected BiFunction<DoubleValue, DoubleValue, Boolean> doubleOperation() {
+        return (x, y) -> x.getValue() < y.getValue();
     }
 
 
     @Override
-    protected BiFunction<StringLiteral, StringLiteral, BooleanLiteral> stringOperation() {
-        return (x, y) -> new BooleanLiteral(x.value().compareTo(y.value()) < 0);
+    protected BiFunction<StringValue, StringValue, Boolean> stringOperation() {
+        return (x, y) -> x.getValue().compareTo(y.getValue()) < 0;
     }
 
 
     @Override
-    protected BiFunction<HexLiteral, HexLiteral, BooleanLiteral> hexOperation() {
-        return (x, y) -> new BooleanLiteral(x.value() < y.value());
+    protected BiFunction<HexBinaryValue, HexBinaryValue, Boolean> hexOperation() {
+        return (x, y) -> Arrays.compare(x.getValue(), y.getValue()) < 0;
     }
 
 
     @Override
-    protected BiFunction<DateTimeLiteral, DateTimeLiteral, BooleanLiteral> dateTimeOperation() {
-        return (x, y) -> new BooleanLiteral(x.value().isBefore(y.value()));
+    protected BiFunction<DateTimeValue, DateTimeValue, Boolean> dateTimeOperation() {
+        return (x, y) -> x.getValue().isBefore(y.getValue());
     }
 
 
     @Override
-    protected BiFunction<TimeLiteral, TimeLiteral, BooleanLiteral> timeOperation() {
-        return (x, y) -> new BooleanLiteral(x.value().isBefore(y.value()));
+    protected BiFunction<TimeValue, TimeValue, Boolean> timeOperation() {
+        return (x, y) -> x.getValue().isBefore(y.getValue());
     }
 
 

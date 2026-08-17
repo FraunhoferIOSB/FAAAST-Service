@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.query.parser.operand;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.Value;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.Operand;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.cast.CastToBoolean;
@@ -22,19 +23,23 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.cast.CastToHex;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.cast.CastToNumber;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.cast.CastToString;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.cast.CastToTime;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.BooleanLiteral;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.DateTimeLiteral;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.HexLiteral;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.NumberLiteral;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.StringLiteral;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.TimeLiteral;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.temporal.DayOfMonthOperation;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.temporal.DayOfWeekOperation;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.temporal.MonthOperation;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.temporal.YearOperation;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.parser.AbstractParser;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.BooleanValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DateTimeValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DoubleValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.HexBinaryValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.IntValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.StringValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TimeValue;
 
+import java.time.OffsetTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Date;
 
@@ -53,22 +58,37 @@ public class ValueToOperandParser extends AbstractParser<Value, Operand> {
             return stringToFieldIdentifierParser.parse(value.get$field());
         }
         if (value.get$strVal() != null) {
-            return StringLiteral.parse(value.get$strVal());
+            return new StringValue(value.get$strVal());
         }
         if (value.get$numVal() != null) {
-            return new NumberLiteral(value.get$numVal());
+            Double d = value.get$numVal();
+            return d.intValue() == d ? new IntValue(d.intValue()) : new DoubleValue(d);
         }
         if (value.get$hexVal() != null) {
-            return HexLiteral.parse(value.get$hexVal());
+            try {
+                TypedValue<byte[]> hex = new HexBinaryValue();
+                hex.fromString(value.get$hexVal());
+                return hex;
+            }
+            catch (ValueFormatException valueFormatException) {
+                throw new IllegalArgumentException(String.format("Cannot parse %s as hex", value.get$hexVal()), valueFormatException);
+            }
         }
         if (value.get$dateTimeVal() != null) {
-            return new DateTimeLiteral(toZonedDateTime(value.get$dateTimeVal()));
+            return asDateTimeValue(value.get$dateTimeVal());
         }
         if (value.get$timeVal() != null) {
-            return TimeLiteral.parse(value.get$timeVal());
+            try {
+                TypedValue<OffsetTime> time = new TimeValue();
+                time.fromString(value.get$timeVal());
+                return time;
+            }
+            catch (ValueFormatException valueFormatException) {
+                throw new IllegalArgumentException(String.format("Cannot parse %s as time", value.get$hexVal()), valueFormatException);
+            }
         }
         if (value.get$boolean() != null) {
-            return new BooleanLiteral(value.get$boolean());
+            return new BooleanValue(value.get$boolean());
         }
         if (value.get$strCast() != null) {
             return new CastToString(parse(value.get$strCast()));
@@ -89,18 +109,23 @@ public class ValueToOperandParser extends AbstractParser<Value, Operand> {
             return new CastToTime(parse(value.get$timeCast()));
         }
         if (value.get$dayOfWeek() != null) {
-            return new DayOfWeekOperation(new DateTimeLiteral(toZonedDateTime(value.get$dayOfWeek())));
+            return new DayOfWeekOperation(asDateTimeValue(value.get$dayOfWeek()));
         }
         if (value.get$dayOfMonth() != null) {
-            return new DayOfMonthOperation(new DateTimeLiteral(toZonedDateTime(value.get$dayOfMonth())));
+            return new DayOfMonthOperation(asDateTimeValue(value.get$dayOfMonth()));
         }
         if (value.get$month() != null) {
-            return new MonthOperation(new DateTimeLiteral(toZonedDateTime(value.get$month())));
+            return new MonthOperation(asDateTimeValue(value.get$month()));
         }
         if (value.get$year() != null) {
-            return new YearOperation(new DateTimeLiteral(toZonedDateTime(value.get$year())));
+            return new YearOperation(asDateTimeValue(value.get$year()));
         }
         throw new IllegalArgumentException(String.format("Unsupported value: %s", value));
+    }
+
+
+    private DateTimeValue asDateTimeValue(Date from) {
+        return new DateTimeValue(from.toInstant().atOffset(ZoneOffset.UTC));
     }
 
 

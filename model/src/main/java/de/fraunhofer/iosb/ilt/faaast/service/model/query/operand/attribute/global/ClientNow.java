@@ -14,20 +14,28 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.global;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.EvaluationContext;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.DateTimeLiteral;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DateTimeValue;
 
 
 public class ClientNow implements GlobalAttribute {
     private static final String ISSUED_AT_CLAIM = "iat";
 
     @Override
-    public DateTimeLiteral evaluatePartially(EvaluationContext evaluationContext) {
+    public DateTimeValue evaluatePartially(EvaluationContext evaluationContext) {
         String iat = evaluationContext.getClaim(ISSUED_AT_CLAIM);
         if (iat == null) {
             throw new IllegalArgumentException("Help");
         }
-        return DateTimeLiteral.parse(iat);
+        var dateTime = new DateTimeValue();
+        try {
+            dateTime.fromString(iat);
+        }
+        catch (ValueFormatException e) {
+            throw new IllegalArgumentException(String.format("Could not parse claim 'iat': %s", iat), e);
+        }
+        return dateTime;
     }
 
 
@@ -40,5 +48,17 @@ public class ClientNow implements GlobalAttribute {
     @Override
     public ClientNow asClientNow() {
         return this;
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        return o != null && getClass() == o.getClass();
+    }
+
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
     }
 }

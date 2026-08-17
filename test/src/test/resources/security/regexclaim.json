@@ -21,30 +21,6 @@
         "FORMULA": {
           "$and": [
             {
-              "$or": [
-                {
-                  "$eq": [
-                    {
-                      "$field": "$sm#semanticId"
-                    },
-                    {
-                      "$strVal": "http://acplt.org/SubmodelTemplates/AssetIdentification"
-                    }
-                  ]
-                },
-                {
-                  "$eq": [
-                    {
-                      "$field": "$sm#semanticId"
-                    },
-                    {
-                      "$strVal": "http://acplt.org/SubmodelTemplates/ExampleSubmodel"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
               "$regex": [
                 {
                   "$attribute": {

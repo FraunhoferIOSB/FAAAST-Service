@@ -16,8 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.query.comparison.string;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.comparison.AbstractBinaryComparison;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.Operand;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.BooleanLiteral;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.StringLiteral;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.StringValue;
 
 import java.util.function.BiFunction;
 
@@ -30,8 +29,8 @@ public class StartsWithComparison extends AbstractStringComparison {
 
 
     @Override
-    protected BiFunction<StringLiteral, StringLiteral, BooleanLiteral> stringOperation() {
-        return (x, y) -> new BooleanLiteral(y.value().startsWith(x.value()));
+    protected BiFunction<StringValue, StringValue, Boolean> stringOperation() {
+        return (x, y) -> y.getValue().startsWith(x.getValue());
     }
 
 

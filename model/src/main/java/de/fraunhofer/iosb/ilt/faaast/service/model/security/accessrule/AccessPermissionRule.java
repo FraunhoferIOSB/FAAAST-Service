@@ -20,6 +20,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.Ac
 import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.AccessRule;
 
 import java.util.List;
+import java.util.Objects;
 
 
 public record AccessPermissionRule(AccessRule rule, List<AccessObject> objects, LogicalExpression formula, List<QueryFilter> filters) {
@@ -36,5 +37,26 @@ public record AccessPermissionRule(AccessRule rule, List<AccessObject> objects, 
 
     public boolean isEnabled() {
         return rule.enabled();
+    }
+
+
+    public AccessPermissionRule with(LogicalExpression formula) {
+        return new AccessPermissionRule(rule, objects, formula, filters);
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass())
+            return false;
+        AccessPermissionRule that = (AccessPermissionRule) o;
+        return Objects.equals(rule, that.rule) && Objects.equals(formula, that.formula) && Objects.equals(filters, that.filters)
+                && Objects.equals(objects, that.objects);
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(rule, objects, formula, filters);
     }
 }

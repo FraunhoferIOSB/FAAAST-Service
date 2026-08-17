@@ -31,6 +31,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.asset.SpecificAssetIdentifica
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.EvaluationContext;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.LogicalExpression;
 import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.AssetAdministrationShellElementWalker;
 import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.DefaultAssetAdministrationShellElementVisitor;
@@ -40,7 +41,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.SubmodelElementSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.SubmodelSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.util.QueryModifierHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.query.QueryEvaluator;
 import de.fraunhofer.iosb.ilt.faaast.service.util.CollectionHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueHelper;
@@ -232,9 +232,12 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
         if (criteria.isAssetIdsSet()) {
             result = filterByAssetIds(result, criteria.getAssetIds());
         }
-        QueryEvaluator evaluator = new QueryEvaluator();
         if (formula != null) {
-            result = result.filter(aas -> evaluator.matches(formula, aas));
+            result = result.filter(aas -> {
+                EvaluationContext context = new EvaluationContext(aas);
+                LogicalExpression formulaResult = formula.evaluatePartially(context);
+                return formulaResult.isBoolean() && Boolean.TRUE.equals(formulaResult.asBoolean());
+            });
         }
         return preparePagedResult(result, modifier, paging);
     }
@@ -255,9 +258,12 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
         if (criteria.isDataSpecificationSet()) {
             result = filterByDataSpecification(result, criteria.getDataSpecification());
         }
-        QueryEvaluator evaluator = new QueryEvaluator();
         if (formula != null) {
-            result = result.filter(cd -> evaluator.matches(formula, cd));
+            result = result.filter(aas -> {
+                EvaluationContext context = new EvaluationContext(aas);
+                LogicalExpression formulaResult = formula.evaluatePartially(context);
+                return formulaResult.isBoolean() && Boolean.TRUE.equals(formulaResult.asBoolean());
+            });
         }
         return preparePagedResult(result, modifier, paging);
     }
@@ -325,13 +331,12 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
         if (criteria.isSemanticIdSet()) {
             result = filterBySemanticId(result, criteria.getSemanticId());
         }
-        QueryEvaluator evaluator = new QueryEvaluator();
 
         if (formula != null) {
-            result = result.filter(sm -> {
-                if (evaluator.matches(formula, sm))
-                    return true;
-                return false;
+            result = result.filter(aas -> {
+                EvaluationContext context = new EvaluationContext(aas);
+                LogicalExpression formulaResult = formula.evaluatePartially(context);
+                return formulaResult.isBoolean() && Boolean.TRUE.equals(formulaResult.asBoolean());
             });
         }
         return preparePagedResult(result, modifier, paging);

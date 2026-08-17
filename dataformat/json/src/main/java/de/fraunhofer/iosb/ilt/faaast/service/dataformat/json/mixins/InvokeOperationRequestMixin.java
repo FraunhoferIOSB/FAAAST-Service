@@ -18,10 +18,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOperationRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.LogicalExpression;
 import java.util.List;
 import javax.xml.datatype.Duration;
-
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.LogicalExpression;
 import org.eclipse.digitaltwin.aas4j.v3.model.Key;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 

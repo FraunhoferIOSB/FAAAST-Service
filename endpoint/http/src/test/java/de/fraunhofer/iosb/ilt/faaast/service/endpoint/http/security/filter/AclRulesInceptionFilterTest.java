@@ -16,10 +16,15 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.acl.repository.AbstractAclRepository;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.acl.repository.AclRepository;
 import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.AccessPermissionRule;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.AccessRule;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.Right;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import org.junit.Test;
@@ -29,19 +34,25 @@ public class AclRulesInceptionFilterTest {
 
     @Test
     public void testAclRulesIncepted() {
-        List<AccessPermissionRule> rules = List.of(new AccessPermissionRule(null, null, null, null), new AccessPermissionRule(null, null, null, null));
+        List<AccessPermissionRule> rules = List.of(new AccessPermissionRule(new AccessRule(true, Right.ALL, List.of()), null, null, null),
+                new AccessPermissionRule(new AccessRule(true, Right.ALL, List.of()), null, null,
+                        null));
 
-        AbstractAclRepository mockRepo = mock(AbstractAclRepository.class);
+        AclRepository mockRepo = mock(AbstractAclRepository.class);
+        when(mockRepo.getActiveRules(any())).thenReturn(rules);
 
-        assertEquals(rules, new AclRulesInceptionFilter(mockRepo).doFilter(mock(HttpServletRequest.class), null));
+        var result = new AclRulesInceptionFilter(mockRepo).doFilter(mock(HttpServletRequest.class), null);
+
+        assertEquals(rules, result);
     }
 
 
     @Test
     public void testAclExistingRulesThrowsException() {
-        List<AccessPermissionRule> rules = List.of(new AccessPermissionRule(null, null, null, null), new AccessPermissionRule(null, null, null, null));
+        List<AccessPermissionRule> rules = List.of(new AccessPermissionRule(new AccessRule(true, Right.ALL, List.of()), null, null, null),
+                new AccessPermissionRule(new AccessRule(true, Right.ALL, List.of()), null, null, null));
 
-        AbstractAclRepository mockRepo = mock(AbstractAclRepository.class);
+        AclRepository mockRepo = mock(AbstractAclRepository.class);
         assertThrows(IllegalStateException.class, () -> new AclRulesInceptionFilter(mockRepo).doFilter(mock(HttpServletRequest.class), rules));
     }
 }

@@ -16,17 +16,19 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.glob
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.EvaluationContext;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.Operand;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.DateTimeLiteral;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DateTimeValue;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 
 
 public class LocalNow implements GlobalAttribute {
 
     @Override
     public Operand evaluatePartially(EvaluationContext evaluationContext) {
-        return new DateTimeLiteral(LocalDateTime.now().atZone(ZoneId.systemDefault()));
+        return new DateTimeValue(LocalDateTime.now().atOffset(localOffset()));
     }
 
 
@@ -41,4 +43,20 @@ public class LocalNow implements GlobalAttribute {
         return this;
     }
 
+
+    @Override
+    public boolean equals(Object o) {
+        return o != null && getClass() == o.getClass();
+    }
+
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
+
+    private ZoneOffset localOffset() {
+        return ZoneId.systemDefault().getRules().getOffset(Instant.now());
+    }
 }

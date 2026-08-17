@@ -15,6 +15,9 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.value;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.EvaluationContext;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.Operand;
+
 import java.util.Objects;
 
 
@@ -23,7 +26,7 @@ import java.util.Objects;
  *
  * @param <T> type of underlying Java type
  */
-public abstract class TypedValue<T> {
+public abstract class TypedValue<T> implements Operand {
 
     protected T value;
 
@@ -91,5 +94,23 @@ public abstract class TypedValue<T> {
     @Override
     public int hashCode() {
         return Objects.hash(value);
+    }
+
+
+    @Override
+    public boolean isTypedValue() {
+        return true;
+    }
+
+
+    @Override
+    public TypedValue<?> asTypedValue() {
+        return this;
+    }
+
+
+    @Override
+    public Operand evaluatePartially(EvaluationContext evaluationContext) {
+        return this;
     }
 }

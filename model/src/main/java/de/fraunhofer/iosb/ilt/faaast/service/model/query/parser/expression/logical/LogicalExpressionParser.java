@@ -21,9 +21,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.logical.AndO
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.logical.NotOperation;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.logical.OrOperation;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.MatchExpression;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.literal.BooleanLiteral;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.parser.AbstractParser;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.parser.expression.match.MatchExpressionParser;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.BooleanValue;
 
 import java.util.List;
 import java.util.function.Function;
@@ -68,7 +68,7 @@ public class LogicalExpressionParser extends AbstractParser<de.fraunhofer.iosb.i
         }
 
         if (expression.get$boolean() != null) {
-            return new BooleanLiteral(expression.get$boolean());
+            return new BooleanValue(expression.get$boolean());
         }
         throw new IllegalArgumentException(String.format("Unsupported logical expression: %s", expression));
     }
@@ -110,7 +110,7 @@ public class LogicalExpressionParser extends AbstractParser<de.fraunhofer.iosb.i
             }
         }
 
-        return nonNullNonEmptyElements != 1;
+        return nonNullNonEmptyElements == 1;
     }
 
 }
