@@ -21,6 +21,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
 import java.util.function.BiFunction;
 
 
+/**
+ * Operation comparing two operands using the java built-in equals function.
+ */
 public class EqualsOperation extends AbstractBinaryComparison implements QueryMatchElement {
 
     public EqualsOperation(Operand left, Operand right) {

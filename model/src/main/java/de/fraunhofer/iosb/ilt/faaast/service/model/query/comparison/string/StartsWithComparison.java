@@ -21,6 +21,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.StringValue;
 import java.util.function.BiFunction;
 
 
+/**
+ * Operation checking if the right string operand starts with the left string operand.
+ */
 public class StartsWithComparison extends AbstractStringComparison {
 
     public StartsWithComparison(Operand left, Operand right) {

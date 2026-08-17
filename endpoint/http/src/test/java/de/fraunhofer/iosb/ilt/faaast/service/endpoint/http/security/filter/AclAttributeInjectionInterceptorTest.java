@@ -60,7 +60,7 @@ public class AclAttributeInjectionInterceptorTest extends AbstractAclFilterTest 
         assertEquals(1, actual.size());
         LogicalExpression formula = actual.get(0).formula();
         assertTrue(formula.isBoolean());
-        assertTrue(((BooleanValue) formula.asTypedValue()).getValue());
+        assertTrue(((BooleanValue) formula.asOperand().asTypedValue()).getValue());
     }
 
 

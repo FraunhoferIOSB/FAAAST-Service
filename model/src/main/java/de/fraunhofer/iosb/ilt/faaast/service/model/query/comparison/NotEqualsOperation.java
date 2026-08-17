@@ -20,6 +20,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
 import java.util.function.BiFunction;
 
 
+/**
+ * Operation comparing two operands using the java built-in equals function, then inverting it.
+ */
 public class NotEqualsOperation extends AbstractBinaryComparison {
 
     public NotEqualsOperation(Operand left, Operand right) {

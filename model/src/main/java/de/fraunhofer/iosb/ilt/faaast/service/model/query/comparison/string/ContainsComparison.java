@@ -21,6 +21,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.StringValue;
 import java.util.function.BiFunction;
 
 
+/**
+ * Operation checking if the right string operand contains the left string operand.
+ */
 public class ContainsComparison extends AbstractStringComparison {
 
     public ContainsComparison(Operand left, Operand right) {

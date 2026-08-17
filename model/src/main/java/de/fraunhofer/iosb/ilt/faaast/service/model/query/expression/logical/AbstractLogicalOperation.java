@@ -23,16 +23,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 
+/**
+ * Abstract class containing common logic for all logical comparisons within a query.
+ */
 public abstract class AbstractLogicalOperation extends NAryExpression {
 
     protected AbstractLogicalOperation(List<LogicalExpression> operands) {
         super(operands);
-    }
-
-
-    @Override
-    public boolean isLogical() {
-        return true;
     }
 
 
@@ -50,7 +47,7 @@ public abstract class AbstractLogicalOperation extends NAryExpression {
             if (folded.isBoolean()) {
                 // E.g., AND (..., FALSE, ...) = FALSE
                 if (Boolean.valueOf(neutralElement()).equals(folded.asBoolean())) {
-                    return folded.asTypedValue();
+                    return folded;
                 }
                 changed = true;
                 continue;
@@ -67,8 +64,20 @@ public abstract class AbstractLogicalOperation extends NAryExpression {
     }
 
 
+    /**
+     * Return the neutral element of this operation. For example, the neutral element for AND is true -> 'x AND y == x AND y
+     * AND true'.
+     * 
+     * @return The neutral element of this operation.
+     */
     protected abstract boolean neutralElement();
 
 
+    /**
+     * Return a new instance of this operation with the given operands.
+     *
+     * @param newOperands The new operands.
+     * @return A new instance of this operation.
+     */
     protected abstract AbstractLogicalOperation withOperands(List<LogicalExpression> newOperands);
 }

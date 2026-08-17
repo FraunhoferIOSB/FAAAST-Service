@@ -25,6 +25,9 @@ import java.util.Arrays;
 import java.util.function.BiFunction;
 
 
+/**
+ * Operation checking if the left operand is less than the right operand.
+ */
 public class LessThanOperation extends AbstractBinaryComparison {
 
     public LessThanOperation(Operand left, Operand right) {

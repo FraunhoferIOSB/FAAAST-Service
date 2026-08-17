@@ -22,6 +22,9 @@ import java.util.function.BiFunction;
 import java.util.regex.Pattern;
 
 
+/**
+ * Operation checking if the pattern given in the right string operand matches the left string operand.
+ */
 public class RegexComparison extends AbstractStringComparison {
 
     public RegexComparison(Operand left, Operand right) {

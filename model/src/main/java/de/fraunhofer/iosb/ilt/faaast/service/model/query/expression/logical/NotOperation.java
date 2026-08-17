@@ -16,7 +16,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.logical;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.EvaluationContext;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.LogicalExpression;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.BooleanValue;
 
 
@@ -26,8 +25,8 @@ public record NotOperation(LogicalExpression operand) implements LogicalExpressi
     public LogicalExpression evaluatePartially(EvaluationContext evaluationContext) {
         LogicalExpression evaluated = operand.evaluatePartially(evaluationContext);
 
-        if (evaluated.isTypedValue() && evaluated.asTypedValue().getDataType() == Datatype.BOOLEAN) {
-            return new BooleanValue(!((BooleanValue) evaluated.asTypedValue()).getValue());
+        if (evaluated.isBoolean()) {
+            return new BooleanValue(Boolean.FALSE.equals(evaluated.asBoolean()));
         }
         return withOperand(evaluated);
     }

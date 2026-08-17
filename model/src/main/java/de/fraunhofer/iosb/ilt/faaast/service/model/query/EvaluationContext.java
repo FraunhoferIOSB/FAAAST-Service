@@ -19,6 +19,9 @@ import javax.annotation.Nullable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Identifiable;
 
 
+/**
+ * Evaluation context to partially evaluate a query using claims and an identifiable object under test.
+ */
 public class EvaluationContext {
 
     private final Map<String, String> claims;
@@ -42,16 +45,32 @@ public class EvaluationContext {
     }
 
 
+    /**
+     * Get a claim from the context.
+     *
+     * @param claimName The name of the claim.
+     * @return The claim or null if no claim was registered under the name.
+     */
     public @Nullable String getClaim(String claimName) {
         return claims.get(claimName);
     }
 
 
+    /**
+     * Get the identifiable under test from the context.
+     *
+     * @return The identifiable or null if no identifiable is available.
+     */
     public @Nullable Identifiable getIdentifiable() {
         return identifiable;
     }
 
 
+    /**
+     * Returns whether no claims are present.
+     *
+     * @return True if no claims are present in the context.
+     */
     public boolean isAnonymous() {
         return claims.isEmpty();
     }

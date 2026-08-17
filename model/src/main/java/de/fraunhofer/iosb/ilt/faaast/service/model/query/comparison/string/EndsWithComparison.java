@@ -21,6 +21,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.StringValue;
 import java.util.function.BiFunction;
 
 
+/**
+ * Operation checking if the right string operand ends with the left string operand.
+ */
 public class EndsWithComparison extends AbstractStringComparison {
 
     public EndsWithComparison(Operand left, Operand right) {

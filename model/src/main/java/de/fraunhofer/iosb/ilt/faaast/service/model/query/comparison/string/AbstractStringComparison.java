@@ -22,8 +22,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
 
 
 /**
- * $starts-with, $ends-with, $contains and $regex check, if the first given argument is part of the second argument or
- * if the first argument matches with the given REGEX.
+ * Abstract class containing common logic for all binary string comparisons within a query.
  */
 public abstract class AbstractStringComparison extends AbstractBinaryComparison {
 
