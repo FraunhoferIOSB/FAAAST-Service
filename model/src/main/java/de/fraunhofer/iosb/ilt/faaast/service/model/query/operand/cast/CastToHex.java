@@ -18,6 +18,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.Operand;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.HexBinaryValue;
 
 
+/**
+ * The AAS Query Language {@code hex(...)} cast operator, converting an operand to a hexadecimal value (xs:hexBinary).
+ */
 public class CastToHex extends Cast<HexBinaryValue> {
 
     public CastToHex(Operand operand) {

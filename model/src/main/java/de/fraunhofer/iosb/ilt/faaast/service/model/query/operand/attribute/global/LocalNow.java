@@ -24,6 +24,9 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 
 
+/**
+ * A global attribute yielding the current time in the local time zone.
+ */
 public class LocalNow implements GlobalAttribute {
 
     @Override

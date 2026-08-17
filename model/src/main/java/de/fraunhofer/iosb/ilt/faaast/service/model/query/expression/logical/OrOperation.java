@@ -19,7 +19,15 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.LogicalExpre
 import java.util.List;
 
 
+/**
+ * The AAS Query Language {@code $or} operator, connecting two or more logical expressions through a logical OR.
+ */
 public class OrOperation extends AbstractLogicalOperation {
+    /**
+     * Creates a new OR operation.
+     *
+     * @param operands the logical expressions to combine
+     */
     public OrOperation(List<LogicalExpression> operands) {
         super(operands);
     }

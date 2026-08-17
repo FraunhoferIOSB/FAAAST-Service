@@ -23,6 +23,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
 
 /**
  * Abstract class containing common logic for all binary string comparisons within a query.
+ *
+ * <p>String comparisons ({@code $contains}, {@code $starts-with}, {@code $ends-with}, {@code $regex}) only allow
+ * operands of type xs:string.
  */
 public abstract class AbstractStringComparison extends AbstractBinaryComparison {
 

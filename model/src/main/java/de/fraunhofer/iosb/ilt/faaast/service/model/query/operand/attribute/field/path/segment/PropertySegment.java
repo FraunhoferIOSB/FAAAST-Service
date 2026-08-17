@@ -18,6 +18,9 @@ import java.util.Objects;
 import javax.annotation.Nonnull;
 
 
+/**
+ * A field path segment addressing a property by name.
+ */
 public record PropertySegment(String name) implements FieldPathSegment {
     public PropertySegment {
         Objects.requireNonNull(name, "name must be non-null");

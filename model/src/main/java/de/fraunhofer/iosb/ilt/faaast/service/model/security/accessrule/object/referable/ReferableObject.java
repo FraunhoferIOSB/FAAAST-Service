@@ -19,6 +19,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.Ac
 import java.util.Objects;
 
 
+/**
+ * Base class for access objects that reference a referable element.
+ */
 public abstract class ReferableObject implements AccessObject {
     private static final String WILDCARD = "(\"*\")";
     private final String identifier;
@@ -38,6 +41,11 @@ public abstract class ReferableObject implements AccessObject {
     }
 
 
+    /**
+     * Returns the notation used to identify the referenced referable type.
+     *
+     * @return the notation
+     */
     public abstract String getNotation();
 
 

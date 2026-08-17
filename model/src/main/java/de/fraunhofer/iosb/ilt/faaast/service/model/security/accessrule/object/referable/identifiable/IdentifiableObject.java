@@ -17,6 +17,9 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.r
 import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.referable.ReferableObject;
 
 
+/**
+ * Base class for access objects referencing an identifiable element.
+ */
 public abstract class IdentifiableObject extends ReferableObject {
     protected IdentifiableObject(String identifier) {
         super(identifier);

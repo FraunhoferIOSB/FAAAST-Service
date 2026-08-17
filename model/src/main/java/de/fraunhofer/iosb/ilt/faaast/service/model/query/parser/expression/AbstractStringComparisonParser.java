@@ -19,6 +19,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.StringValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.parser.operand.StringValueToOperandParser;
 
 
+/**
+ * Base class for parsers of string comparison expressions.
+ *
+ * @param <I> the input type
+ * @param <O> the output type
+ */
 public abstract class AbstractStringComparisonParser<I, O> extends AbstractComparisonParser<I, O, StringValue, AbstractStringComparison> {
     protected AbstractStringComparisonParser() {
         super(new StringValueToOperandParser());

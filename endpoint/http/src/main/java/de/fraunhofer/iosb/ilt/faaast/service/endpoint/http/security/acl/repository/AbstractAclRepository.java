@@ -103,7 +103,7 @@ public abstract class AbstractAclRepository<T> implements AclRepository {
 
 
     /**
-     * Remove an environment from the current ACL along with its DEF* and re-resolve active rules
+     * Remove an environment from the current ACL along with its DEF* and re-resolve active rules.
      *
      * @param identifier Identifier of rule to remove.
      */

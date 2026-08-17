@@ -14,4 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.field.path.segment;
 
+/**
+ * A single segment of a field path.
+ */
 public interface FieldPathSegment {}

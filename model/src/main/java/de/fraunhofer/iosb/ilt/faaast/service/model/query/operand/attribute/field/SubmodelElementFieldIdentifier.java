@@ -20,6 +20,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.field
 import java.util.Objects;
 
 
+/**
+ * A field identifier addressing a field of a SubmodelElement.
+ */
 public class SubmodelElementFieldIdentifier extends FieldIdentifier {
     public static final String NOTATION = "$sme";
 

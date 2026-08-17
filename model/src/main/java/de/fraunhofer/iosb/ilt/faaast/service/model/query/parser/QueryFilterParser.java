@@ -21,6 +21,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.field
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.parser.expression.logical.LogicalExpressionParser;
 
 
+/**
+ * Parser for {@link QueryFilter} objects.
+ */
 public class QueryFilterParser extends AbstractParser<SecurityQueryFilter, QueryFilter> {
 
     private final LogicalExpressionParser logicalExpressionParser = new LogicalExpressionParser();

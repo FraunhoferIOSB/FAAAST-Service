@@ -22,6 +22,9 @@ import java.util.Map;
 import java.util.function.Function;
 
 
+/**
+ * Factory for creating {@link ReferableObject} instances from their string notation.
+ */
 public abstract class ReferableObjectFactory {
 
     private static final Map<String, Function<String, ReferableObject>> mappings = Map.ofEntries(
@@ -33,6 +36,12 @@ public abstract class ReferableObjectFactory {
     private ReferableObjectFactory() {}
 
 
+    /**
+     * Builds a referable object from the given input string.
+     *
+     * @param input the input string
+     * @return the built referable object
+     */
     public static ReferableObject build(String input) {
         for (Map.Entry<String, Function<String, ReferableObject>> entry: mappings.entrySet()) {
             if (input.startsWith(entry.getKey())) {

@@ -14,7 +14,19 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.query.parser;
 
+/**
+ * Generic parser interface.
+ *
+ * @param <I> the input type
+ * @param <O> the output type
+ */
 public interface Parser<I, O> {
+    /**
+     * Parses the given input into an output object.
+     *
+     * @param input the input to parse
+     * @return the parsed output object
+     */
     O parse(I input);
 
 }

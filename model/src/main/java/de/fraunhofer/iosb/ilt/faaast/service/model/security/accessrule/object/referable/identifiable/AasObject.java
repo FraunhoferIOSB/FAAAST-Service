@@ -14,6 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.referable.identifiable;
 
+/**
+ * An access object referencing an asset administration shell.
+ */
 public class AasObject extends IdentifiableObject {
 
     public static final String NOTATION = "$aas";

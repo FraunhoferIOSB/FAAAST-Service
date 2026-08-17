@@ -28,6 +28,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.Unre
 import java.util.List;
 
 
+/**
+ * Parser that converts an ACL into a rule.
+ */
 public class AclToRuleParser implements Parser<Acl, Rule> {
     private final RightsEnumToRightParser rightParser = new RightsEnumToRightParser();
     private final AttributeItemToAttributeParser attributeParser = new AttributeItemToAttributeParser();

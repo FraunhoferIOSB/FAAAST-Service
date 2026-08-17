@@ -22,7 +22,8 @@ import java.util.function.BiFunction;
 
 
 /**
- * Operation checking if the right string operand starts with the left string operand.
+ * The AAS Query Language {@code $starts-with} operator, checking whether the left string operand starts with the right
+ * string operand.
  */
 public class StartsWithComparison extends AbstractStringComparison {
 

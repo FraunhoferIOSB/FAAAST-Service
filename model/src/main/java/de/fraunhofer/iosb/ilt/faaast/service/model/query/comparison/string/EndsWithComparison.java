@@ -22,7 +22,8 @@ import java.util.function.BiFunction;
 
 
 /**
- * Operation checking if the right string operand ends with the left string operand.
+ * The AAS Query Language {@code $ends-with} operator, checking whether the left string operand ends with the right
+ * string operand.
  */
 public class EndsWithComparison extends AbstractStringComparison {
 

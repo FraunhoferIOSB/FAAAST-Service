@@ -26,7 +26,9 @@ import java.util.function.BiFunction;
 
 
 /**
- * Operation checking if the left operand is less than the right operand.
+ * The AAS Query Language {@code $lt} operator, checking whether the left operand is less than the right operand.
+ *
+ * <p>This is an overloaded operator, i.e. it can deal with several input types (e.g. string and numeric values).
  */
 public class LessThanOperation extends AbstractBinaryComparison {
 

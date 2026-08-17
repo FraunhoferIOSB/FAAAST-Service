@@ -23,6 +23,9 @@ import java.util.List;
 import java.util.function.Function;
 
 
+/**
+ * Parser for match expressions.
+ */
 public class MatchExpressionParser extends AbstractParser<de.fraunhofer.iosb.ilt.faaast.service.model.query.json.MatchExpression, MatchExpression> {
     private final MatchBinaryComparisonParser binaryComparisonParser = new MatchBinaryComparisonParser();
     private final MatchStringComparisonParser stringComparisonParser = new MatchStringComparisonParser();

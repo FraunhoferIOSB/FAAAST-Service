@@ -23,7 +23,8 @@ import java.util.regex.Pattern;
 
 
 /**
- * Operation checking if the pattern given in the right string operand matches the left string operand.
+ * The AAS Query Language {@code $regex} operator, checking whether the left string operand matches the regular
+ * expression given by the right string operand.
  */
 public class RegexComparison extends AbstractStringComparison {
 

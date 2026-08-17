@@ -18,6 +18,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.Operand;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TimeValue;
 
 
+/**
+ * The AAS Query Language {@code time(...)} cast operator, converting an operand to a time value (xs:time).
+ */
 public class CastToTime extends Cast<TimeValue> {
 
     public CastToTime(Operand operand) {

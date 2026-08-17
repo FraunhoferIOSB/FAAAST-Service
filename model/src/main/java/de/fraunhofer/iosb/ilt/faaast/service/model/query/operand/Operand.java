@@ -19,6 +19,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.LogicalExpre
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
 
 
+/**
+ * An operand of a logical expression in a query.
+ */
 public interface Operand extends LogicalExpression {
     @Override
     default boolean isOperand() {

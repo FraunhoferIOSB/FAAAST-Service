@@ -18,6 +18,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.Operand;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.StringValue;
 
 
+/**
+ * The AAS Query Language {@code str(...)} cast operator, converting an operand to a string value (xs:string).
+ */
 public class CastToString extends Cast<StringValue> {
 
     public CastToString(Operand operand) {

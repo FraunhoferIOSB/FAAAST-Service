@@ -19,6 +19,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.LogicalExpre
 import java.util.Map;
 
 
+/**
+ * A defined formula entity.
+ */
 public class DefFormula extends DefEntity<LogicalExpression> {
     public DefFormula(Map<String, LogicalExpression> entries) {
         super(entries);

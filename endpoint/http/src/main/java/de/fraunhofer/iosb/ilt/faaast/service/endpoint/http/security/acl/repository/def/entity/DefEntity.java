@@ -18,6 +18,11 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 
+/**
+ * A base class representing a map of named DEFINED entities.
+ *
+ * @param <T> the entity value type
+ */
 public abstract class DefEntity<T> extends ConcurrentHashMap<String, T> {
 
     public DefEntity(Map<String, T> entries) {
@@ -25,10 +30,22 @@ public abstract class DefEntity<T> extends ConcurrentHashMap<String, T> {
     }
 
 
+    /**
+     * Creates a new instance of this entity from the given entries.
+     *
+     * @param entries the entries
+     * @return the new instance
+     */
     public DefEntity<T> from(Map<String, T> entries) {
         return getInstance(entries);
     }
 
 
+    /**
+     * Creates a new instance of this entity from the given entries.
+     *
+     * @param entries the entries
+     * @return the new instance
+     */
     public abstract DefEntity<T> getInstance(Map<String, T> entries);
 }

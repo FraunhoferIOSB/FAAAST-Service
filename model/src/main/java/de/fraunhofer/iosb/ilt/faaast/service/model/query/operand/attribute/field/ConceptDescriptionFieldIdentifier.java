@@ -17,6 +17,9 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.fiel
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.field.path.FieldPath;
 
 
+/**
+ * A field identifier addressing a field of a Concept Description.
+ */
 public class ConceptDescriptionFieldIdentifier extends FieldIdentifier {
     public static final String NOTATION = "$cd";
 

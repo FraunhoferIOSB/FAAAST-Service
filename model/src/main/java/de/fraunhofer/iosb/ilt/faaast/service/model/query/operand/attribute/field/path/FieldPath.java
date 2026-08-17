@@ -19,8 +19,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.field
 
 import java.util.List;
 import java.util.Objects;
+import javax.annotation.Nonnull;
 
 
+/**
+ * Represents a path made up of field path segments within a query field.
+ */
 public record FieldPath(List<FieldPathSegment> segments) {
     public FieldPath(List<FieldPathSegment> segments) {
         Objects.requireNonNull(segments, "segments must be non-null");
@@ -38,7 +42,7 @@ public record FieldPath(List<FieldPathSegment> segments) {
 
 
     @Override
-    public String toString() {
+    public @Nonnull String toString() {
         return String.join(".", segments.stream().map(Object::toString).toList());
     }
 }

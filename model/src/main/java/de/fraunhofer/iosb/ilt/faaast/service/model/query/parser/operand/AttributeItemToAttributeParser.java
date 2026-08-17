@@ -26,6 +26,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.parser.AbstractParser;
 import java.util.Objects;
 
 
+/**
+ * Parser that converts an {@link AttributeItem} into an {@link Attribute} operand.
+ */
 public class AttributeItemToAttributeParser extends AbstractParser<AttributeItem, Attribute> {
     @Override
     public Attribute parse(AttributeItem item) {

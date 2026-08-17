@@ -18,6 +18,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.Operand;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.BooleanValue;
 
 
+/**
+ * The AAS Query Language {@code bool(...)} cast operator, converting an operand to a boolean value (xs:boolean).
+ */
 public class CastToBoolean extends Cast<BooleanValue> {
 
     public CastToBoolean(Operand operand) {

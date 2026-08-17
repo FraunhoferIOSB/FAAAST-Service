@@ -22,6 +22,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.IntValue;
 import java.util.function.Function;
 
 
+/**
+ * An operation that extracts a temporal component from a date-time operand.
+ */
 public abstract class TemporalOperation implements Operand {
 
     private final Operand operand;
@@ -43,8 +46,19 @@ public abstract class TemporalOperation implements Operand {
     }
 
 
+    /**
+     * Returns the function that extracts the temporal component from a date-time value.
+     *
+     * @return the temporal extraction function
+     */
     protected abstract Function<DateTimeValue, Integer> operation();
 
 
+    /**
+     * Returns a new temporal operation wrapping the given operand.
+     *
+     * @param operand the operand to wrap
+     * @return the new temporal operation
+     */
     protected abstract TemporalOperation withOperand(Operand operand);
 }

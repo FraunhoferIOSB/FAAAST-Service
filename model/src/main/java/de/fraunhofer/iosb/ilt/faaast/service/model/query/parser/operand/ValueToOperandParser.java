@@ -44,6 +44,9 @@ import java.time.ZonedDateTime;
 import java.util.Date;
 
 
+/**
+ * Parser that converts an IDTA value into an {@link Operand}.
+ */
 public class ValueToOperandParser extends AbstractParser<Value, Operand> {
 
     private final AttributeItemToAttributeParser attributeParser = new AttributeItemToAttributeParser();

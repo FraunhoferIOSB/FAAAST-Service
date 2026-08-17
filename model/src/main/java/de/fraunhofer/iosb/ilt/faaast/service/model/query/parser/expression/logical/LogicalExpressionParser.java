@@ -29,6 +29,9 @@ import java.util.List;
 import java.util.function.Function;
 
 
+/**
+ * Parser for logical expressions.
+ */
 public class LogicalExpressionParser extends AbstractParser<de.fraunhofer.iosb.ilt.faaast.service.model.query.json.LogicalExpression, LogicalExpression> {
 
     private final MatchExpressionParser matchExpressionParser = new MatchExpressionParser();

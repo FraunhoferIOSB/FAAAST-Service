@@ -18,7 +18,15 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.AccessRul
 import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.UseEntity;
 
 
+/**
+ * A use placeholder for a {@link Rule} referenced by name.
+ */
 public class UseRule extends UseEntity<Rule> implements AccessRuleEntity<Rule> {
+    /**
+     * Creates a new use placeholder.
+     *
+     * @param name the name of the referenced rule
+     */
     public UseRule(String name) {
         super(name);
     }

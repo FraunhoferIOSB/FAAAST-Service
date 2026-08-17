@@ -17,6 +17,9 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.query.expression;
 import java.util.List;
 
 
+/**
+ * An expression that operates on a list of logical expressions (n-ary expression).
+ */
 public abstract class NAryExpression implements LogicalExpression {
     private final List<LogicalExpression> operands;
 

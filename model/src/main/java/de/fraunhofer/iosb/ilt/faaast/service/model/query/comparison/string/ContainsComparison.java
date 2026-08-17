@@ -22,7 +22,8 @@ import java.util.function.BiFunction;
 
 
 /**
- * Operation checking if the right string operand contains the left string operand.
+ * The AAS Query Language {@code $contains} operator, checking whether the right string operand occurs as a substring of
+ * the left string operand.
  */
 public class ContainsComparison extends AbstractStringComparison {
 

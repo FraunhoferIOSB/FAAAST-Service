@@ -18,6 +18,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.EvaluationContext;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.BooleanValue;
 
 
+/**
+ * A global attribute representing an anonymous principal.
+ */
 public class Anonymous implements GlobalAttribute {
     @Override
     public BooleanValue evaluatePartially(EvaluationContext evaluationContext) {

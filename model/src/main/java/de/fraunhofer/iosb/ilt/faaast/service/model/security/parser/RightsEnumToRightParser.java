@@ -19,6 +19,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.parser.Parser;
 import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.Right;
 
 
+/**
+ * Parser that converts a rights enum into a {@link Right}.
+ */
 public class RightsEnumToRightParser implements Parser<RightsEnum, Right> {
     @Override
     public Right parse(RightsEnum idtaRight) {

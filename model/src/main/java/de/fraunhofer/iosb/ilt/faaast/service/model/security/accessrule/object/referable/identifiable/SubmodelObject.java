@@ -14,6 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.referable.identifiable;
 
+/**
+ * An access object referencing a submodel.
+ */
 public class SubmodelObject extends IdentifiableObject {
     public static final String NOTATION = "$sm";
 

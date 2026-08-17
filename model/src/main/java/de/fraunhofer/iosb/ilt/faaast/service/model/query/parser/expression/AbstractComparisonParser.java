@@ -22,6 +22,14 @@ import java.util.List;
 import java.util.function.BiFunction;
 
 
+/**
+ * Base class for parsers of comparison expressions.
+ *
+ * @param <I> the input type
+ * @param <O> the output type
+ * @param <T> the value type to parse
+ * @param <U> the resulting comparison type
+ */
 public abstract class AbstractComparisonParser<I, O, T, U> extends AbstractParser<I, O> {
     private final Parser<T, Operand> parser;
 
@@ -30,6 +38,13 @@ public abstract class AbstractComparisonParser<I, O, T, U> extends AbstractParse
     }
 
 
+    /**
+     * Builds a comparison from the given operands.
+     *
+     * @param factory the factory to create the comparison
+     * @param values the list of values to compare
+     * @return the built comparison
+     */
     protected U buildComparison(BiFunction<Operand, Operand, U> factory, List<T> values) {
         if (values.size() != 2) {
             throw new IllegalArgumentException(String.format("Comparison requires exactly 2 operands but got %d", values.size()));

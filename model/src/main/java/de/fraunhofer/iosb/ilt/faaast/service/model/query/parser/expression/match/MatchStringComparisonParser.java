@@ -26,6 +26,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 
+/**
+ * Parser for match string comparison expressions.
+ */
 public class MatchStringComparisonParser extends AbstractStringComparisonParser<MatchExpression, List<AbstractStringComparison>> {
     public MatchStringComparisonParser() {
         super();

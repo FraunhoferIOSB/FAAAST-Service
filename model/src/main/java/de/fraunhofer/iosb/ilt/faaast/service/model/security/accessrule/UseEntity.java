@@ -14,6 +14,11 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule;
 
+/**
+ * Base class for access rule entities that reference another entity by name.
+ *
+ * @param <T> the concrete entity type
+ */
 public abstract class UseEntity<T> implements AccessRuleEntity<T> {
     private final String name;
 

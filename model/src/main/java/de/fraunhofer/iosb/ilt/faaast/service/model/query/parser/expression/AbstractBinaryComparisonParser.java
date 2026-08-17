@@ -19,6 +19,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.Value;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.parser.operand.ValueToOperandParser;
 
 
+/**
+ * Base class for parsers of binary comparison expressions.
+ *
+ * @param <I> the input type
+ * @param <O> the output type
+ */
 public abstract class AbstractBinaryComparisonParser<I, O> extends AbstractComparisonParser<I, O, Value, AbstractBinaryComparison> {
     protected AbstractBinaryComparisonParser() {
         super(new ValueToOperandParser());

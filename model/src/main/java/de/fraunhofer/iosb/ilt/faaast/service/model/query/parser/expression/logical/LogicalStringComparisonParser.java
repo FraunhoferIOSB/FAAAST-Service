@@ -23,6 +23,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.LogicalExpression;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.parser.expression.AbstractStringComparisonParser;
 
 
+/**
+ * Parser for logical string comparison expressions.
+ */
 public class LogicalStringComparisonParser extends AbstractStringComparisonParser<LogicalExpression, AbstractStringComparison> {
     public LogicalStringComparisonParser() {
         super();

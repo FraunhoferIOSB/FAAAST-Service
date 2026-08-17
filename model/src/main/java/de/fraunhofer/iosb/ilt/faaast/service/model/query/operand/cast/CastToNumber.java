@@ -18,6 +18,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.Operand;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DoubleValue;
 
 
+/**
+ * The AAS Query Language {@code num(...)} cast operator, converting an operand to a numeric value (xs:integer).
+ */
 public class CastToNumber extends Cast<DoubleValue> {
 
     public CastToNumber(Operand operand) {

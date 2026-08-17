@@ -17,6 +17,9 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.glob
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.Attribute;
 
 
+/**
+ * A global attribute that can be referenced without a specific field scope.
+ */
 public interface GlobalAttribute extends Attribute {
 
     @Override
@@ -31,41 +34,81 @@ public interface GlobalAttribute extends Attribute {
     }
 
 
+    /**
+     * Returns whether this global attribute is the anonymous attribute.
+     *
+     * @return true if this global attribute is the anonymous attribute, otherwise false
+     */
     default boolean isAnonymous() {
         return false;
     }
 
 
+    /**
+     * Returns this global attribute as an anonymous attribute.
+     *
+     * @return this global attribute as an anonymous attribute
+     */
     default Anonymous asAnonymous() {
         throw new UnsupportedOperationException("%s is not Anonymous");
     }
 
 
+    /**
+     * Returns whether this global attribute is the client now attribute.
+     *
+     * @return true if this global attribute is the client now attribute, otherwise false
+     */
     default boolean isClientNow() {
         return false;
     }
 
 
+    /**
+     * Returns this global attribute as a client now attribute.
+     *
+     * @return this global attribute as a client now attribute
+     */
     default ClientNow asClientNow() {
         throw new UnsupportedOperationException("%s is not ClientNow");
     }
 
 
+    /**
+     * Returns whether this global attribute is the local now attribute.
+     *
+     * @return true if this global attribute is the local now attribute, otherwise false
+     */
     default boolean isLocalNow() {
         return false;
     }
 
 
+    /**
+     * Returns this global attribute as a local now attribute.
+     *
+     * @return this global attribute as a local now attribute
+     */
     default LocalNow asLocalNow() {
         throw new UnsupportedOperationException("%s is not LocalNow");
     }
 
 
+    /**
+     * Returns whether this global attribute is the UTC now attribute.
+     *
+     * @return true if this global attribute is the UTC now attribute, otherwise false
+     */
     default boolean isUtcNow() {
         return false;
     }
 
 
+    /**
+     * Returns this global attribute as a UTC now attribute.
+     *
+     * @return this global attribute as a UTC now attribute
+     */
     default UtcNow asUtcNow() {
         throw new UnsupportedOperationException("%s is not UtcNow");
     }

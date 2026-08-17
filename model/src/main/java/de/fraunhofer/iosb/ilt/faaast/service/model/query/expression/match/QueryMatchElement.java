@@ -17,4 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.match;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.LogicalExpression;
 
 
+/**
+ * A single element that can be used within a match expression.
+ */
 public interface QueryMatchElement extends LogicalExpression {}

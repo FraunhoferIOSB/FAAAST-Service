@@ -14,18 +14,39 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule;
 
+/**
+ * Interface describing an access rule entity, either a concrete instance or a placeholder referencing an entity by
+ * name.
+ *
+ * @param <T> the concrete entity type
+ */
 public interface AccessRuleEntity<T> {
 
+    /**
+     * Returns whether this entity is a reference to another entity by name.
+     *
+     * @return true if this entity is a reference, otherwise false
+     */
     default boolean isUse() {
         return false;
     }
 
 
+    /**
+     * Returns the name of the referenced entity.
+     *
+     * @return the name of the referenced entity
+     */
     default String getUseName() {
         throw new IllegalArgumentException("Not supported");
     }
 
 
+    /**
+     * Returns the concrete entity instance.
+     *
+     * @return the concrete entity instance
+     */
     default T getInstance() {
         throw new IllegalArgumentException("Not supported");
     }

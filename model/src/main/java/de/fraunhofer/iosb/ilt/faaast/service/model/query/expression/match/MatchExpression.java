@@ -20,12 +20,14 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.LogicalExpre
 import java.util.List;
 
 
+/**
+ * The AAS Query Language {@code $match} operator, which groups a list of match elements.
+ *
+ * <p>A {@code $match} requires that all contained conditions are evaluated on the same element of the list addressed by
+ * the {@code []} syntax. It can include nested {@code $match} expressions and comparisons; logical expressions are not
+ * allowed inside a {@code $match}.
+ */
 public record MatchExpression(List<QueryMatchElement> elements) implements QueryMatchElement {
-    @Override
-    public boolean isMatch() {
-        return true;
-    }
-
 
     @Override
     public LogicalExpression evaluatePartially(EvaluationContext evaluationContext) {

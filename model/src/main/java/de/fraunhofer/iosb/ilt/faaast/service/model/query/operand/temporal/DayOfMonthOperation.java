@@ -20,6 +20,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DateTimeValue
 import java.util.function.Function;
 
 
+/**
+ * The AAS Query Language {@code $dayOfMonth} operator, extracting the day of month from a date-time operand
+ * ({@code <dateTimeToNum>}).
+ */
 public class DayOfMonthOperation extends TemporalOperation {
 
     public DayOfMonthOperation(Operand operand) {

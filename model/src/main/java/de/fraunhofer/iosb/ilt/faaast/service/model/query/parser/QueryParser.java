@@ -22,8 +22,17 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.parser.expression.logic
 import java.util.List;
 
 
+/**
+ * Parser for {@link Query} objects.
+ */
 public class QueryParser implements Parser<de.fraunhofer.iosb.ilt.faaast.service.model.query.json.Query, Query> {
 
+    /**
+     * Parses the given IDTA query into a {@link Query}.
+     *
+     * @param idtaQuery the input query
+     * @return the parsed query
+     */
     public Query parse(de.fraunhofer.iosb.ilt.faaast.service.model.query.json.Query idtaQuery) {
         boolean id = idtaQuery.get$select() != null;
         LogicalExpression expression = new LogicalExpressionParser().parse(idtaQuery.get$condition());

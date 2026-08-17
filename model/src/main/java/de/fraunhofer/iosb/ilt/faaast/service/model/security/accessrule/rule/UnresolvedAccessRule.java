@@ -20,8 +20,21 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.AccessRul
 import java.util.List;
 
 
+/**
+ * An access rule whose attributes may still be unresolved references.
+ *
+ * @param enabled whether the rule is enabled
+ * @param rights the list of rights
+ * @param attributes the list of attributes, possibly unresolved
+ */
 public record UnresolvedAccessRule(boolean enabled, List<Right> rights, List<AccessRuleEntity<Attribute>> attributes) implements Rule {
 
+    /**
+     * Creates a resolved access rule using the given attributes.
+     *
+     * @param resolvedAttributes the resolved attributes
+     * @return the resolved access rule
+     */
     public AccessRule from(List<Attribute> resolvedAttributes) {
         return new AccessRule(enabled, rights, resolvedAttributes);
     }

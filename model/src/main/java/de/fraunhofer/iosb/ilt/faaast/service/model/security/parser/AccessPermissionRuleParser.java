@@ -32,6 +32,9 @@ import java.util.List;
 import java.util.stream.Stream;
 
 
+/**
+ * Parser for access permission rules.
+ */
 public class AccessPermissionRuleParser implements Parser<AccessPermissionRule, UnresolvedAccessPermissionRule> {
 
     private final AclToRuleParser ruleParser = new AclToRuleParser();
@@ -39,6 +42,12 @@ public class AccessPermissionRuleParser implements Parser<AccessPermissionRule, 
     private final LogicalExpressionParser formulaParser = new LogicalExpressionParser();
     private final QueryFilterParser filterParser = new QueryFilterParser();
 
+    /**
+     * Parses the given IDTA access permission rule into an unresolved access permission rule.
+     *
+     * @param idtaAccessPermissionRule the input rule
+     * @return the parsed unresolved access permission rule
+     */
     public UnresolvedAccessPermissionRule parse(AccessPermissionRule idtaAccessPermissionRule) {
         AccessRuleEntity<Rule> accessRule;
         if (idtaAccessPermissionRule.getAcl() != null) {

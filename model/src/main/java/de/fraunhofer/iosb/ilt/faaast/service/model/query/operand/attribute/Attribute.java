@@ -18,22 +18,45 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.Operand;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.global.GlobalAttribute;
 
 
+/**
+ * An attribute used as an operand in a query expression.
+ */
 public interface Attribute extends Operand {
+    /**
+     * Returns whether this attribute is a global attribute.
+     *
+     * @return true if this attribute is a global attribute, otherwise false
+     */
     default boolean isGlobal() {
         return false;
     }
 
 
+    /**
+     * Returns this attribute as a global attribute.
+     *
+     * @return this attribute as a global attribute
+     */
     default GlobalAttribute asGlobal() {
         throw new UnsupportedOperationException("%s is not a global attribute");
     }
 
 
+    /**
+     * Returns whether this attribute is a claim attribute.
+     *
+     * @return true if this attribute is a claim attribute, otherwise false
+     */
     default boolean isClaim() {
         return false;
     }
 
 
+    /**
+     * Returns this attribute as a claim attribute.
+     *
+     * @return this attribute as a claim attribute
+     */
     default ClaimAttribute asClaim() {
         throw new UnsupportedOperationException("%s is not a claim attribute");
 

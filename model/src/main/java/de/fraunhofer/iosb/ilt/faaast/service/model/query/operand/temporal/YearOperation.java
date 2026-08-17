@@ -20,6 +20,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DateTimeValue
 import java.util.function.Function;
 
 
+/**
+ * The AAS Query Language {@code $year} operator, extracting the year from a date-time operand ({@code <dateTimeToNum>}).
+ */
 public class YearOperation extends TemporalOperation {
 
     public YearOperation(Operand operand) {

@@ -25,6 +25,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.LogicalExpression;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.parser.expression.AbstractBinaryComparisonParser;
 
 
+/**
+ * Parser for logical binary comparison expressions.
+ */
 public class LogicalBinaryComparisonParser extends AbstractBinaryComparisonParser<LogicalExpression, AbstractBinaryComparison> {
     @Override
     public AbstractBinaryComparison parse(LogicalExpression expression) {

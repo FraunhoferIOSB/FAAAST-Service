@@ -26,7 +26,10 @@ import java.util.function.BiFunction;
 
 
 /**
- * Operation checking if the left operand is greater than or equal to the right operand.
+ * The AAS Query Language {@code $ge} operator, checking whether the left operand is greater than or equal to the right
+ * operand.
+ *
+ * <p>This is an overloaded operator, i.e. it can deal with several input types (e.g. string and numeric values).
  */
 public class GreaterThanEqualsOperation extends AbstractBinaryComparison {
 

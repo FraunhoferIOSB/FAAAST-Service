@@ -17,7 +17,15 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.Attribute;
 
 
+/**
+ * A use placeholder for an {@link Attribute} referenced by name.
+ */
 public class UseAttribute extends UseEntity<Attribute> implements AccessRuleEntity<Attribute> {
+    /**
+     * Creates a new use placeholder.
+     *
+     * @param name the name of the referenced attribute
+     */
     public UseAttribute(String name) {
         super(name);
     }

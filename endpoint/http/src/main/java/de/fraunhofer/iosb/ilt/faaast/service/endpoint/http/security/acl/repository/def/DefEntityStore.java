@@ -37,6 +37,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 
+/**
+ * Stores the DEF* entities (attributes, access rules, access objects and formulas) per identifier.
+ *
+ * @param <T> the identifier type
+ */
 public class DefEntityStore<T> {
     private final Map<T, DefAttribute> defAttributes;
     private final Map<T, DefRule> defAccessRules;
@@ -56,6 +61,12 @@ public class DefEntityStore<T> {
     }
 
 
+    /**
+     * Adds the given defined attributes for the identifier.
+     *
+     * @param identifier the identifier
+     * @param values the defined attributes to add
+     */
     public void addDefAttributes(T identifier, List<Defattribute> values) {
         Map<String, List<Attribute>> parsed = values.stream()
                 .map(defAttribute -> Map.entry(defAttribute.getName(), defAttribute.getAttributes().stream().map(attributeParser::parse).toList()))
@@ -64,6 +75,12 @@ public class DefEntityStore<T> {
     }
 
 
+    /**
+     * Adds the given defined access rules for the identifier.
+     *
+     * @param identifier the identifier
+     * @param values the defined access rules to add
+     */
     public void addDefAcls(T identifier, List<Defacl> values) {
         Map<String, Rule> parsed = values.stream()
                 .map(defacl -> Map.entry(defacl.getName(), aclParser.parse(defacl.getAcl())))
@@ -72,6 +89,12 @@ public class DefEntityStore<T> {
     }
 
 
+    /**
+     * Adds the given defined access objects for the identifier.
+     *
+     * @param identifier the identifier
+     * @param values the defined access objects to add
+     */
     public void addDefObjects(T identifier, List<Defobject> values) {
         Map<String, List<AccessObject>> parsed = values.stream()
                 .map(defObject -> Map.entry(defObject.getName(), defObject.getObjects().stream().map(objectParser::parse).toList()))
@@ -81,6 +104,12 @@ public class DefEntityStore<T> {
     }
 
 
+    /**
+     * Adds the given defined formulas for the identifier.
+     *
+     * @param identifier the identifier
+     * @param values the defined formulas to add
+     */
     public void addDefFormulas(T identifier, List<Defformula> values) {
         Map<String, LogicalExpression> parsed = values.stream()
                 .map(defFormula -> Map.entry(defFormula.getName(), formulaParser.parse(defFormula.getFormula())))
@@ -89,6 +118,11 @@ public class DefEntityStore<T> {
     }
 
 
+    /**
+     * Removes all stored entities for the identifier.
+     *
+     * @param identifier the identifier
+     */
     public void delete(T identifier) {
         defAttributes.remove(identifier);
         defAccessRules.remove(identifier);
@@ -97,6 +131,12 @@ public class DefEntityStore<T> {
     }
 
 
+    /**
+     * Returns the attributes stored under the given name.
+     *
+     * @param name the name of the attributes
+     * @return the list of attributes
+     */
     public List<Attribute> getAttribute(String name) {
         return defAttributes
                 .values().stream()
@@ -105,6 +145,12 @@ public class DefEntityStore<T> {
     }
 
 
+    /**
+     * Returns the access rule stored under the given name.
+     *
+     * @param name the name of the access rule
+     * @return the access rule
+     */
     public Rule getAccessRule(String name) {
         return defAccessRules
                 .values().stream()
@@ -113,6 +159,12 @@ public class DefEntityStore<T> {
     }
 
 
+    /**
+     * Returns the access objects stored under the given name.
+     *
+     * @param name the name of the access objects
+     * @return the list of access objects
+     */
     public List<AccessObject> getObjects(String name) {
         return defAccessObjects
                 .values().stream()
@@ -121,6 +173,12 @@ public class DefEntityStore<T> {
     }
 
 
+    /**
+     * Returns the formula stored under the given name.
+     *
+     * @param name the name of the formula
+     * @return the formula
+     */
     public LogicalExpression getFormula(String name) {
         return defFormulas
                 .values().stream()

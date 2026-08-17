@@ -21,15 +21,28 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.StringValue;
 import java.util.Objects;
 
 
+/**
+ * An attribute that resolves a value from a claim in the evaluation context.
+ */
 public class ClaimAttribute implements Attribute {
 
     private final String claim;
 
+    /**
+     * Creates a new claim attribute.
+     *
+     * @param claim the claim to resolve
+     */
     public ClaimAttribute(String claim) {
         this.claim = claim;
     }
 
 
+    /**
+     * Validates this claim attribute.
+     *
+     * @throws IllegalArgumentException if the claim is null
+     */
     public void validate() throws IllegalArgumentException {
         if (claim == null) {
             throw new IllegalArgumentException("Operand to claim attribute is null");

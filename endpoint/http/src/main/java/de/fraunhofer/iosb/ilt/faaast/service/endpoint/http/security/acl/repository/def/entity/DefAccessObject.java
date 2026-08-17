@@ -20,6 +20,9 @@ import java.util.List;
 import java.util.Map;
 
 
+/**
+ * A defined access object entity.
+ */
 public class DefAccessObject extends DefEntity<List<AccessObject>> {
     public DefAccessObject(Map<String, List<AccessObject>> entries) {
         super(entries);

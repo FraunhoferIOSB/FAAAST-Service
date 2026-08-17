@@ -22,5 +22,13 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.Rule
 import java.util.List;
 
 
+/**
+ * An access permission rule whose parts may still be unresolved references.
+ *
+ * @param rule the rule, possibly unresolved
+ * @param objects the objects, possibly unresolved
+ * @param formula the formula, possibly unresolved
+ * @param filters the list of filters
+ */
 public record UnresolvedAccessPermissionRule(AccessRuleEntity<Rule> rule, List<AccessRuleEntity<AccessObject>> objects, AccessRuleEntity<LogicalExpression> formula,
         List<QueryFilter> filters) {}

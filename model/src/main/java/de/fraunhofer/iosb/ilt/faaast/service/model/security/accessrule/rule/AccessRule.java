@@ -20,6 +20,13 @@ import java.util.List;
 import java.util.Objects;
 
 
+/**
+ * An access rule describing whether access is enabled and the associated rights and attributes.
+ *
+ * @param enabled whether the rule is enabled
+ * @param rights the list of rights
+ * @param attributes the list of attributes
+ */
 public record AccessRule(boolean enabled, List<Right> rights, List<Attribute> attributes) implements Rule {
     public AccessRule(boolean enabled, Right right, List<Attribute> attributes) {
         this(enabled, List.of(right), attributes);

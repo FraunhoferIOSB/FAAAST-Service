@@ -19,6 +19,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.LogicalExpre
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.BooleanValue;
 
 
+/**
+ * The AAS Query Language {@code $not} operator, negating a single logical expression. If the operand evaluates to true
+ * the result is false, and vice versa.
+ */
 public record NotOperation(LogicalExpression operand) implements LogicalExpression {
 
     @Override

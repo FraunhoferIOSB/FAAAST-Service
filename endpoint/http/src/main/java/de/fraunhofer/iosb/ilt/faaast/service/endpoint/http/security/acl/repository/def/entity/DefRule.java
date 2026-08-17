@@ -19,6 +19,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.Rule
 import java.util.Map;
 
 
+/**
+ * A defined access rule entity.
+ */
 public class DefRule extends DefEntity<Rule> {
     public DefRule(Map<String, Rule> entries) {
         super(entries);

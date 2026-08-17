@@ -19,6 +19,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.EvaluationContext;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DateTimeValue;
 
 
+/**
+ * A global attribute yielding the current time as issued by the client.
+ */
 public class ClientNow implements GlobalAttribute {
     private static final String ISSUED_AT_CLAIM = "iat";
 

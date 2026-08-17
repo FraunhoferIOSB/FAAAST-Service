@@ -19,9 +19,21 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.parser.operand.StringTo
 import java.util.List;
 
 
+/**
+ * Base class for parsers providing shared helper functionality.
+ *
+ * @param <I> the input type
+ * @param <O> the output type
+ */
 public abstract class AbstractParser<I, O> implements Parser<I, O> {
     protected final StringToFieldIdentifierParser stringToFieldIdentifierParser = new StringToFieldIdentifierParser();
 
+    /**
+     * Returns whether the given list is neither null nor empty.
+     *
+     * @param list the list to check
+     * @return true if the list is neither null nor empty, otherwise false
+     */
     protected boolean notNullNorEmpty(List<?> list) {
         return list != null && !list.isEmpty();
     }

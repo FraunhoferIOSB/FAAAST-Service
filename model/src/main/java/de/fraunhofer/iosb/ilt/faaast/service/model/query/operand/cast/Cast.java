@@ -20,6 +20,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.Operand;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
 
 
+/**
+ * A cast operation that converts an operand to a specific typed value.
+ *
+ * @param <O> the target typed value type
+ */
 public abstract class Cast<O extends TypedValue<?>> implements Operand {
 
     private final Operand operand;
@@ -39,9 +44,21 @@ public abstract class Cast<O extends TypedValue<?>> implements Operand {
     }
 
 
+    /**
+     * Returns a new cast operation wrapping the given evaluated operand.
+     *
+     * @param evaluated the evaluated operand to wrap
+     * @return the new cast operation
+     */
     protected abstract Cast<O> withOperand(Operand evaluated);
 
 
+    /**
+     * Casts the given typed value to the target type.
+     *
+     * @param input the typed value to cast
+     * @return the cast result
+     */
     protected O cast(TypedValue<?> input) {
         O o = instance();
         try {
@@ -54,5 +71,10 @@ public abstract class Cast<O extends TypedValue<?>> implements Operand {
     }
 
 
+    /**
+     * Returns a new instance of the target typed value.
+     *
+     * @return a new target typed value instance
+     */
     protected abstract O instance();
 }

@@ -20,6 +20,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DateTimeValue
 import java.util.function.Function;
 
 
+/**
+ * The AAS Query Language {@code $dayOfWeek} operator, extracting the day of week from a date-time operand
+ * ({@code <dateTimeToNum>}).
+ */
 public class DayOfWeekOperation extends TemporalOperation {
 
     public DayOfWeekOperation(Operand operand) {

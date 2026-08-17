@@ -17,6 +17,9 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object;
 import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.AccessRuleEntity;
 
 
+/**
+ * Interface describing an access object.
+ */
 public interface AccessObject extends AccessRuleEntity<AccessObject> {
     @Override
     default AccessObject getInstance() {
@@ -24,11 +27,21 @@ public interface AccessObject extends AccessRuleEntity<AccessObject> {
     }
 
 
+    /**
+     * Returns whether this object is a route object.
+     *
+     * @return true if this object is a route object, otherwise false
+     */
     default boolean isRoute() {
         return false;
     }
 
 
+    /**
+     * Returns this object as a {@link RouteObject}.
+     *
+     * @return the route object
+     */
     default RouteObject asRoute() {
         throw new UnsupportedOperationException(String.format("Cannot convert %s to Route", this.getClass().getSimpleName()));
     }

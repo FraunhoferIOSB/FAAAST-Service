@@ -17,4 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule;
 import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.AccessRuleEntity;
 
 
+/**
+ * Interface describing an access rule.
+ */
 public interface Rule extends AccessRuleEntity<Rule> {}

@@ -21,7 +21,9 @@ import java.util.function.BiFunction;
 
 
 /**
- * Operation comparing two operands using the java built-in equals function, then inverting it.
+ * The AAS Query Language {@code $ne} operator, comparing whether two operands are not identical.
+ *
+ * <p>This is an overloaded operator, i.e. it can deal with several input types (e.g. string and numeric values).
  */
 public class NotEqualsOperation extends AbstractBinaryComparison {
 

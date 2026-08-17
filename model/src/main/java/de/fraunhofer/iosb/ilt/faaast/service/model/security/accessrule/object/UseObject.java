@@ -17,8 +17,16 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object;
 import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.UseEntity;
 
 
+/**
+ * A use placeholder for an {@link AccessObject} referenced by name.
+ */
 public class UseObject extends UseEntity<AccessObject> implements AccessObject {
 
+    /**
+     * Creates a new use placeholder.
+     *
+     * @param name the name of the referenced object
+     */
     public UseObject(String name) {
         super(name);
     }

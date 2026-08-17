@@ -18,7 +18,7 @@ import javax.annotation.Nonnull;
 
 
 /**
- * May be null -> existence check (wildcard)
+ * May be null to indicate an existence check (wildcard).
  *
  * @param index Index of a field path.
  */

@@ -20,6 +20,9 @@ import java.util.List;
 import java.util.Map;
 
 
+/**
+ * A defined attribute entity.
+ */
 public class DefAttribute extends DefEntity<List<Attribute>> {
     public DefAttribute(Map<String, List<Attribute>> entries) {
         super(entries);

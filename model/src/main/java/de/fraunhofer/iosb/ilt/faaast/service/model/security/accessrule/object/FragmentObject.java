@@ -14,6 +14,11 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object;
 
+/**
+ * An access object referencing a fragment.
+ *
+ * @param fragment the fragment
+ */
 public record FragmentObject(String fragment) implements AccessObject {
 
 }

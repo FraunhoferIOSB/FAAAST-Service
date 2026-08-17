@@ -19,7 +19,15 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.LogicalExpre
 import java.util.List;
 
 
+/**
+ * The AAS Query Language {@code $and} operator, connecting two or more logical expressions through a logical AND.
+ */
 public class AndOperation extends AbstractLogicalOperation {
+    /**
+     * Creates a new AND operation.
+     *
+     * @param operands the logical expressions to combine
+     */
     public AndOperation(List<LogicalExpression> operands) {
         super(operands);
     }

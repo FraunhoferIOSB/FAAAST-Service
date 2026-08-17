@@ -18,6 +18,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.Operand;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DateTimeValue;
 
 
+/**
+ * The AAS Query Language {@code dateTime(...)} cast operator, converting an operand to a date-time value (xs:dateTime).
+ */
 public class CastToDateTime extends Cast<DateTimeValue> {
 
     public CastToDateTime(Operand operand) {

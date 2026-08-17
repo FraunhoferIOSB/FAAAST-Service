@@ -17,7 +17,15 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.LogicalExpression;
 
 
+/**
+ * A use placeholder for a {@link LogicalExpression} referenced by name.
+ */
 public class UseFormula extends UseEntity<LogicalExpression> {
+    /**
+     * Creates a new use placeholder.
+     *
+     * @param name the name of the referenced formula
+     */
     public UseFormula(String name) {
         super(name);
     }

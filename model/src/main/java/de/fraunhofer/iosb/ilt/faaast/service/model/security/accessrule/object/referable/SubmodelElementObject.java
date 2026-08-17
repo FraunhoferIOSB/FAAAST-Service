@@ -19,6 +19,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
 import java.util.Objects;
 
 
+/**
+ * An access object referencing a submodel element.
+ */
 public class SubmodelElementObject extends ReferableObject {
     public static final String NOTATION = "$sme";
 

@@ -22,6 +22,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.Ro
 import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.referable.ReferableObjectFactory;
 
 
+/**
+ * Parser that converts an object item into an access object.
+ */
 public class ObjectItemToAccessObjectParser implements Parser<ObjectItem, AccessObject> {
     @Override
     public AccessObject parse(ObjectItem objectItem) {

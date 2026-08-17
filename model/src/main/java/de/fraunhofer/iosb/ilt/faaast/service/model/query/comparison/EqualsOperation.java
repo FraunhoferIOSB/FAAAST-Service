@@ -22,7 +22,9 @@ import java.util.function.BiFunction;
 
 
 /**
- * Operation comparing two operands using the java built-in equals function.
+ * The AAS Query Language {@code $eq} operator, comparing whether two operands are identical.
+ *
+ * <p>This is an overloaded operator, i.e. it can deal with several input types (e.g. string and numeric values).
  */
 public class EqualsOperation extends AbstractBinaryComparison implements QueryMatchElement {
 

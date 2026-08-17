@@ -26,5 +26,11 @@ import java.util.Set;
  */
 public interface AclRepository {
 
+    /**
+     * Returns the active access rules for the given claims.
+     *
+     * @param claims the claims to match against
+     * @return the list of active access permission rules
+     */
     List<AccessPermissionRule> getActiveRules(Set<String> claims);
 }

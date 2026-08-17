@@ -28,6 +28,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 
+/**
+ * Parser for match binary comparison expressions.
+ */
 public class MatchBinaryComparisonParser extends AbstractBinaryComparisonParser<MatchExpression, List<AbstractBinaryComparison>> {
     @Override
     public List<AbstractBinaryComparison> parse(MatchExpression expression) {

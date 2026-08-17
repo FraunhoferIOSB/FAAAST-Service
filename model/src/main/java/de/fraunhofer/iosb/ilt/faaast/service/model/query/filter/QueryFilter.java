@@ -19,6 +19,13 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.field
 import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.AccessRuleEntity;
 
 
+/**
+ * A single filter block ({@code $filters} entry) consisting of a field fragment ({@code $fragment}) and a condition
+ * ({@code $condition}) evaluated against it.
+ *
+ * <p>Filters reduce the amount of data returned. A fragment ending with {@code []} applies the condition row-wise to
+ * each array entry; the corresponding fragment without {@code []} applies to the entire array-valued object.
+ */
 public record QueryFilter(FieldIdentifier fragment, LogicalExpression condition) implements AccessRuleEntity<QueryFilter> {
     public static QueryFilter EMPTY = new QueryFilter(null, null);
 }

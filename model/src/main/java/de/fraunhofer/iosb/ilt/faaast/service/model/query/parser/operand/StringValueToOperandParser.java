@@ -22,6 +22,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.StringValue;
 import java.util.Objects;
 
 
+/**
+ * Parser that converts an IDTA string value into an {@link Operand}.
+ */
 public class StringValueToOperandParser extends AbstractParser<de.fraunhofer.iosb.ilt.faaast.service.model.query.json.StringValue, Operand> {
 
     private final AttributeItemToAttributeParser attributeParser = new AttributeItemToAttributeParser();

@@ -21,6 +21,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DateTimeValue
 import java.time.LocalDateTime;
 
 
+/**
+ * A global attribute yielding the current time in UTC.
+ */
 public class UtcNow implements GlobalAttribute {
 
     @Override

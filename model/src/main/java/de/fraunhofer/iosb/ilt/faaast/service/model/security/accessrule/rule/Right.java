@@ -14,6 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule;
 
+/**
+ * Enumeration of the possible access rights.
+ */
 public enum Right {
     CREATE,
     READ,

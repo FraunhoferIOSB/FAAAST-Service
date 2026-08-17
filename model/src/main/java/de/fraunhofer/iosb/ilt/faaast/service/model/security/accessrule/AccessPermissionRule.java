@@ -23,6 +23,14 @@ import java.util.List;
 import java.util.Objects;
 
 
+/**
+ * An access permission rule combining a rule, the objects it applies to, an optional formula and filters.
+ *
+ * @param rule the access rule
+ * @param objects the objects the rule applies to
+ * @param formula the optional formula
+ * @param filters the list of filters
+ */
 public record AccessPermissionRule(AccessRule rule, List<AccessObject> objects, LogicalExpression formula, List<QueryFilter> filters) {
 
     public AccessPermissionRule(AccessRule rule, List<AccessObject> objects, LogicalExpression formula) {
@@ -35,11 +43,22 @@ public record AccessPermissionRule(AccessRule rule, List<AccessObject> objects, 
     }
 
 
+    /**
+     * Returns whether the rule is enabled.
+     *
+     * @return true if the rule is enabled, otherwise false
+     */
     public boolean isEnabled() {
         return rule.enabled();
     }
 
 
+    /**
+     * Returns a copy of this rule with the given formula.
+     *
+     * @param formula the formula to use
+     * @return the modified copy
+     */
     public AccessPermissionRule with(LogicalExpression formula) {
         return new AccessPermissionRule(rule, objects, formula, filters);
     }

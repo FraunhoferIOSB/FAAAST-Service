@@ -24,15 +24,18 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.BooleanValue;
 import javax.annotation.Nullable;
 
 
+/**
+ * A logical expression in a query, supporting partial evaluation against an evaluation context.
+ */
 public interface LogicalExpression extends AccessRuleEntity<LogicalExpression> {
 
     /**
-     * Evaluate this logical expression partially given the context. A bottom up approach of folding this expression will
-     * take place. May throw unchecked exceptions for invalid
-     * input arguments to operations. Each node of the expression may return an expression, a function or a literal
-     * (TypedValue), depending on the evaluation of its arguments.
+     * Evaluates this logical expression partially given the context. A bottom up approach of folding this expression
+     * will take place. May throw unchecked exceptions for invalid input arguments to operations. Each node of the
+     * expression may return an expression, a function or a literal (TypedValue), depending on the evaluation of its
+     * arguments.
      *
-     * The evaluation may also return a BooleanValue, meaning it is evaluated completely.
+     * <p>The evaluation may also return a BooleanValue, meaning it is evaluated completely.
      *
      * @param evaluationContext The context used to evaluate the expression.
      * @return A (partially) evaluated expression.
