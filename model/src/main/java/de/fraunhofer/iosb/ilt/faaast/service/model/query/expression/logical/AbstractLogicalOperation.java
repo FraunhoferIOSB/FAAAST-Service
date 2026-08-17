@@ -46,7 +46,7 @@ public abstract class AbstractLogicalOperation extends NAryExpression {
 
             if (folded.isBoolean()) {
                 // E.g., AND (..., FALSE, ...) = FALSE
-                if (Boolean.valueOf(neutralElement()).equals(folded.asBoolean())) {
+                if (!Boolean.valueOf(neutralElement()).equals(folded.asBoolean())) {
                     return folded;
                 }
                 changed = true;

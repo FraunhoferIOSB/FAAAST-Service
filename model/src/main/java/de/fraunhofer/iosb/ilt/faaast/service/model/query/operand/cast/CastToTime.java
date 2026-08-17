@@ -15,7 +15,10 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.cast;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.Operand;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TimeValue;
+
+import java.time.format.DateTimeParseException;
 
 
 /**
@@ -37,5 +40,22 @@ public class CastToTime extends Cast<TimeValue> {
     @Override
     protected TimeValue instance() {
         return new TimeValue();
+    }
+
+
+    @Override
+    protected TimeValue cast(TypedValue<?> input) {
+        try {
+            return super.cast(input);
+        }
+        catch (DateTimeParseException dateTimeParseException) {
+            return tryCastDateTime(input);
+        }
+    }
+
+
+    private TimeValue tryCastDateTime(TypedValue<?> input) {
+        var dateTime = new CastToDateTime(null).cast(input);
+        return new TimeValue(dateTime.getValue().toLocalTime().atOffset(dateTime.getValue().getOffset()));
     }
 }

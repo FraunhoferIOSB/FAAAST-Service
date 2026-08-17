@@ -14,12 +14,13 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter;
 
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.util.JwtTestHelper.JOHN_DOE;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.comparison.EqualsOperation;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.comparison.GreaterThanEqualsOperation;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.comparison.LessThanEqualsOperation;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.comparison.LessThanOperation;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.comparison.NotEqualsOperation;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.LogicalExpression;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.logical.AndOperation;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.Attribute;
@@ -28,22 +29,31 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.globa
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.global.ClientNow;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.global.LocalNow;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.global.UtcNow;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.cast.CastToTime;
 import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.AccessPermissionRule;
 import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.AccessObject;
 import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.RouteObject;
 import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.AccessRule;
 import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.Right;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.BooleanValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.StringValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TimeValue;
 import jakarta.servlet.http.HttpServletRequest;
-import java.util.Arrays;
-import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.List;
+
+import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.util.JwtTestHelper.JOHN_DOE;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 
 public abstract class AbstractAclFilterTest extends JwtAuthorizationFilterTest {
 
     protected AbstractAclFilter filter;
+
 
     /**
      * Implement this in concrete subclasses to provide the filter under test.
@@ -69,7 +79,7 @@ public abstract class AbstractAclFilterTest extends JwtAuthorizationFilterTest {
 
 
     @Test
-    public void testRemovesNoValidRules() {
+    public void testRemovesNoValidRules() throws ValueFormatException {
         AccessPermissionRule unfilteredRule = rule();
         List<AccessPermissionRule> rules = List.of(unfilteredRule, unfilteredRule);
 
@@ -84,19 +94,19 @@ public abstract class AbstractAclFilterTest extends JwtAuthorizationFilterTest {
     }
 
 
-    protected static AccessPermissionRule rule() {
+    protected static AccessPermissionRule rule() throws ValueFormatException {
         ClaimAttribute claimAttribute = new ClaimAttribute("name");
         UtcNow utcNow = new UtcNow();
         ClientNow clientNow = new ClientNow();
         LocalNow localNow = new LocalNow();
-        Anonymous anonymous = new Anonymous();
 
         AndOperation formula = new AndOperation(List.of(
                 new EqualsOperation(claimAttribute, new StringValue(JOHN_DOE.get(claimAttribute.getClaim()))),
-                new EqualsOperation(utcNow, new StringValue("0:00")),
-                new EqualsOperation(clientNow, new StringValue("23:59:59")),
-                new EqualsOperation(localNow, new StringValue("0:00")),
-                new EqualsOperation(anonymous, new StringValue("abc-test"))));
+                new GreaterThanEqualsOperation(new CastToTime(new UtcNow()), fromString("00:00")),
+                new LessThanEqualsOperation(new CastToTime(new ClientNow()), fromString("23:59:59")),
+                new LessThanOperation(new CastToTime(new LocalNow()), fromString("23:59:59")),
+                new NotEqualsOperation(new Anonymous(), new BooleanValue(true))
+        ));
 
         var routeNoWildcard = new RouteObject("/shells/12345/submodels/67890/submodel-elements/Abc.Def.Ghi/invoke-async/$value");
         var routePrefixWildcard = new RouteObject("*/12345/submodels/67890/submodel-elements/Abc.Def.Ghi/invoke-async/$value");
@@ -105,21 +115,6 @@ public abstract class AbstractAclFilterTest extends JwtAuthorizationFilterTest {
         List<AccessObject> objects = List.of(routeNoWildcard, routePrefixWildcard, routeSuffixWildcard);
 
         return rule(false, List.of(Right.ALL), List.of(claimAttribute, utcNow, clientNow, localNow), formula, objects);
-    }
-
-
-    protected static AccessPermissionRule rule(boolean disabled) {
-        return rule(disabled, null, null, null, null);
-    }
-
-
-    protected static AccessPermissionRule rule(Right right) {
-        return rule(false, List.of(right), null, null, null);
-    }
-
-
-    protected static AccessPermissionRule rule(List<Attribute> attributes) {
-        return rule(false, null, attributes, null, null);
     }
 
 
@@ -138,5 +133,12 @@ public abstract class AbstractAclFilterTest extends JwtAuthorizationFilterTest {
         AccessRule accessRule = new AccessRule(!disabled, rights, attributes);
 
         return new AccessPermissionRule(accessRule, objects, formula, List.of());
+    }
+
+
+    protected static TimeValue fromString(String from) throws ValueFormatException {
+        TimeValue value = new TimeValue();
+        value.fromString(from);
+        return value;
     }
 }

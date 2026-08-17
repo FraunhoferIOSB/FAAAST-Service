@@ -93,7 +93,7 @@ public abstract class AbstractBinaryComparison implements LogicalExpression, Que
      */
     protected void validate(TypedValue<?> left, TypedValue<?> right) throws IllegalArgumentException {
         if (!left.getDataType().equals(right.getDataType())) {
-            throw new IllegalArgumentException(String.format("operands to %s are not of same type", this.getClass().getSimpleName()));
+            throw new IllegalArgumentException(String.format("operands to %s are not of same type: [%s, %s]", this.getClass().getSimpleName(), left.getDataType(), right.getDataType()));
         }
     }
 

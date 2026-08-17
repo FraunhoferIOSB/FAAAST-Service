@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter;
 
 import static org.junit.Assert.assertEquals;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.AccessPermissionRule;
 import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.AccessObject;
@@ -33,7 +34,7 @@ public class AclObjectsFilterTest extends AbstractAclFilterTest {
 
 
     @Test
-    public void testKeepsObjects() {
+    public void testKeepsObjects() throws ValueFormatException {
         AccessPermissionRule unfilteredRule = rule();
 
         AccessObject[] invalidObjects = new AccessObject[] {

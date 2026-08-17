@@ -24,6 +24,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.comparison.GreaterThanE
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.comparison.GreaterThanOperation;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.comparison.LessThanEqualsOperation;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.comparison.LessThanOperation;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.comparison.NotEqualsOperation;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.LogicalExpression;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.logical.AndOperation;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.ClaimAttribute;
@@ -32,6 +33,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.globa
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.global.GlobalAttribute;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.global.LocalNow;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.global.UtcNow;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.cast.CastToTime;
 import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.AccessPermissionRule;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.BooleanValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.StringValue;
@@ -60,28 +62,20 @@ public class AclAttributeInjectionInterceptorTest extends AbstractAclFilterTest 
         assertEquals(1, actual.size());
         LogicalExpression formula = actual.get(0).formula();
         assertTrue(formula.isBoolean());
-        assertTrue(((BooleanValue) formula.asOperand().asTypedValue()).getValue());
+        assertTrue(Boolean.TRUE.equals(formula.asBoolean()));
     }
 
 
     private LogicalExpression formulaWithAttributes() throws ValueFormatException {
         ClaimAttribute claimAttribute = new ClaimAttribute("name");
-        GlobalAttribute utcNow = new UtcNow();
-        GlobalAttribute clientNow = new ClientNow();
-        GlobalAttribute localNow = new LocalNow();
-        GlobalAttribute anonymous = new Anonymous();
         return new AndOperation(List.of(
                 new EqualsOperation(claimAttribute, new StringValue(JOHN_DOE.get(claimAttribute.getClaim()))),
-                new GreaterThanEqualsOperation(utcNow, fromString("00:00")),
-                new LessThanEqualsOperation(clientNow, fromString("23:59:59")),
-                new LessThanOperation(localNow, fromString("00:00")),
-                new GreaterThanOperation(anonymous, new StringValue("abc-test"))));
+                new GreaterThanEqualsOperation(new CastToTime(new UtcNow()), fromString("00:00")),
+                new LessThanEqualsOperation(new CastToTime(new ClientNow()), fromString("23:59:59")),
+                new LessThanOperation(new CastToTime(new LocalNow()), fromString("23:59:59")),
+                new NotEqualsOperation(new Anonymous(), new BooleanValue(true))
+        )
+        );
     }
 
-
-    private TimeValue fromString(String from) throws ValueFormatException {
-        TimeValue value = new TimeValue();
-        value.fromString(from);
-        return value;
-    }
 }

@@ -16,7 +16,11 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.glob
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.EvaluationContext;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.Operand;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DateTimeValue;
+
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 
 
 /**
@@ -25,15 +29,16 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DateTimeValue
 public class ClientNow implements GlobalAttribute {
     private static final String ISSUED_AT_CLAIM = "iat";
 
+
     @Override
-    public DateTimeValue evaluatePartially(EvaluationContext evaluationContext) {
+    public Operand evaluatePartially(EvaluationContext evaluationContext) {
         String iat = evaluationContext.getClaim(ISSUED_AT_CLAIM);
         if (iat == null) {
-            throw new IllegalArgumentException("Help");
+            return this;
         }
         var dateTime = new DateTimeValue();
         try {
-            dateTime.fromString(iat);
+            dateTime.fromString(LocalDateTime.ofEpochSecond(Integer.parseInt(iat), 0, ZoneOffset.UTC).toString());
         }
         catch (ValueFormatException e) {
             throw new IllegalArgumentException(String.format("Could not parse claim 'iat': %s", iat), e);
