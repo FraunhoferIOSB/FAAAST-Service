@@ -29,6 +29,12 @@ public interface Operand extends LogicalExpression {
     }
 
 
+    @Override
+    default Operand asOperand() {
+        return this;
+    }
+
+
     /**
      * Returns whether this operand is really a literal.
      * 

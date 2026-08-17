@@ -17,9 +17,24 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object;
 /**
  * An access object referencing a route.
  *
+ * <p>A route is a URL path matching rule. It must not be null or blank. A lone {@code *} matches all routes. Wildcards
+ * ({@code *}) may be used as prefix or suffix to match any number of path segments (e.g. {@code /shells/...} or
+ * {@code /shells/12345/*}).
+ *
  * @param route the route
  */
 public record RouteObject(String route) implements AccessObject {
+
+    public RouteObject {
+        if (route == null || route.isBlank()) {
+            throw new IllegalArgumentException("route must not be null or blank");
+        }
+        if (!route.startsWith("/") && !route.contains("*")) {
+            throw new IllegalArgumentException("route must be a URL path (starting with '/') or contain a '*' wildcard, but was: " + route);
+        }
+    }
+
+
     @Override
     public boolean isRoute() {
         return true;

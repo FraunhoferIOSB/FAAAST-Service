@@ -21,7 +21,8 @@ import java.util.function.Function;
 
 
 /**
- * The AAS Query Language {@code $month} operator, extracting the month from a date-time operand ({@code <dateTimeToNum>}).
+ * The AAS Query Language {@code $month} operator, extracting the month from a date-time operand
+ * ({@code <dateTimeToNum>}).
  */
 public class MonthOperation extends TemporalOperation {
 

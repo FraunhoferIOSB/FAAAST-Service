@@ -16,7 +16,9 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.match;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.EvaluationContext;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.LogicalExpression;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.BooleanValue;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -31,6 +33,30 @@ public record MatchExpression(List<QueryMatchElement> elements) implements Query
 
     @Override
     public LogicalExpression evaluatePartially(EvaluationContext evaluationContext) {
-        throw new UnsupportedOperationException("not yet implemented");
+        List<QueryMatchElement> evaluated = new ArrayList<>();
+        boolean changed = false;
+
+        for (QueryMatchElement element: elements) {
+            LogicalExpression folded = element.evaluatePartially(evaluationContext);
+            if (folded != element) {
+                changed = true;
+            }
+
+            if (folded.isBoolean()) {
+                // A $match requires all contained conditions to hold, hence a single false condition invalidates it
+                if (Boolean.FALSE.equals(folded.asBoolean())) {
+                    return new BooleanValue(false);
+                }
+                changed = true;
+                continue;
+            }
+
+            evaluated.add((QueryMatchElement) folded);
+        }
+
+        if (evaluated.isEmpty()) {
+            return new BooleanValue(true);
+        }
+        return changed ? new MatchExpression(evaluated) : this;
     }
 }

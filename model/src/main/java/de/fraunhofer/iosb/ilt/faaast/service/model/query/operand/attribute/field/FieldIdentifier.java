@@ -24,7 +24,8 @@ import java.util.Objects;
 /**
  * A field identifier referencing a specific AAS attribute to be examined in a query.
  *
- * <p>A field identifier follows the notation {@code <RootDeclaration> ( "." <IdShortPath> | "" ) "#" <AttributeDeclaration>},
+ * <p>A field identifier follows the notation
+ * {@code <RootDeclaration> ( "." <IdShortPath> | "" ) "#" <AttributeDeclaration>},
  * e.g. {@code $sme#value} or {@code $aas#assetInformation.assetKind}. The root declaration selects the kind of element
  * the expression starts from and the attribute declaration points to an atomic value used as input for comparisons.
  */

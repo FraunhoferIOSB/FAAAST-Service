@@ -21,7 +21,8 @@ import java.util.function.Function;
 
 
 /**
- * The AAS Query Language {@code $year} operator, extracting the year from a date-time operand ({@code <dateTimeToNum>}).
+ * The AAS Query Language {@code $year} operator, extracting the year from a date-time operand
+ * ({@code <dateTimeToNum>}).
  */
 public class YearOperation extends TemporalOperation {
 

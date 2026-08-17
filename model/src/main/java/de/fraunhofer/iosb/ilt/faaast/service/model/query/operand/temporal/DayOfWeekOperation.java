@@ -22,7 +22,7 @@ import java.util.function.Function;
 
 /**
  * The AAS Query Language {@code $dayOfWeek} operator, extracting the day of week from a date-time operand
- * ({@code <dateTimeToNum>}).
+ * ({@code <dateTimeToNum>}). The day of week is returned as a number starting with {@code 0} for Sunday.
  */
 public class DayOfWeekOperation extends TemporalOperation {
 
@@ -33,7 +33,7 @@ public class DayOfWeekOperation extends TemporalOperation {
 
     @Override
     protected Function<DateTimeValue, Integer> operation() {
-        return dtv -> dtv.getValue().getDayOfWeek().getValue();
+        return dtv -> dtv.getValue().getDayOfWeek().getValue() % 7;
     }
 
 

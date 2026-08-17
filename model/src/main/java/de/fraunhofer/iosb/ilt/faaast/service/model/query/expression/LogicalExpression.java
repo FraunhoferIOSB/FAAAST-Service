@@ -91,7 +91,5 @@ public interface LogicalExpression extends AccessRuleEntity<LogicalExpression> {
      */
     default Operand asOperand() {
         throw new UnsupportedOperationException(String.format("%s cannot be transformed to operand", this.getClass().getSimpleName()));
-
     }
-
 }
