@@ -94,11 +94,11 @@ public class TestConstants {
 
     public static final String COMMON_ATTRIBUTES = "CommonAttributes";
 
-    public static final int AAS_AAS_TYPE_ID = 1002;
+    public static final int AAS_AAS_TYPE_ID = 1001;
     public static final int AAS_REFERENCE_TYPE_ID = 1004;
     public static final int AAS_ASSET_TYPE_ID = 1005;
     public static final int AAS_SUBMODEL_TYPE_ID = 1002;
-    public static final int AAS_SUBMODEL_ELEM_COLL_TYPE_ID = 1010;
+    public static final int AAS_SUBMODEL_ELEM_COLL_TYPE_ID = 1004;
     public static final int AAS_OREDER_SM_ELEM_COLL_TYPE_ID = 1011;
     public static final int AAS_PROPERTY_TYPE_ID = 2000;
     public static final int AAS_IDENTIFIER_TYPE_ID = 1029;
@@ -114,6 +114,7 @@ public class TestConstants {
     public static final int AAS_SPECIFIC_ASSET_ID_LIST_TYPE_ID = 1043;
     public static final int AAS_EMBEDDED_DATA_SPECIFICATION_LIST = 1050;
     public static final int AAS_KEY_DATA_TYPE_ID = 3011;
+    public static final int AAS_FILE_TYPE_ID = 1007;
 
     public static final String SERVER_CERT_PATH = "PKI/CA";
     public static final String USER_CERT_PATH = "USERS_PKI/CA";

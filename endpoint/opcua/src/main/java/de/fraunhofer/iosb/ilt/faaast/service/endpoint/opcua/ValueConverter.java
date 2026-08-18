@@ -107,7 +107,7 @@ public class ValueConverter {
 
     private static final String UNKNOWN_KEY_TYPE = "unknown KeyType: ";
     private static final Logger LOGGER = LoggerFactory.getLogger(ValueConverter.class);
-    private static final List<DatatypeMapper> typeList;
+    private static final List<DatatypeMapper> TYPE_LIST;
     private static final Map<ModellingKind, AASModellingKind> MODELING_KIND_MAP;
     private static final Map<QualifierKind, AASQualifierKind> QUALIFIER_KIND_MAP;
     private static final Map<AssetKind, AASAssetKind> ASSET_KIND_MAP;
@@ -142,7 +142,7 @@ public class ValueConverter {
     }
 
     static {
-        typeList = new ArrayList<>();
+        TYPE_LIST = new ArrayList<>();
         //        typeList.add(new DatatypeMapper(Identifiers.ByteString, Datatype.BASE64_BINARY, AASDataTypeDefXsd.Base64Binary));
         //        typeList.add(new DatatypeMapper(Identifiers.ByteString, Datatype.HEX_BINARY, AASDataTypeDefXsd.HexBinary));
         //        typeList.add(new DatatypeMapper(Identifiers.Boolean, Datatype.BOOLEAN, AASDataTypeDefXsd.Boolean));
@@ -174,36 +174,36 @@ public class ValueConverter {
         //        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.GYEAR, AASDataTypeDefXsd.GYear));
         //        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.GYEAR_MONTH, AASDataTypeDefXsd.GYearMonth));
         // TODO: check mappings
-        typeList.add(new DatatypeMapper(Identifiers.ByteString, Datatype.BASE64_BINARY));
-        typeList.add(new DatatypeMapper(Identifiers.ByteString, Datatype.HEX_BINARY));
-        typeList.add(new DatatypeMapper(Identifiers.Boolean, Datatype.BOOLEAN));
-        typeList.add(new DatatypeMapper(Identifiers.DateTime, Datatype.DATE_TIME));
-        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.DECIMAL));
-        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.INTEGER));
-        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.POSITIVE_INTEGER));
-        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.NON_NEGATIVE_INTEGER));
-        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.NEGATIVE_INTEGER));
-        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.NON_POSITIVE_INTEGER));
-        typeList.add(new DatatypeMapper(Identifiers.Int32, Datatype.INT));
-        typeList.add(new DatatypeMapper(Identifiers.UInt32, Datatype.UNSIGNED_INT));
-        typeList.add(new DatatypeMapper(Identifiers.Int64, Datatype.LONG));
-        typeList.add(new DatatypeMapper(Identifiers.UInt64, Datatype.UNSIGNED_LONG));
-        typeList.add(new DatatypeMapper(Identifiers.Int16, Datatype.SHORT));
-        typeList.add(new DatatypeMapper(Identifiers.UInt16, Datatype.UNSIGNED_SHORT));
-        typeList.add(new DatatypeMapper(Identifiers.SByte, Datatype.BYTE));
-        typeList.add(new DatatypeMapper(Identifiers.Byte, Datatype.UNSIGNED_BYTE));
-        typeList.add(new DatatypeMapper(Identifiers.Double, Datatype.DOUBLE));
-        typeList.add(new DatatypeMapper(Identifiers.Float, Datatype.FLOAT));
-        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.STRING));
-        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.ANY_URI));
-        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.DATE));
-        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.TIME));
-        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.DURATION));
-        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.GDAY));
-        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.GMONTH));
-        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.GMONTH_DAY));
-        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.GYEAR));
-        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.GYEAR_MONTH));
+        TYPE_LIST.add(new DatatypeMapper(Identifiers.ByteString, Datatype.BASE64_BINARY));
+        TYPE_LIST.add(new DatatypeMapper(Identifiers.ByteString, Datatype.HEX_BINARY));
+        TYPE_LIST.add(new DatatypeMapper(Identifiers.Boolean, Datatype.BOOLEAN));
+        TYPE_LIST.add(new DatatypeMapper(Identifiers.DateTime, Datatype.DATE_TIME));
+        TYPE_LIST.add(new DatatypeMapper(Identifiers.String, Datatype.DECIMAL));
+        TYPE_LIST.add(new DatatypeMapper(Identifiers.String, Datatype.INTEGER));
+        TYPE_LIST.add(new DatatypeMapper(Identifiers.String, Datatype.POSITIVE_INTEGER));
+        TYPE_LIST.add(new DatatypeMapper(Identifiers.String, Datatype.NON_NEGATIVE_INTEGER));
+        TYPE_LIST.add(new DatatypeMapper(Identifiers.String, Datatype.NEGATIVE_INTEGER));
+        TYPE_LIST.add(new DatatypeMapper(Identifiers.String, Datatype.NON_POSITIVE_INTEGER));
+        TYPE_LIST.add(new DatatypeMapper(Identifiers.Int32, Datatype.INT));
+        TYPE_LIST.add(new DatatypeMapper(Identifiers.UInt32, Datatype.UNSIGNED_INT));
+        TYPE_LIST.add(new DatatypeMapper(Identifiers.Int64, Datatype.LONG));
+        TYPE_LIST.add(new DatatypeMapper(Identifiers.UInt64, Datatype.UNSIGNED_LONG));
+        TYPE_LIST.add(new DatatypeMapper(Identifiers.Int16, Datatype.SHORT));
+        TYPE_LIST.add(new DatatypeMapper(Identifiers.UInt16, Datatype.UNSIGNED_SHORT));
+        TYPE_LIST.add(new DatatypeMapper(Identifiers.SByte, Datatype.BYTE));
+        TYPE_LIST.add(new DatatypeMapper(Identifiers.Byte, Datatype.UNSIGNED_BYTE));
+        TYPE_LIST.add(new DatatypeMapper(Identifiers.Double, Datatype.DOUBLE));
+        TYPE_LIST.add(new DatatypeMapper(Identifiers.Float, Datatype.FLOAT));
+        TYPE_LIST.add(new DatatypeMapper(Identifiers.String, Datatype.STRING));
+        TYPE_LIST.add(new DatatypeMapper(Identifiers.String, Datatype.ANY_URI));
+        TYPE_LIST.add(new DatatypeMapper(Identifiers.String, Datatype.DATE));
+        TYPE_LIST.add(new DatatypeMapper(Identifiers.String, Datatype.TIME));
+        TYPE_LIST.add(new DatatypeMapper(Identifiers.String, Datatype.DURATION));
+        TYPE_LIST.add(new DatatypeMapper(Identifiers.String, Datatype.GDAY));
+        TYPE_LIST.add(new DatatypeMapper(Identifiers.String, Datatype.GMONTH));
+        TYPE_LIST.add(new DatatypeMapper(Identifiers.String, Datatype.GMONTH_DAY));
+        TYPE_LIST.add(new DatatypeMapper(Identifiers.String, Datatype.GYEAR));
+        TYPE_LIST.add(new DatatypeMapper(Identifiers.String, Datatype.GYEAR_MONTH));
 
         MODELING_KIND_MAP = new EnumMap<>(ModellingKind.class);
         MODELING_KIND_MAP.put(ModellingKind.INSTANCE, AASModellingKind.of(AASModellingKind.Options.Instance));
@@ -294,14 +294,38 @@ public class ValueConverter {
      * @param valueType The desired valueType
      * @return The corresponding OPC UA type (NodeId)
      */
-    public static NodeId convertValueTypeStringToNodeId(DataTypeDefXsd valueType) {
+    public static NodeId convertDataTypeDefToNodeId(DataTypeDefXsd valueType) {
         NodeId retval;
 
-        Optional<DatatypeMapper> rv = typeList.stream()
+        Optional<DatatypeMapper> rv = TYPE_LIST.stream()
                 .filter(t -> (t.datatype != null) && Objects.equal(t.datatype.getAas4jDatatype(), valueType))
                 .findAny();
         if (rv.isEmpty()) {
             LOGGER.warn("convertValueTypeStringToNodeId: Unknown type: {}", valueType);
+            retval = NodeId.NULL;
+        }
+        else {
+            retval = rv.get().typeNode;
+        }
+
+        return retval;
+    }
+
+
+    /**
+     * Converts the given DataType into the corresponding OPC UA type (NodeId)
+     *
+     * @param datatype The desired datatype
+     * @return The corresponding OPC UA type (NodeId)
+     */
+    public static NodeId convertDataTypeToNodeId(Datatype datatype) {
+        NodeId retval;
+
+        Optional<DatatypeMapper> rv = TYPE_LIST.stream()
+                .filter(t -> (t.datatype != null) && Objects.equal(t.datatype, datatype))
+                .findAny();
+        if (rv.isEmpty()) {
+            LOGGER.warn("convertDataTypeToNodeId: Unknown type: {}", datatype);
             retval = NodeId.NULL;
         }
         else {

@@ -56,18 +56,23 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-import opc.ua.aas.ObjectTypeIds;
+import opc.ua.aas.DataTypeIds;
 import opc.ua.aas.ReferenceTypeIds;
+import opc.ua.aas.datatypes.AASAdministrativeInformation;
 import opc.ua.aas.datatypes.AASAssetAdministrationShellCommonAttributes;
 import opc.ua.aas.datatypes.AASAssetKind;
+import opc.ua.aas.datatypes.AASHasKind;
 import opc.ua.aas.datatypes.AASIdentifiable;
 import opc.ua.aas.datatypes.AASKey;
 import opc.ua.aas.datatypes.AASKeyTypes;
 import opc.ua.aas.datatypes.AASModellingKind;
+import opc.ua.aas.datatypes.AASQualifiable;
 import opc.ua.aas.datatypes.AASQualifier;
+import opc.ua.aas.datatypes.AASReferable;
 import opc.ua.aas.datatypes.AASReference;
 import opc.ua.aas.datatypes.AASSpecificAssetId;
 import opc.ua.aas.datatypes.AASSubmodelCommonAttributes;
+import opc.ua.aas.datatypes.AASSubmodelElementCommonAttributes;
 import opc.ua.aas.objecttypes.AASAssetInformationType;
 import org.awaitility.Awaitility;
 import org.eclipse.digitaltwin.aas4j.v3.model.Qualifier;
@@ -122,28 +127,40 @@ public class TestUtils {
         Assert.assertEquals(desiredName, lt.getText());
     }
 
+    //    public static void checkModelingKindNode(UaClient client, NodeId baseNode, int aasns, AASModellingKind modelingKind)
+    //            throws ServiceException, AddressSpaceException, StatusException, ServiceResultException {
+    //        List<RelativePath> relPath = new ArrayList<>();
+    //        List<RelativePathElement> browsePath = new ArrayList<>();
+    //        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.KIND_NAME)));
+    //        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+    //
+    //        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(baseNode, relPath.toArray(RelativePath[]::new));
+    //        Assert.assertNotNull("checkModelingKindNode Browse Result Null", bpres);
+    //        Assert.assertEquals("checkModelingKindNode Browse Result: size doesn't match", 1, bpres.length);
+    //
+    //        BrowsePathTarget[] targets = bpres[0].getTargets();
+    //        if (modelingKind == null) {
+    //            Assert.assertNull("checkModelingKindNode Browse Target Node not Null", targets);
+    //        }
+    //        else {
+    //            Assert.assertNotNull("checkModelingKindNode Browse Target Node Null", targets);
+    //            Assert.assertTrue("checkModelingKindNode Browse targets empty", targets.length > 0);
+    //
+    //            checkModelingKind(client, client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId()), modelingKind);
+    //        }
+    //    }
 
-    public static void checkModelingKindNode(UaClient client, NodeId baseNode, int aasns, AASModellingKind modelingKind)
-            throws ServiceException, AddressSpaceException, StatusException, ServiceResultException {
-        List<RelativePath> relPath = new ArrayList<>();
-        List<RelativePathElement> browsePath = new ArrayList<>();
-        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.KIND_NAME)));
-        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
-        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(baseNode, relPath.toArray(RelativePath[]::new));
-        Assert.assertNotNull("checkModelingKindNode Browse Result Null", bpres);
-        Assert.assertEquals("checkModelingKindNode Browse Result: size doesn't match", 1, bpres.length);
+    public static void checkSubmodelElementCommonAttributes(UaClient client, int aasns, NodeId baseNode, String category, List<Qualifier> qualifier)
+            throws ServiceException, AddressSpaceException, ServiceResultException {
+        NodeId commonAttributesNodeId = getCommonAttributes(client, baseNode, aasns);
+        Object value = getVariableValue(client, commonAttributesNodeId);
+        Assert.assertNotNull(value);
+        Assert.assertTrue(value instanceof AASSubmodelElementCommonAttributes);
+        AASSubmodelElementCommonAttributes commonAttributesValue = (AASSubmodelElementCommonAttributes) value;
 
-        BrowsePathTarget[] targets = bpres[0].getTargets();
-        if (modelingKind == null) {
-            Assert.assertNull("checkModelingKindNode Browse Target Node not Null", targets);
-        }
-        else {
-            Assert.assertNotNull("checkModelingKindNode Browse Target Node Null", targets);
-            Assert.assertTrue("checkModelingKindNode Browse targets empty", targets.length > 0);
-
-            checkModelingKind(client, client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId()), modelingKind);
-        }
+        checkReferable(commonAttributesValue.getReferable(), category);
+        checkQualifier(commonAttributesValue.getQualifiable(), qualifier);
     }
 
 
@@ -197,33 +214,36 @@ public class TestUtils {
         checkType(client, dataSpecNode, new NodeId(aasns, TestConstants.AAS_REFERENCE_LIST_ID));
     }
 
+    //    public static void checkEmbeddedDataSpecificationNode(AASHasDataSpecification dataSpecificationNode, NodeId node, int aasns) throws ServiceException, ServiceResultException, AddressSpaceException {
+    //        List<RelativePath> relPath = new ArrayList<>();
+    //        List<RelativePathElement> browsePath = new ArrayList<>();
+    //        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.EMBEDDED_DATA_SPECIFICATION_NAME)));
+    //        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+    //
+    //        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(node, relPath.toArray(RelativePath[]::new));
+    //        Assert.assertNotNull("checkEmbeddedDataSpecificationNode Browse Result Null", bpres);
+    //        Assert.assertEquals("checkEmbeddedDataSpecificationNode Browse Result: size doesn't match", 1, bpres.length);
+    //
+    //        BrowsePathTarget[] targets = bpres[0].getTargets();
+    //        Assert.assertNotNull("checkEmbeddedDataSpecificationNode Node Targets Null", targets);
+    //        Assert.assertTrue("checkEmbeddedDataSpecificationNode Node targets empty", targets.length > 0);
+    //
+    //        // Currently we only check that the NodeId is not null and we have the correct type
+    //        NodeId dataSpecNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
+    //        Assert.assertFalse("checkEmbeddedDataSpecificationNode Node not found", NodeId.isNull(dataSpecNode));
+    //
+    //        checkType(client, dataSpecNode, new NodeId(aasns, TestConstants.AAS_EMBEDDED_DATA_SPECIFICATION_LIST));
+    //    }
 
-    public static void checkEmbeddedDataSpecificationNode(UaClient client, NodeId node, int aasns) throws ServiceException, ServiceResultException, AddressSpaceException {
-        List<RelativePath> relPath = new ArrayList<>();
-        List<RelativePathElement> browsePath = new ArrayList<>();
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.EMBEDDED_DATA_SPECIFICATION_NAME)));
-        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
-        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(node, relPath.toArray(RelativePath[]::new));
-        Assert.assertNotNull("checkEmbeddedDataSpecificationNode Browse Result Null", bpres);
-        Assert.assertEquals("checkEmbeddedDataSpecificationNode Browse Result: size doesn't match", 1, bpres.length);
+    public static void checkQualifier(AASQualifiable qualifiable, List<Qualifier> qualifierList) {
+        if (qualifiable == null) {
+            Assert.assertTrue(qualifierList.isEmpty());
+        }
+        else {
+            checkQualifierList(qualifierList, List.of(qualifiable.getQualifier()));
+        }
 
-        BrowsePathTarget[] targets = bpres[0].getTargets();
-        Assert.assertNotNull("checkEmbeddedDataSpecificationNode Node Targets Null", targets);
-        Assert.assertTrue("checkEmbeddedDataSpecificationNode Node targets empty", targets.length > 0);
-
-        // Currently we only check that the NodeId is not null and we have the correct type
-        NodeId dataSpecNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
-        Assert.assertFalse("checkEmbeddedDataSpecificationNode Node not found", NodeId.isNull(dataSpecNode));
-
-        checkType(client, dataSpecNode, new NodeId(aasns, TestConstants.AAS_EMBEDDED_DATA_SPECIFICATION_LIST));
-    }
-
-
-    public static void checkQualifierNode(UaClient client, NodeId node, int aasns, List<Qualifier> qualifierList)
-            throws ServiceException, ServiceResultException, AddressSpaceException, StatusException {
-        // TODO
-        LOGGER.info("checkQualifierNode not yet implemented");
         //        List<RelativePath> relPath = new ArrayList<>();
         //        List<RelativePathElement> browsePath = new ArrayList<>();
         //        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.QUALIFIER_NAME)));
@@ -255,75 +275,6 @@ public class TestUtils {
         //        }
         //
         //        checkQualifierList(qualifierList, nodeList);
-    }
-
-
-    public static void checkAdministrationNode(UaClient client, NodeId baseNode, int aasns, String version, String revision)
-            throws ServiceException, StatusException, ServiceResultException, AddressSpaceException {
-        List<RelativePath> relPath = new ArrayList<>();
-        List<RelativePathElement> browsePath = new ArrayList<>();
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.ADMINISTRATION_NAME)));
-        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
-
-        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(baseNode, relPath.toArray(RelativePath[]::new));
-        Assert.assertNotNull("checkAdministrationNode Browse(1) Result Null", bpres);
-        Assert.assertEquals("checkAdministrationNode Browse(1) Result: size doesn't match", 1, bpres.length);
-
-        BrowsePathTarget[] targets = bpres[0].getTargets();
-        Assert.assertNotNull("checkAdministrationNode Browse Administration Node Null", targets);
-        Assert.assertTrue("checkAdministrationNode Browse Administration targets empty", targets.length > 0);
-        NodeId administrationNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
-
-        checkType(client, administrationNode, new NodeId(aasns, TestConstants.AAS_ADMIN_INFO_TYPE_ID));
-
-        Assert.assertNotNull(administrationNode);
-        Assert.assertNotEquals(NodeId.NULL, administrationNode);
-
-        relPath.clear();
-
-        int size = 0;
-        if (version != null) {
-            browsePath.clear();
-            browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.VERSION_NAME)));
-            relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
-            size++;
-        }
-
-        if (revision != null) {
-            browsePath.clear();
-            browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.REVISION_NAME)));
-            relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
-            size++;
-        }
-
-        if (size > 0) {
-            bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(administrationNode, relPath.toArray(RelativePath[]::new));
-            Assert.assertNotNull("checkAdministrationNode Browse(2) Result Null", bpres);
-            Assert.assertEquals("checkAdministrationNode Browse(2) Result: size doesn't match", size, bpres.length);
-
-            int index = 0;
-            if (version != null) {
-                targets = bpres[index].getTargets();
-                Assert.assertNotNull("checkAdministrationNode Browse Version Node Null, index " + index, targets);
-                Assert.assertTrue("checkAdministrationNode Browse Version targets empty", targets.length > 0);
-
-                DataValue value = client.readValue(targets[0].getTargetId());
-                Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
-                Assert.assertEquals(version, value.getValue().toString());
-                index++;
-            }
-
-            if (revision != null) {
-                targets = bpres[index].getTargets();
-                Assert.assertNotNull("checkAdministrationNode Browse Revision Node Null", targets);
-                Assert.assertTrue("checkAdministrationNode Browse Revision targets empty", targets.length > 0);
-
-                DataValue value = client.readValue(targets[0].getTargetId());
-                Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
-                Assert.assertEquals(revision, value.getValue().toString());
-                index++;
-            }
-        }
     }
 
 
@@ -400,9 +351,11 @@ public class TestUtils {
         NodeId propertyNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
 
         checkDisplayName(client, propertyNode, name);
-        checkCategoryNode(client, propertyNode, aasns, category);
-        checkEmbeddedDataSpecificationNode(client, propertyNode, aasns);
-        checkQualifierNode(client, propertyNode, aasns, qualifierList);
+
+        checkSubmodelElementCommonAttributes(client, aasns, propertyNode, category, qualifierList);
+        //checkCategoryNode(client, propertyNode, aasns, category);
+        //checkEmbeddedDataSpecificationNode(client, propertyNode, aasns);
+        //checkQualifierNode(client, propertyNode, aasns, qualifierList);
 
         relPath.clear();
         browsePath.clear();
@@ -453,34 +406,41 @@ public class TestUtils {
 
         checkType(client, propertyNode, new NodeId(aasns, TestConstants.AAS_PROPERTY_TYPE_ID));
         checkDisplayName(client, propertyNode, name);
-        checkCategoryNode(client, propertyNode, aasns, category);
-        checkEmbeddedDataSpecificationNode(client, propertyNode, aasns);
-        checkQualifierNode(client, propertyNode, aasns, qualifierList);
+        checkSubmodelElementCommonAttributes(client, aasns, propertyNode, category, qualifierList);
+        //checkCategoryNode(client, propertyNode, aasns, category);
+        //checkEmbeddedDataSpecificationNode(client, propertyNode, aasns);
+        //checkQualifierNode(client, propertyNode, aasns, qualifierList);
 
-        relPath.clear();
-        browsePath.clear();
-        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.PROPERTY_VALUE_TYPE_NAME)));
-        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
-        browsePath.clear();
-        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.PROPERTY_VALUE_NAME)));
-        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+        UaVariable varNode = (UaVariable) client.getAddressSpace().getNode(propertyNode);
+        NodeId datatypeNode = varNode.getDataTypeId();
+        Assert.assertEquals(ValueConverter.convertDataTypeToNodeId(valueType), datatypeNode);
 
-        bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(propertyNode, relPath.toArray(RelativePath[]::new));
-        Assert.assertNotNull("checkAasPropertyObject Browse Value & Type Result Null", bpres);
-        Assert.assertEquals("checkAasPropertyObject Browse Value & Type Result: size doesn't match", 2, bpres.length);
+        DataValue value = varNode.getValue();
 
-        targets = bpres[0].getTargets();
-        Assert.assertNotNull("checkAasPropertyObject ValueType Null", targets);
-        Assert.assertTrue("checkAasPropertyObject ValueType empty", targets.length > 0);
-        DataValue value = client.readValue(targets[0].getTargetId());
-        Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
-        Assert.assertEquals(valueType.getName(), value.getValue().toString());
-
-        targets = bpres[1].getTargets();
-        Assert.assertNotNull("checkAasPropertyObject Value Null", targets);
-        Assert.assertTrue("checkAasPropertyObject value empty", targets.length > 0);
-        value = client.readValue(targets[0].getTargetId());
-        Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
+        //        relPath.clear();
+        //        browsePath.clear();
+        //        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.PROPERTY_VALUE_TYPE_NAME)));
+        //        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+        //        browsePath.clear();
+        //        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.PROPERTY_VALUE_NAME)));
+        //        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+        //
+        //        bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(propertyNode, relPath.toArray(RelativePath[]::new));
+        //        Assert.assertNotNull("checkAasPropertyObject Browse Value & Type Result Null", bpres);
+        //        Assert.assertEquals("checkAasPropertyObject Browse Value & Type Result: size doesn't match", 2, bpres.length);
+        //
+        //        targets = bpres[0].getTargets();
+        //        Assert.assertNotNull("checkAasPropertyObject ValueType Null", targets);
+        //        Assert.assertTrue("checkAasPropertyObject ValueType empty", targets.length > 0);
+        //        DataValue value = client.readValue(targets[0].getTargetId());
+        //        Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
+        //        Assert.assertEquals(valueType.getName(), value.getValue().toString());
+        //
+        //        targets = bpres[1].getTargets();
+        //        Assert.assertNotNull("checkAasPropertyObject Value Null", targets);
+        //        Assert.assertTrue("checkAasPropertyObject value empty", targets.length > 0);
+        //        value = client.readValue(targets[0].getTargetId());
+        //        Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
 
         Variant var = new Variant(propValue);
         Assert.assertEquals(var, value.getValue());
@@ -505,14 +465,15 @@ public class TestUtils {
         Assert.assertTrue("checkAasPropertyFile Property empty", targets.length > 0);
         NodeId propertyNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
 
+        checkType(client, propertyNode, new NodeId(aasns, TestConstants.AAS_FILE_TYPE_ID));
         checkDisplayName(client, propertyNode, name);
 
         relPath.clear();
         browsePath.clear();
-        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.PROPERTY_CONTENT_TYPE_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HasComponent, false, true, new QualifiedName(aasns, TestConstants.PROPERTY_CONTENT_TYPE_NAME)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
         browsePath.clear();
-        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.PROPERTY_VALUE_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HasComponent, false, true, new QualifiedName(aasns, TestConstants.PROPERTY_VALUE_NAME)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
         browsePath.clear();
 
@@ -672,52 +633,48 @@ public class TestUtils {
     }
 
 
-    public static void checkIdentification(UaClient client, NodeId identificationNode, int aasns, String id)
+    public static void checkCommonAttributes(UaClient client, NodeId baseNode, int aasns, CommonAttributesData data)
             throws ServiceException, StatusException, AddressSpaceException, ServiceResultException {
-
-        List<RelativePath> relPath = new ArrayList<>();
-        List<RelativePathElement> browsePath = new ArrayList<>();
-        browsePath.add(new RelativePathElement(client.getAddressSpace().getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasCommonAttribute), false, true,
-                new QualifiedName(aasns, TestConstants.COMMON_ATTRIBUTES)));
-        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
-
-        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(identificationNode, relPath.toArray(RelativePath[]::new));
-        Assert.assertNotNull("checkIdentification Browse Result Null", bpres);
-        Assert.assertEquals("checkIdentification Browse Result: size doesn't match", 1, bpres.length);
-
-        BrowsePathTarget[] targets = bpres[0].getTargets();
-        Assert.assertNotNull("checkIdentification CommonAttributes Null", targets);
-        Assert.assertTrue("checkIdentification CommonAttributes empty", targets.length > 0);
-
-        NodeId type = getType(client, identificationNode);
-        if (client.getNamespaceTable().nodeIdEquals(type, ObjectTypeIds.AASSubmodelType)) {
-            checkIdentificationSubmodel(client, client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId()), id);
-        }
-        else if (client.getNamespaceTable().nodeIdEquals(type, ObjectTypeIds.AASAssetAdministrationShellType)) {
-            checkIdentificationAas(client, client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId()), id);
-        }
 
         //List<RelativePath> relPath = new ArrayList<>();
         //List<RelativePathElement> browsePath = new ArrayList<>();
-        //browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, "Id")));
+        //browsePath.add(new RelativePathElement(client.getAddressSpace().getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasCommonAttribute), false, true,
+        //        new QualifiedName(aasns, TestConstants.COMMON_ATTRIBUTES)));
         //relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         //BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(identificationNode, relPath.toArray(RelativePath[]::new));
-        //Assert.assertNotNull("checkIdentification Browse Result Null", bpres);
-        //Assert.assertEquals("checkIdentification Browse Result: size doesn't match", 1, bpres.length);
+        //Assert.assertNotNull("checkCommonAttributes Browse Result Null", bpres);
+        //Assert.assertEquals("checkCommonAttributes Browse Result: size doesn't match", 1, bpres.length);
 
         //BrowsePathTarget[] targets = bpres[0].getTargets();
-        //Assert.assertNotNull("checkIdentification Id Null", targets);
-        //Assert.assertTrue("checkIdentification Id empty", targets.length > 0);
-        //DataValue value = client.readValue(targets[0].getTargetId());
-        //Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
-        //Assert.assertEquals(id, value.getValue().toString());
+        //Assert.assertNotNull("checkCommonAttributes CommonAttributes Null", targets);
+        //Assert.assertTrue("checkCommonAttributes CommonAttributes empty", targets.length > 0);
+
+        //NodeId commonAttrNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
+
+        NodeId commonAttrNode = getCommonAttributes(client, baseNode, aasns);
+
+        NodeId type = getType(client, commonAttrNode);
+        if (client.getNamespaceTable().nodeIdEquals(type, DataTypeIds.AASSubmodelCommonAttributes)) {
+            checkSubmodelCommonAttributes(client, commonAttrNode, data);
+        }
+        else if (client.getNamespaceTable().nodeIdEquals(type, DataTypeIds.AASAssetAdministrationShellCommonAttributes)) {
+            checkAasCommonAttributes(client, commonAttrNode, data);
+        }
     }
 
 
-    public static void checkIdentifiable(AASIdentifiable identifiable, String id) {
-        Assert.assertNotNull(identifiable);
-        Assert.assertEquals(id, identifiable.getId());
+    public static void checkIdentifiable(AASIdentifiable identifiable, CommonAttributesData data) {
+        if (identifiable == null) {
+            Assert.assertNull(data.id());
+            Assert.assertNull(data.version());
+            Assert.assertNull(data.revision());
+        }
+        else {
+            Assert.assertEquals(data.id(), identifiable.getId());
+
+            checkAdministration(identifiable, data.version(), data.revision());
+        }
     }
 
 
@@ -798,14 +755,21 @@ public class TestUtils {
     }
 
 
-    private static void checkModelingKind(UaClient client, NodeId kindNode, AASModellingKind modelingKind)
+    private static void checkModelingKind(AASHasKind kindNode, AASModellingKind modelingKind)
             throws ServiceException, AddressSpaceException, StatusException, ServiceResultException {
-        checkDisplayName(client, kindNode, TestConstants.KIND_NAME);
-        checkType(client, kindNode, Identifiers.PropertyType);
+        if (kindNode == null) {
+            Assert.assertNull(modelingKind);
+        }
+        else {
+            Assert.assertEquals(modelingKind, kindNode.getKind());
+        }
 
-        DataValue value = client.readValue(kindNode);
-        //Assert.assertEquals(modelingKind.getValue(), value.getValue().intValue());
-        Assert.assertEquals(modelingKind, value.getValue().asOptionSet(AASModellingKind.SPECIFICATION));
+        //checkDisplayName(client, kindNode, TestConstants.KIND_NAME);
+        //checkType(client, kindNode, Identifiers.PropertyType);
+
+        //DataValue value = client.readValue(kindNode);
+        //// Assert.assertEquals(modelingKind.getValue(), value.getValue().intValue());
+
     }
 
 
@@ -940,23 +904,138 @@ public class TestUtils {
     }
 
 
-    private static void checkIdentificationAas(UaClient client, NodeId commonAttributesNodeId, String id)
+    private static void checkAasCommonAttributes(UaClient client, NodeId commonAttributesNodeId, CommonAttributesData data)
             throws ServiceResultException, ServiceException, AddressSpaceException {
 
         Object value = getVariableValue(client, commonAttributesNodeId);
+        Assert.assertNotNull(value);
         Assert.assertTrue(value instanceof AASAssetAdministrationShellCommonAttributes);
         AASAssetAdministrationShellCommonAttributes commonAttributesValue = (AASAssetAdministrationShellCommonAttributes) value;
-        checkIdentifiable(commonAttributesValue.getIdentifiable(), id);
+
+        checkIdentifiable(commonAttributesValue.getIdentifiable(), data);
+        //checkIdentificationAas(client, commonAttributesNodeId, id);
     }
 
 
-    private static void checkIdentificationSubmodel(UaClient client, NodeId commonAttributesNodeId, String id)
-            throws ServiceResultException, ServiceException, AddressSpaceException {
+    private static void checkSubmodelCommonAttributes(UaClient client, NodeId commonAttributesNodeId, CommonAttributesData data)
+            throws ServiceResultException, ServiceException, AddressSpaceException, StatusException {
 
         Object value = getVariableValue(client, commonAttributesNodeId);
+        Assert.assertNotNull(value);
         Assert.assertTrue(value instanceof AASSubmodelCommonAttributes);
         AASSubmodelCommonAttributes commonAttributesValue = (AASSubmodelCommonAttributes) value;
-        checkIdentifiable(commonAttributesValue.getIdentifiable(), id);
+
+        AASIdentifiable ident = commonAttributesValue.getIdentifiable();
+        checkIdentifiable(ident, data);
+        checkModelingKind(commonAttributesValue.getHasKind(), data.modelingKind());
+        //checkIdentificationSubmodel(client, commonAttributesNodeId, id);
+    }
+
+    //    private static void checkIdentificationAas(UaClient client, NodeId commonAttributesNodeId, String id)
+    //            throws ServiceResultException, ServiceException, AddressSpaceException {
+    //
+    //        Object value = getVariableValue(client, commonAttributesNodeId);
+    //        Assert.assertTrue(value instanceof AASAssetAdministrationShellCommonAttributes);
+    //        AASAssetAdministrationShellCommonAttributes commonAttributesValue = (AASAssetAdministrationShellCommonAttributes) value;
+    //        checkIdentifiable(commonAttributesValue.getIdentifiable(), id);
+    //    }
+
+    //    private static void checkIdentificationSubmodel(UaClient client, NodeId commonAttributesNodeId, String id)
+    //            throws ServiceResultException, ServiceException, AddressSpaceException {
+    //
+    //        Object value = getVariableValue(client, commonAttributesNodeId);
+    //        Assert.assertTrue(value instanceof AASSubmodelCommonAttributes);
+    //        AASSubmodelCommonAttributes commonAttributesValue = (AASSubmodelCommonAttributes) value;
+    //        checkIdentifiable(commonAttributesValue.getIdentifiable(), id);
+    //    }
+
+
+    private static void checkReferable(AASReferable referable, String category) {
+        if (referable == null) {
+            Assert.assertNull(category);
+        }
+        else {
+            Assert.assertEquals(category, referable.getCategory());
+        }
+    }
+
+
+    private static void checkAdministration(AASIdentifiable identifiable, String version, String revision) {
+
+        AASAdministrativeInformation adminInfo = identifiable.getAdministration();
+        if (adminInfo == null) {
+            Assert.assertNull(version);
+            Assert.assertNull(revision);
+        }
+        else {
+            Assert.assertEquals(version, adminInfo.getVersion());
+            Assert.assertEquals(revision, adminInfo.getRevision());
+        }
+
+        //        List<RelativePath> relPath = new ArrayList<>();
+        //        List<RelativePathElement> browsePath = new ArrayList<>();
+        //        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.ADMINISTRATION_NAME)));
+        //        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+        //
+        //        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(baseNode, relPath.toArray(RelativePath[]::new));
+        //        Assert.assertNotNull("checkAdministrationNode Browse(1) Result Null", bpres);
+        //        Assert.assertEquals("checkAdministrationNode Browse(1) Result: size doesn't match", 1, bpres.length);
+        //
+        //        BrowsePathTarget[] targets = bpres[0].getTargets();
+        //        Assert.assertNotNull("checkAdministrationNode Browse Administration Node Null", targets);
+        //        Assert.assertTrue("checkAdministrationNode Browse Administration targets empty", targets.length > 0);
+        //        NodeId administrationNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
+        //
+        //        checkType(client, administrationNode, new NodeId(aasns, TestConstants.AAS_ADMIN_INFO_TYPE_ID));
+        //
+        //        Assert.assertNotNull(administrationNode);
+        //        Assert.assertNotEquals(NodeId.NULL, administrationNode);
+        //
+        //        relPath.clear();
+        //
+        //        int size = 0;
+        //        if (version != null) {
+        //            browsePath.clear();
+        //            browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.VERSION_NAME)));
+        //            relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+        //            size++;
+        //        }
+        //
+        //        if (revision != null) {
+        //            browsePath.clear();
+        //            browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.REVISION_NAME)));
+        //            relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+        //            size++;
+        //        }
+        //
+        //        if (size > 0) {
+        //            bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(administrationNode, relPath.toArray(RelativePath[]::new));
+        //            Assert.assertNotNull("checkAdministrationNode Browse(2) Result Null", bpres);
+        //            Assert.assertEquals("checkAdministrationNode Browse(2) Result: size doesn't match", size, bpres.length);
+        //
+        //            int index = 0;
+        //            if (version != null) {
+        //                targets = bpres[index].getTargets();
+        //                Assert.assertNotNull("checkAdministrationNode Browse Version Node Null, index " + index, targets);
+        //                Assert.assertTrue("checkAdministrationNode Browse Version targets empty", targets.length > 0);
+        //
+        //                DataValue value = client.readValue(targets[0].getTargetId());
+        //                Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
+        //                Assert.assertEquals(version, value.getValue().toString());
+        //                index++;
+        //            }
+        //
+        //            if (revision != null) {
+        //                targets = bpres[index].getTargets();
+        //                Assert.assertNotNull("checkAdministrationNode Browse Revision Node Null", targets);
+        //                Assert.assertTrue("checkAdministrationNode Browse Revision targets empty", targets.length > 0);
+        //
+        //                DataValue value = client.readValue(targets[0].getTargetId());
+        //                Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
+        //                Assert.assertEquals(revision, value.getValue().toString());
+        //                index++;
+        //            }
+        //        }
     }
 
 
@@ -970,6 +1049,25 @@ public class TestUtils {
         Object value = dv.getValue().getValue();
         Assert.assertNotNull(value);
         return value;
+    }
+
+
+    private static NodeId getCommonAttributes(UaClient client, NodeId baseNode, int aasns) throws ServiceResultException, ServiceException {
+        List<RelativePath> relPath = new ArrayList<>();
+        List<RelativePathElement> browsePath = new ArrayList<>();
+        browsePath.add(new RelativePathElement(client.getAddressSpace().getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasCommonAttribute), false, true,
+                new QualifiedName(aasns, TestConstants.COMMON_ATTRIBUTES)));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+
+        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(baseNode, relPath.toArray(RelativePath[]::new));
+        Assert.assertNotNull("getCommonAttributes Browse(1) Result Null", bpres);
+        Assert.assertEquals("getCommonAttributes Browse(1) Result: size doesn't match", 1, bpres.length);
+
+        BrowsePathTarget[] targets = bpres[0].getTargets();
+        Assert.assertNotNull("getCommonAttributes Browse CommonAttributes Node Null", targets);
+        Assert.assertTrue("getCommonAttributes Browse CommonAttributes targets empty", targets.length > 0);
+        NodeId commonAttrNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
+        return commonAttrNode;
     }
 
     //    private static void checkSpecificAssetIdNode(UaClient client, NodeId node, int aasns, Map<String, String> map)

@@ -81,7 +81,7 @@ public class PropertyCreator extends SubmodelElementCreator {
             //test = nodeManager.findNode(nid);
             //LOGGER.info("addAasProperty: Read (2): {}", test);
 
-            //addSubmodelElementBaseData(prop, aasProperty, nodeManager);
+            addSubmodelElementBaseData(prop, aasProperty, nodeManager);
 
             // ValueId
             //Reference ref = aasProperty.getValueId();

@@ -30,6 +30,7 @@ import java.util.List;
 import opc.ua.aas.datatypes.AASReferable;
 import opc.ua.aas.datatypes.AASSubmodelElementCommonAttributes;
 import opc.ua.aas.objecttypes.AASSubmodelElementObjectType;
+import opc.ua.aas.variabletypes.AASSubmodelElementVariableType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Capability;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.Entity;
@@ -164,38 +165,47 @@ public class SubmodelElementCreator {
      * @throws StatusException If the operation fails
      * @param nodeManager The corresponding Node Manager
      */
-    public static void addSubmodelElementBaseData(AASSubmodelElementObjectType node, SubmodelElement element, AasServiceNodeManager nodeManager)
+    protected static void addSubmodelElementBaseData(AASSubmodelElementVariableType node, SubmodelElement element, AasServiceNodeManager nodeManager)
             throws StatusException {
+
         if ((node != null) && (element != null)) {
             if (node.getCommonAttributes() == null) {
                 node.setCommonAttributes(new AASSubmodelElementCommonAttributes());
             }
 
-            // Category
-            String category = element.getCategory();
-            if (category != null) {
-                if (node.getCommonAttributes().getReferable() == null) {
-                    node.getCommonAttributes().setReferable(new AASReferable());
-                }
-                node.getCommonAttributes().getReferable().setCategory(category);
-            }
-
-            // DataSpecifications
-            EmbeddedDataSpecificationCreator.addEmbeddedDataSpecifications(node.getCommonAttributes(), element.getEmbeddedDataSpecifications(), nodeManager);
+            setSubmodelElementCommonAttributes(node.getCommonAttributes(), element, nodeManager);
 
             // SemanticId
             if (element.getSemanticId() != null) {
                 ConceptDescriptionCreator.addSemanticId(node, element.getSemanticId());
             }
 
-            // Qualifiers
-            List<Qualifier> qualifiers = element.getQualifiers();
-            if ((qualifiers != null) && (!qualifiers.isEmpty())) {
-                //if (node.getQualifierNode() == null) {
-                //    QualifierCreator.addQualifierNode(node, nodeManager);
-                //}
+            // Description
+            DescriptionCreator.addDescriptions(node, element.getDescription());
+        }
+    }
 
-                QualifierCreator.addQualifiers(node.getCommonAttributes().getQualifiable(), qualifiers, nodeManager);
+
+    /**
+     * Adds base data to the given submodel element.
+     *
+     * @param node The desired submodel element UA node
+     * @param element The corresponding AAS submodel element
+     * @throws StatusException If the operation fails
+     * @param nodeManager The corresponding Node Manager
+     */
+    protected static void addSubmodelElementBaseData(AASSubmodelElementObjectType node, SubmodelElement element, AasServiceNodeManager nodeManager)
+            throws StatusException {
+        if ((node != null) && (element != null)) {
+            if (node.getCommonAttributes() == null) {
+                node.setCommonAttributes(new AASSubmodelElementCommonAttributes());
+            }
+
+            setSubmodelElementCommonAttributes(node.getCommonAttributes(), element, nodeManager);
+
+            // SemanticId
+            if (element.getSemanticId() != null) {
+                ConceptDescriptionCreator.addSemanticId(node, element.getSemanticId());
             }
 
             // Description
@@ -219,5 +229,32 @@ public class SubmodelElementCreator {
             retval = path.getElements().get(path.getElements().size() - 1);
         }
         return retval;
+    }
+
+
+    private static void setSubmodelElementCommonAttributes(AASSubmodelElementCommonAttributes commonAttributes, SubmodelElement element, AasServiceNodeManager nodeManager)
+            throws StatusException {
+
+        // Category
+        String category = element.getCategory();
+        if (category != null) {
+            if (commonAttributes.getReferable() == null) {
+                commonAttributes.setReferable(new AASReferable());
+            }
+            commonAttributes.getReferable().setCategory(category);
+        }
+
+        // DataSpecifications
+        EmbeddedDataSpecificationCreator.addEmbeddedDataSpecifications(commonAttributes, element.getEmbeddedDataSpecifications(), nodeManager);
+
+        // Qualifiers
+        List<Qualifier> qualifiers = element.getQualifiers();
+        if ((qualifiers != null) && (!qualifiers.isEmpty())) {
+            //if (node.getQualifierNode() == null) {
+            //    QualifierCreator.addQualifierNode(node, nodeManager);
+            //}
+
+            QualifierCreator.addQualifiers(commonAttributes.getQualifiable(), qualifiers, nodeManager);
+        }
     }
 }

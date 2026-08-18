@@ -38,6 +38,7 @@ import com.prosysopc.ua.stack.core.UserTokenType;
 import com.prosysopc.ua.stack.transport.security.SecurityMode;
 import com.prosysopc.ua.stack.transport.security.SecurityPolicy;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.CommonAttributesData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.TestConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.TestService;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.TestUtils;
@@ -663,10 +664,11 @@ public class OpcUaEndpointSimpleModelTest {
             throws ServiceException, AddressSpaceException, StatusException, ServiceResultException {
         TestUtils.checkDisplayName(client, aasNode, "AAS:" + TestConstants.SIMPLE_AAS_NAME);
         TestUtils.checkType(client, aasNode, new NodeId(aasns, TestConstants.AAS_AAS_TYPE_ID));
-        TestUtils.checkIdentification(client, aasNode, aasns, "http://customer.com/aas/9175_7013_7091_9168");
-        TestUtils.checkAdministrationNode(client, aasNode, aasns, "1", "2");
-        TestUtils.checkCategoryNode(client, aasNode, aasns, "");
-        TestUtils.checkEmbeddedDataSpecificationNode(client, aasNode, aasns);
+        TestUtils.checkCommonAttributes(client, aasNode, aasns, new CommonAttributesData("1", "2", "", "http://customer.com/aas/9175_7013_7091_9168"));
+
+        //TestUtils.checkAdministrationNode(client, aasNode, aasns, "1", "2");
+        //TestUtils.checkCategoryNode(client, aasNode, aasns, "");
+        //TestUtils.checkEmbeddedDataSpecificationNode(client, aasNode, aasns);
         TestUtils.checkAssetInformationNode(client, aasNode, aasns);
         testSubmodelRefs(client, aasNode, aasns, submodelDocNode, submodelOperDataNode, submodelTechDataNode);
     }
@@ -696,12 +698,14 @@ public class OpcUaEndpointSimpleModelTest {
 
         Assert.assertNotNull(submodelName + " OperatingManual Node not found", operatingManualNode);
 
-        TestUtils.checkIdentification(client, submodelNode, aasns, TestConstants.SUBMODEL_DOC_NAME);
-        TestUtils.checkAdministrationNode(client, submodelNode, aasns, "11", "159");
-        TestUtils.checkModelingKindNode(client, submodelNode, aasns, AASModellingKind.Instance);
-        TestUtils.checkCategoryNode(client, submodelNode, aasns, "");
-        TestUtils.checkEmbeddedDataSpecificationNode(client, submodelNode, aasns);
-        TestUtils.checkQualifierNode(client, submodelNode, aasns, new ArrayList<>());
+        TestUtils.checkCommonAttributes(client, submodelNode, aasns,
+                new CommonAttributesData("11", "159", "", TestConstants.SUBMODEL_DOC_NAME, AASModellingKind.of(AASModellingKind.Options.Instance), new ArrayList<>()));
+
+        //TestUtils.checkAdministrationNode(client, submodelNode, aasns, );
+        //TestUtils.checkModelingKindNode(client, submodelNode, aasns, AASModellingKind.of(AASModellingKind.Options.Instance));
+        //TestUtils.checkCategoryNode(client, submodelNode, aasns, "");
+        //TestUtils.checkEmbeddedDataSpecificationNode(client, submodelNode, aasns);
+        //TestUtils.checkQualifierNode(client, submodelNode, aasns, new ArrayList<>());
         testOperatingManual(client, operatingManualNode);
     }
 
@@ -711,12 +715,14 @@ public class OpcUaEndpointSimpleModelTest {
         TestUtils.checkType(client, submodelNode, new NodeId(aasns, TestConstants.AAS_SUBMODEL_TYPE_ID));
         //TestUtils.checkType(client, submodelNode, ObjectTypeIds.AASSubmodelType);
 
-        TestUtils.checkIdentification(client, submodelNode, aasns, TestConstants.SUBMODEL_OPER_DATA_NAME);
-        TestUtils.checkAdministrationNode(client, submodelNode, aasns, null, null);
-        TestUtils.checkCategoryNode(client, submodelNode, aasns, "");
-        TestUtils.checkModelingKindNode(client, submodelNode, aasns, AASModellingKind.Instance);
-        TestUtils.checkEmbeddedDataSpecificationNode(client, submodelNode, aasns);
-        TestUtils.checkQualifierNode(client, submodelNode, aasns, new ArrayList<>());
+        TestUtils.checkCommonAttributes(client, submodelNode, aasns,
+                new CommonAttributesData(null, null, "", TestConstants.SUBMODEL_OPER_DATA_NAME, AASModellingKind.of(AASModellingKind.Options.Instance), new ArrayList<>()));
+
+        //TestUtils.checkAdministrationNode(client, submodelNode, aasns, null, null);
+        //TestUtils.checkCategoryNode(client, submodelNode, aasns, "");
+        //TestUtils.checkModelingKindNode(client, submodelNode, aasns, AASModellingKind.of(AASModellingKind.Options.Instance));
+        //TestUtils.checkEmbeddedDataSpecificationNode(client, submodelNode, aasns);
+        //TestUtils.checkQualifierNode(client, submodelNode, aasns, new ArrayList<>());
         TestUtils.checkAasPropertyObject(client, submodelNode, aasns, TestConstants.ROTATION_SPEED_NAME, "VARIABLE", Datatype.INTEGER,
                 "4370", new ArrayList<>());
     }
@@ -727,13 +733,15 @@ public class OpcUaEndpointSimpleModelTest {
         TestUtils.checkType(client, submodelNode, new NodeId(aasns, TestConstants.AAS_SUBMODEL_TYPE_ID));
         //TestUtils.checkType(client, submodelNode, ObjectTypeIds.AASSubmodelType);
 
-        TestUtils.checkIdentification(client, submodelNode, aasns, TestConstants.SUBMODEL_TECH_DATA_NAME);
-        TestUtils.checkAdministrationNode(client, submodelNode, aasns, null, null);
-        TestUtils.checkCategoryNode(client, submodelNode, aasns, "");
+        TestUtils.checkCommonAttributes(client, submodelNode, aasns,
+                new CommonAttributesData(null, null, "", TestConstants.SUBMODEL_TECH_DATA_NAME, AASModellingKind.of(AASModellingKind.Options.Instance), new ArrayList<>()));
+
+        //TestUtils.checkAdministrationNode(client, submodelNode, aasns, null, null);
+        //TestUtils.checkCategoryNode(client, submodelNode, aasns, "");
         // no kind available here, check for null
-        TestUtils.checkModelingKindNode(client, submodelNode, aasns, AASModellingKind.Instance);
-        TestUtils.checkEmbeddedDataSpecificationNode(client, submodelNode, aasns);
-        TestUtils.checkQualifierNode(client, submodelNode, aasns, new ArrayList<>());
+        //TestUtils.checkModelingKindNode(client, submodelNode, aasns, AASModellingKind.of(AASModellingKind.Options.Instance));
+        //TestUtils.checkEmbeddedDataSpecificationNode(client, submodelNode, aasns);
+        //TestUtils.checkQualifierNode(client, submodelNode, aasns, new ArrayList<>());
         TestUtils.checkAasPropertyObject(client, submodelNode, aasns, TestConstants.MAX_ROTATION_SPEED_NAME, "PARAMETER",
                 Datatype.INTEGER, "5000", new ArrayList<>());
         TestUtils.checkAasPropertyObject(client, submodelNode, aasns, TestConstants.DECIMAL_PROPERTY, "PARAMETER",
@@ -744,10 +752,12 @@ public class OpcUaEndpointSimpleModelTest {
     private void testOperatingManual(UaClient client, NodeId node) throws ServiceException, AddressSpaceException, StatusException, ServiceResultException {
         TestUtils.checkDisplayName(client, node, TestConstants.OPERATING_MANUAL_NAME);
         TestUtils.checkType(client, node, new NodeId(aasns, TestConstants.AAS_SUBMODEL_ELEM_COLL_TYPE_ID));
-        TestUtils.checkCategoryNode(client, node, aasns, "");
-        TestUtils.checkEmbeddedDataSpecificationNode(client, node, aasns);
-        TestUtils.checkQualifierNode(client, node, aasns, new ArrayList<>());
-        TestUtils.checkAasPropertyFile(client, node, aasns, "DigitalFile_PDF", AASModellingKind.Instance, "", "application/pdf", "file:///aasx/OperatingManual.pdf", 0);
+        TestUtils.checkSubmodelElementCommonAttributes(client, aasns, node, null, new ArrayList<>());
+        //TestUtils.checkCategoryNode(client, node, aasns, "");
+        //TestUtils.checkEmbeddedDataSpecificationNode(client, node, aasns);
+        //TestUtils.checkQualifierNode(client, node, aasns, new ArrayList<>());
+        TestUtils.checkAasPropertyFile(client, node, aasns, "DigitalFile_PDF", AASModellingKind.of(AASModellingKind.Options.Instance), "", "application/pdf",
+                "file:///aasx/OperatingManual.pdf", 0);
     }
 
 

@@ -129,7 +129,7 @@ public class OperationCreator extends SubmodelElementCreator {
             // Description
             DescriptionCreator.addDescriptions(arg, prop.getDescription());
 
-            NodeId type = ValueConverter.convertValueTypeStringToNodeId(prop.getValueType());
+            NodeId type = ValueConverter.convertDataTypeDefToNodeId(prop.getValueType());
             if (type.isNullNodeId()) {
                 LOGGER.warn("setOperationArgument: Property {}: Unknown type: {}", prop.getIdShort(), prop.getValueType());
 

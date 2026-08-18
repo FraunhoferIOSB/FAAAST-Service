@@ -78,9 +78,10 @@ public class MultiLanguagePropertyCreator extends SubmodelElementCreator {
                 AASMultiLanguagePropertyType multiLangNode = (AASMultiLanguagePropertyType) nb.build();
 
                 //AASMultiLanguagePropertyType multiLangNode = nodeManager.createInstance(AASMultiLanguagePropertyType.class, nid, browseName, LocalizedText.english(name));
-                //addSubmodelElementBaseData(multiLangNode, aasMultiLang, nodeManager);
+                addSubmodelElementBaseData(multiLangNode, aasMultiLang, nodeManager);
 
-                setMultiLanguagePropertyValues(aasMultiLang, multiLangNode, nodeManager);
+                multiLangNode.setDataTypeId(Identifiers.LocalizedText);
+                setMultiLanguagePropertyValues(aasMultiLang, multiLangNode);
 
                 nodeManager.addSubmodelElementAasMap(multiLangNode.getNodeId(),
                         new SubmodelElementData(aasMultiLang, submodel, SubmodelElementData.Type.MULTI_LANGUAGE_VALUE, multiLangRef));
@@ -103,7 +104,7 @@ public class MultiLanguagePropertyCreator extends SubmodelElementCreator {
     }
 
 
-    private static void setMultiLanguagePropertyValues(MultiLanguageProperty aasMultiLang, AASMultiLanguagePropertyType multiLangNode, AasServiceNodeManager nodeManager)
+    private static void setMultiLanguagePropertyValues(MultiLanguageProperty aasMultiLang, AASMultiLanguagePropertyType multiLangNode)
             throws StatusException {
         List<LangStringTextType> values = aasMultiLang.getValue();
         if (values != null) {

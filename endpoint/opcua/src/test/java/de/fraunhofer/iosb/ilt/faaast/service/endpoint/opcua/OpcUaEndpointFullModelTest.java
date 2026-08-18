@@ -38,6 +38,7 @@ import com.prosysopc.ua.stack.core.ServerState;
 import com.prosysopc.ua.stack.core.StatusCodes;
 import com.prosysopc.ua.stack.core.UserTokenType;
 import com.prosysopc.ua.stack.transport.security.SecurityMode;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.CommonAttributesData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.TestConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.TestService;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.TestUtils;
@@ -1056,13 +1057,15 @@ public class OpcUaEndpointFullModelTest {
         TestUtils.checkType(client, submodelNode, new NodeId(aasns, TestConstants.AAS_SUBMODEL_TYPE_ID));
         //TestUtils.checkType(client, submodelNode, ObjectTypeIds.AASSubmodelType);
 
-        TestUtils.checkIdentification(client, submodelNode, aasns, TestConstants.FULL_SUBMODEL_1_ID);
-        TestUtils.checkAdministrationNode(client, submodelNode, aasns, "0", "9");
-        TestUtils.checkModelingKindNode(client, submodelNode, aasns, AASModellingKind.Instance);
-        TestUtils.checkCategoryNode(client, submodelNode, aasns, "");
-        TestUtils.checkEmbeddedDataSpecificationNode(client, submodelNode, aasns);
+        TestUtils.checkCommonAttributes(client, submodelNode, aasns,
+                new CommonAttributesData("0", "9", "", TestConstants.FULL_SUBMODEL_1_ID, AASModellingKind.of(AASModellingKind.Options.Instance), new ArrayList<>()));
 
-        TestUtils.checkQualifierNode(client, submodelNode, aasns, new ArrayList<>());
+        //TestUtils.checkAdministrationNode(client, submodelNode, aasns, "0", "9");
+        //TestUtils.checkModelingKindNode(client, submodelNode, aasns, AASModellingKind.of(AASModellingKind.Options.Instance));
+        //TestUtils.checkCategoryNode(client, submodelNode, aasns, "");
+        //TestUtils.checkEmbeddedDataSpecificationNode(client, submodelNode, aasns);
+
+        //TestUtils.checkQualifierNode(client, submodelNode, aasns, new ArrayList<>());
 
         ArrayList<Qualifier> list = new ArrayList<>();
         list.add(new DefaultQualifier.Builder()
