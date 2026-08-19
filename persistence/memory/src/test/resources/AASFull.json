@@ -23,7 +23,7 @@
                             "value": "https://acplt.org/Test_Submodel"
                         }
                     ],
-                    "type": "ExternalReference"
+                    "type": "ModelReference"
                 },
                 {
                     "keys": [
@@ -32,7 +32,7 @@
                             "value": "http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial"
                         }
                     ],
-                    "type": "ExternalReference"
+                    "type": "ModelReference"
                 },
                 {
                     "keys": [
@@ -41,7 +41,7 @@
                             "value": "http://acplt.org/Submodels/Assets/TestAsset/Identification"
                         }
                     ],
-                    "type": "ExternalReference"
+                    "type": "ModelReference"
                 }
             ],
             "administration": {
@@ -75,7 +75,7 @@
                             "value": "https://acplt.org/Test_Submodel_Mandatory"
                         }
                     ],
-                    "type": "ExternalReference"
+                    "type": "ModelReference"
                 },
                 {
                     "keys": [
@@ -84,7 +84,7 @@
                             "value": "https://acplt.org/Test_Submodel2_Mandatory"
                         }
                     ],
-                    "type": "ExternalReference"
+                    "type": "ModelReference"
                 }
             ],
             "id": "https://acplt.org/Test_AssetAdministrationShell_Mandatory",
@@ -113,7 +113,7 @@
                             "value": "https://acplt.org/Test_Submodel_Missing"
                         }
                     ],
-                    "type": "ExternalReference"
+                    "type": "ModelReference"
                 }
             ],
             "administration": {
