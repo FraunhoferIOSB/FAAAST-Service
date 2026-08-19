@@ -21,12 +21,12 @@ import com.prosysopc.ua.server.instantiation.NodeBuilderConfiguration;
 import com.prosysopc.ua.stack.builtintypes.LocalizedText;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.QualifiedName;
-import com.prosysopc.ua.stack.core.Identifiers;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ValueData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.AasSubmodelElementHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
+import opc.ua.aas.ReferenceTypeIds;
 import opc.ua.aas.VariableIds;
 import opc.ua.aas.variabletypes.AASPropertyType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Property;
@@ -124,10 +124,11 @@ public class PropertyCreator extends SubmodelElementCreator {
             //test = nodeManager.findNode(nid);
             //LOGGER.info("addAasProperty: Read (5): {}", test);
             if (ordered) {
-                node.addReference(prop, Identifiers.HasOrderedComponent, false);
+                node.addReference(prop, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasOrderedComponent), false);
             }
             else {
-                node.addComponent(prop);
+                //node.addComponent(prop);
+                node.addReference(prop, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasComponent), false);
             }
 
             //if (propertyRef != null) {

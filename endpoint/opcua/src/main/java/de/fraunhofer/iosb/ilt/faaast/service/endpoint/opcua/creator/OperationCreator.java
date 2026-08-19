@@ -30,6 +30,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElement
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.Locale;
 import opc.ua.aas.ObjectTypeIds;
+import opc.ua.aas.ReferenceTypeIds;
 import opc.ua.aas.objecttypes.AASOperationType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
@@ -100,10 +101,10 @@ public class OperationCreator extends SubmodelElementCreator {
             oper.addComponent(method);
 
             if (ordered) {
-                node.addReference(oper, Identifiers.HasOrderedComponent, false);
+                node.addReference(oper, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasOrderedComponent), false);
             }
             else {
-                node.addComponent(oper);
+                node.addReference(oper, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasComponent), false);
             }
 
             nodeManager.addReferable(operationRef, new ObjectData(aasOperation, oper, submodel));

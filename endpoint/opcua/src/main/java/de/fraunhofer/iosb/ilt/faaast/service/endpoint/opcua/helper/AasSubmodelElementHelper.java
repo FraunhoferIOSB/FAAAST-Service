@@ -17,6 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper;
 import com.prosysopc.ua.StatusException;
 import com.prosysopc.ua.UaQualifiedName;
 import com.prosysopc.ua.nodes.UaNode;
+import com.prosysopc.ua.nodes.UaObject;
 import com.prosysopc.ua.server.NodeManagerUaNode;
 import com.prosysopc.ua.server.nodes.PlainProperty;
 import com.prosysopc.ua.stack.builtintypes.ByteString;
@@ -50,10 +51,10 @@ import opc.ua.aas.objecttypes.AASBlobType;
 import opc.ua.aas.objecttypes.AASEntityType;
 import opc.ua.aas.objecttypes.AASFileType;
 import opc.ua.aas.objecttypes.AASRelationshipElementType;
+import opc.ua.aas.objecttypes.AASSubmodelElementObjectType;
 import opc.ua.aas.variabletypes.AASMultiLanguagePropertyType;
 import opc.ua.aas.variabletypes.AASPropertyType;
 import opc.ua.aas.variabletypes.AASReferenceElementType;
-import opc.ua.aas.variabletypes.AASSubmodelElementVariableType;
 import org.eclipse.digitaltwin.aas4j.v3.model.LangStringTextType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Property;
 import org.slf4j.Logger;
@@ -806,20 +807,26 @@ public class AasSubmodelElementHelper {
         }
 
         // Statements
-        // TODO: handle Statemnt Objects
         Map<String, ElementValue> valueMap = value.getStatements();
         var statementVariables = entity.getS_StatementVariable_Nodes();
-        if (statementVariables != null) {
-            //UaNode[] statementNodes = statementVariables.getComponents();
-            int statementCount = statementVariables.size();
-            if (statementCount != valueMap.size()) {
-                LOGGER.warn("Size of Value ({}) doesn't match the number of StatementNodes ({})", valueMap.size(), statementCount);
-                throw new IllegalArgumentException("Size of Value doesn't match the number of StatementNodes");
-            }
+        var statementObjects = getSubmodelElementComponentObjects(entity);
+        int statementCount = getListCount(statementObjects, statementVariables);
+        if (statementCount != valueMap.size()) {
+            LOGGER.warn("Size of Value ({}) doesn't match the number of StatementNodes ({})", valueMap.size(), statementCount);
+            throw new IllegalArgumentException("Size of Value doesn't match the number of StatementNodes");
+        }
 
-            for (var statementNode1: statementVariables) {
-                if ((statementNode1 instanceof AASSubmodelElementVariableType) && value.getStatements().containsKey(statementNode1.getBrowseName().getName())) {
-                    setSubmodelElementValue((AASSubmodelElementVariableType) statementNode1, value.getStatements().get(statementNode1.getBrowseName().getName()), nodeManager);
+        if (statementVariables != null) {
+            for (var statementNode: statementVariables) {
+                if (value.getStatements().containsKey(statementNode.getBrowseName().getName())) {
+                    setSubmodelElementValue(statementNode, value.getStatements().get(statementNode.getBrowseName().getName()), nodeManager);
+                }
+            }
+        }
+        if (statementObjects != null) {
+            for (var statementNode: statementObjects) {
+                if (value.getStatements().containsKey(statementNode.getBrowseName().getName())) {
+                    setSubmodelElementValue(statementNode, value.getStatements().get(statementNode.getBrowseName().getName()), nodeManager);
                 }
             }
         }
@@ -907,4 +914,26 @@ public class AasSubmodelElementHelper {
         multiLangProp.setValue(ValueConverter.getLocalizedTextFromLangStringSet(values));
     }
 
+
+    private static List<? extends AASSubmodelElementObjectType> getSubmodelElementComponentObjects(UaObject baseNode) {
+        List<AASSubmodelElementObjectType> retval = new ArrayList<>();
+        for (var comp: baseNode.getComponents()) {
+            if (comp instanceof AASSubmodelElementObjectType elemObject) {
+                retval.add(elemObject);
+            }
+        }
+        return retval;
+    }
+
+
+    private static int getListCount(List<?> list1, List<?> list2) {
+        int retval = 0;
+        if (list1 != null) {
+            retval += list1.size();
+        }
+        if (list2 != null) {
+            retval += list2.size();
+        }
+        return retval;
+    }
 }

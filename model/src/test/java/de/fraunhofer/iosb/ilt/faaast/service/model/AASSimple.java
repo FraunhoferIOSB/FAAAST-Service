@@ -385,6 +385,9 @@ public class AASSimple {
                                         .build())
                                 .valueType(DataTypeDefXsd.STRING)
                                 .build())
+                        .statements(new DefaultSubmodelElementCollection.Builder()
+                                .idShort("ExampleCollection1")
+                                .build())
                         .entityType(EntityType.CO_MANAGED_ENTITY)
                         .build())
                 .build();

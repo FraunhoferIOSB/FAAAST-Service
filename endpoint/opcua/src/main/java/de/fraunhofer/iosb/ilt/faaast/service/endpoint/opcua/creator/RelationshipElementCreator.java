@@ -23,10 +23,10 @@ import com.prosysopc.ua.server.instantiation.NodeBuilderConfiguration;
 import com.prosysopc.ua.stack.builtintypes.LocalizedText;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.QualifiedName;
-import com.prosysopc.ua.stack.core.Identifiers;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import opc.ua.aas.ObjectTypeIds;
+import opc.ua.aas.ReferenceTypeIds;
 import opc.ua.aas.VariableIds;
 import opc.ua.aas.objecttypes.AASAnnotatedRelationshipElementType;
 import opc.ua.aas.objecttypes.AASRelationshipElementType;
@@ -105,10 +105,10 @@ public class RelationshipElementCreator extends SubmodelElementCreator {
                     nodeManager.addSubmodelElementOpcUA(relElemRef, relElemNode);
 
                     if (ordered) {
-                        node.addReference(relElemNode, Identifiers.HasOrderedComponent, false);
+                        node.addReference(relElemNode, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasOrderedComponent), false);
                     }
                     else {
-                        node.addComponent(relElemNode);
+                        node.addReference(relElemNode, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasComponent), false);
                     }
 
                     nodeManager.addReferable(relElemRef, new ObjectData(aasRelElem, relElemNode, submodel));

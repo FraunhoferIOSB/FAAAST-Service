@@ -402,10 +402,8 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         Ensure.requireNonNull(value, VALUE_NULL);
 
         Reference parentRef = ReferenceHelper.getParent(element);
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("elementCreated called. Reference {}; Value: {}; ParentRef: {}; Class {}", ReferenceHelper.toString(element), value.getIdShort(),
-                    ReferenceHelper.toString(parentRef), value.getClass());
-        }
+        LOGGER.atInfo().log("elementCreated called. Reference {}; Value: {}; ParentRef: {}; Class {}", ReferenceHelper.toString(element), value.getIdShort(),
+                ReferenceHelper.toString(parentRef), value.getClass());
         // The element is the reference to the object which is added itself
         // formerly it was the parent
         ObjectData parent = null;

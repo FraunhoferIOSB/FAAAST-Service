@@ -27,6 +27,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManage
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
 import java.util.List;
+import opc.ua.aas.ReferenceTypeIds;
 import opc.ua.aas.VariableIds;
 import opc.ua.aas.variabletypes.AASMultiLanguagePropertyType;
 import org.eclipse.digitaltwin.aas4j.v3.model.LangStringTextType;
@@ -89,10 +90,10 @@ public class MultiLanguagePropertyCreator extends SubmodelElementCreator {
                 nodeManager.addSubmodelElementOpcUA(multiLangRef, multiLangNode);
 
                 if (ordered) {
-                    node.addReference(multiLangNode, Identifiers.HasOrderedComponent, false);
+                    node.addReference(multiLangNode, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasOrderedComponent), false);
                 }
                 else {
-                    node.addComponent(multiLangNode);
+                    node.addReference(multiLangNode, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasComponent), false);
                 }
 
                 //nodeManager.addReferable(multiLangRef, new ObjectData(aasMultiLang, multiLangNode, submodel));
