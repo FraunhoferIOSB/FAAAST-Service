@@ -208,21 +208,12 @@ public class AssetAdministrationShellCreator {
         // SpecificAssetIds
         List<SpecificAssetId> specificAssetIds = assetInformation.getSpecificAssetIds();
         if ((specificAssetIds != null) && (!specificAssetIds.isEmpty())) {
-            addSpecificAssetIds(assetInfoNode, specificAssetIds, "SpecificAssetIds", nodeManager);
+            addSpecificAssetIds(assetInfoNode, specificAssetIds, nodeManager);
         }
     }
 
 
-    /**
-     * Adds a list of IdentifierKeyValuePairs to the given Node.
-     *
-     * @param assetInfoNode The AssetInformation node in which the IdentifierKeyValuePairs should be created or added
-     * @param list The desired list of IdentifierKeyValuePairs
-     * @param name The desired name of the Node
-     * @param nodeManager The corresponding Node Manager
-     * @throws StatusException If the operation fails
-     */
-    private static void addSpecificAssetIds(AASAssetInformationType assetInfoNode, List<SpecificAssetId> list, String name, AasServiceNodeManager nodeManager)
+    private static void addSpecificAssetIds(AASAssetInformationType assetInfoNode, List<SpecificAssetId> list, AasServiceNodeManager nodeManager)
             throws StatusException {
         if (assetInfoNode == null) {
             throw new IllegalArgumentException("assetInfoNode = null");
@@ -231,6 +222,7 @@ public class AssetAdministrationShellCreator {
             throw new IllegalArgumentException("list = null");
         }
 
+        String name = AASAssetInformationType.SPECIFIC_ASSET_ID;
         LOGGER.debug("addSpecificAssetIds {}; to Node: {}", name, assetInfoNode);
         BaseDataVariableType listNode = assetInfoNode.getSpecificAssetIdNode();
         boolean created = false;
@@ -267,7 +259,7 @@ public class AssetAdministrationShellCreator {
             throw new IllegalArgumentException("sumodelRefs = null");
         }
 
-        String name = "Submodel";
+        String name = AASAssetAdministrationShellType.SUBMODEL;
         BaseDataVariableType referenceListNode = node.getSubmodelNode();
         LOGGER.debug("addSubmodelReferences: add {} Submodels to Node: {}", submodelRefs.size(), node);
         boolean added = false;

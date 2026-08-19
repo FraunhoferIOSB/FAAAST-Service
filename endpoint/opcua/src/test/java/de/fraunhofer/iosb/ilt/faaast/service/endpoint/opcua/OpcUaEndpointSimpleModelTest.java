@@ -778,10 +778,19 @@ public class OpcUaEndpointSimpleModelTest {
         Assert.assertTrue("testSubmodelRefs Target empty", targets.length > 0);
         NodeId refNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
         Assert.assertNotNull("testSubmodelRefs RefNode Null", refNode);
-        TestUtils.checkType(client, refNode, new NodeId(aasns, TestConstants.AAS_REFERENCE_LIST_ID));
+        TestUtils.checkType(client, refNode, Identifiers.BaseDataVariableType);
 
-        TestUtils.checkSubmodelRef(client, refNode, aasns, TestConstants.SUBMODEL_DOC_NAME, submodelDocNode);
-        TestUtils.checkSubmodelRef(client, refNode, aasns, TestConstants.SUBMODEL_OPER_DATA_NAME, submodelOperDataNode);
-        TestUtils.checkSubmodelRef(client, refNode, aasns, TestConstants.SUBMODEL_TECH_DATA_NAME, submodelTechDataNode);
+        List<AASReference> refs = new ArrayList<>();
+        refs.add(new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ModelReference), null,
+                List.of(new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Submodel), TestConstants.SUBMODEL_TECH_DATA_NAME)).toArray(AASKey[]::new)));
+        refs.add(new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ModelReference), null,
+                List.of(new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Submodel), TestConstants.SUBMODEL_OPER_DATA_NAME)).toArray(AASKey[]::new)));
+        refs.add(new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ModelReference), null,
+                List.of(new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Submodel), TestConstants.SUBMODEL_DOC_NAME)).toArray(AASKey[]::new)));
+
+        TestUtils.checkSubmodelRefs(client, refNode, aasns, refs);
+        //TestUtils.checkSubmodelRef(client, refNode, aasns, TestConstants.SUBMODEL_TECH_DATA_NAME, submodelTechDataNode);
+        //TestUtils.checkSubmodelRef(client, refNode, aasns, TestConstants.SUBMODEL_OPER_DATA_NAME, submodelOperDataNode);
+        //TestUtils.checkSubmodelRef(client, refNode, aasns, TestConstants.SUBMODEL_DOC_NAME, submodelDocNode);
     }
 }

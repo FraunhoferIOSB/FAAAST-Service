@@ -34,12 +34,10 @@ import com.prosysopc.ua.stack.builtintypes.Variant;
 import com.prosysopc.ua.stack.common.ServiceResultException;
 import com.prosysopc.ua.stack.core.ApplicationDescription;
 import com.prosysopc.ua.stack.core.ApplicationType;
-import com.prosysopc.ua.stack.core.BrowseDirection;
 import com.prosysopc.ua.stack.core.BrowsePathResult;
 import com.prosysopc.ua.stack.core.BrowsePathTarget;
 import com.prosysopc.ua.stack.core.Identifiers;
 import com.prosysopc.ua.stack.core.NodeClass;
-import com.prosysopc.ua.stack.core.ReferenceDescription;
 import com.prosysopc.ua.stack.core.RelativePath;
 import com.prosysopc.ua.stack.core.RelativePathElement;
 import com.prosysopc.ua.stack.core.StatusCodes;
@@ -64,7 +62,6 @@ import opc.ua.aas.datatypes.AASAssetKind;
 import opc.ua.aas.datatypes.AASHasKind;
 import opc.ua.aas.datatypes.AASIdentifiable;
 import opc.ua.aas.datatypes.AASKey;
-import opc.ua.aas.datatypes.AASKeyTypes;
 import opc.ua.aas.datatypes.AASModellingKind;
 import opc.ua.aas.datatypes.AASQualifiable;
 import opc.ua.aas.datatypes.AASQualifier;
@@ -299,7 +296,7 @@ public class TestUtils {
 
         checkType(client, assetInfoNode, new NodeId(aasns, TestConstants.AAS_ASSET_INFO_TYPE_ID));
         //checkType(client, assetInfoNode, client.getAddressSpace().getNamespaceTable().toNodeId(ObjectTypeIds.AASAssetInformationType));
-        checkAssetKindNode(client, assetInfoNode, aasns, AASAssetKind.Instance);
+        checkAssetKindNode(client, assetInfoNode, aasns, AASAssetKind.of(AASAssetKind.Options.Instance));
         checkAasPropertyThumbnail(client, assetInfoNode, aasns, TestConstants.DEFAULT_THUMB_NAME, AASModellingKind.Instance, "", "image/png",
                 "file:///master/verwaltungsschale-detail-part1.png", 0);
 
@@ -520,37 +517,56 @@ public class TestUtils {
     }
 
 
-    public static void checkSubmodelRef(UaClient client, NodeId baseNode, int aasns, String name, NodeId submodelNode)
+    public static void checkSubmodelRefs(UaClient client, NodeId baseNode, int aasns, List<AASReference> submodelRefs)
             throws ServiceException, ServiceResultException, AddressSpaceException, StatusException {
-        List<RelativePath> relPath = new ArrayList<>();
-        List<RelativePathElement> browsePath = new ArrayList<>();
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, name)));
-        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+        //UaNode node = client.getAddressSpace().getNode(baseNode);
+        //Assert.assertTrue(node instanceof UaVariable);
+        //UaVariable uavar = (UaVariable) node;
+        Object value = getVariableValue(client, baseNode);
+        Assert.assertTrue(value instanceof Variant[]);
+        Variant[] vars = (Variant[]) value;
+        Assert.assertEquals(submodelRefs.size(), vars.length);
+        //List<AASReference> refs = new ArrayList<>();
+        for (int index = 0; index < vars.length; index++) {
+            Assert.assertTrue(vars[index].getValue() instanceof AASReference);
+            Assert.assertTrue(aasReferenceEquals((AASReference) vars[index].getValue(), submodelRefs.get(index)));
+            //refs.add((AASReference) vari.getValue());
+        }
+        //Assert.assertTrue(submodelRefs.containsAll(refs));
+        //Assert.assertTrue(refs.containsAll(submodelRefs));
 
-        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(baseNode, relPath.toArray(RelativePath[]::new));
-        Assert.assertNotNull("checkSubmodelRef Browse Result Null", bpres);
-        Assert.assertEquals("checkSubmodelRef Browse Result: size doesn't match", 1, bpres.length);
-        Assert.assertTrue("checkSubmodelRef Browse Result Good", bpres[0].getStatusCode().isGood());
+        //Assert.assertTrue(value instanceof AASReference[]);
+        //AASReference[] refs = (AASReference[]) value;
 
-        BrowsePathTarget[] targets = bpres[0].getTargets();
-        Assert.assertNotNull("checkSubmodelRef Target Null", targets);
-        Assert.assertTrue("checkSubmodelRef Target empty", targets.length > 0);
-        NodeId refNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
-        Assert.assertNotNull("checkSubmodelRef RefNode Null", refNode);
-        checkType(client, refNode, new NodeId(aasns, TestConstants.AAS_REFERENCE_TYPE_ID));
-
-        System.out.format("checkSubmodelRef: refNode %s", refNode.toString());
-
-        // check AAS Reference
-        List<AASKey> refKeys = new ArrayList<>();
-        refKeys.add(new AASKey(AASKeyTypes.Submodel, name));
-        checkAasReference(client, refNode, aasns, refKeys);
-
-        // check Reference to Submodel
-        List<ReferenceDescription> refs = client.getAddressSpace().browse(refNode, BrowseDirection.Forward, Identifiers.HasAddIn);
-        Assert.assertEquals(1, refs.size());
-        NodeId smNode = client.getAddressSpace().getNamespaceTable().toNodeId(refs.get(0).getNodeId());
-        Assert.assertEquals(smNode, submodelNode);
+        //        List<RelativePath> relPath = new ArrayList<>();
+        //        List<RelativePathElement> browsePath = new ArrayList<>();
+        //        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, name)));
+        //        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+        //
+        //        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(baseNode, relPath.toArray(RelativePath[]::new));
+        //        Assert.assertNotNull("checkSubmodelRef Browse Result Null", bpres);
+        //        Assert.assertEquals("checkSubmodelRef Browse Result: size doesn't match", 1, bpres.length);
+        //        Assert.assertTrue("checkSubmodelRef Browse Result Good", bpres[0].getStatusCode().isGood());
+        //
+        //        BrowsePathTarget[] targets = bpres[0].getTargets();
+        //        Assert.assertNotNull("checkSubmodelRef Target Null", targets);
+        //        Assert.assertTrue("checkSubmodelRef Target empty", targets.length > 0);
+        //        NodeId refNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
+        //        Assert.assertNotNull("checkSubmodelRef RefNode Null", refNode);
+        //        checkType(client, refNode, new NodeId(aasns, TestConstants.AAS_REFERENCE_TYPE_ID));
+        //
+        //        System.out.format("checkSubmodelRef: refNode %s", refNode.toString());
+        //
+        //        // check AAS Reference
+        //        List<AASKey> refKeys = new ArrayList<>();
+        //        refKeys.add(new AASKey(AASKeyTypes.Submodel, name));
+        //        checkAasReference(client, refNode, aasns, refKeys);
+        //
+        //        // check Reference to Submodel
+        //        List<ReferenceDescription> refs = client.getAddressSpace().browse(refNode, BrowseDirection.Forward, Identifiers.HasAddIn);
+        //        Assert.assertEquals(1, refs.size());
+        //        NodeId smNode = client.getAddressSpace().getNamespaceTable().toNodeId(refs.get(0).getNodeId());
+        //        Assert.assertEquals(smNode, submodelNode);
     }
 
 
@@ -628,7 +644,7 @@ public class TestUtils {
                     //    LOGGER.info("writeNewValueArray: equal: {}; rv: {}; old: {}", eq, (AASReference) val.getValue().getValue(), oldValue);
                     //}
                     //return val.getStatusCode().isGood() && (val.getValue() != null) && Objects.equals((AASReference) val.getValue().getValue(), newValue);
-                    return val.getStatusCode().isGood() && (val.getValue() != null) && AasReferenceEquals((AASReference) val.getValue().getValue(), oldValue);
+                    return val.getStatusCode().isGood() && (val.getValue() != null) && aasReferenceEquals((AASReference) val.getValue().getValue(), oldValue);
                 });
     }
 
@@ -777,7 +793,7 @@ public class TestUtils {
             throws ServiceException, AddressSpaceException, StatusException, ServiceResultException {
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
-        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.ASSET_KIND_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HasComponent, false, true, new QualifiedName(aasns, TestConstants.ASSET_KIND_NAME)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(baseNode, relPath.toArray(RelativePath[]::new));
@@ -795,7 +811,7 @@ public class TestUtils {
     private static void checkAssetKind(UaClient client, NodeId kindNode, AASAssetKind assetKind)
             throws ServiceException, AddressSpaceException, StatusException, ServiceResultException {
         checkDisplayName(client, kindNode, TestConstants.ASSET_KIND_NAME);
-        checkType(client, kindNode, Identifiers.PropertyType);
+        checkType(client, kindNode, Identifiers.BaseDataVariableType);
 
         DataValue value = client.readValue(kindNode);
         Assert.assertEquals(assetKind, value.getValue().asOptionSet(AASAssetKind.SPECIFICATION));
@@ -1107,7 +1123,7 @@ public class TestUtils {
     //    }
 
 
-    private static boolean AasReferenceEquals(AASReference ref1, AASReference ref2) {
+    private static boolean aasReferenceEquals(AASReference ref1, AASReference ref2) {
         return ref1.getType() == ref2.getType() && ref1.getReferredSemanticId() == ref2.getReferredSemanticId() && Arrays.equals(ref1.getKey(), ref2.getKey());
     }
 }
