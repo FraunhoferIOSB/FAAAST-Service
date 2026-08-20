@@ -1091,6 +1091,10 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
         try {
             return runTransaction(action, errorMessage);
         }
+        catch (ResourceNotFoundException | IllegalArgumentException | IllegalStateException | PersistenceException e) {
+            // no wrapping
+            throw e;
+        }
         catch (Exception e) {
             throw new PersistenceException(errorMessage, e);
         }
