@@ -48,11 +48,11 @@ public class PutThumbnailRequestHandler extends AbstractRequestHandler<PutThumbn
                 .path(path)
                 .contentType(request.getContent().getContentTypeSimple())
                 .build());
-        context.getPersistence().save(aas);
         context.getFileStorage().save(InMemoryFile.builder()
                 .content(request.getContent().getContent())
                 .path(path)
                 .build());
+        context.getPersistence().save(aas);
         if (!request.isInternal()) {
             context.getMessageBus().publish(ElementUpdateEventMessage.builder()
                     .value(aas)

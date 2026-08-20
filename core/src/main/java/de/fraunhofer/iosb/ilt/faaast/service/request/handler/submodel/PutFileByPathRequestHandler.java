@@ -53,8 +53,8 @@ public class PutFileByPathRequestHandler extends AbstractSubmodelInterfaceReques
         ElementValue oldValue = ElementValueMapper.toValue(file);
 
         file.setValue(request.getContent().getPath());
-        context.getPersistence().update(reference, file);
         context.getFileStorage().save(file.getValue(), request.getContent().getContent());
+        context.getPersistence().update(reference, file);
         ElementValue newValue = ElementValueMapper.toValue(file);
         if (!request.isInternal() && !Objects.equals(oldValue, newValue)) {
             context.getMessageBus().publish(ValueChangeEventMessage.builder()

@@ -27,6 +27,7 @@ public class PersistencePostgresConfig extends PersistenceConfig<PersistencePost
     private String username = "postgres";
     private String password = "";
     private boolean override = false;
+    private int maximumPoolSize = 10;
 
     public String getJdbcUrl() {
         return jdbcUrl;
@@ -68,12 +69,23 @@ public class PersistencePostgresConfig extends PersistenceConfig<PersistencePost
     }
 
 
+    public int getMaximumPoolSize() {
+        return maximumPoolSize;
+    }
+
+
+    public void setMaximumPoolSize(int maximumPoolSize) {
+        this.maximumPoolSize = maximumPoolSize;
+    }
+
+
     @Override
     public int hashCode() {
         return Objects.hash(jdbcUrl,
                 username,
                 password,
-                override);
+                override,
+                maximumPoolSize);
     }
 
 
@@ -92,7 +104,8 @@ public class PersistencePostgresConfig extends PersistenceConfig<PersistencePost
         return Objects.equals(this.jdbcUrl, other.jdbcUrl)
                 && Objects.equals(this.username, other.username)
                 && Objects.equals(this.password, other.password)
-                && Objects.equals(this.override, other.override);
+                && Objects.equals(this.override, other.override)
+                && this.maximumPoolSize == other.maximumPoolSize;
     }
 
 
@@ -122,6 +135,12 @@ public class PersistencePostgresConfig extends PersistenceConfig<PersistencePost
 
         public B override(boolean value) {
             getBuildingInstance().setOverride(value);
+            return getSelf();
+        }
+
+
+        public B maximumPoolSize(int value) {
+            getBuildingInstance().setMaximumPoolSize(value);
             return getSelf();
         }
 

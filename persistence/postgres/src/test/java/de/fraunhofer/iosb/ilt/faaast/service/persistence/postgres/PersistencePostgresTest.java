@@ -708,4 +708,80 @@ public class PersistencePostgresTest extends AbstractPersistenceTest<Persistence
 
         persistence.stop();
     }
+
+    // -------------------------------------------------------------------------------------------------
+    // Transactions
+    // -------------------------------------------------------------------------------------------------
+
+    private static final String TX_AAS_ID = "http://example.org/aas/tx";
+    private static final String TX_SUBMODEL_OLD_ID = "http://example.org/submodel/tx-old";
+    private static final String TX_SUBMODEL_NEW_ID = "http://example.org/submodel/tx-new";
+
+    private static Submodel submodel(String id, String idShort) {
+        return new DefaultSubmodel.Builder()
+                .id(id)
+                .idShort(idShort)
+                .build();
+    }
+
+
+    /**
+     * fail when saving. Nothing should be left.
+     */
+    @Test
+    public void forcedRollbackLeavesNoTrace() throws Exception {
+        PersistencePostgres persistence = getPersistenceConfig(null, null, true)
+                .newInstance(CoreConfig.DEFAULT, SERVICE_CONTEXT);
+        persistence.start();
+        try {
+            persistence.save(submodel(TX_SUBMODEL_OLD_ID, "txOld"));
+            persistence.save(new DefaultAssetAdministrationShell.Builder()
+                    .id(TX_AAS_ID)
+                    .idShort("txShell")
+                    .submodels(ReferenceBuilder.forSubmodel(TX_SUBMODEL_OLD_ID))
+                    .build());
+
+            Assert.assertThrows(IllegalStateException.class, () -> persistence.runInTransaction(tx -> {
+                AssetAdministrationShell shell = tx.getAssetAdministrationShell(TX_AAS_ID, QueryModifier.DEFAULT);
+                shell.getSubmodels().clear();
+                shell.getSubmodels().add(ReferenceBuilder.forSubmodel(TX_SUBMODEL_NEW_ID));
+                tx.save(shell);
+                tx.deleteSubmodel(TX_SUBMODEL_OLD_ID);
+                tx.save(submodel(TX_SUBMODEL_NEW_ID, "txNew"));
+                throw new IllegalStateException("forced failure");
+            }));
+
+            Assert.assertTrue("old submodel must survive the rollback", persistence.submodelExists(TX_SUBMODEL_OLD_ID));
+            Assert.assertFalse("new submodel must not exist after the rollback", persistence.submodelExists(TX_SUBMODEL_NEW_ID));
+            List<Reference> refs = persistence.getSubmodelRefs(TX_AAS_ID, PagingInfo.ALL).getContent();
+            Assert.assertEquals(1, refs.size());
+            Assert.assertEquals(ReferenceBuilder.forSubmodel(TX_SUBMODEL_OLD_ID), refs.get(0));
+        }
+        finally {
+            persistence.stop();
+        }
+    }
+
+
+    /**
+     * database error must also roll the whole transaction back.
+     */
+    @Test
+    public void rollbackOnDatabaseError() throws Exception {
+        PersistencePostgres persistence = getPersistenceConfig(null, null, true)
+                .newInstance(CoreConfig.DEFAULT, SERVICE_CONTEXT);
+        persistence.start();
+        try {
+            String oldId = "http://example.org/submodel/tx-db-error";
+            Submodel invalid = submodel("http://example.org/submodel/tx-db-error-2", "x".repeat(200));
+            Assert.assertThrows(PersistenceException.class, () -> persistence.runInTransaction(tx -> {
+                tx.save(submodel(oldId, "txDbError"));
+                tx.save(invalid);
+            }));
+            Assert.assertFalse("write preceding the database error must be rolled back", persistence.submodelExists(oldId));
+        }
+        finally {
+            persistence.stop();
+        }
+    }
 }

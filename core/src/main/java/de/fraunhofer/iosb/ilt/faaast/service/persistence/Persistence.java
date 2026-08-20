@@ -409,6 +409,51 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
 
 
     /**
+     * Executes the given action, ensuring that all persistence operations performed on the Persistence instance
+     * all take effect or none of them do.
+     *
+     *
+     * @param <R> type of the result
+     * @param action the action to execute
+     * @return the value returned by the action
+     * @throws IllegalArgumentException if action is null
+     * @throws Exception any exception thrown by the action, or {@link PersistenceException} if the transaction itself
+     *             fails
+     */
+    public default <R> R inTransaction(TransactionalAction<R> action) throws Exception {
+        Ensure.requireNonNull(action, "action must be non-null");
+        return action.execute(this);
+    }
+
+
+    /**
+     * Void variant of Transaction.
+     *
+     * @param task the task to execute
+     * @throws IllegalArgumentException if task is null
+     * @throws Exception any exception thrown by the task, or {@link PersistenceException} if the transaction itself
+     *             fails
+     */
+    public default void runInTransaction(TransactionalTask task) throws Exception {
+        Ensure.requireNonNull(task, "action must be non-null");
+        inTransaction(persistence -> {
+            task.execute(persistence);
+            return null;
+        });
+    }
+
+
+    /**
+     * Indicates whether transactions are supported.
+     *
+     * @return true if transactions are supported, false otherwise
+     */
+    public default boolean supportsTransactions() {
+        return false;
+    }
+
+
+    /**
      * Deletes an {@code org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell}.
      *
      * @param assetAdministrationShell the {@code org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell} to

@@ -14,14 +14,10 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler.aas;
 
-import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.PutAssetAdministrationShellRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.PutAssetAdministrationShellResponse;
-import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValidationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.validation.ModelValidator;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
@@ -38,12 +34,13 @@ import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionCon
 public class PutAssetAdministrationShellRequestHandler extends AbstractRequestHandler<PutAssetAdministrationShellRequest, PutAssetAdministrationShellResponse> {
 
     @Override
-    public PutAssetAdministrationShellResponse process(PutAssetAdministrationShellRequest request, RequestExecutionContext context)
-            throws ResourceNotFoundException, MessageBusException, ValidationException, PersistenceException {
+    public PutAssetAdministrationShellResponse process(PutAssetAdministrationShellRequest request, RequestExecutionContext context) throws Exception {
         ModelValidator.validate(request.getAas(), context.getCoreConfig().getValidationOnUpdate());
-        context.getPersistence().getAssetAdministrationShell(request.getId(), QueryModifier.DEFAULT);
-        context.getPersistence().deleteAssetAdministrationShell(request.getId());
-        context.getPersistence().save(request.getAas());
+        context.getPersistence().runInTransaction(tx -> {
+            tx.getAssetAdministrationShell(request.getId(), QueryModifier.DEFAULT);
+            tx.deleteAssetAdministrationShell(request.getId());
+            tx.save(request.getAas());
+        });
         if (!request.isInternal()) {
             context.getMessageBus().publish(ElementUpdateEventMessage.builder()
                     .element(request.getAas())
