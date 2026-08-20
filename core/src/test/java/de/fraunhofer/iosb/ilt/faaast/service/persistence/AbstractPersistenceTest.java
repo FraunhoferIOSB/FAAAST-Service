@@ -921,7 +921,8 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
     public void inTransactionRollbackSemanticsMatchCapability() {
         Submodel expected = DeepCopyHelper.deepCopy(environment.getSubmodels().get(0),
                 environment.getSubmodels().get(0).getClass());
-        String id = expected.getId();
+        String id = "http://example.org/submodel/tx-rollback";
+        expected.setId(id);
         Assert.assertFalse(persistence.submodelExists(id));
         Assert.assertThrows(IllegalStateException.class, () -> persistence.runInTransaction(tx -> {
             tx.save(expected);

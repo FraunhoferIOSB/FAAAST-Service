@@ -15,17 +15,20 @@
 package de.fraunhofer.iosb.ilt.faaast.service.persistence;
 
 /**
- * A task within a transaction, without a result.
+ * A unit of work within a transaction that returns a result.
+ *
+ * @param <R> type of the result
  */
 @FunctionalInterface
-public interface TransactionalTask {
+public interface TransactionalFunction<R> {
 
     /**
-     * Executes the task.
+     * Executes the unit of work.
      *
-     * @param persistence the persistence to use for all operations within this task. Using any other instance runs
+     * @param persistence the persistence to use for all operations within this unit of work. Using any other instance runs
      *            outside the transaction.
-     * @throws Exception if the task fails; causes the transaction to be rolled back
+     * @return the result
+     * @throws Exception if the unit of work fails; causes the transaction to be rolled back
      */
-    public void execute(Persistence<?> persistence) throws Exception;
+    public R execute(Persistence<?> persistence) throws Exception;
 }

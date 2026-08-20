@@ -35,7 +35,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.persistence.ConceptDescriptionSearc
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.SubmodelElementSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.SubmodelSearchCriteria;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.TransactionalAction;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.TransactionalFunction;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.util.PersistenceHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.util.QueryModifierHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueHelper;
@@ -1104,7 +1104,7 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
 
 
     @Override
-    public <R> R inTransaction(TransactionalAction<R> action) throws Exception {
+    public <R> R inTransaction(TransactionalFunction<R> action) throws Exception {
         Ensure.requireNonNull(action, "action must be non-null");
         if (bound != null) {
             // already inside a transaction --> join it rather than opening a second one

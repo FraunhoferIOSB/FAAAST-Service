@@ -15,20 +15,17 @@
 package de.fraunhofer.iosb.ilt.faaast.service.persistence;
 
 /**
- * An action within a transaction, returning a result.
- *
- * @param <R> type of the result
+ * A unit of work within a transaction that returns no result.
  */
 @FunctionalInterface
-public interface TransactionalAction<R> {
+public interface TransactionalConsumer {
 
     /**
-     * Executes the action.
+     * Executes the unit of work.
      *
-     * @param persistence the persistence to use for all operations within this action. Using any other instance runs
+     * @param persistence the persistence to use for all operations within this unit of work. Using any other instance runs
      *            outside the transaction.
-     * @return the result of the action
-     * @throws Exception if the action fails; causes the transaction to be rolled back
+     * @throws Exception if the unit of work fails; causes the transaction to be rolled back
      */
-    public R execute(Persistence<?> persistence) throws Exception;
+    public void execute(Persistence<?> persistence) throws Exception;
 }

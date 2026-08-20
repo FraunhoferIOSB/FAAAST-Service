@@ -420,7 +420,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      * @throws Exception any exception thrown by the action, or {@link PersistenceException} if the transaction itself
      *             fails
      */
-    public default <R> R inTransaction(TransactionalAction<R> action) throws Exception {
+    public default <R> R inTransaction(TransactionalFunction<R> action) throws Exception {
         Ensure.requireNonNull(action, "action must be non-null");
         return action.execute(this);
     }
@@ -434,7 +434,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      * @throws Exception any exception thrown by the task, or {@link PersistenceException} if the transaction itself
      *             fails
      */
-    public default void runInTransaction(TransactionalTask task) throws Exception {
+    public default void runInTransaction(TransactionalConsumer task) throws Exception {
         Ensure.requireNonNull(task, "action must be non-null");
         inTransaction(persistence -> {
             task.execute(persistence);
