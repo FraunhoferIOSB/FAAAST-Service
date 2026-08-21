@@ -898,6 +898,43 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
     }
 
 
+    @Test
+    public void inTransactionReturnsActionResult() throws Exception {
+        String expected = "result";
+        Assert.assertEquals(expected, persistence.inTransaction(tx -> expected));
+    }
+
+
+    @Test
+    public void inTransactionAppliesWrites() throws Exception {
+        Submodel expected = DeepCopyHelper.deepCopy(environment.getSubmodels().get(0),
+                environment.getSubmodels().get(0).getClass());
+        persistence.runInTransaction(tx -> tx.save(expected));
+        Assert.assertEquals(expected, persistence.getSubmodel(expected.getId(), QueryModifier.DEFAULT));
+    }
+
+
+    /**
+     * rollback behaviour test.
+     */
+    @Test
+    public void inTransactionRollbackSemanticsMatchCapability() {
+        Submodel expected = DeepCopyHelper.deepCopy(environment.getSubmodels().get(0),
+                environment.getSubmodels().get(0).getClass());
+        String id = "http://example.org/submodel/tx-rollback";
+        expected.setId(id);
+        Assert.assertFalse(persistence.submodelExists(id));
+        Assert.assertThrows(IllegalStateException.class, () -> persistence.runInTransaction(tx -> {
+            tx.save(expected);
+            throw new IllegalStateException("forced failure");
+        }));
+        Assert.assertEquals(
+                "implementations supporting transactions must roll the write back, others must keep it",
+                !persistence.supportsTransactions(),
+                persistence.submodelExists(id));
+    }
+
+
     private File copyResourceToTempDir(String resourceName) throws IOException {
         File result = tempDir.newFile(resourceName);
         try (InputStream inputStream = AbstractPersistenceTest.class.getClassLoader().getResourceAsStream(resourceName)) {

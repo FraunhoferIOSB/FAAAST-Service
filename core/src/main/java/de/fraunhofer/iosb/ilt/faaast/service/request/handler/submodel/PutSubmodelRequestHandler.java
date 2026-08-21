@@ -14,27 +14,20 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler.submodel;
 
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
-import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.PutSubmodelRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.PutSubmodelResponse;
-import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValidationException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.validation.ModelValidator;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
-import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
+import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 
@@ -49,25 +42,27 @@ public class PutSubmodelRequestHandler extends AbstractRequestHandler<PutSubmode
 
     @Override
     public PutSubmodelResponse process(PutSubmodelRequest request, RequestExecutionContext context)
-            throws ResourceNotFoundException, AssetConnectionException, ValueMappingException, MessageBusException, ValidationException, ResourceNotAContainerElementException,
-            PersistenceException {
+            throws Exception {
         ModelValidator.validate(request.getSubmodel(), context.getCoreConfig().getValidationOnUpdate());
-        //check if resource does exist
-        Submodel oldSubmodel = context.getPersistence().getSubmodel(request.getSubmodelId(), QueryModifier.DEFAULT);
-        if (Objects.nonNull(request.getSubmodel()) && !Objects.equals(request.getSubmodel().getId(), request.getSubmodelId())) {
-            // id has changed, need to update references to this submodel
-            Reference submodelRefOld = ReferenceBuilder.forSubmodel(request.getSubmodelId());
-            Reference submodelRefNew = ReferenceBuilder.forSubmodel(request.getSubmodel().getId());
-            context.getPersistence().getAllAssetAdministrationShells(QueryModifier.MINIMAL, PagingInfo.ALL).getContent().stream()
-                    .filter(aas -> aas.getSubmodels().stream().anyMatch(submodelRef -> ReferenceHelper.equals(submodelRef, submodelRefOld)))
-                    .forEach(LambdaExceptionHelper.rethrowConsumer(aas -> {
+        Submodel oldSubmodel = context.getPersistence().inTransaction(tx -> {
+            //check if resource does exist
+            Submodel existing = tx.getSubmodel(request.getSubmodelId(), QueryModifier.DEFAULT);
+            if (Objects.nonNull(request.getSubmodel()) && !Objects.equals(request.getSubmodel().getId(), request.getSubmodelId())) {
+                // id has changed, need to update references to this submodel
+                Reference submodelRefOld = ReferenceBuilder.forSubmodel(request.getSubmodelId());
+                Reference submodelRefNew = ReferenceBuilder.forSubmodel(request.getSubmodel().getId());
+                for (AssetAdministrationShell aas: tx.getAllAssetAdministrationShells(QueryModifier.MINIMAL, PagingInfo.ALL).getContent()) {
+                    if (aas.getSubmodels().stream().anyMatch(submodelRef -> ReferenceHelper.equals(submodelRef, submodelRefOld))) {
                         aas.getSubmodels().removeIf(submodelRef -> ReferenceHelper.equals(submodelRef, submodelRefOld));
                         aas.getSubmodels().add(submodelRefNew);
-                        context.getPersistence().save(aas);
-                    }));
-            context.getPersistence().deleteSubmodel(request.getSubmodelId());
-        }
-        context.getPersistence().save(request.getSubmodel());
+                        tx.save(aas);
+                    }
+                }
+                tx.deleteSubmodel(request.getSubmodelId());
+            }
+            tx.save(request.getSubmodel());
+            return existing;
+        });
         Reference reference = AasUtils.toReference(request.getSubmodel());
         context.getAssetConnectionManager().syncValueProvidersOnWrite(reference, oldSubmodel, request.getSubmodel(), !request.isInternal());
         context.getMessageBus().publish(ElementUpdateEventMessage.builder()

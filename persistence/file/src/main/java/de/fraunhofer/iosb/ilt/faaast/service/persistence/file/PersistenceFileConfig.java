@@ -57,9 +57,9 @@ public class PersistenceFileConfig extends PersistenceConfig<PersistenceFile> {
     /**
      * Sets the file name according to the configuration parameters.
      *
-     * @throws de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException if initialModelFile
+     * @throws ConfigurationInitializationException if initialModelFile
      *             is present and cannot be parsed
-     * @throws de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException if dataDir is not a
+     * @throws ConfigurationInitializationException if dataDir is not a
      *             valid path
      */
     public void init() throws ConfigurationInitializationException {

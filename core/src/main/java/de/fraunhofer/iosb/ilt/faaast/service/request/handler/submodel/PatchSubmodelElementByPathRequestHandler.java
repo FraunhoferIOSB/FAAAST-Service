@@ -14,25 +14,15 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler.submodel;
 
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
-import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.PatchSubmodelElementByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.PatchSubmodelElementByPathResponse;
-import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValidationException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.validation.ModelValidator;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractSubmodelInterfaceRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
-import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
@@ -44,33 +34,32 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
  */
 public class PatchSubmodelElementByPathRequestHandler extends AbstractSubmodelInterfaceRequestHandler<PatchSubmodelElementByPathRequest, PatchSubmodelElementByPathResponse> {
 
+    private record PatchOutcome(SubmodelElement oldSubmodelElement, SubmodelElement newSubmodelElement) {}
+
     @Override
     public PatchSubmodelElementByPathResponse doProcess(PatchSubmodelElementByPathRequest request, RequestExecutionContext context)
-            throws ResourceNotFoundException, ValueMappingException, AssetConnectionException, MessageBusException, ValidationException, ResourceNotAContainerElementException,
-            InvalidRequestException, PersistenceException {
-        Submodel current = context.getPersistence().getSubmodel(request.getSubmodelId(), QueryModifier.DEFAULT);
-        Submodel updated = applyMergePatch(request.getChanges(), current, Submodel.class);
-        context.getPersistence().save(updated);
+            throws Exception {
         Reference reference = new ReferenceBuilder()
                 .submodel(request.getSubmodelId())
                 .idShortPath(request.getPath())
                 .build();
-        SubmodelElement oldSubmodelElement = context.getPersistence().getSubmodelElement(reference, QueryModifier.DEFAULT);
-        SubmodelElement newSubmodelElement = applyMergePatch(request.getChanges(), oldSubmodelElement, SubmodelElement.class);
-        ModelValidator.validate(newSubmodelElement, context.getCoreConfig().getValidationOnUpdate());
-        context.getPersistence().update(reference, newSubmodelElement);
+        PatchOutcome outcome = context.getPersistence().inTransaction(tx -> {
+            Submodel current = tx.getSubmodel(request.getSubmodelId(), QueryModifier.DEFAULT);
+            Submodel updated = applyMergePatch(request.getChanges(), current, Submodel.class);
+            tx.save(updated);
+            SubmodelElement oldSubmodelElement = tx.getSubmodelElement(reference, QueryModifier.DEFAULT);
+            SubmodelElement newSubmodelElement = applyMergePatch(request.getChanges(), oldSubmodelElement, SubmodelElement.class);
+            ModelValidator.validate(newSubmodelElement, context.getCoreConfig().getValidationOnUpdate());
+            tx.update(reference, newSubmodelElement);
+            return new PatchOutcome(oldSubmodelElement, newSubmodelElement);
+        });
         context.getAssetConnectionManager().cleanupDanglingConnectionsAfterModify(reference);
-        if (!request.isInternal() && Objects.isNull(oldSubmodelElement)) {
-            context.getMessageBus().publish(ElementCreateEventMessage.builder()
-                    .element(reference)
-                    .value(newSubmodelElement)
-                    .build());
-        }
-        context.getAssetConnectionManager().syncValueProvidersOnWrite(reference, oldSubmodelElement, newSubmodelElement, !request.isInternal());
+        context.getAssetConnectionManager().syncValueProvidersOnWrite(
+                reference, outcome.oldSubmodelElement(), outcome.newSubmodelElement(), !request.isInternal());
         if (!request.isInternal()) {
             context.getMessageBus().publish(ElementUpdateEventMessage.builder()
                     .element(reference)
-                    .value(newSubmodelElement)
+                    .value(outcome.newSubmodelElement())
                     .build());
         }
         return PatchSubmodelElementByPathResponse.builder()

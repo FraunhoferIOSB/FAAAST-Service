@@ -45,10 +45,11 @@ public class DeleteThumbnailRequestHandler extends AbstractRequestHandler<Delete
             throw new ResourceNotFoundException(String.format("no thumbnail information set for AAS (id: %s)", request.getId()));
         }
         AssetInformation assetInformation = aas.getAssetInformation();
-        context.getFileStorage().delete(assetInformation.getDefaultThumbnail().getPath());
+        String path = assetInformation.getDefaultThumbnail().getPath();
         assetInformation.setDefaultThumbnail(null);
         aas.setAssetInformation(assetInformation);
         context.getPersistence().save(aas);
+        context.getFileStorage().delete(path);
         if (!request.isInternal()) {
             context.getMessageBus().publish(ElementUpdateEventMessage.builder()
                     .value(aas)

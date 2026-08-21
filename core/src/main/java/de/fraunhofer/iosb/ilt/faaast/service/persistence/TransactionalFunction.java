@@ -12,20 +12,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.starter.cli;
-
-import ch.qos.logback.classic.Level;
-import picocli.CommandLine.ITypeConverter;
-
+package de.fraunhofer.iosb.ilt.faaast.service.persistence;
 
 /**
- * Utility class to parse {@link Level} from string when provided as CLI argument.
+ * A unit of work within a transaction that returns a result.
+ *
+ * @param <R> type of the result
  */
-public class LogLevelTypeConverter implements ITypeConverter<Level> {
+@FunctionalInterface
+public interface TransactionalFunction<R> {
 
-    @Override
-    public Level convert(String value) throws Exception {
-        return Level.toLevel(value);
-    }
-
+    /**
+     * Executes the unit of work.
+     *
+     * @param persistence the persistence to use for all operations within this unit of work. Using any other instance runs
+     *            outside the transaction.
+     * @return the result
+     * @throws Exception if the unit of work fails; causes the transaction to be rolled back
+     */
+    public R execute(Persistence<?> persistence) throws Exception;
 }

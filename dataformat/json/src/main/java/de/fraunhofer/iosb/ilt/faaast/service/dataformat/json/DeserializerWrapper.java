@@ -25,7 +25,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Message;
 public class DeserializerWrapper extends org.eclipse.digitaltwin.aas4j.v3.dataformat.json.JsonDeserializer {
 
     public DeserializerWrapper() {
-
+        useImplementation(Message.class, de.fraunhofer.iosb.ilt.faaast.service.model.api.Message.class);
     }
 
 

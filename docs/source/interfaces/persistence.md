@@ -11,6 +11,32 @@ Each Persistence configuration supports at least the following configuration pro
 | initialModelFile<br>*(optional)* | String        | Path to a model file to load initially.                                                                                                                                                                   |                                     |
 :::
 
+## Transactions
+
+Some operations need several persistence calls to take effect together. For example, replacing a Submodel whose id changed rewrites every Asset Administration Shell referencing it, deletes the old Submodel and saves the new one. If
+a part fails, shells are left referencing a Submodel that does not exist.
+
+`Persistence.inTransaction(action)` (and its void variant `runInTransaction`) executes such a sequence as one unit. The
+action receives a `Persistence` instance that must be used for every operation inside it.
+
+**The atomicity guarantee is optional and depends on the implementation:**
+
+| Implementation | Transactions |
+| -------------- | ------------ |
+| In-Memory      | ✗            |
+| File-based     | ✗            |
+| Mongo          | ✗            |
+| Postgres       | ✓            |
+
+Implementations that do not support transactions execute the action directly and provide *no* rollback: whatever was
+written before a failure stays written. Query `supportsTransactions()` to find out which behaviour applies.
+
+When writing request handlers, keep message bus publishing, file storage access and asset connection calls
+**outside** the transaction action. Emitting an event for a change that is later rolled back cannot be undone.
+
+Note that no transaction can span both the persistence and the file storage. The handlers dealing with `File` elements
+and thumbnails therefore order their two writes so that a failure in between leaves an unreferenced blob.
+
 ## In-Memory
 
 The In-Memory Persistence keeps the AAS model in the local memory.
@@ -102,6 +128,43 @@ Therefore, changes are stored permanently even when FA³ST Service is stopped or
 		"@class" : "de.fraunhofer.iosb.ilt.faaast.service.persistence.mongo.PersistenceMongo",
 		"connectionString" : "mongodb://localhost:27017",
 		"database": "faaast-database",
+		"override": true
+	},
+	//...
+}
+```
+
+## Postgres
+
+The Postgres Persistence stores the AAS model in a Postgres DB according to the AAS specification.
+Therefore, changes are stored permanently even when FA³ST Service is stopped or crashes.
+
+:::{important}
+Each modification of the model results in only writing the specific part to the Postgres table which should improve performance
+:::
+
+### Configuration
+
+:::{table} Configuration properties of Postgres-based Persistence.
+| Name                     | Allowed Value       | Description                                                                                            | Default Value |
+| -------------------------| ------------------- | ------------------------------------------------------------------------------------------------------ | ------------- |
+| jdbcUrl<br>              | String              | The connection string where the PostgresDB is located.                                                 |               |
+| username<br>             | String              | The username to connect to Postgres.                                                                   |               |
+| password<br>             | String              | The password to connect to Postgres.                                                                   |               |
+| override<br>*(optional)* | Boolean             | If true, FA³ST persistence will always override the previous database, this might result in data loss. | false         |
+| maximumPoolSize<br>*(optional)* | Integer      | Maximum number of pooled database connections. A transaction holds exactly one connection for its whole duration, so this also caps the number of concurrent transactions. | 10 |
+
+:::
+
+```{code-block} json
+:caption: Example configuration for Postgres-based Persistence.
+:lineno-start: 1
+{
+	"persistence" : {
+		"@class" : "de.fraunhofer.iosb.ilt.faaast.service.persistence.postgres.PersistencePostgres",
+		"jdbcUrl" : "jdbc:postgresql://localhost:5432/faaast",
+		"username": "faaast",
+		"password": "faaast",
 		"override": true
 	},
 	//...
