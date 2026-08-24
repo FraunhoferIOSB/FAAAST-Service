@@ -83,9 +83,15 @@ public class SubmodelElementListCreator extends SubmodelElementCreator {
 
                 NodeBuilderConfiguration conf = new NodeBuilderConfiguration();
                 conf.addOptional(VariableIds.AASSubmodelElementListType_OrderRelevant);
-                conf.addOptional(VariableIds.AASSubmodelElementListType_SemanticIdListElement);
-                conf.addOptional(VariableIds.AASSubmodelElementListType_TypeValueListElement);
-                conf.addOptional(VariableIds.AASSubmodelElementListType_ValueTypeListElement);
+                if (aasList.getSemanticIdListElement() != null) {
+                    conf.addOptional(VariableIds.AASSubmodelElementListType_SemanticIdListElement);
+                }
+                if (aasList.getTypeValueListElement() != null) {
+                    conf.addOptional(VariableIds.AASSubmodelElementListType_TypeValueListElement);
+                }
+                if (aasList.getValueTypeListElement() != null) {
+                    conf.addOptional(VariableIds.AASSubmodelElementListType_ValueTypeListElement);
+                }
                 NodeBuilder nb = nodeManager.createNodeBuilder(AASSubmodelElementListType.class, conf);
                 nb.setBrowseName(browseName);
                 nb.setDisplayName(LocalizedText.english(name));

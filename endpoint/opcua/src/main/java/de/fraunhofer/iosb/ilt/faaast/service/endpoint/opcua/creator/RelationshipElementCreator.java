@@ -25,6 +25,7 @@ import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.QualifiedName;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
 import opc.ua.aas.ObjectTypeIds;
 import opc.ua.aas.ReferenceTypeIds;
 import opc.ua.aas.VariableIds;
@@ -97,10 +98,10 @@ public class RelationshipElementCreator extends SubmodelElementCreator {
                     //AasReferenceCreator.setAasReferenceData(aasRelElem.getFirst(), relElemNode.getFirst());
                     //AasReferenceCreator.setAasReferenceData(aasRelElem.getSecond(), relElemNode.getSecond());
 
-                    //nodeManager.addSubmodelElementAasMap(relElemNode.getFirstNode().getKeysNode().getNodeId(),
-                    //        new SubmodelElementData(aasRelElem, submodel, SubmodelElementData.Type.RELATIONSHIP_ELEMENT_FIRST, relElemRef));
-                    //nodeManager.addSubmodelElementAasMap(relElemNode.getSecondNode().getKeysNode().getNodeId(),
-                    //        new SubmodelElementData(aasRelElem, submodel, SubmodelElementData.Type.RELATIONSHIP_ELEMENT_SECOND, relElemRef));
+                    nodeManager.addSubmodelElementAasMap(relElemNode.getFirstNode().getNodeId(),
+                            new SubmodelElementData(aasRelElem, submodel, SubmodelElementData.Type.RELATIONSHIP_ELEMENT_FIRST, relElemRef));
+                    nodeManager.addSubmodelElementAasMap(relElemNode.getSecondNode().getNodeId(),
+                            new SubmodelElementData(aasRelElem, submodel, SubmodelElementData.Type.RELATIONSHIP_ELEMENT_SECOND, relElemRef));
 
                     nodeManager.addSubmodelElementOpcUA(relElemRef, relElemNode);
 

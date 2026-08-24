@@ -23,6 +23,7 @@ import com.prosysopc.ua.server.instantiation.TypeDefinitionBasedNodeBuilderConfi
 import com.prosysopc.ua.stack.builtintypes.LocalizedText;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.QualifiedName;
+import com.prosysopc.ua.stack.builtintypes.UnsignedInteger;
 import com.prosysopc.ua.stack.core.Identifiers;
 import com.prosysopc.ua.types.opcua.BaseDataVariableType;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
@@ -304,12 +305,15 @@ public class AssetAdministrationShellCreator {
         //}
 
         if (refList.size() == 1) {
-            referenceListNode.setValue(refList.get(0));
             referenceListNode.setValueRank(ValueRanks.Scalar);
+            referenceListNode.setValue(refList.get(0));
         }
         else if (refList.size() > 1) {
-            referenceListNode.setValue(refList.toArray());
             referenceListNode.setValueRank(ValueRanks.OneDimension);
+            referenceListNode.setArrayDimensions(new UnsignedInteger[] {
+                    UnsignedInteger.ZERO
+            });
+            referenceListNode.setValue(refList.toArray(AASReference[]::new));
         }
 
         if (added) {

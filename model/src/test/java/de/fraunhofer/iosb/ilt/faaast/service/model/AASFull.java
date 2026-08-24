@@ -717,7 +717,7 @@ public class AASFull {
                                 .max("100")
                                 .valueType(DataTypeDefXsd.INT)
                                 .build())
-                        .typeValueListElement(AasSubmodelElements.SUBMODEL_ELEMENT)
+                        //.typeValueListElement(AasSubmodelElements.SUBMODEL_ELEMENT)
                         .build())
                 .submodelElements(new DefaultSubmodelElementCollection.Builder()
                         .idShort("ExampleSubmodelElementCollection")

@@ -27,6 +27,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.Collection;
 import java.util.List;
+import opc.ua.aas.datatypes.AASQualifiable;
 import opc.ua.aas.datatypes.AASReferable;
 import opc.ua.aas.datatypes.AASSubmodelElementCommonAttributes;
 import opc.ua.aas.objecttypes.AASSubmodelElementObjectType;
@@ -250,9 +251,9 @@ public class SubmodelElementCreator {
         // Qualifiers
         List<Qualifier> qualifiers = element.getQualifiers();
         if ((qualifiers != null) && (!qualifiers.isEmpty())) {
-            //if (node.getQualifierNode() == null) {
-            //    QualifierCreator.addQualifierNode(node, nodeManager);
-            //}
+            if (commonAttributes.getQualifiable() == null) {
+                commonAttributes.setQualifiable(new AASQualifiable());
+            }
 
             QualifierCreator.addQualifiers(commonAttributes.getQualifiable(), qualifiers, nodeManager);
         }

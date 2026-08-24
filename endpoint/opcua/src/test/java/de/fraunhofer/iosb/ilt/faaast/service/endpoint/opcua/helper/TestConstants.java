@@ -67,6 +67,7 @@ public class TestConstants {
     public static final String FULL_CAPABILITY_NAME = "ExampleCapability";
     public static final String FULL_DATETIME_PROP_NAME = "DateTimeProperty";
     public static final String FULL_INT64_PROP_NAME = "Int64Property";
+    public static final String FULL_PROPERTY_NAME = "ExampleProperty";
 
     public static final String KIND_NAME = "Kind";
     public static final String CATEGORY_NAME = "Category";
@@ -109,7 +110,7 @@ public class TestConstants {
     public static final int AAS_REFERENCE_LIST_ID = 1036;
     public static final int AAS_QUALIFIER_LIST_ID = 1037;
     public static final int AAS_ID_KEY_VALUE_PAIR_LIST_ID = 1039;
-    public static final int AAS_SUBMODEL_ELEM_LIST_TYPE = 1040;
+    public static final int AAS_SUBMODEL_ELEM_LIST_TYPE = 1005;
     public static final int AAS_SPECIFIC_ASSET_ID_TYPE_ID = 1041;
     public static final int AAS_SPECIFIC_ASSET_ID_LIST_TYPE_ID = 1043;
     public static final int AAS_EMBEDDED_DATA_SPECIFICATION_LIST = 1050;

@@ -54,6 +54,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import opc.ua.aas.objecttypes.AASEnvironmentType;
 import opc.ua.aas.objecttypes.AASOperationType;
+import opc.ua.aas.objecttypes.AASSubmodelElementObjectType;
 import opc.ua.aas.objecttypes.AASSubmodelType;
 import opc.ua.aas.variabletypes.AASMultiLanguagePropertyType;
 import opc.ua.aas.variabletypes.AASPropertyType;
@@ -805,7 +806,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             LOGGER.trace("addSubmodelElement: call addSubmodelElements");
             SubmodelElementCreator.addSubmodelElements(parent.getNode(), List.of((SubmodelElement) value), (Submodel) parent.getReferable(), element, this);
         }
-        else if (parent.getNode() instanceof AASSubmodelElementVariableType) {
+        else if ((parent.getNode() instanceof AASSubmodelElementVariableType) || (parent.getNode() instanceof AASSubmodelElementObjectType)) {
             LOGGER.debug("addSubmodelElement: call addSubmodelElements (variable)");
             SubmodelElementCreator.addSubmodelElements(parent.getNode(), List.of((SubmodelElement) value), parent.getSubmodel(), element, this);
         }

@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator;
 
 import com.prosysopc.ua.StatusException;
 import com.prosysopc.ua.ValueRanks;
+import com.prosysopc.ua.stack.builtintypes.UnsignedInteger;
 import com.prosysopc.ua.types.opcua.BaseDataVariableType;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import java.util.ArrayList;
@@ -64,12 +65,15 @@ public class SpecificAssetIdCreator {
         }
 
         if (list.size() == 1) {
-            node.setValue(list.get(0));
             node.setValueRank(ValueRanks.Scalar);
+            node.setValue(list.get(0));
         }
         else if (list.size() > 1) {
-            node.setValue(list.toArray());
             node.setValueRank(ValueRanks.OneDimension);
+            node.setArrayDimensions(new UnsignedInteger[] {
+                    UnsignedInteger.ZERO
+            });
+            node.setValue(list.toArray(AASSpecificAssetId[]::new));
         }
     }
 
