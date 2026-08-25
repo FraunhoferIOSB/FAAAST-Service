@@ -24,6 +24,7 @@ import com.prosysopc.ua.stack.builtintypes.LocalizedText;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.QualifiedName;
 import com.prosysopc.ua.stack.builtintypes.UnsignedInteger;
+import com.prosysopc.ua.stack.common.ServiceResultException;
 import com.prosysopc.ua.stack.core.Identifiers;
 import com.prosysopc.ua.types.opcua.BaseDataVariableType;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
@@ -71,9 +72,10 @@ public class AssetAdministrationShellCreator {
      * @throws StatusException If the operation fails
      * @throws ValueFormatException The data format of the value is invalid
      * @throws AmbiguousElementException if there are multiple matching elements in the environment
+     * @throws ServiceResultException If the operation fails
      */
     public static void addAssetAdministrationShell(UaNode node, AssetAdministrationShell aas, AasServiceNodeManager nodeManager)
-            throws StatusException, ValueFormatException, AmbiguousElementException {
+            throws StatusException, ValueFormatException, AmbiguousElementException, ServiceResultException {
         TypeDefinitionBasedNodeBuilderConfiguration.Builder conf = TypeDefinitionBasedNodeBuilderConfiguration.builder();
         Reference derivedFrom = aas.getDerivedFrom();
         if (derivedFrom != null) {
@@ -131,16 +133,8 @@ public class AssetAdministrationShellCreator {
     }
 
 
-    /**
-     * Adds an AssetInformation object to the given Node.
-     *
-     * @param aasNode The AAS node where the AssetInformation should be added
-     * @param assetInformation The desired AssetInformation object
-     * @param nodeManager The corresponding Node Manager
-     * @throws StatusException If the operation fails
-     */
     private static void addAssetInformation(AASAssetAdministrationShellType aasNode, AssetInformation assetInformation, AasServiceNodeManager nodeManager)
-            throws StatusException, ValueFormatException {
+            throws StatusException, ValueFormatException, ServiceResultException {
         if (aasNode == null) {
             throw new IllegalArgumentException("aasNode = null");
         }
@@ -171,7 +165,7 @@ public class AssetAdministrationShellCreator {
 
 
     private static void setAssetInformationData(AssetInformation assetInformation, AASAssetInformationType assetInfoNode, AasServiceNodeManager nodeManager)
-            throws StatusException, ValueFormatException {
+            throws StatusException, ValueFormatException, ServiceResultException {
         // AssetKind
         AssetKind assetKind = assetInformation.getAssetKind();
         assetInfoNode.setAssetKind(ValueConverter.convertAssetKind(assetKind));
@@ -215,7 +209,7 @@ public class AssetAdministrationShellCreator {
 
 
     private static void addSpecificAssetIds(AASAssetInformationType assetInfoNode, List<SpecificAssetId> list, AasServiceNodeManager nodeManager)
-            throws StatusException {
+            throws StatusException, ServiceResultException {
         if (assetInfoNode == null) {
             throw new IllegalArgumentException("assetInfoNode = null");
         }
@@ -244,14 +238,6 @@ public class AssetAdministrationShellCreator {
     }
 
 
-    /**
-     * Adds the given submodel references to the given node.
-     *
-     * @param node The desired UA node in which the objects should be created
-     * @param submodelRefs The desired submodel references
-     * @param nodeManager The corresponding Node Manager
-     * @throws StatusException If the operation fails
-     */
     private static void addSubmodelReferences(AASAssetAdministrationShellType node, List<Reference> submodelRefs, AasServiceNodeManager nodeManager) throws StatusException {
         if (node == null) {
             throw new IllegalArgumentException(AasServiceNodeManager.NODE_NULL);

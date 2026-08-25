@@ -75,9 +75,8 @@ public class SubmodelElementCollectionCreator extends SubmodelElementCreator {
                 addSubmodelElementBaseData(collNode, aasColl, nodeManager);
 
                 // SubmodelElements 
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("addAasSubmodelElementCollection ({}): add {} SubmodelElements; Ref {}", name, aasColl.getValue().size(), ReferenceHelper.toString(collectionRef));
-                }
+                LOGGER.atDebug().log("addAasSubmodelElementCollection ({}): add {} SubmodelElements; Ref {}", name, aasColl.getValue().size(),
+                        ReferenceHelper.toString(collectionRef));
                 addSubmodelElements(collNode, aasColl.getValue(), collectionRef, submodel, false, nodeManager);
 
                 node.addComponent(collNode);

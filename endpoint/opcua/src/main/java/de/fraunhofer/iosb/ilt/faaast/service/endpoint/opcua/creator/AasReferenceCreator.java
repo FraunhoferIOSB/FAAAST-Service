@@ -171,7 +171,7 @@ public class AasReferenceCreator {
      * @param refNode The AAS Reference object with the source data
      * @throws StatusException If the operation fails
      */
-    private static void setAasReferenceData(Reference ref, AASReference refNode) throws StatusException {
+    public static void setAasReferenceData(Reference ref, AASReference refNode) throws StatusException {
         Ensure.requireNonNull(refNode, "refNode must be non-null");
         Ensure.requireNonNull(ref, "ref must be non-null");
 

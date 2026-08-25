@@ -31,6 +31,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.AasReference
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.EntityCreator;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ValueData;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.AnnotatedRelationshipElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.BlobValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
@@ -40,14 +41,15 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.MultiLanguagePropertyVa
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ReferenceElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.RelationshipElementValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import opc.ua.aas.ObjectTypeIds;
+import opc.ua.aas.objecttypes.AASAnnotatedRelationshipElementType;
 import opc.ua.aas.objecttypes.AASBlobType;
+import opc.ua.aas.objecttypes.AASDataElementObjectType;
 import opc.ua.aas.objecttypes.AASEntityType;
 import opc.ua.aas.objecttypes.AASFileType;
 import opc.ua.aas.objecttypes.AASRelationshipElementType;
@@ -97,25 +99,35 @@ public class AasSubmodelElementHelper {
 
         LOGGER.debug("setRelationshipValue not yet implemented");
 
-        //AasReferenceCreator.setAasReferenceData(value.getFirst(), aasElement.getFirstNode(), false);
-        //AasReferenceCreator.setAasReferenceData(value.getSecond(), aasElement.getSecondNode(), false);
+        AasReferenceCreator.setAasReferenceData(value.getFirst(), aasElement.getFirst());
+        AasReferenceCreator.setAasReferenceData(value.getSecond(), aasElement.getSecond());
 
-        //if ((aasElement instanceof AASAnnotatedRelationshipElementType) && (value instanceof AnnotatedRelationshipElementValue)) {
-        //    AASAnnotatedRelationshipElementType annotatedElement = (AASAnnotatedRelationshipElementType) aasElement;
-        //    AnnotatedRelationshipElementValue annotatedValue = (AnnotatedRelationshipElementValue) value;
-        //    UaNode[] annotationNodes = annotatedElement.getAnnotationNode().getComponents();
-        //    Map<String, DataElementValue> valueMap = annotatedValue.getAnnotations();
-        //    if (annotationNodes.length != valueMap.size()) {
-        //        LOG.error("Size of Value ({}) doesn't match the number of AnnotationNodes ({})", valueMap.size(), annotationNodes.length);
-        //        throw new IllegalArgumentException("Size of Value doesn't match the number of AnnotationNodes");
-        //    }
+        if ((aasElement instanceof AASAnnotatedRelationshipElementType aasAnnotated) && (value instanceof AnnotatedRelationshipElementValue annotated)) {
+            var annotationVariables = aasAnnotated.getS_AnnotationVariable_Nodes();
+            var annotationObjects = getSubmodelElementComponentObjects(aasAnnotated, AASDataElementObjectType.class);
 
-        //    // The Key of the Map is the IdShort of the DataElement (in our case the BrowseName)
-        //    for (UaNode annotationNode: annotationNodes) {
-        //        if (valueMap.containsKey(annotationNode.getBrowseName().getName())) {
-        //            setDataElementValue(annotationNode, valueMap.get(annotationNode.getBrowseName().getName()), nodeManager);
-        //        }
-        //    }
+            Map<String, DataElementValue> valueMap = annotated.getAnnotations();
+            for (var annotationNode: annotationVariables) {
+                setDataElementValue(annotationNode, valueMap.get(annotationNode.getBrowseName().getName()), nodeManager);
+            }
+            for (var annotationNode: annotationObjects) {
+                setDataElementValue(annotationNode, valueMap.get(annotationNode.getBrowseName().getName()), nodeManager);
+            }
+            //    AASAnnotatedRelationshipElementType annotatedElement = (AASAnnotatedRelationshipElementType) aasElement;
+            //    AnnotatedRelationshipElementValue annotatedValue = (AnnotatedRelationshipElementValue) value;
+            //    UaNode[] annotationNodes = annotatedElement.getAnnotationNode().getComponents();
+            //    Map<String, DataElementValue> valueMap = annotatedValue.getAnnotations();
+            //    if (annotationNodes.length != valueMap.size()) {
+            //        LOG.error("Size of Value ({}) doesn't match the number of AnnotationNodes ({})", valueMap.size(), annotationNodes.length);
+            //        throw new IllegalArgumentException("Size of Value doesn't match the number of AnnotationNodes");
+            //    }
+
+            //    // The Key of the Map is the IdShort of the DataElement (in our case the BrowseName)
+            //    for (UaNode annotationNode: annotationNodes) {
+            //        if (valueMap.containsKey(annotationNode.getBrowseName().getName())) {
+            //            setDataElementValue(annotationNode, valueMap.get(annotationNode.getBrowseName().getName()), nodeManager);
+            //        }
+        }
         //}
         //else {
         //    LOG.debug("setRelationshipValue: No AnnotatedRelationshipElement {}", aasElement.getBrowseName().getName());
@@ -344,16 +356,15 @@ public class AasSubmodelElementHelper {
     //    prop.addProperty(createFloatProperty(valueData, typedValue != null ? typedValue.getValue() : null));
     //}
 
-
-    private static PlainProperty<Float> createFloatProperty(ValueData valueData, TypedValue<?> typedValue) throws StatusException {
-        PlainProperty<Float> floatProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
-        floatProperty.setDataTypeId(Identifiers.Float);
-        floatProperty.setDescription(new LocalizedText("", ""));
-        if ((typedValue != null) && (typedValue.getValue() != null)) {
-            floatProperty.setValue(typedValue.getValue());
-        }
-        return floatProperty;
-    }
+    //private static PlainProperty<Float> createFloatProperty(ValueData valueData, TypedValue<?> typedValue) throws StatusException {
+    //    PlainProperty<Float> floatProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
+    //    floatProperty.setDataTypeId(Identifiers.Float);
+    //    floatProperty.setDescription(new LocalizedText("", ""));
+    //    if ((typedValue != null) && (typedValue.getValue() != null)) {
+    //        floatProperty.setValue(typedValue.getValue());
+    //    }
+    //    return floatProperty;
+    //}
 
     //private static void setDoublePropertyValue(ValueData valueData, PropertyValue typedValue, AASPropertyType prop) throws StatusException {
     //    prop.addProperty(createDoubleProperty(valueData, typedValue != null ? typedValue.getValue() : null));
@@ -809,7 +820,7 @@ public class AasSubmodelElementHelper {
         // Statements
         Map<String, ElementValue> valueMap = value.getStatements();
         var statementVariables = entity.getS_StatementVariable_Nodes();
-        var statementObjects = getSubmodelElementComponentObjects(entity);
+        var statementObjects = getSubmodelElementComponentObjects(entity, AASSubmodelElementObjectType.class);
         int statementCount = getListCount(statementObjects, statementVariables);
         if (statementCount != valueMap.size()) {
             LOGGER.warn("Size of Value ({}) doesn't match the number of StatementNodes ({})", valueMap.size(), statementCount);
@@ -915,11 +926,11 @@ public class AasSubmodelElementHelper {
     }
 
 
-    private static List<? extends AASSubmodelElementObjectType> getSubmodelElementComponentObjects(UaObject baseNode) {
-        List<AASSubmodelElementObjectType> retval = new ArrayList<>();
+    private static <T extends AASSubmodelElementObjectType> List<T> getSubmodelElementComponentObjects(UaObject baseNode, Class<T> type) {
+        List<T> retval = new ArrayList<>();
         for (var comp: baseNode.getComponents()) {
-            if (comp instanceof AASSubmodelElementObjectType elemObject) {
-                retval.add(elemObject);
+            if (comp.getClass().equals(type)) {
+                retval.add((T) comp);
             }
         }
         return retval;

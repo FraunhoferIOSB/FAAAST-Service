@@ -137,7 +137,7 @@ public class OpcUaEndpointFullModelTest {
 
         // register another Operation 
         keys = new ArrayList<>();
-        keys.add(new DefaultKey.Builder().type(KeyTypes.SUBMODEL).value("https://acplt.org/Test_Submodel_Mandatory").build());
+        keys.add(new DefaultKey.Builder().type(KeyTypes.SUBMODEL).value(TestConstants.FULL_SUBMODEL_4_ID).build());
         keys.add(new DefaultKey.Builder().type(KeyTypes.OPERATION).value("ExampleOperation").build());
         Reference ref2 = new DefaultReference.Builder()
                 .type(ReferenceTypes.MODEL_REFERENCE)
@@ -170,7 +170,7 @@ public class OpcUaEndpointFullModelTest {
         TestUtils.initialize(client);
         client.connect();
         Assert.assertTrue("client not connected", client.hasConnected());
-        System.out.println("client connected");
+        //System.out.println("client connected");
 
         DataValue value = client.readValue(Identifiers.Server_ServerStatus_State);
         System.out.println(value);
@@ -226,7 +226,7 @@ public class OpcUaEndpointFullModelTest {
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
-        System.out.println("client connected");
+        //System.out.println("client connected");
 
         aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
@@ -251,16 +251,16 @@ public class OpcUaEndpointFullModelTest {
         NodeId writeNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
 
         List<AASKey> oldKeys = new ArrayList<>();
-        oldKeys.add(new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Submodel), "https://acplt.org/Test_Submodel_Mandatory"));
+        oldKeys.add(new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Submodel), TestConstants.FULL_SUBMODEL_4_ID));
         oldKeys.add(new AASKey(AASKeyTypes.of(AASKeyTypes.Options.SubmodelElementList), "ExampleSubmodelElementListUnordered"));
         oldKeys.add(new AASKey(AASKeyTypes.of(AASKeyTypes.Options.MultiLanguageProperty), "ExampleMultiLanguageProperty"));
         AASReference oldValue = new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ModelReference), null, oldKeys.toArray(AASKey[]::new));
 
         // The DataElementValueMapper changes the order of the elements
         List<AASKey> newKeys = new ArrayList<>();
-        newKeys.add(new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Submodel), "https://acplt.org/Test_Submodel_Mandatory"));
-        newKeys.add(new AASKey(AASKeyTypes.of(AASKeyTypes.Options.SubmodelElementList), "ExampleSubmodelElementListUnordered"));
-        newKeys.add(new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Range), "ExampleRange"));
+        newKeys.add(new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Submodel), TestConstants.FULL_SUBMODEL_4_ID));
+        newKeys.add(new AASKey(AASKeyTypes.of(AASKeyTypes.Options.SubmodelElementList), "ExampleSubmodelElementCollection"));
+        newKeys.add(new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Blob), "ExampleBlob"));
         AASReference newValue = new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ModelReference), null, newKeys.toArray(AASKey[]::new));
 
         //TestUtils.writeNewValueArray(client, writeNode, oldValue.toArray(AASKey[]::new), newValue.toArray(AASKey[]::new));
@@ -278,7 +278,7 @@ public class OpcUaEndpointFullModelTest {
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
-        System.out.println("client connected");
+        //System.out.println("client connected");
 
         aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
@@ -328,7 +328,7 @@ public class OpcUaEndpointFullModelTest {
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
-        System.out.println("client connected");
+        //System.out.println("client connected");
 
         aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
@@ -366,7 +366,7 @@ public class OpcUaEndpointFullModelTest {
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
-        System.out.println("client connected");
+        //System.out.println("client connected");
 
         aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
@@ -447,7 +447,7 @@ public class OpcUaEndpointFullModelTest {
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
-        System.out.println("client connected");
+        //System.out.println("client connected");
 
         aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
         int serverns = client.getAddressSpace().getNamespaceTable().getIndex(AasServiceNodeManager.NAMESPACE_URI);
@@ -503,7 +503,7 @@ public class OpcUaEndpointFullModelTest {
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
-        System.out.println("client connected");
+        //System.out.println("client connected");
 
         aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
         int serverns = client.getAddressSpace().getNamespaceTable().getIndex(AasServiceNodeManager.NAMESPACE_URI);
@@ -724,7 +724,7 @@ public class OpcUaEndpointFullModelTest {
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
-        System.out.println("client connected");
+        //System.out.println("client connected");
 
         aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
@@ -782,7 +782,7 @@ public class OpcUaEndpointFullModelTest {
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
-        System.out.println("client connected");
+        //System.out.println("client connected");
 
         aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
         int serverns = client.getAddressSpace().getNamespaceTable().getIndex(AasServiceNodeManager.NAMESPACE_URI);
@@ -897,7 +897,7 @@ public class OpcUaEndpointFullModelTest {
         // SubmodelElementList type
         targets = bpres[3].getTargets();
         NodeId listNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
-        TestUtils.checkType(client, listNode, new NodeId(aasns, TestConstants.AAS_SUBMODEL_ELEM_LIST_TYPE));
+        TestUtils.checkType(client, listNode, TestConstants.AAS_SUBMODEL_ELEM_LIST_TYPE);
 
         System.out.println("disconnect client");
         client.disconnect();
@@ -1057,9 +1057,46 @@ public class OpcUaEndpointFullModelTest {
     }
 
 
+    @Test
+    public void testWriteAnnotateedRelationshipElementAnnotation() throws SecureIdentityException, IOException, ServiceException, StatusException, ServiceResultException {
+        UaClient client = new UaClient(endpointUrl);
+        client.setSecurityMode(SecurityMode.NONE);
+        TestUtils.initialize(client);
+        client.connect();
+
+        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
+
+        List<RelativePath> relPath = new ArrayList<>();
+        List<RelativePathElement> browsePath = new ArrayList<>();
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_6_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_ANN_REL_ELEMENT_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, "ExampleProperty")));
+        //browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.KEYS_VALUE_NAME)));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+
+        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
+        Assert.assertNotNull("testWriteAnnotateedRelationshipElementAnnotation Browse Result Null", bpres);
+        Assert.assertEquals("testWriteAnnotateedRelationshipElementAnnotation Browse Result: size doesn't match", 1, bpres.length);
+        Assert.assertTrue("testWriteAnnotateedRelationshipElementAnnotation Browse Result Good", bpres[0].getStatusCode().isGood());
+
+        BrowsePathTarget[] targets = bpres[0].getTargets();
+        Assert.assertNotNull("testWriteAnnotateedRelationshipElementAnnotation ValueType Null", targets);
+        Assert.assertTrue("testWriteAnnotateedRelationshipElementAnnotation ValueType empty", targets.length > 0);
+
+        NodeId writeNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
+
+        String oldValue = "some example annotation";
+        String newValue = "any other strange annptation value!";
+        TestUtils.writeNewValueIntern(client, writeNode, oldValue, newValue);
+
+        client.disconnect();
+    }
+
+
     private void testSubmodel1(UaClient client, NodeId submodelNode) throws ServiceException, AddressSpaceException, ServiceResultException, StatusException {
         TestUtils.checkDisplayName(client, submodelNode, "Submodel:" + TestConstants.FULL_SUBMODEL_1_NAME);
-        TestUtils.checkType(client, submodelNode, new NodeId(aasns, TestConstants.AAS_SUBMODEL_TYPE_ID));
+        TestUtils.checkType(client, submodelNode, TestConstants.AAS_SUBMODEL_TYPE_ID);
         //TestUtils.checkType(client, submodelNode, ObjectTypeIds.AASSubmodelType);
 
         TestUtils.checkCommonAttributes(client, submodelNode, aasns,

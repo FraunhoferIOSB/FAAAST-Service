@@ -148,7 +148,8 @@ public class EntityCreator extends SubmodelElementCreator {
     }
 
 
-    private static void setSpecificAssetIdData(AASEntityType entityNode, List<SpecificAssetId> specificAssetId, AasServiceNodeManager nodeManager) throws StatusException {
+    private static void setSpecificAssetIdData(AASEntityType entityNode, List<SpecificAssetId> specificAssetId, AasServiceNodeManager nodeManager)
+            throws StatusException, ServiceResultException {
         BaseDataVariableType listNode = entityNode.getSpecificAssetIdNode();
         if (listNode == null) {
             QualifiedName browseName = UaQualifiedName.from(ObjectTypeIds.AASEntityType.getNamespaceUri(), AASEntityType.SPECIFIC_ASSET_ID)

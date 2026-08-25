@@ -17,10 +17,12 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator;
 import com.prosysopc.ua.StatusException;
 import com.prosysopc.ua.ValueRanks;
 import com.prosysopc.ua.stack.builtintypes.UnsignedInteger;
+import com.prosysopc.ua.stack.common.ServiceResultException;
 import com.prosysopc.ua.types.opcua.BaseDataVariableType;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import java.util.ArrayList;
 import java.util.List;
+import opc.ua.aas.DataTypeIds;
 import opc.ua.aas.datatypes.AASSpecificAssetId;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
@@ -47,8 +49,10 @@ public class SpecificAssetIdCreator {
      * @param specificAssetIds The desired list of SpecificAssetIds
      * @param nodeManager The corresponding Node Manager
      * @throws StatusException If the operation fails
+     * @throws com.prosysopc.ua.stack.common.ServiceResultException
      */
-    public static void addSpecificAssetIdList(BaseDataVariableType node, List<SpecificAssetId> specificAssetIds, AasServiceNodeManager nodeManager) throws StatusException {
+    public static void addSpecificAssetIdList(BaseDataVariableType node, List<SpecificAssetId> specificAssetIds, AasServiceNodeManager nodeManager)
+            throws StatusException, ServiceResultException {
 
         //int index = 1;
         List<AASSpecificAssetId> list = new ArrayList<>();
@@ -64,6 +68,7 @@ public class SpecificAssetIdCreator {
             //addSpecificAssetId(node, specificAssetId, name, AasServiceNodeManager.VALUES_READ_ONLY, nodeManager);
         }
 
+        node.setDataTypeId(nodeManager.getNamespaceTable().toNodeId(DataTypeIds.AASSpecificAssetId));
         if (list.size() == 1) {
             node.setValueRank(ValueRanks.Scalar);
             node.setValue(list.get(0));
@@ -103,6 +108,7 @@ public class SpecificAssetIdCreator {
     //    setSpecificAssetIdData(specificAssetIdNode, aasIdentifierPair, AasServiceNodeManager.VALUES_READ_ONLY, nodeManager);
     //}
 
+
     /**
      * Adds an SpecificAssetId to the given Node.
      *
@@ -135,18 +141,7 @@ public class SpecificAssetIdCreator {
     //    node.addComponent(specificAssetIdNode);
     //}
 
-
-    /**
-     * Sets the data for the given IdentifierKeyValuePair Node from the corresponding AAS object.
-     * 
-     * @param specificAssetIdNode The desired IdentifierKeyValuePair Node
-     * @param aasIdentifierPair The corresponding AAS IdentifierKeyValuePair
-     * @param readOnly True if the value should be read-only
-     * @param nodeManager The corresponding Node Manager
-     * @throws StatusException If the operation fails
-     */
-    private static void setSpecificAssetIdData(AASSpecificAssetId specificAssetIdNode, SpecificAssetId aasIdentifierPair, boolean readOnly,
-                                               AasServiceNodeManager nodeManager)
+    private static void setSpecificAssetIdData(AASSpecificAssetId specificAssetIdNode, SpecificAssetId aasIdentifierPair)
             throws StatusException {
         // ExternalSubjectId
         Reference externalSubjectId = aasIdentifierPair.getExternalSubjectId();
@@ -177,7 +172,7 @@ public class SpecificAssetIdCreator {
     private static AASSpecificAssetId getSpecificAssetId(SpecificAssetId aasIdentifierPair) throws StatusException {
 
         AASSpecificAssetId specificAssetIdNode = new AASSpecificAssetId();
-        setSpecificAssetIdData(specificAssetIdNode, aasIdentifierPair, false, null);
+        setSpecificAssetIdData(specificAssetIdNode, aasIdentifierPair);
         return specificAssetIdNode;
     }
 }

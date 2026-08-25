@@ -26,6 +26,7 @@ import com.prosysopc.ua.stack.builtintypes.QualifiedName;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import opc.ua.aas.ObjectTypeIds;
 import opc.ua.aas.ReferenceTypeIds;
 import opc.ua.aas.VariableIds;
@@ -156,8 +157,9 @@ public class RelationshipElementCreator extends SubmodelElementCreator {
         //        LocalizedText.english(aasRelElem.getIdShort()));
 
         // Annotations 
-        for (DataElement de: aasRelElem.getAnnotations()) {
-            DataElementCreator.addAasDataElement(relElemNode, de, relElemRef, submodel, false, nodeManager);
+        for (DataElement dataElement: aasRelElem.getAnnotations()) {
+            Reference dataElementRef = ReferenceBuilder.with(relElemRef).element(dataElement).build();
+            DataElementCreator.addAasDataElement(relElemNode, dataElement, dataElementRef, submodel, false, nodeManager);
         }
 
         retval = relElemNode;

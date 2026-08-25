@@ -68,6 +68,7 @@ import opc.ua.aas.datatypes.AASKey;
 import opc.ua.aas.datatypes.AASKeyTypes;
 import opc.ua.aas.datatypes.AASModellingKind;
 import opc.ua.aas.datatypes.AASQualifierKind;
+import opc.ua.aas.datatypes.AASReference;
 import opc.ua.aas.datatypes.AASReferenceTypes;
 import opc.ua.aas.datatypes.AASStateOfEvent;
 import opc.ua.aas.datatypes.AASSubmodelElements;
@@ -111,7 +112,8 @@ public class ValueConverter {
     private static final Map<ModellingKind, AASModellingKind> MODELING_KIND_MAP;
     private static final Map<QualifierKind, AASQualifierKind> QUALIFIER_KIND_MAP;
     private static final Map<AssetKind, AASAssetKind> ASSET_KIND_MAP;
-    private static final Map<ReferenceTypes, AASReferenceTypes> REFERENCE_TYPES_MAP;
+    //private static final Map<ReferenceTypes, AASReferenceTypes> REFERENCE_TYPES_MAP;
+    private static final List<TypeMapper<ReferenceTypes, AASReferenceTypes>> REFERENCE_TYPES_LIST;
     private static final List<TypeMapper<EntityType, AASEntityEnumType>> ENTITY_TYPE_LIST;
     private static final List<TypeMapper<KeyTypes, AASKeyTypes>> KEY_ELEMENTS_LIST;
     private static final List<TypeMapper<Direction, AASDirection>> DIRECTION_LIST;
@@ -218,9 +220,13 @@ public class ValueConverter {
         ASSET_KIND_MAP.put(AssetKind.TYPE, AASAssetKind.of(AASAssetKind.Options.Type));
         ASSET_KIND_MAP.put(AssetKind.INSTANCE, AASAssetKind.of(AASAssetKind.Options.Instance));
 
-        REFERENCE_TYPES_MAP = new EnumMap<>(ReferenceTypes.class);
-        REFERENCE_TYPES_MAP.put(ReferenceTypes.MODEL_REFERENCE, AASReferenceTypes.of(AASReferenceTypes.Options.ModelReference));
-        REFERENCE_TYPES_MAP.put(ReferenceTypes.EXTERNAL_REFERENCE, AASReferenceTypes.of(AASReferenceTypes.Options.ExternalReference));
+        //REFERENCE_TYPES_MAP = new EnumMap<>(ReferenceTypes.class);
+        //REFERENCE_TYPES_MAP.put(ReferenceTypes.MODEL_REFERENCE, AASReferenceTypes.of(AASReferenceTypes.Options.ModelReference));
+        //REFERENCE_TYPES_MAP.put(ReferenceTypes.EXTERNAL_REFERENCE, AASReferenceTypes.of(AASReferenceTypes.Options.ExternalReference));
+
+        REFERENCE_TYPES_LIST = new ArrayList<>();
+        REFERENCE_TYPES_LIST.add(new TypeMapper<>(ReferenceTypes.MODEL_REFERENCE, AASReferenceTypes.of(AASReferenceTypes.Options.ModelReference)));
+        REFERENCE_TYPES_LIST.add(new TypeMapper<>(ReferenceTypes.EXTERNAL_REFERENCE, AASReferenceTypes.of(AASReferenceTypes.Options.ExternalReference)));
 
         ENTITY_TYPE_LIST = new ArrayList<>();
         ENTITY_TYPE_LIST.add(new TypeMapper<>(EntityType.CO_MANAGED_ENTITY, AASEntityEnumType.of(AASEntityEnumType.Options.CoManagedEntity)));
@@ -478,12 +484,37 @@ public class ValueConverter {
             return null;
         }
         AASReferenceTypes retval;
-        if (REFERENCE_TYPES_MAP.containsKey(value)) {
-            retval = REFERENCE_TYPES_MAP.get(value);
-        }
-        else {
+        var rv = REFERENCE_TYPES_LIST.stream().filter(m -> m.aasObject == value).findAny();
+        if (rv.isEmpty()) {
             LOGGER.warn("convertReferenceTypes: unknown value {}", value);
             throw new IllegalArgumentException(UNKNOWN_KEY_TYPE + value);
+        }
+        else {
+            retval = rv.get().opcuaObject;
+        }
+        return retval;
+    }
+
+
+    /**
+     * Converts the given AssetKind to the corresponding AASAssetKindDataType.
+     *
+     * @param value The desired AssetKind
+     * @return The corresponding AASAssetKindDataType
+     */
+    public static ReferenceTypes convertAasReferenceTypes(AASReferenceTypes value) {
+        if (value == null) {
+            LOGGER.warn("convertAasReferenceTypes: value == null");
+            return null;
+        }
+        ReferenceTypes retval;
+        var rv = REFERENCE_TYPES_LIST.stream().filter(m -> m.opcuaObject == value).findAny();
+        if (rv.isEmpty()) {
+            LOGGER.warn("convertAasReferenceTypes: unknown value {}", value);
+            throw new IllegalArgumentException(UNKNOWN_KEY_TYPE + value);
+        }
+        else {
+            retval = rv.get().aasObject;
         }
         return retval;
     }
@@ -619,17 +650,27 @@ public class ValueConverter {
      * @param value The desired list of Keys.
      * @return The created reference.
      */
-    public static Reference getReferenceFromKeys(AASKey[] value) {
+    //    public static Reference getReferenceFromKeys(AASKey[] value) {
+    //        Ensure.requireNonNull(value, "value must not be null");
+    //
+    //        Reference retval;
+    //
+    //        List<Key> keys = new ArrayList<>();
+    //        for (AASKey key: value) {
+    //            keys.add(new DefaultKey.Builder().type(getKeyTypes(key.getType())).value(key.getValue()).build());
+    //        }
+    //        retval = new DefaultReference.Builder().keys(keys).build();
+    //
+    //        return retval;
+    //    }
+
+    public static Reference getReferenceFromAasReference(AASReference value) {
         Ensure.requireNonNull(value, "value must not be null");
-
-        Reference retval;
-
         List<Key> keys = new ArrayList<>();
-        for (AASKey key: value) {
+        for (AASKey key: value.getKey()) {
             keys.add(new DefaultKey.Builder().type(getKeyTypes(key.getType())).value(key.getValue()).build());
         }
-        retval = new DefaultReference.Builder().keys(keys).build();
-
+        Reference retval = new DefaultReference.Builder().type(convertAasReferenceTypes(value.getType())).keys(keys).build();
         return retval;
     }
 
@@ -1031,8 +1072,9 @@ public class ValueConverter {
 
     private static void setRelationshipElementSecondValue(SubmodelElement submodelElement, Variant variant) {
         RelationshipElement aasRelElem = (RelationshipElement) submodelElement;
-        if (variant.isArray() && (variant.getValue() instanceof AASKey[])) {
-            aasRelElem.setSecond(ValueConverter.getReferenceFromKeys((AASKey[]) variant.getValue()));
+        //if (variant.isArray() && (variant.getValue() instanceof AASKey[])) {
+        if (variant.getValue() instanceof AASReference aasref) {
+            aasRelElem.setSecond(ValueConverter.getReferenceFromAasReference(aasref));
         }
         else if (variant.isEmpty()) {
             aasRelElem.setSecond(null);
@@ -1042,8 +1084,9 @@ public class ValueConverter {
 
     private static void setRelationshipElementFirstValue(SubmodelElement submodelElement, Variant variant) {
         RelationshipElement aasRelElem = (RelationshipElement) submodelElement;
-        if (variant.isArray() && (variant.getValue() instanceof AASKey[])) {
-            aasRelElem.setFirst(ValueConverter.getReferenceFromKeys((AASKey[]) variant.getValue()));
+        //if (variant.isArray() && (variant.getValue() instanceof AASKey[])) {
+        if (variant.getValue() instanceof AASReference aasref) {
+            aasRelElem.setFirst(ValueConverter.getReferenceFromAasReference(aasref));
         }
         else if (variant.isEmpty()) {
             aasRelElem.setFirst(null);
@@ -1053,8 +1096,11 @@ public class ValueConverter {
 
     private static void setReferenceElementValue(SubmodelElement submodelElement, Variant variant) {
         ReferenceElement aasRefElem = (ReferenceElement) submodelElement;
-        if (variant.isArray() && (variant.getValue() instanceof AASKey[])) {
-            aasRefElem.setValue(ValueConverter.getReferenceFromKeys((AASKey[]) variant.getValue()));
+        //if (variant.isArray() && (variant.getValue() instanceof AASKey[])) {
+        //    aasRefElem.setValue(ValueConverter.getReferenceFromKeys((AASKey[]) variant.getValue()));
+        //}
+        if (variant.getValue() instanceof AASReference aasref) {
+            aasRefElem.setValue(ValueConverter.getReferenceFromAasReference(aasref));
         }
         else if (variant.isEmpty()) {
             aasRefElem.setValue(null);

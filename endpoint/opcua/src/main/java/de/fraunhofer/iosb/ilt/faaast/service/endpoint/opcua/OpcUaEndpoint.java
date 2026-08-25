@@ -28,7 +28,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetSubm
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.InvokeOperationSyncResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValueParser;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.MultiLanguagePropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
@@ -36,7 +35,6 @@ import java.util.List;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.eclipse.digitaltwin.aas4j.v3.model.ExecutionState;
-import org.eclipse.digitaltwin.aas4j.v3.model.MultiLanguageProperty;
 import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
@@ -132,27 +130,25 @@ public class OpcUaEndpoint extends AbstractEndpoint<OpcUaEndpointConfig> {
 
         try {
             String path = ReferenceHelper.toPath(refElement);
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("writeValue: Reference {}; Path {}", ReferenceHelper.toString(refElement), path);
-            }
+            LOGGER.atDebug().log("writeValue: Reference {}; element: {}; Path {}", ReferenceHelper.toString(refElement), element.getIdShort(), path);
             PatchSubmodelElementValueByPathRequest request = new PatchSubmodelElementValueByPathRequest();
 
             request.setSubmodelId(submodel.getId());
             request.setPath(path);
             request.setValueParser(ElementValueParser.DEFAULT);
-            if ((element instanceof MultiLanguageProperty mlp) && ((mlp.getValue() != null) && (mlp.getValue().size() > 1))) {
-                for (int i = 0; i < mlp.getValue().size(); i++) {
-                    LOGGER.trace("writeValue: MLP {}: {}", i, mlp.getValue().get(i).getText());
-                }
-            }
+            //if ((element instanceof MultiLanguageProperty mlp) && ((mlp.getValue() != null) && (mlp.getValue().size() > 1))) {
+            //    for (int i = 0; i < mlp.getValue().size(); i++) {
+            //        LOGGER.atTrace().log("writeValue: MLP {}: {}", i, mlp.getValue().get(i).getText());
+            //    }
+            //}
 
             request.setRawValue(ElementValueMapper.toValue(element));
 
-            if ((request.getRawValue() instanceof MultiLanguagePropertyValue mlpv) && ((mlpv.getLangStringSet() != null) && (mlpv.getLangStringSet().size() > 1))) {
-                for (int i = 0; i < mlpv.getLangStringSet().size(); i++) {
-                    LOGGER.trace("writeValue: MLPV {}: {}", i, mlpv.getLangStringSet().toArray()[i]);
-                }
-            }
+            //if ((request.getRawValue() instanceof MultiLanguagePropertyValue mlpv) && ((mlpv.getLangStringSet() != null) && (mlpv.getLangStringSet().size() > 1))) {
+            //    for (int i = 0; i < mlpv.getLangStringSet().size(); i++) {
+            //        LOGGER.atTrace().log("writeValue: MLPV {}: {}", i, mlpv.getLangStringSet().toArray()[i]);
+            //    }
+            //}
 
             Response response = serviceContext.execute(this, request);
             LOGGER.atDebug().log("writeValue: Submodel {}; Element {} (Path {}); Status: {}", submodel.getId(), element.getIdShort(), ReferenceHelper.toPath(refElement),

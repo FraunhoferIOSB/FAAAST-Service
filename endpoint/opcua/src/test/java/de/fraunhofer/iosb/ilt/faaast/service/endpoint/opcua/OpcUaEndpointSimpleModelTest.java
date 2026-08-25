@@ -331,7 +331,7 @@ public class OpcUaEndpointSimpleModelTest {
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
-        System.out.println("client connected");
+        //System.out.println("client connected");
 
         aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
@@ -665,7 +665,7 @@ public class OpcUaEndpointSimpleModelTest {
     private void testAas(UaClient client, NodeId aasNode)
             throws ServiceException, AddressSpaceException, StatusException, ServiceResultException {
         TestUtils.checkDisplayName(client, aasNode, "AAS:" + TestConstants.SIMPLE_AAS_NAME);
-        TestUtils.checkType(client, aasNode, new NodeId(aasns, TestConstants.AAS_AAS_TYPE_ID));
+        TestUtils.checkType(client, aasNode, TestConstants.AAS_AAS_TYPE_ID);
         TestUtils.checkCommonAttributes(client, aasNode, aasns, new CommonAttributesData("1", "2", "", "http://customer.com/aas/9175_7013_7091_9168"));
 
         //TestUtils.checkAdministrationNode(client, aasNode, aasns, "1", "2");
@@ -679,7 +679,7 @@ public class OpcUaEndpointSimpleModelTest {
     private void testSubmodelDoc(UaClient client, NodeId submodelNode)
             throws ServiceException, AddressSpaceException, StatusException, ServiceResultException {
         TestUtils.checkDisplayName(client, submodelNode, "Submodel:" + TestConstants.SUBMODEL_DOC_NODE_NAME);
-        TestUtils.checkType(client, submodelNode, new NodeId(aasns, TestConstants.AAS_SUBMODEL_TYPE_ID));
+        TestUtils.checkType(client, submodelNode, TestConstants.AAS_SUBMODEL_TYPE_ID);
         //TestUtils.checkType(client, submodelNode, ObjectTypeIds.AASSubmodelType);
 
         String submodelName = "SubmodelOperationalData";
@@ -714,7 +714,7 @@ public class OpcUaEndpointSimpleModelTest {
 
     private void testSubmodelOperationalData(UaClient client, NodeId submodelNode) throws ServiceException, AddressSpaceException, StatusException, ServiceResultException {
         TestUtils.checkDisplayName(client, submodelNode, "Submodel:" + TestConstants.SUBMODEL_OPER_DATA_NODE_NAME);
-        TestUtils.checkType(client, submodelNode, new NodeId(aasns, TestConstants.AAS_SUBMODEL_TYPE_ID));
+        TestUtils.checkType(client, submodelNode, TestConstants.AAS_SUBMODEL_TYPE_ID);
         //TestUtils.checkType(client, submodelNode, ObjectTypeIds.AASSubmodelType);
 
         TestUtils.checkCommonAttributes(client, submodelNode, aasns,
@@ -732,7 +732,7 @@ public class OpcUaEndpointSimpleModelTest {
 
     private void testSubmodelTechnicalData(UaClient client, NodeId submodelNode) throws ServiceException, AddressSpaceException, StatusException, ServiceResultException {
         TestUtils.checkDisplayName(client, submodelNode, "Submodel:" + TestConstants.SUBMODEL_TECH_DATA_NODE_NAME);
-        TestUtils.checkType(client, submodelNode, new NodeId(aasns, TestConstants.AAS_SUBMODEL_TYPE_ID));
+        TestUtils.checkType(client, submodelNode, TestConstants.AAS_SUBMODEL_TYPE_ID);
         //TestUtils.checkType(client, submodelNode, ObjectTypeIds.AASSubmodelType);
 
         TestUtils.checkCommonAttributes(client, submodelNode, aasns,
@@ -753,7 +753,7 @@ public class OpcUaEndpointSimpleModelTest {
 
     private void testOperatingManual(UaClient client, NodeId node) throws ServiceException, AddressSpaceException, StatusException, ServiceResultException {
         TestUtils.checkDisplayName(client, node, TestConstants.OPERATING_MANUAL_NAME);
-        TestUtils.checkType(client, node, new NodeId(aasns, TestConstants.AAS_SUBMODEL_ELEM_COLL_TYPE_ID));
+        TestUtils.checkType(client, node, TestConstants.AAS_SUBMODEL_ELEM_COLL_TYPE_ID);
         TestUtils.checkSubmodelElementCommonAttributes(client, aasns, node, null, new ArrayList<>());
         //TestUtils.checkCategoryNode(client, node, aasns, "");
         //TestUtils.checkEmbeddedDataSpecificationNode(client, node, aasns);
