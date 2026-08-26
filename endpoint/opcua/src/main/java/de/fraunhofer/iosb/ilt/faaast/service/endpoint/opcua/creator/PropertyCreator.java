@@ -74,7 +74,7 @@ public class PropertyCreator extends SubmodelElementCreator {
             nb.setNodeId(nid);
             AASPropertyType prop = (AASPropertyType) nb.build();
 
-            LOGGER.info("addAasProperty: create {}", nid);
+            LOGGER.info("addAasProperty: {}: create {}", name, nid);
             //nodeManager.setNodeBuilderConfiguration(conf);
             //AASPropertyType prop = nodeManager.createInstance(AASPropertyType.class, nid, browseName, LocalizedText.english(name));
 

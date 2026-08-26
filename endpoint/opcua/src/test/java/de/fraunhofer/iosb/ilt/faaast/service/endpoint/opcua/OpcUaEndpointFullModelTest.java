@@ -20,6 +20,7 @@ import com.prosysopc.ua.ServiceException;
 import com.prosysopc.ua.StatusException;
 import com.prosysopc.ua.client.AddressSpaceException;
 import com.prosysopc.ua.client.UaClient;
+import com.prosysopc.ua.stack.builtintypes.ByteString;
 import com.prosysopc.ua.stack.builtintypes.DataValue;
 import com.prosysopc.ua.stack.builtintypes.DateTime;
 import com.prosysopc.ua.stack.builtintypes.LocalizedText;
@@ -56,6 +57,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
 import opc.ua.aas.ReferenceTypeIds;
@@ -173,7 +175,7 @@ public class OpcUaEndpointFullModelTest {
         //System.out.println("client connected");
 
         DataValue value = client.readValue(Identifiers.Server_ServerStatus_State);
-        System.out.println(value);
+        //System.out.println(value);
         Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
         Assert.assertEquals(ServerState.Running.ordinal(), value.getValue().intValue());
 
@@ -215,7 +217,7 @@ public class OpcUaEndpointFullModelTest {
 
         testSubmodel1(client, submodel1Node);
 
-        System.out.println("disconnect client");
+        //System.out.println("disconnect client");
         client.disconnect();
     }
 
@@ -266,7 +268,7 @@ public class OpcUaEndpointFullModelTest {
         //TestUtils.writeNewValueArray(client, writeNode, oldValue.toArray(AASKey[]::new), newValue.toArray(AASKey[]::new));
         TestUtils.writeNewValueReference(client, writeNode, oldValue, newValue);
 
-        System.out.println("disconnect client");
+        //System.out.println("disconnect client");
         client.disconnect();
     }
 
@@ -316,7 +318,7 @@ public class OpcUaEndpointFullModelTest {
 
         TestUtils.writeNewValueReference(client, writeNode, oldValue, newValue);
 
-        System.out.println("disconnect client");
+        //System.out.println("disconnect client");
         client.disconnect();
     }
 
@@ -354,7 +356,7 @@ public class OpcUaEndpointFullModelTest {
 
         TestUtils.writeNewValueIntern(client, writeNode, "exampleValue", "a new value");
 
-        System.out.println("disconnect client");
+        //System.out.println("disconnect client");
         client.disconnect();
     }
 
@@ -397,7 +399,7 @@ public class OpcUaEndpointFullModelTest {
 
         TestUtils.writeNewValueArray(client, writeNode, new ArrayList<>().toArray(LocalizedText[]::new), newValue.toArray(LocalizedText[]::new));
 
-        System.out.println("disconnect client");
+        //System.out.println("disconnect client");
         client.disconnect();
     }
 
@@ -409,7 +411,7 @@ public class OpcUaEndpointFullModelTest {
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
-        System.out.println("testWriteEntityGlobalAssetId: client connected");
+        //System.out.println("testWriteEntityGlobalAssetId: client connected");
 
         aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
@@ -436,7 +438,7 @@ public class OpcUaEndpointFullModelTest {
 
         TestUtils.writeNewValueIntern(client, writeNode, oldValue, newValue);
 
-        System.out.println("disconnect client");
+        //System.out.println("disconnect client");
         client.disconnect();
     }
 
@@ -492,7 +494,7 @@ public class OpcUaEndpointFullModelTest {
         Assert.assertEquals("testCallOperationSuccess output Arguments length not equal", 1, outputs.length);
         Assert.assertEquals("testCallOperationSuccess output Argument 0 not equal", new Variant("XYZ1"), outputs[0]);
 
-        System.out.println("disconnect client");
+        //System.out.println("disconnect client");
         client.disconnect();
     }
 
@@ -547,7 +549,7 @@ public class OpcUaEndpointFullModelTest {
         });
         Assert.assertEquals(StatusCodes.Bad_ArgumentsMissing, exception.getStatusCode().getValue());
 
-        System.out.println("disconnect client");
+        //System.out.println("disconnect client");
         client.disconnect();
     }
 
@@ -558,7 +560,7 @@ public class OpcUaEndpointFullModelTest {
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
-        System.out.println("testAddProperty: client connected");
+        //System.out.println("testAddProperty: client connected");
 
         aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
@@ -606,7 +608,7 @@ public class OpcUaEndpointFullModelTest {
                     return bpr != null && bpr.length == 1 && bpr[0].getStatusCode().isGood();
                 });
 
-        System.out.println("disconnect client");
+        //System.out.println("disconnect client");
         client.disconnect();
     }
 
@@ -617,7 +619,7 @@ public class OpcUaEndpointFullModelTest {
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
-        System.out.println("testDeleteSubmodel: client connected");
+        //System.out.println("testDeleteSubmodel: client connected");
 
         aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
@@ -658,7 +660,7 @@ public class OpcUaEndpointFullModelTest {
                     return bpr != null && bpr.length == 2 && bpr[0].getStatusCode().isBad() && bpr[1].getStatusCode().isBad();
                 });
 
-        System.out.println("disconnect client");
+        //System.out.println("disconnect client");
         client.disconnect();
     }
 
@@ -669,7 +671,7 @@ public class OpcUaEndpointFullModelTest {
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
-        System.out.println("testDeleteCapability: client connected");
+        //System.out.println("testDeleteCapability: client connected");
 
         aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
@@ -712,7 +714,7 @@ public class OpcUaEndpointFullModelTest {
                     return bpr != null && bpr.length == 2 && bpr[0].getStatusCode().isBad() && bpr[1].getStatusCode().isBad();
                 });
 
-        System.out.println("disconnect client");
+        //System.out.println("disconnect client");
         client.disconnect();
     }
 
@@ -771,7 +773,7 @@ public class OpcUaEndpointFullModelTest {
         DateTime dtnew = DateTime.fromInstant(odtnew.toInstant());
         TestUtils.writeNewValueIntern(client, propValueNode, dt, dtnew);
 
-        System.out.println("disconnect client");
+        //System.out.println("disconnect client");
         client.disconnect();
     }
 
@@ -824,7 +826,7 @@ public class OpcUaEndpointFullModelTest {
         Assert.assertNotNull("testCallOperationNoArgs output Arguments Null", outputs);
         Assert.assertEquals("testCallOperationNoArgs output Arguments length not equal", 0, outputs.length);
 
-        System.out.println("disconnect client");
+        //System.out.println("disconnect client");
         client.disconnect();
     }
 
@@ -835,7 +837,7 @@ public class OpcUaEndpointFullModelTest {
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
-        System.out.println("testSubmodelElementList: client connected");
+        //System.out.println("testSubmodelElementList: client connected");
 
         aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
@@ -899,7 +901,7 @@ public class OpcUaEndpointFullModelTest {
         NodeId listNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
         TestUtils.checkType(client, listNode, TestConstants.AAS_SUBMODEL_ELEM_LIST_TYPE);
 
-        System.out.println("disconnect client");
+        //System.out.println("disconnect client");
         client.disconnect();
     }
 
@@ -911,7 +913,7 @@ public class OpcUaEndpointFullModelTest {
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
-        System.out.println("testWriteProperty: client connected");
+        //System.out.println("testWriteProperty: client connected");
 
         aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
@@ -938,7 +940,7 @@ public class OpcUaEndpointFullModelTest {
         NodeId writeNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
         TestUtils.writeNewValueIntern(client, writeNode, oldValue, newValue);
 
-        System.out.println("disconnect client");
+        //System.out.println("disconnect client");
         client.disconnect();
     }
 
@@ -949,7 +951,7 @@ public class OpcUaEndpointFullModelTest {
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
-        System.out.println("testUpdateSubmodelElement: client connected");
+        //System.out.println("testUpdateSubmodelElement: client connected");
 
         aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
@@ -1052,13 +1054,13 @@ public class OpcUaEndpointFullModelTest {
                     //return value.getStatusCode().isGood() && Arrays.equals(smeValue.toArray(AASKey[]::new), (AASKey[]) value.getValue().getValue());
                 });
 
-        System.out.println("disconnect client");
+        //System.out.println("disconnect client");
         client.disconnect();
     }
 
 
     @Test
-    public void testWriteAnnotateedRelationshipElementAnnotation() throws SecureIdentityException, IOException, ServiceException, StatusException, ServiceResultException {
+    public void testWriteAnnotatedRelationshipAnnotations() throws SecureIdentityException, IOException, ServiceException, StatusException, ServiceResultException {
         UaClient client = new UaClient(endpointUrl);
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
@@ -1072,23 +1074,43 @@ public class OpcUaEndpointFullModelTest {
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_6_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_ANN_REL_ELEMENT_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, "ExampleProperty")));
-        //browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.KEYS_VALUE_NAME)));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+
+        browsePath.clear();
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_6_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_ANN_REL_ELEMENT_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, "AnnotationBlob")));
+        browsePath.add(new RelativePathElement(Identifiers.HasComponent, false, true, new QualifiedName(aasns, TestConstants.PROPERTY_VALUE_NAME)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
-        Assert.assertNotNull("testWriteAnnotateedRelationshipElementAnnotation Browse Result Null", bpres);
-        Assert.assertEquals("testWriteAnnotateedRelationshipElementAnnotation Browse Result: size doesn't match", 1, bpres.length);
-        Assert.assertTrue("testWriteAnnotateedRelationshipElementAnnotation Browse Result Good", bpres[0].getStatusCode().isGood());
+        Assert.assertNotNull("testWriteAnnotatedRelationshipAnnotations Browse Result Null", bpres);
+        Assert.assertEquals("testWriteAnnotatedRelationshipAnnotations Browse Result: size doesn't match", 2, bpres.length);
+        Assert.assertTrue("testWriteAnnotatedRelationshipAnnotations Browse Result 1 Good", bpres[0].getStatusCode().isGood());
+        Assert.assertTrue("testWriteAnnotatedRelationshipAnnotations Browse Result 2 Good", bpres[1].getStatusCode().isGood());
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
-        Assert.assertNotNull("testWriteAnnotateedRelationshipElementAnnotation ValueType Null", targets);
-        Assert.assertTrue("testWriteAnnotateedRelationshipElementAnnotation ValueType empty", targets.length > 0);
+        Assert.assertNotNull("testWriteAnnotatedRelationshipAnnotations Property Null", targets);
+        Assert.assertTrue("testWriteAnnotatedRelationshipAnnotations Property empty", targets.length > 0);
 
-        NodeId writeNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
+        // SubmodelElementVariable
+        NodeId writeVariable = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
 
         String oldValue = "some example annotation";
         String newValue = "any other strange annptation value!";
-        TestUtils.writeNewValueIntern(client, writeNode, oldValue, newValue);
+        TestUtils.writeNewValueIntern(client, writeVariable, oldValue, newValue);
+
+        targets = bpres[1].getTargets();
+        Assert.assertNotNull("testWriteAnnotatedRelationshipAnnotations Blob Null", targets);
+        Assert.assertTrue("testWriteAnnotatedRelationshipAnnotations Blob empty", targets.length > 0);
+
+        // SubmodelElementObject
+        NodeId writeBlob = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
+
+        ByteString oldBlob = ByteString.valueOf(Base64.getDecoder().decode("AQIDBAU="));
+        ByteString newBlob = ByteString.valueOf(Base64.getDecoder().decode("ERITFBU="));
+        TestUtils.writeNewValueIntern(client, writeBlob, oldBlob, newBlob);
 
         client.disconnect();
     }
