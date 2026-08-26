@@ -19,15 +19,21 @@ import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.dpp.JsonDppSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.QueryParameters;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.filestorage.FileStorage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
+import de.fraunhofer.iosb.ilt.faaast.service.model.DPP;
 import de.fraunhofer.iosb.ilt.faaast.service.model.EnvironmentContext;
 import de.fraunhofer.iosb.ilt.faaast.service.model.TypedInMemoryFile;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
@@ -40,6 +46,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingMetadata;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.PutThumbnailRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasserialization.GenerateSerializationByIdsRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.dpp.ReadDppByIdRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.dpp.ReadDppByProductIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOperationAsyncRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.GetAssetAdministrationShellResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.PutThumbnailResponse;
@@ -47,6 +55,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasrepository.Ge
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasrepository.PostAssetAdministrationShellResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasserialization.GenerateSerializationByIdsResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.conceptdescription.PostConceptDescriptionResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.dpp.ReadDPPByIdResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.dpp.ReadDPPByProductIdResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.dpp.ReadDPPIdsByProductIdsResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.proprietary.ImportResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.proprietary.ImportResult;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetAllSubmodelElementsReferenceResponse;
@@ -58,6 +69,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetSubm
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.InvokeOperationAsyncResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.PostSubmodelElementResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodelrepository.PostSubmodelResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.dpp.DigitalProductPassport;
+import de.fraunhofer.iosb.ilt.faaast.service.model.dpp.DppSerializationMode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
@@ -917,6 +930,115 @@ public abstract class AbstractHttpEndpointTest {
     }
 
 
+    @Test
+    public void testReadDPPById() throws Exception {
+        DigitalProductPassport expected = DPP.DPP_1;
+        ReadDppByIdRequest expectedRequest = ReadDppByIdRequest.builder()
+                .id(DPP.DPP_1.getAAS().getId())
+                .dppSerializationMode(DppSerializationMode.DEFAULT)
+                .build();
+        when(service.execute(any(), eq(expectedRequest))).thenReturn(ReadDPPByIdResponse.builder()
+                .statusCode(StatusCode.SUCCESS)
+                .payload(expected)
+                .build());
+        ContentResponse response = execute(HttpMethod.GET,
+                "/v1/dpps/" + EncodingHelper.base64UrlEncode(DPP.DPP_1.getAAS().getId()));
+        Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
+        assertCompressedDppEquals(expected, response.getContent());
+    }
+
+
+    @Test
+    public void testReadDPPByIdNotFound() throws Exception {
+        String dppId = "non-existent-id";
+        when(service.execute(any(), any())).thenReturn(ReadDPPByIdResponse.builder()
+                .statusCode(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND)
+                .payload(null)
+                .build());
+        ContentResponse response = execute(HttpMethod.GET,
+                "/v1/dpps/" + EncodingHelper.base64UrlEncode(dppId));
+        Assert.assertEquals(HttpStatus.NOT_FOUND_404, response.getStatus());
+    }
+
+
+    @Test
+    public void testReadDPPByProductId() throws Exception {
+        DigitalProductPassport expected = DPP.DPP_1;
+        String productId = DPP.DPP_1.getAAS().getAssetInformation().getGlobalAssetId();
+        ReadDppByProductIdRequest expectedRequest = ReadDppByProductIdRequest.builder()
+                .id(productId)
+                .dppSerializationMode(DppSerializationMode.DEFAULT)
+                .build();
+        when(service.execute(any(), eq(expectedRequest))).thenReturn(ReadDPPByProductIdResponse.builder()
+                .statusCode(StatusCode.SUCCESS)
+                .payload(expected)
+                .build());
+        ContentResponse response = execute(HttpMethod.GET,
+                "/v1/dppsByProductId/" + EncodingHelper.base64UrlEncode(productId));
+        Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
+        assertCompressedDppEquals(expected, response.getContent());
+    }
+
+
+    @Test
+    public void testReadDPPByProductIdNotFound() throws Exception {
+        String productId = "non-existent-product-id";
+        when(service.execute(any(), any())).thenReturn(ReadDPPByProductIdResponse.builder()
+                .statusCode(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND)
+                .payload(null)
+                .build());
+        ContentResponse response = execute(HttpMethod.GET,
+                "/v1/dppsByProductId/" + EncodingHelper.base64UrlEncode(productId));
+        Assert.assertEquals(HttpStatus.NOT_FOUND_404, response.getStatus());
+    }
+
+
+    @Test
+    public void testReadDPPIdsByProductIds() throws Exception {
+        Page<String> expected = Page.of(DPP.DPP_1.getAAS().getId(), DPP.DPP_2.getAAS().getId());
+        when(service.execute(any(), any())).thenReturn(ReadDPPIdsByProductIdsResponse.builder()
+                .statusCode(StatusCode.SUCCESS)
+                .payload(expected)
+                .build());
+        List<String> productIds = List.of(
+                DPP.DPP_1.getAAS().getAssetInformation().getGlobalAssetId(),
+                DPP.DPP_2.getAAS().getAssetInformation().getGlobalAssetId());
+        ContentResponse response = execute(HttpMethod.POST,
+                "/v1/dppsByProductIds", productIds);
+        Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
+        Page<String> actual = deserializer.read(new String(response.getContent()),
+                new TypeReference<Page<String>>() {});
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testReadDPPByIdSerializationModeExpanded() throws Exception {
+        DigitalProductPassport expected = DPP.DPP_1;
+        ReadDppByIdRequest expectedRequest = ReadDppByIdRequest.builder()
+                .id(DPP.DPP_1.getAAS().getId())
+                .dppSerializationMode(DppSerializationMode.EXPANDED)
+                .build();
+        when(service.execute(any(), eq(expectedRequest))).thenReturn(ReadDPPByIdResponse.builder()
+                .statusCode(StatusCode.SUCCESS)
+                .payload(expected)
+                .build());
+        ContentResponse response = execute(HttpMethod.GET,
+                "/v1/dpps/" + EncodingHelper.base64UrlEncode(DPP.DPP_1.getAAS().getId()),
+                Map.of("representation", DppSerializationMode.EXPANDED.getName()));
+        Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR_500, response.getStatus());
+    }
+
+
+    @Test
+    public void testReadDPPByIdSerializationModeInvalid() throws Exception {
+        ContentResponse response = execute(HttpMethod.GET,
+                "/v1/dpps/" + EncodingHelper.base64UrlEncode(DPP.DPP_1.getAAS().getId()),
+                Map.of("representation", "invalid"));
+        Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR_500, response.getStatus());
+    }
+
+
     protected ContentResponse execute(HttpMethod method, String path, Map<String, String> parameters)
             throws Exception {
         return execute(method, path, parameters, null, null, null, null);
@@ -1008,6 +1130,16 @@ public abstract class AbstractHttpEndpointTest {
             }
         }
         return request.send();
+    }
+
+
+    private void assertCompressedDppEquals(DigitalProductPassport expected, byte[] actual) throws SerializationException, JsonProcessingException {
+        JsonNode actualNode = new ObjectMapper().readValue(new String(actual), JsonNode.class);
+        JsonDppSerializer serializer = new JsonDppSerializer();
+        String expectedString = serializer.write(expected, DppSerializationMode.COMPRESSED);
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode expectedNode = mapper.readTree(expectedString);
+        Assert.assertEquals(expectedNode, actualNode);
     }
 
 

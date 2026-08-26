@@ -85,6 +85,16 @@ public class DigitalProductPassport {
     }
 
 
+    @Override
+    public String toString() {
+        return "DigitalProductPassport{" +
+                "aas=" + aas +
+                ", metadata=" + metadata +
+                ", contents=" + contents +
+                '}';
+    }
+
+
     public static Builder builder() {
         return new Builder();
 
