@@ -18,6 +18,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.LogicalExpre
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.field.FieldIdentifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.AccessRuleEntity;
 
+import java.util.List;
+
 
 /**
  * A single filter block ({@code $filters} entry) consisting of a field fragment ({@code $fragment}) and a condition
@@ -27,5 +29,5 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.AccessRul
  * each array entry; the corresponding fragment without {@code []} applies to the entire array-valued object.
  */
 public record QueryFilter(FieldIdentifier fragment, LogicalExpression condition) implements AccessRuleEntity<QueryFilter> {
-    public static QueryFilter EMPTY = new QueryFilter(null, null);
+    public static List<QueryFilter> EMPTY = List.of();
 }

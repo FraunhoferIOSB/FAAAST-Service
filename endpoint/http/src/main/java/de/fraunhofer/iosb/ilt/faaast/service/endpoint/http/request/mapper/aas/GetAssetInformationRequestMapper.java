@@ -16,22 +16,20 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.aas;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractRequestMapper;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractRequestMapperWithId;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.GetAssetInformationRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
-import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
 import java.util.Map;
 
 
 /**
  * class to map HTTP-GET-Request path: shells/{aasIdentifier}/asset-information.
  */
-public class GetAssetInformationRequestMapper extends AbstractRequestMapper {
+public class GetAssetInformationRequestMapper extends AbstractRequestMapperWithId {
 
-    private static final String AAS_ID = RegExHelper.uniqueGroupName();
-    private static final String PATTERN = String.format("shells/%s/asset-information", pathElement(AAS_ID));
+    private static final String PATTERN = "shells/%s/asset-information";
 
     public GetAssetInformationRequestMapper(ServiceContext serviceContext) {
         super(serviceContext, HttpMethod.GET, PATTERN);
@@ -41,7 +39,7 @@ public class GetAssetInformationRequestMapper extends AbstractRequestMapper {
     @Override
     public Request doParse(HttpRequest httpRequest, Map<String, String> urlParameters) throws InvalidRequestException {
         return GetAssetInformationRequest.builder()
-                .id(getParameterBase64UrlEncoded(urlParameters, AAS_ID))
+                .id(getId(urlParameters))
                 .build();
     }
 }

@@ -25,7 +25,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundExc
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.EventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractSubmodelInterfaceRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
@@ -71,7 +70,8 @@ public abstract class AbstractInvokeOperationRequestHandler<T extends InvokeOper
                     "error executing operation - no operation provider defined for reference '%s'",
                     ReferenceHelper.toString(reference)));
         }
-        Operation operation = context.getPersistence().getSubmodelElement(reference, QueryModifier.MINIMAL, Operation.class, request.getFormula());
+        Operation operation = context.getPersistence().getSubmodelElement(reference, QueryModifier.MINIMAL, Operation.class,
+                combineRemainingRuleFormulas(request), getFilters(request));
         request.setInputArguments(validateAndPrepare(
                 operation.getInputVariables(),
                 request.getInputArguments(),
@@ -200,8 +200,8 @@ public abstract class AbstractInvokeOperationRequestHandler<T extends InvokeOper
 
     private static <T extends SubmodelElement> T loadValueFromReference(T argument, Reference reference, RequestExecutionContext context) throws InvalidRequestException {
         try {
-            // TODO identity allowed here?
-            SubmodelElement referencedElement = context.getPersistence().getSubmodelElement(reference, QueryModifier.MAXIMAL, Persistence.identity());
+            // TODO unfiltered access allowed here?
+            SubmodelElement referencedElement = context.getPersistence().getSubmodelElement(reference, QueryModifier.MAXIMAL);
             T result = DeepCopyHelper.deepCopy(argument);
             ElementValueMapper.setValue(result, ElementValueMapper.toValue(referencedElement));
             return result;
@@ -218,8 +218,8 @@ public abstract class AbstractInvokeOperationRequestHandler<T extends InvokeOper
 
     private static void writeValueToReference(SubmodelElement argument, Reference reference, RequestExecutionContext context) throws InvalidRequestException {
         try {
-            // TODO identity allowed here?
-            SubmodelElement referencedElement = context.getPersistence().getSubmodelElement(reference, QueryModifier.MAXIMAL, Persistence.identity());
+            // TODO unfiltered access allowed here?
+            SubmodelElement referencedElement = context.getPersistence().getSubmodelElement(reference, QueryModifier.MAXIMAL);
             ElementValueMapper.setValue(referencedElement, ElementValueMapper.toValue(argument));
             context.getPersistence().update(reference, referencedElement);
         }

@@ -46,7 +46,7 @@ public class GetAllAssetAdministrationShellsByAssetIdRequestHandler
                         .build(),
                 request.getOutputModifier(),
                 request.getPagingInfo(),
-                request.getFormula());
+                combineRemainingRuleFormulas(request), getFilters(request));
         if (!request.isInternal()) {
             page.getContent().forEach(LambdaExceptionHelper.rethrowConsumer(
                     x -> context.getMessageBus().publish(ElementReadEventMessage.builder()

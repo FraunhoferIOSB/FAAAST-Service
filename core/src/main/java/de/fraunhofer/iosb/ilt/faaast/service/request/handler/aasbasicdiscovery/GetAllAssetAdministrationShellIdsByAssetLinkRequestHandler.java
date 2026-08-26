@@ -47,7 +47,7 @@ public class GetAllAssetAdministrationShellIdsByAssetLinkRequestHandler
                         .build(),
                 QueryModifier.DEFAULT,
                 request.getPagingInfo(),
-                request.getFormula());
+                combineRemainingRuleFormulas(request), getFilters(request));
 
         List<String> result = aass.getContent()
                 .stream()

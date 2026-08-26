@@ -24,8 +24,13 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.asset.AssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.asset.GlobalAssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.asset.SpecificAssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.LogicalExpression;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.logical.OrOperation;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.filter.QueryFilter;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.AccessPermissionRule;
 import de.fraunhofer.iosb.ilt.faaast.service.util.FaaastConstants;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -137,4 +142,27 @@ public abstract class AbstractRequestHandler<I extends Request<O>, O extends Res
                 .collect(Collectors.toList());
     }
 
+
+    /**
+     * Combine the remaining rules' formulas to an OR expression.
+     * 
+     * @param request The request containing the formulas
+     * @return An Or Operation
+     */
+    protected LogicalExpression combineRemainingRuleFormulas(Request<?> request) {
+        return new OrOperation(request.getRules().stream().map(AccessPermissionRule::formula).toList());
+
+    }
+
+
+    /**
+     * Returns a flat list of all filters of all remaining rules.
+     * 
+     * @param request The request containing the filters
+     * @return The filters
+     */
+    protected List<QueryFilter> getFilters(Request<?> request) {
+        return request.getRules().stream().map(AccessPermissionRule::filters).flatMap(Collection::stream).toList();
+
+    }
 }

@@ -38,7 +38,8 @@ public class PostSubmodelReferenceRequestHandler extends AbstractRequestHandler<
     @Override
     public PostSubmodelReferenceResponse process(PostSubmodelReferenceRequest request, RequestExecutionContext context)
             throws ResourceNotFoundException, MessageBusException, ResourceAlreadyExistsException, PersistenceException {
-        AssetAdministrationShell aas = context.getPersistence().getAssetAdministrationShell(request.getId(), QueryModifier.DEFAULT, request.getFormula());
+        AssetAdministrationShell aas = context.getPersistence().getAssetAdministrationShell(request.getId(), QueryModifier.DEFAULT,
+                combineRemainingRuleFormulas(request), getFilters(request));
         if (aas.getSubmodels().contains(request.getSubmodelRef())) {
             throw new ResourceAlreadyExistsException(request.getSubmodelRef());
         }

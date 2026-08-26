@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.DistinctResourceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
@@ -24,6 +25,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.UnsupportedContentM
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.UnsupportedExtentModifierException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.UnsupportedLevelModifierException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.UnsupportedModifierException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.referable.REFERABLE_TYPES;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.Right;
+
 import java.util.Objects;
 
 
@@ -32,17 +36,18 @@ import java.util.Objects;
  *
  * @param <T> actual type of the request
  */
-public abstract class AbstractRequestWithModifier<T extends Response> extends Request<T> {
+public abstract class AbstractRequestWithModifier<T extends Response> extends DistinctResourceRequest<T> {
 
     private OutputModifierConstraints outputModifierConstraints;
     protected OutputModifier outputModifier;
 
-    protected AbstractRequestWithModifier() {
-        this(OutputModifierConstraints.DEFAULT);
+    protected AbstractRequestWithModifier(Right right, REFERABLE_TYPES type) {
+        this(OutputModifierConstraints.DEFAULT, right, type);
     }
 
 
-    protected AbstractRequestWithModifier(OutputModifierConstraints outputModifierConstraints) {
+    protected AbstractRequestWithModifier(OutputModifierConstraints outputModifierConstraints, Right right, REFERABLE_TYPES type) {
+        super(right, type);
         this.outputModifier = OutputModifier.DEFAULT;
         this.outputModifierConstraints = outputModifierConstraints == null
                 ? OutputModifierConstraints.DEFAULT

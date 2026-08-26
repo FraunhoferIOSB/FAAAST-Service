@@ -14,6 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.referable.REFERABLE_TYPES.SUBMODEL_ELEMENT;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.Right.CREATE;
+
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractSubmodelInterfaceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.PostSubmodelElementByPathResponse;
 import java.util.Objects;
@@ -27,6 +30,11 @@ public class PostSubmodelElementByPathRequest extends AbstractSubmodelInterfaceR
 
     private String path;
     private SubmodelElement submodelElement;
+
+    public PostSubmodelElementByPathRequest() {
+        super(CREATE, SUBMODEL_ELEMENT);
+    }
+
 
     public String getPath() {
         return path;
@@ -45,6 +53,12 @@ public class PostSubmodelElementByPathRequest extends AbstractSubmodelInterfaceR
 
     public void setSubmodelElement(SubmodelElement submodelElement) {
         this.submodelElement = submodelElement;
+    }
+
+
+    @Override
+    protected boolean requestsCollection() {
+        return false;
     }
 
 

@@ -14,6 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.referable.REFERABLE_TYPES.SUBMODEL;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.Right.READ;
+
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithModifierAndPaging;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodelrepository.QuerySubmodelsResponse;
@@ -28,6 +31,11 @@ public class QuerySubmodelsRequest extends AbstractRequestWithModifierAndPaging<
 
     private Query query;
 
+    protected QuerySubmodelsRequest() {
+        super(READ, SUBMODEL);
+    }
+
+
     public Query getQuery() {
         return query;
     }
@@ -35,6 +43,12 @@ public class QuerySubmodelsRequest extends AbstractRequestWithModifierAndPaging<
 
     public void setQuery(Query query) {
         this.query = query;
+    }
+
+
+    @Override
+    protected boolean requestsCollection() {
+        return true;
     }
 
 

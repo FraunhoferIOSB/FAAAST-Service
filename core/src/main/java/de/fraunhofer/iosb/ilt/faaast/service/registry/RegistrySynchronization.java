@@ -18,7 +18,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.registry;
 import static de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod.DELETE;
 import static de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod.POST;
 import static de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod.PUT;
-import static de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence.identity;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.LogicalExpression.identity;
 
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
@@ -34,6 +34,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.Eleme
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementDeleteEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.filter.QueryFilter;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
@@ -242,7 +243,7 @@ public class RegistrySynchronization {
         if (coreConfig.getAasRegistries().isEmpty()) {
             return;
         }
-        getPageSafe(persistence.getAllAssetAdministrationShells(QueryModifier.MINIMAL, PagingInfo.ALL, identity()))
+        getPageSafe(persistence.getAllAssetAdministrationShells(QueryModifier.MINIMAL, PagingInfo.ALL, identity(), QueryFilter.EMPTY))
                 .getContent()
                 .forEach(this::registerAas);
     }
@@ -255,7 +256,7 @@ public class RegistrySynchronization {
 
     private void registerAas(String id) {
         try {
-            registerAas(persistence.getAssetAdministrationShell(id, QueryModifier.MINIMAL, identity()));
+            registerAas(persistence.getAssetAdministrationShell(id, QueryModifier.MINIMAL, identity(), QueryFilter.EMPTY));
         }
         catch (ResourceNotFoundException | PersistenceException e) {
             LOGGER.warn(String.format(
@@ -272,7 +273,7 @@ public class RegistrySynchronization {
         if (coreConfig.getAasRegistries().isEmpty()) {
             return;
         }
-        getPageSafe(persistence.getAllAssetAdministrationShells(QueryModifier.MINIMAL, PagingInfo.ALL, identity()))
+        getPageSafe(persistence.getAllAssetAdministrationShells(QueryModifier.MINIMAL, PagingInfo.ALL, identity(), QueryFilter.EMPTY))
                 .getContent()
                 .forEach(this::unregisterAas);
     }
@@ -285,7 +286,7 @@ public class RegistrySynchronization {
 
     private void unregisterAas(String id) {
         try {
-            unregisterAas(persistence.getAssetAdministrationShell(id, QueryModifier.MINIMAL, identity()));
+            unregisterAas(persistence.getAssetAdministrationShell(id, QueryModifier.MINIMAL, identity(), QueryFilter.EMPTY));
         }
         catch (ResourceNotFoundException | PersistenceException e) {
             LOGGER.warn(String.format(
@@ -305,7 +306,7 @@ public class RegistrySynchronization {
 
     private void updateAas(String id) {
         try {
-            updateAas(persistence.getAssetAdministrationShell(id, QueryModifier.MINIMAL, identity()));
+            updateAas(persistence.getAssetAdministrationShell(id, QueryModifier.MINIMAL, identity(), QueryFilter.EMPTY));
         }
         catch (ResourceNotFoundException | PersistenceException e) {
             LOGGER.warn(String.format(
@@ -322,7 +323,7 @@ public class RegistrySynchronization {
         if (coreConfig.getSubmodelRegistries().isEmpty()) {
             return;
         }
-        getPageSafe(persistence.getAllSubmodels(QueryModifier.MINIMAL, PagingInfo.ALL, identity()))
+        getPageSafe(persistence.getAllSubmodels(QueryModifier.MINIMAL, PagingInfo.ALL, identity(), QueryFilter.EMPTY))
                 .getContent()
                 .forEach(this::registerSubmodel);
     }
@@ -335,7 +336,7 @@ public class RegistrySynchronization {
 
     private void registerSubmodel(String id) {
         try {
-            registerSubmodel(persistence.getSubmodel(id, QueryModifier.MINIMAL, identity()));
+            registerSubmodel(persistence.getSubmodel(id, QueryModifier.MINIMAL, identity(), QueryFilter.EMPTY));
         }
         catch (ResourceNotFoundException | PersistenceException e) {
             LOGGER.warn(String.format(
@@ -352,7 +353,7 @@ public class RegistrySynchronization {
         if (coreConfig.getSubmodelRegistries().isEmpty()) {
             return;
         }
-        getPageSafe(persistence.getAllSubmodels(QueryModifier.MINIMAL, PagingInfo.ALL, identity()))
+        getPageSafe(persistence.getAllSubmodels(QueryModifier.MINIMAL, PagingInfo.ALL, identity(), QueryFilter.EMPTY))
                 .getContent()
                 .forEach(this::unregisterSubmodel);
     }
@@ -365,7 +366,7 @@ public class RegistrySynchronization {
 
     private void unregisterSubmodel(String id) {
         try {
-            unregisterSubmodel(persistence.getSubmodel(id, QueryModifier.MINIMAL, identity()));
+            unregisterSubmodel(persistence.getSubmodel(id, QueryModifier.MINIMAL, identity(), QueryFilter.EMPTY));
         }
         catch (ResourceNotFoundException | PersistenceException e) {
             LOGGER.warn(String.format(
@@ -385,7 +386,7 @@ public class RegistrySynchronization {
 
     private void updateSubmodel(String id) {
         try {
-            updateSubmodel(persistence.getSubmodel(id, QueryModifier.MINIMAL, identity()));
+            updateSubmodel(persistence.getSubmodel(id, QueryModifier.MINIMAL, identity(), QueryFilter.EMPTY));
         }
         catch (ResourceNotFoundException | PersistenceException e) {
             LOGGER.warn(String.format(
@@ -440,7 +441,7 @@ public class RegistrySynchronization {
                 .submodelDescriptors(aas.getSubmodels().stream()
                         .map(x -> ReferenceHelper.findFirstKeyType(x, KeyTypes.SUBMODEL))
                         .filter(persistence::submodelExists)
-                        .map(LambdaExceptionHelper.wrapFunction(x -> persistence.getSubmodel(x, QueryModifier.MINIMAL, identity())))
+                        .map(LambdaExceptionHelper.wrapFunction(x -> persistence.getSubmodel(x, QueryModifier.MINIMAL, identity(), QueryFilter.EMPTY)))
                         .map(this::asDescriptor)
                         .toList())
                 .endpoints(endpoints.stream()

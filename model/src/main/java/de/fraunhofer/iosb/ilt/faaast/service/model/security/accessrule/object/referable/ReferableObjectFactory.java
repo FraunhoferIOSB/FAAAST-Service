@@ -27,11 +27,11 @@ import java.util.function.Function;
  */
 public abstract class ReferableObjectFactory {
 
-    private static final Map<String, Function<String, ReferableObject>> mappings = Map.ofEntries(
-            Map.entry(AasObject.NOTATION, AasObject::new),
-            Map.entry(SubmodelObject.NOTATION, SubmodelObject::new),
-            Map.entry(ConceptDescriptionObject.NOTATION, ConceptDescriptionObject::new),
-            Map.entry(SubmodelElementObject.NOTATION, SubmodelElementObject::new));
+    private static final Map<REFERABLE_TYPES, Function<String, ReferableObject>> mappings = Map.ofEntries(
+            Map.entry(AasObject.TYPE, AasObject::new),
+            Map.entry(SubmodelObject.TYPE, SubmodelObject::new),
+            Map.entry(ConceptDescriptionObject.TYPE, ConceptDescriptionObject::new),
+            Map.entry(SubmodelElementObject.TYPE, SubmodelElementObject::new));
 
     private ReferableObjectFactory() {}
 
@@ -43,8 +43,8 @@ public abstract class ReferableObjectFactory {
      * @return the built referable object
      */
     public static ReferableObject build(String input) {
-        for (Map.Entry<String, Function<String, ReferableObject>> entry: mappings.entrySet()) {
-            if (input.startsWith(entry.getKey())) {
+        for (Map.Entry<REFERABLE_TYPES, Function<String, ReferableObject>> entry: mappings.entrySet()) {
+            if (input.startsWith(entry.getKey().getDesignator())) {
                 return entry.getValue().apply(input);
             }
         }

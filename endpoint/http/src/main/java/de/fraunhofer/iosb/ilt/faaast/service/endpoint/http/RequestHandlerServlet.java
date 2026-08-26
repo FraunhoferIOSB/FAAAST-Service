@@ -15,7 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http;
 
 import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.SharedAttributes.ACL;
-import static de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence.identity;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.LogicalExpression.identity;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.MethodNotAllowedException;
@@ -93,6 +93,7 @@ public class RequestHandlerServlet extends HttpServlet {
                     String.format("Unknown method '%s'", request.getMethod()),
                     e));
         }
+
         HttpRequest httpRequest = HttpRequest.builder()
                 .path(url.replaceAll("/$", ""))
                 .query(request.getQueryString())
@@ -103,7 +104,7 @@ public class RequestHandlerServlet extends HttpServlet {
                         .collect(Collectors.toMap(
                                 x -> x,
                                 request::getHeader)))
-                .formula(rulesToFormula((List<AccessPermissionRule>) request.getAttribute(ACL.getName())))
+                .rules((List<AccessPermissionRule>) request.getAttribute(ACL.getName()))
                 .build();
         try {
             executeAndSend(response, requestMappingManager.map(httpRequest));

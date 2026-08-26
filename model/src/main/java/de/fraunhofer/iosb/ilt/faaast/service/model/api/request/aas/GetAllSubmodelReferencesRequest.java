@@ -14,6 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.referable.REFERABLE_TYPES.AAS;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.Right.VIEW;
+
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithPaging;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.GetAllSubmodelReferencesResponse;
 import java.util.Objects;
@@ -25,6 +28,17 @@ import java.util.Objects;
 public class GetAllSubmodelReferencesRequest extends AbstractRequestWithPaging<GetAllSubmodelReferencesResponse> {
 
     private String id;
+
+    protected GetAllSubmodelReferencesRequest() {
+        super(VIEW, AAS);
+    }
+
+
+    @Override
+    protected boolean requestsCollection() {
+        return false;
+    }
+
 
     public String getId() {
         return id;

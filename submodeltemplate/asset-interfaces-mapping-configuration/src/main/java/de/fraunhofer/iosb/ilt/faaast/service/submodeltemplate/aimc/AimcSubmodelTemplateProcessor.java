@@ -241,6 +241,7 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
                 .internal()
                 .submodelId(identifier.getSubmodelId())
                 .path(identifier.getIdShortPath().toString())
+                .rules(List.of())
                 .build())
                 .getPayload();
     }

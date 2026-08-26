@@ -12,34 +12,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.referable.identifiable;
-
-import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.referable.REFERABLE_TYPES.AAS;
-
-import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.referable.REFERABLE_TYPES;
-
+package de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.referable;
 
 /**
- * An access object referencing an asset administration shell.
+ * Referable types addressable by an AAS security AccessObject.
  */
-public class AasObject extends IdentifiableObject {
+public enum REFERABLE_TYPES {
+    AAS("$aas"),
+    SUBMODEL("$sm"),
+    CONCEPT_DESCRIPTION("$cd"),
+    SUBMODEL_ELEMENT("$sme");
 
-    public static final REFERABLE_TYPES TYPE = AAS;
+    private final String notation;
 
-    public AasObject(String identifier) {
-        super(identifier);
+    REFERABLE_TYPES(String notation) {
+        this.notation = notation;
     }
 
 
-    @Override
-    public int hashCode() {
-        return super.hashCode();
+    public String getDesignator() {
+        return notation;
     }
-
-
-    @Override
-    public REFERABLE_TYPES getType() {
-        return TYPE;
-    }
-
 }

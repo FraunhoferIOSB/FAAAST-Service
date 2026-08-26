@@ -22,16 +22,22 @@ import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiDeserializer;
+import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
 import de.fraunhofer.iosb.ilt.faaast.service.model.TypedInMemoryFile;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.AccessPermissionRule;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.AccessObject;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.referable.ReferableObject;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.Right;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -130,12 +136,18 @@ public abstract class AbstractRequestMapper {
      * @throws InvalidRequestException if conversion fails
      * @throws IllegalArgumentException if httpRequest is null
      */
-    public Request parse(HttpRequest httpRequest) throws InvalidRequestException {
+    public Request<?> parse(HttpRequest httpRequest) throws InvalidRequestException {
         Ensure.requireNonNull(httpRequest, "httpRequest must be non-null");
         Matcher matcher = Pattern.compile(urlPattern).matcher(httpRequest.getPath());
         if (matcher.matches()) {
-            Request request = doParse(httpRequest, RegExHelper.getGroupValues(urlPattern, httpRequest.getPath()));
-            request.setFormula(httpRequest.getFormula());
+            Request<?> request = doParse(httpRequest, RegExHelper.getGroupValues(urlPattern, httpRequest.getPath()));
+            List<AccessPermissionRule> list = new ArrayList<>();
+            for (AccessPermissionRule rule: httpRequest.getRules()) {
+                if (doFilter(rule, httpRequest)) {
+                    list.add(rule);
+                }
+            }
+            request.setRules(list);
             return request;
         }
         throw new IllegalStateException(String.format("request was matched but no suitable parser found (HTTP method: %s, URL pattern: %s", method, urlPattern));
@@ -151,7 +163,7 @@ public abstract class AbstractRequestMapper {
      * @throws InvalidRequestException if conversion fails
      * @throws IllegalArgumentException if httpRequest is null
      */
-    public abstract Request doParse(HttpRequest httpRequest, Map<String, String> urlParameters) throws InvalidRequestException;
+    public abstract Request<?> doParse(HttpRequest httpRequest, Map<String, String> urlParameters) throws InvalidRequestException;
 
 
     /**
@@ -343,4 +355,83 @@ public abstract class AbstractRequestMapper {
                 && Objects.equals(this.deserializer, other.deserializer)
                 && Objects.equals(this.method, other.method);
     }
+
+
+    /**
+     * Applies filter to a remaining access permission rule. The filters are derived from the HttpRequest.
+     *
+     * @param rule The rule to be filtered.
+     * @param request The request to derive the filter from.
+     * @return True if the rule is kept, false if it is to be removed.
+     * @throws InvalidRequestException The filter could not be derived from the request due to it being malformed or not
+     *             containing necessary information.
+     */
+    protected boolean doFilter(AccessPermissionRule rule, HttpRequest request) throws InvalidRequestException {
+        return filterRule(rule);
+    }
+
+
+    /**
+     * Returns a list of required rights, one of them being necessary to execute the request. Rules may be filtered further
+     * on in edge cases like upsert operations.
+     *
+     * @return A list of rights, one of them a rule should have in order to apply to this request.
+     */
+    protected List<Right> requiredRights() {
+        return Right.from(method);
+    }
+
+
+    /**
+     * Filter a rule by the Rights it contains. For this, {@code requiredRights()} is called.
+     *
+     * @param rule The rule to filter.
+     * @return True if the rule is kept, else false.
+     */
+    protected final boolean filterRule(AccessPermissionRule rule) {
+        return rule.rule().rights().stream().anyMatch(right -> requiredRights().contains(right) || right == Right.ALL);
+    }
+
+
+    /**
+     * Filter a rule by the Rights and the IdentifiableObjects it contains.
+     *
+     * @param rule The rule to filter.
+     * @param identifiableId The identifier of the identifiable to filter for.
+     * @return True if the rule is kept, else false.
+     */
+    protected boolean filterRule(AccessPermissionRule rule, String identifiableId) {
+        return filterRule(rule)
+                && rule.objects().stream()
+                        .anyMatch(object -> identifierCheck(object, identifiableId));
+    }
+
+
+    /**
+     * Filter a rule by the Rights, the IdentifiableObjects, and the ReferableObjects it contains. Returns true if the
+     * required right is present and the identifiableId is allowed
+     * or the specific referable, given as idShortPath, is allowed.
+     *
+     * @param rule The rule to filter.
+     * @param identifiableId The identifier of the identifiable to filter for.
+     * @param idShortPath The idShortPath to filter for.
+     * @return True if the rule is kept, else false.
+     */
+    protected boolean filterRule(AccessPermissionRule rule, String identifiableId, IdShortPath idShortPath) {
+        return filterRule(rule, identifiableId)
+                || rule.objects().stream()
+                        .anyMatch(object -> (object.isReferable() && (object.asReferable().getIdentifier().equals(identifiableId) || object.asReferable().isWildcard())
+                                && object.asReferable().getIdShortPath().equals(idShortPath)));
+
+    }
+
+
+    private boolean identifierCheck(AccessObject object, String identifier) {
+        // Also check if access to a specific submodel element is granted, even though this request asks for the whole submodel.
+        // The submodel element needs to be SELECTed in the persistence
+        object.asIdentifiable().isSubmodel();
+        return (object.isIdentifiable())// TODO uncomment this to allow returning referables when /submodels/{id} is called || object.isReferable())
+                && (((ReferableObject) object).getIdentifier().equals(identifier) || ((ReferableObject) object).isWildcard());
+    }
+
 }

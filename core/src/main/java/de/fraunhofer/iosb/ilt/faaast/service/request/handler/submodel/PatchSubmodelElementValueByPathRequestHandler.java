@@ -56,7 +56,7 @@ public class PatchSubmodelElementValueByPathRequestHandler
                 new OutputModifier.Builder()
                         .extend(Extent.WITH_BLOB_VALUE)
                         .build(),
-                request.getFormula());
+                combineRemainingRuleFormulas(request), getFilters(request));
         ElementValue oldValue = ElementValueMapper.toValue(submodelElement);
         ElementValue newValue = request.getValueParser().parse(request.getRawValue(), oldValue.getClass());
         SubmodelElement newSubmodelElement = ElementValueMapper.setValue(DeepCopyHelper.deepCopy(submodelElement), newValue);

@@ -27,7 +27,7 @@ public abstract class ReferableObject implements AccessObject {
     private final String identifier;
 
     protected ReferableObject(String input) {
-        this.identifier = input.substring(getNotation().length() + 1, input.lastIndexOf(")") + 1);
+        this.identifier = input.substring(getType().getDesignator().length() + 1, input.lastIndexOf(")") + 1);
     }
 
 
@@ -46,7 +46,7 @@ public abstract class ReferableObject implements AccessObject {
      *
      * @return the notation
      */
-    public abstract String getNotation();
+    public abstract REFERABLE_TYPES getType();
 
 
     @Override

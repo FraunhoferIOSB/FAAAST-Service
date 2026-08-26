@@ -14,8 +14,13 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.DistinctResourceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.AccessObject;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.referable.REFERABLE_TYPES;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.Right;
+
 import java.util.Objects;
 
 
@@ -24,9 +29,14 @@ import java.util.Objects;
  *
  * @param <T> type of the corresponding response
  */
-public class AbstractRequestWithId<T extends Response> extends Request<T> {
+public class AbstractRequestWithId<T extends Response> extends DistinctResourceRequest<T> {
 
     protected String id;
+
+    protected AbstractRequestWithId(Right right, REFERABLE_TYPES type) {
+        super(right, type);
+    }
+
 
     public String getId() {
         return id;
@@ -35,6 +45,20 @@ public class AbstractRequestWithId<T extends Response> extends Request<T> {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+
+    @Override
+    protected boolean checkType(AccessObject object) {
+        return super.checkType(object)
+                && ((object.isIdentifiable() && (object.asIdentifiable().getIdentifier().equals(id) || object.asIdentifiable().isWildcard())
+                        || (object.isReferable() && (object.asReferable().getIdentifier().equals(id) || object.asReferable().isWildcard()))));
+    }
+
+
+    @Override
+    protected boolean requestsCollection() {
+        return false;
     }
 
 

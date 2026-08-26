@@ -47,7 +47,9 @@ public class GetSubmodelElementByPathRequestHandler extends AbstractSubmodelInte
                 .submodel(request.getSubmodelId())
                 .idShortPath(request.getPath())
                 .build();
-        SubmodelElement submodelElement = context.getPersistence().getSubmodelElement(reference, request.getOutputModifier(), request.getFormula());
+
+        SubmodelElement submodelElement = context.getPersistence().getSubmodelElement(reference, request.getOutputModifier(),
+                combineRemainingRuleFormulas(request), getFilters(request));
         context.getAssetConnectionManager().syncValueProvidersOnRead(reference, submodelElement, !request.isInternal());
         if (!request.isInternal()) {
             context.getMessageBus().publish(ElementReadEventMessage.builder()

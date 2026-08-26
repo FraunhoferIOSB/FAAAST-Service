@@ -14,6 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.referable.REFERABLE_TYPES.CONCEPT_DESCRIPTION;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.Right.READ;
+
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithModifierAndPaging;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.conceptdescription.QueryConceptDescriptionsResponse;
@@ -28,6 +31,11 @@ public class QueryConceptDescriptionsRequest extends AbstractRequestWithModifier
 
     private Query query;
 
+    protected QueryConceptDescriptionsRequest() {
+        super(READ, CONCEPT_DESCRIPTION);
+    }
+
+
     public Query getQuery() {
         return query;
     }
@@ -35,6 +43,12 @@ public class QueryConceptDescriptionsRequest extends AbstractRequestWithModifier
 
     public void setQuery(Query query) {
         this.query = query;
+    }
+
+
+    @Override
+    protected boolean requestsCollection() {
+        return true;
     }
 
 

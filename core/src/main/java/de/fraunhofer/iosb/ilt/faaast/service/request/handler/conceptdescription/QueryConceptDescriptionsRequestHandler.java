@@ -26,31 +26,28 @@ import de.fraunhofer.iosb.ilt.faaast.service.persistence.ConceptDescriptionSearc
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
-
-import java.util.List;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
 
 
 /**
- * Class to handle a
- * {@link QueryConceptDescriptionsRequest}
- * in the service and to send the corresponding response
- * {@link QueryConceptDescriptionsResponse}.
- * Is responsible for communication with the persistence and sends the corresponding events to the message bus.
+ * Class to handle a {@link QueryConceptDescriptionsRequest} in the service and to send the corresponding response
+ * {@link QueryConceptDescriptionsResponse}. Is responsible for
+ * communication with the persistence and sends the corresponding events to the message bus.
  */
 public class QueryConceptDescriptionsRequestHandler extends AbstractRequestHandler<QueryConceptDescriptionsRequest, QueryConceptDescriptionsResponse> {
 
     @Override
     public QueryConceptDescriptionsResponse process(QueryConceptDescriptionsRequest request, RequestExecutionContext context)
             throws MessageBusException, PersistenceException {
-        LogicalExpression queryAndAccessControl = new AndOperation(List.of(request.getQuery().condition(), request.getFormula()));
+        LogicalExpression queryAndAccessControl = AndOperation.of(request.getQuery().condition(), combineRemainingRuleFormulas(request));
 
         Page<ConceptDescription> page = context.getPersistence().findConceptDescriptions(
                 ConceptDescriptionSearchCriteria.NONE,
                 request.getOutputModifier(),
                 request.getPagingInfo(),
-                queryAndAccessControl);
+                queryAndAccessControl,
+                getFilters(request));
         if (!request.isInternal() && Objects.nonNull(page.getContent())) {
             page.getContent().forEach(LambdaExceptionHelper.rethrowConsumer(
                     x -> context.getMessageBus().publish(ElementReadEventMessage.builder()

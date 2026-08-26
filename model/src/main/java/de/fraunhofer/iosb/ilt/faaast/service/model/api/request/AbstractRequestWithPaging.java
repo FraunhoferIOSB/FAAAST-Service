@@ -14,9 +14,13 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.DistinctResourceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.referable.REFERABLE_TYPES;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.Right;
+
 import java.util.Objects;
 
 
@@ -25,16 +29,17 @@ import java.util.Objects;
  *
  * @param <T> actual type of the request
  */
-public abstract class AbstractRequestWithPaging<T extends Response> extends Request<T> {
+public abstract class AbstractRequestWithPaging<T extends Response> extends DistinctResourceRequest<T> {
 
     protected PagingInfo pagingInfo;
 
-    protected AbstractRequestWithPaging() {
-        this(PagingInfo.ALL);
+    protected AbstractRequestWithPaging(Right right, REFERABLE_TYPES type) {
+        this(PagingInfo.ALL, right, type);
     }
 
 
-    protected AbstractRequestWithPaging(PagingInfo pagingInfo) {
+    protected AbstractRequestWithPaging(PagingInfo pagingInfo, Right right, REFERABLE_TYPES type) {
+        super(right, type);
         this.pagingInfo = pagingInfo;
     }
 

@@ -41,7 +41,8 @@ public class DeleteAssetAdministrationShellByIdRequestHandler
     public DeleteAssetAdministrationShellByIdResponse process(DeleteAssetAdministrationShellByIdRequest request, RequestExecutionContext context)
             throws ResourceNotFoundException, MessageBusException, PersistenceException {
         DeleteAssetAdministrationShellByIdResponse response = new DeleteAssetAdministrationShellByIdResponse();
-        AssetAdministrationShell shell = context.getPersistence().getAssetAdministrationShell(request.getId(), QueryModifier.DEFAULT, request.getFormula());
+        AssetAdministrationShell shell = context.getPersistence().getAssetAdministrationShell(request.getId(), QueryModifier.DEFAULT,
+                combineRemainingRuleFormulas(request), getFilters(request));
         context.getPersistence().deleteAssetAdministrationShell(request.getId());
         response.setStatusCode(StatusCode.SUCCESS_NO_CONTENT);
         if (!request.isInternal()) {

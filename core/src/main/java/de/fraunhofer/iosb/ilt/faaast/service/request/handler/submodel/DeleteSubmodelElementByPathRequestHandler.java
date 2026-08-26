@@ -48,7 +48,8 @@ public class DeleteSubmodelElementByPathRequestHandler extends AbstractSubmodelI
                 .submodel(request.getSubmodelId())
                 .idShortPath(request.getPath())
                 .build();
-        SubmodelElement submodelElement = context.getPersistence().getSubmodelElement(reference, QueryModifier.DEFAULT, request.getFormula());
+        SubmodelElement submodelElement = context.getPersistence().getSubmodelElement(reference, QueryModifier.DEFAULT,
+                combineRemainingRuleFormulas(request), getFilters(request));
         context.getPersistence().deleteSubmodelElement(SubmodelElementIdentifier.fromReference(reference));
         response.setStatusCode(StatusCode.SUCCESS_NO_CONTENT);
         if (!request.isInternal()) {

@@ -14,6 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.referable.REFERABLE_TYPES.SUBMODEL_ELEMENT;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.Right.UPDATE;
+
 import com.github.fge.jsonpatch.mergepatch.JsonMergePatch;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractSubmodelInterfaceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.PatchSubmodelResponse;
@@ -28,6 +31,11 @@ public class PatchSubmodelRequest extends AbstractSubmodelInterfaceRequest<Patch
 
     private JsonMergePatch changes;
 
+    public PatchSubmodelRequest() {
+        super(UPDATE, SUBMODEL_ELEMENT);
+    }
+
+
     public JsonMergePatch getChanges() {
         return changes;
     }
@@ -35,6 +43,12 @@ public class PatchSubmodelRequest extends AbstractSubmodelInterfaceRequest<Patch
 
     public void setChanges(JsonMergePatch changes) {
         this.changes = changes;
+    }
+
+
+    @Override
+    protected boolean requestsCollection() {
+        return false;
     }
 
 

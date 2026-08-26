@@ -22,6 +22,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithPaging;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.AccessPermissionRule;
+
 import java.util.Map;
 
 
@@ -63,4 +65,9 @@ public abstract class AbstractRequestMapperWithPaging<T extends AbstractRequestW
         }
     }
 
+
+    @Override
+    protected boolean doFilter(AccessPermissionRule rule, HttpRequest request) throws InvalidRequestException {
+        return filterRule(rule);
+    }
 }

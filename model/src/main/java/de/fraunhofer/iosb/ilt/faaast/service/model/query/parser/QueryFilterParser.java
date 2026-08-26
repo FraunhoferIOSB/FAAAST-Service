@@ -31,7 +31,7 @@ public class QueryFilterParser extends AbstractParser<SecurityQueryFilter, Query
     @Override
     public QueryFilter parse(SecurityQueryFilter input) {
         if (input == null) {
-            return QueryFilter.EMPTY;
+            return null;
         }
         FieldIdentifier fieldIdentifierAttribute = stringToFieldIdentifierParser.parse(input.getFragment());
         LogicalExpression condition = logicalExpressionParser.parse(input.getCondition());

@@ -63,20 +63,25 @@ public class GenerateSerializationByIdsRequestHandler extends AbstractRequestHan
         DefaultEnvironment environment;
         if (request.getAasIds().isEmpty() && request.getSubmodelIds().isEmpty()) {
             environment = new DefaultEnvironment.Builder()
-                    .assetAdministrationShells(context.getPersistence().getAllAssetAdministrationShells(OutputModifier.DEFAULT, PagingInfo.ALL, request.getFormula()).getContent())
-                    .submodels(context.getPersistence().getAllSubmodels(OutputModifier.DEFAULT, PagingInfo.ALL, request.getFormula()).getContent())
-                    .conceptDescriptions(context.getPersistence().getAllConceptDescriptions(OutputModifier.DEFAULT, PagingInfo.ALL, request.getFormula()).getContent())
+                    .assetAdministrationShells(context.getPersistence().getAllAssetAdministrationShells(OutputModifier.DEFAULT, PagingInfo.ALL,
+                            combineRemainingRuleFormulas(request), getFilters(request)).getContent())
+                    .submodels(context.getPersistence().getAllSubmodels(OutputModifier.DEFAULT, PagingInfo.ALL,
+                            combineRemainingRuleFormulas(request), getFilters(request)).getContent())
+                    .conceptDescriptions(context.getPersistence().getAllConceptDescriptions(OutputModifier.DEFAULT, PagingInfo.ALL,
+                            combineRemainingRuleFormulas(request), getFilters(request)).getContent())
                     .build();
         }
         else {
             environment = new DefaultEnvironment.Builder()
                     .assetAdministrationShells(request.getAasIds().stream()
-                            .map(LambdaExceptionHelper.rethrowFunction(x -> context.getPersistence().getAssetAdministrationShell(x, OUTPUT_MODIFIER, request.getFormula()),
+                            .map(LambdaExceptionHelper.rethrowFunction(x -> context.getPersistence().getAssetAdministrationShell(x, OUTPUT_MODIFIER,
+                                    combineRemainingRuleFormulas(request), getFilters(request)),
                                     ResourceNotFoundException.class,
                                     PersistenceException.class))
                             .collect(Collectors.toList()))
                     .submodels(request.getSubmodelIds().stream()
-                            .map(LambdaExceptionHelper.rethrowFunction(x -> context.getPersistence().getSubmodel(x, OUTPUT_MODIFIER, request.getFormula()),
+                            .map(LambdaExceptionHelper.rethrowFunction(x -> context.getPersistence().getSubmodel(x, OUTPUT_MODIFIER,
+                                    combineRemainingRuleFormulas(request), getFilters(request)),
                                     ResourceNotFoundException.class,
                                     PersistenceException.class))
                             .collect(Collectors.toList()))
@@ -85,7 +90,7 @@ public class GenerateSerializationByIdsRequestHandler extends AbstractRequestHan
                                     ConceptDescriptionSearchCriteria.NONE,
                                     OUTPUT_MODIFIER,
                                     PagingInfo.ALL,
-                                    request.getFormula())
+                                    combineRemainingRuleFormulas(request), getFilters(request))
                                     .getContent()
                             : List.of())
                     .build();

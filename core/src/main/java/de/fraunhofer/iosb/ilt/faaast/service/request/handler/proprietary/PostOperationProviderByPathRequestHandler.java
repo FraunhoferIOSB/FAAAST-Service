@@ -49,7 +49,8 @@ public class PostOperationProviderByPathRequestHandler extends AbstractSubmodelI
                 .submodel(request.getSubmodelId())
                 .idShortPath(request.getPath())
                 .build();
-        context.getPersistence().getSubmodelElement(reference, QueryModifier.MINIMAL, Operation.class, request.getFormula());
+        context.getPersistence().getSubmodelElement(reference, QueryModifier.MINIMAL, Operation.class,
+                combineRemainingRuleFormulas(request), getFilters(request));
         if (context.getAssetConnectionManager().hasOperationProvider(reference)) {
             throw new ResourceAlreadyExistsException(String.format(
                     "operation provider already defined for reference '%s'",

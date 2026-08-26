@@ -29,8 +29,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.logical.AndO
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.SubmodelSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
-
-import java.util.List;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
@@ -38,24 +36,23 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 
 
 /**
- * Class to handle a
- * {@link QuerySubmodelsRequest}
- * in the service and to send the corresponding response
- * {@link QuerySubmodelsResponse}.
- * Is responsible for communication with the persistence and sends the corresponding events to the message bus.
+ * Class to handle a {@link QuerySubmodelsRequest} in the service and to send the corresponding response
+ * {@link QuerySubmodelsResponse}. Is responsible for communication with the
+ * persistence and sends the corresponding events to the message bus.
  */
 public class QuerySubmodelsRequestHandler extends AbstractRequestHandler<QuerySubmodelsRequest, QuerySubmodelsResponse> {
 
     @Override
     public QuerySubmodelsResponse process(QuerySubmodelsRequest request, RequestExecutionContext context)
             throws MessageBusException, PersistenceException, ResourceNotAContainerElementException, ValueMappingException, ResourceNotFoundException, AssetConnectionException {
-        LogicalExpression queryAndAccessControl = new AndOperation(List.of(request.getQuery().condition(), request.getFormula()));
+        LogicalExpression queryAndAccessControl = AndOperation.of(request.getQuery().condition(), combineRemainingRuleFormulas(request));
 
         Page<Submodel> page = context.getPersistence().findSubmodels(
                 SubmodelSearchCriteria.NONE,
                 request.getOutputModifier(),
                 request.getPagingInfo(),
-                queryAndAccessControl);
+                queryAndAccessControl,
+                getFilters(request));
         if (Objects.nonNull(page.getContent())) {
             for (Submodel submodel: page.getContent()) {
                 Reference reference = AasUtils.toReference(submodel);

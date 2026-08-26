@@ -22,9 +22,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractSubmodelInterfaceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.AccessPermissionRule;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.StringHelper;
+
 import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Matcher;
@@ -33,8 +35,8 @@ import java.util.regex.Pattern;
 
 /**
  * Base class for requests that are part of the Submodel Interface API. This class exposes the URL both as the
- * stand-alone URL (e.g. submodels/{submodelIdentifier}/...) as well as the AAS-contextualied version (e.g.
- * /shells/{aasIdentifier}/submodels/{submodelIdentifier}/...).
+ * stand-alone URL (e.g. submodels/{submodelIdentifier}/...) as well as
+ * the AAS-contextualied version (e.g. /shells/{aasIdentifier}/submodels/{submodelIdentifier}/...).
  *
  * @param <T> actual type of the request
  * @param <R> actual type of the response
@@ -55,7 +57,8 @@ public abstract class AbstractSubmodelInterfaceRequestMapper<T extends AbstractS
      * @param method the HTTP method for this request
      * @param urlPattern the URL pattern
      * @param excludedContentModifiers content modifiers that are not allowed for this request as they are handled
-     *            explicitely by another request. This is requred so that the generated URL patterns do not overlap.
+     *            explicitely by another request. This is requred so that
+     *            the generated URL patterns do not overlap.
      */
     protected AbstractSubmodelInterfaceRequestMapper(ServiceContext serviceContext, HttpMethod method, String urlPattern, Content... excludedContentModifiers) {
         super(serviceContext, method, addSubmodelPath(urlPattern), excludedContentModifiers);
@@ -130,10 +133,41 @@ public abstract class AbstractSubmodelInterfaceRequestMapper<T extends AbstractS
             if (withAasContext) {
                 result.setAasId(getParameterBase64UrlEncoded(urlParameters, AAS_ID));
             }
-            result.setSubmodelId(getParameterBase64UrlEncoded(urlParameters, SUBMODEL_ID));
+            result.setSubmodelId(getSubmodelId(urlParameters));
             return result;
         }
         throw new InvalidRequestException(String.format("request does neither satisfy URL pattern '%s' nor contextualized URL pattern '%s'", urlPattern, contextualizedUrlPattern));
+    }
+
+
+    /**
+     * Returns the submodel id of this request.
+     *
+     * @param urlParameters The url params of the request.
+     * @return The submodel id
+     * @throws InvalidRequestException URL params of the request are malformed / do not contain a submodel id
+     */
+    protected String getSubmodelId(Map<String, String> urlParameters) throws InvalidRequestException {
+        return getParameterBase64UrlEncoded(urlParameters, SUBMODEL_ID);
+    }
+
+
+    /**
+     * Applies filter to a remaining access permission rule. The filters are derived from the url parameters of the request.
+     * 
+     * @param rule The rule to filter.
+     * @param urlParameters The url parameters of the request.
+     * @return True if rule is kept, else false.
+     * @throws InvalidRequestException If the rule does not contain necessary information.
+     */
+    protected boolean doFilter(AccessPermissionRule rule, Map<String, String> urlParameters) throws InvalidRequestException {
+        return filterRule(rule, getSubmodelId(urlParameters));
+    }
+
+
+    @Override
+    protected final boolean doFilter(AccessPermissionRule rule, HttpRequest request) throws InvalidRequestException {
+        return doFilter(rule, request.getQueryParameters());
     }
 
 

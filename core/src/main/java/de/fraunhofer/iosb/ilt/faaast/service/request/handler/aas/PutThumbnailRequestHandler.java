@@ -39,7 +39,8 @@ public class PutThumbnailRequestHandler extends AbstractRequestHandler<PutThumbn
     @Override
     public PutThumbnailResponse process(PutThumbnailRequest request, RequestExecutionContext context)
             throws ResourceNotFoundException, MessageBusException, IOException, PersistenceException {
-        AssetAdministrationShell aas = context.getPersistence().getAssetAdministrationShell(request.getId(), QueryModifier.DEFAULT, request.getFormula());
+        AssetAdministrationShell aas = context.getPersistence().getAssetAdministrationShell(request.getId(), QueryModifier.DEFAULT,
+                combineRemainingRuleFormulas(request), getFilters(request));
         if (Objects.isNull(aas.getAssetInformation())) {
             throw new ResourceNotFoundException(String.format("no thumbnail information set for AAS (id: %s)", request.getId()));
         }

@@ -40,7 +40,8 @@ public class GetAssetAdministrationShellReferenceRequestHandler
     @Override
     public GetAssetAdministrationShellReferenceResponse process(GetAssetAdministrationShellReferenceRequest request, RequestExecutionContext context)
             throws ResourceNotFoundException, MessageBusException, PersistenceException {
-        AssetAdministrationShell shell = context.getPersistence().getAssetAdministrationShell(request.getId(), request.getOutputModifier(), request.getFormula());
+        AssetAdministrationShell shell = context.getPersistence().getAssetAdministrationShell(request.getId(), request.getOutputModifier(),
+                combineRemainingRuleFormulas(request), getFilters(request));
         Reference reference = ReferenceBuilder.forAas(shell);
         if (!request.isInternal()) {
             context.getMessageBus().publish(ElementReadEventMessage.builder()

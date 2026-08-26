@@ -16,22 +16,20 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.aasba
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractRequestMapper;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractRequestMapperWithId;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasbasicdiscovery.DeleteAllAssetLinksByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
-import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
 import java.util.Map;
 
 
 /**
  * class to map HTTP-DELETE-Request path: lookup/shells/{aasIdentifier}.
  */
-public class DeleteAllAssetLinksByIdRequestMapper extends AbstractRequestMapper {
+public class DeleteAllAssetLinksByIdRequestMapper extends AbstractRequestMapperWithId {
 
-    private static final String AAS_ID = RegExHelper.uniqueGroupName();
-    private static final String PATTERN = String.format("lookup/shells/%s", pathElement(AAS_ID));
+    private static final String PATTERN = "lookup/shells/%s";
 
     public DeleteAllAssetLinksByIdRequestMapper(ServiceContext serviceContext) {
         super(serviceContext, HttpMethod.DELETE, PATTERN);
@@ -41,7 +39,7 @@ public class DeleteAllAssetLinksByIdRequestMapper extends AbstractRequestMapper 
     @Override
     public Request doParse(HttpRequest httpRequest, Map<String, String> urlParameters) throws InvalidRequestException {
         return DeleteAllAssetLinksByIdRequest.builder()
-                .id(getParameterBase64UrlEncoded(urlParameters, AAS_ID))
+                .id(getId(urlParameters))
                 .build();
     }
 }

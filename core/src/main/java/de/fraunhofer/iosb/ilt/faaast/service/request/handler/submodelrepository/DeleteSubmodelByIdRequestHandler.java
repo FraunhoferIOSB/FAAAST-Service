@@ -42,7 +42,8 @@ public class DeleteSubmodelByIdRequestHandler extends AbstractRequestHandler<Del
     public DeleteSubmodelByIdResponse process(DeleteSubmodelByIdRequest request, RequestExecutionContext context)
             throws ResourceNotFoundException, MessageBusException, AssetConnectionException, PersistenceException {
         DeleteSubmodelByIdResponse response = new DeleteSubmodelByIdResponse();
-        Submodel submodel = context.getPersistence().getSubmodel(request.getSubmodelId(), QueryModifier.DEFAULT, request.getFormula());
+        Submodel submodel = context.getPersistence().getSubmodel(request.getSubmodelId(), QueryModifier.DEFAULT,
+                combineRemainingRuleFormulas(request), getFilters(request));
         context.getPersistence().deleteSubmodel(request.getSubmodelId());
         response.setStatusCode(StatusCode.SUCCESS_NO_CONTENT);
         context.getAssetConnectionManager().cleanupDanglingConnectionsAfterModify(ReferenceBuilder.forSubmodel(submodel));

@@ -14,6 +14,10 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.util.JwtTestHelper.JOHN_DOE;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.comparison.EqualsOperation;
@@ -39,21 +43,15 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.BooleanValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.StringValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TimeValue;
 import jakarta.servlet.http.HttpServletRequest;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.util.Arrays;
 import java.util.List;
-
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.util.JwtTestHelper.JOHN_DOE;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.junit.Before;
+import org.junit.Test;
 
 
 public abstract class AbstractAclFilterTest extends JwtAuthorizationFilterTest {
 
     protected AbstractAclFilter filter;
-
 
     /**
      * Implement this in concrete subclasses to provide the filter under test.
@@ -105,8 +103,7 @@ public abstract class AbstractAclFilterTest extends JwtAuthorizationFilterTest {
                 new GreaterThanEqualsOperation(new CastToTime(new UtcNow()), fromString("00:00")),
                 new LessThanEqualsOperation(new CastToTime(new ClientNow()), fromString("23:59:59")),
                 new LessThanOperation(new CastToTime(new LocalNow()), fromString("23:59:59")),
-                new NotEqualsOperation(new Anonymous(), new BooleanValue(true))
-        ));
+                new NotEqualsOperation(new Anonymous(), new BooleanValue(true))));
 
         var routeNoWildcard = new RouteObject("/shells/12345/submodels/67890/submodel-elements/Abc.Def.Ghi/invoke-async/$value");
         var routePrefixWildcard = new RouteObject("*/12345/submodels/67890/submodel-elements/Abc.Def.Ghi/invoke-async/$value");

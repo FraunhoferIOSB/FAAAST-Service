@@ -23,7 +23,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.putRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
-import static de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence.identity;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.LogicalExpression.identity;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
@@ -44,6 +44,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundExc
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementDeleteEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.filter.QueryFilter;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
@@ -343,13 +344,13 @@ public class RegistrySynchronizationTest {
     private void mockPersistence() throws ResourceNotFoundException, PersistenceException {
         persistence = Mockito.mock(Persistence.class);
         environment = AASFull.createEnvironment();
-        when(persistence.getAllAssetAdministrationShells(any(), any(), any()))
+        when(persistence.getAllAssetAdministrationShells(any(), any(), any(), any()))
                 .thenReturn(Page.<AssetAdministrationShell> builder().result(environment.getAssetAdministrationShells()).build());
 
-        when(persistence.getAllSubmodels(any(), any(), any()))
+        when(persistence.getAllSubmodels(any(), any(), any(), any()))
                 .thenReturn(Page.<Submodel> builder().result(environment.getSubmodels()).build());
 
-        when(persistence.getSubmodel(any(String.class), any(), any()))
+        when(persistence.getSubmodel(any(String.class), any(), any(), any()))
                 .thenAnswer((Answer<Submodel>) invocation -> {
                     String id = invocation.getArgument(0);
                     return environment.getSubmodels().stream()
@@ -357,7 +358,7 @@ public class RegistrySynchronizationTest {
                             .findFirst()
                             .orElseThrow(() -> new ResourceNotFoundException(id, Submodel.class));
                 });
-        when(persistence.getAssetAdministrationShell(any(String.class), any(), any()))
+        when(persistence.getAssetAdministrationShell(any(String.class), any(), any(), any()))
                 .thenAnswer((Answer<AssetAdministrationShell>) invocation -> {
                     String id = invocation.getArgument(0);
                     return environment.getAssetAdministrationShells().stream()
@@ -411,7 +412,7 @@ public class RegistrySynchronizationTest {
         return aas.getSubmodels().stream()
                 .map(x -> ReferenceHelper.findFirstKeyType(x, KeyTypes.SUBMODEL))
                 .filter(persistence::submodelExists)
-                .map(LambdaExceptionHelper.wrapFunction(x -> persistence.getSubmodel(x, QueryModifier.MINIMAL, identity())))
+                .map(LambdaExceptionHelper.wrapFunction(x -> persistence.getSubmodel(x, QueryModifier.MINIMAL, identity(), QueryFilter.EMPTY)))
                 .map(x -> new DefaultSubmodelDescriptor.Builder()
                         .administration(x.getAdministration())
                         .id(x.getId())

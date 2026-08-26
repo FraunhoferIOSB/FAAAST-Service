@@ -14,6 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.referable.REFERABLE_TYPES.SUBMODEL_ELEMENT;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.Right.EXECUTE;
+
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
@@ -44,7 +47,7 @@ public abstract class InvokeOperationRequest<T extends Response> extends Abstrac
                 .supportsExtent(false)
                 .supportsLevel(false)
                 .supportedContentModifiers(Content.NORMAL, Content.VALUE)
-                .build());
+                .build(), EXECUTE, SUBMODEL_ELEMENT);
         this.path = "";
         this.inputArguments = new ArrayList<>();
         this.inoutputArguments = new ArrayList<>();

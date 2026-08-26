@@ -48,7 +48,7 @@ public class GetAllSubmodelsByIdShortRequestHandler extends AbstractRequestHandl
                         .build(),
                 QueryModifier.DEFAULT,
                 request.getPagingInfo(),
-                request.getFormula());
+                combineRemainingRuleFormulas(request), getFilters(request));
         context.getAssetConnectionManager().syncValueProvidersOnRead(null, page, !request.isInternal());
         return GetAllSubmodelsByIdShortResponse.builder()
                 .payload(page)

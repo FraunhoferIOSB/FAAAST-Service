@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.logical;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.LogicalExpression;
 
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -44,4 +45,14 @@ public class AndOperation extends AbstractLogicalOperation {
         return new AndOperation(operands);
     }
 
+
+    /**
+     * Creates an AndOperation based on the operands.
+     *
+     * @param operands The operands
+     * @return a new AndOperation
+     */
+    public static AndOperation of(LogicalExpression... operands) {
+        return new AndOperation(Arrays.asList(operands));
+    }
 }

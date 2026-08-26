@@ -16,22 +16,20 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.conce
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractRequestMapper;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractRequestMapperWithId;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.GetConceptDescriptionByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
-import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
 import java.util.Map;
 
 
 /**
  * class to map HTTP-PUT-Request path: concept-descriptions/{cdIdentifier}.
  */
-public class GetConceptDescriptionByIdRequestMapper extends AbstractRequestMapper {
+public class GetConceptDescriptionByIdRequestMapper extends AbstractRequestMapperWithId {
 
-    private static final String CONCEPT_ID = RegExHelper.uniqueGroupName();
-    private static final String PATTERN = String.format("concept-descriptions/%s", pathElement(CONCEPT_ID));
+    private static final String PATTERN = "concept-descriptions/%s";
 
     public GetConceptDescriptionByIdRequestMapper(ServiceContext serviceContext) {
         super(serviceContext, HttpMethod.GET, PATTERN);
@@ -41,7 +39,7 @@ public class GetConceptDescriptionByIdRequestMapper extends AbstractRequestMappe
     @Override
     public Request doParse(HttpRequest httpRequest, Map<String, String> urlParameters) throws InvalidRequestException {
         return GetConceptDescriptionByIdRequest.builder()
-                .id(getParameterBase64UrlEncoded(urlParameters, CONCEPT_ID))
+                .id(getId(urlParameters))
                 .build();
     }
 }

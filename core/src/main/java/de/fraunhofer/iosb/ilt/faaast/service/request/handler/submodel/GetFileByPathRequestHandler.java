@@ -44,7 +44,8 @@ public class GetFileByPathRequestHandler extends AbstractSubmodelInterfaceReques
                 .submodel(request.getSubmodelId())
                 .idShortPath(request.getPath())
                 .build();
-        File file = context.getPersistence().getSubmodelElement(reference, request.getOutputModifier(), File.class, request.getFormula());
+        File file = context.getPersistence().getSubmodelElement(reference, request.getOutputModifier(), File.class,
+                combineRemainingRuleFormulas(request), getFilters(request));
         if (!request.isInternal()) {
             context.getMessageBus().publish(ValueReadEventMessage.builder()
                     .element(reference)

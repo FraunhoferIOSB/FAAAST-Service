@@ -33,7 +33,6 @@ public class GetOperationAsyncResultRequestHandler extends AbstractRequestHandle
 
     @Override
     public GetOperationAsyncResultResponse process(GetOperationAsyncResultRequest request, RequestExecutionContext context) throws ResourceNotFoundException, PersistenceException {
-        // TODO need to be able to enforce access control here. The submodel of the operation could be checked with formula.
         return GetOperationAsyncResultResponse.builder()
                 .payload(context.getPersistence().getOperationResult(request.getHandle()))
                 .success()

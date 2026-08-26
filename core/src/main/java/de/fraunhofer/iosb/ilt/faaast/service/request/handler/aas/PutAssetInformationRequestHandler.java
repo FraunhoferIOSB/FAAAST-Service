@@ -42,7 +42,8 @@ public class PutAssetInformationRequestHandler extends AbstractRequestHandler<Pu
             throws ResourceNotFoundException, MessageBusException, ValidationException, PersistenceException {
         ModelValidator.validate(request.getAssetInformation(), context.getCoreConfig().getValidationOnUpdate());
         PutAssetInformationResponse response = new PutAssetInformationResponse();
-        AssetAdministrationShell shell = context.getPersistence().getAssetAdministrationShell(request.getId(), QueryModifier.DEFAULT, request.getFormula());
+        AssetAdministrationShell shell = context.getPersistence().getAssetAdministrationShell(request.getId(), QueryModifier.DEFAULT,
+                combineRemainingRuleFormulas(request), getFilters(request));
         shell.setAssetInformation(request.getAssetInformation());
         context.getPersistence().save(shell);
         response.setStatusCode(StatusCode.SUCCESS_NO_CONTENT);

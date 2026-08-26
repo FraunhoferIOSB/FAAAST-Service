@@ -29,7 +29,6 @@ import java.time.ZoneOffset;
 public class ClientNow implements GlobalAttribute {
     private static final String ISSUED_AT_CLAIM = "iat";
 
-
     @Override
     public Operand evaluatePartially(EvaluationContext evaluationContext) {
         String iat = evaluationContext.getClaim(ISSUED_AT_CLAIM);

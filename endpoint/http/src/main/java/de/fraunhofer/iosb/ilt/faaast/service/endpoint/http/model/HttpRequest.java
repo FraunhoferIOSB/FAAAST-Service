@@ -14,18 +14,17 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model;
 
-import static de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence.identity;
-
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.LogicalExpression;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.filter.QueryFilter;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.AccessPermissionRule;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -39,8 +38,7 @@ public class HttpRequest extends HttpMessage {
     private String path;
     private Map<String, String> queryParameters;
     private List<String> pathElements;
-    private LogicalExpression formula;
-    private QueryFilter filter;
+    private List<AccessPermissionRule> rules;
 
     public static Builder builder() {
         return new Builder();
@@ -51,7 +49,7 @@ public class HttpRequest extends HttpMessage {
         method = HttpMethod.GET;
         queryParameters = new HashMap<>();
         pathElements = new ArrayList<>();
-        formula = identity();
+        rules = new ArrayList<>();
     }
 
 
@@ -167,42 +165,22 @@ public class HttpRequest extends HttpMessage {
 
 
     /**
-     * Gets this request's applying formula according to AAS Security.
+     * Gets this request's applying rules according to AAS Security.
      *
      * @return List of formula.
      */
-    public LogicalExpression getFormula() {
-        return formula;
+    public List<AccessPermissionRule> getRules() {
+        return rules;
     }
 
 
     /**
-     * Sets this request's applying formula according to AAS Security.
+     * Sets this request's applying rules according to AAS Security.
      *
-     * @param formula the applying formula.
+     * @param rules the applying rules.
      */
-    public void setFormula(LogicalExpression formula) {
-        this.formula = formula;
-    }
-
-
-    /**
-     * Gets this request's applying filter according to AAS Security.
-     *
-     * @return Post-persistence filter.
-     */
-    public QueryFilter getFilter() {
-        return filter;
-    }
-
-
-    /**
-     * Sets this request's applying filter according to AAS Security.
-     *
-     * @param filter the post-persistence filter.
-     */
-    public void setFilter(QueryFilter filter) {
-        this.filter = filter;
+    public void setRules(List<AccessPermissionRule> rules) {
+        this.rules = rules;
     }
 
 
@@ -262,17 +240,10 @@ public class HttpRequest extends HttpMessage {
         }
 
 
-        public B formula(LogicalExpression value) {
-            getBuildingInstance().setFormula(value);
+        public B rules(List<AccessPermissionRule> value) {
+            getBuildingInstance().setRules(Objects.requireNonNullElse(value, List.of()));
             return getSelf();
         }
-
-
-        public B filter(QueryFilter value) {
-            getBuildingInstance().setFilter(value);
-            return getSelf();
-        }
-
     }
 
     public static class Builder extends AbstractBuilder<HttpRequest, Builder> {

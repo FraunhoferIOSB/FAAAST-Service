@@ -14,11 +14,16 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.referable.identifiable;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.referable.REFERABLE_TYPES.CONCEPT_DESCRIPTION;
+
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.referable.REFERABLE_TYPES;
+
+
 /**
  * An access object referencing a concept description.
  */
 public class ConceptDescriptionObject extends IdentifiableObject {
-    public static final String NOTATION = "$cd";
+    public static final REFERABLE_TYPES TYPE = CONCEPT_DESCRIPTION;
 
     public ConceptDescriptionObject(String identifier) {
         super(identifier);
@@ -26,8 +31,8 @@ public class ConceptDescriptionObject extends IdentifiableObject {
 
 
     @Override
-    public String getNotation() {
-        return NOTATION;
+    public REFERABLE_TYPES getType() {
+        return TYPE;
     }
 
 }

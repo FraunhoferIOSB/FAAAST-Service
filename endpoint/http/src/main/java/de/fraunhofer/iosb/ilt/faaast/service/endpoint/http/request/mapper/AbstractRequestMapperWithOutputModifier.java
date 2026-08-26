@@ -61,7 +61,8 @@ public abstract class AbstractRequestMapperWithOutputModifier<T extends Abstract
      *
      * @param urlPattern the url pattern
      * @param excludedContentModifiers content modifiers that are not allowed for this request as they are handled
-     *            explicitely by another request. This is requred so that the generated URL patterns do not overlap.
+     *            explicitely by another request. This is requred so that
+     *            the generated URL patterns do not overlap.
      * @return the potentially modified url pattern accepting content modifier
      */
     protected static String ensureUrlPatternAllowsContentModifier(String urlPattern, Content... excludedContentModifiers) {
@@ -141,7 +142,6 @@ public abstract class AbstractRequestMapperWithOutputModifier<T extends Abstract
             OutputModifier outputModifier = outputModifierBuilder.build();
             T result = doParse(httpRequest, urlParameters, outputModifier);
             result.setOutputModifier(outputModifier);
-            result.setFormula(httpRequest.getFormula());
             return result;
         }
         catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException | SecurityException e) {

@@ -24,4 +24,36 @@ public abstract class IdentifiableObject extends ReferableObject {
     protected IdentifiableObject(String identifier) {
         super(identifier);
     }
+
+
+    @Override
+    public boolean isIdentifiable() {
+        return true;
+    }
+
+
+    @Override
+    public IdentifiableObject asIdentifiable() {
+        return this;
+    }
+
+
+    /**
+     * Returns whether this object is an identifiable object.
+     *
+     * @return true if this object is an identifiable object, otherwise false
+     */
+    public boolean isSubmodel() {
+        return false;
+    }
+
+
+    /**
+     * Returns this object as a {@link SubmodelObject}.
+     *
+     * @return the submodel object
+     */
+    public SubmodelObject asSubmodel() {
+        throw new UnsupportedOperationException(String.format("Cannot convert %s to submodel", this.getClass().getSimpleName()));
+    }
 }

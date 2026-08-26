@@ -16,12 +16,11 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.aas;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractRequestMapper;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractRequestMapperWithId;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.PostSubmodelReferenceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
-import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
 import java.util.Map;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
@@ -29,10 +28,9 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 /**
  * class to map HTTP-POST-Request path: /shells/{aasIdentifier}/submodel-refs.
  */
-public class PostSubmodelReferenceRequestMapper extends AbstractRequestMapper {
+public class PostSubmodelReferenceRequestMapper extends AbstractRequestMapperWithId {
 
-    private static final String AAS_ID = RegExHelper.uniqueGroupName();
-    private static final String PATTERN = String.format("shells/%s/submodel-refs", pathElement(AAS_ID));
+    private static final String PATTERN = "shells/%s/submodel-refs";
 
     public PostSubmodelReferenceRequestMapper(ServiceContext serviceContext) {
         super(serviceContext, HttpMethod.POST, PATTERN);
@@ -42,7 +40,7 @@ public class PostSubmodelReferenceRequestMapper extends AbstractRequestMapper {
     @Override
     public Request doParse(HttpRequest httpRequest, Map<String, String> urlParameters) throws InvalidRequestException {
         return PostSubmodelReferenceRequest.builder()
-                .id(getParameterBase64UrlEncoded(urlParameters, AAS_ID))
+                .id(getId(urlParameters))
                 .submodelRef(parseBody(httpRequest, Reference.class))
                 .build();
     }

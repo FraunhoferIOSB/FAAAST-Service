@@ -21,7 +21,6 @@ import static org.junit.Assert.assertTrue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.comparison.EqualsOperation;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.comparison.GreaterThanEqualsOperation;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.comparison.GreaterThanOperation;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.comparison.LessThanEqualsOperation;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.comparison.LessThanOperation;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.comparison.NotEqualsOperation;
@@ -30,14 +29,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.logical.AndO
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.ClaimAttribute;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.global.Anonymous;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.global.ClientNow;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.global.GlobalAttribute;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.global.LocalNow;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.global.UtcNow;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.cast.CastToTime;
 import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.AccessPermissionRule;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.BooleanValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.StringValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TimeValue;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import org.junit.Test;
@@ -73,9 +70,7 @@ public class AclAttributeInjectionInterceptorTest extends AbstractAclFilterTest 
                 new GreaterThanEqualsOperation(new CastToTime(new UtcNow()), fromString("00:00")),
                 new LessThanEqualsOperation(new CastToTime(new ClientNow()), fromString("23:59:59")),
                 new LessThanOperation(new CastToTime(new LocalNow()), fromString("23:59:59")),
-                new NotEqualsOperation(new Anonymous(), new BooleanValue(true))
-        )
-        );
+                new NotEqualsOperation(new Anonymous(), new BooleanValue(true))));
     }
 
 }

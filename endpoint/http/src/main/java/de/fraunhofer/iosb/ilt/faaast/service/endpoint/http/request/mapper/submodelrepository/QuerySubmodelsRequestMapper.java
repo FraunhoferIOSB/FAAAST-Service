@@ -24,7 +24,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestExcep
 import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.Query;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.parser.QueryParser;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.Right;
 
+import java.util.List;
 import java.util.Map;
 
 
@@ -45,9 +47,15 @@ public class QuerySubmodelsRequestMapper extends AbstractRequestMapper {
         Query query = parseBody(httpRequest, Query.class);
         QuerySubmodelsRequest.Builder request = QuerySubmodelsRequest.builder().query(new QueryParser().parse(query));
         if (query.get$select() != null) {
-            // TODO need an 'id' output modifier?
+            // TODO need an 'id' output modifier? Maybe do this in handler
             request.outputModifier(new OutputModifier.Builder().content(Content.PATH).build());
         }
         return request.build();
+    }
+
+
+    @Override
+    protected List<Right> requiredRights() {
+        return List.of(Right.READ);
     }
 }

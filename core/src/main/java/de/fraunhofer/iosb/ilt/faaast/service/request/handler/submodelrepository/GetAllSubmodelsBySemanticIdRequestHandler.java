@@ -48,7 +48,7 @@ public class GetAllSubmodelsBySemanticIdRequestHandler extends AbstractRequestHa
                         .build(),
                 QueryModifier.DEFAULT,
                 request.getPagingInfo(),
-                request.getFormula());
+                combineRemainingRuleFormulas(request), getFilters(request));
         context.getAssetConnectionManager().syncValueProvidersOnRead(null, page, !request.isInternal());
         return GetAllSubmodelsBySemanticIdResponse.builder()
                 .payload(page)

@@ -14,11 +14,16 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.referable.identifiable;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.referable.REFERABLE_TYPES.SUBMODEL;
+
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.referable.REFERABLE_TYPES;
+
+
 /**
  * An access object referencing a submodel.
  */
 public class SubmodelObject extends IdentifiableObject {
-    public static final String NOTATION = "$sm";
+    public static final REFERABLE_TYPES TYPE = SUBMODEL;
 
     public SubmodelObject(String identifier) {
         super(identifier);
@@ -26,8 +31,19 @@ public class SubmodelObject extends IdentifiableObject {
 
 
     @Override
-    public String getNotation() {
-        return NOTATION;
+    public REFERABLE_TYPES getType() {
+        return TYPE;
     }
 
+
+    @Override
+    public boolean isSubmodel() {
+        return true;
+    }
+
+
+    @Override
+    public SubmodelObject asSubmodel() {
+        return this;
+    }
 }

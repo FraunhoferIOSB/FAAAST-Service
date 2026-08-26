@@ -14,8 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.referable;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.referable.REFERABLE_TYPES.SUBMODEL_ELEMENT;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
 import java.util.Objects;
 
 
@@ -23,7 +24,7 @@ import java.util.Objects;
  * An access object referencing a submodel element.
  */
 public class SubmodelElementObject extends ReferableObject {
-    public static final String NOTATION = "$sme";
+    public static final REFERABLE_TYPES TYPE = SUBMODEL_ELEMENT;
 
     private final IdShortPath idShortPath;
 
@@ -38,8 +39,20 @@ public class SubmodelElementObject extends ReferableObject {
 
 
     @Override
-    public String getNotation() {
-        return NOTATION;
+    public boolean isReferable() {
+        return true;
+    }
+
+
+    @Override
+    public SubmodelElementObject asReferable() {
+        return this;
+    }
+
+
+    @Override
+    public REFERABLE_TYPES getType() {
+        return TYPE;
     }
 
 

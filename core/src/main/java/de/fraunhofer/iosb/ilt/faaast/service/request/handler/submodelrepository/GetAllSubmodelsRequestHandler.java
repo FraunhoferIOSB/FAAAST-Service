@@ -45,7 +45,7 @@ public class GetAllSubmodelsRequestHandler extends AbstractRequestHandler<GetAll
                 SubmodelSearchCriteria.NONE,
                 request.getOutputModifier(),
                 request.getPagingInfo(),
-                request.getFormula());
+                combineRemainingRuleFormulas(request), getFilters(request));
         context.getAssetConnectionManager().syncValueProvidersOnRead(null, page, !request.isInternal());
         return GetAllSubmodelsResponse.builder()
                 .payload(page)

@@ -64,7 +64,8 @@ public class InvokeOperationSyncRequestHandler extends AbstractInvokeOperationRe
                 .submodel(request.getSubmodelId())
                 .idShortPath(request.getPath())
                 .build();
-        Operation operation = context.getPersistence().getSubmodelElement(reference, QueryModifier.MINIMAL, Operation.class, request.getFormula());
+        Operation operation = context.getPersistence().getSubmodelElement(reference, QueryModifier.MINIMAL, Operation.class,
+                combineRemainingRuleFormulas(request), getFilters(request));
         if (result.getPayload().getSuccess()) {
             result.getPayload().setOutputArguments(
                     validateAndPrepare(

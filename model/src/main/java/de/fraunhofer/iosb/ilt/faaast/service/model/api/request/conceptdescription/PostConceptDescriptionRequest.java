@@ -14,6 +14,10 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.referable.REFERABLE_TYPES.CONCEPT_DESCRIPTION;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.Right.CREATE;
+
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.DistinctResourceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.conceptdescription.PostConceptDescriptionResponse;
 import java.util.Objects;
@@ -23,9 +27,14 @@ import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
 /**
  * Request class for PostConceptDescription requests.
  */
-public class PostConceptDescriptionRequest extends Request<PostConceptDescriptionResponse> {
+public class PostConceptDescriptionRequest extends DistinctResourceRequest<PostConceptDescriptionResponse> {
 
     private ConceptDescription conceptDescription;
+
+    protected PostConceptDescriptionRequest() {
+        super(CREATE, CONCEPT_DESCRIPTION);
+    }
+
 
     public ConceptDescription getConceptDescription() {
         return conceptDescription;
@@ -34,6 +43,12 @@ public class PostConceptDescriptionRequest extends Request<PostConceptDescriptio
 
     public void setConceptDescription(ConceptDescription conceptDescription) {
         this.conceptDescription = conceptDescription;
+    }
+
+
+    @Override
+    protected boolean requestsCollection() {
+        return false;
     }
 
 

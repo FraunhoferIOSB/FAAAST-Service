@@ -14,8 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.LogicalExpression;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.BooleanValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.AccessPermissionRule;
+import java.util.List;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
@@ -28,11 +28,11 @@ import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 public abstract class Request<T extends Response> {
 
     private boolean internal;
-    private LogicalExpression formula;
+    private List<AccessPermissionRule> rules;
 
     protected Request() {
         this.internal = false;
-        this.formula = new BooleanValue(true);
+        this.rules = List.of();
     }
 
 
@@ -41,18 +41,18 @@ public abstract class Request<T extends Response> {
      *
      * @return The formula.
      */
-    public LogicalExpression getFormula() {
-        return formula;
+    public List<AccessPermissionRule> getRules() {
+        return rules;
     }
 
 
     /**
-     * Set this requests access control formula.
+     * Set this requests access control rules.
      *
-     * @param formula The formula.
+     * @param rules The rules.
      */
-    public void setFormula(LogicalExpression formula) {
-        this.formula = formula;
+    public void setRules(List<AccessPermissionRule> rules) {
+        this.rules = rules;
     }
 
 
@@ -76,13 +76,13 @@ public abstract class Request<T extends Response> {
         }
         Request<?> that = (Request<?>) o;
         return Objects.equals(internal, that.internal) &&
-                Objects.equals(formula, that.formula);
+                Objects.equals(rules, that.rules);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(internal, formula);
+        return Objects.hash(internal, rules);
     }
 
     public abstract static class AbstractBuilder<T extends Request, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
@@ -99,8 +99,8 @@ public abstract class Request<T extends Response> {
         }
 
 
-        public B formula(LogicalExpression value) {
-            getBuildingInstance().setFormula(value);
+        public B rules(List<AccessPermissionRule> value) {
+            getBuildingInstance().setRules(value);
             return getSelf();
         }
     }

@@ -14,6 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.referable.REFERABLE_TYPES.SUBMODEL_ELEMENT;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.Right.UPDATE;
+
 import de.fraunhofer.iosb.ilt.faaast.service.model.TypedInMemoryFile;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractSubmodelInterfaceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.OutputModifierConstraints;
@@ -30,7 +33,7 @@ public class PutFileByPathRequest extends AbstractSubmodelInterfaceRequest<PutFi
     private TypedInMemoryFile content;
 
     public PutFileByPathRequest() {
-        super(OutputModifierConstraints.NONE);
+        super(OutputModifierConstraints.NONE, UPDATE, SUBMODEL_ELEMENT);
         this.path = "";
     }
 
@@ -52,6 +55,12 @@ public class PutFileByPathRequest extends AbstractSubmodelInterfaceRequest<PutFi
 
     public void setContent(TypedInMemoryFile content) {
         this.content = content;
+    }
+
+
+    @Override
+    protected boolean requestsCollection() {
+        return false;
     }
 
 

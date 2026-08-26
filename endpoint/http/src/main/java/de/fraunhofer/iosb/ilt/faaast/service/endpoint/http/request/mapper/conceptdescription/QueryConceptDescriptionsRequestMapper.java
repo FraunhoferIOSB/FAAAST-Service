@@ -25,7 +25,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestExcep
 import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.Query;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.parser.QueryParser;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.Right;
 
+import java.util.List;
 import java.util.Map;
 
 
@@ -50,5 +52,11 @@ public class QueryConceptDescriptionsRequestMapper extends AbstractRequestMapper
             request.outputModifier(new OutputModifier.Builder().content(Content.PATH).build());
         }
         return request.build();
+    }
+
+
+    @Override
+    protected List<Right> requiredRights() {
+        return List.of(Right.READ);
     }
 }

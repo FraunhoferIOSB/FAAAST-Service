@@ -92,4 +92,14 @@ public interface LogicalExpression extends AccessRuleEntity<LogicalExpression> {
     default Operand asOperand() {
         throw new UnsupportedOperationException(String.format("%s cannot be transformed to operand", this.getClass().getSimpleName()));
     }
+
+
+    /**
+     * Get an identity ("True") formula.
+     *
+     * @return "True" as a formula
+     */
+    static LogicalExpression identity() {
+        return new BooleanValue(true);
+    }
 }

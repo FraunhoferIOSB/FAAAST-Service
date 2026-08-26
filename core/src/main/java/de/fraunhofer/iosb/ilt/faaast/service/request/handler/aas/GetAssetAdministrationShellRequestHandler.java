@@ -37,7 +37,8 @@ public class GetAssetAdministrationShellRequestHandler extends AbstractRequestHa
     @Override
     public GetAssetAdministrationShellResponse process(GetAssetAdministrationShellRequest request, RequestExecutionContext context)
             throws ResourceNotFoundException, MessageBusException, PersistenceException {
-        AssetAdministrationShell shell = context.getPersistence().getAssetAdministrationShell(request.getId(), request.getOutputModifier(), request.getFormula());
+        AssetAdministrationShell shell = context.getPersistence().getAssetAdministrationShell(request.getId(), request.getOutputModifier(),
+                combineRemainingRuleFormulas(request), getFilters(request));
         if (!request.isInternal()) {
             context.getMessageBus().publish(ElementReadEventMessage.builder()
                     .element(shell)

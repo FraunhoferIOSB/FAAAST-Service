@@ -15,6 +15,9 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.AccessRuleEntity;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.referable.ReferableObject;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.referable.SubmodelElementObject;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.referable.identifiable.IdentifiableObject;
 
 
 /**
@@ -34,6 +37,47 @@ public interface AccessObject extends AccessRuleEntity<AccessObject> {
      */
     default boolean isRoute() {
         return false;
+    }
+
+
+    /**
+     * Returns whether this object is a referable object (in AAS security, this is only submodel elements).
+     *
+     * @return true if this object is a referable object, otherwise false
+     */
+    default boolean isReferable() {
+        return false;
+    }
+
+
+    /**
+     * Returns this object as a {@link ReferableObject}.
+     *
+     * @return the referable object
+     */
+    default SubmodelElementObject asReferable() {
+        throw new UnsupportedOperationException(String.format("Cannot convert %s to referable", this.getClass().getSimpleName()));
+    }
+
+
+    /**
+     * Returns whether this object is an identifiable object.
+     *
+     * @return true if this object is an identifiable object, otherwise false
+     */
+    default boolean isIdentifiable() {
+        return false;
+    }
+
+
+    /**
+     * Returns this object as a
+     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.referable.identifiable.IdentifiableObject}.
+     *
+     * @return the referable object
+     */
+    default IdentifiableObject asIdentifiable() {
+        throw new UnsupportedOperationException(String.format("Cannot convert %s to identifiable", this.getClass().getSimpleName()));
     }
 
 

@@ -14,6 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.referable.REFERABLE_TYPES.SUBMODEL_ELEMENT;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.Right.EXECUTE;
+
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationHandle;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractSubmodelInterfaceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetOperationAsyncStatusResponse;
@@ -27,6 +30,11 @@ public class GetOperationAsyncStatusRequest extends AbstractSubmodelInterfaceReq
 
     private String path;
     private OperationHandle handle;
+
+    protected GetOperationAsyncStatusRequest() {
+        super(EXECUTE, SUBMODEL_ELEMENT);
+    }
+
 
     public String getPath() {
         return path;
@@ -45,6 +53,12 @@ public class GetOperationAsyncStatusRequest extends AbstractSubmodelInterfaceReq
 
     public void setHandle(OperationHandle handle) {
         this.handle = handle;
+    }
+
+
+    @Override
+    protected boolean requestsCollection() {
+        return false;
     }
 
 

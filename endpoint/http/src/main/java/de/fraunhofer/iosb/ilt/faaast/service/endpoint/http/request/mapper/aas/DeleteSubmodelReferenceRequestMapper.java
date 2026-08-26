@@ -16,26 +16,23 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.aas;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractRequestMapper;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractRequestMapperWithId;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.DeleteSubmodelReferenceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
+
 import java.util.Map;
 
 
 /**
  * class to map HTTP-DELETE-Request path: shells/{aasIdentifier}/submodel-refs/{submodelIdentifier}.
  */
-public class DeleteSubmodelReferenceRequestMapper extends AbstractRequestMapper {
+public class DeleteSubmodelReferenceRequestMapper extends AbstractRequestMapperWithId {
 
-    private static final String AAS_ID = RegExHelper.uniqueGroupName();
     private static final String SUBMODEL_ID = RegExHelper.uniqueGroupName();
-    private static final String PATTERN = String.format("shells/%s/submodel-refs/%s",
-            pathElement(AAS_ID),
-            pathElement(SUBMODEL_ID));
+    private static final String PATTERN = "shells/%s".concat(String.format("/submodel-refs/%s", pathElement(SUBMODEL_ID)));
 
     public DeleteSubmodelReferenceRequestMapper(ServiceContext serviceContext) {
         super(serviceContext, HttpMethod.DELETE, PATTERN);
@@ -43,9 +40,9 @@ public class DeleteSubmodelReferenceRequestMapper extends AbstractRequestMapper 
 
 
     @Override
-    public Request doParse(HttpRequest httpRequest, Map<String, String> urlParameters) throws InvalidRequestException {
+    public DeleteSubmodelReferenceRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters) throws InvalidRequestException {
         return DeleteSubmodelReferenceRequest.builder()
-                .id(getParameterBase64UrlEncoded(urlParameters, AAS_ID))
+                .id(getId(urlParameters))
                 .submodelRef(ReferenceBuilder.forSubmodel(getParameterBase64UrlEncoded(urlParameters, SUBMODEL_ID)))
                 .build();
     }

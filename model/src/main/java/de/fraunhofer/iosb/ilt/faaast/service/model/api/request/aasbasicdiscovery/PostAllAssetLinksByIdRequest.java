@@ -14,6 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasbasicdiscovery;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.referable.REFERABLE_TYPES.AAS;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.Right.CREATE_UPDATE;
+
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithId;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasbasicdiscovery.PostAllAssetLinksByIdResponse;
 import java.util.ArrayList;
@@ -30,6 +33,7 @@ public class PostAllAssetLinksByIdRequest extends AbstractRequestWithId<PostAllA
     private List<SpecificAssetId> assetLinks;
 
     public PostAllAssetLinksByIdRequest() {
+        super(CREATE_UPDATE, AAS);
         this.assetLinks = new ArrayList<>();
     }
 
