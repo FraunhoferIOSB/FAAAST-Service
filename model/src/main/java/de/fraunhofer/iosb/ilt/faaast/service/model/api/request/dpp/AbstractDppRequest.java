@@ -46,7 +46,7 @@ public abstract class AbstractDppRequest<T extends Response> extends AbstractReq
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        AbstractDppRequest that = (AbstractDppRequest) o;
+        AbstractDppRequest<T> that = (AbstractDppRequest<T>) o;
         return super.equals(that) &&
                 this.dppSerializationMode == that.dppSerializationMode;
     }
@@ -57,7 +57,7 @@ public abstract class AbstractDppRequest<T extends Response> extends AbstractReq
         return Objects.hash(super.hashCode());
     }
 
-    public abstract static class AbstractBuilder<T extends AbstractDppRequest, B extends ReadDppByIdRequest.AbstractBuilder<T, B>>
+    public abstract static class AbstractBuilder<T extends AbstractDppRequest, B extends AbstractRequestWithId.AbstractBuilder<T, B>>
             extends AbstractRequestWithId.AbstractBuilder<T, B> {
         public B dppSerializationMode(DppSerializationMode value) {
             getBuildingInstance().setDppSerializationMode(value);

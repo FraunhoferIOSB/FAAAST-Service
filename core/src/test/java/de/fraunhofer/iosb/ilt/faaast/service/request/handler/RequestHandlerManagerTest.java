@@ -2016,7 +2016,6 @@ public class RequestHandlerManagerTest {
                 .build();
         ReadDPPByProductIdResponse actual = manager.execute(request, context);
 
-        // TODO is this the correct return code?
         Assert.assertEquals(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND, actual.getStatusCode());
     }
 

@@ -36,7 +36,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.fileupload.MultipartStream;
@@ -269,7 +269,7 @@ public abstract class AbstractRequestMapper {
     }
 
 
-    private String getParameterEncoded(Map<String, String> urlParameters, String parameterName, Function<String, String> decoder, String encodingName)
+    private String getParameterEncoded(Map<String, String> urlParameters, String parameterName, UnaryOperator<String> decoder, String encodingName)
             throws InvalidRequestException {
         Ensure.requireNonNull(urlParameters, "urlParameter must be non-null");
         Ensure.requireNonNull(parameterName, "parameterName must be non-null");
