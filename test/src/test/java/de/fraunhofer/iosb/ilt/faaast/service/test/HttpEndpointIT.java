@@ -14,6 +14,16 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.test;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper.toHttpStatusCode;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.DPP.DPP_1;
+import static de.fraunhofer.iosb.ilt.faaast.service.test.util.MessageBusHelper.DEFAULT_TIMEOUT;
+import static de.fraunhofer.iosb.ilt.faaast.service.test.util.MessageBusHelper.assertEvent;
+import static de.fraunhofer.iosb.ilt.faaast.service.test.util.MessageBusHelper.assertEvents;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.spy;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -85,6 +95,34 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.PortHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReflectionHelper;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.http.HttpRequest;
+import java.net.http.HttpRequest.BodyPublishers;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
+import java.security.GeneralSecurityException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Random;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.Duration;
 import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
 import org.apache.hc.client5.http.entity.mime.StringBody;
 import org.apache.hc.core5.http.ContentType;
@@ -135,45 +173,6 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.skyscreamer.jsonassert.JSONAssert;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.http.HttpRequest;
-import java.net.http.HttpRequest.BodyPublishers;
-import java.net.http.HttpResponse;
-import java.nio.charset.StandardCharsets;
-import java.security.GeneralSecurityException;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Random;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.Duration;
-
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper.toHttpStatusCode;
-import static de.fraunhofer.iosb.ilt.faaast.service.model.DPP.DPP_1;
-import static de.fraunhofer.iosb.ilt.faaast.service.test.util.MessageBusHelper.DEFAULT_TIMEOUT;
-import static de.fraunhofer.iosb.ilt.faaast.service.test.util.MessageBusHelper.assertEvent;
-import static de.fraunhofer.iosb.ilt.faaast.service.test.util.MessageBusHelper.assertEvents;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.spy;
-
 
 public class HttpEndpointIT extends AbstractIntegrationTest {
 
@@ -216,7 +215,6 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
             .build();
 
     private final ObjectMapper mapper;
-
 
     public HttpEndpointIT() {
         this.mapper = new ObjectMapper();
@@ -459,9 +457,9 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
                             Assert.assertEquals(String.format("/%s", EncodingHelper.base64UrlEncode(id)), location.get());
                         }));
         Assert.assertTrue(HttpHelper.getPage(
-                        httpClient,
-                        apiPaths.aasRepository().assetAdministrationShells(),
-                        AssetAdministrationShell.class)
+                httpClient,
+                apiPaths.aasRepository().assetAdministrationShells(),
+                AssetAdministrationShell.class)
                 .getContent()
                 .contains(expected));
     }
@@ -726,20 +724,20 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
                 .addBinaryBody("file", content, ContentType.APPLICATION_PDF, fileName)
                 .build();
         HttpResponse<byte[]> putFileResponse = httpClient.send(HttpRequest.newBuilder()
-                        .uri(new URI(apiPaths.submodelRepository()
-                                .submodelInterface(defaultEnvironment.getSubmodels().get(0)).submodelElement("ExampleSubmodelElementCollection.ExampleFile")
-                                + "/attachment"))
-                        .header(HttpConstants.HEADER_ACCEPT, DataFormat.JSON.getContentType().toString())
-                        .header(HttpConstants.HEADER_CONTENT_TYPE, httpEntity.getContentType())
-                        .PUT(BodyPublishers.ofInputStream(LambdaExceptionHelper.wrap(httpEntity::getContent)))
-                        .build(),
+                .uri(new URI(apiPaths.submodelRepository()
+                        .submodelInterface(defaultEnvironment.getSubmodels().get(0)).submodelElement("ExampleSubmodelElementCollection.ExampleFile")
+                        + "/attachment"))
+                .header(HttpConstants.HEADER_ACCEPT, DataFormat.JSON.getContentType().toString())
+                .header(HttpConstants.HEADER_CONTENT_TYPE, httpEntity.getContentType())
+                .PUT(BodyPublishers.ofInputStream(LambdaExceptionHelper.wrap(httpEntity::getContent)))
+                .build(),
                 HttpResponse.BodyHandlers.ofByteArray());
         Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS_NO_CONTENT), putFileResponse.statusCode());
         HttpResponse<byte[]> response = httpClient.send(HttpRequest.newBuilder()
-                        .uri(new URI(apiPaths.aasSerialization().serialization(List.of(aas), defaultEnvironment.getSubmodels(), true)))
-                        .header(HttpConstants.HEADER_ACCEPT, DataFormat.AASX.getContentType().toString())
-                        .GET()
-                        .build(),
+                .uri(new URI(apiPaths.aasSerialization().serialization(List.of(aas), defaultEnvironment.getSubmodels(), true)))
+                .header(HttpConstants.HEADER_ACCEPT, DataFormat.AASX.getContentType().toString())
+                .GET()
+                .build(),
                 HttpResponse.BodyHandlers.ofByteArray());
         Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), response.statusCode());
         MediaType responseContentType = MediaType.parse(response.headers()
@@ -772,10 +770,10 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
             throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException, NoSuchAlgorithmException,
             KeyManagementException, GeneralSecurityException {
         HttpResponse<byte[]> response = httpClient.send(HttpRequest.newBuilder()
-                        .uri(new URI(apiPaths.aasSerialization().serialization(List.of(), List.of(), false)))
-                        .header(HttpConstants.HEADER_ACCEPT, MediaType.ANY_VIDEO_TYPE.toString())
-                        .GET()
-                        .build(),
+                .uri(new URI(apiPaths.aasSerialization().serialization(List.of(), List.of(), false)))
+                .header(HttpConstants.HEADER_ACCEPT, MediaType.ANY_VIDEO_TYPE.toString())
+                .GET()
+                .build(),
                 HttpResponse.BodyHandlers.ofByteArray());
         Assert.assertEquals(toHttpStatusCode(StatusCode.CLIENT_ERROR_BAD_REQUEST), response.statusCode());
     }
@@ -803,10 +801,10 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
                         : List.of())
                 .build();
         HttpResponse<byte[]> response = httpClient.send(HttpRequest.newBuilder()
-                        .uri(new URI(apiPaths.aasSerialization().serialization(aass, expected.getSubmodels(), includeConceptDescriptions)))
-                        .header(HttpConstants.HEADER_ACCEPT, contentType.toString())
-                        .GET()
-                        .build(),
+                .uri(new URI(apiPaths.aasSerialization().serialization(aass, expected.getSubmodels(), includeConceptDescriptions)))
+                .header(HttpConstants.HEADER_ACCEPT, contentType.toString())
+                .GET()
+                .build(),
                 HttpResponse.BodyHandlers.ofByteArray());
         Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), response.statusCode());
         MediaType responseContentType = MediaType.parse(response.headers()
@@ -1041,9 +1039,9 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
                             Assert.assertEquals(String.format("/%s", EncodingHelper.base64UrlEncode(id)), location.get());
                         }));
         Assert.assertTrue(HttpHelper.getPage(
-                        httpClient,
-                        apiPaths.conceptDescriptionRepository().conceptDescriptions(),
-                        ConceptDescription.class)
+                httpClient,
+                apiPaths.conceptDescriptionRepository().conceptDescriptions(),
+                ConceptDescription.class)
                 .getContent()
                 .contains(expected));
     }
@@ -1151,9 +1149,9 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
                                 null,
                                 ConceptDescription.class)));
         Assert.assertTrue(HttpHelper.getPage(
-                        httpClient,
-                        apiPaths.conceptDescriptionRepository().conceptDescriptions(),
-                        ConceptDescription.class)
+                httpClient,
+                apiPaths.conceptDescriptionRepository().conceptDescriptions(),
+                ConceptDescription.class)
                 .getContent()
                 .contains(expected));
     }
@@ -1532,12 +1530,12 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
                         imageName)
                 .build();
         HttpResponse<byte[]> putThumbnailResponse = httpClient.send(HttpRequest.newBuilder()
-                        .uri(new URI(apiPaths.aasInterface(aas).assetInformation()
-                                + "/thumbnail"))
-                        .header(HttpConstants.HEADER_ACCEPT, DataFormat.JSON.getContentType().toString())
-                        .header(HttpConstants.HEADER_CONTENT_TYPE, httpEntity.getContentType())
-                        .PUT(BodyPublishers.ofInputStream(LambdaExceptionHelper.wrap(httpEntity::getContent)))
-                        .build(),
+                .uri(new URI(apiPaths.aasInterface(aas).assetInformation()
+                        + "/thumbnail"))
+                .header(HttpConstants.HEADER_ACCEPT, DataFormat.JSON.getContentType().toString())
+                .header(HttpConstants.HEADER_CONTENT_TYPE, httpEntity.getContentType())
+                .PUT(BodyPublishers.ofInputStream(LambdaExceptionHelper.wrap(httpEntity::getContent)))
+                .build(),
                 HttpResponse.BodyHandlers.ofByteArray());
         Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS_NO_CONTENT), putThumbnailResponse.statusCode());
         assertExecuteSingle(
@@ -1548,12 +1546,12 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
                 expected,
                 AssetInformation.class);
         HttpResponse<byte[]> deleteThumbnailResponse = httpClient.send(HttpRequest.newBuilder()
-                        .uri(new URI(apiPaths.aasInterface(aas).assetInformation()
-                                + "/thumbnail"))
-                        .header(HttpConstants.HEADER_ACCEPT, DataFormat.JSON.getContentType().toString())
-                        .header(HttpConstants.HEADER_CONTENT_TYPE, httpEntity.getContentType())
-                        .DELETE()
-                        .build(),
+                .uri(new URI(apiPaths.aasInterface(aas).assetInformation()
+                        + "/thumbnail"))
+                .header(HttpConstants.HEADER_ACCEPT, DataFormat.JSON.getContentType().toString())
+                .header(HttpConstants.HEADER_CONTENT_TYPE, httpEntity.getContentType())
+                .DELETE()
+                .build(),
                 HttpResponse.BodyHandlers.ofByteArray());
         Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), deleteThumbnailResponse.statusCode());
     }
@@ -1799,17 +1797,17 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
 
 
     private static <T extends InvokeOperationRequest> T getOperationSqaureInvokeRequest(
-            T.AbstractBuilder<T, ?> builder,
-            int inputValue,
-            String inoutputValue,
-            String timeout) {
+                                                                                        T.AbstractBuilder<T, ?> builder,
+                                                                                        int inputValue,
+                                                                                        String inoutputValue,
+                                                                                        String timeout) {
         return builder.inputArgument(new DefaultOperationVariable.Builder()
-                        .value(new DefaultProperty.Builder()
-                                .idShort(OPERATION_SQUARE_INPUT_PARAMETER_ID)
-                                .valueType(DataTypeDefXsd.INT)
-                                .value(Integer.toString(inputValue))
-                                .build())
+                .value(new DefaultProperty.Builder()
+                        .idShort(OPERATION_SQUARE_INPUT_PARAMETER_ID)
+                        .valueType(DataTypeDefXsd.INT)
+                        .value(Integer.toString(inputValue))
                         .build())
+                .build())
                 .inoutputArgument(new DefaultOperationVariable.Builder()
                         .value(new DefaultProperty.Builder()
                                 .idShort(OPERATION_SQUARE_INOUTPUT_PARAMETER_ID)
@@ -2523,9 +2521,9 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
                             Assert.assertEquals(String.format("/%s", EncodingHelper.base64UrlEncode(id)), location.get());
                         }));
         Assert.assertTrue(HttpHelper.getPage(
-                        httpClient,
-                        apiPaths.submodelRepository().submodels(),
-                        Submodel.class)
+                httpClient,
+                apiPaths.submodelRepository().submodels(),
+                Submodel.class)
                 .getContent()
                 .contains(expected));
     }
@@ -2787,20 +2785,20 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
                     .id(String.format("http://example.org/imported-cd-%s", dataFormat))
                     .build();
             HttpResponse<String> response = httpClient.send(HttpRequest.newBuilder()
-                            .uri(new URI(apiPaths.proprietaryInterface().importFile()))
-                            .header(HttpConstants.HEADER_CONTENT_TYPE, dataFormat.getContentType().toString())
-                            .POST(BodyPublishers.ofByteArray(
-                                    EnvironmentSerializationManager
-                                            .serializerFor(dataFormat)
-                                            .write(EnvironmentContext.builder()
-                                                    .environment(new DefaultEnvironment.Builder()
-                                                            .assetAdministrationShells(aas)
-                                                            .submodels(submodel)
-                                                            .conceptDescriptions(cd)
-                                                            .build())
-                                                    .file(fileContent, filename)
-                                                    .build())))
-                            .build(),
+                    .uri(new URI(apiPaths.proprietaryInterface().importFile()))
+                    .header(HttpConstants.HEADER_CONTENT_TYPE, dataFormat.getContentType().toString())
+                    .POST(BodyPublishers.ofByteArray(
+                            EnvironmentSerializationManager
+                                    .serializerFor(dataFormat)
+                                    .write(EnvironmentContext.builder()
+                                            .environment(new DefaultEnvironment.Builder()
+                                                    .assetAdministrationShells(aas)
+                                                    .submodels(submodel)
+                                                    .conceptDescriptions(cd)
+                                                    .build())
+                                            .file(fileContent, filename)
+                                            .build())))
+                    .build(),
                     HttpResponse.BodyHandlers.ofString());
             Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), response.statusCode());
             ImportResult actual = HttpHelper.readResponse(response, ImportResult.class);
@@ -2829,13 +2827,13 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
                     ConceptDescription.class);
             if (dataFormat.getCanStoreFiles()) {
                 HttpResponse<byte[]> getFileResponse = httpClient.send(HttpRequest.newBuilder()
-                                .uri(new URI(apiPaths.submodelRepository()
-                                        .submodelInterface(submodel)
-                                        .submodelElement(fileIdShort)
-                                        + "/attachment"))
-                                .header(HttpConstants.HEADER_ACCEPT, DataFormat.JSON.getContentType().toString())
-                                .GET()
-                                .build(),
+                        .uri(new URI(apiPaths.submodelRepository()
+                                .submodelInterface(submodel)
+                                .submodelElement(fileIdShort)
+                                + "/attachment"))
+                        .header(HttpConstants.HEADER_ACCEPT, DataFormat.JSON.getContentType().toString())
+                        .GET()
+                        .build(),
                         HttpResponse.BodyHandlers.ofByteArray());
                 Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), getFileResponse.statusCode());
                 Assert.assertArrayEquals(fileContent, getFileResponse.body());
@@ -3184,32 +3182,32 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
                         fileName)
                 .build();
         HttpResponse<byte[]> putFileResponse = httpClient.send(HttpRequest.newBuilder()
-                        .uri(new URI(apiPaths.submodelRepository()
-                                .submodelInterface(defaultEnvironment.getSubmodels().get(0)).submodelElement("ExampleSubmodelElementCollection.ExampleFile")
-                                + "/attachment"))
-                        .header(HttpConstants.HEADER_ACCEPT, DataFormat.JSON.getContentType().toString())
-                        .header(HttpConstants.HEADER_CONTENT_TYPE, httpEntity.getContentType())
-                        .PUT(BodyPublishers.ofInputStream(LambdaExceptionHelper.wrap(httpEntity::getContent)))
-                        .build(),
+                .uri(new URI(apiPaths.submodelRepository()
+                        .submodelInterface(defaultEnvironment.getSubmodels().get(0)).submodelElement("ExampleSubmodelElementCollection.ExampleFile")
+                        + "/attachment"))
+                .header(HttpConstants.HEADER_ACCEPT, DataFormat.JSON.getContentType().toString())
+                .header(HttpConstants.HEADER_CONTENT_TYPE, httpEntity.getContentType())
+                .PUT(BodyPublishers.ofInputStream(LambdaExceptionHelper.wrap(httpEntity::getContent)))
+                .build(),
                 HttpResponse.BodyHandlers.ofByteArray());
         Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS_NO_CONTENT), putFileResponse.statusCode());
         HttpResponse<byte[]> getFileResponse = httpClient.send(HttpRequest.newBuilder()
-                        .uri(new URI(apiPaths.submodelRepository()
-                                .submodelInterface(defaultEnvironment.getSubmodels().get(0)).submodelElement("ExampleSubmodelElementCollection.ExampleFile")
-                                + "/attachment"))
-                        .header(HttpConstants.HEADER_ACCEPT, DataFormat.JSON.getContentType().toString())
-                        .header(HttpConstants.HEADER_CONTENT_TYPE, httpEntity.getContentType())
-                        .GET()
-                        .build(),
+                .uri(new URI(apiPaths.submodelRepository()
+                        .submodelInterface(defaultEnvironment.getSubmodels().get(0)).submodelElement("ExampleSubmodelElementCollection.ExampleFile")
+                        + "/attachment"))
+                .header(HttpConstants.HEADER_ACCEPT, DataFormat.JSON.getContentType().toString())
+                .header(HttpConstants.HEADER_CONTENT_TYPE, httpEntity.getContentType())
+                .GET()
+                .build(),
                 HttpResponse.BodyHandlers.ofByteArray());
         Assert.assertArrayEquals(content, getFileResponse.body());
         HttpResponse<byte[]> deleteFileResponse = httpClient.send(HttpRequest.newBuilder()
-                        .uri(new URI(apiPaths.submodelRepository()
-                                .submodelInterface(defaultEnvironment.getSubmodels().get(0)).submodelElement("ExampleSubmodelElementCollection.ExampleFile")
-                                + "/attachment"))
-                        .header(HttpConstants.HEADER_ACCEPT, DataFormat.JSON.getContentType().toString())
-                        .DELETE()
-                        .build(),
+                .uri(new URI(apiPaths.submodelRepository()
+                        .submodelInterface(defaultEnvironment.getSubmodels().get(0)).submodelElement("ExampleSubmodelElementCollection.ExampleFile")
+                        + "/attachment"))
+                .header(HttpConstants.HEADER_ACCEPT, DataFormat.JSON.getContentType().toString())
+                .DELETE()
+                .build(),
                 HttpResponse.BodyHandlers.ofByteArray());
         Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), deleteFileResponse.statusCode());
     }
