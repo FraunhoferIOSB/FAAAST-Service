@@ -40,7 +40,7 @@ public class ReadDppByIdRequestMapper extends AbstractDppRequestMapperWithSerial
     @Override
     public ReadDppByIdRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters) throws InvalidRequestException {
         return ReadDppByIdRequest.builder()
-                .id(getParameterUrlEncoded(urlParameters, DPP_ID))
+                .id(getParameterBase64UrlEncoded(urlParameters, DPP_ID))
                 .dppSerializationMode(parseSerializationMode(httpRequest.getQueryParameter("representation")))
                 .build();
     }

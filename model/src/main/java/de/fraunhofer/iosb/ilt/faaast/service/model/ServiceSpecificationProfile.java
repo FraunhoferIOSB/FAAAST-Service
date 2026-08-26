@@ -461,7 +461,7 @@ public enum ServiceSpecificationProfile {
             List.of(
                     PostOperationProviderByPathRequest.class,
                     DeleteOperationProviderByPathRequest.class)),
-    DPP("https://jtc24/dpp/API",
+    DPP_READ("https://github.com/FraunhoferIOSB/FAAAST-Service/API/DppRead",
             List.of(),
             List.of(ReadDppByIdRequest.class,
                     ReadDppByProductIdRequest.class,

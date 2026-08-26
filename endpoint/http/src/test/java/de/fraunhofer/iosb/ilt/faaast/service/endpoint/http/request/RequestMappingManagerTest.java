@@ -601,7 +601,7 @@ public class RequestMappingManagerTest {
                 .build();
         Request actual = mappingManager.map(HttpRequest.builder()
                 .method(HttpMethod.GET)
-                .path("v1/dpps/" + EncodingHelper.urlEncode(dppId))
+                .path("v1/dpps/" + EncodingHelper.base64UrlEncode(dppId))
                 .build());
         Assert.assertEquals(expected, actual);
     }
@@ -616,7 +616,7 @@ public class RequestMappingManagerTest {
                 .build();
         Request actual = mappingManager.map(HttpRequest.builder()
                 .method(HttpMethod.GET)
-                .path("v1/dppsByProductId/" + EncodingHelper.urlEncode(productId))
+                .path("v1/dppsByProductId/" + EncodingHelper.base64UrlEncode(productId))
                 .build());
         Assert.assertEquals(expected, actual);
     }

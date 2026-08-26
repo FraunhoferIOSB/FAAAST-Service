@@ -40,7 +40,7 @@ public class ReadDppByProductIdRequestMapper extends AbstractDppRequestMapperWit
     @Override
     public ReadDppByProductIdRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters) throws InvalidRequestException {
         return ReadDppByProductIdRequest.builder()
-                .id(getParameterUrlEncoded(urlParameters, PRODUCT_ID))
+                .id(getParameterBase64UrlEncoded(urlParameters, PRODUCT_ID))
                 .dppSerializationMode(parseSerializationMode(httpRequest.getQueryParameter("representation")))
                 .build();
     }
