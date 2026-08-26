@@ -106,10 +106,10 @@ public class AssetConnectionModelSimple {
             .build();
 
     // nodeIds   
-    public static final String NODE_ID_SOURCE_1 = "ns=3;s=1.Value";
-    public static final String NODE_ID_SOURCE_2 = "ns=3;s=2.Value";
-    public static final String NODE_ID_SOURCE_3 = "ns=3;s=3.Value";
-    public static final String NODE_ID_SOURCE_4 = "ns=3;s=4.Value";
+    public static final String NODE_ID_SOURCE_1 = "ns=3;i=1";
+    public static final String NODE_ID_SOURCE_2 = "ns=3;i=2";
+    public static final String NODE_ID_SOURCE_3 = "ns=3;i=3";
+    public static final String NODE_ID_SOURCE_4 = "ns=3;i=4";
 
     private AssetConnectionModelSimple() {}
 
