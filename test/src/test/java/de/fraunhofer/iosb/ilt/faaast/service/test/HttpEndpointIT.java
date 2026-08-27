@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.test;
 
 import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper.toHttpStatusCode;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.DPP.DPP_1;
 import static de.fraunhofer.iosb.ilt.faaast.service.test.util.MessageBusHelper.DEFAULT_TIMEOUT;
 import static de.fraunhofer.iosb.ilt.faaast.service.test.util.MessageBusHelper.assertEvent;
 import static de.fraunhofer.iosb.ilt.faaast.service.test.util.MessageBusHelper.assertEvents;
@@ -23,6 +24,8 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.net.MediaType;
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
@@ -37,6 +40,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentSerialization
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonApiSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.ValueOnlyJsonSerializer;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.dpp.JsonDppSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.Endpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpointConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpConstants;
@@ -59,6 +63,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOp
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOperationRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOperationSyncRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.proprietary.ImportResult;
+import de.fraunhofer.iosb.ilt.faaast.service.model.dpp.DigitalProductPassport;
+import de.fraunhofer.iosb.ilt.faaast.service.model.dpp.DppSerializationMode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.UnsupportedModifierException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
@@ -2973,6 +2979,132 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
                 apiPaths.submodelRepository().submodelInterface(submodel).submodelElement(relElement.getIdShort()),
                 AnnotatedRelationshipElement.class);
         Assert.assertFalse(after.getAnnotations().contains(expected));
+    }
+
+
+    @Test
+    public void testReadDPPById()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException,
+            KeyManagementException, UnsupportedModifierException {
+        postDPP(DPP_1);
+        HttpResponse<String> response = HttpHelper.execute(httpClient, HttpMethod.GET, apiPaths.dppInterface().readDppById(DPP_1.getAAS().getId()), null);
+        Assert.assertEquals(200, response.statusCode());
+        assertCompressedDppEquals(DPP_1, response.body());
+    }
+
+
+    private void assertCompressedDppEquals(DigitalProductPassport expected, String actual) throws SerializationException, JsonProcessingException {
+        JsonNode actualNode = new ObjectMapper().readValue(actual, JsonNode.class);
+        JsonDppSerializer serializer = new JsonDppSerializer();
+        String expectedString = serializer.write(expected, DppSerializationMode.COMPRESSED);
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode expectedNode = mapper.readTree(expectedString);
+        Assert.assertEquals(expectedNode, actualNode);
+    }
+
+
+    @Test
+    public void testReadDPPByIdNotFound()
+            throws IOException, InterruptedException, URISyntaxException, NoSuchAlgorithmException,
+            KeyManagementException {
+        HttpResponse<String> response = HttpHelper.get(
+                httpClient,
+                apiPaths.dppInterface().readDppById("non-existent-id"));
+        Assert.assertEquals(toHttpStatusCode(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND), response.statusCode());
+    }
+
+
+    @Test
+    public void testReadDPPByIdSerializationModeExpanded()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException,
+            KeyManagementException, UnsupportedModifierException {
+        postDPP(DPP_1);
+        HttpResponse<String> response = HttpHelper.get(
+                httpClient,
+                apiPaths.dppInterface().readDppById(DPP_1.getAAS().getId(), DppSerializationMode.EXPANDED));
+        Assert.assertEquals(toHttpStatusCode(StatusCode.SERVER_INTERNAL_ERROR), response.statusCode());
+    }
+
+
+    @Test
+    public void testReadDPPByProductId()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException,
+            KeyManagementException, UnsupportedModifierException {
+        postDPP(DPP_1);
+        HttpResponse<String> response = HttpHelper.get(
+                httpClient,
+                apiPaths.dppInterface().readDppByProductId(DPP_1.getAAS().getAssetInformation().getGlobalAssetId()));
+        Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), response.statusCode());
+        assertCompressedDppEquals(DPP_1, response.body());
+    }
+
+
+    @Test
+    public void testReadDPPByProductIdNotFound()
+            throws IOException, InterruptedException, URISyntaxException, NoSuchAlgorithmException,
+            KeyManagementException {
+        HttpResponse<String> response = HttpHelper.get(
+                httpClient,
+                apiPaths.dppInterface().readDppByProductId("non-existent-product-id"));
+        Assert.assertEquals(toHttpStatusCode(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND), response.statusCode());
+    }
+
+
+    @Test
+    public void testReadDPPIdsByProductIds()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException,
+            KeyManagementException, UnsupportedModifierException {
+        postDPP(DPP_1);
+        assertExecutePage(
+                HttpMethod.POST,
+                apiPaths.dppInterface().readDppIdsByProductIds(),
+                StatusCode.SUCCESS,
+                List.of(DPP_1.getAAS().getAssetInformation().getGlobalAssetId()),
+                List.of(DPP_1.getAAS().getId()),
+                String.class);
+    }
+
+
+    @Test
+    public void testReadDPPIdsByProductIdsNotFound()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException,
+            KeyManagementException, UnsupportedModifierException {
+        assertExecutePage(
+                HttpMethod.POST,
+                apiPaths.dppInterface().readDppIdsByProductIds(),
+                StatusCode.SUCCESS,
+                List.of("http://example.org/non-existent"),
+                List.of(),
+                String.class);
+    }
+
+
+    private void postDPP(DigitalProductPassport dpp)
+            throws IOException, InterruptedException, URISyntaxException, SerializationException, DeserializationException, NoSuchAlgorithmException, KeyManagementException,
+            UnsupportedModifierException {
+        assertExecuteSingle(
+                HttpMethod.POST,
+                apiPaths.aasRepository().assetAdministrationShells(),
+                StatusCode.SUCCESS_CREATED,
+                dpp.getAAS(),
+                dpp.getAAS(),
+                AssetAdministrationShell.class);
+        assertExecuteSingle(
+                HttpMethod.POST,
+                apiPaths.submodelRepository().submodels(),
+                StatusCode.SUCCESS_CREATED,
+                dpp.getMetadata(),
+                dpp.getMetadata(),
+                Submodel.class);
+        for (Submodel sm: dpp.getContents()) {
+            assertExecuteSingle(
+                    HttpMethod.POST,
+                    apiPaths.submodelRepository().submodels(),
+                    StatusCode.SUCCESS_CREATED,
+                    sm,
+                    sm,
+                    Submodel.class);
+        }
     }
 
 

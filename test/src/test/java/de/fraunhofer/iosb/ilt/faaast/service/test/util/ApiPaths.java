@@ -21,6 +21,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
+import de.fraunhofer.iosb.ilt.faaast.service.model.dpp.DppSerializationMode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.UnsupportedModifierException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.StringHelper;
@@ -118,6 +119,11 @@ public class ApiPaths {
 
     public ProprietaryInterface proprietaryInterface() {
         return new ProprietaryInterface();
+    }
+
+
+    public DppInterface dppInterface() {
+        return new DppInterface();
     }
 
     public class AASRespositoryInterface {
@@ -683,6 +689,38 @@ public class ApiPaths {
 
         public String importFile() {
             return String.format("%s/import", ApiPaths.this.root());
+        }
+    }
+
+    public class DppInterface {
+
+        public String readDppById(String dppIdentifier) {
+            return String.format("%s/v1/dpps/%s", root(), EncodingHelper.base64UrlEncode(dppIdentifier));
+        }
+
+
+        public String readDppById(String dppIdentifier, DppSerializationMode serializationMode) {
+            return appendQueryParameter(readDppById(dppIdentifier), "representation", serializationMode.getName());
+        }
+
+
+        public String readDppByProductId(String productId) {
+            return String.format("%s/v1/dppsByProductId/%s", root(), EncodingHelper.base64UrlEncode(productId));
+        }
+
+
+        public String readDppByProductId(String productId, DppSerializationMode serializationMode) {
+            return appendQueryParameter(readDppByProductId(productId), "representation", serializationMode.getName());
+        }
+
+
+        public String readDppIdsByProductIds() {
+            return String.format("%s/v1/dppsByProductIds", root());
+        }
+
+
+        public String readDppIdsByProductIds(String cursor, long limit) {
+            return paging(readDppIdsByProductIds(), cursor, limit);
         }
     }
 
