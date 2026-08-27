@@ -86,6 +86,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultQualifier;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultRelationshipElement;
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -108,6 +109,8 @@ public class OpcUaEndpointFullModelTest {
     private static int aasns;
     private static int opcTcpPort;
     private static String endpointUrl;
+
+    private UaClient client;
 
     @BeforeClass
     public static void startTest() throws Exception {
@@ -164,10 +167,21 @@ public class OpcUaEndpointFullModelTest {
     }
 
 
+    @After
+    public void shutdown() {
+        if (client != null) {
+            if (client.hasConnected()) {
+                client.disconnect();
+            }
+            client = null;
+        }
+    }
+
+
     @Test
     public void testOpcUaEndpointFull()
             throws SecureIdentityException, IOException, ServiceException, StatusException, ServiceResultException, AddressSpaceException {
-        UaClient client = new UaClient(endpointUrl);
+        client = new UaClient(endpointUrl);
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
@@ -215,16 +229,16 @@ public class OpcUaEndpointFullModelTest {
 
         Assert.assertNotNull("Submodel 1 Node not found", submodel1Node);
 
-        testSubmodel1(client, submodel1Node);
+        testSubmodel1(submodel1Node);
 
         //System.out.println("disconnect client");
-        client.disconnect();
+        //client.disconnect();
     }
 
 
     @Test
     public void testWriteRelationshipElementValue() throws SecureIdentityException, IOException, ServiceException, StatusException, ServiceResultException {
-        UaClient client = new UaClient(endpointUrl);
+        client = new UaClient(endpointUrl);
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
@@ -269,14 +283,14 @@ public class OpcUaEndpointFullModelTest {
         TestUtils.writeNewValueReference(client, writeNode, oldValue, newValue);
 
         //System.out.println("disconnect client");
-        client.disconnect();
+        //client.disconnect();
     }
 
 
     @Test
     public void testWriteSubmodelElementCollectionValue()
             throws SecureIdentityException, IOException, ServiceException, StatusException, ServiceResultException {
-        UaClient client = new UaClient(endpointUrl);
+        client = new UaClient(endpointUrl);
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
@@ -319,14 +333,14 @@ public class OpcUaEndpointFullModelTest {
         TestUtils.writeNewValueReference(client, writeNode, oldValue, newValue);
 
         //System.out.println("disconnect client");
-        client.disconnect();
+        //client.disconnect();
     }
 
 
     @Test
     public void testWriteSubmodelElementListValue()
             throws SecureIdentityException, IOException, ServiceException, StatusException, ServiceResultException {
-        UaClient client = new UaClient(endpointUrl);
+        client = new UaClient(endpointUrl);
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
@@ -357,14 +371,14 @@ public class OpcUaEndpointFullModelTest {
         TestUtils.writeNewValueIntern(client, writeNode, "exampleValue", "a new value");
 
         //System.out.println("disconnect client");
-        client.disconnect();
+        //client.disconnect();
     }
 
 
     @Test
     public void testWriteSubmodelElementListValue2()
             throws SecureIdentityException, IOException, ServiceException, StatusException, ServiceResultException {
-        UaClient client = new UaClient(endpointUrl);
+        client = new UaClient(endpointUrl);
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
@@ -400,14 +414,14 @@ public class OpcUaEndpointFullModelTest {
         TestUtils.writeNewValueArray(client, writeNode, new ArrayList<>().toArray(LocalizedText[]::new), newValue.toArray(LocalizedText[]::new));
 
         //System.out.println("disconnect client");
-        client.disconnect();
+        //client.disconnect();
     }
 
 
     @Test
     public void testWriteEntityGlobalAssetId()
             throws SecureIdentityException, IOException, ServiceException, StatusException, ServiceResultException {
-        UaClient client = new UaClient(endpointUrl);
+        client = new UaClient(endpointUrl);
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
@@ -439,13 +453,13 @@ public class OpcUaEndpointFullModelTest {
         TestUtils.writeNewValueIntern(client, writeNode, oldValue, newValue);
 
         //System.out.println("disconnect client");
-        client.disconnect();
+        //client.disconnect();
     }
 
 
     @Test
     public void testCallOperationSuccess() throws SecureIdentityException, IOException, ServiceException, ServiceResultException, MethodCallStatusException {
-        UaClient client = new UaClient(endpointUrl);
+        client = new UaClient(endpointUrl);
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
@@ -495,13 +509,13 @@ public class OpcUaEndpointFullModelTest {
         Assert.assertEquals("testCallOperationSuccess output Argument 0 not equal", new Variant("XYZ1"), outputs[0]);
 
         //System.out.println("disconnect client");
-        client.disconnect();
+        //client.disconnect();
     }
 
 
     @Test
     public void testCallOperationArgsMissing() throws SecureIdentityException, IOException, ServiceException, ServiceResultException {
-        UaClient client = new UaClient(endpointUrl);
+        client = new UaClient(endpointUrl);
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
@@ -550,13 +564,13 @@ public class OpcUaEndpointFullModelTest {
         Assert.assertEquals(StatusCodes.Bad_ArgumentsMissing, exception.getStatusCode().getValue());
 
         //System.out.println("disconnect client");
-        client.disconnect();
+        //client.disconnect();
     }
 
 
     @Test
     public void testAddProperty() throws SecureIdentityException, IOException, ServiceException, MessageBusException {
-        UaClient client = new UaClient(endpointUrl);
+        client = new UaClient(endpointUrl);
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
@@ -609,13 +623,13 @@ public class OpcUaEndpointFullModelTest {
                 });
 
         //System.out.println("disconnect client");
-        client.disconnect();
+        //client.disconnect();
     }
 
 
     @Test
     public void testDeleteSubmodel() throws SecureIdentityException, IOException, ServiceException, MessageBusException, ServiceResultException {
-        UaClient client = new UaClient(endpointUrl);
+        client = new UaClient(endpointUrl);
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
@@ -661,13 +675,13 @@ public class OpcUaEndpointFullModelTest {
                 });
 
         //System.out.println("disconnect client");
-        client.disconnect();
+        //client.disconnect();
     }
 
 
     @Test
     public void testDeleteCapability() throws SecureIdentityException, IOException, ServiceException, MessageBusException, ServiceResultException {
-        UaClient client = new UaClient(endpointUrl);
+        client = new UaClient(endpointUrl);
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
@@ -715,14 +729,14 @@ public class OpcUaEndpointFullModelTest {
                 });
 
         //System.out.println("disconnect client");
-        client.disconnect();
+        //client.disconnect();
     }
 
 
     @Test
     public void testDateTimeProperty()
             throws SecureIdentityException, IOException, ServiceException, ServiceResultException, AddressSpaceException, StatusException {
-        UaClient client = new UaClient(endpointUrl);
+        client = new UaClient(endpointUrl);
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
@@ -774,13 +788,13 @@ public class OpcUaEndpointFullModelTest {
         TestUtils.writeNewValueIntern(client, propValueNode, dt, dtnew);
 
         //System.out.println("disconnect client");
-        client.disconnect();
+        //client.disconnect();
     }
 
 
     @Test
     public void testCallOperationNoArgs() throws SecureIdentityException, IOException, ServiceException, ServiceResultException, MethodCallStatusException {
-        UaClient client = new UaClient(endpointUrl);
+        client = new UaClient(endpointUrl);
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
@@ -827,13 +841,13 @@ public class OpcUaEndpointFullModelTest {
         Assert.assertEquals("testCallOperationNoArgs output Arguments length not equal", 0, outputs.length);
 
         //System.out.println("disconnect client");
-        client.disconnect();
+        //client.disconnect();
     }
 
 
     @Test
     public void testSubmodelElementList() throws ServiceException, SecureIdentityException, IOException, StatusException, ServiceResultException, AddressSpaceException {
-        UaClient client = new UaClient(endpointUrl);
+        client = new UaClient(endpointUrl);
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
@@ -902,14 +916,14 @@ public class OpcUaEndpointFullModelTest {
         TestUtils.checkType(client, listNode, TestConstants.AAS_SUBMODEL_ELEM_LIST_TYPE);
 
         //System.out.println("disconnect client");
-        client.disconnect();
+        //client.disconnect();
     }
 
 
     @Test
     public void testWriteProperty()
             throws SecureIdentityException, ServiceException, IOException, StatusException, ServiceResultException {
-        UaClient client = new UaClient(endpointUrl);
+        client = new UaClient(endpointUrl);
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
@@ -941,13 +955,13 @@ public class OpcUaEndpointFullModelTest {
         TestUtils.writeNewValueIntern(client, writeNode, oldValue, newValue);
 
         //System.out.println("disconnect client");
-        client.disconnect();
+        //client.disconnect();
     }
 
 
     @Test
     public void testUpdateSubmodelElement() throws SecureIdentityException, IOException, ServiceException, MessageBusException {
-        UaClient client = new UaClient(endpointUrl);
+        client = new UaClient(endpointUrl);
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
@@ -1055,13 +1069,13 @@ public class OpcUaEndpointFullModelTest {
                 });
 
         //System.out.println("disconnect client");
-        client.disconnect();
+        //client.disconnect();
     }
 
 
     @Test
     public void testWriteAnnotatedRelationshipAnnotations() throws SecureIdentityException, IOException, ServiceException, StatusException, ServiceResultException {
-        UaClient client = new UaClient(endpointUrl);
+        client = new UaClient(endpointUrl);
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
@@ -1112,11 +1126,11 @@ public class OpcUaEndpointFullModelTest {
         ByteString newBlob = ByteString.valueOf(Base64.getDecoder().decode("ERITFBU="));
         TestUtils.writeNewValueIntern(client, writeBlob, oldBlob, newBlob);
 
-        client.disconnect();
+        //client.disconnect();
     }
 
 
-    private void testSubmodel1(UaClient client, NodeId submodelNode) throws ServiceException, AddressSpaceException, ServiceResultException, StatusException {
+    private void testSubmodel1(NodeId submodelNode) throws ServiceException, AddressSpaceException, ServiceResultException, StatusException {
         TestUtils.checkDisplayName(client, submodelNode, "Submodel:" + TestConstants.FULL_SUBMODEL_1_NAME);
         TestUtils.checkType(client, submodelNode, TestConstants.AAS_SUBMODEL_TYPE_ID);
         //TestUtils.checkType(client, submodelNode, ObjectTypeIds.AASSubmodelType);
