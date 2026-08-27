@@ -29,6 +29,7 @@ import com.prosysopc.ua.stack.builtintypes.QualifiedName;
 import com.prosysopc.ua.stack.builtintypes.StatusCode;
 import com.prosysopc.ua.stack.builtintypes.Variant;
 import com.prosysopc.ua.stack.common.ServiceResultException;
+import com.prosysopc.ua.stack.core.BrowseDirection;
 import com.prosysopc.ua.stack.core.BrowsePathResult;
 import com.prosysopc.ua.stack.core.BrowsePathTarget;
 import com.prosysopc.ua.stack.core.Identifiers;
@@ -303,7 +304,7 @@ public class OpcUaEndpointFullModelTest {
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_6_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SM_ELEM_COLL_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SMEC_REF_ELEM_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.TEST_REF_ELEM_NAME)));
         //browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.PROPERTY_VALUE_NAME)));
         //browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.KEYS_VALUE_NAME)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
@@ -352,7 +353,7 @@ public class OpcUaEndpointFullModelTest {
         List<RelativePathElement> browsePath = new ArrayList<>();
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_6_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SM_ELEM_LIST_O_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.SUBMODEL_ELEMENT_LIST_ORDERED_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_PROPERTY_NAME)));
         //browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.RANGE_MIN_NAME)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
@@ -390,7 +391,7 @@ public class OpcUaEndpointFullModelTest {
         List<RelativePathElement> browsePath = new ArrayList<>();
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_7_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SM_ELEM_LIST_O_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.SUBMODEL_ELEMENT_LIST_ORDERED_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.TEST_MULTI_LAN_PROP_NAME)));
         //browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.PROPERTY_VALUE_NAME)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
@@ -846,7 +847,7 @@ public class OpcUaEndpointFullModelTest {
 
 
     @Test
-    public void testSubmodelElementList() throws ServiceException, SecureIdentityException, IOException, StatusException, ServiceResultException, AddressSpaceException {
+    public void testSubmodelElementListOrdered() throws ServiceException, SecureIdentityException, IOException, StatusException, ServiceResultException, AddressSpaceException {
         client = new UaClient(endpointUrl);
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
@@ -858,44 +859,44 @@ public class OpcUaEndpointFullModelTest {
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_3_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_6_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.SUBMODEL_ELEMENT_LIST_ORDERED_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HasComponent, false, true, new QualifiedName(aasns, TestConstants.ORDER_RELEVANT)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         browsePath.clear();
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_3_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_6_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.SUBMODEL_ELEMENT_LIST_ORDERED_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HasComponent, false, true, new QualifiedName(aasns, TestConstants.TYPE_VALUE_LIST_ELEMENT)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         browsePath.clear();
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_3_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_6_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.SUBMODEL_ELEMENT_LIST_ORDERED_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HasComponent, false, true, new QualifiedName(aasns, TestConstants.VALUE_TYPE_LIST_ELEMENT)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         browsePath.clear();
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_3_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_6_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.SUBMODEL_ELEMENT_LIST_ORDERED_NAME)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
-        Assert.assertNotNull("testSubmodelElementList Browse Result Null", bpres);
-        Assert.assertEquals("testSubmodelElementList Browse Result: size doesn't match", 4, bpres.length);
-        Assert.assertTrue("testSubmodelElementList Browse Result 1 Good", bpres[0].getStatusCode().isGood());
-        Assert.assertTrue("testSubmodelElementList Browse Result 2 Good", bpres[1].getStatusCode().isGood());
+        Assert.assertNotNull("testSubmodelElementListOrdered Browse Result Null", bpres);
+        Assert.assertEquals("testSubmodelElementListOrdered Browse Result: size doesn't match", 4, bpres.length);
+        Assert.assertTrue("testSubmodelElementListOrdered Browse Result 1 Good", bpres[0].getStatusCode().isGood());
+        Assert.assertTrue("testSubmodelElementListOrdered Browse Result 2 Good", bpres[1].getStatusCode().isGood());
         // ValueTypeListElement not set
-        Assert.assertTrue("testSubmodelElementList Browse Result 3 Bad", bpres[2].getStatusCode().isBad());
-        Assert.assertTrue("testSubmodelElementList Browse Result 4 Good", bpres[3].getStatusCode().isGood());
+        Assert.assertTrue("testSubmodelElementListOrdered Browse Result 3 Bad", bpres[2].getStatusCode().isBad());
+        Assert.assertTrue("testSubmodelElementListOrdered Browse Result 4 Good", bpres[3].getStatusCode().isGood());
 
         // OrderRelevant
         BrowsePathTarget[] targets = bpres[0].getTargets();
-        Assert.assertNotNull("testSubmodelElementList OrderRelevant Null", targets);
-        Assert.assertTrue("testSubmodelElementList OrderRelevant empty", targets.length > 0);
+        Assert.assertNotNull("testSubmodelElementListOrdered OrderRelevant Null", targets);
+        Assert.assertTrue("testSubmodelElementListOrdered OrderRelevant empty", targets.length > 0);
         DataValue value = client.readValue(targets[0].getTargetId());
         Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
         Boolean orderRelevantExpected = true;
@@ -903,8 +904,8 @@ public class OpcUaEndpointFullModelTest {
 
         // TypeValueListElement
         targets = bpres[1].getTargets();
-        Assert.assertNotNull("testSubmodelElementList TypeValueListElement Null", targets);
-        Assert.assertTrue("testSubmodelElementList TypeValueListElement empty", targets.length > 0);
+        Assert.assertNotNull("testSubmodelElementListOrdered TypeValueListElement Null", targets);
+        Assert.assertTrue("testSubmodelElementListOrdered TypeValueListElement empty", targets.length > 0);
         value = client.readValue(targets[0].getTargetId());
         Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
         AASSubmodelElements tvListElementExpected = ValueConverter.getAasSubmodelElementsType(AasSubmodelElements.SUBMODEL_ELEMENT);
@@ -914,6 +915,107 @@ public class OpcUaEndpointFullModelTest {
         targets = bpres[3].getTargets();
         NodeId listNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
         TestUtils.checkType(client, listNode, TestConstants.AAS_SUBMODEL_ELEM_LIST_TYPE);
+
+        TestUtils.checkDescriptions(client, listNode, List.of(LocalizedText.from(
+                "Example SubmodelElementListOrdered object",
+                "en-us")));
+
+        // List elements
+        List<ReferenceDescription> refs = client.getAddressSpace().browse(listNode, BrowseDirection.Forward,
+                client.getAddressSpace().getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasOrderedComponent));
+        Assert.assertNotNull(refs);
+        Assert.assertEquals(3, refs.size());
+        Assert.assertEquals(QualifiedName.from(aasns, "ExampleProperty"), refs.get(0).getBrowseName());
+        Assert.assertEquals(QualifiedName.from(aasns, "ExampleMultiLanguageProperty"), refs.get(1).getBrowseName());
+        Assert.assertEquals(QualifiedName.from(aasns, "ExampleCapability"), refs.get(2).getBrowseName());
+        //Assert.assertEquals(QualifiedName.from(aasns, "ExampleRange"), refs.get(2).getBrowseName());
+
+        //System.out.println("disconnect client");
+        //client.disconnect();
+    }
+
+
+    @Test
+    public void testSubmodelElementListUnordered() throws ServiceException, SecureIdentityException, IOException, StatusException, ServiceResultException, AddressSpaceException {
+        client = new UaClient(endpointUrl);
+        client.setSecurityMode(SecurityMode.NONE);
+        TestUtils.initialize(client);
+        client.connect();
+        //System.out.println("testSubmodelElementList: client connected");
+
+        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
+
+        List<RelativePath> relPath = new ArrayList<>();
+        List<RelativePathElement> browsePath = new ArrayList<>();
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_4_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SM_ELEM_COLL_UO_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HasComponent, false, true, new QualifiedName(aasns, TestConstants.ORDER_RELEVANT)));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+
+        browsePath.clear();
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_4_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SM_ELEM_COLL_UO_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HasComponent, false, true, new QualifiedName(aasns, TestConstants.TYPE_VALUE_LIST_ELEMENT)));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+
+        browsePath.clear();
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_4_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SM_ELEM_COLL_UO_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HasComponent, false, true, new QualifiedName(aasns, TestConstants.VALUE_TYPE_LIST_ELEMENT)));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+
+        browsePath.clear();
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_4_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SM_ELEM_COLL_UO_NAME)));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+
+        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
+        Assert.assertNotNull(bpres);
+        Assert.assertEquals(4, bpres.length);
+        Assert.assertTrue(bpres[0].getStatusCode().isGood());
+        Assert.assertTrue(bpres[1].getStatusCode().isGood());
+        // ValueTypeListElement not set
+        Assert.assertTrue(bpres[2].getStatusCode().isBad());
+        Assert.assertTrue(bpres[3].getStatusCode().isGood());
+
+        // OrderRelevant
+        BrowsePathTarget[] targets = bpres[0].getTargets();
+        Assert.assertNotNull(targets);
+        Assert.assertTrue(targets.length > 0);
+        DataValue value = client.readValue(targets[0].getTargetId());
+        Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
+        Boolean orderRelevantExpected = false;
+        Assert.assertEquals(orderRelevantExpected, value.getValue().getValue());
+
+        // TypeValueListElement
+        targets = bpres[1].getTargets();
+        Assert.assertNotNull(targets);
+        Assert.assertTrue(targets.length > 0);
+        value = client.readValue(targets[0].getTargetId());
+        Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
+        AASSubmodelElements tvListElementExpected = ValueConverter.getAasSubmodelElementsType(AasSubmodelElements.SUBMODEL_ELEMENT);
+        Assert.assertEquals(tvListElementExpected, value.getValue().asOptionSet(AASSubmodelElements.SPECIFICATION));
+
+        // SubmodelElementList type
+        targets = bpres[3].getTargets();
+        NodeId listNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
+        TestUtils.checkType(client, listNode, TestConstants.AAS_SUBMODEL_ELEM_LIST_TYPE);
+
+        TestUtils.checkDescriptions(client, listNode, List.of());
+
+        // List elements
+        List<ReferenceDescription> refs = client.getAddressSpace().browse(listNode, BrowseDirection.Forward,
+                client.getAddressSpace().getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasOrderedComponent));
+        Assert.assertNotNull(refs);
+        Assert.assertEquals(3, refs.size());
+        Assert.assertEquals(QualifiedName.from(aasns, "ExampleProperty"), refs.get(0).getBrowseName());
+        Assert.assertEquals(QualifiedName.from(aasns, "ExampleCollection"), refs.get(1).getBrowseName());
+        Assert.assertEquals(QualifiedName.from(aasns, "ExampleMultiLanguageProperty"), refs.get(2).getBrowseName());
+        //Assert.assertEquals(QualifiedName.from(aasns, "ExampleRange"), refs.get(2).getBrowseName());
 
         //System.out.println("disconnect client");
         //client.disconnect();
@@ -1131,7 +1233,7 @@ public class OpcUaEndpointFullModelTest {
 
 
     private void testSubmodel1(NodeId submodelNode) throws ServiceException, AddressSpaceException, ServiceResultException, StatusException {
-        TestUtils.checkDisplayName(client, submodelNode, "Submodel:" + TestConstants.FULL_SUBMODEL_1_NAME);
+        TestUtils.checkDisplayName(client, submodelNode, TestConstants.SUBMODEL_PREFIX + TestConstants.FULL_SUBMODEL_1_NAME);
         TestUtils.checkType(client, submodelNode, TestConstants.AAS_SUBMODEL_TYPE_ID);
         //TestUtils.checkType(client, submodelNode, ObjectTypeIds.AASSubmodelType);
 
@@ -1159,4 +1261,5 @@ public class OpcUaEndpointFullModelTest {
         TestUtils.checkAasPropertyString(client, submodelNode, aasns, "ManufacturerName", null, Datatype.STRING,
                 "http://acplt.org/ValueId/ACPLT", list);
     }
+
 }

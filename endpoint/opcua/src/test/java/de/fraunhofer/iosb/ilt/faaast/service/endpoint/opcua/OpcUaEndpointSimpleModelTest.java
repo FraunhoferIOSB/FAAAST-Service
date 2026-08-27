@@ -200,7 +200,7 @@ public class OpcUaEndpointSimpleModelTest {
         // check Browse and Display Names
         TestUtils.checkBrowseName(client, aasNode, TestConstants.SIMPLE_AAS_NAME);
         TestUtils.checkDisplayName(client, aasNode, "AAS:" + TestConstants.SIMPLE_AAS_NAME);
-        TestUtils.checkDisplayName(client, submodelDocNode, "Submodel:" + TestConstants.SUBMODEL_DOC_NODE_NAME);
+        TestUtils.checkDisplayName(client, submodelDocNode, TestConstants.SUBMODEL_PREFIX + TestConstants.SUBMODEL_DOC_NODE_NAME);
 
         aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
@@ -692,7 +692,7 @@ public class OpcUaEndpointSimpleModelTest {
 
     private void testSubmodelDoc(NodeId submodelNode)
             throws ServiceException, AddressSpaceException, StatusException, ServiceResultException {
-        TestUtils.checkDisplayName(client, submodelNode, "Submodel:" + TestConstants.SUBMODEL_DOC_NODE_NAME);
+        TestUtils.checkDisplayName(client, submodelNode, TestConstants.SUBMODEL_PREFIX + TestConstants.SUBMODEL_DOC_NODE_NAME);
         TestUtils.checkType(client, submodelNode, TestConstants.AAS_SUBMODEL_TYPE_ID);
         //TestUtils.checkType(client, submodelNode, ObjectTypeIds.AASSubmodelType);
 
@@ -727,7 +727,7 @@ public class OpcUaEndpointSimpleModelTest {
 
 
     private void testSubmodelOperationalData(NodeId submodelNode) throws ServiceException, AddressSpaceException, StatusException, ServiceResultException {
-        TestUtils.checkDisplayName(client, submodelNode, "Submodel:" + TestConstants.SUBMODEL_OPER_DATA_NODE_NAME);
+        TestUtils.checkDisplayName(client, submodelNode, TestConstants.SUBMODEL_PREFIX + TestConstants.SUBMODEL_OPER_DATA_NODE_NAME);
         TestUtils.checkType(client, submodelNode, TestConstants.AAS_SUBMODEL_TYPE_ID);
         //TestUtils.checkType(client, submodelNode, ObjectTypeIds.AASSubmodelType);
 
@@ -747,7 +747,7 @@ public class OpcUaEndpointSimpleModelTest {
 
 
     private void testSubmodelTechnicalData(NodeId submodelNode) throws ServiceException, AddressSpaceException, StatusException, ServiceResultException {
-        TestUtils.checkDisplayName(client, submodelNode, "Submodel:" + TestConstants.SUBMODEL_TECH_DATA_NODE_NAME);
+        TestUtils.checkDisplayName(client, submodelNode, TestConstants.SUBMODEL_PREFIX + TestConstants.SUBMODEL_TECH_DATA_NODE_NAME);
         TestUtils.checkType(client, submodelNode, TestConstants.AAS_SUBMODEL_TYPE_ID);
         //TestUtils.checkType(client, submodelNode, ObjectTypeIds.AASSubmodelType);
 
@@ -774,6 +774,15 @@ public class OpcUaEndpointSimpleModelTest {
         //TestUtils.checkCategoryNode(client, node, aasns, "");
         //TestUtils.checkEmbeddedDataSpecificationNode(client, node, aasns);
         //TestUtils.checkQualifierNode(client, node, aasns, new ArrayList<>());
+
+        // browse for SubmodelElements
+        List<ReferenceDescription> refs = client.getAddressSpace().browse(node, BrowseDirection.Forward,
+                client.getAddressSpace().getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasComponent));
+        Assert.assertNotNull(refs);
+        Assert.assertEquals(2, refs.size());
+        Assert.assertEquals(QualifiedName.from(aasns, "Title"), refs.get(0).getBrowseName());
+        Assert.assertEquals(QualifiedName.from(aasns, "DigitalFile_PDF"), refs.get(1).getBrowseName());
+
         TestUtils.checkAasPropertyFile(client, node, aasns, "DigitalFile_PDF", AASModellingKind.of(AASModellingKind.Options.Instance), "", "application/pdf",
                 "file:///aasx/OperatingManual.pdf", 0);
     }

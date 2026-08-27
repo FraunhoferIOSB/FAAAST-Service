@@ -186,9 +186,7 @@ public class SubmodelElementListCreator extends SubmodelElementCreator {
         if ((elements != null) && (!elements.isEmpty())) {
             for (int i = 0; i < elements.size(); i++) {
                 Reference elementRef = ReferenceBuilder.with(parentRef).index(i).build();
-                if (LOGGER.isTraceEnabled()) {
-                    LOGGER.trace("addSubmodelElementList: ParentRef: {}; ElementRef: {}", ReferenceHelper.toString(parentRef), ReferenceHelper.toString(elementRef));
-                }
+                LOGGER.atTrace().log("addSubmodelElementList: ParentRef: {}; ElementRef: {}", ReferenceHelper.toString(parentRef), ReferenceHelper.toString(elementRef));
                 addSubmodelElement(elements.get(i), node, elementRef, submodel, true, nodeManager);
             }
         }

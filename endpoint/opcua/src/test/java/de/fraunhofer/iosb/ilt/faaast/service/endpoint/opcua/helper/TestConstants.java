@@ -51,10 +51,12 @@ public class TestConstants {
     public static final String TYPE_VALUE_LIST_ELEMENT = "TypeValueListElement";
     public static final String VALUE_TYPE_LIST_ELEMENT = "ValueTypeListElement";
 
+    public static final String SUBMODEL_PREFIX = "Submodel:";
     public static final String FULL_SUBMODEL_1_NAME = "Identification";
     public static final String FULL_SUBMODEL_1_ID = "http://acplt.org/Submodels/Assets/TestAsset/Identification";
     public static final String FULL_SUBMODEL_2_NAME = "BillOfMaterial";
     public static final String FULL_SUBMODEL_3_NAME = "TestSubmodel3";
+    public static final String FULL_SUBMODEL_3_ID = "https://acplt.org/Test_Submodel";
     public static final String FULL_SUBMODEL_4_NAME = "Test_Submodel_Mandatory";
     public static final String FULL_SUBMODEL_4_ID = "https://acplt.org/Test_Submodel_Mandatory";
     public static final String FULL_SUBMODEL_5_NAME = "Test_Submodel2_Mandatory";
@@ -63,9 +65,9 @@ public class TestConstants {
     public static final String FULL_SUBMODEL_7_NAME = "TestSubmodelTemplate";
     public static final String FULL_REL_ELEMENT_NAME = "ExampleRelationshipElement";
     public static final String FULL_SM_ELEM_COLL_UO_NAME = "ExampleSubmodelElementListUnordered";
-    public static final String FULL_SM_ELEM_LIST_O_NAME = "ExampleSubmodelElementListOrdered";
+    //public static final String FULL_SM_ELEM_LIST_O_NAME = "ExampleSubmodelElementListOrdered";
     public static final String FULL_SM_ELEM_COLL_NAME = "ExampleSubmodelElementCollection";
-    public static final String FULL_SMEC_REF_ELEM_NAME = "ExampleReferenceElement";
+    //public static final String FULL_SMEC_REF_ELEM_NAME = "ExampleReferenceElement";
     public static final String FULL_SMEC_RANGE_NAME = "ExampleRange";
     public static final String FULL_OPERATION_NAME = "ExampleOperation";
     public static final String FULL_ENTITY2_NAME = "ExampleEntity2";
