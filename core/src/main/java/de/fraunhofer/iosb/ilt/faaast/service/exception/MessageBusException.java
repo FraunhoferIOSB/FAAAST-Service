@@ -17,7 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.exception;
 /**
  * This class represents exceptions related to {@link de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus}.
  */
-public class MessageBusException extends Exception {
+public class MessageBusException extends RuntimeException {
 
     public MessageBusException() {
         super();

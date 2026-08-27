@@ -24,7 +24,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 /**
  * Indicates that an element is ambiguous, i.e. cannot be uniquely identified.
  */
-public class AmbiguousElementException extends Exception {
+public class AmbiguousElementException extends RuntimeException {
 
     private static final String BASE_MSG = "Ambiguous element";
 

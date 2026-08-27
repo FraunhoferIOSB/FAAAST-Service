@@ -17,7 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.exception;
 /**
  * Exception to indicate a received request is invalid.
  */
-public class InvalidRequestException extends Exception {
+public class InvalidRequestException extends RuntimeException {
 
     public InvalidRequestException(String message) {
         super(message);

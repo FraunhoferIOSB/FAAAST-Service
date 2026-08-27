@@ -17,7 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.exception;
 /**
  * Indicates that an exception occured in a persistence implementation.
  */
-public class PersistenceException extends Exception {
+public class PersistenceException extends RuntimeException {
 
     public PersistenceException(String message) {
         super(message);

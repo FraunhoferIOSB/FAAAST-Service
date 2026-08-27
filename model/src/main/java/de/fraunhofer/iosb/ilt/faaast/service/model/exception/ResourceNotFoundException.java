@@ -22,7 +22,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 /**
  * Indicates that a desired resource cannot be found.
  */
-public class ResourceNotFoundException extends Exception {
+public class ResourceNotFoundException extends RuntimeException {
 
     private static final String BASE_MSG = "Resource not found";
 

@@ -22,7 +22,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 /**
  * Indicates that a resource already exists.
  */
-public class ResourceAlreadyExistsException extends Exception {
+public class ResourceAlreadyExistsException extends RuntimeException {
 
     private static final String BASE_MSG = "Resource already exists";
 

@@ -17,7 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.dataformat;
 /**
  * Exception indicating that serialization failed.
  */
-public class SerializationException extends Exception {
+public class SerializationException extends RuntimeException {
 
     public SerializationException(String msg) {
         super(msg);

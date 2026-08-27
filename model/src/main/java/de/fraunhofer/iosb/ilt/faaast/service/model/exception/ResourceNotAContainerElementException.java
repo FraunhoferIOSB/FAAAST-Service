@@ -22,7 +22,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 /**
  * Indicates that a resource is not a container element, i.e. cannot have any child elements.
  */
-public class ResourceNotAContainerElementException extends Exception {
+public class ResourceNotAContainerElementException extends RuntimeException {
 
     private static final String BASE_MSG = "Resource is not a container element";
 

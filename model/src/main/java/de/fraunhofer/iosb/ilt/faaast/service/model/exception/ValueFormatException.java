@@ -17,7 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.exception;
 /**
  * Exception indicating that converting a value to a given dataformat failed.
  */
-public class ValueFormatException extends Exception {
+public class ValueFormatException extends RuntimeException {
 
     public ValueFormatException(String message) {
         super(message);
