@@ -27,6 +27,7 @@ import com.prosysopc.ua.stack.builtintypes.QualifiedName;
 import com.prosysopc.ua.stack.builtintypes.StatusCode;
 import com.prosysopc.ua.stack.builtintypes.UnsignedShort;
 import com.prosysopc.ua.stack.common.ServiceResultException;
+import com.prosysopc.ua.stack.core.BrowseDirection;
 import com.prosysopc.ua.stack.core.BrowsePathResult;
 import com.prosysopc.ua.stack.core.BrowsePathTarget;
 import com.prosysopc.ua.stack.core.EndpointDescription;
@@ -57,6 +58,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import opc.ua.aas.ReferenceTypeIds;
 import opc.ua.aas.VariableIds;
 import opc.ua.aas.datatypes.AASEntityEnumType;
 import opc.ua.aas.datatypes.AASKey;
@@ -138,7 +140,7 @@ public class OpcUaEndpointSimpleModelTest {
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
-        System.out.println("testOpcUaEndpoint: client connected");
+        //System.out.println("testOpcUaEndpoint: client connected");
 
         DataValue value = client.readValue(Identifiers.Server_ServerStatus_State);
         System.out.println(value);
@@ -202,7 +204,7 @@ public class OpcUaEndpointSimpleModelTest {
 
         testAas(client, aasNode);
 
-        System.out.println("disconnect client");
+        //System.out.println("disconnect client");
         client.disconnect();
     }
 
@@ -720,6 +722,8 @@ public class OpcUaEndpointSimpleModelTest {
         TestUtils.checkCommonAttributes(client, submodelNode, aasns,
                 new CommonAttributesData(null, null, "", TestConstants.SUBMODEL_OPER_DATA_NAME, AASModellingKind.of(AASModellingKind.Options.Instance), new ArrayList<>()));
 
+        testEntity(client, submodelNode);
+
         //TestUtils.checkAdministrationNode(client, submodelNode, aasns, null, null);
         //TestUtils.checkCategoryNode(client, submodelNode, aasns, "");
         //TestUtils.checkModelingKindNode(client, submodelNode, aasns, AASModellingKind.of(AASModellingKind.Options.Instance));
@@ -794,5 +798,38 @@ public class OpcUaEndpointSimpleModelTest {
         //TestUtils.checkSubmodelRef(client, refNode, aasns, TestConstants.SUBMODEL_TECH_DATA_NAME, submodelTechDataNode);
         //TestUtils.checkSubmodelRef(client, refNode, aasns, TestConstants.SUBMODEL_OPER_DATA_NAME, submodelOperDataNode);
         //TestUtils.checkSubmodelRef(client, refNode, aasns, TestConstants.SUBMODEL_DOC_NAME, submodelDocNode);
+    }
+
+
+    private void testEntity(UaClient client, NodeId submodelNode) throws ServiceException, ServiceResultException, AddressSpaceException, StatusException {
+        List<RelativePath> relPath = new ArrayList<>();
+        List<RelativePathElement> browsePath = new ArrayList<>();
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.TEST_ENTITY_NAME)));
+        //browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.PROPERTY_VALUE_NAME)));
+        //browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.KEYS_VALUE_NAME)));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+
+        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(submodelNode, relPath.toArray(RelativePath[]::new));
+        Assert.assertNotNull("testEntity Browse Result Null", bpres);
+        Assert.assertEquals("testEntity Browse Result: size doesn't match", 1, bpres.length);
+        Assert.assertTrue("testEntity Browse Result Good", bpres[0].getStatusCode().isGood());
+
+        BrowsePathTarget[] targets = bpres[0].getTargets();
+        Assert.assertNotNull("testEntity Entity Null", targets);
+        Assert.assertTrue("testEntity Entity empty", targets.length > 0);
+
+        NodeId entityNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
+        TestUtils.checkDescriptions(client, entityNode, List.of(LocalizedText.from(
+                "Legally valid designation of the natural or judicial person which is directly responsible for the design, production, packaging and labeling of a product in respect to its being brought into circulation.",
+                "en-us")));
+
+        // browse for Statements
+        List<ReferenceDescription> refs = client.getAddressSpace().browse(entityNode, BrowseDirection.Forward,
+                client.getAddressSpace().getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasComponent));
+        Assert.assertNotNull(refs);
+        Assert.assertEquals(3, refs.size());
+        Assert.assertEquals(QualifiedName.from(aasns, "ExampleProperty2"), refs.get(0).getBrowseName());
+        Assert.assertEquals(QualifiedName.from(aasns, "ExampleProperty"), refs.get(1).getBrowseName());
+        Assert.assertEquals(QualifiedName.from(aasns, "ExampleCollection1"), refs.get(2).getBrowseName());
     }
 }

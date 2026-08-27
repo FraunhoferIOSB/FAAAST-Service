@@ -520,8 +520,9 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @param oldValue The old value of the SubmodelElement
      * @throws StatusException If the operation fails
      * @throws ValueFormatException The data format of the value is invalid
+     * @throws ServiceResultException If the operation fails
      */
-    public void updateSubmodelElementValue(Reference reference, ElementValue newValue, ElementValue oldValue) throws StatusException, ValueFormatException {
+    public void updateSubmodelElementValue(Reference reference, ElementValue newValue, ElementValue oldValue) throws StatusException, ValueFormatException, ServiceResultException {
         Ensure.requireNonNull(reference, "reference must not be null");
         Ensure.requireNonNull(newValue, "newValue must not be null");
 

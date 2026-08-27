@@ -682,6 +682,19 @@ public class TestUtils {
     }
 
 
+    public static void checkDescriptions(UaClient client, NodeId nodeId, List<LocalizedText> descriptions) throws ServiceException, AddressSpaceException {
+        UaNode node = client.getAddressSpace().getNode(nodeId);
+        Assert.assertNotNull(node);
+        LocalizedText text = node.getDescription();
+        if ((descriptions == null) || (descriptions.isEmpty())) {
+            Assert.assertNull(text);
+        }
+        else {
+            Assert.assertEquals(descriptions.get(0), text);
+        }
+    }
+
+
     private static void checkDatatype(UaClient client, NodeId nodeId, ExpandedNodeId datatype) throws ServiceException, AddressSpaceException, ServiceResultException {
         checkDatatype(client, nodeId, client.getAddressSpace().getNamespaceTable().toNodeId(datatype));
     }

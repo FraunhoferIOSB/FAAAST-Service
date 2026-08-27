@@ -102,9 +102,7 @@ public class SubmodelElementCreator {
             for (SubmodelElement elem: elements) {
                 Reference elementRef = ReferenceBuilder.with(parentRef).element(elem).build();
 
-                if (LOGGER.isTraceEnabled()) {
-                    LOGGER.trace("addSubmodelElements: parentRef {}; elementRef: {}", ReferenceHelper.toString(parentRef), ReferenceHelper.toString(elementRef));
-                }
+                LOGGER.atTrace().log("addSubmodelElements: parentRef {}; elementRef: {}", ReferenceHelper.toString(parentRef), ReferenceHelper.toString(elementRef));
                 addSubmodelElement(elem, node, elementRef, submodel, ordered, nodeManager);
             }
         }
@@ -147,10 +145,10 @@ public class SubmodelElementCreator {
             RelationshipElementCreator.addAasRelationshipElement(node, relationshipElement, elementRef, submodel, ordered, nodeManager);
         }
         else if (elem instanceof SubmodelElementCollection submodelElementCollection) {
-            SubmodelElementCollectionCreator.addAasSubmodelElementCollection(node, submodelElementCollection, elementRef, submodel, nodeManager);
+            SubmodelElementCollectionCreator.addAasSubmodelElementCollection(node, submodelElementCollection, elementRef, submodel, ordered, nodeManager);
         }
         else if (elem instanceof SubmodelElementList submodelElementList) {
-            SubmodelElementListCreator.addAasSubmodelElementList(node, submodelElementList, elementRef, submodel, nodeManager);
+            SubmodelElementListCreator.addAasSubmodelElementList(node, submodelElementList, elementRef, submodel, ordered, nodeManager);
         }
         else if (elem != null) {
             LOGGER.warn("addSubmodelElements: unknown SubmodelElement: {}; Class {}", elem.getIdShort(), elem.getClass());

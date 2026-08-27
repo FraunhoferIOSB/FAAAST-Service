@@ -33,6 +33,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.List;
 import opc.ua.aas.ObjectTypeIds;
+import opc.ua.aas.ReferenceTypeIds;
 import opc.ua.aas.VariableIds;
 import opc.ua.aas.objecttypes.AASSubmodelElementListType;
 import org.eclipse.digitaltwin.aas4j.v3.model.AasSubmodelElements;
@@ -58,6 +59,7 @@ public class SubmodelElementListCreator extends SubmodelElementCreator {
      * @param aasList The corresponding SubmodelElementList to add
      * @param listRef The reference to the SubmodelElementList
      * @param submodel The corresponding Submodel as parent object of the data element
+     * @param ordered Specifies where the elements are from a list (true) or not (false)
      * @param nodeManager The corresponding Node Manager
      * @throws StatusException If the operation fails
      * @throws ServiceException If the operation fails
@@ -66,7 +68,7 @@ public class SubmodelElementListCreator extends SubmodelElementCreator {
      * @throws ValueFormatException The data format of the value is invalid
      */
     public static void addAasSubmodelElementList(UaNode node, SubmodelElementList aasList, Reference listRef, Submodel submodel,
-                                                 AasServiceNodeManager nodeManager)
+                                                 boolean ordered, AasServiceNodeManager nodeManager)
             throws StatusException, ServiceException, AddressSpaceException, ServiceResultException, ValueFormatException {
         try {
             if ((node != null) && (aasList != null)) {
@@ -110,14 +112,19 @@ public class SubmodelElementListCreator extends SubmodelElementCreator {
                 collNode.setOrderRelevant(aasList.getOrderRelevant());
                 //}
 
-                setValueTypeListElement(aasList.getValueTypeListElement(), collNode, nodeManager, namespaceUri);
-                setTypeValueListElement(aasList.getTypeValueListElement(), collNode, nodeManager, namespaceUri);
-                setSemanticIdListElement(aasList.getSemanticIdListElement(), collNode, namespaceUri, nodeManager);
+                setValueTypeListElement(aasList.getValueTypeListElement(), collNode);
+                setTypeValueListElement(aasList.getTypeValueListElement(), collNode);
+                setSemanticIdListElement(aasList.getSemanticIdListElement(), collNode);
 
                 // add SubmodelElements 
                 addSubmodelElementList(collNode, aasList.getValue(), submodel, listRef, nodeManager);
 
-                node.addComponent(collNode);
+                if (ordered) {
+                    node.addReference(collNode, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasOrderedComponent), false);
+                }
+                else {
+                    node.addReference(collNode, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasComponent), false);
+                }
 
                 nodeManager.addReferable(listRef, new ObjectData(aasList, collNode, submodel));
             }
@@ -128,7 +135,7 @@ public class SubmodelElementListCreator extends SubmodelElementCreator {
     }
 
 
-    private static void setSemanticIdListElement(Reference semanticIdElement, AASSubmodelElementListType collNode, String namespaceUri, AasServiceNodeManager nodeManager)
+    private static void setSemanticIdListElement(Reference semanticIdElement, AASSubmodelElementListType collNode)
             throws StatusException {
         if (semanticIdElement != null) {
             //if (collNode.getSemanticIdListElementNode() == null) {
@@ -145,7 +152,7 @@ public class SubmodelElementListCreator extends SubmodelElementCreator {
     }
 
 
-    private static void setTypeValueListElement(AasSubmodelElements typeValue, AASSubmodelElementListType collNode, AasServiceNodeManager nodeManager, String namespaceUri)
+    private static void setTypeValueListElement(AasSubmodelElements typeValue, AASSubmodelElementListType collNode)
             throws StatusException {
         if (typeValue != null) {
             //if (collNode.getTypeValueListElementNode() == null) {
@@ -159,7 +166,7 @@ public class SubmodelElementListCreator extends SubmodelElementCreator {
     }
 
 
-    private static void setValueTypeListElement(DataTypeDefXsd datatype, AASSubmodelElementListType collNode, AasServiceNodeManager nodeManager, String namespaceUri)
+    private static void setValueTypeListElement(DataTypeDefXsd datatype, AASSubmodelElementListType collNode)
             throws StatusException {
         if (datatype != null) {
             //if (collNode.getValueTypeListElementNode() == null) {

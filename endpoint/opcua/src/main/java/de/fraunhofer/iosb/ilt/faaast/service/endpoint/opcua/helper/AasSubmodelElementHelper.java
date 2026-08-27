@@ -18,11 +18,13 @@ import com.prosysopc.ua.StatusException;
 import com.prosysopc.ua.UaQualifiedName;
 import com.prosysopc.ua.nodes.UaNode;
 import com.prosysopc.ua.nodes.UaObject;
+import com.prosysopc.ua.nodes.UaReference;
 import com.prosysopc.ua.server.NodeManagerUaNode;
 import com.prosysopc.ua.server.nodes.PlainProperty;
 import com.prosysopc.ua.stack.builtintypes.ByteString;
 import com.prosysopc.ua.stack.builtintypes.LocalizedText;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
+import com.prosysopc.ua.stack.common.ServiceResultException;
 import com.prosysopc.ua.stack.core.AccessLevelType;
 import com.prosysopc.ua.stack.core.Identifiers;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
@@ -47,6 +49,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import opc.ua.aas.ObjectTypeIds;
+import opc.ua.aas.ReferenceTypeIds;
 import opc.ua.aas.objecttypes.AASAnnotatedRelationshipElementType;
 import opc.ua.aas.objecttypes.AASBlobType;
 import opc.ua.aas.objecttypes.AASDataElementObjectType;
@@ -92,8 +95,10 @@ public class AasSubmodelElementHelper {
      * @param value The new value.
      * @param nodeManager The corresponding Node Manager.
      * @throws StatusException If the operation fails
+     * @throws ServiceResultException If the operation fails
      */
-    public static void setRelationshipValue(AASRelationshipElementType aasElement, RelationshipElementValue value, NodeManagerUaNode nodeManager) throws StatusException {
+    public static void setRelationshipValue(AASRelationshipElementType aasElement, RelationshipElementValue value, NodeManagerUaNode nodeManager)
+            throws StatusException, ServiceResultException {
         Ensure.requireNonNull(aasElement, "aasElement must not be null");
         Ensure.requireNonNull(value, VALUE_NULL);
 
@@ -104,7 +109,7 @@ public class AasSubmodelElementHelper {
 
         if ((aasElement instanceof AASAnnotatedRelationshipElementType aasAnnotated) && (value instanceof AnnotatedRelationshipElementValue annotated)) {
             var annotationVariables = aasAnnotated.getS_AnnotationVariable_Nodes();
-            var annotationObjects = getSubmodelElementComponentObjects(aasAnnotated, AASDataElementObjectType.class);
+            var annotationObjects = getSubmodelElementComponentObjects(aasAnnotated, nodeManager, AASDataElementObjectType.class);
 
             Map<String, DataElementValue> valueMap = annotated.getAnnotations();
             for (var annotationNode: annotationVariables) {
@@ -143,9 +148,10 @@ public class AasSubmodelElementHelper {
      * @param nodeManager The corresponding Node Manager.
      * @throws StatusException If the operation fails
      * @throws ValueFormatException The data format of the value is invalid
+     * @throws ServiceResultException If the operation fails
      */
     public static void setSubmodelElementValue(UaNode subElem, ElementValue value, NodeManagerUaNode nodeManager)
-            throws StatusException, ValueFormatException {
+            throws StatusException, ValueFormatException, ServiceResultException {
         LOGGER.trace("setSubmodelElementValue: {}", subElem.getBrowseName().getName());
 
         // changed the order because of an error in the derivation hierarchy of ElementValue
@@ -777,7 +783,7 @@ public class AasSubmodelElementHelper {
         //    setRangeValue((AASRangeType) node, (RangeValue<?>) value);
         //}
         else if ((node instanceof AASMultiLanguagePropertyType) && (value instanceof MultiLanguagePropertyValue)) {
-            setMultiLanguagePropertyValue((AASMultiLanguagePropertyType) node, (MultiLanguagePropertyValue) value, nodeManager);
+            setMultiLanguagePropertyValue((AASMultiLanguagePropertyType) node, (MultiLanguagePropertyValue) value);
         }
         else if (value != null) {
             LOGGER.warn("setDataElementValue: unknown or invalid DataElement or value: {}; Class: {}; Value Class: {}", node.getBrowseName().getName(), node.getClass(),
@@ -808,7 +814,8 @@ public class AasSubmodelElementHelper {
      * @throws StatusException If the operation fails
      * @throws ValueFormatException The data format of the value is invalid
      */
-    private static void setEntityPropertyValue(AASEntityType entity, EntityValue value, NodeManagerUaNode nodeManager) throws StatusException, ValueFormatException {
+    private static void setEntityPropertyValue(AASEntityType entity, EntityValue value, NodeManagerUaNode nodeManager)
+            throws StatusException, ValueFormatException, ServiceResultException {
         // EntityType
         entity.setEntityType(ValueConverter.getAasEntityType(value.getEntityType()));
 
@@ -820,7 +827,7 @@ public class AasSubmodelElementHelper {
         // Statements
         Map<String, ElementValue> valueMap = value.getStatements();
         var statementVariables = entity.getS_StatementVariable_Nodes();
-        var statementObjects = getSubmodelElementComponentObjects(entity, AASSubmodelElementObjectType.class);
+        var statementObjects = getSubmodelElementComponentObjects(entity, nodeManager, AASSubmodelElementObjectType.class);
         int statementCount = getListCount(statementObjects, statementVariables);
         if (statementCount != valueMap.size()) {
             LOGGER.warn("Size of Value ({}) doesn't match the number of StatementNodes ({})", valueMap.size(), statementCount);
@@ -915,7 +922,7 @@ public class AasSubmodelElementHelper {
     //    }
 
 
-    private static void setMultiLanguagePropertyValue(AASMultiLanguagePropertyType multiLangProp, MultiLanguagePropertyValue value, NodeManagerUaNode nodeManager)
+    private static void setMultiLanguagePropertyValue(AASMultiLanguagePropertyType multiLangProp, MultiLanguagePropertyValue value)
             throws StatusException {
         List<LangStringTextType> values = new ArrayList<>(value.getLangStringSet());
         //if (multiLangProp.getValueNode() == null) {
@@ -926,11 +933,14 @@ public class AasSubmodelElementHelper {
     }
 
 
-    private static <T extends AASSubmodelElementObjectType> List<T> getSubmodelElementComponentObjects(UaObject baseNode, Class<T> type) {
+    private static <T extends AASSubmodelElementObjectType> List<T> getSubmodelElementComponentObjects(UaObject baseNode, NodeManagerUaNode nodeManager, Class<T> type)
+            throws ServiceResultException {
         List<T> retval = new ArrayList<>();
-        for (var comp: baseNode.getComponents()) {
-            if (comp.getClass().equals(type)) {
-                retval.add((T) comp);
+        //for (var comp: baseNode.getComponents()) {
+        UaReference[] refs = baseNode.getForwardReferences(nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasComponent));
+        for (var ref: refs) {
+            if (ref.getTargetNode().getClass().equals(type)) {
+                retval.add((T) ref.getTargetNode());
             }
         }
         return retval;
