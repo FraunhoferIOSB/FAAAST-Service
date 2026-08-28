@@ -15,7 +15,6 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator;
 
 import com.prosysopc.ua.StatusException;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import opc.ua.aas.datatypes.AASAdministrativeInformation;
 import org.eclipse.digitaltwin.aas4j.v3.model.AdministrativeInformation;
 
@@ -35,69 +34,32 @@ public class AdministrativeInformationCreator {
      * Adds the AdminInformation Properties to the given node (if they don't
      * exist).
      *
-     * @param adminInfNode The desired AdminInformation node
-     * @param nodeManager The corresponding Node Manager
      * @param info The corresponding AAS AdministrativeInformation object
+     * @return The corresponding AASAdministrativeInformation.
      * @throws StatusException If an error occurs
      */
-    public static void addAdminInformationProperties(AASAdministrativeInformation adminInfNode, AdministrativeInformation info, AasServiceNodeManager nodeManager)
+    public static AASAdministrativeInformation getAdminInformation(AdministrativeInformation info)
             throws StatusException {
-        if ((adminInfNode != null) && (info != null)) {
+        AASAdministrativeInformation retval = null;
+        if (info != null) {
+            retval = new AASAdministrativeInformation();
             if (info.getVersion() != null) {
-                //if (adminInfNode.getVersionNode() == null) {
-                //    createVersionNode(nodeManager, adminInfNode);
-                //}
-
-                adminInfNode.setVersion(info.getVersion());
+                retval.setVersion(info.getVersion());
             }
 
             if (info.getRevision() != null) {
-                //if (adminInfNode.getRevisionNode() == null) {
-                //    createRevisionNode(nodeManager, adminInfNode);
-                //}
-
-                adminInfNode.setRevision(info.getRevision());
+                retval.setRevision(info.getRevision());
             }
 
             if (info.getTemplateId() != null) {
-                adminInfNode.setTemplateId(info.getTemplateId());
+                retval.setTemplateId(info.getTemplateId());
             }
 
             if (info.getCreator() != null) {
-                adminInfNode.setCreator(AasReferenceCreator.getAasReference(info.getCreator()));
+                retval.setCreator(ReferenceCreator.getAasReference(info.getCreator()));
             }
         }
+        return retval;
     }
-
-    //    private static void createRevisionNode(AasServiceNodeManager nodeManager, AASAdministrativeInformationType adminInfNode) {
-    //        NodeId myPropertyId = new NodeId(nodeManager.getNamespaceIndex(),
-    //                adminInfNode.getNodeId().getValue().toString() + "." + AASAdministrativeInformationType.REVISION);
-    //        PlainProperty<String> myProperty = new PlainProperty<>(nodeManager, myPropertyId,
-    //                UaQualifiedName.from(ObjectTypeIds.AASAssetAdministrationShellType.getNamespaceUri(), AASAdministrativeInformationType.REVISION)
-    //                        .toQualifiedName(nodeManager.getNamespaceTable()),
-    //                LocalizedText.english(AASAdministrativeInformationType.REVISION));
-    //        myProperty.setDataTypeId(Identifiers.String);
-    //        if (VALUES_READ_ONLY) {
-    //            myProperty.setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
-    //        }
-    //        myProperty.setDescription(new LocalizedText("", ""));
-    //        adminInfNode.addProperty(myProperty);
-    //    }
-    //
-    //
-    //    private static void createVersionNode(AasServiceNodeManager nodeManager, AASAdministrativeInformationType adminInfNode) {
-    //        NodeId myPropertyId = new NodeId(nodeManager.getNamespaceIndex(),
-    //                adminInfNode.getNodeId().getValue().toString() + "." + AASAdministrativeInformationType.VERSION);
-    //        PlainProperty<String> myProperty = new PlainProperty<>(nodeManager, myPropertyId,
-    //                UaQualifiedName.from(ObjectTypeIds.AASAssetAdministrationShellType.getNamespaceUri(), AASAdministrativeInformationType.VERSION)
-    //                        .toQualifiedName(nodeManager.getNamespaceTable()),
-    //                LocalizedText.english(AASAdministrativeInformationType.VERSION));
-    //        myProperty.setDataTypeId(Identifiers.String);
-    //        if (VALUES_READ_ONLY) {
-    //            myProperty.setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
-    //        }
-    //        myProperty.setDescription(new LocalizedText("", ""));
-    //        adminInfNode.addProperty(myProperty);
-    //    }
 
 }

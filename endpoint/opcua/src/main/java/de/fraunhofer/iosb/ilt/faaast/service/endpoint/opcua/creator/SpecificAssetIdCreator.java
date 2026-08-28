@@ -146,7 +146,7 @@ public class SpecificAssetIdCreator {
         // ExternalSubjectId
         Reference externalSubjectId = aasIdentifierPair.getExternalSubjectId();
         if (externalSubjectId != null) {
-            specificAssetIdNode.setExternalSubjectId(AasReferenceCreator.getAasReference(externalSubjectId));
+            specificAssetIdNode.setExternalSubjectId(ReferenceCreator.getAasReference(externalSubjectId));
             //AASReference extSubjectNode = specificAssetIdNode.getExternalSubjectId();
             //if (extSubjectNode == null) {
             //    AasReferenceCreator.addAasReferenceAasNS(specificAssetIdNode, externalSubjectId, AASSpecificAssetIdType.EXTERNAL_SUBJECT_ID, nodeManager);

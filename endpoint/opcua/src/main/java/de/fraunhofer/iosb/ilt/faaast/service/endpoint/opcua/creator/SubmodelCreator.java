@@ -29,7 +29,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import java.util.List;
 import opc.ua.aas.ObjectTypeIds;
-import opc.ua.aas.datatypes.AASIdentifiable;
 import opc.ua.aas.datatypes.AASSubmodelCommonAttributes;
 import opc.ua.aas.objecttypes.AASSubmodelType;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
@@ -99,24 +98,41 @@ public class SubmodelCreator {
         if (smNode.getCommonAttributes() == null) {
             smNode.setCommonAttributes(new AASSubmodelCommonAttributes());
         }
-        if (smNode.getCommonAttributes().getIdentifiable() == null) {
-            smNode.getCommonAttributes().setIdentifiable(new AASIdentifiable());
-        }
-        IdentifiableCreator.addIdentifiable(smNode.getCommonAttributes().getIdentifiable(), submodel.getId(), submodel.getAdministration(), submodel.getCategory(), nodeManager);
+        //if (smNode.getCommonAttributes().getIdentifiable() == null) {
+        //    smNode.getCommonAttributes().setIdentifiable(new AASIdentifiable());
+        //}
+        //IdentifiableCreator.addIdentifiable(smNode.getCommonAttributes().getIdentifiable(), submodel.getId(), submodel.getAdministration(), submodel.getCategory(), nodeManager);
 
-        setKind(submodel.getKind(), smNode, nodeManager);
+        smNode.getCommonAttributes().setIdentifiable(BaseDataCreator.getIdentifiable(submodel));
+        setKind(submodel.getKind(), smNode);
+
+        // HasSemantics
+        smNode.getCommonAttributes().setHasSemantics(BaseDataCreator.getHasSemantics(submodel));
+        //if (submodel.getSemanticId() != null) {
+        //    if (smNode.getCommonAttributes().getHasSemantics() == null) {
+        //        smNode.getCommonAttributes().setHasSemantics(new AASHasSemantics());
+        //    }
+        //    smNode.getCommonAttributes().getHasSemantics().setSemanticId(AasReferenceCreator.getAasReference(submodel.getSemanticId()));
+        //
+        //    // TODO
+        //    //ConceptDescriptionCreator.addSemanticId(smNode, submodel.getSemanticId());
+        //}
+
+        //if (submodel.getSupplementalSemanticIds() != null) {
+        //    if (smNode.getCommonAttributes().getHasSemantics() == null) {
+        //        smNode.getCommonAttributes().setHasSemantics(new AASHasSemantics());
+        //    }
+        //    List<AASReference> refs = AasReferenceCreator.getAasReferences(submodel.getSupplementalSemanticIds());
+        //    smNode.getCommonAttributes().getHasSemantics().setSupplementalSemanticId(refs.toArray(AASReference[]::new));
+        //}
 
         // DataSpecifications
+        // TODO
         EmbeddedDataSpecificationCreator.addEmbeddedDataSpecifications(smNode, submodel.getEmbeddedDataSpecifications(), nodeManager);
 
         // Qualifiers
         List<Qualifier> qualifiers = submodel.getQualifiers();
         setQualifierData(qualifiers, smNode, nodeManager);
-
-        // SemanticId
-        if (submodel.getSemanticId() != null) {
-            ConceptDescriptionCreator.addSemanticId(smNode, submodel.getSemanticId());
-        }
 
         // Description
         DescriptionCreator.addDescriptions(smNode, submodel.getDescription());
@@ -138,7 +154,7 @@ public class SubmodelCreator {
     }
 
 
-    private static void setKind(ModellingKind kind, AASSubmodelType smNode, AasServiceNodeManager nodeManager) throws StatusException {
+    private static void setKind(ModellingKind kind, AASSubmodelType smNode) throws StatusException {
         // Kind
         if (kind != null) {
             //if (smNode.getKindNode() == null) {

@@ -117,7 +117,7 @@ public class MultiLanguagePropertyCreator extends SubmodelElementCreator {
         }
 
         if (aasMultiLang.getValueId() != null) {
-            multiLangNode.setValueId(AasReferenceCreator.getAasReference(aasMultiLang.getValueId()));
+            multiLangNode.setValueId(ReferenceCreator.getAasReference(aasMultiLang.getValueId()));
             //AasReferenceCreator.addAasReferenceAasNS(multiLangNode, aasMultiLang.getValueId(), AASMultiLanguagePropertyType.VALUE_ID, nodeManager);
         }
     }

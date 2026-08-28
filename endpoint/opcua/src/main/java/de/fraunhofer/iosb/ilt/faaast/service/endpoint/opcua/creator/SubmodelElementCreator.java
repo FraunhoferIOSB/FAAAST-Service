@@ -28,7 +28,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.Collection;
 import java.util.List;
 import opc.ua.aas.datatypes.AASQualifiable;
-import opc.ua.aas.datatypes.AASReferable;
 import opc.ua.aas.datatypes.AASSubmodelElementCommonAttributes;
 import opc.ua.aas.objecttypes.AASSubmodelElementObjectType;
 import opc.ua.aas.variabletypes.AASSubmodelElementVariableType;
@@ -202,10 +201,25 @@ public class SubmodelElementCreator {
 
             setSubmodelElementCommonAttributes(node.getCommonAttributes(), element, nodeManager);
 
-            // SemanticId
-            if (element.getSemanticId() != null) {
-                ConceptDescriptionCreator.addSemanticId(node, element.getSemanticId());
-            }
+            // HasSemantics
+            node.getCommonAttributes().setHasSemantics(BaseDataCreator.getHasSemantics(element));
+            //if (element.getSemanticId() != null) {
+            //    if (node.getCommonAttributes().getHasSemantics() == null) {
+            //        node.getCommonAttributes().setHasSemantics(new AASHasSemantics());
+            //    }
+            //    node.getCommonAttributes().getHasSemantics().setSemanticId(AasReferenceCreator.getAasReference(element.getSemanticId()));
+            //
+            //    // TODO
+            //    //ConceptDescriptionCreator.addSemanticId(node, element.getSemanticId());
+            //}
+
+            //if (element.getSupplementalSemanticIds() != null) {
+            //    if (node.getCommonAttributes().getHasSemantics() == null) {
+            //        node.getCommonAttributes().setHasSemantics(new AASHasSemantics());
+            //    }
+            //    List<AASReference> refs = AasReferenceCreator.getAasReferences(element.getSupplementalSemanticIds());
+            //    node.getCommonAttributes().getHasSemantics().setSupplementalSemanticId(refs.toArray(AASReference[]::new));
+            //}
 
             // Description
             DescriptionCreator.addDescriptions(node, element.getDescription());
@@ -235,13 +249,15 @@ public class SubmodelElementCreator {
             throws StatusException {
 
         // Category
-        String category = element.getCategory();
-        if (category != null) {
-            if (commonAttributes.getReferable() == null) {
-                commonAttributes.setReferable(new AASReferable());
-            }
-            commonAttributes.getReferable().setCategory(category);
-        }
+        //String category = element.getCategory();
+        //if (category != null) {
+        //    if (commonAttributes.getReferable() == null) {
+        //        commonAttributes.setReferable(new AASReferable());
+        //    }
+        //    commonAttributes.getReferable().setCategory(category);
+        //}
+
+        commonAttributes.setReferable(ReferableCreator.getReferableData(element));
 
         // DataSpecifications
         EmbeddedDataSpecificationCreator.addEmbeddedDataSpecifications(commonAttributes, element.getEmbeddedDataSpecifications(), nodeManager);

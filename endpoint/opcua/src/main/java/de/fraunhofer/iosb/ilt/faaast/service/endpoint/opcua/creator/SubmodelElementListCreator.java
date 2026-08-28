@@ -144,7 +144,7 @@ public class SubmodelElementListCreator extends SubmodelElementCreator {
             //    //    AasReferenceCreator.addAasReference(collNode, semanticIdElement, AASSubmodelElementListType.SEMANTIC_ID_LIST_ELEMENT, namespaceUri, true,
             //    //            nodeManager);
             //}
-            collNode.setSemanticIdListElement(AasReferenceCreator.getAasReference(semanticIdElement));
+            collNode.setSemanticIdListElement(ReferenceCreator.getAasReference(semanticIdElement));
             //else {
             //    AasReferenceCreator.setAasReferenceData(semanticIdElement, collNode.getSemanticIdListElement(), true);
             //}

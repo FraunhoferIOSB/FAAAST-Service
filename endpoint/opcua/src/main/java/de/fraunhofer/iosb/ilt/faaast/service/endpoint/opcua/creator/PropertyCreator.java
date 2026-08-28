@@ -90,7 +90,7 @@ public class PropertyCreator extends SubmodelElementCreator {
                 LOGGER.info("addAasProperty: ValueIdNode null");
             }
             else {
-                prop.setValueId(AasReferenceCreator.getAasReference(aasProperty.getValueId()));
+                prop.setValueId(ReferenceCreator.getAasReference(aasProperty.getValueId()));
             }
 
             //test = nodeManager.findNode(nid);

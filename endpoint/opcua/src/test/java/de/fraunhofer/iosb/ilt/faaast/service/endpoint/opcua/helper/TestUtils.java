@@ -896,6 +896,16 @@ public class TestUtils {
         checkIdentifiable(ident, data);
         checkModelingKind(commonAttributesValue.getHasKind(), data.modelingKind());
         //checkIdentificationSubmodel(client, commonAttributesNodeId, id);
+
+        // HasSemantics
+        if (commonAttributesValue.getHasSemantics() == null) {
+            Assert.assertNull(data.semanticId());
+            Assert.assertNull(data.supplementalSemanticIds());
+        }
+        else {
+            Assert.assertEquals(data.semanticId(), commonAttributesValue.getHasSemantics().getSemanticId());
+            Assert.assertArrayEquals(data.supplementalSemanticIds(), commonAttributesValue.getHasSemantics().getSupplementalSemanticId());
+        }
     }
 
     //    private static void checkIdentificationAas(UaClient client, NodeId commonAttributesNodeId, String id)
@@ -1008,8 +1018,7 @@ public class TestUtils {
     //        Assert.assertEquals("Value not equal", map.get(key), value);
     //    }
 
-
-    private static boolean aasReferenceEquals(AASReference ref1, AASReference ref2) {
-        return ref1.getType() == ref2.getType() && ref1.getReferredSemanticId() == ref2.getReferredSemanticId() && Arrays.equals(ref1.getKey(), ref2.getKey());
-    }
+    //private static boolean aasReferenceEquals(AASReference ref1, AASReference ref2) {
+    //    return ref1.getType() == ref2.getType() && ref1.getReferredSemanticId() == ref2.getReferredSemanticId() && Arrays.equals(ref1.getKey(), ref2.getKey());
+    //}
 }

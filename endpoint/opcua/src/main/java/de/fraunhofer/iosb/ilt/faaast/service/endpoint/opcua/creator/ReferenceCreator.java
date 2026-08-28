@@ -31,11 +31,11 @@ import org.slf4j.LoggerFactory;
  * Helper class to create AAS References and integrate then into
  * the OPC UA address space.
  */
-public class AasReferenceCreator {
+public class ReferenceCreator {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AasReferenceCreator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ReferenceCreator.class);
 
-    private AasReferenceCreator() {
+    private ReferenceCreator() {
         throw new IllegalStateException("Class not instantiable");
     }
 
@@ -169,9 +169,8 @@ public class AasReferenceCreator {
      *
      * @param ref The desired UA reference object
      * @param refNode The AAS Reference object with the source data
-     * @throws StatusException If the operation fails
      */
-    public static void setAasReferenceData(Reference ref, AASReference refNode) throws StatusException {
+    public static void setAasReferenceData(Reference ref, AASReference refNode) {
         Ensure.requireNonNull(refNode, "refNode must be non-null");
         Ensure.requireNonNull(ref, "ref must be non-null");
 
@@ -199,9 +198,8 @@ public class AasReferenceCreator {
      *
      * @param ref The desired AAS reference.
      * @return The corresponding OPC UA reference.
-     * @throws StatusException If the operation fails
      */
-    public static AASReference getAasReference(Reference ref) throws StatusException {
+    public static AASReference getAasReference(Reference ref) {
         if (ref == null) {
             return null;
         }
@@ -216,9 +214,8 @@ public class AasReferenceCreator {
      *
      * @param refs The desired list of AAS references.
      * @return The corresponding list of OPC UA references.
-     * @throws StatusException If the operation fails
      */
-    public static List<AASReference> getAasReferences(List<Reference> refs) throws StatusException {
+    public static List<AASReference> getAasReferences(List<Reference> refs) {
         List<AASReference> retval = new ArrayList<>();
         for (Reference ref: refs) {
             retval.add(getAasReference(ref));

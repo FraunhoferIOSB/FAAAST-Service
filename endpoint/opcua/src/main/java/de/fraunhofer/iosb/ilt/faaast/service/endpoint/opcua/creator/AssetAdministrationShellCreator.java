@@ -37,7 +37,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.EnvironmentHelper;
 import java.util.List;
 import opc.ua.aas.ObjectTypeIds;
 import opc.ua.aas.datatypes.AASAssetAdministrationShellCommonAttributes;
-import opc.ua.aas.datatypes.AASIdentifiable;
 import opc.ua.aas.datatypes.AASReference;
 import opc.ua.aas.objecttypes.AASAssetAdministrationShellType;
 import opc.ua.aas.objecttypes.AASAssetInformationType;
@@ -106,10 +105,12 @@ public class AssetAdministrationShellCreator {
         if (aasShell.getCommonAttributes() == null) {
             aasShell.setCommonAttributes(new AASAssetAdministrationShellCommonAttributes());
         }
-        if (aasShell.getCommonAttributes().getIdentifiable() == null) {
-            aasShell.getCommonAttributes().setIdentifiable(new AASIdentifiable());
-        }
-        IdentifiableCreator.addIdentifiable(aasShell.getCommonAttributes().getIdentifiable(), aas.getId(), aas.getAdministration(), aas.getCategory(), nodeManager);
+        //if (aasShell.getCommonAttributes().getIdentifiable() == null) {
+        //    aasShell.getCommonAttributes().setIdentifiable(new AASIdentifiable());
+        //}
+        //IdentifiableCreator.addIdentifiable(aasShell.getCommonAttributes().getIdentifiable(), aas, nodeManager);
+
+        aasShell.getCommonAttributes().setIdentifiable(BaseDataCreator.getIdentifiable(aas));
 
         // EmbeddedDataSpecifications
         EmbeddedDataSpecificationCreator.addEmbeddedDataSpecifications(aasShell, aas.getEmbeddedDataSpecifications(), nodeManager);
@@ -260,7 +261,7 @@ public class AssetAdministrationShellCreator {
         }
 
         //int counter = 1;
-        List<AASReference> refList = AasReferenceCreator.getAasReferences(submodelRefs);
+        List<AASReference> refList = ReferenceCreator.getAasReferences(submodelRefs);
         //for (Reference ref: submodelRefs) {
         //    AASReference refNode = AasReferenceCreator.getAasReference(ref);
         //    refList.add(refNode);

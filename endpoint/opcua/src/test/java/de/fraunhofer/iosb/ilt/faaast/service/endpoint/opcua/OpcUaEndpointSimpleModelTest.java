@@ -173,6 +173,8 @@ public class OpcUaEndpointSimpleModelTest {
 
         Assert.assertNotNull("AASEnvironment Null", envNode);
 
+        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
+
         // browse AAS Environment
         refs = client.getAddressSpace().browse(envNode);
         Assert.assertNotNull("Browse Environment Refs Null", refs);
@@ -197,12 +199,12 @@ public class OpcUaEndpointSimpleModelTest {
         Assert.assertNotNull("Submodel TechnicalData Node not found", submodelTechDataNode);
         Assert.assertNotNull("Submodel OperationalData Node not found", submodelOperDataNode);
 
+        TestUtils.checkCommonAttributes(client, aasNode, aasns, new CommonAttributesData("1", "2", null, "http://customer.com/aas/9175_7013_7091_9168"));
+
         // check Browse and Display Names
         TestUtils.checkBrowseName(client, aasNode, TestConstants.SIMPLE_AAS_NAME);
         TestUtils.checkDisplayName(client, aasNode, "AAS:" + TestConstants.SIMPLE_AAS_NAME);
         TestUtils.checkDisplayName(client, submodelDocNode, TestConstants.SUBMODEL_PREFIX + TestConstants.SUBMODEL_DOC_NODE_NAME);
-
-        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
         // Submodels
         testSubmodelDoc(submodelDocNode);
@@ -715,7 +717,7 @@ public class OpcUaEndpointSimpleModelTest {
         Assert.assertNotNull(submodelName + " OperatingManual Node not found", operatingManualNode);
 
         TestUtils.checkCommonAttributes(client, submodelNode, aasns,
-                new CommonAttributesData("11", "159", "", TestConstants.SUBMODEL_DOC_NAME, AASModellingKind.of(AASModellingKind.Options.Instance), new ArrayList<>()));
+                new CommonAttributesData("11", "159", "", TestConstants.SUBMODEL_DOC_NAME, null, null, AASModellingKind.of(AASModellingKind.Options.Instance), new ArrayList<>()));
 
         //TestUtils.checkAdministrationNode(client, submodelNode, aasns, );
         //TestUtils.checkModelingKindNode(client, submodelNode, aasns, AASModellingKind.of(AASModellingKind.Options.Instance));
@@ -732,7 +734,8 @@ public class OpcUaEndpointSimpleModelTest {
         //TestUtils.checkType(client, submodelNode, ObjectTypeIds.AASSubmodelType);
 
         TestUtils.checkCommonAttributes(client, submodelNode, aasns,
-                new CommonAttributesData(null, null, "", TestConstants.SUBMODEL_OPER_DATA_NAME, AASModellingKind.of(AASModellingKind.Options.Instance), new ArrayList<>()));
+                new CommonAttributesData(null, null, "", TestConstants.SUBMODEL_OPER_DATA_NAME, null, null, AASModellingKind.of(AASModellingKind.Options.Instance),
+                        new ArrayList<>()));
 
         testEntity(submodelNode);
 
@@ -752,7 +755,10 @@ public class OpcUaEndpointSimpleModelTest {
         //TestUtils.checkType(client, submodelNode, ObjectTypeIds.AASSubmodelType);
 
         TestUtils.checkCommonAttributes(client, submodelNode, aasns,
-                new CommonAttributesData(null, null, "", TestConstants.SUBMODEL_TECH_DATA_NAME, AASModellingKind.of(AASModellingKind.Options.Instance), new ArrayList<>()));
+                new CommonAttributesData(null, null, "", TestConstants.SUBMODEL_TECH_DATA_NAME,
+                        new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ExternalReference), null,
+                                List.of(new AASKey(AASKeyTypes.of(AASKeyTypes.Options.GlobalReference), "0173-1#01-AFZ615#016")).toArray(AASKey[]::new)),
+                        null, AASModellingKind.of(AASModellingKind.Options.Instance), new ArrayList<>()));
 
         //TestUtils.checkAdministrationNode(client, submodelNode, aasns, null, null);
         //TestUtils.checkCategoryNode(client, submodelNode, aasns, "");

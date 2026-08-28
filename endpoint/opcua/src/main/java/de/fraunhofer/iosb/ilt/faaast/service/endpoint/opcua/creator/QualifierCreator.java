@@ -116,6 +116,23 @@ public class QualifierCreator {
             //}
         }
 
+        // SemanticId
+        qualifierNode.setHasSemantics(BaseDataCreator.getHasSemantics(qualifier));
+        //if (qualifier.getSemanticId() != null) {
+        //    if (qualifierNode.getHasSemantics() == null) {
+        //        qualifierNode.setHasSemantics(new AASHasSemantics());
+        //    }
+        //    qualifierNode.getHasSemantics().setSemanticId(AasReferenceCreator.getAasReference(qualifier.getSemanticId()));
+        //}
+
+        //if (qualifier.getSupplementalSemanticIds() != null) {
+        //    if (qualifierNode.getHasSemantics() == null) {
+        //        qualifierNode.setHasSemantics(new AASHasSemantics());
+        //    }
+        //    List<AASReference> refs = AasReferenceCreator.getAasReferences(qualifier.getSupplementalSemanticIds());
+        //    qualifierNode.getHasSemantics().setSupplementalSemanticId(refs.toArray(AASReference[]::new));
+        //}
+
         // Type
         qualifierNode.setType(qualifier.getType());
 
@@ -129,7 +146,7 @@ public class QualifierCreator {
         // ValueId
         //if (qualifier.getValueId() != null) {
         //AasReferenceCreator.addAasReferenceAasNS(qualifierNode, qualifier.getValueId(), AASQualifierType.VALUE_ID, nodeManager);
-        qualifierNode.setValueId(AasReferenceCreator.getAasReference(qualifier.getValueId()));
+        qualifierNode.setValueId(ReferenceCreator.getAasReference(qualifier.getValueId()));
         //}
 
         //setAccessRights(qualifierNode);

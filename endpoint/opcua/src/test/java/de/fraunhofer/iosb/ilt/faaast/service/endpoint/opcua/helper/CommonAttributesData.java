@@ -14,12 +14,19 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper;
 
 import java.util.List;
 import opc.ua.aas.datatypes.AASModellingKind;
+import opc.ua.aas.datatypes.AASReference;
 import org.eclipse.digitaltwin.aas4j.v3.model.Qualifier;
 
 
-public record CommonAttributesData(String version, String revision, String category, String id, AASModellingKind modelingKind, List<Qualifier> qualifier) {
+public record CommonAttributesData(String version, String revision, String category, String id, AASReference semanticId, AASReference[] supplementalSemanticIds,
+        AASModellingKind modelingKind, List<Qualifier> qualifier) {
 
     public CommonAttributesData(String version, String revision, String category, String id) {
-        this(version, revision, category, id, null, null);
+        this(version, revision, category, id, null, null, null, null);
+    }
+
+
+    public CommonAttributesData(String version, String revision, String category, String id, AASReference semanticId) {
+        this(version, revision, category, id, semanticId, null, null, null);
     }
 }

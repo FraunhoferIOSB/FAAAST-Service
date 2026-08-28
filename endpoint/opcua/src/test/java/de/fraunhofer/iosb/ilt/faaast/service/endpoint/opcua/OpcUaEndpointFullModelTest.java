@@ -1238,7 +1238,10 @@ public class OpcUaEndpointFullModelTest {
         //TestUtils.checkType(client, submodelNode, ObjectTypeIds.AASSubmodelType);
 
         TestUtils.checkCommonAttributes(client, submodelNode, aasns,
-                new CommonAttributesData("0", "9", "", TestConstants.FULL_SUBMODEL_1_ID, AASModellingKind.of(AASModellingKind.Options.Instance), new ArrayList<>()));
+                new CommonAttributesData("0", "9", "", TestConstants.FULL_SUBMODEL_1_ID,
+                        new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ExternalReference), null,
+                                List.of(new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Submodel), "http://acplt.org/SubmodelTemplates/AssetIdentification")).toArray(AASKey[]::new)),
+                        null, AASModellingKind.of(AASModellingKind.Options.Instance), new ArrayList<>()));
 
         //TestUtils.checkAdministrationNode(client, submodelNode, aasns, "0", "9");
         //TestUtils.checkModelingKindNode(client, submodelNode, aasns, AASModellingKind.of(AASModellingKind.Options.Instance));

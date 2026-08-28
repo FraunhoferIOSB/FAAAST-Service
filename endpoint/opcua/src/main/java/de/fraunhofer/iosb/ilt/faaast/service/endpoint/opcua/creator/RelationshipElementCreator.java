@@ -94,8 +94,8 @@ public class RelationshipElementCreator extends SubmodelElementCreator {
                 if (relElemNode != null) {
                     addSubmodelElementBaseData(relElemNode, aasRelElem, nodeManager);
 
-                    relElemNode.setFirst(AasReferenceCreator.getAasReference(aasRelElem.getFirst()));
-                    relElemNode.setSecond(AasReferenceCreator.getAasReference(aasRelElem.getSecond()));
+                    relElemNode.setFirst(ReferenceCreator.getAasReference(aasRelElem.getFirst()));
+                    relElemNode.setSecond(ReferenceCreator.getAasReference(aasRelElem.getSecond()));
                     //AasReferenceCreator.setAasReferenceData(aasRelElem.getFirst(), relElemNode.getFirst());
                     //AasReferenceCreator.setAasReferenceData(aasRelElem.getSecond(), relElemNode.getSecond());
 

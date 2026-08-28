@@ -25,8 +25,6 @@ import java.util.List;
 import java.util.Map;
 import opc.ua.aas.datatypes.AASConceptDescription;
 import opc.ua.aas.datatypes.AASConceptDescriptionCommonAttributes;
-import opc.ua.aas.datatypes.AASIdentifiable;
-import org.eclipse.digitaltwin.aas4j.v3.model.AdministrativeInformation;
 import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
@@ -36,7 +34,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
  */
 public class ConceptDescriptionCreator {
 
-    private static final String DEFAULT_NAME = "ConceptDescription";
+    //private static final String DEFAULT_NAME = "ConceptDescription";
 
     /**
      * Maps AAS references to dictionary entry types
@@ -65,22 +63,22 @@ public class ConceptDescriptionCreator {
 
         //nodeManager.addNodeAndReference(dictionariesFolder, dictEntriesFolder, Identifiers.Organizes);
 
-        int counter = 1;
+        //int counter = 1;
         for (ConceptDescription c: descriptions) {
-            String name = c.getIdShort();
-            //DictionaryEntryType dictNode;
-            //NodeId nid;
-            if ((name != null) && (!name.isEmpty())) {
-                //nid = nodeManager.createNodeId(dictionariesFolder, name);
-                //if (nodeManager.hasNode(nid)) {
-                //    // The NodeId already exists
-                //    nid = nodeManager.getDefaultNodeId();
-                //}
-            }
-            else {
-                //nid = nodeManager.getDefaultNodeId();
-                name = String.format("%s %s", DEFAULT_NAME, counter++);
-            }
+            //            String name = c.getIdShort();
+            //            //DictionaryEntryType dictNode;
+            //            //NodeId nid;
+            //            if ((name != null) && (!name.isEmpty())) {
+            //                //nid = nodeManager.createNodeId(dictionariesFolder, name);
+            //                //if (nodeManager.hasNode(nid)) {
+            //                //    // The NodeId already exists
+            //                //    nid = nodeManager.getDefaultNodeId();
+            //                //}
+            //            }
+            //            else {
+            //                //nid = nodeManager.getDefaultNodeId();
+            //                name = String.format("%s %s", DEFAULT_NAME, counter++);
+            //            }
 
             //AASConceptDescriptionType desriptionNode = nodeManager.createInstance(AASConceptDescriptionType.class, name, nid);
             AASConceptDescription descriptionNode = new AASConceptDescription();
@@ -98,10 +96,12 @@ public class ConceptDescriptionCreator {
             //    AasReferenceCreator.addAasReferencesToList(listNode, c.getIsCaseOf(), AASConceptDescriptionType.IS_CASE_OF, nodeManager);
             //}
 
-            addIdentifiableData(descriptionNode, c.getId(), c.getAdministration(), name, nodeManager);
+            descriptionNode.getCommonAttributes().setIdentifiable(BaseDataCreator.getIdentifiable(c));
+
+            //addIdentifiableData(descriptionNode, c.getId(), c.getAdministration(), name, nodeManager);
             //addConceptDescriptionReference(desriptionNode, AasUtils.toReference(c), nodeManager);
             //dictEntriesFolder.addComponent(desriptionNode);
-            //dictionaryMap.put(AasUtils.toReference(c), desriptionNode);
+            //dictionaryMap.put(AasUtils.toReference(c), descriptionNode);
             //dictNode = desriptionNode;
 
             //nodeManager.addReferable(AasUtils.toReference(c), new ObjectData(c, dictNode));
@@ -144,7 +144,6 @@ public class ConceptDescriptionCreator {
     //        }
     //    }
 
-
     /**
      * Adds AAS Identifiable information to the given node.
      *
@@ -154,24 +153,24 @@ public class ConceptDescriptionCreator {
      * @param category The desired category
      * @param nodeManager The corresponding Node Manager
      */
-    private static void addIdentifiableData(AASConceptDescription conceptDescriptionNode, String identifier, AdministrativeInformation adminInfo, String category,
-                                            AasServiceNodeManager nodeManager)
-            throws StatusException {
-        if (conceptDescriptionNode.getCommonAttributes().getIdentifiable() == null) {
-            conceptDescriptionNode.getCommonAttributes().setIdentifiable(new AASIdentifiable());
-        }
-        IdentifiableCreator.addIdentifiable(conceptDescriptionNode.getCommonAttributes().getIdentifiable(), identifier, adminInfo, category, nodeManager);
-
-        //        if (identifier != null) {
-        //            conceptDescriptionNode.setId(identifier);
-        //        }
-        //
-        //        AdministrativeInformationCreator.addAdminInformationProperties(conceptDescriptionNode.getAdministrationNode(), adminInfo, nodeManager);
-        //
-        //        conceptDescriptionNode.setCategory(category != null ? category : "");
-        //
-        //        if (AasServiceNodeManager.VALUES_READ_ONLY) {
-        //            conceptDescriptionNode.getCategoryNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
-        //        }
-    }
+    //    private static void addIdentifiableData(AASConceptDescription conceptDescriptionNode, Identifiable identifiable, String identifier, AdministrativeInformation adminInfo, String category,
+    //                                            AasServiceNodeManager nodeManager)
+    //            throws StatusException {
+    //        if (conceptDescriptionNode.getCommonAttributes().getIdentifiable() == null) {
+    //            conceptDescriptionNode.getCommonAttributes().setIdentifiable(new AASIdentifiable());
+    //        }
+    //        IdentifiableCreator.addIdentifiable(conceptDescriptionNode.getCommonAttributes().getIdentifiable(), identifier, adminInfo, category, nodeManager);
+    //
+    //        //        if (identifier != null) {
+    //        //            conceptDescriptionNode.setId(identifier);
+    //        //        }
+    //        //
+    //        //        AdministrativeInformationCreator.addAdminInformationProperties(conceptDescriptionNode.getAdministrationNode(), adminInfo, nodeManager);
+    //        //
+    //        //        conceptDescriptionNode.setCategory(category != null ? category : "");
+    //        //
+    //        //        if (AasServiceNodeManager.VALUES_READ_ONLY) {
+    //        //            conceptDescriptionNode.getCategoryNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
+    //        //        }
+    //    }
 }

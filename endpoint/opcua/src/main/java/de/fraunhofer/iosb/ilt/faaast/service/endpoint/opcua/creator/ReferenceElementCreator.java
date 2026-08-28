@@ -66,7 +66,7 @@ public class ReferenceElementCreator extends SubmodelElementCreator {
 
                 //setValue(aasRefElem, refElemNode, nodeManager);
                 //AasReferenceCreator.setAasReferenceData(aasRefElem.getValue(), refElemNode, false);
-                AasReferenceCreator.setAasReferenceData(aasRefElem.getValue(), refElemNode);
+                ReferenceCreator.setAasReferenceData(aasRefElem.getValue(), refElemNode);
 
                 if (refElemNode != null) {
                     nodeManager.addSubmodelElementAasMap(refElemNode.getNodeId(),

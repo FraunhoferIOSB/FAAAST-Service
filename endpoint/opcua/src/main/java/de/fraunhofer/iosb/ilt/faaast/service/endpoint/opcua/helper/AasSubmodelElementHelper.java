@@ -29,8 +29,8 @@ import com.prosysopc.ua.stack.core.AccessLevelType;
 import com.prosysopc.ua.stack.core.Identifiers;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.AasReferenceCreator;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.EntityCreator;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.ReferenceCreator;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ValueData;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.AnnotatedRelationshipElementValue;
@@ -104,8 +104,8 @@ public class AasSubmodelElementHelper {
 
         LOGGER.debug("setRelationshipValue not yet implemented");
 
-        AasReferenceCreator.setAasReferenceData(value.getFirst(), aasElement.getFirst());
-        AasReferenceCreator.setAasReferenceData(value.getSecond(), aasElement.getSecond());
+        ReferenceCreator.setAasReferenceData(value.getFirst(), aasElement.getFirst());
+        ReferenceCreator.setAasReferenceData(value.getSecond(), aasElement.getSecond());
 
         if ((aasElement instanceof AASAnnotatedRelationshipElementType aasAnnotated) && (value instanceof AnnotatedRelationshipElementValue annotated)) {
             var annotationVariables = aasAnnotated.getS_AnnotationVariable_Nodes();
@@ -902,7 +902,7 @@ public class AasSubmodelElementHelper {
      * @throws StatusException If the operation fails
      */
     private static void setReferenceElementValue(AASReferenceElementType refElement, ReferenceElementValue value) throws StatusException {
-        AasReferenceCreator.setAasReferenceData(value.getValue(), refElement);
+        ReferenceCreator.setAasReferenceData(value.getValue(), refElement);
     }
 
     //    /**
