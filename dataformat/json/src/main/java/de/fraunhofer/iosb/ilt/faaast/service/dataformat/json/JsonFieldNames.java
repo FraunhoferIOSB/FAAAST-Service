@@ -43,5 +43,19 @@ public class JsonFieldNames {
     public static final String EVENT_VALUE = "value";
     public static final String EVENT_DATATYPE = "dataType";
 
+    public static final String DPP_FILE_CONTENT_TYPE = "contentType";
+    public static final String DPP_FILE_URL = "url";
+    public static final String DPP_MULTILANGUAGE_PROPERTY_VALUE = "value";
+    public static final String DPP_MULTILANGUAGE_PROPERTY_LANGUAGE = "language";
+    public static final String DPP_DPP_ID = "digitalProductPassportId";
+    public static final String DPP_PRODUCT_ID = "uniqueProductIdentifier";
+    public static final String DPP_GRANULARITY = "granularity";
+    public static final String DPP_SCHEMA_VERSION = "dppSchemaVersion";
+    public static final String DPP_STATUS = "dppStatus";
+    public static final String DPP_LAST_UPDATE = "lastUpdate";
+    public static final String DPP_ECONOMIC_OPERATOR_ID = "economicOperatorId";
+    public static final String DPP_FACILITY_ID = "facilityId";
+    public static final String DPP_CONTENT_SPECIFICATION_IDS = "contentSpecificationIds";
+
     private JsonFieldNames() {}
 }

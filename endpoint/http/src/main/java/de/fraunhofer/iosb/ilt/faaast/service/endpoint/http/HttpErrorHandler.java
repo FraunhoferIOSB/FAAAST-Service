@@ -87,14 +87,10 @@ public class HttpErrorHandler extends ErrorHandler {
 
 
     private static Optional<StatusCode> getStatus(Throwable cause) {
-        Optional<Class<?>> key = exceptionToStatusCode.keySet().stream()
+        return exceptionToStatusCode.keySet().stream()
                 .filter(x -> x.isAssignableFrom(cause.getClass()))
-                .sorted(Comparator.comparing(x -> x, new MostSpecificClassComparator()))
-                .findFirst();
-        if (key.isEmpty()) {
-            return Optional.empty();
-        }
-        return Optional.ofNullable(exceptionToStatusCode.get(key.get()));
+                .min(Comparator.comparing(x -> x, new MostSpecificClassComparator()))
+                .map(exceptionToStatusCode::get);
     }
 
 
@@ -102,10 +98,8 @@ public class HttpErrorHandler extends ErrorHandler {
     public boolean handle(Request request, Response response, Callback callback) throws Exception {
         LOGGER.debug("handle error (request: {}, response: {}, callback: {})", request, response, callback);
         Throwable cause = findRealCause((Throwable) request.getAttribute(ERROR_EXCEPTION));
-        StatusCode statusCode = StatusCode.SERVER_INTERNAL_ERROR;
-        if (Objects.nonNull(cause) && isWellKnown(cause)) {
-            statusCode = getStatus(cause).get();
-        }
+        StatusCode statusCode = getStatus(cause).orElse(StatusCode.SERVER_INTERNAL_ERROR);
+
         send(response, statusCode, cause, callback);
         return true;
     }

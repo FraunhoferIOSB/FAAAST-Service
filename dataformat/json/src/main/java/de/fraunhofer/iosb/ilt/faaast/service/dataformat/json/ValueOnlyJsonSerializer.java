@@ -17,6 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationConfig;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -25,6 +26,7 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
 import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
+import com.fasterxml.jackson.databind.util.TokenBuffer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.AbstractRequestWithModifierMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.AbstractSubmodelInterfaceRequestMixin;
@@ -79,6 +81,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.AbstractDateTimeValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReflectionHelper;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -186,6 +189,81 @@ public class ValueOnlyJsonSerializer {
                     .writeValueAsString(obj);
         }
         catch (JsonProcessingException e) {
+            throw new SerializationException("serialization failed", e);
+        }
+    }
+
+
+    /**
+     * Serializes a given object as JsonNode using
+     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level#DEFAULT} and
+     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent#DEFAULT}.
+     *
+     * @param obj the object to serialize
+     * @return the serialized object
+     * @throws SerializationException if serialization fails
+     * @throws UnsupportedContentModifierException if obj does not support valueOnly serialization
+     */
+    public JsonNode writeAsNode(Object obj) throws SerializationException, UnsupportedContentModifierException {
+        return writeAsNode(obj, Level.DEFAULT, Extent.DEFAULT);
+    }
+
+
+    /**
+     * Serializes a given object as JsonNode using provided level and
+     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent#DEFAULT}.
+     *
+     * @param obj the object to serialize
+     * @param level the level to use for serialization
+     * @return the serialized object
+     * @throws SerializationException if serialization fails
+     * @throws UnsupportedContentModifierException if obj does not support valueOnly serialization
+     */
+    public JsonNode writeAsNode(Object obj, Level level) throws SerializationException, UnsupportedContentModifierException {
+        return writeAsNode(obj, level, Extent.DEFAULT);
+    }
+
+
+    /**
+     * Serializes a given object as JsonNode using
+     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level#DEFAULT} and provided extent.
+     *
+     * @param obj the object to serialize
+     * @param extent the extent to use for serialization
+     * @return the serialized object
+     * @throws SerializationException if serialization fails
+     * @throws UnsupportedContentModifierException if obj does not support valueOnly serialization
+     */
+    public JsonNode writeAsNode(Object obj, Extent extent) throws SerializationException, UnsupportedContentModifierException {
+        return writeAsNode(obj, Level.DEFAULT, extent);
+    }
+
+
+    /**
+     * Serializes a given object as JsonNode using provided level and extent.
+     *
+     * @param obj the object to serialize
+     * @param level the level to use for serialization
+     * @param extend the extent to use for serialization
+     * @return the serialized object
+     * @throws SerializationException if serialization fails
+     * @throws UnsupportedContentModifierException if obj does not support valueOnly serialization
+     */
+    public JsonNode writeAsNode(Object obj, Level level, Extent extend) throws SerializationException, UnsupportedContentModifierException {
+        if (Objects.nonNull(obj) &&
+                !ElementValueHelper.isValueOnlySupported(obj) &&
+                !isExplicitelyAcceptedType(obj.getClass())) {
+            throw new UnsupportedContentModifierException(Content.VALUE, obj.getClass());
+        }
+        try {
+            TokenBuffer buffer = new TokenBuffer(wrapper.getMapper(), false);
+            wrapper.getMapper().writer()
+                    .withAttribute(ModifierAwareSerializer.LEVEL, level)
+                    .withAttribute(ModifierAwareSerializer.EXTEND, extend)
+                    .writeValue(buffer, obj);
+            return wrapper.getMapper().readTree(buffer.asParser());
+        }
+        catch (IOException e) {
             throw new SerializationException("serialization failed", e);
         }
     }
