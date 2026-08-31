@@ -5,7 +5,7 @@ kind: Service
 metadata:
   name: {{ printf "%s-%d" (include "faaast-service.fullname" $root) (int $ep.port) }}
   labels:
-    app.kubernetes.io/name: {{ include (printf "%s.name" $root.Chart.Name) $root }}
+    app.kubernetes.io/name: {{ include "faaast-service.name" $root }}
     app.kubernetes.io/instance: {{ $root.Release.Name }}
   {{- if eq (int $ep.port) 443 }}
   annotations:
@@ -19,7 +19,7 @@ spec:
       targetPort: {{ $ep.port }}
       protocol: TCP
   selector:
-    app.kubernetes.io/name: {{ include (printf "%s.name" $root.Chart.Name) $root }}
+    app.kubernetes.io/name: {{ include "faaast-service.name" $root }}
     app.kubernetes.io/instance: {{ $root.Release.Name }}
 ---
 {{- end }}
