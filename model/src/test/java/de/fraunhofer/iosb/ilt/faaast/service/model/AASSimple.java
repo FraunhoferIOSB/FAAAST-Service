@@ -403,7 +403,7 @@ public class AASSimple {
                 .submodelElements(new DefaultSubmodelElementCollection.Builder()
                         .semanticId(new DefaultReference.Builder()
                                 .keys(new DefaultKey.Builder()
-                                        .type(KeyTypes.CONCEPT_DESCRIPTION)
+                                        .type(KeyTypes.GLOBAL_REFERENCE)
                                         .value(SUBMODEL_DOCUMENTATION_ELEMENTCOLLECTION_SEMANTIC_ID)
                                         .build())
                                 .type(ReferenceTypes.EXTERNAL_REFERENCE)

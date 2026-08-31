@@ -26,7 +26,6 @@ import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.common.ServiceResultException;
 import com.prosysopc.ua.types.opcua.BaseObjectType;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.AssetAdministrationShellCreator;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.ConceptDescriptionCreator;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.SubmodelCreator;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.SubmodelElementCreator;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
@@ -47,6 +46,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.Eleme
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ValueChangeEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.ArrayList;
 import java.util.List;
@@ -119,7 +119,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     /**
      * The name of the AAS Environment node
      */
-    private static final String AAS_ENVIRONMENT_NAME = "AASEnvironment";
+    //private static final String AAS_ENVIRONMENT_NAME = "AASEnvironment";
 
     /**
      * The logger for this class
@@ -183,6 +183,11 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     private int nodeIdCounter;
 
     /**
+     * Maps references to ConceptDescriptions.
+     */
+    private final Map<Reference, ConceptDescription> conceptDescriptions;
+
+    /**
      * Creates a new instance of AasServiceNodeManager
      *
      * @param server the server in which the node manager is created.
@@ -204,6 +209,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         //submodelElementObjectOpcUaMap = new ConcurrentHashMap<>();
         submodelOpcUAMap = new ConcurrentHashMap<>();
         referableMap = new ConcurrentHashMap<>();
+        conceptDescriptions = new ConcurrentHashMap<>();
 
         messageBus = endpoint.getMessageBus();
         Ensure.requireNonNull(messageBus, "messageBus must not be null");
@@ -295,7 +301,10 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             throws StatusException, ServiceResultException, ServiceException, AddressSpaceException, ValueFormatException, AmbiguousElementException {
         addAasEnvironmentNode();
 
-        ConceptDescriptionCreator.addConceptDescriptions(aasEnvironment.getConceptDescriptions(), this);
+        for (ConceptDescription c: aasEnvironment.getConceptDescriptions()) {
+            conceptDescriptions.put(ReferenceBuilder.global(c.getId()), c);
+        }
+        //ConceptDescriptionCreator.addConceptDescriptions(aasEnvironment.getConceptDescriptions(), this);
 
         List<Submodel> submodels = aasEnvironment.getSubmodels();
         if (submodels != null) {
@@ -412,10 +421,10 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             parent = ReferenceHelper.getValueBySameReference(referableMap, parentRef);
         }
 
-        if (value instanceof ConceptDescription conceptDescription) {
-            ConceptDescriptionCreator.addConceptDescriptions(List.of(conceptDescription), this);
-        }
-        else if (value instanceof Submodel submodel) {
+        //if (value instanceof ConceptDescription conceptDescription) {
+        //    ConceptDescriptionCreator.addConceptDescriptions(List.of(conceptDescription), this);
+        //}
+        if (value instanceof Submodel submodel) {
             SubmodelCreator.addSubmodel(aasEnvironmentNode, submodel, this);
         }
         else if (value instanceof AssetAdministrationShell assetAdministrationShell) {
@@ -615,6 +624,17 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     }
 
 
+    public ConceptDescription getConceptDescription(Reference semanticId) {
+        // If a particular (Supplemental)SemanticId describes an ExternalReference, 
+        // where referredSemanticId is missing, and key contains exactly one element, 
+        // where key[0].type is set GlobalReference:
+        if (ReferenceHelper.containsSameReference(conceptDescriptions, semanticId)) {
+            return ReferenceHelper.getValueBySameReference(conceptDescriptions, semanticId);
+        }
+        return null;
+    }
+
+
     /**
      * Removes the given node (and all sub-nodes) from the maps.
      *
@@ -654,7 +674,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             LOGGER.debug("doRemoveFromMaps: remove SubmodelElement {}", ReferenceHelper.toString(reference));
         }
         SubmodelElementIdentifier smid = SubmodelElementIdentifier.fromReference(reference);
-        UaNode removedElement = submodelElementOpcUaMap.remove(smid);
+        submodelElementOpcUaMap.remove(smid);
         LOGGER.atDebug().log("doRemoveFromMaps: remove SubmodelElement from submodelElementOpcUAMap: {}", ReferenceHelper.toString(reference));
 
         if (element instanceof AASPropertyType prop) {
@@ -818,6 +838,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
 
     private void addEmbeddedDataSpecification(ObjectData parent, Referable value) throws StatusException {
+        // TODO
         LOGGER.debug("addEmbeddedDataSpecification not yet implemented");
         //if (parent.getNode() instanceof AASAssetAdministrationShellType aASAssetAdministrationShellType) {
         //    EmbeddedDataSpecificationCreator.addEmbeddedDataSpecifications(aASAssetAdministrationShellType,

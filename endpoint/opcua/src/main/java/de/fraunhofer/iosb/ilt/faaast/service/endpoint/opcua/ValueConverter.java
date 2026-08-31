@@ -73,6 +73,7 @@ import opc.ua.aas.datatypes.AASReferenceTypes;
 import opc.ua.aas.datatypes.AASStateOfEvent;
 import opc.ua.aas.datatypes.AASSubmodelElements;
 import org.eclipse.digitaltwin.aas4j.v3.model.AasSubmodelElements;
+import org.eclipse.digitaltwin.aas4j.v3.model.AbstractLangString;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
 import org.eclipse.digitaltwin.aas4j.v3.model.Blob;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
@@ -568,10 +569,12 @@ public class ValueConverter {
     /**
      * Gets a LocalizedText array from an AAS LangString Set.
      *
+     * @param <T> LangStringNameType or LangStringTextType
      * @param value The desired AAS Lang String
      * @return The corresponding LocalizedText array
      */
-    public static LocalizedText[] getLocalizedTextFromLangStringSet(List<LangStringTextType> value) {
+    //public static LocalizedText[] getLocalizedTextFromLangStringSet(List<LangStringTextType> value) {
+    public static <T extends AbstractLangString> LocalizedText[] getLocalizedTextFromLangStringSet(List<T> value) {
         LocalizedText[] retval;
 
         ArrayList<LocalizedText> arr = new ArrayList<>();

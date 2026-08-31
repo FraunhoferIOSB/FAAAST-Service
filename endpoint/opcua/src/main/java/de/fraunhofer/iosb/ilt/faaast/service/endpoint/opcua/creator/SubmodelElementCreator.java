@@ -32,6 +32,7 @@ import opc.ua.aas.datatypes.AASSubmodelElementCommonAttributes;
 import opc.ua.aas.objecttypes.AASSubmodelElementObjectType;
 import opc.ua.aas.variabletypes.AASSubmodelElementVariableType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Capability;
+import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.Entity;
 import org.eclipse.digitaltwin.aas4j.v3.model.EventElement;
@@ -162,9 +163,10 @@ public class SubmodelElementCreator {
      * @param element The corresponding AAS submodel element
      * @throws StatusException If the operation fails
      * @param nodeManager The corresponding Node Manager
+     * @throws ServiceResultException If an error occurs.
      */
     protected static void addSubmodelElementBaseData(AASSubmodelElementVariableType node, SubmodelElement element, AasServiceNodeManager nodeManager)
-            throws StatusException {
+            throws StatusException, ServiceResultException {
 
         if ((node != null) && (element != null)) {
             if (node.getCommonAttributes() == null) {
@@ -175,7 +177,11 @@ public class SubmodelElementCreator {
 
             // SemanticId
             if (element.getSemanticId() != null) {
-                ConceptDescriptionCreator.addSemanticId(node, element.getSemanticId());
+                //ConceptDescriptionCreator.addSemanticId(node, element.getSemanticId());
+                ConceptDescription conceptDescription = nodeManager.getConceptDescription(element.getSemanticId());
+                if (conceptDescription != null) {
+                    ConceptDescriptionCreator.addConceptDescription(node, conceptDescription, nodeManager);
+                }
             }
 
             // Description
@@ -191,9 +197,10 @@ public class SubmodelElementCreator {
      * @param element The corresponding AAS submodel element
      * @throws StatusException If the operation fails
      * @param nodeManager The corresponding Node Manager
+     * @throws ServiceResultException If an error occurs.
      */
     protected static void addSubmodelElementBaseData(AASSubmodelElementObjectType node, SubmodelElement element, AasServiceNodeManager nodeManager)
-            throws StatusException {
+            throws StatusException, ServiceResultException {
         if ((node != null) && (element != null)) {
             if (node.getCommonAttributes() == null) {
                 node.setCommonAttributes(new AASSubmodelElementCommonAttributes());
@@ -203,15 +210,18 @@ public class SubmodelElementCreator {
 
             // HasSemantics
             node.getCommonAttributes().setHasSemantics(BaseDataCreator.getHasSemantics(element));
-            //if (element.getSemanticId() != null) {
-            //    if (node.getCommonAttributes().getHasSemantics() == null) {
-            //        node.getCommonAttributes().setHasSemantics(new AASHasSemantics());
-            //    }
-            //    node.getCommonAttributes().getHasSemantics().setSemanticId(AasReferenceCreator.getAasReference(element.getSemanticId()));
-            //
-            //    // TODO
-            //    //ConceptDescriptionCreator.addSemanticId(node, element.getSemanticId());
-            //}
+            if (element.getSemanticId() != null) {
+                //    if (node.getCommonAttributes().getHasSemantics() == null) {
+                //        node.getCommonAttributes().setHasSemantics(new AASHasSemantics());
+                //    }
+                //    node.getCommonAttributes().getHasSemantics().setSemanticId(AasReferenceCreator.getAasReference(element.getSemanticId()));
+
+                ConceptDescription conceptDescription = nodeManager.getConceptDescription(element.getSemanticId());
+                if (conceptDescription != null) {
+                    ConceptDescriptionCreator.addConceptDescription(node, conceptDescription, nodeManager);
+                }
+                //    //ConceptDescriptionCreator.addSemanticId(node, element.getSemanticId());
+            }
 
             //if (element.getSupplementalSemanticIds() != null) {
             //    if (node.getCommonAttributes().getHasSemantics() == null) {

@@ -100,8 +100,10 @@ public class TestConstants {
     //public static final String ID_KEY_NAME = "Key";
     //public static final String ID_VALUE_NAME = "Value";
     //public static final String KEYS_VALUE_NAME = "Keys";
+    public static final String CONCEPT_DESCRIPTION_NAME = "ConceptDescription";
 
     public static final String COMMON_ATTRIBUTES = "CommonAttributes";
+    public static final String OPERATING_MANUAL_CONCEPT_DESCRIPTION = "http://www.vdi2770.com/blatt1/Entwurf/Okt18/cd/Document";
 
     public static final ExpandedNodeId AAS_AAS_TYPE_ID = new ExpandedNodeId(AAS_NAMESPACE_URI, 1001);
     //public static final int AAS_REFERENCE_TYPE_ID = 1004;

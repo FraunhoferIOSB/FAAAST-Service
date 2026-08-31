@@ -770,6 +770,8 @@ public class OpcUaEndpointSimpleModelTest {
                 Datatype.INTEGER, "5000", new ArrayList<>());
         TestUtils.checkAasPropertyObject(client, submodelNode, aasns, TestConstants.DECIMAL_PROPERTY, "PARAMETER",
                 Datatype.DECIMAL, "123456", new ArrayList<>());
+
+        TestUtils.checkSubmodelElementConceptDescription(client, submodelNode, TestConstants.MAX_ROTATION_SPEED_NAME, aasns, "0173-1#02-BAA120#008", "2", "1");
     }
 
 
@@ -788,6 +790,9 @@ public class OpcUaEndpointSimpleModelTest {
         Assert.assertEquals(2, refs.size());
         Assert.assertEquals(QualifiedName.from(aasns, "Title"), refs.get(0).getBrowseName());
         Assert.assertEquals(QualifiedName.from(aasns, "DigitalFile_PDF"), refs.get(1).getBrowseName());
+
+        // check ConceptDescription
+        TestUtils.checkConceptDescription(client, node, aasns, TestConstants.OPERATING_MANUAL_CONCEPT_DESCRIPTION, null, null);
 
         TestUtils.checkAasPropertyFile(client, node, aasns, "DigitalFile_PDF", AASModellingKind.of(AASModellingKind.Options.Instance), "", "application/pdf",
                 "file:///aasx/OperatingManual.pdf", 0);
