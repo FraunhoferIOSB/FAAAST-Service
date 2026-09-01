@@ -258,7 +258,7 @@ public class AasSubmodelElementHelper {
             //prop.setValueType(valueDataType);
 
             setPropertyValue(prop, typedValue);
-            prop.setDataTypeId(ValueConverter.convertDataTypeDefToNodeId(aasProperty.getValueType()));
+            prop.setDataTypeId(ValueConverter.convertDataTypeDefToNodeId(aasProperty.getValueType(), valueData.getNodeManager()));
 
             //            switch (aasProperty.getValueType()) {
             //                case BOOLEAN -> setBooleanPropertyValue(valueData, typedValue, prop);

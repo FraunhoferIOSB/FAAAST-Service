@@ -340,7 +340,7 @@ public class TestUtils {
 
         UaVariable varNode = (UaVariable) client.getAddressSpace().getNode(propertyNode);
         NodeId datatypeNode = varNode.getDataTypeId();
-        Assert.assertEquals(ValueConverter.convertDataTypeToNodeId(valueType), datatypeNode);
+        Assert.assertEquals(ValueConverter.convertDataTypeToNodeId(valueType, client), datatypeNode);
 
         DataValue value = varNode.getValue();
 
@@ -363,7 +363,7 @@ public class TestUtils {
 
         UaVariable varNode = (UaVariable) client.getAddressSpace().getNode(propertyNode);
         NodeId datatypeNode = varNode.getDataTypeId();
-        Assert.assertEquals(ValueConverter.convertDataTypeToNodeId(valueType), datatypeNode);
+        Assert.assertEquals(ValueConverter.convertDataTypeToNodeId(valueType, client), datatypeNode);
 
         DataValue value = varNode.getValue();
 

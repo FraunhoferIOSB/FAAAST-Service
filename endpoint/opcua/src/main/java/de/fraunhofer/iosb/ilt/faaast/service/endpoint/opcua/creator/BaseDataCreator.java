@@ -74,9 +74,6 @@ public class BaseDataCreator {
         AASHasSemantics retval = new AASHasSemantics();
         if (semantics.getSemanticId() != null) {
             retval.setSemanticId(ReferenceCreator.getAasReference(semantics.getSemanticId()));
-
-            // TODO
-            //ConceptDescriptionCreator.addSemanticId(smNode, submodel.getSemanticId());
         }
 
         if (semantics.getSupplementalSemanticIds() != null) {

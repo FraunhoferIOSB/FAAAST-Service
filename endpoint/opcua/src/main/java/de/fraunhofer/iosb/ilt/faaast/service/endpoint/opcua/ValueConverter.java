@@ -16,9 +16,12 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua;
 
 import com.google.common.base.Objects;
 import com.prosysopc.ua.StatusException;
+import com.prosysopc.ua.client.UaClient;
+import com.prosysopc.ua.server.NodeManager;
 import com.prosysopc.ua.stack.builtintypes.ByteString;
 import com.prosysopc.ua.stack.builtintypes.DataValue;
 import com.prosysopc.ua.stack.builtintypes.DateTime;
+import com.prosysopc.ua.stack.builtintypes.ExpandedNodeId;
 import com.prosysopc.ua.stack.builtintypes.LocalizedText;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.UnsignedByte;
@@ -26,6 +29,7 @@ import com.prosysopc.ua.stack.builtintypes.UnsignedInteger;
 import com.prosysopc.ua.stack.builtintypes.UnsignedLong;
 import com.prosysopc.ua.stack.builtintypes.UnsignedShort;
 import com.prosysopc.ua.stack.builtintypes.Variant;
+import com.prosysopc.ua.stack.common.ServiceResultException;
 import com.prosysopc.ua.stack.core.Identifiers;
 import com.prosysopc.ua.stack.core.StatusCodes;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
@@ -51,6 +55,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.UnsignedIntVa
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.UnsignedLongValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.UnsignedShortValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
@@ -60,6 +65,7 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import opc.ua.aas.DataTypeIds;
 import opc.ua.aas.datatypes.AASAssetKind;
 import opc.ua.aas.datatypes.AASDirection;
 import opc.ua.aas.datatypes.AASEntityEnumType;
@@ -122,12 +128,12 @@ public class ValueConverter {
     private static final List<TypeMapper<AasSubmodelElements, AASSubmodelElements>> SUBMODEL_ELEMENTS_DATATYPE;
 
     private static class DatatypeMapper {
-        private final NodeId typeNode;
+        private final ExpandedNodeId typeNode;
         private final Datatype datatype;
         //private final AASDataTypeDefXsd dataTypeDefXsd;
 
         //public DatatypeMapper(NodeId typeNode, Datatype datatype, AASDataTypeDefXsd dataTypeDefXsd) {
-        public DatatypeMapper(NodeId typeNode, Datatype datatype) {
+        public DatatypeMapper(ExpandedNodeId typeNode, Datatype datatype) {
             this.typeNode = typeNode;
             this.datatype = datatype;
             //    this.dataTypeDefXsd = dataTypeDefXsd;
@@ -176,37 +182,36 @@ public class ValueConverter {
         //        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.GMONTH_DAY, AASDataTypeDefXsd.GMonthDay));
         //        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.GYEAR, AASDataTypeDefXsd.GYear));
         //        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.GYEAR_MONTH, AASDataTypeDefXsd.GYearMonth));
-        // TODO: check mappings
-        TYPE_LIST.add(new DatatypeMapper(Identifiers.ByteString, Datatype.BASE64_BINARY));
-        TYPE_LIST.add(new DatatypeMapper(Identifiers.ByteString, Datatype.HEX_BINARY));
-        TYPE_LIST.add(new DatatypeMapper(Identifiers.Boolean, Datatype.BOOLEAN));
-        TYPE_LIST.add(new DatatypeMapper(Identifiers.DateTime, Datatype.DATE_TIME));
-        TYPE_LIST.add(new DatatypeMapper(Identifiers.String, Datatype.DECIMAL));
-        TYPE_LIST.add(new DatatypeMapper(Identifiers.String, Datatype.INTEGER));
-        TYPE_LIST.add(new DatatypeMapper(Identifiers.String, Datatype.POSITIVE_INTEGER));
-        TYPE_LIST.add(new DatatypeMapper(Identifiers.String, Datatype.NON_NEGATIVE_INTEGER));
-        TYPE_LIST.add(new DatatypeMapper(Identifiers.String, Datatype.NEGATIVE_INTEGER));
-        TYPE_LIST.add(new DatatypeMapper(Identifiers.String, Datatype.NON_POSITIVE_INTEGER));
-        TYPE_LIST.add(new DatatypeMapper(Identifiers.Int32, Datatype.INT));
-        TYPE_LIST.add(new DatatypeMapper(Identifiers.UInt32, Datatype.UNSIGNED_INT));
-        TYPE_LIST.add(new DatatypeMapper(Identifiers.Int64, Datatype.LONG));
-        TYPE_LIST.add(new DatatypeMapper(Identifiers.UInt64, Datatype.UNSIGNED_LONG));
-        TYPE_LIST.add(new DatatypeMapper(Identifiers.Int16, Datatype.SHORT));
-        TYPE_LIST.add(new DatatypeMapper(Identifiers.UInt16, Datatype.UNSIGNED_SHORT));
-        TYPE_LIST.add(new DatatypeMapper(Identifiers.SByte, Datatype.BYTE));
-        TYPE_LIST.add(new DatatypeMapper(Identifiers.Byte, Datatype.UNSIGNED_BYTE));
-        TYPE_LIST.add(new DatatypeMapper(Identifiers.Double, Datatype.DOUBLE));
-        TYPE_LIST.add(new DatatypeMapper(Identifiers.Float, Datatype.FLOAT));
-        TYPE_LIST.add(new DatatypeMapper(Identifiers.String, Datatype.STRING));
-        TYPE_LIST.add(new DatatypeMapper(Identifiers.String, Datatype.ANY_URI));
-        TYPE_LIST.add(new DatatypeMapper(Identifiers.String, Datatype.DATE));
-        TYPE_LIST.add(new DatatypeMapper(Identifiers.String, Datatype.TIME));
-        TYPE_LIST.add(new DatatypeMapper(Identifiers.String, Datatype.DURATION));
-        TYPE_LIST.add(new DatatypeMapper(Identifiers.String, Datatype.GDAY));
-        TYPE_LIST.add(new DatatypeMapper(Identifiers.String, Datatype.GMONTH));
-        TYPE_LIST.add(new DatatypeMapper(Identifiers.String, Datatype.GMONTH_DAY));
-        TYPE_LIST.add(new DatatypeMapper(Identifiers.String, Datatype.GYEAR));
-        TYPE_LIST.add(new DatatypeMapper(Identifiers.String, Datatype.GYEAR_MONTH));
+        TYPE_LIST.add(new DatatypeMapper(DataTypeIds.AASBase64Binary, Datatype.BASE64_BINARY));
+        TYPE_LIST.add(new DatatypeMapper(DataTypeIds.AASHexBinary, Datatype.HEX_BINARY));
+        TYPE_LIST.add(new DatatypeMapper(new ExpandedNodeId(Identifiers.Boolean), Datatype.BOOLEAN));
+        TYPE_LIST.add(new DatatypeMapper(new ExpandedNodeId(Identifiers.DateTime), Datatype.DATE_TIME));
+        TYPE_LIST.add(new DatatypeMapper(new ExpandedNodeId(Identifiers.Decimal), Datatype.DECIMAL));
+        TYPE_LIST.add(new DatatypeMapper(DataTypeIds.AASInteger, Datatype.INTEGER));
+        TYPE_LIST.add(new DatatypeMapper(DataTypeIds.AASPositiveInteger, Datatype.POSITIVE_INTEGER));
+        TYPE_LIST.add(new DatatypeMapper(DataTypeIds.AASNonNegativeInteger, Datatype.NON_NEGATIVE_INTEGER));
+        TYPE_LIST.add(new DatatypeMapper(DataTypeIds.AASNegativeInteger, Datatype.NEGATIVE_INTEGER));
+        TYPE_LIST.add(new DatatypeMapper(DataTypeIds.AASNonPositiveInteger, Datatype.NON_POSITIVE_INTEGER));
+        TYPE_LIST.add(new DatatypeMapper(new ExpandedNodeId(Identifiers.Int32), Datatype.INT));
+        TYPE_LIST.add(new DatatypeMapper(new ExpandedNodeId(Identifiers.UInt32), Datatype.UNSIGNED_INT));
+        TYPE_LIST.add(new DatatypeMapper(new ExpandedNodeId(Identifiers.Int64), Datatype.LONG));
+        TYPE_LIST.add(new DatatypeMapper(new ExpandedNodeId(Identifiers.UInt64), Datatype.UNSIGNED_LONG));
+        TYPE_LIST.add(new DatatypeMapper(new ExpandedNodeId(Identifiers.Int16), Datatype.SHORT));
+        TYPE_LIST.add(new DatatypeMapper(new ExpandedNodeId(Identifiers.UInt16), Datatype.UNSIGNED_SHORT));
+        TYPE_LIST.add(new DatatypeMapper(new ExpandedNodeId(Identifiers.SByte), Datatype.BYTE));
+        TYPE_LIST.add(new DatatypeMapper(new ExpandedNodeId(Identifiers.Byte), Datatype.UNSIGNED_BYTE));
+        TYPE_LIST.add(new DatatypeMapper(new ExpandedNodeId(Identifiers.Double), Datatype.DOUBLE));
+        TYPE_LIST.add(new DatatypeMapper(new ExpandedNodeId(Identifiers.Float), Datatype.FLOAT));
+        TYPE_LIST.add(new DatatypeMapper(new ExpandedNodeId(Identifiers.String), Datatype.STRING));
+        TYPE_LIST.add(new DatatypeMapper(new ExpandedNodeId(Identifiers.UriString), Datatype.ANY_URI));
+        TYPE_LIST.add(new DatatypeMapper(new ExpandedNodeId(Identifiers.DateString), Datatype.DATE));
+        TYPE_LIST.add(new DatatypeMapper(new ExpandedNodeId(Identifiers.TimeString), Datatype.TIME));
+        TYPE_LIST.add(new DatatypeMapper(new ExpandedNodeId(Identifiers.DurationString), Datatype.DURATION));
+        TYPE_LIST.add(new DatatypeMapper(DataTypeIds.AASgDay, Datatype.GDAY));
+        TYPE_LIST.add(new DatatypeMapper(DataTypeIds.AASgMonth, Datatype.GMONTH));
+        TYPE_LIST.add(new DatatypeMapper(DataTypeIds.AASgMonthDay, Datatype.GMONTH_DAY));
+        TYPE_LIST.add(new DatatypeMapper(DataTypeIds.AASgYear, Datatype.GYEAR));
+        TYPE_LIST.add(new DatatypeMapper(DataTypeIds.AASgYearMonth, Datatype.GYEAR_MONTH));
 
         MODELING_KIND_MAP = new EnumMap<>(ModellingKind.class);
         MODELING_KIND_MAP.put(ModellingKind.INSTANCE, AASModellingKind.of(AASModellingKind.Options.Instance));
@@ -299,9 +304,11 @@ public class ValueConverter {
      * Converts the AAS DataTypeDef into the corresponding OPC UA type (NodeId)
      *
      * @param valueType The desired valueType
+     * @param nodeManager The NodeManager.
      * @return The corresponding OPC UA type (NodeId)
+     * @throws ServiceResultException If an error occurs.
      */
-    public static NodeId convertDataTypeDefToNodeId(DataTypeDefXsd valueType) {
+    public static NodeId convertDataTypeDefToNodeId(DataTypeDefXsd valueType, NodeManager nodeManager) throws ServiceResultException {
         NodeId retval;
 
         Optional<DatatypeMapper> rv = TYPE_LIST.stream()
@@ -312,7 +319,7 @@ public class ValueConverter {
             retval = NodeId.NULL;
         }
         else {
-            retval = rv.get().typeNode;
+            retval = nodeManager.getNamespaceTable().toNodeId(rv.get().typeNode);
         }
 
         return retval;
@@ -323,23 +330,25 @@ public class ValueConverter {
      * Converts the given DataType into the corresponding OPC UA type (NodeId)
      *
      * @param datatype The desired datatype
+     * @param nodeManager The NodeManager.
      * @return The corresponding OPC UA type (NodeId)
+     * @throws ServiceResultException If an error occurs.
      */
-    public static NodeId convertDataTypeToNodeId(Datatype datatype) {
-        NodeId retval;
+    public static NodeId convertDataTypeToNodeId(Datatype datatype, NodeManager nodeManager) throws ServiceResultException {
+        return nodeManager.getNamespaceTable().toNodeId(convertDataTypeToExpandedNodeId(datatype));
+    }
 
-        Optional<DatatypeMapper> rv = TYPE_LIST.stream()
-                .filter(t -> (t.datatype != null) && Objects.equal(t.datatype, datatype))
-                .findAny();
-        if (rv.isEmpty()) {
-            LOGGER.warn("convertDataTypeToNodeId: Unknown type: {}", datatype);
-            retval = NodeId.NULL;
-        }
-        else {
-            retval = rv.get().typeNode;
-        }
 
-        return retval;
+    /**
+     * Converts the given DataType into the corresponding OPC UA type (NodeId)
+     *
+     * @param datatype The desired datatype
+     * @param client The OPC UA client.
+     * @return The corresponding OPC UA type (NodeId)
+     * @throws ServiceResultException If an error occurs.
+     */
+    public static NodeId convertDataTypeToNodeId(Datatype datatype, UaClient client) throws ServiceResultException {
+        return client.getAddressSpace().getNamespaceTable().toNodeId(convertDataTypeToExpandedNodeId(datatype));
     }
 
     //    /**
@@ -913,25 +922,26 @@ public class ValueConverter {
         }
         Object retval = typedValue.getValue();
         if (typedValue instanceof IntegerValue integerValue) {
-            retval = integerValue.asString();
+            retval = new BigDecimal(integerValue.getValue());
         }
         else if (typedValue instanceof DurationValue dv) {
             retval = dv.asString();
         }
         else if (typedValue instanceof DecimalValue decimalValue) {
-            retval = decimalValue.asString();
+            //retval = decimalValue.asString();
+            retval = decimalValue.getValue();
         }
         else if (typedValue instanceof PositiveIntegerValue positiveIntegerValue) {
-            retval = positiveIntegerValue.asString();
+            retval = new BigDecimal(positiveIntegerValue.getValue());
         }
         else if (typedValue instanceof NonPositiveIntegerValue nonPositiveIntegerValue) {
-            retval = nonPositiveIntegerValue.asString();
+            retval = new BigDecimal(nonPositiveIntegerValue.getValue());
         }
         else if (typedValue instanceof NegativeIntegerValue negativeIntegerValue) {
-            retval = negativeIntegerValue.asString();
+            retval = new BigDecimal(negativeIntegerValue.getValue());
         }
         else if (typedValue instanceof NonNegativeIntegerValue nonNegativeIntegerValue) {
-            retval = nonNegativeIntegerValue.asString();
+            retval = new BigDecimal(nonNegativeIntegerValue.getValue());
         }
         else if (typedValue instanceof DateTimeValue dateTimeValue) {
             retval = convertDateTime(dateTimeValue);
@@ -1037,7 +1047,7 @@ public class ValueConverter {
 
     private static Object convertDateTime(TypedValue<?> typedValue) {
         Object retval;
-        if ((typedValue.getDataType() == Datatype.DATE) || (typedValue.getDataType() == Datatype.DATE_TIME)) {
+        if (typedValue.getDataType() == Datatype.DATE_TIME) {
             retval = ValueConverter.createDateTime((OffsetDateTime) typedValue.getValue());
         }
         else {
@@ -1129,6 +1139,24 @@ public class ValueConverter {
             bs = (ByteString) variant.getValue();
         }
         aasBlob.setValue(ByteString.asByteArray(bs));
+    }
+
+
+    private static ExpandedNodeId convertDataTypeToExpandedNodeId(Datatype datatype) throws ServiceResultException {
+        ExpandedNodeId retval;
+
+        Optional<DatatypeMapper> rv = TYPE_LIST.stream()
+                .filter(t -> (t.datatype != null) && Objects.equal(t.datatype, datatype))
+                .findAny();
+        if (rv.isEmpty()) {
+            LOGGER.warn("convertDataTypeToNodeId: Unknown type: {}", datatype);
+            retval = ExpandedNodeId.NULL;
+        }
+        else {
+            retval = rv.get().typeNode;
+        }
+
+        return retval;
     }
 
 }

@@ -115,6 +115,8 @@ public class EmbeddedDataSpecificationCreator {
         for (var embedDataSpec: list) {
             refList.add(ReferenceCreator.getAasReference(embedDataSpec.getDataSpecification()));
             //addEmbeddedDataSpecificationNode(listNode, embedDataSpec, name + counter++, nodeManager);
+
+            // TODO: DataSpecificationContent?
         }
         listNode.setDataSpecification(refList.toArray(AASReference[]::new));
     }

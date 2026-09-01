@@ -54,6 +54,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.Eleme
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.util.PortHelper;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -152,10 +153,8 @@ public class OpcUaEndpointSimpleModelTest {
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
-        //System.out.println("testOpcUaEndpoint: client connected");
 
         DataValue value = client.readValue(Identifiers.Server_ServerStatus_State);
-        System.out.println(value);
         Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
         Assert.assertEquals(ServerState.Running.ordinal(), value.getValue().intValue());
 
@@ -217,9 +216,6 @@ public class OpcUaEndpointSimpleModelTest {
         Assert.assertFalse("Browse AASNode Refs empty", refs.isEmpty());
 
         testAas(aasNode);
-
-        //System.out.println("disconnect client");
-        //client.disconnect();
     }
 
 
@@ -229,7 +225,6 @@ public class OpcUaEndpointSimpleModelTest {
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
-        System.out.println("testWritePropertyValue: client connected");
 
         aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
@@ -253,9 +248,6 @@ public class OpcUaEndpointSimpleModelTest {
         NodeId writeNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
 
         TestUtils.writeNewValueIntern(client, writeNode, 50, 222);
-
-        //System.out.println("disconnect client");
-        //client.disconnect();
     }
 
 
@@ -266,7 +258,6 @@ public class OpcUaEndpointSimpleModelTest {
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
-        System.out.println("testWriteRangeValue: client connected");
 
         aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
@@ -290,9 +281,6 @@ public class OpcUaEndpointSimpleModelTest {
         NodeId writeNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
 
         TestUtils.writeNewValueIntern(client, writeNode, 100, 111);
-
-        //System.out.println("disconnect client");
-        //client.disconnect();
     }
 
 
@@ -302,7 +290,6 @@ public class OpcUaEndpointSimpleModelTest {
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
-        System.out.println("testWriteMultiLanguagePropertyValue: client connected");
 
         aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
@@ -335,9 +322,6 @@ public class OpcUaEndpointSimpleModelTest {
         newValue.add(new LocalizedText("Example value of a MultiLanguageProperty element", "en-us"));
 
         TestUtils.writeNewValueArray(client, writeNode, oldValue.toArray(LocalizedText[]::new), newValue.toArray(LocalizedText[]::new));
-
-        //System.out.println("disconnect client");
-        //client.disconnect();
     }
 
 
@@ -347,7 +331,6 @@ public class OpcUaEndpointSimpleModelTest {
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
-        //System.out.println("client connected");
 
         aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
@@ -385,9 +368,6 @@ public class OpcUaEndpointSimpleModelTest {
 
         //TestUtils.writeNewValueArray(client, writeNode, oldValue.toArray(AASKey[]::new), newValue.toArray(AASKey[]::new));
         TestUtils.writeNewValueReference(client, writeNode, oldValue, newValue);
-
-        //System.out.println("testWriteReferenceElementValue: disconnect client");
-        //client.disconnect();
     }
 
 
@@ -397,7 +377,6 @@ public class OpcUaEndpointSimpleModelTest {
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
-        System.out.println("testWriteEntityType: client connected");
 
         aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
@@ -424,9 +403,6 @@ public class OpcUaEndpointSimpleModelTest {
         AASEntityEnumType newValue = AASEntityEnumType.of(AASEntityEnumType.Options.SelfManagedEntity);
 
         TestUtils.writeNewValueIntern(client, writeNode, oldValue.asBuiltInType(), newValue.asBuiltInType());
-
-        //System.out.println("disconnect client");
-        //client.disconnect();
     }
 
 
@@ -436,7 +412,6 @@ public class OpcUaEndpointSimpleModelTest {
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
-        System.out.println("testAddProperty: client connected");
 
         aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
@@ -478,9 +453,6 @@ public class OpcUaEndpointSimpleModelTest {
                     BrowsePathResult[] bpr = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
                     return bpr != null && bpr.length == 1 && bpr[0].getStatusCode().isGood();
                 });
-
-        //System.out.println("disconnect client");
-        //client.disconnect();
     }
 
 
@@ -490,7 +462,6 @@ public class OpcUaEndpointSimpleModelTest {
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
-        System.out.println("testAddProperty: client connected");
 
         aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
@@ -581,9 +552,6 @@ public class OpcUaEndpointSimpleModelTest {
                     BrowsePathResult[] bpr = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
                     return bpr != null && bpr.length == 1 && bpr[0].getStatusCode().isGood();
                 });
-
-        //System.out.println("disconnect client");
-        //client.disconnect();
     }
 
 
@@ -745,7 +713,7 @@ public class OpcUaEndpointSimpleModelTest {
         //TestUtils.checkEmbeddedDataSpecificationNode(client, submodelNode, aasns);
         //TestUtils.checkQualifierNode(client, submodelNode, aasns, new ArrayList<>());
         TestUtils.checkAasPropertyObject(client, submodelNode, aasns, TestConstants.ROTATION_SPEED_NAME, "VARIABLE", Datatype.INTEGER,
-                "4370", new ArrayList<>());
+                new BigDecimal(4370), new ArrayList<>());
     }
 
 
@@ -767,9 +735,9 @@ public class OpcUaEndpointSimpleModelTest {
         //TestUtils.checkEmbeddedDataSpecificationNode(client, submodelNode, aasns);
         //TestUtils.checkQualifierNode(client, submodelNode, aasns, new ArrayList<>());
         TestUtils.checkAasPropertyObject(client, submodelNode, aasns, TestConstants.MAX_ROTATION_SPEED_NAME, "PARAMETER",
-                Datatype.INTEGER, "5000", new ArrayList<>());
+                Datatype.INTEGER, new BigDecimal(5000), new ArrayList<>());
         TestUtils.checkAasPropertyObject(client, submodelNode, aasns, TestConstants.DECIMAL_PROPERTY, "PARAMETER",
-                Datatype.DECIMAL, "123456", new ArrayList<>());
+                Datatype.DECIMAL, new BigDecimal(123456), new ArrayList<>());
 
         TestUtils.checkSubmodelElementConceptDescription(client, submodelNode, TestConstants.MAX_ROTATION_SPEED_NAME, aasns, "0173-1#02-BAA120#008", "2", "1");
     }

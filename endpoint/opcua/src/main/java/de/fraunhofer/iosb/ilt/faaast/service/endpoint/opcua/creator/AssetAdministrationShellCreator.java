@@ -98,8 +98,12 @@ public class AssetAdministrationShellCreator {
         }
 
         AASAssetAdministrationShellType aasShell = nodeManager.createInstance(AASAssetAdministrationShellType.class, nid, browseName, LocalizedText.english(displayName));
-        if ((derivedFrom != null) && (aasShell.getDerivedFromNode() == null)) {
-            LOGGER.info("addAssetAdministrationShell: DerivedFrom not created!");
+        //if ((derivedFrom != null) && (aasShell.getDerivedFromNode() == null)) {
+        //    LOGGER.info("addAssetAdministrationShell: DerivedFrom not created!");
+        //}
+
+        if (derivedFrom != null) {
+            aasShell.setDerivedFrom(ReferenceCreator.getAasReference(derivedFrom));
         }
 
         if (aasShell.getCommonAttributes() == null) {

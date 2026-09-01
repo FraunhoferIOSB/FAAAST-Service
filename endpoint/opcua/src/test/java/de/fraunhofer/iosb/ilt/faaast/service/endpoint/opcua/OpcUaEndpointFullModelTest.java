@@ -187,10 +187,8 @@ public class OpcUaEndpointFullModelTest {
         TestUtils.initialize(client);
         client.connect();
         Assert.assertTrue("client not connected", client.hasConnected());
-        //System.out.println("client connected");
 
         DataValue value = client.readValue(Identifiers.Server_ServerStatus_State);
-        //System.out.println(value);
         Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
         Assert.assertEquals(ServerState.Running.ordinal(), value.getValue().intValue());
 
@@ -231,9 +229,6 @@ public class OpcUaEndpointFullModelTest {
         Assert.assertNotNull("Submodel 1 Node not found", submodel1Node);
 
         testSubmodel1(submodel1Node);
-
-        //System.out.println("disconnect client");
-        //client.disconnect();
     }
 
 
@@ -243,7 +238,6 @@ public class OpcUaEndpointFullModelTest {
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
-        //System.out.println("client connected");
 
         aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
@@ -282,9 +276,6 @@ public class OpcUaEndpointFullModelTest {
 
         //TestUtils.writeNewValueArray(client, writeNode, oldValue.toArray(AASKey[]::new), newValue.toArray(AASKey[]::new));
         TestUtils.writeNewValueReference(client, writeNode, oldValue, newValue);
-
-        //System.out.println("disconnect client");
-        //client.disconnect();
     }
 
 
@@ -295,7 +286,6 @@ public class OpcUaEndpointFullModelTest {
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
-        //System.out.println("client connected");
 
         aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
@@ -332,9 +322,6 @@ public class OpcUaEndpointFullModelTest {
         AASReference newValue = new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ModelReference), null, newKeys.toArray(AASKey[]::new));
 
         TestUtils.writeNewValueReference(client, writeNode, oldValue, newValue);
-
-        //System.out.println("disconnect client");
-        //client.disconnect();
     }
 
 
@@ -345,7 +332,6 @@ public class OpcUaEndpointFullModelTest {
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
-        //System.out.println("client connected");
 
         aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
@@ -370,9 +356,6 @@ public class OpcUaEndpointFullModelTest {
         NodeId writeNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
 
         TestUtils.writeNewValueIntern(client, writeNode, "exampleValue", "a new value");
-
-        //System.out.println("disconnect client");
-        //client.disconnect();
     }
 
 
@@ -383,7 +366,6 @@ public class OpcUaEndpointFullModelTest {
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
-        //System.out.println("client connected");
 
         aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
@@ -413,9 +395,6 @@ public class OpcUaEndpointFullModelTest {
         newValue.add(new LocalizedText("deutsches Test-Element", "de"));
 
         TestUtils.writeNewValueArray(client, writeNode, new ArrayList<>().toArray(LocalizedText[]::new), newValue.toArray(LocalizedText[]::new));
-
-        //System.out.println("disconnect client");
-        //client.disconnect();
     }
 
 
@@ -426,7 +405,6 @@ public class OpcUaEndpointFullModelTest {
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
-        //System.out.println("testWriteEntityGlobalAssetId: client connected");
 
         aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
@@ -452,9 +430,6 @@ public class OpcUaEndpointFullModelTest {
         String newValue = "https://acplt2.org/Test_Asset3";
 
         TestUtils.writeNewValueIntern(client, writeNode, oldValue, newValue);
-
-        //System.out.println("disconnect client");
-        //client.disconnect();
     }
 
 
@@ -464,7 +439,6 @@ public class OpcUaEndpointFullModelTest {
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
-        //System.out.println("client connected");
 
         aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
         int serverns = client.getAddressSpace().getNamespaceTable().getIndex(AasServiceNodeManager.NAMESPACE_URI);
@@ -508,9 +482,6 @@ public class OpcUaEndpointFullModelTest {
         Assert.assertNotNull("testCallOperationSuccess output Arguments Null", outputs);
         Assert.assertEquals("testCallOperationSuccess output Arguments length not equal", 1, outputs.length);
         Assert.assertEquals("testCallOperationSuccess output Argument 0 not equal", new Variant("XYZ1"), outputs[0]);
-
-        //System.out.println("disconnect client");
-        //client.disconnect();
     }
 
 
@@ -520,7 +491,6 @@ public class OpcUaEndpointFullModelTest {
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
-        //System.out.println("client connected");
 
         aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
         int serverns = client.getAddressSpace().getNamespaceTable().getIndex(AasServiceNodeManager.NAMESPACE_URI);
@@ -563,9 +533,6 @@ public class OpcUaEndpointFullModelTest {
             client.call(objectNode, methodNode, inputArguments);
         });
         Assert.assertEquals(StatusCodes.Bad_ArgumentsMissing, exception.getStatusCode().getValue());
-
-        //System.out.println("disconnect client");
-        //client.disconnect();
     }
 
 
@@ -575,7 +542,6 @@ public class OpcUaEndpointFullModelTest {
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
-        //System.out.println("testAddProperty: client connected");
 
         aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
@@ -622,9 +588,6 @@ public class OpcUaEndpointFullModelTest {
                     BrowsePathResult[] bpr = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
                     return bpr != null && bpr.length == 1 && bpr[0].getStatusCode().isGood();
                 });
-
-        //System.out.println("disconnect client");
-        //client.disconnect();
     }
 
 
@@ -634,7 +597,6 @@ public class OpcUaEndpointFullModelTest {
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
-        //System.out.println("testDeleteSubmodel: client connected");
 
         aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
@@ -674,9 +636,6 @@ public class OpcUaEndpointFullModelTest {
                     BrowsePathResult[] bpr = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
                     return bpr != null && bpr.length == 2 && bpr[0].getStatusCode().isBad() && bpr[1].getStatusCode().isBad();
                 });
-
-        //System.out.println("disconnect client");
-        //client.disconnect();
     }
 
 
@@ -686,7 +645,6 @@ public class OpcUaEndpointFullModelTest {
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
-        //System.out.println("testDeleteCapability: client connected");
 
         aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
@@ -728,9 +686,6 @@ public class OpcUaEndpointFullModelTest {
                     BrowsePathResult[] bpr = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
                     return bpr != null && bpr.length == 2 && bpr[0].getStatusCode().isBad() && bpr[1].getStatusCode().isBad();
                 });
-
-        //System.out.println("disconnect client");
-        //client.disconnect();
     }
 
 
@@ -741,7 +696,6 @@ public class OpcUaEndpointFullModelTest {
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
-        //System.out.println("client connected");
 
         aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
@@ -787,9 +741,6 @@ public class OpcUaEndpointFullModelTest {
         OffsetDateTime odtnew = OffsetDateTime.now(ZoneId.systemDefault());
         DateTime dtnew = DateTime.fromInstant(odtnew.toInstant());
         TestUtils.writeNewValueIntern(client, propValueNode, dt, dtnew);
-
-        //System.out.println("disconnect client");
-        //client.disconnect();
     }
 
 
@@ -799,7 +750,6 @@ public class OpcUaEndpointFullModelTest {
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
-        //System.out.println("client connected");
 
         aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
         int serverns = client.getAddressSpace().getNamespaceTable().getIndex(AasServiceNodeManager.NAMESPACE_URI);
@@ -840,9 +790,6 @@ public class OpcUaEndpointFullModelTest {
         Variant[] outputs = client.call(objectNode, methodNode);
         Assert.assertNotNull("testCallOperationNoArgs output Arguments Null", outputs);
         Assert.assertEquals("testCallOperationNoArgs output Arguments length not equal", 0, outputs.length);
-
-        //System.out.println("disconnect client");
-        //client.disconnect();
     }
 
 
@@ -852,7 +799,6 @@ public class OpcUaEndpointFullModelTest {
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
-        //System.out.println("testSubmodelElementList: client connected");
 
         aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
@@ -929,9 +875,6 @@ public class OpcUaEndpointFullModelTest {
         Assert.assertEquals(QualifiedName.from(aasns, "ExampleMultiLanguageProperty"), refs.get(1).getBrowseName());
         Assert.assertEquals(QualifiedName.from(aasns, "ExampleCapability"), refs.get(2).getBrowseName());
         //Assert.assertEquals(QualifiedName.from(aasns, "ExampleRange"), refs.get(2).getBrowseName());
-
-        //System.out.println("disconnect client");
-        //client.disconnect();
     }
 
 
@@ -941,7 +884,6 @@ public class OpcUaEndpointFullModelTest {
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
-        //System.out.println("testSubmodelElementList: client connected");
 
         aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
@@ -1016,9 +958,6 @@ public class OpcUaEndpointFullModelTest {
         Assert.assertEquals(QualifiedName.from(aasns, "ExampleCollection"), refs.get(1).getBrowseName());
         Assert.assertEquals(QualifiedName.from(aasns, "ExampleMultiLanguageProperty"), refs.get(2).getBrowseName());
         //Assert.assertEquals(QualifiedName.from(aasns, "ExampleRange"), refs.get(2).getBrowseName());
-
-        //System.out.println("disconnect client");
-        //client.disconnect();
     }
 
 
@@ -1029,7 +968,6 @@ public class OpcUaEndpointFullModelTest {
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
-        //System.out.println("testWriteProperty: client connected");
 
         aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
@@ -1055,9 +993,6 @@ public class OpcUaEndpointFullModelTest {
 
         NodeId writeNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
         TestUtils.writeNewValueIntern(client, writeNode, oldValue, newValue);
-
-        //System.out.println("disconnect client");
-        //client.disconnect();
     }
 
 
@@ -1067,7 +1002,6 @@ public class OpcUaEndpointFullModelTest {
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
-        //System.out.println("testUpdateSubmodelElement: client connected");
 
         aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
@@ -1169,9 +1103,6 @@ public class OpcUaEndpointFullModelTest {
                     return value.getStatusCode().isGood() && (value.getValue() != null) && Objects.equals((AASReference) value.getValue().getValue(), newValue);
                     //return value.getStatusCode().isGood() && Arrays.equals(smeValue.toArray(AASKey[]::new), (AASKey[]) value.getValue().getValue());
                 });
-
-        //System.out.println("disconnect client");
-        //client.disconnect();
     }
 
 

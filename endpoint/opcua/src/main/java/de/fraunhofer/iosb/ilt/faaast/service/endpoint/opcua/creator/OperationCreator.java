@@ -17,10 +17,12 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator;
 import com.prosysopc.ua.UaQualifiedName;
 import com.prosysopc.ua.ValueRanks;
 import com.prosysopc.ua.nodes.UaNode;
+import com.prosysopc.ua.server.NodeManager;
 import com.prosysopc.ua.server.nodes.PlainMethod;
 import com.prosysopc.ua.stack.builtintypes.LocalizedText;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.QualifiedName;
+import com.prosysopc.ua.stack.common.ServiceResultException;
 import com.prosysopc.ua.stack.core.Argument;
 import com.prosysopc.ua.stack.core.Identifiers;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
@@ -83,7 +85,7 @@ public class OperationCreator extends SubmodelElementCreator {
             for (int i = 0; i < aasOperation.getInputVariables().size(); i++) {
                 OperationVariable v = aasOperation.getInputVariables().get(i);
                 inputs[i] = new Argument();
-                setOperationArgument(inputs[i], v);
+                setOperationArgument(inputs[i], v, nodeManager);
             }
 
             method.setInputArguments(inputs);
@@ -92,7 +94,7 @@ public class OperationCreator extends SubmodelElementCreator {
             for (int i = 0; i < aasOperation.getOutputVariables().size(); i++) {
                 OperationVariable v = aasOperation.getOutputVariables().get(i);
                 outputs[i] = new Argument();
-                setOperationArgument(outputs[i], v);
+                setOperationArgument(outputs[i], v, nodeManager);
             }
 
             method.setOutputArguments(outputs);
@@ -120,8 +122,10 @@ public class OperationCreator extends SubmodelElementCreator {
      *
      * @param arg The UA argument
      * @param var The corresponding Operation Variable
+     * @param nodeManager The NodeManager.
+     * @throws ServiceResultException If an error occurs.
      */
-    private static void setOperationArgument(Argument arg, OperationVariable operVar) {
+    private static void setOperationArgument(Argument arg, OperationVariable operVar, NodeManager nodeManager) throws ServiceResultException {
         if (operVar.getValue() instanceof Property prop) {
             arg.setName(prop.getIdShort());
             arg.setValueRank(ValueRanks.Scalar);
@@ -130,7 +134,7 @@ public class OperationCreator extends SubmodelElementCreator {
             // Description
             DescriptionCreator.addDescriptions(arg, prop.getDescription());
 
-            NodeId type = ValueConverter.convertDataTypeDefToNodeId(prop.getValueType());
+            NodeId type = ValueConverter.convertDataTypeDefToNodeId(prop.getValueType(), nodeManager);
             if (type.isNullNodeId()) {
                 LOGGER.warn("setOperationArgument: Property {}: Unknown type: {}", prop.getIdShort(), prop.getValueType());
 
