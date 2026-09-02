@@ -75,7 +75,6 @@ public class QualifierCreator {
         int index = 1;
         for (Qualifier qualifier: qualifiers) {
             if (qualifier != null) {
-                //addQualifier(listNode, qualifier, "Qualifier " + index, nodeManager);
                 opcQualifiers.add(getQualifier(qualifier));
             }
 

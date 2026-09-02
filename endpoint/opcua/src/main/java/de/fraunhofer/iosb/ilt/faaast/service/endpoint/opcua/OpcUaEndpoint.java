@@ -173,9 +173,7 @@ public class OpcUaEndpoint extends AbstractEndpoint<OpcUaEndpointConfig> {
      * @return The value of the desired SubmodelElement, null if the read failed.
      */
     public SubmodelElement readValue(String submodelId, Reference refElement) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("readValue: Submodel: {}; Ref: {}", submodelId, ReferenceHelper.toString(refElement));
-        }
+        LOGGER.atDebug().log("readValue: Submodel: {}; Ref: {}", submodelId, ReferenceHelper.toString(refElement));
         SubmodelElement retval = null;
         GetSubmodelElementByPathRequest request = new GetSubmodelElementByPathRequest.Builder().submodelId(submodelId).path(ReferenceHelper.toPath(refElement)).build();
         Response response = serviceContext.execute(this, request);

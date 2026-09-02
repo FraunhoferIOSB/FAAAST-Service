@@ -102,8 +102,6 @@ public class AasSubmodelElementHelper {
         Ensure.requireNonNull(aasElement, "aasElement must not be null");
         Ensure.requireNonNull(value, VALUE_NULL);
 
-        LOGGER.debug("setRelationshipValue not yet implemented");
-
         ReferenceCreator.setAasReferenceData(value.getFirst(), aasElement.getFirst());
         ReferenceCreator.setAasReferenceData(value.getSecond(), aasElement.getSecond());
 
@@ -118,25 +116,13 @@ public class AasSubmodelElementHelper {
             for (var annotationNode: annotationObjects) {
                 setDataElementValue(annotationNode, valueMap.get(annotationNode.getBrowseName().getName()), nodeManager);
             }
-            //    AASAnnotatedRelationshipElementType annotatedElement = (AASAnnotatedRelationshipElementType) aasElement;
-            //    AnnotatedRelationshipElementValue annotatedValue = (AnnotatedRelationshipElementValue) value;
-            //    UaNode[] annotationNodes = annotatedElement.getAnnotationNode().getComponents();
-            //    Map<String, DataElementValue> valueMap = annotatedValue.getAnnotations();
-            //    if (annotationNodes.length != valueMap.size()) {
-            //        LOG.error("Size of Value ({}) doesn't match the number of AnnotationNodes ({})", valueMap.size(), annotationNodes.length);
-            //        throw new IllegalArgumentException("Size of Value doesn't match the number of AnnotationNodes");
-            //    }
 
-            //    // The Key of the Map is the IdShort of the DataElement (in our case the BrowseName)
-            //    for (UaNode annotationNode: annotationNodes) {
-            //        if (valueMap.containsKey(annotationNode.getBrowseName().getName())) {
-            //            setDataElementValue(annotationNode, valueMap.get(annotationNode.getBrowseName().getName()), nodeManager);
-            //        }
+            int annotationCount = annotationObjects.size() + annotationVariables.size();
+            if (annotationCount != valueMap.size()) {
+                LOGGER.error("setRelationshipValue Size of Value ({}) doesn't match the number of AnnotationNodes ({})", valueMap.size(), annotationCount);
+                throw new IllegalArgumentException("Size of Value doesn't match the number of AnnotationNodes");
+            }
         }
-        //}
-        //else {
-        //    LOG.debug("setRelationshipValue: No AnnotatedRelationshipElement {}", aasElement.getBrowseName().getName());
-        //}
     }
 
 

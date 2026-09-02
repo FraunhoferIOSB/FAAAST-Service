@@ -211,32 +211,14 @@ public class SubmodelElementCreator {
             // HasSemantics
             node.getCommonAttributes().setHasSemantics(BaseDataCreator.getHasSemantics(element));
             if (element.getSemanticId() != null) {
-                //    if (node.getCommonAttributes().getHasSemantics() == null) {
-                //        node.getCommonAttributes().setHasSemantics(new AASHasSemantics());
-                //    }
-                //    node.getCommonAttributes().getHasSemantics().setSemanticId(AasReferenceCreator.getAasReference(element.getSemanticId()));
-
                 ConceptDescription conceptDescription = nodeManager.getConceptDescription(element.getSemanticId());
                 if (conceptDescription != null) {
                     ConceptDescriptionCreator.addConceptDescription(node, conceptDescription, nodeManager);
                 }
-                //    //ConceptDescriptionCreator.addSemanticId(node, element.getSemanticId());
             }
-
-            //if (element.getSupplementalSemanticIds() != null) {
-            //    if (node.getCommonAttributes().getHasSemantics() == null) {
-            //        node.getCommonAttributes().setHasSemantics(new AASHasSemantics());
-            //    }
-            //    List<AASReference> refs = AasReferenceCreator.getAasReferences(element.getSupplementalSemanticIds());
-            //    node.getCommonAttributes().getHasSemantics().setSupplementalSemanticId(refs.toArray(AASReference[]::new));
-            //}
 
             // Description
             DescriptionCreator.addDescriptions(node, element.getDescription());
-
-            //if (AasServiceNodeManager.VALUES_READ_ONLY) {
-            //    node.getCategoryNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
-            //}
         }
     }
 
@@ -257,15 +239,6 @@ public class SubmodelElementCreator {
 
     private static void setSubmodelElementCommonAttributes(AASSubmodelElementCommonAttributes commonAttributes, SubmodelElement element, AasServiceNodeManager nodeManager)
             throws StatusException {
-
-        // Category
-        //String category = element.getCategory();
-        //if (category != null) {
-        //    if (commonAttributes.getReferable() == null) {
-        //        commonAttributes.setReferable(new AASReferable());
-        //    }
-        //    commonAttributes.getReferable().setCategory(category);
-        //}
 
         commonAttributes.setReferable(ReferableCreator.getReferableData(element));
 

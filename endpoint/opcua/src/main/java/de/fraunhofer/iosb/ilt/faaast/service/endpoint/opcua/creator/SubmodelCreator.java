@@ -29,6 +29,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import java.util.List;
 import opc.ua.aas.ObjectTypeIds;
+import opc.ua.aas.datatypes.AASQualifiable;
 import opc.ua.aas.datatypes.AASSubmodelCommonAttributes;
 import opc.ua.aas.objecttypes.AASSubmodelType;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
@@ -113,9 +114,6 @@ public class SubmodelCreator {
         //        smNode.getCommonAttributes().setHasSemantics(new AASHasSemantics());
         //    }
         //    smNode.getCommonAttributes().getHasSemantics().setSemanticId(AasReferenceCreator.getAasReference(submodel.getSemanticId()));
-        //
-        //    // TODO
-        //    //ConceptDescriptionCreator.addSemanticId(smNode, submodel.getSemanticId());
         //}
 
         //if (submodel.getSupplementalSemanticIds() != null) {
@@ -127,7 +125,7 @@ public class SubmodelCreator {
         //}
 
         // DataSpecifications
-        // TODO
+        // TODO EmbeddedDataSpecifications
         EmbeddedDataSpecificationCreator.addEmbeddedDataSpecifications(smNode, submodel.getEmbeddedDataSpecifications(), nodeManager);
 
         // Qualifiers
@@ -173,6 +171,9 @@ public class SubmodelCreator {
             //if (smNode.getQualifierNode() == null) {
             //    QualifierCreator.addQualifierNode(smNode, nodeManager);
             //}
+            if (smNode.getCommonAttributes().getQualifiable() == null) {
+                smNode.getCommonAttributes().setQualifiable(new AASQualifiable());
+            }
 
             QualifierCreator.addQualifiers(smNode.getCommonAttributes().getQualifiable(), qualifiers, nodeManager);
         }

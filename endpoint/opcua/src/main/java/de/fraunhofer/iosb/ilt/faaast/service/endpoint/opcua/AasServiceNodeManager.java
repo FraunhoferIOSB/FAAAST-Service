@@ -26,6 +26,7 @@ import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.common.ServiceResultException;
 import com.prosysopc.ua.types.opcua.BaseObjectType;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.AssetAdministrationShellCreator;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.QualifierCreator;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.SubmodelCreator;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.SubmodelElementCreator;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
@@ -52,6 +53,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import opc.ua.aas.datatypes.AASQualifiable;
 import opc.ua.aas.objecttypes.AASEnvironmentType;
 import opc.ua.aas.objecttypes.AASOperationType;
 import opc.ua.aas.objecttypes.AASSubmodelElementObjectType;
@@ -299,8 +301,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      */
     private void createAasNodes()
             throws StatusException, ServiceResultException, ServiceException, AddressSpaceException, ValueFormatException, AmbiguousElementException {
-        addAasEnvironmentNode();
-
         for (ConceptDescription c: aasEnvironment.getConceptDescriptions()) {
             conceptDescriptions.put(ReferenceBuilder.global(c.getId()), c);
         }
@@ -318,29 +318,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 AssetAdministrationShellCreator.addAssetAdministrationShell(aasEnvironmentNode, aas, this);
             }
         }
-    }
-
-
-    /**
-     * Adds the AASEnvironment Node.
-     */
-    private void addAasEnvironmentNode() throws StatusException, ServiceResultException {
-
-        //aasEnvironmentNode = (AASEnvironmentType) getNode(new NodeId(ObjectTypeIds.AASEnvironmentType.getNamespaceIndex(), AAS_ENVIRONMENT_ID));
-
-        //        NodeId nodeId = getNamespaceTable().toNodeId(new ExpandedNodeId(ObjectTypeIds.AASEnvironmentType.getNamespaceUri(), AAS_ENVIRONMENT_ID));
-        //        UaNode node = getServer().getNodeManagerRoot().findNode(nodeId);
-        //        //get
-        //
-        //        final UaObject objectsFolder = getServer().getNodeManagerRoot().getObjectsFolder();
-        //        LOGGER.debug("addAasEnvironmentNode {}; to ObjectsFolder", AAS_ENVIRONMENT_NAME);
-        //        QualifiedName browseName = UaQualifiedName.from(ObjectTypeIds.AASEnvironmentType.getNamespaceUri(), AAS_ENVIRONMENT_NAME).toQualifiedName(getNamespaceTable());
-        //        //aasEnvironmentNode = createInstance(AASEnvironmentType.class, createNodeId(objectsFolder, browseName), browseName, LocalizedText.english(AAS_ENVIRONMENT_NAME));
-        //        aasEnvironmentNode = createInstance(AASEnvironmentType.class, nodeId, browseName, LocalizedText.english(AAS_ENVIRONMENT_NAME));
-        //        LOGGER.debug("addAasEnvironmentNode: Created class: {}", aasEnvironmentNode.getClass().getName());
-        //
-        //        objectsFolder.addComponent(aasEnvironmentNode);
-        LOGGER.info("skip environment node: {}", aasEnvironmentNode);
     }
 
 
@@ -807,17 +784,21 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
 
     private void addQualifier(ObjectData parent, Referable value) throws StatusException {
-        // TODO: implement
-        LOGGER.debug("addQualifier not yet implemented");
-        //if (parent.getNode() instanceof AASSubmodelType aasSubmodelType) {
-        //    QualifierCreator.addQualifiers(aasSubmodelType.getQualifierNode(), List.of((Qualifier) value), this);
-        //}
-        //else if (parent.getNode() instanceof AASSubmodelElementVariableType aasSubmodelElementVariable) {
-        //    QualifierCreator.addQualifiers(aasSubmodelElementVariable.getQualifierNode(), List.of((Qualifier) value), this);
-        //}
-        //else {
-        //    LOG.debug("elementCreated: Constraint parent class not found");
-        //}
+        if (parent.getNode() instanceof AASSubmodelType aasSubmodelType) {
+            if (aasSubmodelType.getCommonAttributes().getQualifiable() == null) {
+                aasSubmodelType.getCommonAttributes().setQualifiable(new AASQualifiable());
+            }
+            QualifierCreator.addQualifiers(aasSubmodelType.getCommonAttributes().getQualifiable(), List.of((Qualifier) value), this);
+        }
+        else if (parent.getNode() instanceof AASSubmodelElementVariableType aasSubmodelElementVariable) {
+            if (aasSubmodelElementVariable.getCommonAttributes().getQualifiable() == null) {
+                aasSubmodelElementVariable.getCommonAttributes().setQualifiable(new AASQualifiable());
+            }
+            QualifierCreator.addQualifiers(aasSubmodelElementVariable.getCommonAttributes().getQualifiable(), List.of((Qualifier) value), this);
+        }
+        else {
+            LOGGER.debug("addQualifier: Constraint parent class not found");
+        }
     }
 
 

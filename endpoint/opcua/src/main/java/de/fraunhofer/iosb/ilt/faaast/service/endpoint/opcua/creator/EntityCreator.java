@@ -96,7 +96,6 @@ public class EntityCreator extends SubmodelElementCreator {
                 nb.setNodeId(nid);
                 AASEntityType entityNode = (AASEntityType) nb.build();
 
-                //AASEntityType entityNode = nodeManager.createInstance(AASEntityType.class, nid, browseName, LocalizedText.english(name));
                 addSubmodelElementBaseData(entityNode, aasEntity, nodeManager);
 
                 // EntityType

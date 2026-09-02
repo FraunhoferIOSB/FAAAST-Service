@@ -78,7 +78,6 @@ public class MultiLanguagePropertyCreator extends SubmodelElementCreator {
                 nb.setNodeId(nid);
                 AASMultiLanguagePropertyType multiLangNode = (AASMultiLanguagePropertyType) nb.build();
 
-                //AASMultiLanguagePropertyType multiLangNode = nodeManager.createInstance(AASMultiLanguagePropertyType.class, nid, browseName, LocalizedText.english(name));
                 addSubmodelElementBaseData(multiLangNode, aasMultiLang, nodeManager);
 
                 multiLangNode.setDataTypeId(Identifiers.LocalizedText);
@@ -109,16 +108,11 @@ public class MultiLanguagePropertyCreator extends SubmodelElementCreator {
             throws StatusException {
         List<LangStringTextType> values = aasMultiLang.getValue();
         if (values != null) {
-            //if (multiLangNode == null) {
-            //    AasSubmodelElementHelper.addMultiLanguageValueNode(multiLangNode, values.size(), nodeManager);
-            //}
-
             multiLangNode.setValue(ValueConverter.getLocalizedTextFromLangStringSet(values));
         }
 
         if (aasMultiLang.getValueId() != null) {
             multiLangNode.setValueId(ReferenceCreator.getAasReference(aasMultiLang.getValueId()));
-            //AasReferenceCreator.addAasReferenceAasNS(multiLangNode, aasMultiLang.getValueId(), AASMultiLanguagePropertyType.VALUE_ID, nodeManager);
         }
     }
 
