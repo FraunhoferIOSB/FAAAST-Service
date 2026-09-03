@@ -70,7 +70,7 @@
         <awaitility.version>4.3.0</awaitility.version>
         <bouncycastle.version>1.85</bouncycastle.version>
         <checkstyle.version>12.3.1</checkstyle.version>
-        <classgraph.version>4.8.193</classgraph.version>
+        <classgraph.version>4.8.194</classgraph.version>
         <cloudevents.version>5.0.0</cloudevents.version>
         <commons.codec.version>1.22.1</commons.codec.version>
         <commons.compress.version>1.28.0</commons.compress.version>
@@ -81,10 +81,10 @@
         <container.image.tag>latest</container.image.tag>
         <de.flapdoodle.embed.version>4.33.0</de.flapdoodle.embed.version>
         <eclipse.jdt.version>4.40</eclipse.jdt.version>
-        <equalsverifier.version>4.5.1</equalsverifier.version>
+        <equalsverifier.version>4.5.2</equalsverifier.version>
         <glassfish.jaxb-runtime>4.0.5</glassfish.jaxb-runtime>
         <guava.version>33.7.1-jre</guava.version>
-        <jackson-jq.version>1.6.2</jackson-jq.version>
+        <jackson-jq.version>1.6.3</jackson-jq.version>
         <jackson.annotations.version>2.22</jackson.annotations.version>
         <jackson.databind.version>2.22.2</jackson.databind.version>
         <jackson.version>2.22.2</jackson.version>
@@ -106,7 +106,7 @@
         <maven.plugin.buildhelper.version>3.6.1</maven.plugin.buildhelper.version>
         <maven.plugin.central-publishing.version>0.11.0</maven.plugin.central-publishing.version>
         <maven.plugin.checkstyle.version>3.6.0</maven.plugin.checkstyle.version>
-        <maven.plugin.compiler.version>3.15.0</maven.plugin.compiler.version>
+        <maven.plugin.compiler.version>3.16.0</maven.plugin.compiler.version>
         <maven.plugin.dependency-check.autoUpdate>true</maven.plugin.dependency-check.autoUpdate>
         <maven.plugin.dependency.version>3.11.0</maven.plugin.dependency.version>
         <maven.plugin.failsafe.version>3.5.6</maven.plugin.failsafe.version>
@@ -124,11 +124,11 @@
         <maven.plugin.shade.version>3.6.2</maven.plugin.shade.version>
         <maven.plugin.sonar.version>5.7.0.6970</maven.plugin.sonar.version>
         <maven.plugin.source.version>3.4.0</maven.plugin.source.version>
-        <maven.plugin.spotless.version>3.10.0</maven.plugin.spotless.version>
+        <maven.plugin.spotless.version>3.10.1</maven.plugin.spotless.version>
         <maven.plugin.surefire.version>3.5.6</maven.plugin.surefire.version>
         <milo.version>1.1.6</milo.version>
         <mockito.version>5.23.0</mockito.version>
-        <mongodb.version>5.10.0</mongodb.version>
+        <mongodb.version>5.11.0</mongodb.version>
         <moquette.version>0.18.6</moquette.version>
         <netty.version>4.2.17.Final</netty.version>
         <org.apache.httpcomponents.client5.version>5.6.4</org.apache.httpcomponents.client5.version>
