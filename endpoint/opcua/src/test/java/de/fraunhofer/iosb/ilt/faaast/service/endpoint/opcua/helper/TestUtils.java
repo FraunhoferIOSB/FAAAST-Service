@@ -14,6 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper;
 
+import static opc.ua.aas.UaDataTypeIds.AASEmbeddedConceptDescription;
+
 import com.prosysopc.ua.ApplicationIdentity;
 import com.prosysopc.ua.SecureIdentityException;
 import com.prosysopc.ua.ServiceException;
@@ -58,7 +60,9 @@ import opc.ua.aas.ReferenceTypeIds;
 import opc.ua.aas.datatypes.AASAdministrativeInformation;
 import opc.ua.aas.datatypes.AASAssetAdministrationShellCommonAttributes;
 import opc.ua.aas.datatypes.AASAssetKind;
-import opc.ua.aas.datatypes.AASConceptDescription;
+import opc.ua.aas.datatypes.AASDataSpecificationIec61360;
+import opc.ua.aas.datatypes.AASEmbeddedConceptDescription;
+import opc.ua.aas.datatypes.AASEmbeddedDataSpecification;
 import opc.ua.aas.datatypes.AASHasKind;
 import opc.ua.aas.datatypes.AASIdentifiable;
 import opc.ua.aas.datatypes.AASModellingKind;
@@ -646,7 +650,7 @@ public class TestUtils {
     }
 
 
-    public static void checkConceptDescription(UaClient client, NodeId nodeId, int aasns, String id, String version, String revision)
+    public static void checkConceptDescription(UaClient client, NodeId nodeId, int aasns, String id, String version, String revision, DataSpecificationData data)
             throws ServiceResultException, ServiceException, StatusException {
         NodeId conceptDescriptionNode = getConceptDescription(client, nodeId, aasns);
 
@@ -654,19 +658,37 @@ public class TestUtils {
         Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
 
         Variant var = value.getValue();
-        Assert.assertTrue(var.getValue() instanceof AASConceptDescription);
-        AASConceptDescription cd = (AASConceptDescription) var.getValue();
+        Assert.assertTrue(var.getValue() instanceof AASEmbeddedConceptDescription);
+        AASEmbeddedConceptDescription cd = (AASEmbeddedConceptDescription) var.getValue();
 
         Assert.assertNotNull(cd.getCommonAttributes());
         checkIdentifiable(cd.getCommonAttributes().getIdentifiable(), id, version, revision);
-        //Assert.assertEquals(id, cd.g);
+
+        Assert.assertNotNull(cd.getEmbeddedDataSpecification());
+        Assert.assertEquals(1, cd.getEmbeddedDataSpecification().length);
+
+        AASEmbeddedDataSpecification embed = cd.getEmbeddedDataSpecification()[0];
+        Assert.assertNotNull(embed);
+        if (data != null) {
+            Assert.assertEquals(data.dataSpecification(), embed.getDataSpecification());
+            Assert.assertNotNull(embed.getDataSpecificationContent());
+            Assert.assertTrue(embed.getDataSpecificationContent() instanceof AASDataSpecificationIec61360);
+            AASDataSpecificationIec61360 ds61360 = (AASDataSpecificationIec61360) embed.getDataSpecificationContent();
+            Assert.assertEquals(data.unit(), ds61360.getUnit());
+            Assert.assertArrayEquals(data.preferredName(), ds61360.getPreferredName());
+            Assert.assertEquals(data.sourceOfDefinition(), ds61360.getSourceOfDefinition());
+            Assert.assertEquals(data.datatype(), ds61360.getDataType());
+            Assert.assertArrayEquals(data.definition(), ds61360.getDefinition());
+            Assert.assertEquals(data.unitId(), ds61360.getUnitId());
+        }
     }
 
 
-    public static void checkSubmodelElementConceptDescription(UaClient client, NodeId baseNodeId, String name, int aasns, String id, String version, String revision)
+    public static void checkSubmodelElementConceptDescription(UaClient client, NodeId baseNodeId, String name, int aasns, String id, String version, String revision,
+                                                              DataSpecificationData data)
             throws ServiceException, ServiceResultException, StatusException {
         NodeId submodelElementNode = getSubmodelElement(aasns, name, client, baseNodeId);
-        checkConceptDescription(client, submodelElementNode, aasns, id, version, revision);
+        checkConceptDescription(client, submodelElementNode, aasns, id, version, revision, data);
     }
 
 

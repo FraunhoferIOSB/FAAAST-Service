@@ -160,7 +160,7 @@ public class SubmodelElementListCreator extends SubmodelElementCreator {
             //            namespaceUri);
             //}
             //else {
-            collNode.setTypeValueListElement(ValueConverter.getAasSubmodelElementsType(typeValue));
+            collNode.setTypeValueListElement(ValueConverter.convertAasSubmodelElements(typeValue));
             //}
         }
     }

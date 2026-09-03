@@ -175,14 +175,15 @@ public class SubmodelElementCreator {
 
             setSubmodelElementCommonAttributes(node.getCommonAttributes(), element, nodeManager);
 
+            ConceptDescription conceptDescription = null;
+
             // SemanticId
             if (element.getSemanticId() != null) {
                 //ConceptDescriptionCreator.addSemanticId(node, element.getSemanticId());
-                ConceptDescription conceptDescription = nodeManager.getConceptDescription(element.getSemanticId());
-                if (conceptDescription != null) {
-                    ConceptDescriptionCreator.addConceptDescription(node, conceptDescription, nodeManager);
-                }
+                conceptDescription = nodeManager.getConceptDescription(element.getSemanticId());
             }
+
+            ConceptDescriptionCreator.addConceptDescription(node, conceptDescription, element.getEmbeddedDataSpecifications(), nodeManager);
 
             // Description
             DescriptionCreator.addDescriptions(node, element.getDescription());
@@ -208,14 +209,15 @@ public class SubmodelElementCreator {
 
             setSubmodelElementCommonAttributes(node.getCommonAttributes(), element, nodeManager);
 
+            ConceptDescription conceptDescription = null;
+
             // HasSemantics
             node.getCommonAttributes().setHasSemantics(BaseDataCreator.getHasSemantics(element));
             if (element.getSemanticId() != null) {
-                ConceptDescription conceptDescription = nodeManager.getConceptDescription(element.getSemanticId());
-                if (conceptDescription != null) {
-                    ConceptDescriptionCreator.addConceptDescription(node, conceptDescription, nodeManager);
-                }
+                conceptDescription = nodeManager.getConceptDescription(element.getSemanticId());
             }
+
+            ConceptDescriptionCreator.addConceptDescription(node, conceptDescription, element.getEmbeddedDataSpecifications(), nodeManager);
 
             // Description
             DescriptionCreator.addDescriptions(node, element.getDescription());
@@ -243,7 +245,7 @@ public class SubmodelElementCreator {
         commonAttributes.setReferable(ReferableCreator.getReferableData(element));
 
         // DataSpecifications
-        EmbeddedDataSpecificationCreator.addEmbeddedDataSpecifications(commonAttributes, element.getEmbeddedDataSpecifications(), nodeManager);
+        HasDataSpecificationCreator.addHasDataSpecification(commonAttributes, element, nodeManager);
 
         // Qualifiers
         List<Qualifier> qualifiers = element.getQualifiers();

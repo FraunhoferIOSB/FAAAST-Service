@@ -854,7 +854,7 @@ public class OpcUaEndpointFullModelTest {
         Assert.assertTrue("testSubmodelElementListOrdered TypeValueListElement empty", targets.length > 0);
         value = client.readValue(targets[0].getTargetId());
         Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
-        AASSubmodelElements tvListElementExpected = ValueConverter.getAasSubmodelElementsType(AasSubmodelElements.SUBMODEL_ELEMENT);
+        AASSubmodelElements tvListElementExpected = ValueConverter.convertAasSubmodelElements(AasSubmodelElements.SUBMODEL_ELEMENT);
         Assert.assertEquals("TypeValueListElement not equal", tvListElementExpected, value.getValue().asOptionSet(AASSubmodelElements.SPECIFICATION));
 
         // SubmodelElementList type
@@ -939,7 +939,7 @@ public class OpcUaEndpointFullModelTest {
         Assert.assertTrue(targets.length > 0);
         value = client.readValue(targets[0].getTargetId());
         Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
-        AASSubmodelElements tvListElementExpected = ValueConverter.getAasSubmodelElementsType(AasSubmodelElements.SUBMODEL_ELEMENT);
+        AASSubmodelElements tvListElementExpected = ValueConverter.convertAasSubmodelElements(AasSubmodelElements.SUBMODEL_ELEMENT);
         Assert.assertEquals(tvListElementExpected, value.getValue().asOptionSet(AASSubmodelElements.SPECIFICATION));
 
         // SubmodelElementList type

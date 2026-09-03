@@ -803,7 +803,7 @@ public class AasSubmodelElementHelper {
     private static void setEntityPropertyValue(AASEntityType entity, EntityValue value, NodeManagerUaNode nodeManager)
             throws StatusException, ValueFormatException, ServiceResultException {
         // EntityType
-        entity.setEntityType(ValueConverter.getAasEntityType(value.getEntityType()));
+        entity.setEntityType(ValueConverter.convertEntityType(value.getEntityType()));
 
         // globalAssetId
         if ((value.getGlobalAssetId() != null) && (!value.getGlobalAssetId().isEmpty())) {
@@ -915,7 +915,7 @@ public class AasSubmodelElementHelper {
         //    addMultiLanguageValueNode(multiLangProp, values.size(), nodeManager);
         //}
 
-        multiLangProp.setValue(ValueConverter.getLocalizedTextFromLangStringSet(values));
+        multiLangProp.setValue(ValueConverter.convertLangStringSet(values));
     }
 
 

@@ -99,7 +99,7 @@ public class EntityCreator extends SubmodelElementCreator {
                 addSubmodelElementBaseData(entityNode, aasEntity, nodeManager);
 
                 // EntityType
-                entityNode.setEntityType(ValueConverter.getAasEntityType(aasEntity.getEntityType()));
+                entityNode.setEntityType(ValueConverter.convertEntityType(aasEntity.getEntityType()));
 
                 nodeManager.addSubmodelElementAasMap(entityNode.getEntityTypeNode().getNodeId(),
                         new SubmodelElementData(aasEntity, submodel, SubmodelElementData.Type.ENTITY_TYPE, entityRef));

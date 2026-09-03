@@ -26,12 +26,14 @@ import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.common.ServiceResultException;
 import com.prosysopc.ua.types.opcua.BaseObjectType;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.AssetAdministrationShellCreator;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.ConceptDescriptionCreator;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.QualifierCreator;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.SubmodelCreator;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.SubmodelElementCreator;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.AasSubmodelElementHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.UaHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.listener.AasServiceMethodManagerListener;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
@@ -47,7 +49,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.Eleme
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ValueChangeEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.ArrayList;
 import java.util.List;
@@ -187,7 +188,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     /**
      * Maps references to ConceptDescriptions.
      */
-    private final Map<Reference, ConceptDescription> conceptDescriptions;
+    private final Map<String, ConceptDescription> conceptDescriptions;
 
     /**
      * Creates a new instance of AasServiceNodeManager
@@ -302,7 +303,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     private void createAasNodes()
             throws StatusException, ServiceResultException, ServiceException, AddressSpaceException, ValueFormatException, AmbiguousElementException {
         for (ConceptDescription c: aasEnvironment.getConceptDescriptions()) {
-            conceptDescriptions.put(ReferenceBuilder.global(c.getId()), c);
+            conceptDescriptions.put(c.getId(), c);
         }
         //ConceptDescriptionCreator.addConceptDescriptions(aasEnvironment.getConceptDescriptions(), this);
 
@@ -605,9 +606,13 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         // If a particular (Supplemental)SemanticId describes an ExternalReference, 
         // where referredSemanticId is missing, and key contains exactly one element, 
         // where key[0].type is set GlobalReference:
-        if (ReferenceHelper.containsSameReference(conceptDescriptions, semanticId)) {
-            return ReferenceHelper.getValueBySameReference(conceptDescriptions, semanticId);
+        String id = UaHelper.extractId(semanticId);
+        if (conceptDescriptions.containsKey(id)) {
+            return conceptDescriptions.get(id);
         }
+        //if (ReferenceHelper.containsSameReference(conceptDescriptions, semanticId)) {
+        //    return ReferenceHelper.getValueBySameReference(conceptDescriptions, semanticId);
+        //}
         return null;
     }
 
@@ -818,9 +823,9 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     }
 
 
-    private void addEmbeddedDataSpecification(ObjectData parent, Referable value) throws StatusException {
-        // TODO
-        LOGGER.debug("addEmbeddedDataSpecification not yet implemented");
+    private void addEmbeddedDataSpecification(ObjectData parent, Referable value) throws StatusException, ServiceResultException {
+        // TODO: add submodel
+        LOGGER.debug("addEmbeddedDataSpecification not fully implemented");
         //if (parent.getNode() instanceof AASAssetAdministrationShellType aASAssetAdministrationShellType) {
         //    EmbeddedDataSpecificationCreator.addEmbeddedDataSpecifications(aASAssetAdministrationShellType,
         //            List.of((EmbeddedDataSpecification) value), this);
@@ -828,11 +833,16 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         //else if (parent.getNode() instanceof AASSubmodelType aASSubmodelType) {
         //    EmbeddedDataSpecificationCreator.addEmbeddedDataSpecifications(aASSubmodelType, List.of((EmbeddedDataSpecification) value), this);
         //}
-        //else if (parent.getNode() instanceof AASSubmodelElementType aASSubmodelElementType) {
-        //    EmbeddedDataSpecificationCreator.addEmbeddedDataSpecifications(aASSubmodelElementType, List.of((EmbeddedDataSpecification) value), this);
-        //}
-        //else {
-        //    LOG.debug("elementCreated: EmbeddedDataSpecification parent class not found");
-        //}
+        if (parent.getNode() instanceof AASSubmodelElementObjectType aasSubmodelElementType) {
+            ConceptDescriptionCreator.addConceptDescription(aasSubmodelElementType, null, List.of((EmbeddedDataSpecification) value), this);
+            //EmbeddedDataSpecificationCreator.addEmbeddedDataSpecifications(aASSubmodelElementType, List.of((EmbeddedDataSpecification) value), this);
+        }
+        else if (parent.getNode() instanceof AASSubmodelElementVariableType aasSubmodelElementType) {
+            ConceptDescriptionCreator.addConceptDescription(aasSubmodelElementType, null, List.of((EmbeddedDataSpecification) value), this);
+            //EmbeddedDataSpecificationCreator.addEmbeddedDataSpecifications(aASSubmodelElementType, List.of((EmbeddedDataSpecification) value), this);
+        }
+        else {
+            LOGGER.debug("elementCreated: EmbeddedDataSpecification parent class not found");
+        }
     }
 }

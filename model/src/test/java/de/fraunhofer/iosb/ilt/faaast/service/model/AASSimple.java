@@ -231,6 +231,7 @@ public class AASSimple {
                         .category(SUBMODEL_TECHNICAL_DATA_PROPERTY_CATEGORY)
                         .value(SUBMODEL_TECHNICAL_DATA_PROPERTY_VALUE)
                         .valueType(DataTypeDefXsd.INTEGER)
+                        //.embeddedDataSpecifications(CONCEPT_DESCRIPTION_MAXROTATIONSPEED.getEmbeddedDataSpecifications())
                         .build())
                 .submodelElements(new DefaultProperty.Builder()
                         .idShort(SUBMODEL_TECHNICAL_DATA_PROPERTY2_ID_SHORT)
@@ -604,7 +605,7 @@ public class AASSimple {
                 .submodels(createSubmodelOperationalData())
                 .conceptDescriptions(createConceptDescriptionTitle())
                 .conceptDescriptions(createConceptDescriptionDigitalFile())
-                .conceptDescriptions(createConceptDescriptionMaxRotationSpeed())
+                .conceptDescriptions(CONCEPT_DESCRIPTION_MAXROTATIONSPEED)
                 .conceptDescriptions(createConceptDescriptionRotationSpeed())
                 .conceptDescriptions(createConceptDescriptionDocument())
                 .build();

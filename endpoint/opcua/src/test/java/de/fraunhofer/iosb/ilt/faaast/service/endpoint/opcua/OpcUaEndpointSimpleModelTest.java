@@ -41,6 +41,7 @@ import com.prosysopc.ua.stack.transport.security.SecurityMode;
 import com.prosysopc.ua.stack.transport.security.SecurityPolicy;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.CommonAttributesData;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.DataSpecificationData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.TestConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.TestService;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.TestUtils;
@@ -61,6 +62,7 @@ import java.util.List;
 import java.util.Set;
 import opc.ua.aas.ReferenceTypeIds;
 import opc.ua.aas.VariableIds;
+import opc.ua.aas.datatypes.AASDataTypeIec61360;
 import opc.ua.aas.datatypes.AASEntityEnumType;
 import opc.ua.aas.datatypes.AASKey;
 import opc.ua.aas.datatypes.AASKeyTypes;
@@ -739,7 +741,25 @@ public class OpcUaEndpointSimpleModelTest {
         TestUtils.checkAasPropertyObject(client, submodelNode, aasns, TestConstants.DECIMAL_PROPERTY, "PARAMETER",
                 Datatype.DECIMAL, new BigDecimal(123456), new ArrayList<>());
 
-        TestUtils.checkSubmodelElementConceptDescription(client, submodelNode, TestConstants.MAX_ROTATION_SPEED_NAME, aasns, "0173-1#02-BAA120#008", "2", "1");
+        AASKey[] keysDataSpec = {
+                new AASKey(AASKeyTypes.of(AASKeyTypes.Options.GlobalReference), TestConstants.MAX_ROTATION_SPEED_DATA_SPEC)
+        };
+        AASKey[] keysUnitId = {
+                new AASKey(AASKeyTypes.of(AASKeyTypes.Options.GlobalReference), TestConstants.MAX_ROTATIONSPEED_UNIT_ID)
+        };
+        LocalizedText[] preferredNames = {
+                new LocalizedText(TestConstants.MAX_DREHZAHL_PREFERRED, "de"),
+                new LocalizedText(TestConstants.MAX_ROTATIONSPEED_PREFERRED, "en")
+        };
+        LocalizedText[] definitions = {
+                new LocalizedText(TestConstants.MAX_ROTATIONSPEED_DEFINITION_DE, "de"),
+                new LocalizedText(TestConstants.MAX_ROTATIONSPEED_DEFINITION_EN, "EN")
+        };
+        DataSpecificationData dataSpec = new DataSpecificationData(
+                new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ExternalReference), null, keysDataSpec), preferredNames,
+                "1/min", AASDataTypeIec61360.of(AASDataTypeIec61360.Options.REAL_MEASURE), "ExampleString", definitions,
+                new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ExternalReference), null, keysUnitId));
+        TestUtils.checkSubmodelElementConceptDescription(client, submodelNode, TestConstants.MAX_ROTATION_SPEED_NAME, aasns, "0173-1#02-BAA120#008", "2", "1", dataSpec);
     }
 
 
@@ -760,7 +780,7 @@ public class OpcUaEndpointSimpleModelTest {
         Assert.assertEquals(QualifiedName.from(aasns, "DigitalFile_PDF"), refs.get(1).getBrowseName());
 
         // check ConceptDescription
-        TestUtils.checkConceptDescription(client, node, aasns, TestConstants.OPERATING_MANUAL_CONCEPT_DESCRIPTION, null, null);
+        TestUtils.checkConceptDescription(client, node, aasns, TestConstants.OPERATING_MANUAL_CONCEPT_DESCRIPTION, null, null, null);
 
         TestUtils.checkAasPropertyFile(client, node, aasns, "DigitalFile_PDF", AASModellingKind.of(AASModellingKind.Options.Instance), "", "application/pdf",
                 "file:///aasx/OperatingManual.pdf", 0);

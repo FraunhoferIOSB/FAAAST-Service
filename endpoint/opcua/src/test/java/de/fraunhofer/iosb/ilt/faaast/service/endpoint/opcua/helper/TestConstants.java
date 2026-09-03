@@ -44,12 +44,18 @@ public class TestConstants {
     public static final String TEST_ENTITY_NAME = "ExampleEntity";
     public static final String TEST_ENTITY_PROPERTY_NAME = "ExampleProperty2";
     public static final String DECIMAL_PROPERTY = "DecimalProperty";
-    public static final String SUBMODEL_DOC_PROPERTY_TITLE_NAME = "Title";
+    public static final String SIMPLE_TITLE_NAME = "Title";
     public static final String SUBMODEL_DOC_FILE_NAME = "DigitalFile_PDF";
     public static final String SUBMODEL_ELEMENT_LIST_ORDERED_NAME = "ExampleSubmodelElementListOrdered";
     public static final String ORDER_RELEVANT = "OrderRelevant";
     public static final String TYPE_VALUE_LIST_ELEMENT = "TypeValueListElement";
     public static final String VALUE_TYPE_LIST_ELEMENT = "ValueTypeListElement";
+    public static final String MAX_ROTATION_SPEED_DATA_SPEC = "https://admin-shell.io/aas/3/1/RC02/DataSpecificationIEC61360";
+    public static final String MAX_ROTATIONSPEED_PREFERRED = "Max.rotationspeed";
+    public static final String MAX_DREHZAHL_PREFERRED = "max.Drehzahl";
+    public static final String MAX_ROTATIONSPEED_DEFINITION_DE = "HöchstezulässigeDrehzahl,mitwelcherderMotoroderdieSpeiseinheitbetriebenwerdendarf";
+    public static final String MAX_ROTATIONSPEED_DEFINITION_EN = "Greatestpermissiblerotationspeedwithwhichthemotororfeedingunitmaybeoperated";
+    public static final String MAX_ROTATIONSPEED_UNIT_ID = "0173-1#05-AAA650#002";
 
     public static final String SUBMODEL_PREFIX = "Submodel:";
     public static final String FULL_SUBMODEL_1_NAME = "Identification";

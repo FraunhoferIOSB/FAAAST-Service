@@ -24,16 +24,16 @@ import opc.ua.aas.datatypes.AASReference;
 import opc.ua.aas.datatypes.AASSubmodelElementCommonAttributes;
 import opc.ua.aas.objecttypes.AASAssetAdministrationShellType;
 import opc.ua.aas.objecttypes.AASSubmodelType;
-import org.eclipse.digitaltwin.aas4j.v3.model.EmbeddedDataSpecification;
+import org.eclipse.digitaltwin.aas4j.v3.model.HasDataSpecification;
 
 
 /**
  * Helper class to create EmbeddedDataSpecifications and integrate them into
  * the OPC UA address space.
  */
-public class EmbeddedDataSpecificationCreator {
+public class HasDataSpecificationCreator {
 
-    private EmbeddedDataSpecificationCreator() {
+    private HasDataSpecificationCreator() {
         throw new IllegalStateException("Class not instantiable");
     }
 
@@ -42,17 +42,17 @@ public class EmbeddedDataSpecificationCreator {
      * Adds the given Embedded Data Specifications to the desired node.
      *
      * @param aasNode The desired object where the DataSpecifications should be added
-     * @param list The list of the desired Data Specifications
+     * @param dataSpecification The desired Data Specification
      * @param nodeManager The corresponding Node Manager
      * @throws StatusException If the operation fails
      */
-    public static void addEmbeddedDataSpecifications(AASAssetAdministrationShellType aasNode, List<EmbeddedDataSpecification> list, AasServiceNodeManager nodeManager)
+    public static void addHasDataSpecification(AASAssetAdministrationShellType aasNode, HasDataSpecification dataSpecification, AasServiceNodeManager nodeManager)
             throws StatusException {
-        if ((list != null) && (!list.isEmpty())) {
-            //AASEmbeddedDataSpecificationList listNode = aasNode.getEmbeddedDataSpecificationNode();
-            AASHasDataSpecification listNode = aasNode.getCommonAttributes().getHasDataSpecification();
-            addEmbeddedDataSpecifications(list, listNode);
-        }
+        //if ((list != null) && (!list.isEmpty())) {
+        //AASEmbeddedDataSpecificationList listNode = aasNode.getEmbeddedDataSpecificationNode();
+        AASHasDataSpecification listNode = aasNode.getCommonAttributes().getHasDataSpecification();
+        HasDataSpecificationCreator.addHasDataSpecification(dataSpecification, listNode);
+        //}
     }
 
 
@@ -60,16 +60,16 @@ public class EmbeddedDataSpecificationCreator {
      * Adds the given Embedded Data Specifications to the desired node.
      *
      * @param aasNode The desired object where the DataSpecifications should be added
-     * @param list The list of the desired Data Specifications
+     * @param dataSpecification The desired Data Specification
      * @param nodeManager The corresponding Node Manager
      * @throws StatusException If the operation fails
      */
-    public static void addEmbeddedDataSpecifications(AASConceptDescriptionCommonAttributes aasNode, List<EmbeddedDataSpecification> list, AasServiceNodeManager nodeManager)
+    public static void addHasDataSpecification(AASConceptDescriptionCommonAttributes aasNode, HasDataSpecification dataSpecification, AasServiceNodeManager nodeManager)
             throws StatusException {
-        if ((list != null) && (!list.isEmpty())) {
-            //AASEmbeddedDataSpecificationList listNode = aasNode.getEmbeddedDataSpecificationNode();
-            addEmbeddedDataSpecifications(list, aasNode.getHasDataSpecification());
-        }
+        //if ((list != null) && (!list.isEmpty())) {
+        //AASEmbeddedDataSpecificationList listNode = aasNode.getEmbeddedDataSpecificationNode();
+        HasDataSpecificationCreator.addHasDataSpecification(dataSpecification, aasNode.getHasDataSpecification());
+        //}
     }
 
 
@@ -77,17 +77,18 @@ public class EmbeddedDataSpecificationCreator {
      * Adds the references to the given Embedded Data Specifications.
      *
      * @param submodelElementCommonNode The desired object where the DataSpecifications should be added.
-     * @param list The list of the desired Data Specifications
+     * @param dataSpecification The desired Data Specification
      * @param nodeManager The corresponding Node Manager
      * @throws StatusException If the operation fails
      */
-    public static void addEmbeddedDataSpecifications(AASSubmodelElementCommonAttributes submodelElementCommonNode, List<EmbeddedDataSpecification> list,
-                                                     AasServiceNodeManager nodeManager)
+    public static void addHasDataSpecification(AASSubmodelElementCommonAttributes submodelElementCommonNode, HasDataSpecification dataSpecification,
+                                               AasServiceNodeManager nodeManager)
             throws StatusException {
-        if ((list != null) && (!list.isEmpty())) {
-            AASHasDataSpecification listNode = submodelElementCommonNode.getHasDataSpecification();
-            addEmbeddedDataSpecifications(list, listNode);
-        }
+        //var list = dataSpecification.getEmbeddedDataSpecifications();
+        //if ((list != null) && (!list.isEmpty())) {
+        AASHasDataSpecification listNode = submodelElementCommonNode.getHasDataSpecification();
+        addHasDataSpecification(dataSpecification, listNode);
+        //}
     }
 
 
@@ -95,30 +96,30 @@ public class EmbeddedDataSpecificationCreator {
      * Adds the references to the given Embedded Data Specifications.
      *
      * @param submodelNode The desired object where the DataSpecifications should be added
-     * @param list The list of the desired Data Specifications
+     * @param dataSpecification The desired Data Specification
      * @param nodeManager The corresponding Node Manager
      * @throws StatusException If the operation fails
      */
-    public static void addEmbeddedDataSpecifications(AASSubmodelType submodelNode, List<EmbeddedDataSpecification> list, AasServiceNodeManager nodeManager) throws StatusException {
-        if ((list != null) && (!list.isEmpty())) {
-
-            AASHasDataSpecification listNode = submodelNode.getCommonAttributes().getHasDataSpecification();
-            addEmbeddedDataSpecifications(list, listNode);
-        }
+    public static void addHasDataSpecification(AASSubmodelType submodelNode, HasDataSpecification dataSpecification, AasServiceNodeManager nodeManager) throws StatusException {
+        //if ((list != null) && (!list.isEmpty())) {
+        AASHasDataSpecification listNode = submodelNode.getCommonAttributes().getHasDataSpecification();
+        HasDataSpecificationCreator.addHasDataSpecification(dataSpecification, listNode);
+        //}
     }
 
 
-    private static void addEmbeddedDataSpecifications(List<EmbeddedDataSpecification> list, AASHasDataSpecification listNode)
+    private static void addHasDataSpecification(HasDataSpecification dataSpecification, AASHasDataSpecification listNode)
             throws StatusException {
         //int counter = 1;
         List<AASReference> refList = new ArrayList<>();
-        for (var embedDataSpec: list) {
-            refList.add(ReferenceCreator.getAasReference(embedDataSpec.getDataSpecification()));
-            //addEmbeddedDataSpecificationNode(listNode, embedDataSpec, name + counter++, nodeManager);
-
-            // TODO: DataSpecificationContent?
+        var list = dataSpecification.getEmbeddedDataSpecifications();
+        if ((list != null) && (!list.isEmpty())) {
+            for (var embedDataSpec: list) {
+                refList.add(ReferenceCreator.getAasReference(embedDataSpec.getDataSpecification()));
+                //addEmbeddedDataSpecificationNode(listNode, embedDataSpec, name + counter++, nodeManager);
+            }
+            listNode.setDataSpecification(refList.toArray(AASReference[]::new));
         }
-        listNode.setDataSpecification(refList.toArray(AASReference[]::new));
     }
 
     //    private static void addEmbeddedDataSpecificationNode(UaNode node, EmbeddedDataSpecification embeddedDataSpecification, String name, AasServiceNodeManager nodeManager)

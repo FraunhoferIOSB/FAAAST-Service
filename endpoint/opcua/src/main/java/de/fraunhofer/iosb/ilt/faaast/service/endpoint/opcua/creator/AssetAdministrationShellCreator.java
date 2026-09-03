@@ -117,7 +117,7 @@ public class AssetAdministrationShellCreator {
         aasShell.getCommonAttributes().setIdentifiable(BaseDataCreator.getIdentifiable(aas));
 
         // EmbeddedDataSpecifications
-        EmbeddedDataSpecificationCreator.addEmbeddedDataSpecifications(aasShell, aas.getEmbeddedDataSpecifications(), nodeManager);
+        HasDataSpecificationCreator.addHasDataSpecification(aasShell, aas, nodeManager);
 
         // AssetInformation
         AssetInformation assetInformation = aas.getAssetInformation();

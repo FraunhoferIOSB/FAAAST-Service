@@ -65,7 +65,7 @@ public class ReferenceCreator {
 
         AASKey[] keys = ref.getKeys().stream().map(k -> {
             AASKey keyValue = new AASKey();
-            keyValue.setType(ValueConverter.getAasKeyTypesDataType(k.getType()));
+            keyValue.setType(ValueConverter.convertKeyTypes(k.getType()));
             keyValue.setValue(k.getValue());
             return keyValue;
         }).toArray(AASKey[]::new);

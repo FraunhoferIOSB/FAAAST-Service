@@ -28,6 +28,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatExceptio
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValueFactory;
+import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
 
 /**
@@ -95,6 +97,21 @@ public class UaHelper {
         QualifiedName browseName = UaQualifiedName.from(namespaceUri, name).toQualifiedName(nodeManager.getNamespaceTable());
         LocalizedText displayName = LocalizedText.english(name);
         parentNode.addProperty(createStringProperty(new ValueData(nodeId, browseName, displayName, nodeManager), TypedValueFactory.create(Datatype.STRING, value)));
+    }
+
+
+    /**
+     * Extracts the id from the given reference.
+     *
+     * @param reference The desired reference.
+     * @return The extracted id.
+     */
+    public static String extractId(Reference reference) {
+        Ensure.requireNonNull(reference);
+        if ((reference.getKeys() != null) && (reference.getKeys().size() == 1)) {
+            return reference.getKeys().get(0).getValue();
+        }
+        return null;
     }
 
     /**
@@ -236,7 +253,6 @@ public class UaHelper {
     //    return smelemProperty;
     //}
 
-
     /**
      * Adds a AasSubmodelElements property to the given node.
      *
@@ -252,12 +268,12 @@ public class UaHelper {
     //    parentNode.addProperty(createAasSubmodelElementsProperty(createValueData(parentNode, nodeManager, name, namespaceUri), value));
     //}
 
-    private static ValueData createValueData(UaNode parentNode, NodeManagerUaNode nodeManager, String name, String namespaceUri) {
-        ValueData retval;
-        NodeId nodeId = new NodeId(nodeManager.getNamespaceIndex(), parentNode.getNodeId().getValue().toString() + "." + name);
-        QualifiedName browseName = UaQualifiedName.from(namespaceUri, name).toQualifiedName(nodeManager.getNamespaceTable());
-        LocalizedText displayName = LocalizedText.english(name);
-        retval = new ValueData(nodeId, browseName, displayName, nodeManager);
-        return retval;
-    }
+    //private static ValueData createValueData(UaNode parentNode, NodeManagerUaNode nodeManager, String name, String namespaceUri) {
+    //    ValueData retval;
+    //    NodeId nodeId = new NodeId(nodeManager.getNamespaceIndex(), parentNode.getNodeId().getValue().toString() + "." + name);
+    //    QualifiedName browseName = UaQualifiedName.from(namespaceUri, name).toQualifiedName(nodeManager.getNamespaceTable());
+    //    LocalizedText displayName = LocalizedText.english(name);
+    //    retval = new ValueData(nodeId, browseName, displayName, nodeManager);
+    //    return retval;
+    //}
 }

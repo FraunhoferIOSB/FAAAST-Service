@@ -27,15 +27,25 @@ import com.prosysopc.ua.types.opcua.DictionaryEntryType;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import opc.ua.aas.DataTypeIds;
 import opc.ua.aas.ReferenceTypeIds;
 import opc.ua.aas.datatypes.AASConceptDescription;
 import opc.ua.aas.datatypes.AASConceptDescriptionCommonAttributes;
+import opc.ua.aas.datatypes.AASDataSpecificationContent;
+import opc.ua.aas.datatypes.AASDataSpecificationIec61360;
+import opc.ua.aas.datatypes.AASEmbeddedConceptDescription;
+import opc.ua.aas.datatypes.AASEmbeddedDataSpecification;
+import opc.ua.aas.datatypes.AASLevelType;
 import opc.ua.aas.objecttypes.AASSubmodelElementObjectType;
 import opc.ua.aas.variabletypes.AASSubmodelElementVariableType;
 import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataSpecificationContent;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataSpecificationIec61360;
+import org.eclipse.digitaltwin.aas4j.v3.model.EmbeddedDataSpecification;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
 
@@ -115,24 +125,27 @@ public class ConceptDescriptionCreator {
      *
      * @param node The node where the ConceptDescription should be added.
      * @param conceptDescription The desired ConceptDescription.
+     * @param embeddedDataSpecifications The list of embeddedDataSpecifications.
      * @param nodeManager The NodeManager.
      * @throws StatusException If an error occurs.
      * @throws ServiceResultException If an error occurs.
      */
-    public static void addConceptDescription(AASSubmodelElementObjectType node, ConceptDescription conceptDescription, AasServiceNodeManager nodeManager)
+    public static void addConceptDescription(AASSubmodelElementObjectType node, ConceptDescription conceptDescription, List<EmbeddedDataSpecification> embeddedDataSpecifications,
+                                             AasServiceNodeManager nodeManager)
             throws StatusException, ServiceResultException {
-        if (conceptDescription != null) {
-            if (node.getConceptDescriptionNode() == null) {
-                // add node
-                String name = AASSubmodelElementObjectType.CONCEPT_DESCRIPTION;
-                QualifiedName browseName = UaQualifiedName.from(DataTypeIds.AASConceptDescription.getNamespaceUri(), name)
-                        .toQualifiedName(nodeManager.getNamespaceTable());
-                NodeId nid = nodeManager.createNodeId(node, browseName);
-                BaseDataVariableType cdnode = nodeManager.createInstance(BaseDataVariableType.class, nid, browseName, LocalizedText.english(name));
-                node.addReference(cdnode, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasConceptDescription));
-            }
-            node.setConceptDescription(getConceptDescriptionData(conceptDescription));
+        if ((conceptDescription == null) && ((embeddedDataSpecifications == null) || embeddedDataSpecifications.isEmpty())) {
+            return;
         }
+        if (node.getConceptDescriptionNode() == null) {
+            // add node
+            String name = AASSubmodelElementObjectType.CONCEPT_DESCRIPTION;
+            QualifiedName browseName = UaQualifiedName.from(DataTypeIds.AASConceptDescription.getNamespaceUri(), name)
+                    .toQualifiedName(nodeManager.getNamespaceTable());
+            NodeId nid = nodeManager.createNodeId(node, browseName);
+            BaseDataVariableType cdnode = nodeManager.createInstance(BaseDataVariableType.class, nid, browseName, LocalizedText.english(name));
+            node.addReference(cdnode, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasConceptDescription));
+        }
+        node.setConceptDescription(getConceptDescriptionData(conceptDescription, embeddedDataSpecifications));
     }
 
 
@@ -141,24 +154,27 @@ public class ConceptDescriptionCreator {
      *
      * @param node The node where the ConceptDescription should be added.
      * @param conceptDescription The desired ConceptDescription.
+     * @param embeddedDataSpecifications The list of embeddedDataSpecifications.
      * @param nodeManager The NodeManager.
      * @throws StatusException if an error occurs.
      * @throws ServiceResultException If an error occurs.
      */
-    public static void addConceptDescription(AASSubmodelElementVariableType node, ConceptDescription conceptDescription, AasServiceNodeManager nodeManager)
+    public static void addConceptDescription(AASSubmodelElementVariableType node, ConceptDescription conceptDescription, List<EmbeddedDataSpecification> embeddedDataSpecifications,
+                                             AasServiceNodeManager nodeManager)
             throws StatusException, ServiceResultException {
-        if (conceptDescription != null) {
-            if (node.getConceptDescriptionNode() == null) {
-                // add node
-                String name = AASSubmodelElementVariableType.CONCEPT_DESCRIPTION;
-                QualifiedName browseName = UaQualifiedName.from(DataTypeIds.AASConceptDescription.getNamespaceUri(), name)
-                        .toQualifiedName(nodeManager.getNamespaceTable());
-                NodeId nid = nodeManager.createNodeId(node, browseName);
-                BaseDataVariableType cdnode = nodeManager.createInstance(BaseDataVariableType.class, nid, browseName, LocalizedText.english(name));
-                node.addReference(cdnode, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasConceptDescription));
-            }
-            node.setConceptDescription(getConceptDescriptionData(conceptDescription));
+        if ((conceptDescription == null) && ((embeddedDataSpecifications == null) || embeddedDataSpecifications.isEmpty())) {
+            return;
         }
+        if (node.getConceptDescriptionNode() == null) {
+            // add node
+            String name = AASSubmodelElementVariableType.CONCEPT_DESCRIPTION;
+            QualifiedName browseName = UaQualifiedName.from(DataTypeIds.AASConceptDescription.getNamespaceUri(), name)
+                    .toQualifiedName(nodeManager.getNamespaceTable());
+            NodeId nid = nodeManager.createNodeId(node, browseName);
+            BaseDataVariableType cdnode = nodeManager.createInstance(BaseDataVariableType.class, nid, browseName, LocalizedText.english(name));
+            node.addReference(cdnode, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasConceptDescription));
+        }
+        node.setConceptDescription(getConceptDescriptionData(conceptDescription, embeddedDataSpecifications));
     }
 
 
@@ -198,19 +214,44 @@ public class ConceptDescriptionCreator {
     //        }
     //    }
 
-    private static AASConceptDescription getConceptDescriptionData(ConceptDescription conceptDescription) throws StatusException {
-        AASConceptDescription descriptionNode = new AASConceptDescription();
+    private static AASConceptDescription getConceptDescriptionData(ConceptDescription conceptDescription, List<EmbeddedDataSpecification> embeddedDataSpecifications)
+            throws StatusException {
+        AASConceptDescription descriptionNode;
 
-        if (conceptDescription.getIdShort() != null) {
-            descriptionNode.setIdShort(conceptDescription.getIdShort());
+        List<AASEmbeddedDataSpecification> list = new ArrayList<>();
+        if (embeddedDataSpecifications != null) {
+            for (var embedDataSpec: embeddedDataSpecifications) {
+                list.add(getEmbeddedDataDescription(embedDataSpec));
+            }
         }
 
-        if (conceptDescription.getDisplayName() != null) {
-            descriptionNode.setDisplayName(ValueConverter.getLocalizedTextFromLangStringSet(conceptDescription.getDisplayName()));
+        if ((conceptDescription != null) && (conceptDescription.getEmbeddedDataSpecifications() != null)) {
+            for (var embedDataSpec: conceptDescription.getEmbeddedDataSpecifications()) {
+                list.add(getEmbeddedDataDescription(embedDataSpec));
+            }
         }
 
-        if (conceptDescription.getDescription() != null) {
-            descriptionNode.setDescription(ValueConverter.getLocalizedTextFromLangStringSet(conceptDescription.getDescription()));
+        if (!list.isEmpty()) {
+            AASEmbeddedConceptDescription embeddedDescription = new AASEmbeddedConceptDescription();
+            embeddedDescription.setEmbeddedDataSpecification(list.toArray(AASEmbeddedDataSpecification[]::new));
+            descriptionNode = embeddedDescription;
+        }
+        else {
+            descriptionNode = new AASConceptDescription();
+        }
+
+        if (conceptDescription != null) {
+            if (conceptDescription.getIdShort() != null) {
+                descriptionNode.setIdShort(conceptDescription.getIdShort());
+            }
+
+            if (conceptDescription.getDisplayName() != null) {
+                descriptionNode.setDisplayName(ValueConverter.convertLangStringSet(conceptDescription.getDisplayName()));
+            }
+
+            if (conceptDescription.getDescription() != null) {
+                descriptionNode.setDescription(ValueConverter.convertLangStringSet(conceptDescription.getDescription()));
+            }
         }
 
         // check CommonAttributes
@@ -222,6 +263,74 @@ public class ConceptDescriptionCreator {
         descriptionNode.getCommonAttributes().setIdentifiable(BaseDataCreator.getIdentifiable(conceptDescription));
 
         return descriptionNode;
+    }
+
+
+    private static AASEmbeddedDataSpecification getEmbeddedDataDescription(EmbeddedDataSpecification dataSpecification) {
+        AASEmbeddedDataSpecification retval = new AASEmbeddedDataSpecification();
+
+        retval.setDataSpecification(ReferenceCreator.getAasReference(dataSpecification.getDataSpecification()));
+        retval.setDataSpecificationContent(getDataSpecificationContent(dataSpecification.getDataSpecificationContent()));
+        return retval;
+    }
+
+
+    private static AASDataSpecificationContent getDataSpecificationContent(DataSpecificationContent content) {
+        AASDataSpecificationContent retval = null;
+        if ((content != null) && (content instanceof DataSpecificationIec61360 content61360)) {
+            var builder = AASDataSpecificationIec61360.builder();
+            //retval = new AASDataSpecificationIec61360();
+            if (content61360.getDataType() != null) {
+                builder.setDataType(ValueConverter.convertDataTypeIec61360(content61360.getDataType()));
+            }
+
+            if (content61360.getDefinition() != null) {
+                builder.setDefinition(ValueConverter.convertLangStringSet(content61360.getDefinition()));
+            }
+
+            if (content61360.getLevelType() != null) {
+                var level = content61360.getLevelType();
+                builder.setLevelType(new AASLevelType(level.getMin(), level.getMax(), level.getNom(), level.getTyp()));
+            }
+
+            if (content61360.getPreferredName() != null) {
+                builder.setPreferredName(ValueConverter.convertLangStringSet(content61360.getPreferredName()));
+            }
+
+            if (content61360.getShortName() != null) {
+                builder.setShortName(ValueConverter.convertLangStringSet(content61360.getShortName()));
+            }
+
+            if (content61360.getSourceOfDefinition() != null) {
+                builder.setSourceOfDefinition(content61360.getSourceOfDefinition());
+            }
+
+            if (content61360.getSymbol() != null) {
+                builder.setSymbol(content61360.getSymbol());
+            }
+
+            if (content61360.getUnit() != null) {
+                builder.setUnit(content61360.getUnit());
+            }
+
+            if (content61360.getUnitId() != null) {
+                builder.setUnitId(ReferenceCreator.getAasReference(content61360.getUnitId()));
+            }
+
+            if (content61360.getValue() != null) {
+                builder.setValue(content61360.getValue());
+            }
+
+            if (content61360.getValueFormat() != null) {
+                builder.setValueFormat(content61360.getValueFormat());
+            }
+
+            if (content61360.getValueList() != null) {
+                builder.setValueList(ValueConverter.convertValueList(content61360.getValueList()));
+            }
+            retval = builder.build();
+        }
+        return retval;
     }
 
     /**

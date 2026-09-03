@@ -126,7 +126,7 @@ public class SubmodelCreator {
 
         // DataSpecifications
         // TODO EmbeddedDataSpecifications
-        EmbeddedDataSpecificationCreator.addEmbeddedDataSpecifications(smNode, submodel.getEmbeddedDataSpecifications(), nodeManager);
+        HasDataSpecificationCreator.addHasDataSpecification(smNode, submodel, nodeManager);
 
         // Qualifiers
         List<Qualifier> qualifiers = submodel.getQualifiers();
