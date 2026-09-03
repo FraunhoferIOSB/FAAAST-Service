@@ -173,7 +173,7 @@ public class SubmodelElementCreator {
                 node.setCommonAttributes(new AASSubmodelElementCommonAttributes());
             }
 
-            setSubmodelElementCommonAttributes(node.getCommonAttributes(), element, nodeManager);
+            setSubmodelElementCommonAttributes(node.getCommonAttributes(), element);
 
             ConceptDescription conceptDescription = null;
 
@@ -207,7 +207,7 @@ public class SubmodelElementCreator {
                 node.setCommonAttributes(new AASSubmodelElementCommonAttributes());
             }
 
-            setSubmodelElementCommonAttributes(node.getCommonAttributes(), element, nodeManager);
+            setSubmodelElementCommonAttributes(node.getCommonAttributes(), element);
 
             ConceptDescription conceptDescription = null;
 
@@ -239,13 +239,13 @@ public class SubmodelElementCreator {
     }
 
 
-    private static void setSubmodelElementCommonAttributes(AASSubmodelElementCommonAttributes commonAttributes, SubmodelElement element, AasServiceNodeManager nodeManager)
+    private static void setSubmodelElementCommonAttributes(AASSubmodelElementCommonAttributes commonAttributes, SubmodelElement element)
             throws StatusException {
 
         commonAttributes.setReferable(ReferableCreator.getReferableData(element));
 
         // DataSpecifications
-        HasDataSpecificationCreator.addHasDataSpecification(commonAttributes, element, nodeManager);
+        HasDataSpecificationCreator.addHasDataSpecification(commonAttributes, element);
 
         // Qualifiers
         List<Qualifier> qualifiers = element.getQualifiers();
@@ -254,7 +254,7 @@ public class SubmodelElementCreator {
                 commonAttributes.setQualifiable(new AASQualifiable());
             }
 
-            QualifierCreator.addQualifiers(commonAttributes.getQualifiable(), qualifiers, nodeManager);
+            QualifierCreator.addQualifiers(commonAttributes.getQualifiable(), qualifiers);
         }
     }
 }

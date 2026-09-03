@@ -241,6 +241,9 @@ public class ConceptDescriptionCreator {
         }
 
         if (conceptDescription != null) {
+            descriptionNode.getCommonAttributes().setIdentifiable(BaseDataCreator.getIdentifiable(conceptDescription));
+            HasDataSpecificationCreator.addHasDataSpecification(descriptionNode.getCommonAttributes(), conceptDescription);
+
             if (conceptDescription.getIdShort() != null) {
                 descriptionNode.setIdShort(conceptDescription.getIdShort());
             }
@@ -333,33 +336,4 @@ public class ConceptDescriptionCreator {
         return retval;
     }
 
-    /**
-     * Adds AAS Identifiable information to the given node.
-     *
-     * @param conceptDescriptionNode The desired node where the Identifiable information should be added
-     * @param identifier The corresponding AAS Identifier
-     * @param adminInfo The corresponding AAS Administrative Information
-     * @param category The desired category
-     * @param nodeManager The corresponding Node Manager
-     */
-    //    private static void addIdentifiableData(AASConceptDescription conceptDescriptionNode, Identifiable identifiable, String identifier, AdministrativeInformation adminInfo, String category,
-    //                                            AasServiceNodeManager nodeManager)
-    //            throws StatusException {
-    //        if (conceptDescriptionNode.getCommonAttributes().getIdentifiable() == null) {
-    //            conceptDescriptionNode.getCommonAttributes().setIdentifiable(new AASIdentifiable());
-    //        }
-    //        IdentifiableCreator.addIdentifiable(conceptDescriptionNode.getCommonAttributes().getIdentifiable(), identifier, adminInfo, category, nodeManager);
-    //
-    //        //        if (identifier != null) {
-    //        //            conceptDescriptionNode.setId(identifier);
-    //        //        }
-    //        //
-    //        //        AdministrativeInformationCreator.addAdminInformationProperties(conceptDescriptionNode.getAdministrationNode(), adminInfo, nodeManager);
-    //        //
-    //        //        conceptDescriptionNode.setCategory(category != null ? category : "");
-    //        //
-    //        //        if (AasServiceNodeManager.VALUES_READ_ONLY) {
-    //        //            conceptDescriptionNode.getCategoryNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
-    //        //        }
-    //    }
 }

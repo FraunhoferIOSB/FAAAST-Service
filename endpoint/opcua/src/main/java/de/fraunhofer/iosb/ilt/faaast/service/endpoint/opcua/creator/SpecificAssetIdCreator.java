@@ -16,10 +16,10 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator;
 
 import com.prosysopc.ua.StatusException;
 import com.prosysopc.ua.ValueRanks;
+import com.prosysopc.ua.server.NodeManagerUaNode;
 import com.prosysopc.ua.stack.builtintypes.UnsignedInteger;
 import com.prosysopc.ua.stack.common.ServiceResultException;
 import com.prosysopc.ua.types.opcua.BaseDataVariableType;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import java.util.ArrayList;
 import java.util.List;
 import opc.ua.aas.DataTypeIds;
@@ -51,7 +51,7 @@ public class SpecificAssetIdCreator {
      * @throws StatusException If the operation fails
      * @throws com.prosysopc.ua.stack.common.ServiceResultException
      */
-    public static void addSpecificAssetIdList(BaseDataVariableType node, List<SpecificAssetId> specificAssetIds, AasServiceNodeManager nodeManager)
+    public static void addSpecificAssetIdList(BaseDataVariableType node, List<SpecificAssetId> specificAssetIds, NodeManagerUaNode nodeManager)
             throws StatusException, ServiceResultException {
 
         //int index = 1;

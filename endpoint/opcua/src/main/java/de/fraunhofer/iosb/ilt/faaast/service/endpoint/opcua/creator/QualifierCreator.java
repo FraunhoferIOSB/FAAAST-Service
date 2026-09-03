@@ -59,10 +59,9 @@ public class QualifierCreator {
      *
      * @param opcQualifiable The UA node in which the Qualifiers should be created
      * @param qualifiers The desired list of Qualifiers
-     * @param nodeManager The corresponding Node Manager
      * @throws StatusException If the operation fails
      */
-    public static void addQualifiers(AASQualifiable opcQualifiable, List<Qualifier> qualifiers, AasServiceNodeManager nodeManager) throws StatusException {
+    public static void addQualifiers(AASQualifiable opcQualifiable, List<Qualifier> qualifiers) throws StatusException {
         if (opcQualifiable == null) {
             throw new IllegalArgumentException("listNode = null");
         }

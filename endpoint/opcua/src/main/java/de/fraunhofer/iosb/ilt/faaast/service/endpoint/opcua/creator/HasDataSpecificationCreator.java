@@ -15,7 +15,6 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator;
 
 import com.prosysopc.ua.StatusException;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import java.util.ArrayList;
 import java.util.List;
 import opc.ua.aas.datatypes.AASConceptDescriptionCommonAttributes;
@@ -43,16 +42,12 @@ public class HasDataSpecificationCreator {
      *
      * @param aasNode The desired object where the DataSpecifications should be added
      * @param dataSpecification The desired Data Specification
-     * @param nodeManager The corresponding Node Manager
      * @throws StatusException If the operation fails
      */
-    public static void addHasDataSpecification(AASAssetAdministrationShellType aasNode, HasDataSpecification dataSpecification, AasServiceNodeManager nodeManager)
+    public static void addHasDataSpecification(AASAssetAdministrationShellType aasNode, HasDataSpecification dataSpecification)
             throws StatusException {
-        //if ((list != null) && (!list.isEmpty())) {
-        //AASEmbeddedDataSpecificationList listNode = aasNode.getEmbeddedDataSpecificationNode();
         AASHasDataSpecification listNode = aasNode.getCommonAttributes().getHasDataSpecification();
         HasDataSpecificationCreator.addHasDataSpecification(dataSpecification, listNode);
-        //}
     }
 
 
@@ -61,15 +56,11 @@ public class HasDataSpecificationCreator {
      *
      * @param aasNode The desired object where the DataSpecifications should be added
      * @param dataSpecification The desired Data Specification
-     * @param nodeManager The corresponding Node Manager
      * @throws StatusException If the operation fails
      */
-    public static void addHasDataSpecification(AASConceptDescriptionCommonAttributes aasNode, HasDataSpecification dataSpecification, AasServiceNodeManager nodeManager)
+    public static void addHasDataSpecification(AASConceptDescriptionCommonAttributes aasNode, HasDataSpecification dataSpecification)
             throws StatusException {
-        //if ((list != null) && (!list.isEmpty())) {
-        //AASEmbeddedDataSpecificationList listNode = aasNode.getEmbeddedDataSpecificationNode();
         HasDataSpecificationCreator.addHasDataSpecification(dataSpecification, aasNode.getHasDataSpecification());
-        //}
     }
 
 
@@ -78,17 +69,12 @@ public class HasDataSpecificationCreator {
      *
      * @param submodelElementCommonNode The desired object where the DataSpecifications should be added.
      * @param dataSpecification The desired Data Specification
-     * @param nodeManager The corresponding Node Manager
      * @throws StatusException If the operation fails
      */
-    public static void addHasDataSpecification(AASSubmodelElementCommonAttributes submodelElementCommonNode, HasDataSpecification dataSpecification,
-                                               AasServiceNodeManager nodeManager)
+    public static void addHasDataSpecification(AASSubmodelElementCommonAttributes submodelElementCommonNode, HasDataSpecification dataSpecification)
             throws StatusException {
-        //var list = dataSpecification.getEmbeddedDataSpecifications();
-        //if ((list != null) && (!list.isEmpty())) {
         AASHasDataSpecification listNode = submodelElementCommonNode.getHasDataSpecification();
         addHasDataSpecification(dataSpecification, listNode);
-        //}
     }
 
 
@@ -97,14 +83,11 @@ public class HasDataSpecificationCreator {
      *
      * @param submodelNode The desired object where the DataSpecifications should be added
      * @param dataSpecification The desired Data Specification
-     * @param nodeManager The corresponding Node Manager
      * @throws StatusException If the operation fails
      */
-    public static void addHasDataSpecification(AASSubmodelType submodelNode, HasDataSpecification dataSpecification, AasServiceNodeManager nodeManager) throws StatusException {
-        //if ((list != null) && (!list.isEmpty())) {
+    public static void addHasDataSpecification(AASSubmodelType submodelNode, HasDataSpecification dataSpecification) throws StatusException {
         AASHasDataSpecification listNode = submodelNode.getCommonAttributes().getHasDataSpecification();
         HasDataSpecificationCreator.addHasDataSpecification(dataSpecification, listNode);
-        //}
     }
 
 

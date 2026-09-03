@@ -126,11 +126,11 @@ public class SubmodelCreator {
 
         // DataSpecifications
         // TODO EmbeddedDataSpecifications
-        HasDataSpecificationCreator.addHasDataSpecification(smNode, submodel, nodeManager);
+        HasDataSpecificationCreator.addHasDataSpecification(smNode, submodel);
 
         // Qualifiers
         List<Qualifier> qualifiers = submodel.getQualifiers();
-        setQualifierData(qualifiers, smNode, nodeManager);
+        setQualifierData(qualifiers, smNode);
 
         // Description
         DescriptionCreator.addDescriptions(smNode, submodel.getDescription());
@@ -166,16 +166,13 @@ public class SubmodelCreator {
     }
 
 
-    private static void setQualifierData(List<Qualifier> qualifiers, AASSubmodelType smNode, AasServiceNodeManager nodeManager) throws StatusException {
+    private static void setQualifierData(List<Qualifier> qualifiers, AASSubmodelType smNode) throws StatusException {
         if ((qualifiers != null) && (!qualifiers.isEmpty())) {
-            //if (smNode.getQualifierNode() == null) {
-            //    QualifierCreator.addQualifierNode(smNode, nodeManager);
-            //}
             if (smNode.getCommonAttributes().getQualifiable() == null) {
                 smNode.getCommonAttributes().setQualifiable(new AASQualifiable());
             }
 
-            QualifierCreator.addQualifiers(smNode.getCommonAttributes().getQualifiable(), qualifiers, nodeManager);
+            QualifierCreator.addQualifiers(smNode.getCommonAttributes().getQualifiable(), qualifiers);
         }
     }
 

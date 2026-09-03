@@ -45,23 +45,9 @@ public class BaseDataCreator {
         }
         AASIdentifiable retval = new AASIdentifiable();
 
-        //Ensure.requireNonNull(identifiableNode);
-        //if (identifier != null) {
         retval.setId(identifiable.getId());
-        //}
-
         retval.setAdministration(AdministrativeInformationCreator.getAdminInformation(identifiable.getAdministration()));
-
-        //if (identifiableNode.getReferable() == null) {
-        //    identifiableNode.setReferable(new AASReferable());
-        //}
-        //identifiableNode.getReferable().setCategory(category != null ? category : "");
         retval.setReferable(ReferableCreator.getReferableData(identifiable));
-
-        //if (AasServiceNodeManager.VALUES_READ_ONLY) {
-        //    identifiableNode.getIdNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
-        //    identifiableNode.getCategoryNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
-        //}
 
         return retval;
     }

@@ -97,37 +97,20 @@ public class PropertyCreator extends SubmodelElementCreator {
             //LOGGER.info("addAasProperty: Read (3): {}", test);
 
             // here Value and ValueType are set
-            //addOpcUaProperty(aasProperty, submodel, prop, propertyRef, nodeManager);
             AasSubmodelElementHelper.setPropertyValueAndType(aasProperty, prop, new ValueData(nid, browseName, node.getDisplayName(), nodeManager));
-
-            //test = nodeManager.findNode(nid);
-            //LOGGER.info("addAasProperty: Read (4): {}", test);
 
             if (propertyRef != null) {
                 nodeManager.addSubmodelElementOpcUA(propertyRef, prop);
             }
 
-            //if (VALUES_READ_ONLY) {
-            //    // ValueType read-only
-            //    //prop.getValueTypeNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
-
-            //    // if the Submodel is null, we also make the value read-only
-            //    //if ((submodel == null) && (prop.getValueNode() != null)) {
-            //    prop.setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
-            //    //}
-            //}
-
             nodeManager.addSubmodelElementAasMap(nid, new SubmodelElementData(aasProperty, submodel, SubmodelElementData.Type.PROPERTY_VALUE, propertyRef));
 
             LOGGER.atInfo().log("addAasProperty: add Property {}, Reference: {}", nid, ReferenceHelper.toString(propertyRef));
 
-            //test = nodeManager.findNode(nid);
-            //LOGGER.info("addAasProperty: Read (5): {}", test);
             if (ordered) {
                 node.addReference(prop, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasOrderedComponent), false);
             }
             else {
-                //node.addComponent(prop);
                 node.addReference(prop, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasComponent), false);
             }
 

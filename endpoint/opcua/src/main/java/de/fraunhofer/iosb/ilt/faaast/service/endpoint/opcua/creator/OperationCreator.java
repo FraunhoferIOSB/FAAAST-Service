@@ -74,9 +74,7 @@ public class OperationCreator extends SubmodelElementCreator {
 
             // for operations we put the corresponding operation object into the map
             nodeManager.addSubmodelElementAasMap(nid, new SubmodelElementData(aasOperation, submodel, SubmodelElementData.Type.OPERATION, operationRef));
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("addAasOperation: NodeId {}; Property: {}; Reference: {}", nid, aasOperation.getIdShort(), ReferenceHelper.toString(operationRef));
-            }
+            LOGGER.atDebug().log("addAasOperation: NodeId {}; Property: {}; Reference: {}", nid, aasOperation.getIdShort(), ReferenceHelper.toString(operationRef));
 
             // add method
             NodeId myMethodId = new NodeId(nodeManager.getNamespaceIndex(), nid.getValue().toString() + "." + name);

@@ -117,7 +117,7 @@ public class AssetAdministrationShellCreator {
         aasShell.getCommonAttributes().setIdentifiable(BaseDataCreator.getIdentifiable(aas));
 
         // EmbeddedDataSpecifications
-        HasDataSpecificationCreator.addHasDataSpecification(aasShell, aas, nodeManager);
+        HasDataSpecificationCreator.addHasDataSpecification(aasShell, aas);
 
         // AssetInformation
         AssetInformation assetInformation = aas.getAssetInformation();
@@ -264,37 +264,7 @@ public class AssetAdministrationShellCreator {
             added = true;
         }
 
-        //int counter = 1;
         List<AASReference> refList = ReferenceCreator.getAasReferences(submodelRefs);
-        //for (Reference ref: submodelRefs) {
-        //    AASReference refNode = AasReferenceCreator.getAasReference(ref);
-        //    refList.add(refNode);
-
-        //            UaNode submodelNode = null;
-        //            String submodelName = getSubmodelName(ref);
-        //            if (submodelName.isEmpty()) {
-        //                submodelName = name + counter++;
-        //            }
-        //
-        //            // change reference to model reference here
-        //            if (ref != null) {
-        //                ref.setType(ReferenceTypes.MODEL_REFERENCE);
-        //            }
-        //            submodelNode = nodeManager.getSubmodelNode(ref);
-        //
-        //            UaNode refNode = AasReferenceCreator.addAasReferenceAasNS(referenceListNode, ref, submodelName, nodeManager);
-        //
-        //            if (refNode != null) {
-        //                // add hasAddIn reference to the submodel
-        //                if (submodelNode != null) {
-        //                    refNode.addReference(submodelNode, Identifiers.HasAddIn, false);
-        //                }
-        //                else if (LOGGER.isWarnEnabled()) {
-        //                    LOGGER.warn("addSubmodelReferences: Submodel {} not found in submodelRefMap", ReferenceHelper.toString(ref));
-        //                }
-        //            }
-        //}
-
         if (refList.size() == 1) {
             referenceListNode.setValueRank(ValueRanks.Scalar);
             referenceListNode.setValue(refList.get(0));
