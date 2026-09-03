@@ -24,7 +24,6 @@ import com.prosysopc.ua.server.NodeManagerUaNode;
 import com.prosysopc.ua.server.UaServer;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.common.ServiceResultException;
-import com.prosysopc.ua.types.opcua.BaseObjectType;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.AssetAdministrationShellCreator;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.ConceptDescriptionCreator;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.QualifierCreator;
@@ -619,7 +618,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @param reference The reference to the desired SubmodelElement
      * @param referable The corresponding referable
      */
-    private void removeFromMaps(BaseObjectType node, Reference reference, Referable referable) {
+    private void removeFromMaps(UaNode node, Reference reference, Referable referable) {
         Ensure.requireNonNull(node, "node must not be null");
 
         try {

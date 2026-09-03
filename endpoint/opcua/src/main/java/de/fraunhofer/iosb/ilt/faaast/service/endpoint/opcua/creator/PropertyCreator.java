@@ -22,6 +22,7 @@ import com.prosysopc.ua.stack.builtintypes.LocalizedText;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.QualifiedName;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ValueData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.AasSubmodelElementHelper;
@@ -114,9 +115,9 @@ public class PropertyCreator extends SubmodelElementCreator {
                 node.addReference(prop, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasComponent), false);
             }
 
-            //if (propertyRef != null) {
-            //    nodeManager.addReferable(propertyRef, new ObjectData(aasProperty, prop, submodel));
-            //}
+            if (propertyRef != null) {
+                nodeManager.addReferable(propertyRef, new ObjectData(aasProperty, prop, submodel));
+            }
         }
         catch (Exception ex) {
             LOGGER.error("addAasProperty Exception", ex);

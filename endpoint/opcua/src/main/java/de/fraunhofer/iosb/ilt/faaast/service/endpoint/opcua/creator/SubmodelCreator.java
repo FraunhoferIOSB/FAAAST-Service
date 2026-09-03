@@ -99,30 +99,12 @@ public class SubmodelCreator {
         if (smNode.getCommonAttributes() == null) {
             smNode.setCommonAttributes(new AASSubmodelCommonAttributes());
         }
-        //if (smNode.getCommonAttributes().getIdentifiable() == null) {
-        //    smNode.getCommonAttributes().setIdentifiable(new AASIdentifiable());
-        //}
-        //IdentifiableCreator.addIdentifiable(smNode.getCommonAttributes().getIdentifiable(), submodel.getId(), submodel.getAdministration(), submodel.getCategory(), nodeManager);
 
         smNode.getCommonAttributes().setIdentifiable(BaseDataCreator.getIdentifiable(submodel));
         setKind(submodel.getKind(), smNode);
 
         // HasSemantics
         smNode.getCommonAttributes().setHasSemantics(BaseDataCreator.getHasSemantics(submodel));
-        //if (submodel.getSemanticId() != null) {
-        //    if (smNode.getCommonAttributes().getHasSemantics() == null) {
-        //        smNode.getCommonAttributes().setHasSemantics(new AASHasSemantics());
-        //    }
-        //    smNode.getCommonAttributes().getHasSemantics().setSemanticId(AasReferenceCreator.getAasReference(submodel.getSemanticId()));
-        //}
-
-        //if (submodel.getSupplementalSemanticIds() != null) {
-        //    if (smNode.getCommonAttributes().getHasSemantics() == null) {
-        //        smNode.getCommonAttributes().setHasSemantics(new AASHasSemantics());
-        //    }
-        //    List<AASReference> refs = AasReferenceCreator.getAasReferences(submodel.getSupplementalSemanticIds());
-        //    smNode.getCommonAttributes().getHasSemantics().setSupplementalSemanticId(refs.toArray(AASReference[]::new));
-        //}
 
         // DataSpecifications
         // TODO EmbeddedDataSpecifications
@@ -139,10 +121,6 @@ public class SubmodelCreator {
 
         // SubmodelElements
         SubmodelElementCreator.addSubmodelElements(smNode, submodel.getSubmodelElements(), submodel, refSubmodel, nodeManager);
-
-        //if ((AasServiceNodeManager.VALUES_READ_ONLY) && (smNode.getKindNode() != null)) {
-        //    smNode.getKindNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
-        //}
 
         nodeManager.addSubmodelOpcUA(AasUtils.toReference(submodel), smNode);
 

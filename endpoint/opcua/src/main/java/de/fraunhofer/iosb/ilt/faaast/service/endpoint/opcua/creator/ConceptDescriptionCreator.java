@@ -241,9 +241,6 @@ public class ConceptDescriptionCreator {
         }
 
         if (conceptDescription != null) {
-            descriptionNode.getCommonAttributes().setIdentifiable(BaseDataCreator.getIdentifiable(conceptDescription));
-            HasDataSpecificationCreator.addHasDataSpecification(descriptionNode.getCommonAttributes(), conceptDescription);
-
             if (conceptDescription.getIdShort() != null) {
                 descriptionNode.setIdShort(conceptDescription.getIdShort());
             }
@@ -264,6 +261,7 @@ public class ConceptDescriptionCreator {
         }
 
         descriptionNode.getCommonAttributes().setIdentifiable(BaseDataCreator.getIdentifiable(conceptDescription));
+        HasDataSpecificationCreator.addHasDataSpecification(descriptionNode.getCommonAttributes(), conceptDescription);
 
         return descriptionNode;
     }

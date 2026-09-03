@@ -21,6 +21,7 @@ import com.prosysopc.ua.stack.builtintypes.LocalizedText;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.QualifiedName;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
 import opc.ua.aas.ReferenceTypeIds;
 import opc.ua.aas.variabletypes.AASReferenceElementType;
@@ -82,25 +83,12 @@ public class ReferenceElementCreator extends SubmodelElementCreator {
                     node.addReference(refElemNode, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasComponent), false);
                 }
 
-                //nodeManager.addReferable(refElemRef, new ObjectData(aasRefElem, refElemNode, submodel));
+                nodeManager.addReferable(refElemRef, new ObjectData(aasRefElem, refElemNode, submodel));
             }
         }
         catch (Exception ex) {
             LOGGER.error("addAasReferenceElement Exception", ex);
         }
     }
-
-    //    private static void setValue(ReferenceElement aasRefElem, AASReferenceElementType refElemNode, AasServiceNodeManager nodeManager) throws StatusException {
-    //        if (aasRefElem.getValue() != null) {
-    //            if (refElemNode == null) {
-    //                AasReferenceCreator.addAasReference(refElemNode, aasRefElem.getValue(), AASReferenceElementType.VALUE,
-    //                        AASReferenceElementType.getNamespaceUri(), false,
-    //                        nodeManager);
-    //            }
-    //            else {
-    //                AasReferenceCreator.setAasReferenceData(aasRefElem.getValue(), refElemNode.getValueNode(), false);
-    //            }
-    //        }
-    //    }
 
 }

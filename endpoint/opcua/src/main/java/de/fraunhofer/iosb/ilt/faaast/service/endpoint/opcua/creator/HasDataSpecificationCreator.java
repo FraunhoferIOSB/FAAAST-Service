@@ -46,8 +46,11 @@ public class HasDataSpecificationCreator {
      */
     public static void addHasDataSpecification(AASAssetAdministrationShellType aasNode, HasDataSpecification dataSpecification)
             throws StatusException {
+        if (aasNode.getCommonAttributes().getHasDataSpecification() == null) {
+            aasNode.getCommonAttributes().setHasDataSpecification(new AASHasDataSpecification());
+        }
         AASHasDataSpecification listNode = aasNode.getCommonAttributes().getHasDataSpecification();
-        HasDataSpecificationCreator.addHasDataSpecification(dataSpecification, listNode);
+        addHasDataSpecification(dataSpecification, listNode);
     }
 
 
@@ -60,7 +63,10 @@ public class HasDataSpecificationCreator {
      */
     public static void addHasDataSpecification(AASConceptDescriptionCommonAttributes aasNode, HasDataSpecification dataSpecification)
             throws StatusException {
-        HasDataSpecificationCreator.addHasDataSpecification(dataSpecification, aasNode.getHasDataSpecification());
+        if (aasNode.getHasDataSpecification() == null) {
+            aasNode.setHasDataSpecification(new AASHasDataSpecification());
+        }
+        addHasDataSpecification(dataSpecification, aasNode.getHasDataSpecification());
     }
 
 
@@ -73,6 +79,9 @@ public class HasDataSpecificationCreator {
      */
     public static void addHasDataSpecification(AASSubmodelElementCommonAttributes submodelElementCommonNode, HasDataSpecification dataSpecification)
             throws StatusException {
+        if (submodelElementCommonNode.getHasDataSpecification() == null) {
+            submodelElementCommonNode.setHasDataSpecification(new AASHasDataSpecification());
+        }
         AASHasDataSpecification listNode = submodelElementCommonNode.getHasDataSpecification();
         addHasDataSpecification(dataSpecification, listNode);
     }
@@ -86,14 +95,16 @@ public class HasDataSpecificationCreator {
      * @throws StatusException If the operation fails
      */
     public static void addHasDataSpecification(AASSubmodelType submodelNode, HasDataSpecification dataSpecification) throws StatusException {
+        if (submodelNode.getCommonAttributes().getHasDataSpecification() == null) {
+            submodelNode.getCommonAttributes().setHasDataSpecification(new AASHasDataSpecification());
+        }
         AASHasDataSpecification listNode = submodelNode.getCommonAttributes().getHasDataSpecification();
-        HasDataSpecificationCreator.addHasDataSpecification(dataSpecification, listNode);
+        addHasDataSpecification(dataSpecification, listNode);
     }
 
 
     private static void addHasDataSpecification(HasDataSpecification dataSpecification, AASHasDataSpecification listNode)
             throws StatusException {
-        //int counter = 1;
         List<AASReference> refList = new ArrayList<>();
         var list = dataSpecification.getEmbeddedDataSpecifications();
         if ((list != null) && (!list.isEmpty())) {
@@ -104,31 +115,4 @@ public class HasDataSpecificationCreator {
             listNode.setDataSpecification(refList.toArray(AASReference[]::new));
         }
     }
-
-    //    private static void addEmbeddedDataSpecificationNode(UaNode node, EmbeddedDataSpecification embeddedDataSpecification, String name, AasServiceNodeManager nodeManager)
-    //            throws StatusException {
-    //        NodeId nid = nodeManager.getDefaultNodeId();
-    //        AASEmbeddedDataSpecificationType dataSpecNode = nodeManager.createInstance(AASEmbeddedDataSpecificationType.class, name, nid);
-    //
-    //        if (embeddedDataSpecification.getDataSpecification() != null) {
-    //            AASReferenceType refNode = dataSpecNode.getDataSpecificationNode();
-    //            if (refNode == null) {
-    //                AasReferenceCreator.addAasReferenceAasNS(node, embeddedDataSpecification.getDataSpecification(), AASEmbeddedDataSpecificationType.DATA_SPECIFICATION, nodeManager);
-    //            }
-    //            else {
-    //                AasReferenceCreator.setAasReferenceData(embeddedDataSpecification.getDataSpecification(), refNode);
-    //            }
-    //        }
-    //
-    //        addDataSpecificationContent(dataSpecNode, embeddedDataSpecification.getDataSpecificationContent(), nodeManager);
-    //    }
-
-    //    private static void addDataSpecificationContent(AASEmbeddedDataSpecificationType dataSpecNode, DataSpecificationContent content, AasServiceNodeManager nodeManager) {
-    //        if ((content != null) && (dataSpecNode.getDataSpecificationContentNode() == null)) {
-    //            NodeId nid = nodeManager.getDefaultNodeId();
-    //            AASDataSpecificationContentType contentNode = nodeManager.createInstance(AASDataSpecificationContentType.class,
-    //                    AASEmbeddedDataSpecificationType.DATA_SPECIFICATION_CONTENT, nid);
-    //            dataSpecNode.addComponent(contentNode);
-    //        }
-    //    }
 }
