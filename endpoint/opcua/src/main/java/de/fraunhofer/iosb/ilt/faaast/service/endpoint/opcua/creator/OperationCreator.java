@@ -30,10 +30,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
+import java.util.List;
 import java.util.Locale;
 import opc.ua.aas.ObjectTypeIds;
 import opc.ua.aas.ReferenceTypeIds;
 import opc.ua.aas.objecttypes.AASOperationType;
+import org.eclipse.digitaltwin.aas4j.v3.model.LangStringTextType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Property;
@@ -130,7 +132,7 @@ public class OperationCreator extends SubmodelElementCreator {
             arg.setArrayDimensions(null);
 
             // Description
-            DescriptionCreator.addDescriptions(arg, prop.getDescription());
+            addDescriptions(arg, prop.getDescription());
 
             NodeId type = ValueConverter.convertDataTypeDefToNodeId(prop.getValueType(), nodeManager);
             if (type.isNullNodeId()) {
@@ -148,4 +150,11 @@ public class OperationCreator extends SubmodelElementCreator {
         }
     }
 
+
+    private static void addDescriptions(Argument arg, List<LangStringTextType> descriptions) {
+        var textList = ValueConverter.convertLangStringSet(descriptions);
+        if ((textList != null) && (textList.length > 0)) {
+            arg.setDescription(textList[0]);
+        }
+    }
 }

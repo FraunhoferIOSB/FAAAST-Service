@@ -185,8 +185,9 @@ public class SubmodelElementCreator {
 
             ConceptDescriptionCreator.addConceptDescription(node, conceptDescription, element.getEmbeddedDataSpecifications(), nodeManager);
 
-            // Description
-            DescriptionCreator.addDescriptions(node, element.getDescription());
+            // Referable
+            ReferableCreator.setReferebleNodeData(node, element);
+            //DescriptionCreator.addDescriptions(node, element.getDescription());
         }
     }
 
@@ -219,8 +220,9 @@ public class SubmodelElementCreator {
 
             ConceptDescriptionCreator.addConceptDescription(node, conceptDescription, element.getEmbeddedDataSpecifications(), nodeManager);
 
-            // Description
-            DescriptionCreator.addDescriptions(node, element.getDescription());
+            // Referable
+            ReferableCreator.setReferebleNodeData(node, element);
+            //DescriptionCreator.addDescriptions(node, element.getDescription());
         }
     }
 
@@ -242,7 +244,7 @@ public class SubmodelElementCreator {
     private static void setSubmodelElementCommonAttributes(AASSubmodelElementCommonAttributes commonAttributes, SubmodelElement element)
             throws StatusException {
 
-        commonAttributes.setReferable(ReferableCreator.getReferableData(element));
+        commonAttributes.setReferable(ReferableCreator.getReferable(element));
 
         // DataSpecifications
         HasDataSpecificationCreator.addHasDataSpecification(commonAttributes, element);

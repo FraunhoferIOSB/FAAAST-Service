@@ -114,8 +114,9 @@ public class SubmodelCreator {
         List<Qualifier> qualifiers = submodel.getQualifiers();
         setQualifierData(qualifiers, smNode);
 
-        // Description
-        DescriptionCreator.addDescriptions(smNode, submodel.getDescription());
+        // Referable
+        ReferableCreator.setReferebleNodeData(node, submodel);
+        //DescriptionCreator.addDescriptions(smNode, submodel.getDescription());
 
         Reference refSubmodel = AasUtils.toReference(submodel);
 

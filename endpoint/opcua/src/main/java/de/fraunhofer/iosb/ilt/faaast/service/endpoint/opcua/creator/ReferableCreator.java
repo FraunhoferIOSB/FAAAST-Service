@@ -12,7 +12,10 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator;
 
+import com.prosysopc.ua.nodes.UaNode;
+import com.prosysopc.ua.stack.builtintypes.LocalizedText;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
+import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.util.ArrayList;
 import java.util.List;
 import opc.ua.aas.datatypes.AASExtension;
@@ -35,7 +38,7 @@ public class ReferableCreator {
      * @param referable The desired Referable.
      * @return The corresponding AASReferable.
      */
-    public static AASReferable getReferableData(Referable referable) {
+    public static AASReferable getReferable(Referable referable) {
         if (referable == null) {
             return null;
         }
@@ -45,13 +48,33 @@ public class ReferableCreator {
         }
 
         if (referable.getExtensions() != null) {
-            retval.setHasExtensions(getExtension(referable));
+            retval.setHasExtensions(getHasExtensions(referable));
         }
         return retval;
     }
 
 
-    private static AASHasExtensions getExtension(HasExtensions hasExtensions) {
+    /**
+     * Adds DisplayNamer and Descriptions to the given node.
+     *
+     * @param node The desired node.
+     * @param referable The referable.
+     */
+    public static void setReferebleNodeData(UaNode node, Referable referable) {
+        Ensure.requireNonNull(node);
+        Ensure.requireNonNull(referable);
+        LocalizedText[] textList = ValueConverter.convertLangStringSet(referable.getDisplayName());
+        if ((textList != null) && (textList.length > 0)) {
+            node.setDisplayName(textList[0]);
+        }
+        textList = ValueConverter.convertLangStringSet(referable.getDescription());
+        if ((textList != null) && (textList.length > 0)) {
+            node.setDescription(textList[0]);
+        }
+    }
+
+
+    private static AASHasExtensions getHasExtensions(HasExtensions hasExtensions) {
         if (hasExtensions == null) {
             return null;
         }

@@ -47,7 +47,7 @@ public class BaseDataCreator {
 
         retval.setId(identifiable.getId());
         retval.setAdministration(AdministrativeInformationCreator.getAdminInformation(identifiable.getAdministration()));
-        retval.setReferable(ReferableCreator.getReferableData(identifiable));
+        retval.setReferable(ReferableCreator.getReferable(identifiable));
 
         return retval;
     }

@@ -35,7 +35,6 @@ import com.prosysopc.ua.stack.core.ApplicationType;
 import com.prosysopc.ua.stack.core.MessageSecurityMode;
 import com.prosysopc.ua.stack.core.UserTokenPolicy;
 import com.prosysopc.ua.stack.core.UserTokenType;
-import com.prosysopc.ua.stack.transport.security.HttpsSecurityPolicy;
 import com.prosysopc.ua.stack.transport.security.SecurityMode;
 import com.prosysopc.ua.types.opcua.server.BuildInfoTypeNode;
 import com.prosysopc.ua.types.opcua.server.ServerCapabilitiesTypeNode;
@@ -49,7 +48,6 @@ import java.net.InetAddress;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Paths;
-import java.util.HashSet;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
@@ -141,7 +139,7 @@ public class Server {
 
         setSecurityPolicies();
 
-        uaServer.getHttpsSettings().setCertificateValidator(applicationCertificateValidator);
+        //uaServer.getHttpsSettings().setCertificateValidator(applicationCertificateValidator);
 
         if (Objects.isNull(config.getSupportedAuthentications()) || config.getSupportedAuthentications().isEmpty()) {
             throw new IllegalArgumentException("no supported authentications available!");
@@ -213,21 +211,21 @@ public class Server {
                         Set.of(MessageSecurityMode.values()),
                         config.getSupportedSecurityPolicies()));
 
-        uaServer.getHttpsSecurityModes().addAll(
-                SecurityMode.combinations(
-                        Set.of(MessageSecurityMode.None, MessageSecurityMode.Sign),
-                        config.getSupportedSecurityPolicies()));
+        //uaServer.getHttpsSecurityModes().addAll(
+        //        SecurityMode.combinations(
+        //                Set.of(MessageSecurityMode.None, MessageSecurityMode.Sign),
+        //                config.getSupportedSecurityPolicies()));
 
-        Set<HttpsSecurityPolicy> supportedHttpsSecurityPolicies = new HashSet<>();
-        supportedHttpsSecurityPolicies.addAll(HttpsSecurityPolicy.ALL_102);
-        supportedHttpsSecurityPolicies.addAll(HttpsSecurityPolicy.ALL_103);
-        supportedHttpsSecurityPolicies.addAll(HttpsSecurityPolicy.ALL_104);
-        uaServer.getHttpsSettings().setHttpsSecurityPolicies(supportedHttpsSecurityPolicies);
+        //Set<HttpsSecurityPolicy> supportedHttpsSecurityPolicies = new HashSet<>();
+        //supportedHttpsSecurityPolicies.addAll(HttpsSecurityPolicy.ALL_102);
+        //supportedHttpsSecurityPolicies.addAll(HttpsSecurityPolicy.ALL_103);
+        //supportedHttpsSecurityPolicies.addAll(HttpsSecurityPolicy.ALL_104);
+        //uaServer.getHttpsSettings().setHttpsSecurityPolicies(supportedHttpsSecurityPolicies);
     }
 
 
     private void registerDiscovery() throws URISyntaxException {
-        if ((endpoint.asConfig().getDiscoveryServerUrl() != null) && (endpoint.asConfig().getDiscoveryServerUrl().length() > 0)) {
+        if ((endpoint.asConfig().getDiscoveryServerUrl() != null) && (!endpoint.asConfig().getDiscoveryServerUrl().isEmpty())) {
             // Register to the local discovery server (if present)
             uaServer.setDiscoveryServerUrl(endpoint.asConfig().getDiscoveryServerUrl());
         }

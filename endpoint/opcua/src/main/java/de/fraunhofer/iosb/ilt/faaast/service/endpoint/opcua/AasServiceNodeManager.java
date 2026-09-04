@@ -54,8 +54,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import opc.ua.aas.datatypes.AASQualifiable;
+import opc.ua.aas.objecttypes.AASAnnotatedRelationshipElementType;
+import opc.ua.aas.objecttypes.AASBlobType;
+import opc.ua.aas.objecttypes.AASEntityType;
 import opc.ua.aas.objecttypes.AASEnvironmentType;
 import opc.ua.aas.objecttypes.AASOperationType;
+import opc.ua.aas.objecttypes.AASRelationshipElementType;
 import opc.ua.aas.objecttypes.AASSubmodelElementObjectType;
 import opc.ua.aas.objecttypes.AASSubmodelType;
 import opc.ua.aas.variabletypes.AASMultiLanguagePropertyType;
@@ -63,6 +67,7 @@ import opc.ua.aas.variabletypes.AASPropertyType;
 import opc.ua.aas.variabletypes.AASReferenceElementType;
 import opc.ua.aas.variabletypes.AASSubmodelElementVariableType;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
+import org.eclipse.digitaltwin.aas4j.v3.model.AnnotatedRelationshipElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
 import org.eclipse.digitaltwin.aas4j.v3.model.EmbeddedDataSpecification;
@@ -119,11 +124,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     public static final String NAMESPACE_URI = "http://www.iosb.fraunhofer.de/ILT/AAS/OPCUA";
 
     /**
-     * The name of the AAS Environment node
-     */
-    //private static final String AAS_ENVIRONMENT_NAME = "AASEnvironment";
-
-    /**
      * The logger for this class
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(AasServiceNodeManager.class);
@@ -151,13 +151,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     /**
      * Maps AAS SubmodelElements to OPC UA SubmodelElement variables.
      */
-    //private final Map<SubmodelElementIdentifier, AASSubmodelElementVariableType> submodelElementVariableOpcUaMap;
     private final Map<SubmodelElementIdentifier, UaNode> submodelElementOpcUaMap;
-
-    /**
-     * Maps AAS SubmodelElements to OPC UA SubmodelElement objects.
-     */
-    //private final Map<SubmodelElementIdentifier, AASSubmodelElementObjectType> submodelElementObjectOpcUaMap;
 
     /**
      * Maps Submodel references to the OPC UA Submodel
@@ -208,7 +202,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         this.aasEnvironmentNode = environmentNode;
         submodelElementAasMap = new ConcurrentHashMap<>();
         submodelElementOpcUaMap = new ConcurrentHashMap<>();
-        //submodelElementObjectOpcUaMap = new ConcurrentHashMap<>();
         submodelOpcUAMap = new ConcurrentHashMap<>();
         referableMap = new ConcurrentHashMap<>();
         conceptDescriptions = new ConcurrentHashMap<>();
@@ -604,9 +597,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         if (conceptDescriptions.containsKey(id)) {
             return conceptDescriptions.get(id);
         }
-        //if (ReferenceHelper.containsSameReference(conceptDescriptions, semanticId)) {
-        //    return ReferenceHelper.getValueBySameReference(conceptDescriptions, semanticId);
-        //}
         return null;
     }
 
@@ -673,12 +663,12 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 LOGGER.debug("doRemoveFromMaps: remove Operation NodeId {}", oper.getOperationNode().getNodeId());
             }
         }
-        //else if (element instanceof AASBlobType blob) {
-        //    if ((blob.getValueNode() != null) && (submodelElementAasMap.containsKey(blob.getValueNode().getNodeId()))) {
-        //        submodelElementAasMap.remove(blob.getValueNode().getNodeId());
-        //        LOG.debug("doRemoveFromMaps: remove Blob NodeId {}", blob.getValueNode().getNodeId());
-        //    }
-        //}
+        else if (element instanceof AASBlobType blob) {
+            if ((blob.getValueNode() != null) && (submodelElementAasMap.containsKey(blob.getValueNode().getNodeId()))) {
+                submodelElementAasMap.remove(blob.getValueNode().getNodeId());
+                LOGGER.debug("doRemoveFromMaps: remove Blob NodeId {}", blob.getValueNode().getNodeId());
+            }
+        }
         else if (element instanceof AASMultiLanguagePropertyType mlp) {
             if (submodelElementAasMap.containsKey(mlp.getNodeId())) {
                 submodelElementAasMap.remove(mlp.getNodeId());
@@ -692,40 +682,12 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 LOGGER.debug("doRemoveFromMaps: remove AASReferenceElement NodeId {}", nid);
             }
         }
-        //else if (element instanceof AASRelationshipElementType relElem) {
-        //    NodeId nid = relElem.getFirstNode().getNodeId();
-        //    if (submodelElementAasMap.containsKey(nid)) {
-        //        submodelElementAasMap.remove(nid);
-        //        LOG.debug("doRemoveFromMaps: remove AASRelationshipElement First NodeId {}", nid);
-        //    }
-
-        //    nid = relElem.getSecondNode().getKeysNode().getNodeId();
-        //    if (submodelElementAasMap.containsKey(nid)) {
-        //        submodelElementAasMap.remove(nid);
-        //        LOG.debug("doRemoveFromMaps: remove AASRelationshipElement Second NodeId {}", nid);
-        //    }
-
-        //    if ((relElem instanceof AASAnnotatedRelationshipElementType) && (referable instanceof AnnotatedRelationshipElement)) {
-        //        AnnotatedRelationshipElement annRelElem = (AnnotatedRelationshipElement) referable;
-        //        for (DataElement de: annRelElem.getAnnotations()) {
-        //            doRemoveFromMaps(reference, de);
-        //        }
-        //    }
-        //}
-        //else if (element instanceof AASEntityType ent) {
-        //    if ((ent.getGlobalAssetIdNode() != null)) {
-        //        NodeId nid = ent.getGlobalAssetIdNode().getNodeId();
-        //        if (submodelElementAasMap.containsKey(nid)) {
-        //            submodelElementAasMap.remove(nid);
-        //            LOG.debug("doRemoveFromMaps: remove Entity GlobalAssetId NodeId {}", nid);
-        //        }
-        //    }
-
-        //    if (submodelElementAasMap.containsKey(ent.getEntityTypeNode().getNodeId())) {
-        //        submodelElementAasMap.remove(ent.getEntityTypeNode().getNodeId());
-        //        LOG.debug("doRemoveFromMaps: remove Entity EntityType NodeId {}", ent.getEntityTypeNode().getNodeId());
-        //    }
-        //}
+        else if (element instanceof AASRelationshipElementType relElem) {
+            doRemoveRelationshipElement(reference, referable, relElem);
+        }
+        else if (element instanceof AASEntityType ent) {
+            doRemoveEntity(ent);
+        }
         else if (referable instanceof SubmodelElementCollection sec) {
             for (SubmodelElement se: sec.getValue()) {
                 doRemoveFromMaps(reference, se);
@@ -733,6 +695,44 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         }
 
         // Capability and File are currently not relevant here
+    }
+
+
+    private void doRemoveEntity(AASEntityType ent) {
+        if ((ent.getGlobalAssetIdNode() != null)) {
+            NodeId nid = ent.getGlobalAssetIdNode().getNodeId();
+            if (submodelElementAasMap.containsKey(nid)) {
+                submodelElementAasMap.remove(nid);
+                LOGGER.debug("doRemoveFromMaps: remove Entity GlobalAssetId NodeId {}", nid);
+            }
+        }
+
+        if (submodelElementAasMap.containsKey(ent.getEntityTypeNode().getNodeId())) {
+            submodelElementAasMap.remove(ent.getEntityTypeNode().getNodeId());
+            LOGGER.debug("doRemoveFromMaps: remove Entity EntityType NodeId {}", ent.getEntityTypeNode().getNodeId());
+        }
+    }
+
+
+    private void doRemoveRelationshipElement(Reference reference, Referable referable, AASRelationshipElementType relElem) {
+        NodeId nid = relElem.getFirstNode().getNodeId();
+        if (submodelElementAasMap.containsKey(nid)) {
+            submodelElementAasMap.remove(nid);
+            LOGGER.debug("doRemoveFromMaps: remove AASRelationshipElement First NodeId {}", nid);
+        }
+
+        nid = relElem.getSecondNode().getNodeId();
+        if (submodelElementAasMap.containsKey(nid)) {
+            submodelElementAasMap.remove(nid);
+            LOGGER.debug("doRemoveFromMaps: remove AASRelationshipElement Second NodeId {}", nid);
+        }
+
+        if ((relElem instanceof AASAnnotatedRelationshipElementType) && (referable instanceof AnnotatedRelationshipElement)) {
+            AnnotatedRelationshipElement annRelElem = (AnnotatedRelationshipElement) referable;
+            for (var annotionElemen: annRelElem.getAnnotations()) {
+                doRemoveFromMaps(reference, annotionElemen);
+            }
+        }
     }
 
 
@@ -825,11 +825,9 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         //}
         if (parent.getNode() instanceof AASSubmodelElementObjectType aasSubmodelElementType) {
             ConceptDescriptionCreator.addConceptDescription(aasSubmodelElementType, null, List.of((EmbeddedDataSpecification) value), this);
-            //EmbeddedDataSpecificationCreator.addEmbeddedDataSpecifications(aASSubmodelElementType, List.of((EmbeddedDataSpecification) value), this);
         }
         else if (parent.getNode() instanceof AASSubmodelElementVariableType aasSubmodelElementType) {
             ConceptDescriptionCreator.addConceptDescription(aasSubmodelElementType, null, List.of((EmbeddedDataSpecification) value), this);
-            //EmbeddedDataSpecificationCreator.addEmbeddedDataSpecifications(aASSubmodelElementType, List.of((EmbeddedDataSpecification) value), this);
         }
         else {
             LOGGER.debug("elementCreated: EmbeddedDataSpecification parent class not found");
