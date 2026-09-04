@@ -29,7 +29,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.AasSubmodelElementHelper;
 import opc.ua.aas.ObjectTypeIds;
-import opc.ua.aas.ReferenceTypeIds;
 import opc.ua.aas.VariableIds;
 import opc.ua.aas.objecttypes.AASBlobType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Blob;
@@ -47,21 +46,20 @@ public class BlobCreator extends SubmodelElementCreator {
     private static final Logger LOGGER = LoggerFactory.getLogger(BlobCreator.class);
 
     /**
-     * Adds an AAS Blob to the given UA node.
+     * Creates an AAS Blob to the given UA node.
      *
-     * @param node The desired UA node
      * @param aasBlob The AAS blob to add
      * @param blobRef Tne reference to the AAS blob
      * @param submodel The corresponding Submodel as parent object of the data element
-     * @param ordered Specifies whether the blob should be added ordered (true)
-     *            or unordered (false)
      * @param nodeManager The corresponding Node Manager
+     * @return The created node.
      * @throws StatusException If the operation fails
      */
-    public static void addAasBlob(UaNode node, Blob aasBlob, Reference blobRef, Submodel submodel, boolean ordered, AasServiceNodeManager nodeManager)
+    public static UaNode createAasBlob(Blob aasBlob, Reference blobRef, Submodel submodel, AasServiceNodeManager nodeManager)
             throws StatusException {
+        UaNode retval = null;
         try {
-            if ((node != null) && (aasBlob != null)) {
+            if (aasBlob != null) {
                 String name = aasBlob.getIdShort();
                 if ((name == null) || name.isEmpty()) {
                     name = getNameFromReference(blobRef);
@@ -94,21 +92,23 @@ public class BlobCreator extends SubmodelElementCreator {
                     blobNode.getContentTypeNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
                 }
 
-                if (ordered) {
-                    node.addReference(blobNode, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasOrderedComponent), false);
-                }
-                else {
-                    node.addReference(blobNode, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasComponent), false);
-                }
+                //if (ordered) {
+                //    node.addReference(blobNode, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasOrderedComponent), false);
+                //}
+                //else {
+                //    node.addReference(blobNode, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasComponent), false);
+                //}
 
                 if (blobRef != null) {
                     nodeManager.addReferable(blobRef, new ObjectData(aasBlob, blobNode, submodel));
                 }
+                retval = blobNode;
             }
         }
         catch (Exception ex) {
-            LOGGER.error("addAasBlob Exception", ex);
+            LOGGER.error("createAasBlob Exception", ex);
         }
+        return retval;
     }
 
 

@@ -27,6 +27,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.Collection;
 import java.util.List;
+import opc.ua.aas.ReferenceTypeIds;
 import opc.ua.aas.datatypes.AASQualifiable;
 import opc.ua.aas.datatypes.AASSubmodelElementCommonAttributes;
 import opc.ua.aas.objecttypes.AASSubmodelElementObjectType;
@@ -126,33 +127,63 @@ public class SubmodelElementCreator {
      */
     public static void addSubmodelElement(SubmodelElement elem, UaNode node, Reference elementRef, Submodel submodel, boolean ordered, AasServiceNodeManager nodeManager)
             throws ServiceException, ServiceResultException, StatusException, AddressSpaceException, ValueFormatException {
+        UaNode childNode = createSubmodelElement(elem, elementRef, submodel, nodeManager);
+        if (childNode != null) {
+            if (ordered) {
+                node.addReference(childNode, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasOrderedComponent), false);
+            }
+            else {
+                node.addReference(childNode, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasComponent), false);
+            }
+        }
+    }
+
+
+    /**
+     * Creates a SubmodelElement node from the given input.
+     *
+     * @param elem The desired SubmodelElement
+     * @param elementRef The reference to the AAS SubmodelElement
+     * @param submodel The corresponding submodel
+     * @param nodeManager The corresponding Node Manager
+     * @return The created node.
+     * @throws StatusException If the operation fails
+     * @throws ServiceException If the operation fails
+     * @throws AddressSpaceException If the operation fails
+     * @throws ServiceResultException If the operation fails
+     * @throws ValueFormatException The data format of the value is invalid
+     */
+    public static UaNode createSubmodelElement(SubmodelElement elem, Reference elementRef, Submodel submodel, AasServiceNodeManager nodeManager)
+            throws ServiceException, ServiceResultException, StatusException, AddressSpaceException, ValueFormatException {
+        UaNode childNode = null;
         if (elem instanceof DataElement dataElement) {
-            DataElementCreator.addAasDataElement(node, dataElement, elementRef, submodel, ordered, nodeManager);
+            childNode = DataElementCreator.createAasDataElement(dataElement, elementRef, submodel, nodeManager);
         }
         else if (elem instanceof Capability capability) {
-            CapabilityCreator.addAasCapability(node, capability, elementRef, submodel, ordered, nodeManager);
+            childNode = CapabilityCreator.createAasCapability(capability, elementRef, submodel, nodeManager);
         }
         else if (elem instanceof Entity entity) {
-            EntityCreator.addAasEntity(node, entity, elementRef, submodel, ordered, nodeManager);
+            childNode = EntityCreator.createAasEntity(entity, elementRef, submodel, nodeManager);
         }
         else if (elem instanceof Operation operation) {
-            OperationCreator.addAasOperation(node, operation, elementRef, submodel, ordered, nodeManager);
+            childNode = OperationCreator.createAasOperation(operation, elementRef, submodel, nodeManager);
         }
         else if (elem instanceof EventElement eventElement) {
-            EventCreator.addAasEvent(node, eventElement, elementRef, submodel, ordered, nodeManager);
+            childNode = EventCreator.createAasEvent(eventElement, elementRef, submodel, nodeManager);
         }
         else if (elem instanceof RelationshipElement relationshipElement) {
-            RelationshipElementCreator.addAasRelationshipElement(node, relationshipElement, elementRef, submodel, ordered, nodeManager);
+            childNode = RelationshipElementCreator.createAasRelationshipElement(relationshipElement, elementRef, submodel, nodeManager);
         }
         else if (elem instanceof SubmodelElementCollection submodelElementCollection) {
-            SubmodelElementCollectionCreator.addAasSubmodelElementCollection(node, submodelElementCollection, elementRef, submodel, ordered, nodeManager);
+            childNode = SubmodelElementCollectionCreator.createAasSubmodelElementCollection(submodelElementCollection, elementRef, submodel, nodeManager);
         }
         else if (elem instanceof SubmodelElementList submodelElementList) {
-            SubmodelElementListCreator.addAasSubmodelElementList(node, submodelElementList, elementRef, submodel, ordered, nodeManager);
+            childNode = SubmodelElementListCreator.createAasSubmodelElementList(submodelElementList, elementRef, submodel, nodeManager);
         }
         else if (elem != null) {
-            LOGGER.warn("addSubmodelElements: unknown SubmodelElement: {}; Class {}", elem.getIdShort(), elem.getClass());
+            LOGGER.warn("createSubmodelElement: unknown SubmodelElement: {}; Class {}", elem.getIdShort(), elem.getClass());
         }
+        return childNode;
     }
 
 

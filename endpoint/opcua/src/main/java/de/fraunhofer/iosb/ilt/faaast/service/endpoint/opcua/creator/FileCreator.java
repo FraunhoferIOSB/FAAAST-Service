@@ -29,7 +29,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManage
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.AasSubmodelElementHelper;
 import opc.ua.aas.ObjectTypeIds;
-import opc.ua.aas.ReferenceTypeIds;
 import opc.ua.aas.VariableIds;
 import opc.ua.aas.objecttypes.AASFileType;
 import org.eclipse.digitaltwin.aas4j.v3.model.File;
@@ -49,20 +48,20 @@ public class FileCreator extends SubmodelElementCreator {
     /**
      * Adds an AAS file to the given node.
      *
-     * @param node The desired UA node
      * @param aasFile The AAS file object
      * @param fileRef The AAS reference to the AAS file
      * @param submodel The corresponding Submodel as parent object of the data element
-     * @param ordered Specifies whether the file should be added ordered (true) or unordered (false)
      * @param nodeName The desired Name of the node. If this value is not set,
      *            the IdShort of the file is used.
      * @param nodeManager The corresponding Node Manager
+     * @return The created node.
      * @throws StatusException If the operation fails
      */
-    public static void addAasFile(UaNode node, File aasFile, Reference fileRef, Submodel submodel, boolean ordered, String nodeName, AasServiceNodeManager nodeManager)
+    public static UaNode createAasFile(File aasFile, Reference fileRef, Submodel submodel, String nodeName, AasServiceNodeManager nodeManager)
             throws StatusException {
+        UaNode retval = null;
         try {
-            if ((node != null) && (aasFile != null)) {
+            if (aasFile != null) {
                 String name = aasFile.getIdShort();
                 if ((nodeName != null) && (!nodeName.isEmpty())) {
                     name = nodeName;
@@ -92,21 +91,23 @@ public class FileCreator extends SubmodelElementCreator {
 
                 setFileData(aasFile, fileNode, nodeManager);
 
-                if (ordered) {
-                    node.addReference(fileNode, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasOrderedComponent), false);
-                }
-                else {
-                    node.addReference(fileNode, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasComponent), false);
-                }
+                //if (ordered) {
+                //    node.addReference(fileNode, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasOrderedComponent), false);
+                //}
+                //else {
+                //    node.addReference(fileNode, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasComponent), false);
+                //}
 
                 if (fileRef != null) {
                     nodeManager.addReferable(fileRef, new ObjectData(aasFile, fileNode, submodel));
                 }
+                retval = fileNode;
             }
         }
         catch (Exception ex) {
-            LOGGER.error("addAasFile Exception", ex);
+            LOGGER.error("createAasFile Exception", ex);
         }
+        return retval;
     }
 
 

@@ -33,7 +33,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.List;
 import opc.ua.aas.ObjectTypeIds;
-import opc.ua.aas.ReferenceTypeIds;
 import opc.ua.aas.VariableIds;
 import opc.ua.aas.objecttypes.AASSubmodelElementListType;
 import org.eclipse.digitaltwin.aas4j.v3.model.AasSubmodelElements;
@@ -55,23 +54,23 @@ public class SubmodelElementListCreator extends SubmodelElementCreator {
     /**
      * Adds a SubmodelElementList to the given node.
      *
-     * @param node The desired UA node
      * @param aasList The corresponding SubmodelElementList to add
      * @param listRef The reference to the SubmodelElementList
      * @param submodel The corresponding Submodel as parent object of the data element
-     * @param ordered Specifies where the elements are from a list (true) or not (false)
      * @param nodeManager The corresponding Node Manager
+     * @return The created node.
      * @throws StatusException If the operation fails
      * @throws ServiceException If the operation fails
      * @throws AddressSpaceException If the operation fails
      * @throws ServiceResultException If the operation fails
      * @throws ValueFormatException The data format of the value is invalid
      */
-    public static void addAasSubmodelElementList(UaNode node, SubmodelElementList aasList, Reference listRef, Submodel submodel,
-                                                 boolean ordered, AasServiceNodeManager nodeManager)
+    public static UaNode createAasSubmodelElementList(SubmodelElementList aasList, Reference listRef, Submodel submodel,
+                                                      AasServiceNodeManager nodeManager)
             throws StatusException, ServiceException, AddressSpaceException, ServiceResultException, ValueFormatException {
+        UaNode retval = null;
         try {
-            if ((node != null) && (aasList != null)) {
+            if (aasList != null) {
                 String name = aasList.getIdShort();
                 if ((name == null) || name.isEmpty()) {
                     name = getNameFromReference(listRef);
@@ -81,7 +80,7 @@ public class SubmodelElementListCreator extends SubmodelElementCreator {
                         .toQualifiedName(nodeManager.getNamespaceTable());
                 NodeId nid = nodeManager.getDefaultNodeId();
 
-                LOGGER.debug("addAasSubmodelElementList: Name {}; NodeId {}", name, nid);
+                LOGGER.debug("createAasSubmodelElementList: Name {}; NodeId {}", name, nid);
 
                 NodeBuilderConfiguration conf = new NodeBuilderConfiguration();
                 conf.addOptional(VariableIds.AASSubmodelElementListType_OrderRelevant);
@@ -119,19 +118,21 @@ public class SubmodelElementListCreator extends SubmodelElementCreator {
                 // add SubmodelElements 
                 addSubmodelElementList(collNode, aasList.getValue(), submodel, listRef, nodeManager);
 
-                if (ordered) {
-                    node.addReference(collNode, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasOrderedComponent), false);
-                }
-                else {
-                    node.addReference(collNode, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasComponent), false);
-                }
+                //if (ordered) {
+                //    node.addReference(collNode, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasOrderedComponent), false);
+                //}
+                //else {
+                //    node.addReference(collNode, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasComponent), false);
+                //}
 
                 nodeManager.addReferable(listRef, new ObjectData(aasList, collNode, submodel));
+                retval = collNode;
             }
         }
         catch (Exception ex) {
-            LOGGER.error("addAasSubmodelElementList Exception", ex);
+            LOGGER.error("createAasSubmodelElementList Exception", ex);
         }
+        return retval;
     }
 
 

@@ -35,7 +35,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.UaHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import java.util.List;
 import opc.ua.aas.ObjectTypeIds;
-import opc.ua.aas.ReferenceTypeIds;
 import opc.ua.aas.VariableIds;
 import opc.ua.aas.objecttypes.AASEntityType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Entity;
@@ -56,23 +55,22 @@ public class EntityCreator extends SubmodelElementCreator {
     /**
      * Adds an AAS entity to the given node.
      *
-     * @param node The desired UA node
      * @param aasEntity The AAS entity to add
      * @param entityRef The AAS reference to the AAS entity
      * @param submodel The corresponding Submodel
-     * @param ordered Specifies whether the entity should be added ordered
-     *            (true) or unordered (false)
      * @param nodeManager The corresponding Node Manager
+     * @return The created node.
      * @throws StatusException If the operation fails
      * @throws ServiceException If the operation fails
      * @throws AddressSpaceException If the operation fails
      * @throws ServiceResultException If the operation fails
      * @throws ValueFormatException The data format of the value is invalid
      */
-    public static void addAasEntity(UaNode node, Entity aasEntity, Reference entityRef, Submodel submodel, boolean ordered, AasServiceNodeManager nodeManager)
+    public static UaNode createAasEntity(Entity aasEntity, Reference entityRef, Submodel submodel, AasServiceNodeManager nodeManager)
             throws StatusException, ServiceException, AddressSpaceException, ServiceResultException, ValueFormatException {
+        UaNode retval = null;
         try {
-            if ((node != null) && (aasEntity != null)) {
+            if (aasEntity != null) {
                 String name = aasEntity.getIdShort();
                 if ((name == null) || name.isEmpty()) {
                     name = getNameFromReference(entityRef);
@@ -120,19 +118,21 @@ public class EntityCreator extends SubmodelElementCreator {
 
                 nodeManager.addSubmodelElementOpcUA(entityRef, entityNode);
 
-                if (ordered) {
-                    node.addReference(entityNode, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasOrderedComponent), false);
-                }
-                else {
-                    node.addReference(entityNode, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasComponent), false);
-                }
+                //if (ordered) {
+                //    node.addReference(entityNode, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasOrderedComponent), false);
+                //}
+                //else {
+                //    node.addReference(entityNode, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasComponent), false);
+                //}
 
                 nodeManager.addReferable(entityRef, new ObjectData(aasEntity, entityNode, submodel));
+                retval = entityNode;
             }
         }
         catch (Exception ex) {
-            LOGGER.error("addAasEntity Exception", ex);
+            LOGGER.error("createAasEntity Exception", ex);
         }
+        return retval;
     }
 
 

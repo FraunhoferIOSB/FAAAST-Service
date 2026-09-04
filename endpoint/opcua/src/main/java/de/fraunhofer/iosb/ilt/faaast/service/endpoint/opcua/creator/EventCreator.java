@@ -36,41 +36,40 @@ public class EventCreator extends SubmodelElementCreator {
     /**
      * Adds an AAS EventElement to the given node.
      *
-     * @param node The desired UA node
      * @param aasEvent The AAS Event to add
      * @param eventRef The AAS reference to the event
      * @param submodel The corresponding Submodel as parent object of the data element
-     * @param ordered Specifies whether the entity should be added ordered
-     *            (true) or unordered (false)
      * @param nodeManager The corresponding Node Manager
+     * @return The created node.
      * @throws StatusException If the operation fails
      * @throws ValueFormatException The data format of the value is invalid
      */
-    public static void addAasEvent(UaNode node, EventElement aasEvent, Reference eventRef, Submodel submodel, boolean ordered, AasServiceNodeManager nodeManager)
+    public static UaNode createAasEvent(EventElement aasEvent, Reference eventRef, Submodel submodel, AasServiceNodeManager nodeManager)
             throws StatusException, ValueFormatException {
-        if ((node != null) && (aasEvent != null) && (aasEvent instanceof BasicEventElement)) {
-            addAasBasicEventElement(node, (BasicEventElement) aasEvent, eventRef, submodel, ordered, nodeManager);
+        UaNode retval = null;
+        if ((aasEvent != null) && (aasEvent instanceof BasicEventElement)) {
+            retval = createAasBasicEventElement((BasicEventElement) aasEvent, eventRef, submodel, nodeManager);
         }
+        return retval;
     }
 
 
     /**
      * Adds an AAS BasicEventElement to the given node.
      *
-     * @param node The desired UA node
      * @param aasEvent The AAS Event to add
      * @param eventRef The AAS reference to the event
      * @param submodel The corresponding Submodel as parent object of the data element
-     * @param ordered Specifies whether the entity should be added ordered
-     *            (true) or unordered (false)
      * @param nodeManager The corresponding Node Manager
+     * @return The created node.
      * @throws StatusException If the operation fails
      * @throws ValueFormatException The data format of the value is invalid
      */
-    private static void addAasBasicEventElement(UaNode node, BasicEventElement aasEvent, Reference eventRef, Submodel submodel, boolean ordered, AasServiceNodeManager nodeManager)
+    private static UaNode createAasBasicEventElement(BasicEventElement aasEvent, Reference eventRef, Submodel submodel, AasServiceNodeManager nodeManager)
             throws StatusException, ValueFormatException {
+        UaNode retval = null;
         try {
-            LOGGER.info("addAasBasicEventElement: not yet supported (experimental)");
+            LOGGER.info("createAasBasicEventElement: not yet supported (experimental)");
 
             //            String name = aasEvent.getIdShort();
             //            if ((name == null) || name.isEmpty()) {
@@ -84,18 +83,19 @@ public class EventCreator extends SubmodelElementCreator {
             //
             //            setBasicEventElementData(eventNode, aasEvent, nodeManager);
             //
-            //            if (ordered) {
-            //                node.addReference(eventNode, Identifiers.HasOrderedComponent, false);
-            //            }
-            //            else {
-            //                node.addComponent(eventNode);
-            //            }
+            //            //if (ordered) {
+            //            //    node.addReference(eventNode, Identifiers.HasOrderedComponent, false);
+            //            //}
+            //            //else {
+            //            //    node.addComponent(eventNode);
+            //            //}
             //
             //            nodeManager.addReferable(eventRef, new ObjectData(aasEvent, eventNode, submodel));
         }
         catch (Exception ex) {
             LOGGER.error("addAasBasicEventElement Exception", ex);
         }
+        return retval;
     }
 
     //    private static void setBasicEventElementData(AASBasicEventElementType eventNode, BasicEventElement aasEvent, AasServiceNodeManager nodeManager)

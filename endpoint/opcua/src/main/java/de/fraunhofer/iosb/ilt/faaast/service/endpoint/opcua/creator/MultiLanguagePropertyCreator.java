@@ -28,7 +28,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
 import java.util.List;
-import opc.ua.aas.ReferenceTypeIds;
 import opc.ua.aas.VariableIds;
 import opc.ua.aas.variabletypes.AASMultiLanguagePropertyType;
 import org.eclipse.digitaltwin.aas4j.v3.model.LangStringTextType;
@@ -49,20 +48,19 @@ public class MultiLanguagePropertyCreator extends SubmodelElementCreator {
     /**
      * Adds an AAS Multi Language Property to the given node.
      *
-     * @param node The desired UA node
      * @param aasMultiLang The AAS Multi Language Property to add
      * @param multiLangRef The AAS reference to the Multi Language Property
      * @param submodel The corresponding Submodel as parent object of the data element
-     * @param ordered Specifies whether the multi language property should be
-     *            added ordered (true) or unordered (false)
      * @param nodeManager The corresponding Node Manager
+     * @return The created node.
      * @throws StatusException If the operation fails
      */
-    public static void addAasMultiLanguageProperty(UaNode node, MultiLanguageProperty aasMultiLang, Reference multiLangRef, Submodel submodel, boolean ordered,
-                                                   AasServiceNodeManager nodeManager)
+    public static UaNode createAasMultiLanguageProperty(MultiLanguageProperty aasMultiLang, Reference multiLangRef, Submodel submodel,
+                                                        AasServiceNodeManager nodeManager)
             throws StatusException {
+        UaNode retval = null;
         try {
-            if ((node != null) && (aasMultiLang != null)) {
+            if (aasMultiLang != null) {
                 String name = aasMultiLang.getIdShort();
                 if ((name == null) || name.isEmpty()) {
                     name = getNameFromReference(multiLangRef);
@@ -89,19 +87,21 @@ public class MultiLanguagePropertyCreator extends SubmodelElementCreator {
 
                 nodeManager.addSubmodelElementOpcUA(multiLangRef, multiLangNode);
 
-                if (ordered) {
-                    node.addReference(multiLangNode, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasOrderedComponent), false);
-                }
-                else {
-                    node.addReference(multiLangNode, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasComponent), false);
-                }
+                //if (ordered) {
+                //    node.addReference(multiLangNode, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasOrderedComponent), false);
+                //}
+                //else {
+                //    node.addReference(multiLangNode, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasComponent), false);
+                //}
 
                 nodeManager.addReferable(multiLangRef, new ObjectData(aasMultiLang, multiLangNode, submodel));
+                retval = multiLangNode;
             }
         }
         catch (Exception ex) {
-            LOGGER.error("addAasMultiLanguageProperty Exception", ex);
+            LOGGER.error("createAasMultiLanguageProperty Exception", ex);
         }
+        return retval;
     }
 
 

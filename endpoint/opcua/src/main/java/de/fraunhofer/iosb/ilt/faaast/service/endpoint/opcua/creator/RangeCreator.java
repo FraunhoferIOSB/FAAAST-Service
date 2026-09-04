@@ -34,19 +34,18 @@ public class RangeCreator extends SubmodelElementCreator {
     /**
      * Adds an AAS range object to the given node.
      *
-     * @param node The desired UA node
      * @param aasRange The corresponding AAS range object to add
      * @param rangeRef The reference to the AAS range
      * @param submodel The corresponding Submodel as parent object of the data element
-     * @param ordered Specifies whether the range should be added ordered (true)
-     *            or unordered (false)
      * @param nodeManager The corresponding Node Manager
+     * @return The created node.
      * @throws StatusException If the operation fails
      */
-    public static void addAasRange(UaNode node, Range aasRange, Reference rangeRef, Submodel submodel, boolean ordered, AasServiceNodeManager nodeManager)
+    public static UaNode createAasRange(Range aasRange, Reference rangeRef, Submodel submodel, AasServiceNodeManager nodeManager)
             throws StatusException {
+        UaNode retval = null;
         try {
-            LOGGER.info("addAasRange: not yet supported (experimental)");
+            LOGGER.info("createAasRange: not yet supported (experimental)");
             //            if ((node != null) && (aasRange != null)) {
             //                String name = aasRange.getIdShort();
             //                if ((name == null) || name.isEmpty()) {
@@ -77,8 +76,9 @@ public class RangeCreator extends SubmodelElementCreator {
             //            }
         }
         catch (Exception ex) {
-            LOGGER.error("addAasRange Exception", ex);
+            LOGGER.error("createAasRange Exception", ex);
         }
+        return retval;
     }
 
     /**

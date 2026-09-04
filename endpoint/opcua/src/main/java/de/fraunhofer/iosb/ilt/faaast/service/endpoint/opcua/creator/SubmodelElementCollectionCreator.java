@@ -28,7 +28,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import opc.ua.aas.ObjectTypeIds;
-import opc.ua.aas.ReferenceTypeIds;
 import opc.ua.aas.objecttypes.AASSubmodelElementCollectionType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
@@ -46,23 +45,23 @@ public class SubmodelElementCollectionCreator extends SubmodelElementCreator {
     /**
      * Adds a SubmodelElementCollection to the given node.
      *
-     * @param node The desired UA node
      * @param aasColl The corresponding SubmodelElementCollection to add
      * @param collectionRef The AAS reference to the SubmodelElementCollection
      * @param submodel The corresponding Submodel as parent object of the data element
-     * @param ordered Specifies where the elements are from a list (true) or not (false)
      * @param nodeManager The corresponding Node Manager
+     * @return The created node.
      * @throws StatusException If the operation fails
      * @throws ServiceException If the operation fails
      * @throws AddressSpaceException If the operation fails
      * @throws ServiceResultException If the operation fails
      * @throws ValueFormatException The data format of the value is invalid
      */
-    public static void addAasSubmodelElementCollection(UaNode node, SubmodelElementCollection aasColl, Reference collectionRef, Submodel submodel,
-                                                       boolean ordered, AasServiceNodeManager nodeManager)
+    public static UaNode createAasSubmodelElementCollection(SubmodelElementCollection aasColl, Reference collectionRef, Submodel submodel,
+                                                            AasServiceNodeManager nodeManager)
             throws StatusException, ServiceException, AddressSpaceException, ServiceResultException, ValueFormatException {
+        UaNode retval = null;
         try {
-            if ((node != null) && (aasColl != null)) {
+            if (aasColl != null) {
                 String name = aasColl.getIdShort();
                 if ((name == null) || name.isEmpty()) {
                     name = getNameFromReference(collectionRef);
@@ -77,24 +76,26 @@ public class SubmodelElementCollectionCreator extends SubmodelElementCreator {
                 addSubmodelElementBaseData(collNode, aasColl, nodeManager);
 
                 // SubmodelElements 
-                LOGGER.atDebug().log("addAasSubmodelElementCollection ({}): add {} SubmodelElements; Ref {}", name, aasColl.getValue().size(),
+                LOGGER.atDebug().log("createAasSubmodelElementCollection ({}): add {} SubmodelElements; Ref {}", name, aasColl.getValue().size(),
                         ReferenceHelper.toString(collectionRef));
                 // The children of the collection are never ordered
                 addSubmodelElements(collNode, aasColl.getValue(), collectionRef, submodel, false, nodeManager);
 
-                if (ordered) {
-                    node.addReference(collNode, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasOrderedComponent), false);
-                }
-                else {
-                    node.addReference(collNode, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasComponent), false);
-                }
+                //if (ordered) {
+                //    node.addReference(collNode, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasOrderedComponent), false);
+                //}
+                //else {
+                //    node.addReference(collNode, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasComponent), false);
+                //}
 
                 nodeManager.addReferable(collectionRef, new ObjectData(aasColl, collNode, submodel));
+                retval = collNode;
             }
         }
         catch (Exception ex) {
-            LOGGER.error("addAasSubmodelElementCollection Exception", ex);
+            LOGGER.error("createAasSubmodelElementCollection Exception", ex);
         }
+        return retval;
     }
 
 }

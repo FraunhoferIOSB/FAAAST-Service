@@ -23,12 +23,12 @@ import com.prosysopc.ua.server.instantiation.NodeBuilderConfiguration;
 import com.prosysopc.ua.stack.builtintypes.LocalizedText;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.QualifiedName;
+import com.prosysopc.ua.stack.common.ServiceResultException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import opc.ua.aas.ObjectTypeIds;
-import opc.ua.aas.ReferenceTypeIds;
 import opc.ua.aas.VariableIds;
 import opc.ua.aas.objecttypes.AASAnnotatedRelationshipElementType;
 import opc.ua.aas.objecttypes.AASRelationshipElementType;
@@ -51,20 +51,19 @@ public class RelationshipElementCreator extends SubmodelElementCreator {
     /**
      * Adds an AAS Relationship Element to the given node.
      *
-     * @param node The desired UA node
      * @param aasRelElem The corresponding AAS Relationship Element
      * @param relElemRef The reference to the AAS Relationship Element
      * @param submodel The corresponding Submodel as parent object of the data element
-     * @param ordered Specifies whether the entity should be added ordered
-     *            (true) or unordered (false)
      * @param nodeManager The corresponding Node Manager
+     * @return The created node.
      * @throws StatusException If the operation fails
      */
-    public static void addAasRelationshipElement(UaNode node, RelationshipElement aasRelElem, Reference relElemRef, Submodel submodel, boolean ordered,
-                                                 AasServiceNodeManager nodeManager)
+    public static UaNode createAasRelationshipElement(RelationshipElement aasRelElem, Reference relElemRef, Submodel submodel,
+                                                      AasServiceNodeManager nodeManager)
             throws StatusException {
+        UaNode retval = null;
         try {
-            if ((node != null) && (aasRelElem != null)) {
+            if (aasRelElem != null) {
                 String name = aasRelElem.getIdShort();
                 if ((name == null) || name.isEmpty()) {
                     name = getNameFromReference(relElemRef);
@@ -106,38 +105,28 @@ public class RelationshipElementCreator extends SubmodelElementCreator {
 
                     nodeManager.addSubmodelElementOpcUA(relElemRef, relElemNode);
 
-                    if (ordered) {
-                        node.addReference(relElemNode, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasOrderedComponent), false);
-                    }
-                    else {
-                        node.addReference(relElemNode, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasComponent), false);
-                    }
+                    //if (ordered) {
+                    //    node.addReference(relElemNode, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasOrderedComponent), false);
+                    //}
+                    //else {
+                    //    node.addReference(relElemNode, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasComponent), false);
+                    //}
 
                     nodeManager.addReferable(relElemRef, new ObjectData(aasRelElem, relElemNode, submodel));
+                    retval = relElemNode;
                 }
             }
         }
         catch (Exception ex) {
-            LOGGER.error("addAasRelationshipElement Exception", ex);
+            LOGGER.error("createAasRelationshipElement Exception", ex);
         }
+        return retval;
     }
 
 
-    /**
-     * Creates an Annotated Relationship Element.
-     *
-     * @param aasRelElem The AAS Annotated Relationship Element
-     * @param relElemRef The reference to the AAS Relationship Element
-     * @param submodel The corresponding Submodel as parent object of the data element
-     * @param nodeId The desired NodeId for the node to be created
-     * @param nodeManager The corresponding Node Manager
-     * @param conf The desired NodeBuilder Configuration
-     * @return The create UA Annotated Relationship Element
-     * @throws StatusException If the operation fails
-     */
     private static AASRelationshipElementType createAnnotatedRelationshipElement(AnnotatedRelationshipElement aasRelElem, Reference relElemRef, Submodel submodel, NodeId nodeId,
                                                                                  AasServiceNodeManager nodeManager, NodeBuilderConfiguration conf)
-            throws StatusException, NodeBuilderException {
+            throws StatusException, NodeBuilderException, ServiceResultException {
         AASRelationshipElementType retval;
 
         QualifiedName browseName = UaQualifiedName

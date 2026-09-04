@@ -23,7 +23,6 @@ import com.prosysopc.ua.stack.builtintypes.QualifiedName;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
-import opc.ua.aas.ReferenceTypeIds;
 import opc.ua.aas.variabletypes.AASReferenceElementType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceElement;
@@ -40,21 +39,20 @@ public class ReferenceElementCreator extends SubmodelElementCreator {
     private static final Logger LOGGER = LoggerFactory.getLogger(ReferenceElementCreator.class);
 
     /**
-     * Adds an AAS reference element to the given node.
+     * Creates an AAS reference element to the given node.
      *
-     * @param node The desired UA node
      * @param aasRefElem The AAS reference element to add
      * @param refElemRef The reference to the AAS reference element
      * @param submodel The corresponding Submodel as parent object of the data element
-     * @param ordered Specifies whether the reference element should be added
-     *            ordered (true) or unordered (false)
      * @param nodeManager The corresponding Node Manager
+     * @return The created node.
      * @throws StatusException If the operation fails
      */
-    public static void addAasReferenceElement(UaNode node, ReferenceElement aasRefElem, Reference refElemRef, Submodel submodel, boolean ordered, AasServiceNodeManager nodeManager)
+    public static UaNode createAasReferenceElement(ReferenceElement aasRefElem, Reference refElemRef, Submodel submodel, AasServiceNodeManager nodeManager)
             throws StatusException {
+        UaNode retval = null;
         try {
-            if ((node != null) && (aasRefElem != null)) {
+            if (aasRefElem != null) {
                 String name = aasRefElem.getIdShort();
                 if ((name == null) || name.isEmpty()) {
                     name = getNameFromReference(refElemRef);
@@ -76,19 +74,21 @@ public class ReferenceElementCreator extends SubmodelElementCreator {
 
                 nodeManager.addSubmodelElementOpcUA(refElemRef, refElemNode);
 
-                if (ordered) {
-                    node.addReference(refElemNode, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasOrderedComponent), false);
-                }
-                else {
-                    node.addReference(refElemNode, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasComponent), false);
-                }
+                //if (ordered) {
+                //    node.addReference(refElemNode, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasOrderedComponent), false);
+                //}
+                //else {
+                //    node.addReference(refElemNode, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasComponent), false);
+                //}
 
                 nodeManager.addReferable(refElemRef, new ObjectData(aasRefElem, refElemNode, submodel));
+                retval = refElemNode;
             }
         }
         catch (Exception ex) {
-            LOGGER.error("addAasReferenceElement Exception", ex);
+            LOGGER.error("createAasReferenceElement Exception", ex);
         }
+        return retval;
     }
 
 }
