@@ -55,8 +55,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-import opc.ua.aas.DataTypeIds;
-import opc.ua.aas.ReferenceTypeIds;
+import opc.ua.aas.Ids;
 import opc.ua.aas.datatypes.AASAdministrativeInformation;
 import opc.ua.aas.datatypes.AASAssetAdministrationShellCommonAttributes;
 import opc.ua.aas.datatypes.AASAssetKind;
@@ -550,10 +549,10 @@ public class TestUtils {
         NodeId commonAttrNode = getCommonAttributes(client, baseNode, aasns);
 
         NodeId type = getType(client, commonAttrNode);
-        if (client.getNamespaceTable().nodeIdEquals(type, DataTypeIds.AASSubmodelCommonAttributes)) {
+        if (client.getNamespaceTable().nodeIdEquals(type, Ids.AASSubmodelCommonAttributes)) {
             checkSubmodelCommonAttributes(client, commonAttrNode, data);
         }
-        else if (client.getNamespaceTable().nodeIdEquals(type, DataTypeIds.AASAssetAdministrationShellCommonAttributes)) {
+        else if (client.getNamespaceTable().nodeIdEquals(type, Ids.AASAssetAdministrationShellCommonAttributes)) {
             checkAasCommonAttributes(client, commonAttrNode, data);
         }
     }
@@ -695,7 +694,7 @@ public class TestUtils {
     private static NodeId getConceptDescription(UaClient client, NodeId baseNode, int aasns) throws ServiceResultException, ServiceException {
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
-        browsePath.add(new RelativePathElement(client.getAddressSpace().getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasConceptDescription), false, true,
+        browsePath.add(new RelativePathElement(client.getAddressSpace().getNamespaceTable().toNodeId(Ids.AASHasConceptDescription), false, true,
                 new QualifiedName(aasns, TestConstants.CONCEPT_DESCRIPTION_NAME)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
@@ -983,7 +982,7 @@ public class TestUtils {
     private static NodeId getCommonAttributes(UaClient client, NodeId baseNode, int aasns) throws ServiceResultException, ServiceException {
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
-        browsePath.add(new RelativePathElement(client.getAddressSpace().getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasCommonAttribute), false, true,
+        browsePath.add(new RelativePathElement(client.getAddressSpace().getNamespaceTable().toNodeId(Ids.AASHasCommonAttribute), false, true,
                 new QualifiedName(aasns, TestConstants.COMMON_ATTRIBUTES)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 

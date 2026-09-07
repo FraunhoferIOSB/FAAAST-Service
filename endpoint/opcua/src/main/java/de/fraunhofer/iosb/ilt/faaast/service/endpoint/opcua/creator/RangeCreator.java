@@ -41,8 +41,7 @@ public class RangeCreator extends SubmodelElementCreator {
      * @return The created node.
      * @throws StatusException If the operation fails
      */
-    public static UaNode createAasRange(Range aasRange, Reference rangeRef, Submodel submodel, AasServiceNodeManager nodeManager)
-            throws StatusException {
+    public static UaNode createAasRange(Range aasRange, Reference rangeRef, Submodel submodel, AasServiceNodeManager nodeManager) {
         UaNode retval = null;
         try {
             LOGGER.info("createAasRange: not yet supported (experimental)");

@@ -27,7 +27,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManage
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
-import opc.ua.aas.ObjectTypeIds;
+import opc.ua.aas.Ids;
 import opc.ua.aas.objecttypes.AASSubmodelElementCollectionType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
@@ -66,7 +66,7 @@ public class SubmodelElementCollectionCreator extends SubmodelElementCreator {
                 if ((name == null) || name.isEmpty()) {
                     name = getNameFromReference(collectionRef);
                 }
-                QualifiedName browseName = UaQualifiedName.from(ObjectTypeIds.AASSubmodelElementCollectionType.getNamespaceUri(), name)
+                QualifiedName browseName = UaQualifiedName.from(Ids.AASSubmodelElementCollectionType.getNamespaceUri(), name)
                         .toQualifiedName(nodeManager.getNamespaceTable());
                 NodeId nid = nodeManager.getDefaultNodeId();
                 AASSubmodelElementCollectionType collNode;
@@ -80,13 +80,6 @@ public class SubmodelElementCollectionCreator extends SubmodelElementCreator {
                         ReferenceHelper.toString(collectionRef));
                 // The children of the collection are never ordered
                 addSubmodelElements(collNode, aasColl.getValue(), collectionRef, submodel, false, nodeManager);
-
-                //if (ordered) {
-                //    node.addReference(collNode, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasOrderedComponent), false);
-                //}
-                //else {
-                //    node.addReference(collNode, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasComponent), false);
-                //}
 
                 nodeManager.addReferable(collectionRef, new ObjectData(aasColl, collNode, submodel));
                 retval = collNode;

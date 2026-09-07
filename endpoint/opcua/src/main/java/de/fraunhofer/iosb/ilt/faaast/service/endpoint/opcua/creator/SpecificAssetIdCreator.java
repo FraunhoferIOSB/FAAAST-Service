@@ -77,8 +77,7 @@ public class SpecificAssetIdCreator {
     }
 
 
-    private static void setSpecificAssetIdData(AASSpecificAssetId specificAssetIdNode, SpecificAssetId aasIdentifierPair)
-            throws StatusException {
+    private static void setSpecificAssetIdData(AASSpecificAssetId specificAssetIdNode, SpecificAssetId aasIdentifierPair) {
         // ExternalSubjectId
         Reference externalSubjectId = aasIdentifierPair.getExternalSubjectId();
         if (externalSubjectId != null) {
@@ -93,7 +92,7 @@ public class SpecificAssetIdCreator {
     }
 
 
-    private static AASSpecificAssetId getSpecificAssetId(SpecificAssetId aasIdentifierPair) throws StatusException {
+    private static AASSpecificAssetId getSpecificAssetId(SpecificAssetId aasIdentifierPair) {
 
         AASSpecificAssetId specificAssetIdNode = new AASSpecificAssetId();
         setSpecificAssetIdData(specificAssetIdNode, aasIdentifierPair);

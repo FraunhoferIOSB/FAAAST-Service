@@ -31,8 +31,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import opc.ua.aas.DataTypeIds;
-import opc.ua.aas.ReferenceTypeIds;
+import opc.ua.aas.Ids;
 import opc.ua.aas.datatypes.AASConceptDescription;
 import opc.ua.aas.datatypes.AASConceptDescriptionCommonAttributes;
 import opc.ua.aas.datatypes.AASDataSpecificationContent;
@@ -54,8 +53,6 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
  */
 public class ConceptDescriptionCreator {
 
-    //private static final String DEFAULT_NAME = "ConceptDescription";
-
     /**
      * Maps AAS references to dictionary entry types
      */
@@ -65,13 +62,6 @@ public class ConceptDescriptionCreator {
         throw new IllegalStateException("Class not instantiable");
     }
 
-    /**
-     * Adds the given list of AAS Concept Descriptions.
-     *
-     * @param descriptions The desired list of AAS Concept Descriptions
-     * @param nodeManager The corresponding Node Manager
-     * @throws StatusException If the operation fails
-     */
     //    public static void addConceptDescriptions(List<ConceptDescription> descriptions, AasServiceNodeManager nodeManager) throws StatusException {
     //        // create folder DictionaryEntries
     //        //final UaNode dictionariesFolder = nodeManager.getServer().getNodeManagerRoot().getNodeOrExternal(Identifiers.Dictionaries);
@@ -139,11 +129,11 @@ public class ConceptDescriptionCreator {
         if (node.getConceptDescriptionNode() == null) {
             // add node
             String name = AASSubmodelElementObjectType.CONCEPT_DESCRIPTION;
-            QualifiedName browseName = UaQualifiedName.from(DataTypeIds.AASConceptDescription.getNamespaceUri(), name)
+            QualifiedName browseName = UaQualifiedName.from(Ids.AASConceptDescription.getNamespaceUri(), name)
                     .toQualifiedName(nodeManager.getNamespaceTable());
             NodeId nid = nodeManager.createNodeId(node, browseName);
             BaseDataVariableType cdnode = nodeManager.createInstance(BaseDataVariableType.class, nid, browseName, LocalizedText.english(name));
-            node.addReference(cdnode, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasConceptDescription));
+            node.addReference(cdnode, nodeManager.getNamespaceTable().toNodeId(Ids.AASHasConceptDescription));
         }
         node.setConceptDescription(getConceptDescriptionData(conceptDescription, embeddedDataSpecifications));
     }
@@ -168,11 +158,11 @@ public class ConceptDescriptionCreator {
         if (node.getConceptDescriptionNode() == null) {
             // add node
             String name = AASSubmodelElementVariableType.CONCEPT_DESCRIPTION;
-            QualifiedName browseName = UaQualifiedName.from(DataTypeIds.AASConceptDescription.getNamespaceUri(), name)
+            QualifiedName browseName = UaQualifiedName.from(Ids.AASConceptDescription.getNamespaceUri(), name)
                     .toQualifiedName(nodeManager.getNamespaceTable());
             NodeId nid = nodeManager.createNodeId(node, browseName);
             BaseDataVariableType cdnode = nodeManager.createInstance(BaseDataVariableType.class, nid, browseName, LocalizedText.english(name));
-            node.addReference(cdnode, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasConceptDescription));
+            node.addReference(cdnode, nodeManager.getNamespaceTable().toNodeId(Ids.AASHasConceptDescription));
         }
         node.setConceptDescription(getConceptDescriptionData(conceptDescription, embeddedDataSpecifications));
     }
@@ -191,15 +181,6 @@ public class ConceptDescriptionCreator {
         // if entry not found: perhaps create a new one?
     }
 
-
-    /**
-     * Adds a reference to a ConceptDescription.
-     *
-     * @param node The desired UA node
-     * @param ref The reference to create
-     * @param nodeManager The corresponding Node Manager
-     * @throws StatusException If the operation fails
-     */
     //    private static void addConceptDescriptionReference(AASConceptDescription node, Reference ref, AasServiceNodeManager nodeManager) throws StatusException {
     //        if (ref != null) {
     //            String name = "ConceptDescription";
@@ -213,6 +194,7 @@ public class ConceptDescriptionCreator {
     //            node.addReference(nodeRef, Identifiers.HasDictionaryEntry, false);
     //        }
     //    }
+
 
     private static AASConceptDescription getConceptDescriptionData(ConceptDescription conceptDescription, List<EmbeddedDataSpecification> embeddedDataSpecifications)
             throws StatusException {
@@ -241,17 +223,7 @@ public class ConceptDescriptionCreator {
         }
 
         if (conceptDescription != null) {
-            if (conceptDescription.getIdShort() != null) {
-                descriptionNode.setIdShort(conceptDescription.getIdShort());
-            }
-
-            if (conceptDescription.getDisplayName() != null) {
-                descriptionNode.setDisplayName(ValueConverter.convertLangStringSet(conceptDescription.getDisplayName()));
-            }
-
-            if (conceptDescription.getDescription() != null) {
-                descriptionNode.setDescription(ValueConverter.convertLangStringSet(conceptDescription.getDescription()));
-            }
+            setConceptDescriptionData(conceptDescription, descriptionNode);
         }
 
         // check CommonAttributes
@@ -264,6 +236,21 @@ public class ConceptDescriptionCreator {
         HasDataSpecificationCreator.addHasDataSpecification(descriptionNode.getCommonAttributes(), conceptDescription);
 
         return descriptionNode;
+    }
+
+
+    private static void setConceptDescriptionData(ConceptDescription conceptDescription, AASConceptDescription descriptionNode) {
+        if (conceptDescription.getIdShort() != null) {
+            descriptionNode.setIdShort(conceptDescription.getIdShort());
+        }
+
+        if (conceptDescription.getDisplayName() != null) {
+            descriptionNode.setDisplayName(ValueConverter.convertLangStringSet(conceptDescription.getDisplayName()));
+        }
+
+        if (conceptDescription.getDescription() != null) {
+            descriptionNode.setDescription(ValueConverter.convertLangStringSet(conceptDescription.getDescription()));
+        }
     }
 
 
@@ -280,7 +267,6 @@ public class ConceptDescriptionCreator {
         AASDataSpecificationContent retval = null;
         if ((content != null) && (content instanceof DataSpecificationIec61360 content61360)) {
             var builder = AASDataSpecificationIec61360.builder();
-            //retval = new AASDataSpecificationIec61360();
             if (content61360.getDataType() != null) {
                 builder.setDataType(ValueConverter.convertDataTypeIec61360(content61360.getDataType()));
             }

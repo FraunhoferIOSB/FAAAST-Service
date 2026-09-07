@@ -41,14 +41,11 @@ public class EventCreator extends SubmodelElementCreator {
      * @param submodel The corresponding Submodel as parent object of the data element
      * @param nodeManager The corresponding Node Manager
      * @return The created node.
-     * @throws StatusException If the operation fails
-     * @throws ValueFormatException The data format of the value is invalid
      */
-    public static UaNode createAasEvent(EventElement aasEvent, Reference eventRef, Submodel submodel, AasServiceNodeManager nodeManager)
-            throws StatusException, ValueFormatException {
+    public static UaNode createAasEvent(EventElement aasEvent, Reference eventRef, Submodel submodel, AasServiceNodeManager nodeManager) {
         UaNode retval = null;
-        if ((aasEvent != null) && (aasEvent instanceof BasicEventElement)) {
-            retval = createAasBasicEventElement((BasicEventElement) aasEvent, eventRef, submodel, nodeManager);
+        if (aasEvent instanceof BasicEventElement basicEventElement) {
+            retval = createAasBasicEventElement(basicEventElement, eventRef, submodel, nodeManager);
         }
         return retval;
     }
@@ -65,8 +62,7 @@ public class EventCreator extends SubmodelElementCreator {
      * @throws StatusException If the operation fails
      * @throws ValueFormatException The data format of the value is invalid
      */
-    private static UaNode createAasBasicEventElement(BasicEventElement aasEvent, Reference eventRef, Submodel submodel, AasServiceNodeManager nodeManager)
-            throws StatusException, ValueFormatException {
+    private static UaNode createAasBasicEventElement(BasicEventElement aasEvent, Reference eventRef, Submodel submodel, AasServiceNodeManager nodeManager) {
         UaNode retval = null;
         try {
             LOGGER.info("createAasBasicEventElement: not yet supported (experimental)");

@@ -32,6 +32,9 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
  */
 public class ReferableCreator {
 
+    private ReferableCreator() {}
+
+
     /**
      * Gets the AASReferable from the given Referable.
      *
@@ -78,8 +81,7 @@ public class ReferableCreator {
         if (hasExtensions == null) {
             return null;
         }
-        AASHasExtensions retval = new AASHasExtensions(getExtensionData(hasExtensions.getExtensions()));
-        return retval;
+        return new AASHasExtensions(getExtensionData(hasExtensions.getExtensions()));
     }
 
 
@@ -108,7 +110,7 @@ public class ReferableCreator {
 
     private static AASExtension[] getExtensionData(List<Extension> extensions) {
         if (extensions == null) {
-            return null;
+            return new AASExtension[0];
         }
         List<AASExtension> list = new ArrayList<>();
         for (var ext: extensions) {

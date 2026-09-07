@@ -51,7 +51,7 @@ import java.nio.file.Paths;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
-import opc.ua.aas.ObjectTypeIds;
+import opc.ua.aas.Ids;
 import opc.ua.aas.objecttypes.AASEnvironmentType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.slf4j.Logger;
@@ -139,8 +139,6 @@ public class Server {
 
         setSecurityPolicies();
 
-        //uaServer.getHttpsSettings().setCertificateValidator(applicationCertificateValidator);
-
         if (Objects.isNull(config.getSupportedAuthentications()) || config.getSupportedAuthentications().isEmpty()) {
             throw new IllegalArgumentException("no supported authentications available!");
         }
@@ -210,17 +208,6 @@ public class Server {
                 SecurityMode.combinations(
                         Set.of(MessageSecurityMode.values()),
                         config.getSupportedSecurityPolicies()));
-
-        //uaServer.getHttpsSecurityModes().addAll(
-        //        SecurityMode.combinations(
-        //                Set.of(MessageSecurityMode.None, MessageSecurityMode.Sign),
-        //                config.getSupportedSecurityPolicies()));
-
-        //Set<HttpsSecurityPolicy> supportedHttpsSecurityPolicies = new HashSet<>();
-        //supportedHttpsSecurityPolicies.addAll(HttpsSecurityPolicy.ALL_102);
-        //supportedHttpsSecurityPolicies.addAll(HttpsSecurityPolicy.ALL_103);
-        //supportedHttpsSecurityPolicies.addAll(HttpsSecurityPolicy.ALL_104);
-        //uaServer.getHttpsSettings().setHttpsSecurityPolicies(supportedHttpsSecurityPolicies);
     }
 
 
@@ -307,7 +294,7 @@ public class Server {
         try {
             loadAasNodes();
 
-            NodeId nodeId = uaServer.getNamespaceTable().toNodeId(new ExpandedNodeId(ObjectTypeIds.AASEnvironmentType.getNamespaceUri(), AAS_ENVIRONMENT_ID));
+            NodeId nodeId = uaServer.getNamespaceTable().toNodeId(new ExpandedNodeId(Ids.AASEnvironmentType.getNamespaceUri(), AAS_ENVIRONMENT_ID));
             UaNode node = uaServer.getAddressSpace().findNode(nodeId);
             AASEnvironmentType envNode = null;
             if (node instanceof AASEnvironmentType aasEnvironmentType) {

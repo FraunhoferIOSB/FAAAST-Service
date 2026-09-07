@@ -12,7 +12,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator;
 
-import com.prosysopc.ua.StatusException;
 import java.util.List;
 import opc.ua.aas.datatypes.AASHasSemantics;
 import opc.ua.aas.datatypes.AASIdentifiable;
@@ -36,10 +35,8 @@ public class BaseDataCreator {
      *
      * @param identifiable The Identifiable.
      * @return The corresponding AASIdentifiable.
-     * @throws StatusException if an error occurs
      */
-    public static AASIdentifiable getIdentifiable(Identifiable identifiable)
-            throws StatusException {
+    public static AASIdentifiable getIdentifiable(Identifiable identifiable) {
         if (identifiable == null) {
             return null;
         }

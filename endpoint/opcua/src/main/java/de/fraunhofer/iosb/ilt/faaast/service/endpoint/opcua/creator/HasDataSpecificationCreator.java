@@ -14,7 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator;
 
-import com.prosysopc.ua.StatusException;
 import java.util.ArrayList;
 import java.util.List;
 import opc.ua.aas.datatypes.AASConceptDescriptionCommonAttributes;
@@ -42,10 +41,8 @@ public class HasDataSpecificationCreator {
      *
      * @param aasNode The desired object where the DataSpecifications should be added
      * @param dataSpecification The desired Data Specification
-     * @throws StatusException If the operation fails
      */
-    public static void addHasDataSpecification(AASAssetAdministrationShellType aasNode, HasDataSpecification dataSpecification)
-            throws StatusException {
+    public static void addHasDataSpecification(AASAssetAdministrationShellType aasNode, HasDataSpecification dataSpecification) {
         if (aasNode.getCommonAttributes().getHasDataSpecification() == null) {
             aasNode.getCommonAttributes().setHasDataSpecification(new AASHasDataSpecification());
         }
@@ -59,10 +56,8 @@ public class HasDataSpecificationCreator {
      *
      * @param aasNode The desired object where the DataSpecifications should be added
      * @param dataSpecification The desired Data Specification
-     * @throws StatusException If the operation fails
      */
-    public static void addHasDataSpecification(AASConceptDescriptionCommonAttributes aasNode, HasDataSpecification dataSpecification)
-            throws StatusException {
+    public static void addHasDataSpecification(AASConceptDescriptionCommonAttributes aasNode, HasDataSpecification dataSpecification) {
         if (aasNode.getHasDataSpecification() == null) {
             aasNode.setHasDataSpecification(new AASHasDataSpecification());
         }
@@ -75,10 +70,8 @@ public class HasDataSpecificationCreator {
      *
      * @param submodelElementCommonNode The desired object where the DataSpecifications should be added.
      * @param dataSpecification The desired Data Specification
-     * @throws StatusException If the operation fails
      */
-    public static void addHasDataSpecification(AASSubmodelElementCommonAttributes submodelElementCommonNode, HasDataSpecification dataSpecification)
-            throws StatusException {
+    public static void addHasDataSpecification(AASSubmodelElementCommonAttributes submodelElementCommonNode, HasDataSpecification dataSpecification) {
         if (submodelElementCommonNode.getHasDataSpecification() == null) {
             submodelElementCommonNode.setHasDataSpecification(new AASHasDataSpecification());
         }
@@ -92,9 +85,8 @@ public class HasDataSpecificationCreator {
      *
      * @param submodelNode The desired object where the DataSpecifications should be added
      * @param dataSpecification The desired Data Specification
-     * @throws StatusException If the operation fails
      */
-    public static void addHasDataSpecification(AASSubmodelType submodelNode, HasDataSpecification dataSpecification) throws StatusException {
+    public static void addHasDataSpecification(AASSubmodelType submodelNode, HasDataSpecification dataSpecification) {
         if (submodelNode.getCommonAttributes().getHasDataSpecification() == null) {
             submodelNode.getCommonAttributes().setHasDataSpecification(new AASHasDataSpecification());
         }
@@ -103,14 +95,12 @@ public class HasDataSpecificationCreator {
     }
 
 
-    private static void addHasDataSpecification(HasDataSpecification dataSpecification, AASHasDataSpecification listNode)
-            throws StatusException {
+    private static void addHasDataSpecification(HasDataSpecification dataSpecification, AASHasDataSpecification listNode) {
         List<AASReference> refList = new ArrayList<>();
         var list = dataSpecification.getEmbeddedDataSpecifications();
         if ((list != null) && (!list.isEmpty())) {
             for (var embedDataSpec: list) {
                 refList.add(ReferenceCreator.getAasReference(embedDataSpec.getDataSpecification()));
-                //addEmbeddedDataSpecificationNode(listNode, embedDataSpec, name + counter++, nodeManager);
             }
             listNode.setDataSpecification(refList.toArray(AASReference[]::new));
         }

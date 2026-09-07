@@ -28,7 +28,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import java.util.List;
-import opc.ua.aas.ObjectTypeIds;
+import opc.ua.aas.Ids;
 import opc.ua.aas.datatypes.AASQualifiable;
 import opc.ua.aas.datatypes.AASSubmodelCommonAttributes;
 import opc.ua.aas.objecttypes.AASSubmodelType;
@@ -76,7 +76,7 @@ public class SubmodelCreator {
             shortId = "Submodel";
         }
         String displayName = "Submodel:" + shortId;
-        QualifiedName browseName = UaQualifiedName.from(ObjectTypeIds.AASSubmodelType.getNamespaceUri(), shortId)
+        QualifiedName browseName = UaQualifiedName.from(Ids.AASSubmodelType.getNamespaceUri(), shortId)
                 .toQualifiedName(nodeManager.getNamespaceTable());
         NodeId nid = nodeManager.createNodeId(node, browseName);
         if (nodeManager.hasNode(nid)) {
@@ -85,14 +85,6 @@ public class SubmodelCreator {
         }
 
         LOGGER.trace("addSubmodel: create Submodel {}; NodeId: {}; Kind {}", submodel.getIdShort(), nid, submodel.getKind());
-        //NodeBuilderConfiguration conf = new NodeBuilderConfiguration();
-        ////conf.addOptional(AASSubmodelType.COMMON_ATTRIBUTES);
-        //conf.addOptional(VariableIds.AASSubmodelType_CommonAttributes);
-        //NodeBuilder nb = nodeManager.createNodeBuilder(AASSubmodelType.class, conf);
-        //nb.setBrowseName(browseName);
-        //nb.setDisplayName(LocalizedText.english(displayName));
-        //nb.setNodeId(nid);
-        //AASSubmodelType smNode = (AASSubmodelType) nb.build();
 
         AASSubmodelType smNode = nodeManager.createInstance(AASSubmodelType.class, nid, browseName, LocalizedText.english(displayName));
 
@@ -116,7 +108,6 @@ public class SubmodelCreator {
 
         // Referable
         ReferableCreator.setReferebleNodeData(node, submodel);
-        //DescriptionCreator.addDescriptions(smNode, submodel.getDescription());
 
         Reference refSubmodel = AasUtils.toReference(submodel);
 
@@ -131,21 +122,15 @@ public class SubmodelCreator {
     }
 
 
-    private static void setKind(ModellingKind kind, AASSubmodelType smNode) throws StatusException {
+    private static void setKind(ModellingKind kind, AASSubmodelType smNode) {
         // Kind
         if (kind != null) {
-            //if (smNode.getKindNode() == null) {
-            //    UaHelper.addKindProperty(smNode, nodeManager, AASSubmodelType.KIND, kind,
-            //            ObjectTypeIds.AASSubmodelType.getNamespaceUri());
-            //}
-            //else {
             smNode.getCommonAttributes().setHasKind(ValueConverter.convertHasKind(kind));
-            //}
         }
     }
 
 
-    private static void setQualifierData(List<Qualifier> qualifiers, AASSubmodelType smNode) throws StatusException {
+    private static void setQualifierData(List<Qualifier> qualifiers, AASSubmodelType smNode) {
         if ((qualifiers != null) && (!qualifiers.isEmpty())) {
             if (smNode.getCommonAttributes().getQualifiable() == null) {
                 smNode.getCommonAttributes().setQualifiable(new AASQualifiable());

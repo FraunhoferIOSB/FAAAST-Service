@@ -32,8 +32,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatExceptio
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.List;
-import opc.ua.aas.ObjectTypeIds;
-import opc.ua.aas.VariableIds;
+import opc.ua.aas.Ids;
 import opc.ua.aas.objecttypes.AASSubmodelElementListType;
 import org.eclipse.digitaltwin.aas4j.v3.model.AasSubmodelElements;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
@@ -75,7 +74,7 @@ public class SubmodelElementListCreator extends SubmodelElementCreator {
                 if ((name == null) || name.isEmpty()) {
                     name = getNameFromReference(listRef);
                 }
-                String namespaceUri = ObjectTypeIds.AASSubmodelElementListType.getNamespaceUri();
+                String namespaceUri = Ids.AASSubmodelElementListType.getNamespaceUri();
                 QualifiedName browseName = UaQualifiedName.from(namespaceUri, name)
                         .toQualifiedName(nodeManager.getNamespaceTable());
                 NodeId nid = nodeManager.getDefaultNodeId();
@@ -83,33 +82,25 @@ public class SubmodelElementListCreator extends SubmodelElementCreator {
                 LOGGER.debug("createAasSubmodelElementList: Name {}; NodeId {}", name, nid);
 
                 NodeBuilderConfiguration conf = new NodeBuilderConfiguration();
-                conf.addOptional(VariableIds.AASSubmodelElementListType_OrderRelevant);
+                conf.addOptional(Ids.AASSubmodelElementListType_OrderRelevant);
                 if (aasList.getSemanticIdListElement() != null) {
-                    conf.addOptional(VariableIds.AASSubmodelElementListType_SemanticIdListElement);
+                    conf.addOptional(Ids.AASSubmodelElementListType_SemanticIdListElement);
                 }
                 if (aasList.getTypeValueListElement() != null) {
-                    conf.addOptional(VariableIds.AASSubmodelElementListType_TypeValueListElement);
+                    conf.addOptional(Ids.AASSubmodelElementListType_TypeValueListElement);
                 }
                 if (aasList.getValueTypeListElement() != null) {
-                    conf.addOptional(VariableIds.AASSubmodelElementListType_ValueTypeListElement);
+                    conf.addOptional(Ids.AASSubmodelElementListType_ValueTypeListElement);
                 }
-                NodeBuilder nb = nodeManager.createNodeBuilder(AASSubmodelElementListType.class, conf);
+                NodeBuilder<AASSubmodelElementListType> nb = nodeManager.createNodeBuilder(AASSubmodelElementListType.class, conf);
                 nb.setBrowseName(browseName);
                 nb.setDisplayName(LocalizedText.english(name));
                 nb.setNodeId(nid);
-                AASSubmodelElementListType collNode = (AASSubmodelElementListType) nb.build();
-
-                //AASSubmodelElementListType collNode = nodeManager.createInstance(AASSubmodelElementListType.class, nid, browseName, LocalizedText.english(name));
+                AASSubmodelElementListType collNode = nb.build();
 
                 addSubmodelElementBaseData(collNode, aasList, nodeManager);
 
-                //if (collNode.getOrderRelevantNode() == null) {
-                //    UaHelper.addBooleanUaProperty(collNode, nodeManager, AASSubmodelElementListType.ORDER_RELEVANT, aasList.getOrderRelevant(),
-                //            namespaceUri);
-                //}
-                //else {
                 collNode.setOrderRelevant(aasList.getOrderRelevant());
-                //}
 
                 setValueTypeListElement(aasList.getValueTypeListElement(), collNode);
                 setTypeValueListElement(aasList.getTypeValueListElement(), collNode);
@@ -117,13 +108,6 @@ public class SubmodelElementListCreator extends SubmodelElementCreator {
 
                 // add SubmodelElements 
                 addSubmodelElementList(collNode, aasList.getValue(), submodel, listRef, nodeManager);
-
-                //if (ordered) {
-                //    node.addReference(collNode, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasOrderedComponent), false);
-                //}
-                //else {
-                //    node.addReference(collNode, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasComponent), false);
-                //}
 
                 nodeManager.addReferable(listRef, new ObjectData(aasList, collNode, submodel));
                 retval = collNode;
@@ -139,16 +123,7 @@ public class SubmodelElementListCreator extends SubmodelElementCreator {
     private static void setSemanticIdListElement(Reference semanticIdElement, AASSubmodelElementListType collNode)
             throws StatusException {
         if (semanticIdElement != null) {
-            //if (collNode.getSemanticIdListElementNode() == null) {
-            //    UaHelper.addAasSubmodelElementsProperty(collNode, nodeManager, AASSubmodelElementListType.SEMANTIC_ID_LIST_ELEMENT, null,
-            //            namespaceUri);
-            //    //    AasReferenceCreator.addAasReference(collNode, semanticIdElement, AASSubmodelElementListType.SEMANTIC_ID_LIST_ELEMENT, namespaceUri, true,
-            //    //            nodeManager);
-            //}
             collNode.setSemanticIdListElement(ReferenceCreator.getAasReference(semanticIdElement));
-            //else {
-            //    AasReferenceCreator.setAasReferenceData(semanticIdElement, collNode.getSemanticIdListElement(), true);
-            //}
         }
     }
 
@@ -156,13 +131,7 @@ public class SubmodelElementListCreator extends SubmodelElementCreator {
     private static void setTypeValueListElement(AasSubmodelElements typeValue, AASSubmodelElementListType collNode)
             throws StatusException {
         if (typeValue != null) {
-            //if (collNode.getTypeValueListElementNode() == null) {
-            //    UaHelper.addAasSubmodelElementsProperty(collNode, nodeManager, AASSubmodelElementListType.TYPE_VALUE_LIST_ELEMENT, typeValue,
-            //            namespaceUri);
-            //}
-            //else {
             collNode.setTypeValueListElement(ValueConverter.convertAasSubmodelElements(typeValue));
-            //}
         }
     }
 
@@ -170,13 +139,6 @@ public class SubmodelElementListCreator extends SubmodelElementCreator {
     private static void setValueTypeListElement(DataTypeDefXsd datatype, AASSubmodelElementListType collNode)
             throws StatusException {
         if (datatype != null) {
-            //if (collNode.getValueTypeListElementNode() == null) {
-            //    UaHelper.addAasSubmodelElementsProperty(collNode, nodeManager, AASSubmodelElementListType.VALUE_TYPE_LIST_ELEMENT, typeValue,
-            //            namespaceUri);
-            //}
-            //else {
-            //    collNode.setValueTypeListElement(ValueConverter.convertDataTypeDefXsd(datatype));
-            //}
             collNode.setValueTypeListElement(ValueConverter.convertDataTypeDefToString(datatype));
         }
     }

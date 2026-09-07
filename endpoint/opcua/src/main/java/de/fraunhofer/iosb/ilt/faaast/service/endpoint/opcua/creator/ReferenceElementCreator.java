@@ -23,6 +23,7 @@ import com.prosysopc.ua.stack.builtintypes.QualifiedName;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
+import opc.ua.aas.Ids;
 import opc.ua.aas.variabletypes.AASReferenceElementType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceElement;
@@ -57,14 +58,12 @@ public class ReferenceElementCreator extends SubmodelElementCreator {
                 if ((name == null) || name.isEmpty()) {
                     name = getNameFromReference(refElemRef);
                 }
-                QualifiedName browseName = UaQualifiedName.from(opc.ua.aas.VariableTypeIds.AASReferenceElementType.getNamespaceUri(), name)
+                QualifiedName browseName = UaQualifiedName.from(Ids.AASReferenceElementType.getNamespaceUri(), name)
                         .toQualifiedName(nodeManager.getNamespaceTable());
                 NodeId nid = nodeManager.getDefaultNodeId();
                 AASReferenceElementType refElemNode = nodeManager.createInstance(AASReferenceElementType.class, nid, browseName, LocalizedText.english(name));
                 addSubmodelElementBaseData(refElemNode, aasRefElem, nodeManager);
 
-                //setValue(aasRefElem, refElemNode, nodeManager);
-                //AasReferenceCreator.setAasReferenceData(aasRefElem.getValue(), refElemNode, false);
                 ReferenceCreator.setAasReferenceData(aasRefElem.getValue(), refElemNode);
 
                 if (refElemNode != null) {
@@ -73,13 +72,6 @@ public class ReferenceElementCreator extends SubmodelElementCreator {
                 }
 
                 nodeManager.addSubmodelElementOpcUA(refElemRef, refElemNode);
-
-                //if (ordered) {
-                //    node.addReference(refElemNode, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasOrderedComponent), false);
-                //}
-                //else {
-                //    node.addReference(refElemNode, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasComponent), false);
-                //}
 
                 nodeManager.addReferable(refElemRef, new ObjectData(aasRefElem, refElemNode, submodel));
                 retval = refElemNode;

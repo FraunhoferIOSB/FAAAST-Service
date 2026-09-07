@@ -27,7 +27,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.Collection;
 import java.util.List;
-import opc.ua.aas.ReferenceTypeIds;
+import opc.ua.aas.Ids;
 import opc.ua.aas.datatypes.AASQualifiable;
 import opc.ua.aas.datatypes.AASSubmodelElementCommonAttributes;
 import opc.ua.aas.objecttypes.AASSubmodelElementObjectType;
@@ -130,10 +130,10 @@ public class SubmodelElementCreator {
         UaNode childNode = createSubmodelElement(elem, elementRef, submodel, nodeManager);
         if (childNode != null) {
             if (ordered) {
-                node.addReference(childNode, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasOrderedComponent), false);
+                node.addReference(childNode, nodeManager.getNamespaceTable().toNodeId(Ids.AASHasOrderedComponent), false);
             }
             else {
-                node.addReference(childNode, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasComponent), false);
+                node.addReference(childNode, nodeManager.getNamespaceTable().toNodeId(Ids.AASHasComponent), false);
             }
         }
     }
@@ -210,7 +210,6 @@ public class SubmodelElementCreator {
 
             // SemanticId
             if (element.getSemanticId() != null) {
-                //ConceptDescriptionCreator.addSemanticId(node, element.getSemanticId());
                 conceptDescription = nodeManager.getConceptDescription(element.getSemanticId());
             }
 
@@ -218,7 +217,6 @@ public class SubmodelElementCreator {
 
             // Referable
             ReferableCreator.setReferebleNodeData(node, element);
-            //DescriptionCreator.addDescriptions(node, element.getDescription());
         }
     }
 
@@ -253,7 +251,6 @@ public class SubmodelElementCreator {
 
             // Referable
             ReferableCreator.setReferebleNodeData(node, element);
-            //DescriptionCreator.addDescriptions(node, element.getDescription());
         }
     }
 
@@ -272,8 +269,7 @@ public class SubmodelElementCreator {
     }
 
 
-    private static void setSubmodelElementCommonAttributes(AASSubmodelElementCommonAttributes commonAttributes, SubmodelElement element)
-            throws StatusException {
+    private static void setSubmodelElementCommonAttributes(AASSubmodelElementCommonAttributes commonAttributes, SubmodelElement element) {
 
         commonAttributes.setReferable(ReferableCreator.getReferable(element));
 

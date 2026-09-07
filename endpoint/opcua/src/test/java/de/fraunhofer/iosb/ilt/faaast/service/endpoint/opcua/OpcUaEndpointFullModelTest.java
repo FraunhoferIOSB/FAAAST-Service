@@ -63,8 +63,7 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
-import opc.ua.aas.ReferenceTypeIds;
-import opc.ua.aas.VariableIds;
+import opc.ua.aas.Ids;
 import opc.ua.aas.datatypes.AASKey;
 import opc.ua.aas.datatypes.AASKeyTypes;
 import opc.ua.aas.datatypes.AASModellingKind;
@@ -221,7 +220,7 @@ public class OpcUaEndpointFullModelTest {
         Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
         Assert.assertEquals(ServerState.Running.ordinal(), value.getValue().intValue());
 
-        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
+        aasns = client.getAddressSpace().getNamespaceTable().getIndex(Ids.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
         // browse for AAS Environment
         List<ReferenceDescription> refs = client.getAddressSpace().browse(Identifiers.ObjectsFolder);
@@ -268,7 +267,7 @@ public class OpcUaEndpointFullModelTest {
         TestUtils.initialize(client);
         client.connect();
 
-        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
+        aasns = client.getAddressSpace().getNamespaceTable().getIndex(Ids.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
@@ -316,7 +315,7 @@ public class OpcUaEndpointFullModelTest {
         TestUtils.initialize(client);
         client.connect();
 
-        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
+        aasns = client.getAddressSpace().getNamespaceTable().getIndex(Ids.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
@@ -362,7 +361,7 @@ public class OpcUaEndpointFullModelTest {
         TestUtils.initialize(client);
         client.connect();
 
-        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
+        aasns = client.getAddressSpace().getNamespaceTable().getIndex(Ids.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
@@ -396,7 +395,7 @@ public class OpcUaEndpointFullModelTest {
         TestUtils.initialize(client);
         client.connect();
 
-        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
+        aasns = client.getAddressSpace().getNamespaceTable().getIndex(Ids.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
@@ -435,7 +434,7 @@ public class OpcUaEndpointFullModelTest {
         TestUtils.initialize(client);
         client.connect();
 
-        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
+        aasns = client.getAddressSpace().getNamespaceTable().getIndex(Ids.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
@@ -470,7 +469,7 @@ public class OpcUaEndpointFullModelTest {
         TestUtils.initialize(client);
         client.connect();
 
-        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
+        aasns = client.getAddressSpace().getNamespaceTable().getIndex(Ids.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
         //int serverns = client.getAddressSpace().getNamespaceTable().getIndex(AasServiceNodeManager.NAMESPACE_URI);
 
         List<RelativePath> relPath = new ArrayList<>();
@@ -531,7 +530,7 @@ public class OpcUaEndpointFullModelTest {
         TestUtils.initialize(client);
         client.connect();
 
-        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
+        aasns = client.getAddressSpace().getNamespaceTable().getIndex(Ids.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
         //int serverns = client.getAddressSpace().getNamespaceTable().getIndex(AasServiceNodeManager.NAMESPACE_URI);
 
         List<RelativePath> relPath = new ArrayList<>();
@@ -582,7 +581,7 @@ public class OpcUaEndpointFullModelTest {
         TestUtils.initialize(client);
         client.connect();
 
-        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
+        aasns = client.getAddressSpace().getNamespaceTable().getIndex(Ids.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
         String propName = "NewProperty789";
 
@@ -637,7 +636,7 @@ public class OpcUaEndpointFullModelTest {
         TestUtils.initialize(client);
         client.connect();
 
-        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
+        aasns = client.getAddressSpace().getNamespaceTable().getIndex(Ids.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
         // make sure the element exists
         List<RelativePath> relPath = new ArrayList<>();
@@ -647,7 +646,7 @@ public class OpcUaEndpointFullModelTest {
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         // add more elements to the browse path
-        browsePath.add(new RelativePathElement(client.getAddressSpace().getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasCommonAttribute), false, true,
+        browsePath.add(new RelativePathElement(client.getAddressSpace().getNamespaceTable().toNodeId(Ids.AASHasCommonAttribute), false, true,
                 new QualifiedName(aasns, TestConstants.COMMON_ATTRIBUTES)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
@@ -685,7 +684,7 @@ public class OpcUaEndpointFullModelTest {
         TestUtils.initialize(client);
         client.connect();
 
-        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
+        aasns = client.getAddressSpace().getNamespaceTable().getIndex(Ids.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
         // make sure the element exists
         List<RelativePath> relPath = new ArrayList<>();
@@ -696,7 +695,7 @@ public class OpcUaEndpointFullModelTest {
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         // add more elements to the browse path
-        browsePath.add(new RelativePathElement(client.getAddressSpace().getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasCommonAttribute), false, true,
+        browsePath.add(new RelativePathElement(client.getAddressSpace().getNamespaceTable().toNodeId(Ids.AASHasCommonAttribute), false, true,
                 new QualifiedName(aasns, TestConstants.COMMON_ATTRIBUTES)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
@@ -736,7 +735,7 @@ public class OpcUaEndpointFullModelTest {
         TestUtils.initialize(client);
         client.connect();
 
-        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
+        aasns = client.getAddressSpace().getNamespaceTable().getIndex(Ids.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
@@ -791,7 +790,7 @@ public class OpcUaEndpointFullModelTest {
         TestUtils.initialize(client);
         client.connect();
 
-        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
+        aasns = client.getAddressSpace().getNamespaceTable().getIndex(Ids.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
         //int serverns = client.getAddressSpace().getNamespaceTable().getIndex(AasServiceNodeManager.NAMESPACE_URI);
 
         List<RelativePath> relPath = new ArrayList<>();
@@ -848,7 +847,7 @@ public class OpcUaEndpointFullModelTest {
         TestUtils.initialize(client);
         client.connect();
 
-        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
+        aasns = client.getAddressSpace().getNamespaceTable().getIndex(Ids.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
@@ -916,7 +915,7 @@ public class OpcUaEndpointFullModelTest {
 
         // List elements
         List<ReferenceDescription> refs = client.getAddressSpace().browse(listNode, BrowseDirection.Forward,
-                client.getAddressSpace().getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasOrderedComponent));
+                client.getAddressSpace().getNamespaceTable().toNodeId(Ids.AASHasOrderedComponent));
         Assert.assertNotNull(refs);
         Assert.assertEquals(3, refs.size());
         Assert.assertEquals(QualifiedName.from(aasns, "ExampleProperty"), refs.get(0).getBrowseName());
@@ -933,7 +932,7 @@ public class OpcUaEndpointFullModelTest {
         TestUtils.initialize(client);
         client.connect();
 
-        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
+        aasns = client.getAddressSpace().getNamespaceTable().getIndex(Ids.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
@@ -999,7 +998,7 @@ public class OpcUaEndpointFullModelTest {
 
         // List elements
         List<ReferenceDescription> refs = client.getAddressSpace().browse(listNode, BrowseDirection.Forward,
-                client.getAddressSpace().getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasOrderedComponent));
+                client.getAddressSpace().getNamespaceTable().toNodeId(Ids.AASHasOrderedComponent));
         Assert.assertNotNull(refs);
         Assert.assertEquals(3, refs.size());
         Assert.assertEquals(QualifiedName.from(aasns, "ExampleProperty"), refs.get(0).getBrowseName());
@@ -1017,7 +1016,7 @@ public class OpcUaEndpointFullModelTest {
         TestUtils.initialize(client);
         client.connect();
 
-        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
+        aasns = client.getAddressSpace().getNamespaceTable().getIndex(Ids.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
@@ -1051,7 +1050,7 @@ public class OpcUaEndpointFullModelTest {
         TestUtils.initialize(client);
         client.connect();
 
-        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
+        aasns = client.getAddressSpace().getNamespaceTable().getIndex(Ids.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
         // make sure one of the old elements exists, the new element exists not yet
         List<RelativePath> relPath = new ArrayList<>();
@@ -1161,7 +1160,7 @@ public class OpcUaEndpointFullModelTest {
         TestUtils.initialize(client);
         client.connect();
 
-        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
+        aasns = client.getAddressSpace().getNamespaceTable().getIndex(Ids.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();

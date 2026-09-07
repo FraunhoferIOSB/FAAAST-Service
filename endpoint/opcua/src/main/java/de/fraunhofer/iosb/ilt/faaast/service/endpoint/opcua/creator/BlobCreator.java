@@ -28,8 +28,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManage
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.AasSubmodelElementHelper;
-import opc.ua.aas.ObjectTypeIds;
-import opc.ua.aas.VariableIds;
+import opc.ua.aas.Ids;
 import opc.ua.aas.objecttypes.AASBlobType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Blob;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
@@ -64,23 +63,22 @@ public class BlobCreator extends SubmodelElementCreator {
                 if ((name == null) || name.isEmpty()) {
                     name = getNameFromReference(blobRef);
                 }
-                QualifiedName browseName = UaQualifiedName.from(ObjectTypeIds.AASBlobType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
+                QualifiedName browseName = UaQualifiedName.from(Ids.AASBlobType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
                 NodeId nid = nodeManager.getDefaultNodeId();
 
                 NodeBuilderConfiguration conf = new NodeBuilderConfiguration();
                 if (aasBlob.getContentType() != null) {
-                    conf.addOptional(VariableIds.AASBlobType_ContentType);
+                    conf.addOptional(Ids.AASBlobType_ContentType);
                 }
                 if (aasBlob.getValue() != null) {
-                    conf.addOptional(VariableIds.AASBlobType_Value);
+                    conf.addOptional(Ids.AASBlobType_Value);
                 }
-                NodeBuilder nb = nodeManager.createNodeBuilder(AASBlobType.class, conf);
+                NodeBuilder<AASBlobType> nb = nodeManager.createNodeBuilder(AASBlobType.class, conf);
                 nb.setBrowseName(browseName);
                 nb.setDisplayName(LocalizedText.english(name));
                 nb.setNodeId(nid);
-                AASBlobType blobNode = (AASBlobType) nb.build();
+                AASBlobType blobNode = nb.build();
 
-                //AASBlobType blobNode = nodeManager.createInstance(AASBlobType.class, nid, browseName, LocalizedText.english(name));
                 addSubmodelElementBaseData(blobNode, aasBlob, nodeManager);
 
                 // ContentType
@@ -91,13 +89,6 @@ public class BlobCreator extends SubmodelElementCreator {
                 if (AasServiceNodeManager.VALUES_READ_ONLY) {
                     blobNode.getContentTypeNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
                 }
-
-                //if (ordered) {
-                //    node.addReference(blobNode, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasOrderedComponent), false);
-                //}
-                //else {
-                //    node.addReference(blobNode, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasComponent), false);
-                //}
 
                 if (blobRef != null) {
                     nodeManager.addReferable(blobRef, new ObjectData(aasBlob, blobNode, submodel));

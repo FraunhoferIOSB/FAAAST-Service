@@ -18,7 +18,7 @@ import com.prosysopc.ua.StatusException;
 import com.prosysopc.ua.nodes.UaNode;
 import com.prosysopc.ua.stack.common.ServiceResultException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
-import opc.ua.aas.ReferenceTypeIds;
+import opc.ua.aas.Ids;
 import org.eclipse.digitaltwin.aas4j.v3.model.Blob;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.File;
@@ -57,10 +57,10 @@ public class DataElementCreator extends SubmodelElementCreator {
         UaNode childNode = createAasDataElement(aasDataElement, elementRef, submodel, nodeManager);
         if (childNode != null) {
             if (ordered) {
-                node.addReference(childNode, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasOrderedComponent), false);
+                node.addReference(childNode, nodeManager.getNamespaceTable().toNodeId(Ids.AASHasOrderedComponent), false);
             }
             else {
-                node.addReference(childNode, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasComponent), false);
+                node.addReference(childNode, nodeManager.getNamespaceTable().toNodeId(Ids.AASHasComponent), false);
             }
         }
     }

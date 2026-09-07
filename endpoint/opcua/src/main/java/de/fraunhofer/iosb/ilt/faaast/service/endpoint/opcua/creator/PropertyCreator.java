@@ -27,7 +27,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElement
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ValueData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.AasSubmodelElementHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
-import opc.ua.aas.VariableIds;
+import opc.ua.aas.Ids;
 import opc.ua.aas.variabletypes.AASPropertyType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Property;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
@@ -59,42 +59,29 @@ public class PropertyCreator extends SubmodelElementCreator {
             if ((name == null) || name.isEmpty()) {
                 name = getNameFromReference(propertyRef);
             }
-            QualifiedName browseName = UaQualifiedName.from(opc.ua.aas.VariableTypeIds.AASPropertyType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
+            QualifiedName browseName = UaQualifiedName.from(Ids.AASPropertyType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
             NodeId nid = nodeManager.getDefaultNodeId();
 
-            //UaNode test = nodeManager.findNode(nid);
-            //LOGGER.info("addAasProperty: Read (1): {}", test);
-
             NodeBuilderConfiguration conf = new NodeBuilderConfiguration();
-            conf.addOptional(VariableIds.AASPropertyType_ValueId);
-            NodeBuilder nb = nodeManager.createNodeBuilder(AASPropertyType.class, conf);
+            conf.addOptional(Ids.AASPropertyType_ValueId);
+            NodeBuilder<AASPropertyType> nb = nodeManager.createNodeBuilder(AASPropertyType.class, conf);
             nb.setBrowseName(browseName);
             LocalizedText displayName = LocalizedText.english(name);
             nb.setDisplayName(displayName);
             nb.setNodeId(nid);
-            AASPropertyType prop = (AASPropertyType) nb.build();
+            AASPropertyType prop = nb.build();
 
             LOGGER.info("createAasProperty: {}: create {}", name, nid);
-            //nodeManager.setNodeBuilderConfiguration(conf);
-            //AASPropertyType prop = nodeManager.createInstance(AASPropertyType.class, nid, browseName, LocalizedText.english(name));
-
-            //test = nodeManager.findNode(nid);
-            //LOGGER.info("addAasProperty: Read (2): {}", test);
 
             addSubmodelElementBaseData(prop, aasProperty, nodeManager);
 
             // ValueId
-            //Reference ref = aasProperty.getValueId();
-            //AasReferenceCreator.addAasReferenceAasNS(prop, ref, AASPropertyType.VALUE_ID, nodeManager);
             if (prop.getValueIdNode() == null) {
                 LOGGER.info("createAasProperty: ValueIdNode null");
             }
             else {
                 prop.setValueId(ReferenceCreator.getAasReference(aasProperty.getValueId()));
             }
-
-            //test = nodeManager.findNode(nid);
-            //LOGGER.info("addAasProperty: Read (3): {}", test);
 
             // here Value and ValueType are set
             AasSubmodelElementHelper.setPropertyValueAndType(aasProperty, prop, new ValueData(nid, browseName, displayName, nodeManager));
@@ -107,13 +94,6 @@ public class PropertyCreator extends SubmodelElementCreator {
 
             LOGGER.atInfo().log("createAasProperty: add Property {}, Reference: {}", nid, ReferenceHelper.toString(propertyRef));
 
-            //if (ordered) {
-            //    node.addReference(prop, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasOrderedComponent), false);
-            //}
-            //else {
-            //    node.addReference(prop, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasComponent), false);
-            //}
-
             if (propertyRef != null) {
                 nodeManager.addReferable(propertyRef, new ObjectData(aasProperty, prop, submodel));
             }
@@ -124,31 +104,5 @@ public class PropertyCreator extends SubmodelElementCreator {
         }
         return retval;
     }
-
-    /**
-     * Adds the OPC UA property itself to the given Property object and sets the value.
-     *
-     * @param aasProperty The AAS property
-     * @param submodel The corresponding Submodel as parent object of the data element
-     * @param prop The UA Property object
-     * @param propRef The AAS reference to the property
-     * @param nodeManager The corresponding Node Manager
-     */
-    //private static void addOpcUaProperty(Property aasProperty, Submodel submodel, AASPropertyType prop, Reference propRef, AasServiceNodeManager nodeManager) {
-    //    try {
-    //        NodeId myPropertyId = new NodeId(nodeManager.getNamespaceIndex(), prop.getNodeId().getValue().toString() + "." + AASPropertyType.VALUE);
-    //        QualifiedName browseName = UaQualifiedName.from(opc.ua.aas.VariableTypeIds.AASPropertyType.getNamespaceUri(), AASPropertyType.VALUE)
-    //                .toQualifiedName(nodeManager.getNamespaceTable());
-    //        LocalizedText displayName = LocalizedText.english(AASPropertyType.VALUE);
-
-    //        nodeManager.addSubmodelElementAasMap(myPropertyId, new SubmodelElementData(aasProperty, submodel, SubmodelElementData.Type.PROPERTY_VALUE, propRef));
-    //        LOGGER.debug("addOpcUaProperty: NodeId {}; Property: {}", myPropertyId, aasProperty);
-
-    //        AasSubmodelElementHelper.setPropertyValueAndType(aasProperty, prop, new ValueData(myPropertyId, browseName, displayName, nodeManager));
-    //    }
-    //    catch (Exception ex) {
-    //        LOGGER.error("addOpcUaProperty Exception", ex);
-    //    }
-    //}
 
 }

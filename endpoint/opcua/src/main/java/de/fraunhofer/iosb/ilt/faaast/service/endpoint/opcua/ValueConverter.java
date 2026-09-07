@@ -917,14 +917,14 @@ public class ValueConverter {
     //    }
     //    return retval;
     //}
-    /**
-     * Converts the given StateOfEvent to the corresponding
-     * AASStateOfEventDataType.
-     *
-     * @param value The desired StateOfEvent
-     * @return The corresponding AASStateOfEventDataType
-     */
-
+    // /**
+    // * Converts the given StateOfEvent to the corresponding
+    // * AASStateOfEventDataType.
+    // *
+    // * @param value The desired StateOfEvent
+    // * @return The corresponding AASStateOfEventDataType
+    // */
+    //
     //public static AASStateOfEvent getAasStateOfEventType(StateOfEvent value) {
     //    AASStateOfEvent retval;
     //    var rv = STATE_OF_EVENT_LIST.stream().filter(m -> m.aasObject == value).findAny();

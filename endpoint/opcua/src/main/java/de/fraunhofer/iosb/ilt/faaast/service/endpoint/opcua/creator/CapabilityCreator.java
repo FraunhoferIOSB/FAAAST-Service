@@ -22,7 +22,7 @@ import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.QualifiedName;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
-import opc.ua.aas.ObjectTypeIds;
+import opc.ua.aas.Ids;
 import opc.ua.aas.objecttypes.AASCapabilityType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Capability;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
@@ -57,18 +57,11 @@ public class CapabilityCreator extends SubmodelElementCreator {
                 if ((name == null) || name.isEmpty()) {
                     name = getNameFromReference(capabilityRef);
                 }
-                QualifiedName browseName = UaQualifiedName.from(ObjectTypeIds.AASCapabilityType.getNamespaceUri(), name)
+                QualifiedName browseName = UaQualifiedName.from(Ids.AASCapabilityType.getNamespaceUri(), name)
                         .toQualifiedName(nodeManager.getNamespaceTable());
                 NodeId nid = nodeManager.getDefaultNodeId();
                 AASCapabilityType capabilityNode = nodeManager.createInstance(AASCapabilityType.class, nid, browseName, LocalizedText.english(name));
                 addSubmodelElementBaseData(capabilityNode, aasCapability, nodeManager);
-
-                //if (ordered) {
-                //    node.addReference(capabilityNode, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasOrderedComponent), false);
-                //}
-                //else {
-                //    node.addReference(capabilityNode, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasComponent), false);
-                //}
 
                 nodeManager.addReferable(capabilityRef, new ObjectData(aasCapability, capabilityNode, submodel));
                 retval = capabilityNode;

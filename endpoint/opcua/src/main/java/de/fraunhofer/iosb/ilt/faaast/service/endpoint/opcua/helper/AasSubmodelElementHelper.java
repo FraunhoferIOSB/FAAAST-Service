@@ -48,8 +48,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import opc.ua.aas.ObjectTypeIds;
-import opc.ua.aas.ReferenceTypeIds;
+import opc.ua.aas.Ids;
 import opc.ua.aas.objecttypes.AASAnnotatedRelationshipElementType;
 import opc.ua.aas.objecttypes.AASBlobType;
 import opc.ua.aas.objecttypes.AASDataElementObjectType;
@@ -166,7 +165,7 @@ public class AasSubmodelElementHelper {
     public static void addBlobValueNode(UaNode node, NodeManagerUaNode nodeManager) {
         NodeId propertyId = new NodeId(nodeManager.getNamespaceIndex(), node.getNodeId().getValue().toString() + "." + AASBlobType.VALUE);
         PlainProperty<ByteString> property = new PlainProperty<>(nodeManager, propertyId,
-                UaQualifiedName.from(ObjectTypeIds.AASBlobType.getNamespaceUri(), AASBlobType.VALUE).toQualifiedName(nodeManager.getNamespaceTable()),
+                UaQualifiedName.from(Ids.AASBlobType.getNamespaceUri(), AASBlobType.VALUE).toQualifiedName(nodeManager.getNamespaceTable()),
                 LocalizedText.english(AASBlobType.VALUE));
         property.setDataTypeId(Identifiers.ByteString);
         property.setDescription(new LocalizedText("", ""));
@@ -183,7 +182,7 @@ public class AasSubmodelElementHelper {
     public static void addFileValueNode(UaNode fileNode, NodeManagerUaNode nodeManager) {
         NodeId propertyId = new NodeId(nodeManager.getNamespaceIndex(), fileNode.getNodeId().getValue().toString() + "." + AASFileType.VALUE);
         PlainProperty<String> property = new PlainProperty<>(nodeManager, propertyId,
-                UaQualifiedName.from(ObjectTypeIds.AASFileType.getNamespaceUri(), AASFileType.VALUE).toQualifiedName(nodeManager.getNamespaceTable()),
+                UaQualifiedName.from(Ids.AASFileType.getNamespaceUri(), AASFileType.VALUE).toQualifiedName(nodeManager.getNamespaceTable()),
                 LocalizedText.english(AASFileType.VALUE));
         property.setDataTypeId(Identifiers.String);
         if (AasServiceNodeManager.VALUES_READ_ONLY) {
@@ -204,7 +203,7 @@ public class AasSubmodelElementHelper {
     //        //NodeId propertyId = new NodeId(nodeManager.getNamespaceIndex(), node.getNodeId().getValue().toString() + "." + AASMultiLanguagePropertyType.VALUE);
     //        NodeId propertyId = new NodeId(nodeManager.getNamespaceIndex(), node.getNodeId().getValue().toString());
     //        PlainProperty<LocalizedText[]> myLTProperty = new PlainProperty<>(nodeManager, propertyId,
-    //                UaQualifiedName.from(opc.ua.aas.VariableTypeIds.AASMultiLanguagePropertyType.getNamespaceUri(), AASMultiLanguagePropertyType.VALUE)
+    //                UaQualifiedName.from(Ids.AASMultiLanguagePropertyType.getNamespaceUri(), AASMultiLanguagePropertyType.VALUE)
     //                        .toQualifiedName(nodeManager.getNamespaceTable()),
     //                LocalizedText.english(AASMultiLanguagePropertyType.VALUE));
     //        myLTProperty.setDataTypeId(Identifiers.LocalizedText);
@@ -923,7 +922,7 @@ public class AasSubmodelElementHelper {
             throws ServiceResultException {
         List<T> retval = new ArrayList<>();
         //for (var comp: baseNode.getComponents()) {
-        UaReference[] refs = baseNode.getForwardReferences(nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasComponent));
+        UaReference[] refs = baseNode.getForwardReferences(nodeManager.getNamespaceTable().toNodeId(Ids.AASHasComponent));
         for (var ref: refs) {
             if (ref.getTargetNode().getClass().equals(type)) {
                 retval.add((T) ref.getTargetNode());

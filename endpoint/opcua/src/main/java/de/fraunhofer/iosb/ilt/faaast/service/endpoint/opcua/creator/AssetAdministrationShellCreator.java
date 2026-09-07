@@ -35,7 +35,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.AmbiguousElementExc
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EnvironmentHelper;
 import java.util.List;
-import opc.ua.aas.ObjectTypeIds;
+import opc.ua.aas.Ids;
 import opc.ua.aas.datatypes.AASAssetAdministrationShellCommonAttributes;
 import opc.ua.aas.datatypes.AASReference;
 import opc.ua.aas.objecttypes.AASAssetAdministrationShellType;
@@ -78,8 +78,8 @@ public class AssetAdministrationShellCreator {
         TypeDefinitionBasedNodeBuilderConfiguration.Builder conf = TypeDefinitionBasedNodeBuilderConfiguration.builder();
         Reference derivedFrom = aas.getDerivedFrom();
         if (derivedFrom != null) {
-            UaBrowseNamePath bp = UaBrowseNamePath.from(ObjectTypeIds.AASAssetAdministrationShellType,
-                    UaQualifiedName.from(ObjectTypeIds.AASAssetAdministrationShellType.getNamespaceUri(), AASAssetAdministrationShellType.DERIVED_FROM));
+            UaBrowseNamePath bp = UaBrowseNamePath.from(Ids.AASAssetAdministrationShellType,
+                    UaQualifiedName.from(Ids.AASAssetAdministrationShellType.getNamespaceUri(), AASAssetAdministrationShellType.DERIVED_FROM));
             conf.addOptional(bp);
         }
 
@@ -98,10 +98,6 @@ public class AssetAdministrationShellCreator {
         }
 
         AASAssetAdministrationShellType aasShell = nodeManager.createInstance(AASAssetAdministrationShellType.class, nid, browseName, LocalizedText.english(displayName));
-        //if ((derivedFrom != null) && (aasShell.getDerivedFromNode() == null)) {
-        //    LOGGER.info("addAssetAdministrationShell: DerivedFrom not created!");
-        //}
-
         if (derivedFrom != null) {
             aasShell.setDerivedFrom(ReferenceCreator.getAasReference(derivedFrom));
         }
@@ -109,10 +105,6 @@ public class AssetAdministrationShellCreator {
         if (aasShell.getCommonAttributes() == null) {
             aasShell.setCommonAttributes(new AASAssetAdministrationShellCommonAttributes());
         }
-        //if (aasShell.getCommonAttributes().getIdentifiable() == null) {
-        //    aasShell.getCommonAttributes().setIdentifiable(new AASIdentifiable());
-        //}
-        //IdentifiableCreator.addIdentifiable(aasShell.getCommonAttributes().getIdentifiable(), aas, nodeManager);
 
         // Identifiable
         aasShell.getCommonAttributes().setIdentifiable(BaseDataCreator.getIdentifiable(aas));
@@ -156,7 +148,7 @@ public class AssetAdministrationShellCreator {
         assetInfoNode = aasNode.getAssetInformationNode();
         if (assetInfoNode == null) {
             String displayName = "AssetInformation";
-            QualifiedName browseName = UaQualifiedName.from(ObjectTypeIds.AASSubmodelType.getNamespaceUri(), displayName)
+            QualifiedName browseName = UaQualifiedName.from(Ids.AASSubmodelType.getNamespaceUri(), displayName)
                     .toQualifiedName(nodeManager.getNamespaceTable());
             NodeId nid = nodeManager.createNodeId(aasNode, browseName);
             assetInfoNode = nodeManager.createInstance(AASAssetInformationType.class, nid, browseName, LocalizedText.english(displayName));
@@ -184,7 +176,7 @@ public class AssetAdministrationShellCreator {
         if (assetType != null) {
             if (assetInfoNode.getAssetTypeNode() == null) {
                 UaHelper.addStringUaProperty(assetInfoNode, nodeManager, AASAssetInformationType.ASSET_TYPE, assetType,
-                        ObjectTypeIds.AASAssetInformationType.getNamespaceUri());
+                        Ids.AASAssetInformationType.getNamespaceUri());
             }
             else {
                 assetInfoNode.setAssetType(assetType);
@@ -202,7 +194,7 @@ public class AssetAdministrationShellCreator {
         if (globalAssetId != null) {
             if (assetInfoNode.getGlobalAssetIdNode() == null) {
                 UaHelper.addStringUaProperty(assetInfoNode, nodeManager, AASAssetInformationType.GLOBAL_ASSET_ID, globalAssetId,
-                        ObjectTypeIds.AASAssetInformationType.getNamespaceUri());
+                        Ids.AASAssetInformationType.getNamespaceUri());
             }
             else {
                 assetInfoNode.setGlobalAssetId(globalAssetId);
@@ -232,7 +224,7 @@ public class AssetAdministrationShellCreator {
         boolean created = false;
 
         if (listNode == null) {
-            QualifiedName browseName = UaQualifiedName.from(ObjectTypeIds.AASAssetInformationType.getNamespaceUri(), name)
+            QualifiedName browseName = UaQualifiedName.from(Ids.AASAssetInformationType.getNamespaceUri(), name)
                     .toQualifiedName(nodeManager.getNamespaceTable());
             NodeId nid = nodeManager.createNodeId(assetInfoNode, browseName);
             listNode = nodeManager.createInstance(BaseDataVariableType.class, nid, browseName, LocalizedText.english(name));
@@ -260,7 +252,7 @@ public class AssetAdministrationShellCreator {
         LOGGER.debug("addSubmodelReferences: add {} Submodels to Node: {}", submodelRefs.size(), node);
         boolean added = false;
         if (referenceListNode == null) {
-            QualifiedName browseName = UaQualifiedName.from(ObjectTypeIds.AASAssetAdministrationShellType.getNamespaceUri(), name)
+            QualifiedName browseName = UaQualifiedName.from(Ids.AASAssetAdministrationShellType.getNamespaceUri(), name)
                     .toQualifiedName(nodeManager.getNamespaceTable());
             NodeId nid = nodeManager.createNodeId(node, browseName);
             referenceListNode = nodeManager.createInstance(BaseDataVariableType.class, nid, browseName, LocalizedText.english(name));
@@ -285,20 +277,5 @@ public class AssetAdministrationShellCreator {
             node.addComponent(referenceListNode);
         }
     }
-
-    /**
-     * Extracts the name from the given Submodel Reference.
-     *
-     * @param submodelRef The submodel reference
-     * @return The Name of the Submodel
-     */
-    //private static String getSubmodelName(Reference submodelRef) {
-    //    String retval = "";
-    //    if ((submodelRef != null) && (!submodelRef.getKeys().isEmpty())) {
-    //        retval = submodelRef.getKeys().get(0).getValue();
-    //    }
-
-    //    return retval;
-    //}
 
 }

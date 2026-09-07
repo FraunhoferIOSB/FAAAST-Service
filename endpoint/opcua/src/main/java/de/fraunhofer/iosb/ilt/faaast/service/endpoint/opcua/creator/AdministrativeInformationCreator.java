@@ -14,7 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator;
 
-import com.prosysopc.ua.StatusException;
 import opc.ua.aas.datatypes.AASAdministrativeInformation;
 import org.eclipse.digitaltwin.aas4j.v3.model.AdministrativeInformation;
 
@@ -36,10 +35,8 @@ public class AdministrativeInformationCreator {
      *
      * @param info The corresponding AAS AdministrativeInformation object
      * @return The corresponding AASAdministrativeInformation.
-     * @throws StatusException If an error occurs
      */
-    public static AASAdministrativeInformation getAdminInformation(AdministrativeInformation info)
-            throws StatusException {
+    public static AASAdministrativeInformation getAdminInformation(AdministrativeInformation info) {
         AASAdministrativeInformation retval = null;
         if (info != null) {
             retval = new AASAdministrativeInformation();

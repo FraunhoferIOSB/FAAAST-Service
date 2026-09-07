@@ -14,7 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator;
 
-import com.prosysopc.ua.StatusException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
 import java.util.ArrayList;
@@ -37,31 +36,14 @@ public class QualifierCreator {
         throw new IllegalStateException("Class not instantiable");
     }
 
-    /**
-     * Adds a QualifierNode to the given Node.
-     *
-     * @param node The desired base node
-     * @param nodeManager The corresponding Node Manager
-     */
-    //public static void addQualifierNode(UaNode node, AasServiceNodeManager nodeManager) {
-    //    String name = AASSubmodelElementType.QUALIFIER;
-    //    LOGGER.debug("addQualifierNode {}; to Node: {}", name, node);
-    //    QualifiedName browseName = UaQualifiedName.from(ObjectTypeIds.AASQualifierList.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
-    //    NodeId nid = nodeManager.createNodeId(node, browseName);
-    //    AASQualifierList listNode = nodeManager.createInstance(AASQualifierList.class, nid, browseName, LocalizedText.english(name));
-
-    //    node.addComponent(listNode);
-    //}
-
 
     /**
      * Adds a list of Qualifiers to the given Node.
      *
      * @param opcQualifiable The UA node in which the Qualifiers should be created
      * @param qualifiers The desired list of Qualifiers
-     * @throws StatusException If the operation fails
      */
-    public static void addQualifiers(AASQualifiable opcQualifiable, List<Qualifier> qualifiers) throws StatusException {
+    public static void addQualifiers(AASQualifiable opcQualifiable, List<Qualifier> qualifiers) {
         if (opcQualifiable == null) {
             throw new IllegalArgumentException("listNode = null");
         }
@@ -71,13 +53,10 @@ public class QualifierCreator {
 
         LOGGER.info("addQualifiers:; add {} qualifiers", qualifiers.size());
         List<AASQualifier> opcQualifiers = new ArrayList<>();
-        int index = 1;
         for (Qualifier qualifier: qualifiers) {
             if (qualifier != null) {
                 opcQualifiers.add(getQualifier(qualifier));
             }
-
-            index++;
         }
         opcQualifiable.setQualifier(opcQualifiers.toArray(AASQualifier[]::new));
     }
@@ -88,9 +67,8 @@ public class QualifierCreator {
      *
      * @param qualifierNode The UA Qualifier node
      * @param qualifier The desired Qualifier
-     * @throws StatusException If the operation fails
      */
-    public static void setQualifierData(AASQualifier qualifierNode, Qualifier qualifier) throws StatusException {
+    public static void setQualifierData(AASQualifier qualifierNode, Qualifier qualifier) {
         if (qualifierNode == null) {
             throw new IllegalArgumentException(AasServiceNodeManager.NODE_NULL);
         }
@@ -98,38 +76,12 @@ public class QualifierCreator {
             throw new IllegalArgumentException("qualifier = null");
         }
 
-        //LOGGER.debug("setQualifierData {}; OPC UA Node: {}", name, qualifierNode);
-        //QualifiedName browseName = UaQualifiedName.from(ObjectTypeIds.AASQualifierType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
-        //NodeId nid = nodeManager.createNodeId(node, browseName);
-        //AASQualifierType qualifierNode = nodeManager.createInstance(AASQualifierType.class, nid, browseName, LocalizedText.english(name));
-
         if (qualifier.getKind() != null) {
             qualifierNode.setKind(ValueConverter.convertQualifierKind(qualifier.getKind()));
-            //if (qualifierNode.getKindNode() == null) {
-            //    UaHelper.addQualifierKindProperty(qualifierNode, nodeManager, AASQualifierType.KIND, qualifier.getKind(),
-            //            ObjectTypeIds.AASQualifierType.getNamespaceUri());
-            //}
-            //else {
-            //    qualifierNode.setKind(ValueConverter.convertQualifierKind(qualifier.getKind()));
-            //}
         }
 
         // SemanticId
         qualifierNode.setHasSemantics(BaseDataCreator.getHasSemantics(qualifier));
-        //if (qualifier.getSemanticId() != null) {
-        //    if (qualifierNode.getHasSemantics() == null) {
-        //        qualifierNode.setHasSemantics(new AASHasSemantics());
-        //    }
-        //    qualifierNode.getHasSemantics().setSemanticId(AasReferenceCreator.getAasReference(qualifier.getSemanticId()));
-        //}
-
-        //if (qualifier.getSupplementalSemanticIds() != null) {
-        //    if (qualifierNode.getHasSemantics() == null) {
-        //        qualifierNode.setHasSemantics(new AASHasSemantics());
-        //    }
-        //    List<AASReference> refs = AasReferenceCreator.getAasReferences(qualifier.getSupplementalSemanticIds());
-        //    qualifierNode.getHasSemantics().setSupplementalSemanticId(refs.toArray(AASReference[]::new));
-        //}
 
         // Type
         qualifierNode.setType(qualifier.getType());
@@ -139,64 +91,13 @@ public class QualifierCreator {
 
         // Value
         qualifierNode.setValue(qualifier.getValue());
-        //setValue(qualifier.getValue(), qualifierNode, nodeManager);
 
         // ValueId
-        //if (qualifier.getValueId() != null) {
-        //AasReferenceCreator.addAasReferenceAasNS(qualifierNode, qualifier.getValueId(), AASQualifierType.VALUE_ID, nodeManager);
         qualifierNode.setValueId(ReferenceCreator.getAasReference(qualifier.getValueId()));
-        //}
-
-        //setAccessRights(qualifierNode);
-
-        //node.addComponent(qualifierNode);
     }
 
-    //    private static void setAccessRights(AASQualifierType qualifierNode) {
-    //        if (AasServiceNodeManager.VALUES_READ_ONLY) {
-    //            if (qualifierNode.getValueNode() != null) {
-    //                qualifierNode.getValueNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
-    //            }
-    //            if (qualifierNode.getValueTypeNode() != null) {
-    //                qualifierNode.getValueTypeNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
-    //            }
-    //            if (qualifierNode.getTypeNode() != null) {
-    //                qualifierNode.getTypeNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
-    //            }
-    //        }
-    //    }
 
-    //    private static void setValue(String value, AASQualifierType qualifierNode, AasServiceNodeManager nodeManager) throws StatusException {
-    //        if (value != null) {
-    //            if (qualifierNode.getValueNode() == null) {
-    //                addQualifierValueNode(qualifierNode, nodeManager);
-    //            }
-    //
-    //            qualifierNode.setValue(value);
-    //        }
-    //    }
-
-
-    /**
-     * Adds a Value Property to the given Qualifier Node.
-     *
-     * @param node The desired Blob Node
-     * @param nodeManager The corresponding Node Manager
-     */
-    //    private static void addQualifierValueNode(UaNode node, AasServiceNodeManager nodeManager) {
-    //        NodeId myPropertyId = new NodeId(nodeManager.getNamespaceIndex(), node.getNodeId().getValue().toString() + "." + AASQualifierType.VALUE);
-    //        PlainProperty<ByteString> myProperty = new PlainProperty<>(nodeManager, myPropertyId,
-    //                UaQualifiedName.from(ObjectTypeIds.AASQualifierType.getNamespaceUri(), AASQualifierType.VALUE).toQualifiedName(nodeManager.getNamespaceTable()),
-    //                LocalizedText.english(AASQualifierType.VALUE));
-    //        myProperty.setDataTypeId(Identifiers.String);
-    //        if (AasServiceNodeManager.VALUES_READ_ONLY) {
-    //            myProperty.setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
-    //        }
-    //        myProperty.setDescription(new LocalizedText("", ""));
-    //        node.addProperty(myProperty);
-    //    }
-
-    private static AASQualifier getQualifier(Qualifier qualifier) throws StatusException {
+    private static AASQualifier getQualifier(Qualifier qualifier) {
         if (qualifier == null) {
             return null;
         }

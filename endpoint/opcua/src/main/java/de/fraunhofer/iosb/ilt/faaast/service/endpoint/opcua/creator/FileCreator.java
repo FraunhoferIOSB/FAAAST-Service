@@ -28,8 +28,7 @@ import com.prosysopc.ua.stack.core.AccessLevelType;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.AasSubmodelElementHelper;
-import opc.ua.aas.ObjectTypeIds;
-import opc.ua.aas.VariableIds;
+import opc.ua.aas.Ids;
 import opc.ua.aas.objecttypes.AASFileType;
 import org.eclipse.digitaltwin.aas4j.v3.model.File;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
@@ -70,33 +69,25 @@ public class FileCreator extends SubmodelElementCreator {
                     name = getNameFromReference(fileRef);
                 }
 
-                QualifiedName browseName = UaQualifiedName.from(ObjectTypeIds.AASFileType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
+                QualifiedName browseName = UaQualifiedName.from(Ids.AASFileType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
                 NodeId nid = nodeManager.getDefaultNodeId();
 
                 NodeBuilderConfiguration conf = new NodeBuilderConfiguration();
                 if (!aasFile.getContentType().isEmpty()) {
-                    conf.addOptional(VariableIds.AASFileType_ContentType);
+                    conf.addOptional(Ids.AASFileType_ContentType);
                 }
                 if (aasFile.getValue() != null) {
-                    conf.addOptional(VariableIds.AASFileType_Value);
+                    conf.addOptional(Ids.AASFileType_Value);
                 }
-                NodeBuilder nb = nodeManager.createNodeBuilder(AASFileType.class, conf);
+                NodeBuilder<AASFileType> nb = nodeManager.createNodeBuilder(AASFileType.class, conf);
                 nb.setBrowseName(browseName);
                 nb.setDisplayName(LocalizedText.english(name));
                 nb.setNodeId(nid);
-                AASFileType fileNode = (AASFileType) nb.build();
+                AASFileType fileNode = nb.build();
 
-                //AASFileType fileNode = nodeManager.createInstance(AASFileType.class, nid, browseName, LocalizedText.english(name));
                 addSubmodelElementBaseData(fileNode, aasFile, nodeManager);
 
                 setFileData(aasFile, fileNode, nodeManager);
-
-                //if (ordered) {
-                //    node.addReference(fileNode, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasOrderedComponent), false);
-                //}
-                //else {
-                //    node.addReference(fileNode, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasComponent), false);
-                //}
 
                 if (fileRef != null) {
                     nodeManager.addReferable(fileRef, new ObjectData(aasFile, fileNode, submodel));

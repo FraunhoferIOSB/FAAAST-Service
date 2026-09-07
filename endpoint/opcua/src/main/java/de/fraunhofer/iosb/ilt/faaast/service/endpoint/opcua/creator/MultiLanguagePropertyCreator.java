@@ -28,7 +28,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
 import java.util.List;
-import opc.ua.aas.VariableIds;
+import opc.ua.aas.Ids;
 import opc.ua.aas.variabletypes.AASMultiLanguagePropertyType;
 import org.eclipse.digitaltwin.aas4j.v3.model.LangStringTextType;
 import org.eclipse.digitaltwin.aas4j.v3.model.MultiLanguageProperty;
@@ -65,17 +65,17 @@ public class MultiLanguagePropertyCreator extends SubmodelElementCreator {
                 if ((name == null) || name.isEmpty()) {
                     name = getNameFromReference(multiLangRef);
                 }
-                QualifiedName browseName = UaQualifiedName.from(opc.ua.aas.VariableTypeIds.AASMultiLanguagePropertyType.getNamespaceUri(), name)
+                QualifiedName browseName = UaQualifiedName.from(Ids.AASMultiLanguagePropertyType.getNamespaceUri(), name)
                         .toQualifiedName(nodeManager.getNamespaceTable());
                 NodeId nid = nodeManager.getDefaultNodeId();
 
                 NodeBuilderConfiguration conf = new NodeBuilderConfiguration();
-                conf.addOptional(VariableIds.AASMultiLanguagePropertyType_ValueId);
-                NodeBuilder nb = nodeManager.createNodeBuilder(AASMultiLanguagePropertyType.class, conf);
+                conf.addOptional(Ids.AASMultiLanguagePropertyType_ValueId);
+                NodeBuilder<AASMultiLanguagePropertyType> nb = nodeManager.createNodeBuilder(AASMultiLanguagePropertyType.class, conf);
                 nb.setBrowseName(browseName);
                 nb.setDisplayName(LocalizedText.english(name));
                 nb.setNodeId(nid);
-                AASMultiLanguagePropertyType multiLangNode = (AASMultiLanguagePropertyType) nb.build();
+                AASMultiLanguagePropertyType multiLangNode = nb.build();
 
                 addSubmodelElementBaseData(multiLangNode, aasMultiLang, nodeManager);
 
@@ -86,13 +86,6 @@ public class MultiLanguagePropertyCreator extends SubmodelElementCreator {
                         new SubmodelElementData(aasMultiLang, submodel, SubmodelElementData.Type.MULTI_LANGUAGE_VALUE, multiLangRef));
 
                 nodeManager.addSubmodelElementOpcUA(multiLangRef, multiLangNode);
-
-                //if (ordered) {
-                //    node.addReference(multiLangNode, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasOrderedComponent), false);
-                //}
-                //else {
-                //    node.addReference(multiLangNode, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasComponent), false);
-                //}
 
                 nodeManager.addReferable(multiLangRef, new ObjectData(aasMultiLang, multiLangNode, submodel));
                 retval = multiLangNode;

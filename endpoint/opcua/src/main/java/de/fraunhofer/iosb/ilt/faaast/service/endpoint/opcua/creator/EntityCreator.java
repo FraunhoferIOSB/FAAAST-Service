@@ -34,8 +34,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElement
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.UaHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import java.util.List;
-import opc.ua.aas.ObjectTypeIds;
-import opc.ua.aas.VariableIds;
+import opc.ua.aas.Ids;
 import opc.ua.aas.objecttypes.AASEntityType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Entity;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
@@ -75,24 +74,24 @@ public class EntityCreator extends SubmodelElementCreator {
                 if ((name == null) || name.isEmpty()) {
                     name = getNameFromReference(entityRef);
                 }
-                QualifiedName browseName = UaQualifiedName.from(ObjectTypeIds.AASEntityType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
+                QualifiedName browseName = UaQualifiedName.from(Ids.AASEntityType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
                 NodeId nid = nodeManager.getDefaultNodeId();
 
                 NodeBuilderConfiguration conf = new NodeBuilderConfiguration();
                 if (aasEntity.getEntityType() != null) {
-                    conf.addOptional(VariableIds.AASEntityType_EntityType);
+                    conf.addOptional(Ids.AASEntityType_EntityType);
                 }
                 if (aasEntity.getGlobalAssetId() != null) {
-                    conf.addOptional(VariableIds.AASEntityType_GlobalAssetId);
+                    conf.addOptional(Ids.AASEntityType_GlobalAssetId);
                 }
                 if (aasEntity.getSpecificAssetIds() != null) {
-                    conf.addOptional(VariableIds.AASEntityType_SpecificAssetId);
+                    conf.addOptional(Ids.AASEntityType_SpecificAssetId);
                 }
-                NodeBuilder nb = nodeManager.createNodeBuilder(AASEntityType.class, conf);
+                NodeBuilder<AASEntityType> nb = nodeManager.createNodeBuilder(AASEntityType.class, conf);
                 nb.setBrowseName(browseName);
                 nb.setDisplayName(LocalizedText.english(name));
                 nb.setNodeId(nid);
-                AASEntityType entityNode = (AASEntityType) nb.build();
+                AASEntityType entityNode = nb.build();
 
                 addSubmodelElementBaseData(entityNode, aasEntity, nodeManager);
 
@@ -118,13 +117,6 @@ public class EntityCreator extends SubmodelElementCreator {
 
                 nodeManager.addSubmodelElementOpcUA(entityRef, entityNode);
 
-                //if (ordered) {
-                //    node.addReference(entityNode, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasOrderedComponent), false);
-                //}
-                //else {
-                //    node.addReference(entityNode, nodeManager.getNamespaceTable().toNodeId(ReferenceTypeIds.AASHasComponent), false);
-                //}
-
                 nodeManager.addReferable(entityRef, new ObjectData(aasEntity, entityNode, submodel));
                 retval = entityNode;
             }
@@ -139,7 +131,7 @@ public class EntityCreator extends SubmodelElementCreator {
     public static void setGlobalAssetIdData(AASEntityType entityNode, String value, NodeManagerUaNode nodeManager) throws StatusException, ValueFormatException {
         if (entityNode.getGlobalAssetIdNode() == null) {
             // create node
-            UaHelper.addStringUaProperty(entityNode, nodeManager, AASEntityType.GLOBAL_ASSET_ID, value, ObjectTypeIds.AASEntityType.getNamespaceUri());
+            UaHelper.addStringUaProperty(entityNode, nodeManager, AASEntityType.GLOBAL_ASSET_ID, value, Ids.AASEntityType.getNamespaceUri());
         }
         else {
             entityNode.setGlobalAssetId(value);
@@ -151,7 +143,7 @@ public class EntityCreator extends SubmodelElementCreator {
             throws StatusException, ServiceResultException {
         BaseDataVariableType listNode = entityNode.getSpecificAssetIdNode();
         if (listNode == null) {
-            QualifiedName browseName = UaQualifiedName.from(ObjectTypeIds.AASEntityType.getNamespaceUri(), AASEntityType.SPECIFIC_ASSET_ID)
+            QualifiedName browseName = UaQualifiedName.from(Ids.AASEntityType.getNamespaceUri(), AASEntityType.SPECIFIC_ASSET_ID)
                     .toQualifiedName(nodeManager.getNamespaceTable());
             NodeId nid = nodeManager.createNodeId(entityNode, browseName);
             listNode = nodeManager.createInstance(BaseDataVariableType.class, nid, browseName, LocalizedText.english(AASEntityType.SPECIFIC_ASSET_ID));
