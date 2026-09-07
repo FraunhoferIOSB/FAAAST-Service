@@ -26,12 +26,9 @@ import com.prosysopc.ua.stack.builtintypes.Variant;
 import com.prosysopc.ua.stack.core.StatusCodes;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.OpcUaEndpoint;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
-import java.util.List;
 import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
-import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,11 +70,20 @@ public class AasServiceMethodManagerListener implements CallableListener {
             SubmodelElementData data = nodeManager.getAasData(objectId);
             Operation aasOper = (Operation) data.getSubmodelElement();
             if (aasOper != null) {
-                List<OperationVariable> inputVariables = aasOper.getInputVariables();
-                ValueConverter.setOperationValues(inputVariables, inputArguments);
-                List<OperationVariable> outputVariables = endpoint.callOperation(aasOper, inputVariables, data.getSubmodel(), data.getReference());
+                //List<OperationVariable> inputVariables = aasOper.getInputVariables();
+                //ValueConverter.setOperationValues(inputVariables, inputArguments);
+                //if ((inputArguments != null) && (inputArguments.length == 1)) {
+                //List<OperationVariable> outputVariables = endpoint.callOperation(aasOper, inputVariables, data.getSubmodel(), data.getReference());
+                // The correct number of inputArguments was already checked by the SDK
+                String output = endpoint.callOperation(aasOper, inputArguments[0].toString(), data.getSubmodel(), data.getReference());
 
-                ValueConverter.setOutputArguments(outputVariables, outputs);
+                if (outputs.length == 1) {
+                    outputs[0] = new Variant(output);
+                }
+                else {
+                    LOGGER.warn("wrong number of outputArguments: expected: 1; found: {}", outputs.length);
+                }
+                //ValueConverter.setOutputArguments(, outputs);
                 retval = true;
             }
             else {

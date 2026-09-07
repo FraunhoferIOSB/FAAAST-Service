@@ -40,6 +40,8 @@ import com.prosysopc.ua.stack.core.ServerState;
 import com.prosysopc.ua.stack.core.StatusCodes;
 import com.prosysopc.ua.stack.core.UserTokenType;
 import com.prosysopc.ua.stack.transport.security.SecurityMode;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonApiDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.CommonAttributesData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.TestConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.TestService;
@@ -74,9 +76,12 @@ import opc.ua.aas.objecttypes.AASRelationshipElementType;
 import org.awaitility.Awaitility;
 import org.eclipse.digitaltwin.aas4j.v3.model.AasSubmodelElements;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
+import org.eclipse.digitaltwin.aas4j.v3.model.ExecutionState;
 import org.eclipse.digitaltwin.aas4j.v3.model.Key;
 import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
+import org.eclipse.digitaltwin.aas4j.v3.model.OperationResult;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
+import org.eclipse.digitaltwin.aas4j.v3.model.Property;
 import org.eclipse.digitaltwin.aas4j.v3.model.Qualifier;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceTypes;
@@ -105,6 +110,30 @@ public class OpcUaEndpointFullModelTest {
 
     private static final Duration POLL_TIMEOUT = Duration.ofMillis(100);
     private static final Duration MAX_TIMEOUT = Duration.ofSeconds(5);
+    private static final String OPERATION_INPUT_ARGS = """
+                                                       {
+                                                         "inputArguments": [
+                                                           {
+                                                             "value": {
+                                                               "modelType": "Property",
+                                                               "value": "123454",
+                                                               "valueType": "xs:string",
+                                                               "idShort": "ExampleProperty1"
+                                                             }
+                                                           }
+                                                         ],
+                                                         "inoutputArguments": [
+                                                           {
+                                                             "value": {
+                                                               "modelType": "Property",
+                                                               "value": "some value",
+                                                               "valueType": "xs:string",
+                                                               "idShort": "ExampleProperty3"
+                                                             }
+                                                           }
+                                                         ]
+                                                       }
+            """;
 
     private static TestService service;
     private static int aasns;
@@ -434,14 +463,15 @@ public class OpcUaEndpointFullModelTest {
 
 
     @Test
-    public void testCallOperationSuccess() throws SecureIdentityException, IOException, ServiceException, ServiceResultException, MethodCallStatusException {
+    public void testCallOperationSuccess()
+            throws SecureIdentityException, IOException, ServiceException, ServiceResultException, MethodCallStatusException, DeserializationException {
         client = new UaClient(endpointUrl);
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
 
         aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
-        int serverns = client.getAddressSpace().getNamespaceTable().getIndex(AasServiceNodeManager.NAMESPACE_URI);
+        //int serverns = client.getAddressSpace().getNamespaceTable().getIndex(AasServiceNodeManager.NAMESPACE_URI);
 
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
@@ -454,34 +484,43 @@ public class OpcUaEndpointFullModelTest {
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_3_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_OPERATION_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(serverns, TestConstants.FULL_OPERATION_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.OPERATION_METHOD_NAME)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
-        Assert.assertNotNull("testCallOperationSuccess Browse Result Null", bpres);
-        Assert.assertEquals("testCallOperationSuccess Browse Result: size doesn't match", 2, bpres.length);
-        Assert.assertTrue("testCallOperationSuccess Browse Result Good", bpres[0].getStatusCode().isGood());
+        Assert.assertNotNull(bpres);
+        Assert.assertEquals(2, bpres.length);
+        Assert.assertTrue(bpres[0].getStatusCode().isGood());
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
-        Assert.assertNotNull("testCallOperationSuccess Object Targets Null", targets);
-        Assert.assertTrue("testCallOperationSuccess Object Targets empty", targets.length > 0);
+        Assert.assertNotNull(targets);
+        Assert.assertTrue(targets.length > 0);
 
         NodeId objectNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
-        Assert.assertNotNull("testCallOperationSuccess objectNode Null", objectNode);
+        Assert.assertNotNull(objectNode);
 
         targets = bpres[1].getTargets();
-        Assert.assertNotNull("testCallOperationSuccess Method Targets Null", targets);
-        Assert.assertTrue("testCallOperationSuccess Method Targets empty", targets.length > 0);
+        Assert.assertNotNull(targets);
+        Assert.assertTrue(targets.length > 0);
 
         NodeId methodNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
-        Assert.assertNotNull("testCallOperationSuccess methodNode Null", methodNode);
+        Assert.assertNotNull(methodNode);
 
         Variant[] inputArguments = new Variant[1];
-        inputArguments[0] = new Variant("123454");
+        //inputArguments[0] = new Variant("123454");
+        inputArguments[0] = new Variant(OPERATION_INPUT_ARGS);
         Variant[] outputs = client.call(objectNode, methodNode, inputArguments);
-        Assert.assertNotNull("testCallOperationSuccess output Arguments Null", outputs);
-        Assert.assertEquals("testCallOperationSuccess output Arguments length not equal", 1, outputs.length);
-        Assert.assertEquals("testCallOperationSuccess output Argument 0 not equal", new Variant("XYZ1"), outputs[0]);
+        Assert.assertNotNull(outputs);
+        Assert.assertEquals(1, outputs.length);
+        //Assert.assertEquals(new Variant("XYZ1"), outputs[0]);
+        JsonApiDeserializer deserializer = new JsonApiDeserializer();
+        OperationResult operationResult = deserializer.read(outputs[0].toString(), OperationResult.class);
+        Assert.assertNotNull(operationResult);
+        Assert.assertEquals(ExecutionState.COMPLETED, operationResult.getExecutionState());
+        Assert.assertEquals(true, operationResult.getSuccess());
+        Assert.assertEquals(1, operationResult.getOutputArguments().size());
+        Assert.assertEquals("XYZ1", ((Property) operationResult.getOutputArguments().get(0).getValue()).getValue());
+        Assert.assertEquals(1, operationResult.getInoutputArguments().size());
     }
 
 
@@ -493,7 +532,7 @@ public class OpcUaEndpointFullModelTest {
         client.connect();
 
         aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
-        int serverns = client.getAddressSpace().getNamespaceTable().getIndex(AasServiceNodeManager.NAMESPACE_URI);
+        //int serverns = client.getAddressSpace().getNamespaceTable().getIndex(AasServiceNodeManager.NAMESPACE_URI);
 
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
@@ -506,27 +545,27 @@ public class OpcUaEndpointFullModelTest {
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_3_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_OPERATION_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(serverns, TestConstants.FULL_OPERATION_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.OPERATION_METHOD_NAME)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
-        Assert.assertNotNull("testCallOperationArgsMissing Browse Result Null", bpres);
-        Assert.assertEquals("testCallOperationArgsMissing Browse Result: size doesn't match", 2, bpres.length);
-        Assert.assertTrue("testCallOperationArgsMissing Browse Result Good", bpres[0].getStatusCode().isGood());
+        Assert.assertNotNull(bpres);
+        Assert.assertEquals(2, bpres.length);
+        Assert.assertTrue(bpres[0].getStatusCode().isGood());
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
-        Assert.assertNotNull("testCallOperationArgsMissing Object Targets Null", targets);
-        Assert.assertTrue("testCallOperationArgsMissing Object Targets empty", targets.length > 0);
+        Assert.assertNotNull(targets);
+        Assert.assertTrue(targets.length > 0);
 
         NodeId objectNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
-        Assert.assertNotNull("testCallOperationArgsMissing objectNode Null", objectNode);
+        Assert.assertNotNull(objectNode);
 
         targets = bpres[1].getTargets();
-        Assert.assertNotNull("testCallOperationArgsMissing Method Targets Null", targets);
-        Assert.assertTrue("testCallOperationArgsMissing Method Targets empty", targets.length > 0);
+        Assert.assertNotNull(targets);
+        Assert.assertTrue(targets.length > 0);
 
         NodeId methodNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
-        Assert.assertNotNull("testCallOperationArgsMissing methodNode Null", methodNode);
+        Assert.assertNotNull(methodNode);
 
         Variant[] inputArguments = new Variant[0];
         StatusException exception = Assert.assertThrows(StatusException.class, () -> {
@@ -745,14 +784,15 @@ public class OpcUaEndpointFullModelTest {
 
 
     @Test
-    public void testCallOperationNoArgs() throws SecureIdentityException, IOException, ServiceException, ServiceResultException, MethodCallStatusException {
+    public void testCallOperationNoArgs()
+            throws SecureIdentityException, IOException, ServiceException, ServiceResultException, MethodCallStatusException, DeserializationException {
         client = new UaClient(endpointUrl);
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
 
         aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
-        int serverns = client.getAddressSpace().getNamespaceTable().getIndex(AasServiceNodeManager.NAMESPACE_URI);
+        //int serverns = client.getAddressSpace().getNamespaceTable().getIndex(AasServiceNodeManager.NAMESPACE_URI);
 
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
@@ -765,31 +805,39 @@ public class OpcUaEndpointFullModelTest {
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_4_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_OPERATION_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(serverns, TestConstants.FULL_OPERATION_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.OPERATION_METHOD_NAME)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
-        Assert.assertNotNull("testCallOperationNoArgs Browse Result Null", bpres);
-        Assert.assertEquals("testCallOperationNoArgs Browse Result: size doesn't match", 2, bpres.length);
-        Assert.assertTrue("testCallOperationNoArgs Browse Result Good", bpres[0].getStatusCode().isGood());
+        Assert.assertNotNull(bpres);
+        Assert.assertEquals(2, bpres.length);
+        Assert.assertTrue(bpres[0].getStatusCode().isGood());
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
-        Assert.assertNotNull("testCallOperationNoArgs Object Targets Null", targets);
-        Assert.assertTrue("testCallOperationNoArgs Object Targets empty", targets.length > 0);
+        Assert.assertNotNull(targets);
+        Assert.assertTrue(targets.length > 0);
 
         NodeId objectNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
-        Assert.assertNotNull("testCallOperationNoArgs objectNode Null", objectNode);
+        Assert.assertNotNull(objectNode);
 
         targets = bpres[1].getTargets();
-        Assert.assertNotNull("testCallOperationNoArgs Method Targets Null", targets);
-        Assert.assertTrue("testCallOperationNoArgs Method Targets empty", targets.length > 0);
+        Assert.assertNotNull(targets);
+        Assert.assertTrue(targets.length > 0);
 
         NodeId methodNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
-        Assert.assertNotNull("testCallOperationNoArgs methodNode Null", methodNode);
+        Assert.assertNotNull(methodNode);
 
-        Variant[] outputs = client.call(objectNode, methodNode);
-        Assert.assertNotNull("testCallOperationNoArgs output Arguments Null", outputs);
-        Assert.assertEquals("testCallOperationNoArgs output Arguments length not equal", 0, outputs.length);
+        Variant[] inputArguments = new Variant[1];
+        inputArguments[0] = new Variant("{}");
+        Variant[] outputs = client.call(objectNode, methodNode, inputArguments);
+        Assert.assertNotNull(outputs);
+        Assert.assertEquals(1, outputs.length);
+        JsonApiDeserializer deserializer = new JsonApiDeserializer();
+        OperationResult operationResult = deserializer.read(outputs[0].toString(), OperationResult.class);
+        Assert.assertNotNull(operationResult);
+        Assert.assertEquals(ExecutionState.COMPLETED, operationResult.getExecutionState());
+        Assert.assertEquals(true, operationResult.getSuccess());
+        Assert.assertEquals(0, operationResult.getOutputArguments().size());
     }
 
 

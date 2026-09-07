@@ -82,6 +82,7 @@ public class TestConstants {
     public static final String FULL_INT64_PROP_NAME = "Int64Property";
     public static final String FULL_PROPERTY_NAME = "ExampleProperty";
     public static final String FULL_ANN_REL_ELEMENT_NAME = "ExampleAnnotatedRelationshipElement";
+    public static final String OPERATION_METHOD_NAME = "Operation";
 
     //public static final String KIND_NAME = "Kind";
     //public static final String CATEGORY_NAME = "Category";
