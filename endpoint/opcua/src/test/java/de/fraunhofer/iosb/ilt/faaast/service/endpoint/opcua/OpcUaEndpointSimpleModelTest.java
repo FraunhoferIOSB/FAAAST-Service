@@ -781,7 +781,7 @@ public class OpcUaEndpointSimpleModelTest {
         // check ConceptDescription
         TestUtils.checkConceptDescription(client, node, aasns, TestConstants.OPERATING_MANUAL_CONCEPT_DESCRIPTION, null, null, null);
 
-        TestUtils.checkAasPropertyFile(client, node, aasns, "DigitalFile_PDF", AASModellingKind.of(AASModellingKind.Options.Instance), "", "application/pdf",
+        TestUtils.checkAasPropertyFile(client, node, aasns, "DigitalFile_PDF", null, "application/pdf",
                 "file:///aasx/OperatingManual.pdf", 0);
     }
 
@@ -813,7 +813,7 @@ public class OpcUaEndpointSimpleModelTest {
         refs.add(new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ModelReference), null,
                 List.of(new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Submodel), TestConstants.SUBMODEL_DOC_NAME)).toArray(AASKey[]::new)));
 
-        TestUtils.checkSubmodelRefs(client, refNode, aasns, refs);
+        TestUtils.checkSubmodelRefs(client, refNode, refs);
         //TestUtils.checkSubmodelRef(client, refNode, aasns, TestConstants.SUBMODEL_TECH_DATA_NAME, submodelTechDataNode);
         //TestUtils.checkSubmodelRef(client, refNode, aasns, TestConstants.SUBMODEL_OPER_DATA_NAME, submodelOperDataNode);
         //TestUtils.checkSubmodelRef(client, refNode, aasns, TestConstants.SUBMODEL_DOC_NAME, submodelDocNode);

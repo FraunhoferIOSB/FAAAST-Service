@@ -17,10 +17,11 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator;
 import com.prosysopc.ua.StatusException;
 import com.prosysopc.ua.UaQualifiedName;
 import com.prosysopc.ua.nodes.UaNode;
-import com.prosysopc.ua.server.NodeManagerUaNode;
 import com.prosysopc.ua.stack.builtintypes.LocalizedText;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.QualifiedName;
+import com.prosysopc.ua.types.opcua.server.FileTypeNode;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.UaHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import opc.ua.aas.Ids;
@@ -50,7 +51,7 @@ public class ResourceCreator {
      * @throws StatusException If the operation fails
      * @throws ValueFormatException The data format of the value is invalid
      */
-    public static void addAasResource(UaNode node, Resource aasResource, String name, NodeManagerUaNode nodeManager) throws StatusException, ValueFormatException {
+    public static void addAasResource(UaNode node, Resource aasResource, String name, AasServiceNodeManager nodeManager) throws StatusException, ValueFormatException {
         if ((node != null) && (aasResource != null)) {
             NodeId nodeId = new NodeId(nodeManager.getNamespaceIndex(), node.getNodeId().getValue().toString() + "." + name);
             QualifiedName browseName = UaQualifiedName.from(Ids.AASResourceType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
@@ -62,7 +63,7 @@ public class ResourceCreator {
     }
 
 
-    private static void setResourceData(Resource aasResource, AASResourceType resourceNode, NodeManagerUaNode nodeManager) throws StatusException, ValueFormatException {
+    private static void setResourceData(Resource aasResource, AASResourceType resourceNode, AasServiceNodeManager nodeManager) throws StatusException, ValueFormatException {
         if (!aasResource.getContentType().isEmpty()) {
             if (resourceNode.getContentTypeNode() == null) {
                 UaHelper.addStringUaProperty(resourceNode, nodeManager, AASResourceType.CONTENT_TYPE, aasResource.getContentType(),
@@ -79,6 +80,10 @@ public class ResourceCreator {
             }
             else {
                 resourceNode.setPath(aasResource.getPath());
+            }
+            FileTypeNode file = UaHelper.createFile(aasResource.getPath(), resourceNode, AASResourceType.FILE, nodeManager);
+            if (file != null) {
+                resourceNode.addComponent(file);
             }
         }
     }

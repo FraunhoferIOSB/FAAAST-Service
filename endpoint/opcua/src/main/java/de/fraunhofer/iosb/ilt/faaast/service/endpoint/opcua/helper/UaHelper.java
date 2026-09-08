@@ -23,19 +23,28 @@ import com.prosysopc.ua.stack.builtintypes.LocalizedText;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.QualifiedName;
 import com.prosysopc.ua.stack.core.Identifiers;
+import com.prosysopc.ua.types.opcua.server.FileTypeNode;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ValueData;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValueFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import opc.ua.aas.Ids;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
  * Helper class with general OPC UA helper methods.
  */
 public class UaHelper {
+    private static final Logger LOGGER = LoggerFactory.getLogger(UaHelper.class);
 
     /**
      * Sonar wants a private constructor.
@@ -96,4 +105,33 @@ public class UaHelper {
         return null;
     }
 
+
+    public static FileTypeNode createFile(String filePath, UaNode parentNode, String name, AasServiceNodeManager nodeManager) {
+        FileTypeNode retval = null;
+        Path path = null;
+        try {
+            URI uri = URI.create(filePath);
+            path = Path.of(uri);
+        }
+        catch (Exception ex) {
+            LOGGER.info("createFile: error parsing URI", ex);
+        }
+        try {
+            if (path == null) {
+                path = Path.of(filePath);
+            }
+            if (Files.exists(path)) {
+                QualifiedName browseName = UaQualifiedName.from(Ids.AASFileType.getNamespaceUri(), name)
+                        .toQualifiedName(nodeManager.getNamespaceTable());
+                NodeId nid = nodeManager.createNodeId(parentNode, browseName);
+                FileTypeNode file = nodeManager.createInstance(FileTypeNode.class, nid, browseName, LocalizedText.english(name));
+                file.setFile(path.toFile());
+                retval = file;
+            }
+        }
+        catch (Exception ex) {
+            LOGGER.info("createFile: error creating file", ex);
+        }
+        return retval;
+    }
 }

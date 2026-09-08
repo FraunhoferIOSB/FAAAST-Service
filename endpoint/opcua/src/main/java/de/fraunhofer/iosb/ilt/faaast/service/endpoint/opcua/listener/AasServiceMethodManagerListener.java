@@ -70,11 +70,6 @@ public class AasServiceMethodManagerListener implements CallableListener {
             SubmodelElementData data = nodeManager.getAasData(objectId);
             Operation aasOper = (Operation) data.getSubmodelElement();
             if (aasOper != null) {
-                //List<OperationVariable> inputVariables = aasOper.getInputVariables();
-                //ValueConverter.setOperationValues(inputVariables, inputArguments);
-                //if ((inputArguments != null) && (inputArguments.length == 1)) {
-                //List<OperationVariable> outputVariables = endpoint.callOperation(aasOper, inputVariables, data.getSubmodel(), data.getReference());
-                // The correct number of inputArguments was already checked by the SDK
                 String output = endpoint.callOperation(aasOper, inputArguments[0].toString(), data.getSubmodel(), data.getReference());
 
                 if (outputs.length == 1) {
@@ -83,7 +78,6 @@ public class AasServiceMethodManagerListener implements CallableListener {
                 else {
                     LOGGER.warn("wrong number of outputArguments: expected: 1; found: {}", outputs.length);
                 }
-                //ValueConverter.setOutputArguments(, outputs);
                 retval = true;
             }
             else {

@@ -25,9 +25,11 @@ import com.prosysopc.ua.stack.builtintypes.LocalizedText;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.QualifiedName;
 import com.prosysopc.ua.stack.core.AccessLevelType;
+import com.prosysopc.ua.types.opcua.server.FileTypeNode;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.AasSubmodelElementHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.UaHelper;
 import opc.ua.aas.Ids;
 import opc.ua.aas.objecttypes.AASFileType;
 import org.eclipse.digitaltwin.aas4j.v3.model.File;
@@ -111,10 +113,19 @@ public class FileCreator extends SubmodelElementCreator {
         // Value
         if (aasFile.getValue() != null) {
             setValueData(fileNode, aasFile, nodeManager);
+            setFile(aasFile, fileNode, nodeManager);
         }
 
         if (VALUES_READ_ONLY) {
             fileNode.getContentTypeNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
+        }
+    }
+
+
+    private static void setFile(File aasFile, AASFileType fileNode, AasServiceNodeManager nodeManager) {
+        FileTypeNode file = UaHelper.createFile(aasFile.getValue(), fileNode, AASFileType.FILE, nodeManager);
+        if (file != null) {
+            fileNode.addComponent(file);
         }
     }
 

@@ -32,6 +32,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetSubm
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.InvokeOperationSyncResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.UnsupportedModifierException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValueParser;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
@@ -138,7 +139,7 @@ public class OpcUaEndpoint extends AbstractEndpoint<OpcUaEndpointConfig> {
         try {
             String path = ReferenceHelper.toPath(refElement);
             LOGGER.atDebug().log("writeValue: Reference {}; element: {}; Path {}", ReferenceHelper.toString(refElement), element.getIdShort(), path);
-            PatchSubmodelElementValueByPathRequest request = new PatchSubmodelElementValueByPathRequest();
+            PatchSubmodelElementValueByPathRequest<ElementValue> request = new PatchSubmodelElementValueByPathRequest<>();
 
             request.setSubmodelId(submodel.getId());
             request.setPath(path);
