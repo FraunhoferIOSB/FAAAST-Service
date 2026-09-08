@@ -473,11 +473,9 @@ public class AasSubmodelElementHelper {
                 }
             }
         }
-        if (statementObjects != null) {
-            for (var statementNode: statementObjects) {
-                if (value.getStatements().containsKey(statementNode.getBrowseName().getName())) {
-                    setSubmodelElementValue(statementNode, value.getStatements().get(statementNode.getBrowseName().getName()), nodeManager);
-                }
+        for (var statementNode: statementObjects) {
+            if (value.getStatements().containsKey(statementNode.getBrowseName().getName())) {
+                setSubmodelElementValue(statementNode, value.getStatements().get(statementNode.getBrowseName().getName()), nodeManager);
             }
         }
     }

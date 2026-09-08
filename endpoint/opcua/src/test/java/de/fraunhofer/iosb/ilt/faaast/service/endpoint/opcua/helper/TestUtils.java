@@ -172,7 +172,7 @@ public class TestUtils {
         checkType(client, assetInfoNode, TestConstants.AAS_ASSET_INFO_TYPE_ID);
         checkAssetKindNode(client, assetInfoNode, aasns, AASAssetKind.of(AASAssetKind.Options.Instance));
         checkAasPropertyThumbnail(client, assetInfoNode, aasns, TestConstants.DEFAULT_THUMB_NAME, "image/png",
-                "file:///master/verwaltungsschale-detail-part1.png", 0);
+                "file:///master/verwaltungsschale-detail-part1.png");
 
         checkVariableString(client, assetInfoNode, aasns, TestConstants.GLOBAL_ASSET_ID_NAME,
                 "http://customer.com/assets/KHBVZJSQKIY");
@@ -234,7 +234,6 @@ public class TestUtils {
         checkDisplayName(client, propertyNode, name);
         checkSubmodelElementCommonAttributes(client, aasns, propertyNode, category, qualifierList);
         //checkEmbeddedDataSpecificationNode(client, propertyNode, aasns);
-        //checkQualifierNode(client, propertyNode, aasns, qualifierList);
 
         UaVariable varNode = (UaVariable) client.getAddressSpace().getNode(propertyNode);
         NodeId datatypeNode = varNode.getDataTypeId();
@@ -247,8 +246,7 @@ public class TestUtils {
     }
 
 
-    public static void checkAasPropertyFile(UaClient client, NodeId node, int aasns, String name, String category, String mimeType, String propPath,
-                                            int fileSize)
+    public static void checkAasPropertyFile(UaClient client, NodeId node, int aasns, String name, String category, String mimeType, String propPath)
             throws ServiceException, ServiceResultException, AddressSpaceException, StatusException {
         NodeId propertyNode = getSubmodelElement(aasns, name, client, node);
 
@@ -382,17 +380,13 @@ public class TestUtils {
                 .atMost(MAX_TIMEOUT)
                 .until(() -> {
                     DataValue val = client.readValue(writeNode);
-                    //if (val.getStatusCode().isGood()) {
-                    //    boolean eq = AasReferenceEquals((AASReference) val.getValue().getValue(), oldValue);
-                    //    LOGGER.info("writeNewValueArray: equal: {}; rv: {}; old: {}", eq, (AASReference) val.getValue().getValue(), oldValue);
-                    //}
                     return val.getStatusCode().isGood() && (val.getValue() != null) && Objects.equals((AASReference) val.getValue().getValue(), newValue);
                 });
     }
 
 
     public static void checkCommonAttributes(UaClient client, NodeId baseNode, int aasns, CommonAttributesData data)
-            throws ServiceException, StatusException, AddressSpaceException, ServiceResultException {
+            throws ServiceException, AddressSpaceException, ServiceResultException {
 
         NodeId commonAttrNode = getCommonAttributes(client, baseNode, aasns);
 
@@ -421,8 +415,7 @@ public class TestUtils {
 
 
     public static void checkAasPropertyThumbnail(UaClient client, NodeId node, int aasns, String name, String mimeType,
-                                                 String propPath,
-                                                 int fileSize)
+                                                 String propPath)
             throws ServiceException, ServiceResultException, AddressSpaceException, StatusException {
         NodeId propertyNode = getSubmodelElement(aasns, name, client, node);
 
@@ -571,8 +564,7 @@ public class TestUtils {
     }
 
 
-    private static void checkModelingKind(AASHasKind kindNode, AASModellingKind modelingKind)
-            throws ServiceException, AddressSpaceException, StatusException, ServiceResultException {
+    private static void checkModelingKind(AASHasKind kindNode, AASModellingKind modelingKind) {
         if (kindNode == null) {
             Assert.assertNull(modelingKind);
         }
@@ -627,7 +619,7 @@ public class TestUtils {
 
 
     private static void checkSpecificAssetIdListNode(UaClient client, NodeId baseNode, int aasns, Map<String, String> map)
-            throws ServiceException, ServiceResultException, AddressSpaceException, StatusException {
+            throws ServiceException, ServiceResultException, AddressSpaceException {
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, AASAssetInformationType.SPECIFIC_ASSET_ID)));
@@ -691,12 +683,11 @@ public class TestUtils {
         AASAssetAdministrationShellCommonAttributes commonAttributesValue = (AASAssetAdministrationShellCommonAttributes) value;
 
         checkIdentifiable(commonAttributesValue.getIdentifiable(), data.id(), data.version(), data.revision());
-        //checkIdentificationAas(client, commonAttributesNodeId, id);
     }
 
 
     private static void checkSubmodelCommonAttributes(UaClient client, NodeId commonAttributesNodeId, CommonAttributesData data)
-            throws ServiceResultException, ServiceException, AddressSpaceException, StatusException {
+            throws ServiceResultException, ServiceException, AddressSpaceException {
 
         checkType(client, commonAttributesNodeId, Identifiers.BaseDataVariableType);
         checkDatatype(client, commonAttributesNodeId, TestConstants.SUBMODEL_COMMON_ATTRIBUTES_TYPE);
@@ -709,7 +700,6 @@ public class TestUtils {
         AASIdentifiable ident = commonAttributesValue.getIdentifiable();
         checkIdentifiable(ident, data.id(), data.version(), data.revision());
         checkModelingKind(commonAttributesValue.getHasKind(), data.modelingKind());
-        //checkIdentificationSubmodel(client, commonAttributesNodeId, id);
 
         // HasSemantics
         if (commonAttributesValue.getHasSemantics() == null) {
@@ -721,24 +711,6 @@ public class TestUtils {
             Assert.assertArrayEquals(data.supplementalSemanticIds(), commonAttributesValue.getHasSemantics().getSupplementalSemanticId());
         }
     }
-
-    //    private static void checkIdentificationAas(UaClient client, NodeId commonAttributesNodeId, String id)
-    //            throws ServiceResultException, ServiceException, AddressSpaceException {
-    //
-    //        Object value = getVariableValue(client, commonAttributesNodeId);
-    //        Assert.assertTrue(value instanceof AASAssetAdministrationShellCommonAttributes);
-    //        AASAssetAdministrationShellCommonAttributes commonAttributesValue = (AASAssetAdministrationShellCommonAttributes) value;
-    //        checkIdentifiable(commonAttributesValue.getIdentifiable(), id);
-    //    }
-
-    //    private static void checkIdentificationSubmodel(UaClient client, NodeId commonAttributesNodeId, String id)
-    //            throws ServiceResultException, ServiceException, AddressSpaceException {
-    //
-    //        Object value = getVariableValue(client, commonAttributesNodeId);
-    //        Assert.assertTrue(value instanceof AASSubmodelCommonAttributes);
-    //        AASSubmodelCommonAttributes commonAttributesValue = (AASSubmodelCommonAttributes) value;
-    //        checkIdentifiable(commonAttributesValue.getIdentifiable(), id);
-    //    }
 
 
     private static void checkReferable(AASReferable referable, String category) {
@@ -792,8 +764,7 @@ public class TestUtils {
         BrowsePathTarget[] targets = bpres[0].getTargets();
         Assert.assertNotNull(targets);
         Assert.assertTrue(targets.length > 0);
-        NodeId commonAttrNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
-        return commonAttrNode;
+        return client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
     }
 
 
@@ -808,8 +779,7 @@ public class TestUtils {
         BrowsePathTarget[] targets = bpres[0].getTargets();
         Assert.assertNotNull(targets);
         Assert.assertTrue(targets.length > 0);
-        NodeId submodelElementNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
-        return submodelElementNode;
+        return client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
     }
 
 }
