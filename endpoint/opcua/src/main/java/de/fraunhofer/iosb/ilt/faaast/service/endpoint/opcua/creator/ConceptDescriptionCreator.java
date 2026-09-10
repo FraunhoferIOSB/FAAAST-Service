@@ -196,8 +196,7 @@ public class ConceptDescriptionCreator {
     //    }
 
 
-    private static AASConceptDescription getConceptDescriptionData(ConceptDescription conceptDescription, List<EmbeddedDataSpecification> embeddedDataSpecifications)
-            throws StatusException {
+    private static AASConceptDescription getConceptDescriptionData(ConceptDescription conceptDescription, List<EmbeddedDataSpecification> embeddedDataSpecifications) {
         AASConceptDescription descriptionNode;
 
         List<AASEmbeddedDataSpecification> list = new ArrayList<>();

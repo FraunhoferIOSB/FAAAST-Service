@@ -659,16 +659,7 @@ public class ValueConverter {
                     String maxValue = convertObjectToString(rangeValue.getMax(), aasRange.getValueType());
                     aasRange.setMax(maxValue);
                 }
-                //String newValue = convertVariantValueToString(variant, aasRange.getValueType());
-                //retval = checkValue(aasRange.getValueType(), newValue);
-                //aasRange.setMin(newValue);
             }
-            //case RANGE_MAX -> {
-            //    Range aasRange = (Range) submodelElement;
-            //    String newValue = convertVariantValueToString(variant, aasRange.getValueType());
-            //    retval = checkValue(aasRange.getValueType(), newValue);
-            //    aasRange.setMax(newValue);
-            //}
             case BLOB_VALUE ->
                 setBlobValue(submodelElement, variant);
             case MULTI_LANGUAGE_VALUE ->
@@ -684,7 +675,7 @@ public class ValueConverter {
                 aasEntity.setGlobalAssetId(convertVariantValueToString(variant, DataTypeDefXsd.STRING));
             }
             case ENTITY_TYPE ->
-                setEntityValue(submodelElement, variant);
+                setEntityTypeValue(submodelElement, variant);
             default -> {
                 LOGGER.warn("setSubmodelElementValue: SubmodelElement {}: unkown type {}", submodelElement.getIdShort(), type);
                 throw new IllegalArgumentException("unkown type " + type);
@@ -1052,7 +1043,7 @@ public class ValueConverter {
     }
 
 
-    private static void setEntityValue(SubmodelElement submodelElement, Variant variant) {
+    private static void setEntityTypeValue(SubmodelElement submodelElement, Variant variant) {
         Entity aasEntity = (Entity) submodelElement;
         if (variant.isEmpty()) {
             aasEntity.setEntityType(null);

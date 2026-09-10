@@ -71,16 +71,12 @@ import opc.ua.aas.objecttypes.AASAssetInformationType;
 import org.awaitility.Awaitility;
 import org.eclipse.digitaltwin.aas4j.v3.model.Qualifier;
 import org.junit.Assert;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
  * Test utilities
  */
 public class TestUtils {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(TestUtils.class);
 
     private static final Duration POLL_TIMEOUT = Duration.ofMillis(100);
     private static final Duration MAX_TIMEOUT = Duration.ofSeconds(5);

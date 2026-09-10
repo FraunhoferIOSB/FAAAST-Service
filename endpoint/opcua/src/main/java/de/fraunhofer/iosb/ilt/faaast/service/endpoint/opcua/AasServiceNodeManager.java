@@ -796,7 +796,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     }
 
 
-    private void addQualifier(ObjectData parent, Referable value) throws StatusException {
+    private void addQualifier(ObjectData parent, Referable value) {
         if (parent.getNode() instanceof AASSubmodelType aasSubmodelType) {
             if (aasSubmodelType.getCommonAttributes().getQualifiable() == null) {
                 aasSubmodelType.getCommonAttributes().setQualifiable(new AASQualifiable());

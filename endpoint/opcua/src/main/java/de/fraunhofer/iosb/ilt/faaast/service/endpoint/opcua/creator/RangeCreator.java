@@ -51,8 +51,6 @@ public class RangeCreator extends SubmodelElementCreator {
     public static UaNode createAasRange(Range aasRange, Reference rangeRef, Submodel submodel, AasServiceNodeManager nodeManager) {
         UaNode retval = null;
         try {
-            //LOGGER.info("createAasRange: not yet supported (experimental)");
-            //            if ((node != null) && (aasRange != null)) {
             String name = aasRange.getIdShort();
             if ((name == null) || name.isEmpty()) {
                 name = getNameFromReference(rangeRef);
@@ -72,62 +70,11 @@ public class RangeCreator extends SubmodelElementCreator {
             nodeManager.addReferable(rangeRef, new ObjectData(aasRange, rangeNode, submodel));
 
             retval = rangeNode;
-            //                addSubmodelElementBaseData(rangeNode, aasRange, nodeManager);
-            //
-            //                addOpcUaRange(aasRange, rangeNode, submodel, rangeRef, nodeManager);
-            //
-            //                if (VALUES_READ_ONLY) {
-            //                    // ValueType read-only
-            //                    rangeNode.getValueTypeNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
-            //                }
-            //
-            //                if (ordered) {
-            //                    node.addReference(rangeNode, Identifiers.HasOrderedComponent, false);
-            //                }
-            //                else {
-            //                    node.addComponent(rangeNode);
-            //                }
-            //
-            //                if (rangeRef != null) {
-            //                    nodeManager.addReferable(rangeRef, new ObjectData(aasRange, rangeNode, submodel));
-            //                }
-            //            }
         }
         catch (Exception ex) {
             LOGGER.error("createAasRange Exception", ex);
         }
         return retval;
     }
-
-    /**
-     * Adds the min and max properties to the UA range object and sets the values
-     *
-     * @param aasRange The AAS range object
-     * @param range The corresponding UA range object
-     * @param submodel The corresponding submodel
-     * @param rangeRef The AAS reference to the Range
-     * @param nodeManager The corresponding Node Manager
-     */
-    //    private static void addOpcUaRange(Range aasRange, AASRangeType range, Submodel submodel, Reference rangeRef, AasServiceNodeManager nodeManager) throws StatusException {
-    //        String minValue = aasRange.getMin();
-    //        String maxValue = aasRange.getMax();
-    //        NodeId myPropertyIdMin = new NodeId(nodeManager.getNamespaceIndex(), range.getNodeId().getValue().toString() + "." + AASRangeType.MIN);
-    //        NodeId myPropertyIdMax = new NodeId(nodeManager.getNamespaceIndex(), range.getNodeId().getValue().toString() + "." + AASRangeType.MAX);
-    //        DataTypeDefXsd valueType = aasRange.getValueType();
-    //        QualifiedName browseNameMin = UaQualifiedName.from(ObjectTypeIds.AASRangeType.getNamespaceUri(), AASRangeType.MIN)
-    //                .toQualifiedName(nodeManager.getNamespaceTable());
-    //        LocalizedText displayNameMin = LocalizedText.english(AASRangeType.MIN);
-    //        QualifiedName browseNameMax = UaQualifiedName.from(ObjectTypeIds.AASRangeType.getNamespaceUri(), AASRangeType.MAX)
-    //                .toQualifiedName(nodeManager.getNamespaceTable());
-    //        LocalizedText displayNameMax = LocalizedText.english(AASRangeType.MAX);
-    //
-    //        nodeManager.addSubmodelElementAasMap(myPropertyIdMin, new SubmodelElementData(aasRange, submodel, SubmodelElementData.Type.RANGE_MIN, rangeRef));
-    //        nodeManager.addSubmodelElementAasMap(myPropertyIdMax, new SubmodelElementData(aasRange, submodel, SubmodelElementData.Type.RANGE_MAX, rangeRef));
-    //
-    //        nodeManager.addSubmodelElementOpcUA(rangeRef, range);
-    //
-    //        AasSubmodelElementHelper.setRangeValueAndType(valueType, minValue, maxValue, range, new ValueData(myPropertyIdMin, browseNameMin, displayNameMin, nodeManager),
-    //                new ValueData(myPropertyIdMax, browseNameMax, displayNameMax, nodeManager));
-    //    }
 
 }
