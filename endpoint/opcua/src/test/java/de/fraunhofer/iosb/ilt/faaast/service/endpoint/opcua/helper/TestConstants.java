@@ -70,7 +70,7 @@ public class TestConstants {
     public static final String FULL_SUBMODEL_6_ID = "https://acplt.org/Test_Submodel_Missing";
     public static final String FULL_SUBMODEL_7_NAME = "TestSubmodelTemplate";
     public static final String FULL_REL_ELEMENT_NAME = "ExampleRelationshipElement";
-    public static final String FULL_SM_ELEM_COLL_UO_NAME = "ExampleSubmodelElementListUnordered";
+    public static final String FULL_SM_ELEM_LIST_UO_NAME = "ExampleSubmodelElementListUnordered";
     public static final String FULL_SM_ELEM_COLL_NAME = "ExampleSubmodelElementCollection";
     public static final String FULL_SMEC_RANGE_NAME = "ExampleRange";
     public static final String FULL_OPERATION_NAME = "ExampleOperation";

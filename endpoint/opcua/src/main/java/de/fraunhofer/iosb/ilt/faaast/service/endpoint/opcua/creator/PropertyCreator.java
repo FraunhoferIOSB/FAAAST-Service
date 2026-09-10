@@ -77,13 +77,13 @@ public class PropertyCreator extends SubmodelElementCreator {
 
             // ValueId
             if (prop.getValueIdNode() == null) {
-                LOGGER.info("createAasProperty: ValueIdNode null");
+                LOGGER.debug("createAasProperty: ValueIdNode null");
             }
             else {
                 prop.setValueId(ReferenceCreator.getAasReference(aasProperty.getValueId()));
             }
 
-            // here Value and ValueType are set
+            // here Value is set
             AasSubmodelElementHelper.setPropertyValueAndType(aasProperty, prop, new ValueData(nid, browseName, displayName, nodeManager));
 
             if (propertyRef != null) {

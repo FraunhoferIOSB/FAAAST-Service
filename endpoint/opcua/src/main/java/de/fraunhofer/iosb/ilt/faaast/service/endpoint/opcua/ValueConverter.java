@@ -79,6 +79,7 @@ import opc.ua.aas.datatypes.AASReference;
 import opc.ua.aas.datatypes.AASReferenceTypes;
 import opc.ua.aas.datatypes.AASSubmodelElements;
 import opc.ua.aas.datatypes.AASValueReferencePair;
+import opc.ua.iosb.aas.datatypes.AASRange;
 import org.eclipse.digitaltwin.aas4j.v3.model.AasSubmodelElements;
 import org.eclipse.digitaltwin.aas4j.v3.model.AbstractLangString;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
@@ -646,18 +647,28 @@ public class ValueConverter {
                 retval = checkValue(aasProp.getValueType(), newValue);
                 aasProp.setValue(newValue);
             }
-            case RANGE_MIN -> {
+            case RANGE_VALUE -> {
                 Range aasRange = (Range) submodelElement;
-                String newValue = convertVariantValueToString(variant, aasRange.getValueType());
-                retval = checkValue(aasRange.getValueType(), newValue);
-                aasRange.setMin(newValue);
+                if (variant.isEmpty()) {
+                    aasRange.setMin(null);
+                    aasRange.setMax(null);
+                }
+                else if (variant.getValue() instanceof AASRange rangeValue) {
+                    String minValue = convertObjectToString(rangeValue.getMin(), aasRange.getValueType());
+                    aasRange.setMin(minValue);
+                    String maxValue = convertObjectToString(rangeValue.getMax(), aasRange.getValueType());
+                    aasRange.setMax(maxValue);
+                }
+                //String newValue = convertVariantValueToString(variant, aasRange.getValueType());
+                //retval = checkValue(aasRange.getValueType(), newValue);
+                //aasRange.setMin(newValue);
             }
-            case RANGE_MAX -> {
-                Range aasRange = (Range) submodelElement;
-                String newValue = convertVariantValueToString(variant, aasRange.getValueType());
-                retval = checkValue(aasRange.getValueType(), newValue);
-                aasRange.setMax(newValue);
-            }
+            //case RANGE_MAX -> {
+            //    Range aasRange = (Range) submodelElement;
+            //    String newValue = convertVariantValueToString(variant, aasRange.getValueType());
+            //    retval = checkValue(aasRange.getValueType(), newValue);
+            //    aasRange.setMax(newValue);
+            //}
             case BLOB_VALUE ->
                 setBlobValue(submodelElement, variant);
             case MULTI_LANGUAGE_VALUE ->
@@ -791,28 +802,38 @@ public class ValueConverter {
     }
 
 
-    private static String convertVariantValueToString(Variant variant, DataTypeDefXsd type) {
-        String retval = "";
-        if (variant.getValue() != null) {
-            // special treatment for DateTime and ByteString
-            if (variant.getValue() instanceof DateTime dt) {
-                retval = OffsetDateTime.ofInstant(dt.toInstant(), ZoneId.systemDefault()).toString();
-            }
-            else if (variant.getValue() instanceof ByteString bt) {
-                if (type == DataTypeDefXsd.HEX_BINARY) {
-                    retval = bt.toHex();
-                    // we must remove the '0x' at the beginning
-                    if ((retval != null) && (retval.startsWith("0x"))) {
-                        retval = retval.substring(2);
-                    }
-                }
-                else {
-                    retval = Base64.getEncoder().encodeToString(bt.getValue());
+    private static String convertObjectToString(Object object, DataTypeDefXsd type) {
+        if (object == null) {
+            return null;
+        }
+        String retval;
+        // special treatment for DateTime and ByteString
+        if (object instanceof DateTime dt) {
+            retval = OffsetDateTime.ofInstant(dt.toInstant(), ZoneId.systemDefault()).toString();
+        }
+        else if (object instanceof ByteString bt) {
+            if (type == DataTypeDefXsd.HEX_BINARY) {
+                retval = bt.toHex();
+                // we must remove the '0x' at the beginning
+                if ((retval != null) && (retval.startsWith("0x"))) {
+                    retval = retval.substring(2);
                 }
             }
             else {
-                retval = variant.getValue().toString();
+                retval = Base64.getEncoder().encodeToString(bt.getValue());
             }
+        }
+        else {
+            retval = object.toString();
+        }
+        return retval;
+    }
+
+
+    private static String convertVariantValueToString(Variant variant, DataTypeDefXsd type) {
+        String retval = null;
+        if (variant != null) {
+            retval = convertObjectToString(variant.getValue(), type);
         }
 
         return retval;

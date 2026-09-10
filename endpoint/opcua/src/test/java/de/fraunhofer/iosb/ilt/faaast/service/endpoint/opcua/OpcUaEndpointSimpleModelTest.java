@@ -68,6 +68,7 @@ import opc.ua.aas.datatypes.AASReference;
 import opc.ua.aas.datatypes.AASReferenceTypes;
 import opc.ua.aas.objecttypes.AASEntityType;
 import opc.ua.aas.objecttypes.AASRelationshipElementType;
+import opc.ua.iosb.aas.datatypes.AASRange;
 import org.awaitility.Awaitility;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
 import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
@@ -250,8 +251,7 @@ public class OpcUaEndpointSimpleModelTest {
     }
 
 
-    // Test temporarily deactivated
-    //@Test
+    @Test
     public void testWriteRangeValue() throws ServiceException, StatusException, ServiceResultException {
         client = new UaClient(endpointUrl);
         client.setSecurityMode(SecurityMode.NONE);
@@ -259,27 +259,30 @@ public class OpcUaEndpointSimpleModelTest {
         client.connect();
 
         aasns = client.getAddressSpace().getNamespaceTable().getIndex(Ids.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
+        int iosbns = client.getAddressSpace().getNamespaceTable().getIndex(opc.ua.iosb.aas.Ids.AASRangeType.getNamespaceUri());
 
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.SUBMODEL_OPER_DATA_NODE_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.TEST_RANGE_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.RANGE_MAX_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(iosbns, TestConstants.TEST_RANGE_NAME)));
+        //browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.RANGE_MAX_NAME)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
-        Assert.assertNotNull("testWriteRangeValue Browse Result Null", bpres);
-        Assert.assertEquals("testWriteRangeValue Browse Result: size doesn't match", 1, bpres.length);
-        Assert.assertTrue("testWriteRangeValue Browse Result Good", bpres[0].getStatusCode().isGood());
+        Assert.assertNotNull(bpres);
+        Assert.assertEquals(1, bpres.length);
+        Assert.assertTrue(bpres[0].getStatusCode().isGood());
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
-        Assert.assertNotNull("testWriteRangeValue ValueType Null", targets);
-        Assert.assertTrue("testWriteRangeValue ValueType empty", targets.length > 0);
+        Assert.assertNotNull(targets);
+        Assert.assertTrue(targets.length > 0);
 
         NodeId writeNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
 
-        TestUtils.writeNewValueIntern(client, writeNode, 100, 111);
+        AASRange oldValue = new AASRange(0, 100);
+        AASRange newValue = new AASRange(5, 111);
+        TestUtils.writeNewValueIntern(client, writeNode, oldValue, newValue);
     }
 
 
@@ -300,13 +303,13 @@ public class OpcUaEndpointSimpleModelTest {
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
-        Assert.assertNotNull("testWriteMultiLanguagePropertyValue Browse Result Null", bpres);
-        Assert.assertEquals("testWriteMultiLanguagePropertyValue Browse Result: size doesn't match", 1, bpres.length);
-        Assert.assertTrue("testWriteMultiLanguagePropertyValue Browse Result Good", bpres[0].getStatusCode().isGood());
+        Assert.assertNotNull(bpres);
+        Assert.assertEquals(1, bpres.length);
+        Assert.assertTrue(bpres[0].getStatusCode().isGood());
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
-        Assert.assertNotNull("testWriteMultiLanguagePropertyValue ValueType Null", targets);
-        Assert.assertTrue("testWriteMultiLanguagePropertyValue ValueType empty", targets.length > 0);
+        Assert.assertNotNull(targets);
+        Assert.assertTrue(targets.length > 0);
 
         NodeId writeNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
 

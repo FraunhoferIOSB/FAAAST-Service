@@ -14,9 +14,17 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator;
 
-import com.prosysopc.ua.StatusException;
+import com.prosysopc.ua.UaQualifiedName;
 import com.prosysopc.ua.nodes.UaNode;
+import com.prosysopc.ua.stack.builtintypes.LocalizedText;
+import com.prosysopc.ua.stack.builtintypes.NodeId;
+import com.prosysopc.ua.stack.builtintypes.QualifiedName;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.AasSubmodelElementHelper;
+import opc.ua.iosb.aas.Ids;
+import opc.ua.iosb.aas.variabletypes.AASRangeType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Range;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
@@ -39,20 +47,31 @@ public class RangeCreator extends SubmodelElementCreator {
      * @param submodel The corresponding Submodel as parent object of the data element
      * @param nodeManager The corresponding Node Manager
      * @return The created node.
-     * @throws StatusException If the operation fails
      */
     public static UaNode createAasRange(Range aasRange, Reference rangeRef, Submodel submodel, AasServiceNodeManager nodeManager) {
         UaNode retval = null;
         try {
-            LOGGER.info("createAasRange: not yet supported (experimental)");
+            //LOGGER.info("createAasRange: not yet supported (experimental)");
             //            if ((node != null) && (aasRange != null)) {
-            //                String name = aasRange.getIdShort();
-            //                if ((name == null) || name.isEmpty()) {
-            //                    name = getNameFromReference(rangeRef);
-            //                }
-            //                QualifiedName browseName = UaQualifiedName.from(ObjectTypeIds.AASRangeType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
-            //                NodeId nid = nodeManager.getDefaultNodeId();
-            //                AASRangeType rangeNode = nodeManager.createInstance(AASRangeType.class, nid, browseName, LocalizedText.english(name));
+            String name = aasRange.getIdShort();
+            if ((name == null) || name.isEmpty()) {
+                name = getNameFromReference(rangeRef);
+            }
+            QualifiedName browseName = UaQualifiedName.from(Ids.AASRangeType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
+            NodeId nid = nodeManager.getDefaultNodeId();
+            AASRangeType rangeNode = nodeManager.createInstance(AASRangeType.class, nid, browseName, LocalizedText.english(name));
+
+            LOGGER.info("createAasRange: {}: create {}", name, nid);
+
+            addSubmodelElementBaseData(rangeNode, aasRange, nodeManager);
+
+            AasSubmodelElementHelper.setRangeValue(aasRange, rangeNode);
+
+            nodeManager.addSubmodelElementOpcUA(rangeRef, rangeNode);
+            nodeManager.addSubmodelElementAasMap(nid, new SubmodelElementData(aasRange, submodel, SubmodelElementData.Type.RANGE_VALUE, rangeRef));
+            nodeManager.addReferable(rangeRef, new ObjectData(aasRange, rangeNode, submodel));
+
+            retval = rangeNode;
             //                addSubmodelElementBaseData(rangeNode, aasRange, nodeManager);
             //
             //                addOpcUaRange(aasRange, rangeNode, submodel, rangeRef, nodeManager);

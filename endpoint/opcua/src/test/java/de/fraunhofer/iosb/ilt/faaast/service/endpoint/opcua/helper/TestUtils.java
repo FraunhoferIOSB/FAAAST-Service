@@ -333,10 +333,10 @@ public class TestUtils {
                 .atMost(MAX_TIMEOUT)
                 .until(() -> {
                     DataValue val = client.readValue(writeNode);
-                    if (val.getStatusCode().isGood()) {
-                        Object v = val.getValue().getValue();
-                        LOGGER.info("writeNewValueIntern: val: {}; old: {}; new: {}", v, oldValue, newValue);
-                    }
+                    //if (val.getStatusCode().isGood()) {
+                    //    Object v = val.getValue().getValue();
+                    //    LOGGER.info("writeNewValueIntern: val: {}; old: {}; new: {}", v, oldValue, newValue);
+                    //}
                     return val.getStatusCode().isGood() && (val.getValue() != null) && Objects.equals(val.getValue().getValue(), newValue);
                 });
     }

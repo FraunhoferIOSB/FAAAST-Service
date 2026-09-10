@@ -33,6 +33,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.EntityCreato
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.ReferenceCreator;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ValueData;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.AnnotatedRelationshipElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.BlobValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
@@ -41,6 +42,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.EntityValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.FileValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.MultiLanguagePropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.RangeValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ReferenceElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.RelationshipElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
@@ -59,8 +61,11 @@ import opc.ua.aas.objecttypes.AASSubmodelElementObjectType;
 import opc.ua.aas.variabletypes.AASMultiLanguagePropertyType;
 import opc.ua.aas.variabletypes.AASPropertyType;
 import opc.ua.aas.variabletypes.AASReferenceElementType;
+import opc.ua.iosb.aas.datatypes.AASRange;
+import opc.ua.iosb.aas.variabletypes.AASRangeType;
 import org.eclipse.digitaltwin.aas4j.v3.model.LangStringTextType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Property;
+import org.eclipse.digitaltwin.aas4j.v3.model.Range;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -207,14 +212,14 @@ public class AasSubmodelElementHelper {
             LOGGER.atInfo().log("setPropertyValueAndType: {}", aasProperty.getIdShort());
             PropertyValue typedValue = ElementValueMapper.toValue(aasProperty, PropertyValue.class);
 
-            UaNode test = valueData.getNodeManager().findNode(valueData.getNodeId());
-            LOGGER.info("setPropertyValueAndType: Read (1): {}", test);
+            //UaNode test = valueData.getNodeManager().findNode(valueData.getNodeId());
+            //LOGGER.info("setPropertyValueAndType: Read (1): {}", test);
 
             setPropertyValue(prop, typedValue);
             prop.setDataTypeId(ValueConverter.convertDataTypeDefToNodeId(aasProperty.getValueType(), valueData.getNodeManager()));
 
-            test = valueData.getNodeManager().findNode(valueData.getNodeId());
-            LOGGER.info("setPropertyValueAndType: Read (1): {}", test);
+            //test = valueData.getNodeManager().findNode(valueData.getNodeId());
+            //LOGGER.info("setPropertyValueAndType: Read (1): {}", test);
             if (prop.getDescription() == null) {
                 prop.setDescription(new LocalizedText("", ""));
             }
@@ -222,6 +227,20 @@ public class AasSubmodelElementHelper {
         catch (Exception ex) {
             LOGGER.error("setPropertyValueAndType Exception", ex);
         }
+    }
+
+
+    /**
+     * Sets the values for the given Range from the corresponding AAS Tange.
+     *
+     * @param aasRange The AAS Range.
+     * @param range The OPC UA Range.
+     * @throws ValueMappingException Error when mapping to ElementValue fails
+     * @throws StatusException If the operation fails
+     */
+    public static void setRangeValue(Range aasRange, AASRangeType range) throws ValueMappingException, StatusException {
+        RangeValue typedValue = ElementValueMapper.toValue(aasRange, RangeValue.class);
+        setRangeValue(range, typedValue);
     }
 
     //    private static void setStringRangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, AASRangeType range, String maxValue, ValueData maxData,
@@ -411,9 +430,9 @@ public class AasSubmodelElementHelper {
         else if ((node instanceof AASReferenceElementType referenceElementNode) && (value instanceof ReferenceElementValue referenceElementValue)) {
             setReferenceElementValue(referenceElementNode, referenceElementValue);
         }
-        //else if ((node instanceof AASRangeType) && (value instanceof RangeValue)) {
-        //    setRangeValue((AASRangeType) node, (RangeValue<?>) value);
-        //}
+        else if ((node instanceof AASRangeType) && (value instanceof RangeValue)) {
+            setRangeValue((AASRangeType) node, (RangeValue<?>) value);
+        }
         else if ((node instanceof AASMultiLanguagePropertyType multiLanguageNode) && (value instanceof MultiLanguagePropertyValue multiLanguageValue)) {
             setMultiLanguagePropertyValue(multiLanguageNode, multiLanguageValue);
         }
@@ -535,22 +554,6 @@ public class AasSubmodelElementHelper {
         ReferenceCreator.setAasReferenceData(value.getValue(), refElement);
     }
 
-    //    /**
-    //     * Sets the value for the given Range.
-    //     *
-    //     * @param range The desired Range.
-    //     * @param value The new value
-    //     * @throws StatusException If the operation fails
-    //     */
-    //    private static void setRangeValue(AASRangeType range, RangeValue<?> value) throws StatusException {
-    //        if (range.getMinNode() != null) {
-    //            range.setMin(ValueConverter.convertTypedValue(value.getMin()));
-    //        }
-    //        if (range.getMaxNode() != null) {
-    //            range.setMax(ValueConverter.convertTypedValue(value.getMax()));
-    //        }
-    //    }
-
 
     private static void setMultiLanguagePropertyValue(AASMultiLanguagePropertyType multiLangProp, MultiLanguagePropertyValue value)
             throws StatusException {
@@ -586,4 +589,20 @@ public class AasSubmodelElementHelper {
         }
         return retval;
     }
+
+
+    /**
+     * Sets the value for the given Range.
+     *
+     * @param range The desired Range.
+     * @param value The new value
+     * @throws StatusException If the operation fails
+     */
+    private static void setRangeValue(AASRangeType range, RangeValue<?> value) throws StatusException {
+        AASRange rangeValue = new AASRange();
+        rangeValue.setMin(ValueConverter.convertTypedValue(value.getMin()));
+        rangeValue.setMax(ValueConverter.convertTypedValue(value.getMax()));
+        range.setValue(rangeValue);
+    }
+
 }

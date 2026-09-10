@@ -317,14 +317,16 @@ public class Server {
     private void loadAasNodes() {
         long start = System.currentTimeMillis();
         try {
-            LOGGER.debug("loadI4AasNodes start I4AAS");
+            LOGGER.debug("loadAasNodes start AAS");
             uaServer.getAddressSpace().loadModel(opc.ua.aas.server.ServerInformationModel.getLocationURI());
+            LOGGER.debug("loadAasNodes start AAS - IOSB extension");
+            uaServer.getAddressSpace().loadModel(opc.ua.iosb.aas.server.ServerInformationModel.getLocationURI());
         }
         catch (Exception ex) {
-            LOGGER.error("loadI4AasNodes Exception", ex);
+            LOGGER.error("loadAasNodes Exception", ex);
         }
 
         long duration = System.currentTimeMillis() - start;
-        LOGGER.trace("loadI4AasNodes end. Dauer: {} ms", duration);
+        LOGGER.trace("loadAasNodes end. Dauer: {} ms", duration);
     }
 }

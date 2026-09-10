@@ -1,0 +1,318 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UANodeSet xmlns:ua="http://unifiedautomation.com/Configuration/NodeSet.xsd" xmlns:s1="http://iosb.fraunhofer.de/ILT/AAS/Types.xsd" xmlns="http://opcfoundation.org/UA/2011/03/UANodeSet.xsd" xmlns:s2="http://opcfoundation.org/UA/AAS/Types.xsd" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:uax="http://opcfoundation.org/UA/2008/02/Types.xsd">
+    <NamespaceUris>
+        <Uri>http://iosb.fraunhofer.de/ILT/AAS/</Uri>
+        <Uri>http://opcfoundation.org/UA/AAS/</Uri>
+    </NamespaceUris>
+    <Models>
+        <Model PublicationDate="2026-09-09T13:55:45Z" ModelUri="http://iosb.fraunhofer.de/ILT/AAS/" Version="1.0.0">
+            <RequiredModel PublicationDate="2025-11-08T00:00:00Z" ModelVersion="1.5.6" ModelUri="http://opcfoundation.org/UA/" Version="1.05.06"/>
+            <RequiredModel PublicationDate="2026-09-08T14:00:00Z" ModelUri="http://opcfoundation.org/UA/AAS/" Version="0.99"/>
+        </Model>
+    </Models>
+    <Aliases>
+        <Alias Alias="Boolean">i=1</Alias>
+        <Alias Alias="String">i=12</Alias>
+        <Alias Alias="DateTime">i=13</Alias>
+        <Alias Alias="ByteString">i=15</Alias>
+        <Alias Alias="HasEncoding">i=38</Alias>
+        <Alias Alias="HasDescription">i=39</Alias>
+        <Alias Alias="HasTypeDefinition">i=40</Alias>
+        <Alias Alias="HasSubtype">i=45</Alias>
+        <Alias Alias="HasProperty">i=46</Alias>
+        <Alias Alias="HasComponent">i=47</Alias>
+        <Alias Alias="AccessRestrictionType">i=95</Alias>
+        <Alias Alias="RolePermissionType">i=96</Alias>
+        <Alias Alias="IdType">i=256</Alias>
+        <Alias Alias="NumericRange">i=291</Alias>
+        <Alias Alias="AASRange">ns=1;i=3003</Alias>
+    </Aliases>
+    <Extensions>
+        <Extension>
+            <ua:ModelInfo Tool="UaModeler" Version="1.8.2" Hash="LPP8PCVQdruthEJkxq5n4A=="/>
+        </Extension>
+    </Extensions>
+    <UADataType NodeId="ns=1;i=3003" BrowseName="1:AASRange">
+        <DisplayName>AASRange</DisplayName>
+        <References>
+            <Reference ReferenceType="HasSubtype" IsForward="false">i=22</Reference>
+            <Reference ReferenceType="HasEncoding">ns=1;i=5001</Reference>
+            <Reference ReferenceType="HasEncoding">ns=1;i=5002</Reference>
+        </References>
+        <Definition Name="1:AASRange">
+            <Field Name="Min" IsOptional="true"/>
+            <Field Name="Max" IsOptional="true"/>
+        </Definition>
+    </UADataType>
+    <UAVariable ParentNodeId="ns=1;i=6001" ReleaseStatus="Deprecated" NodeId="ns=1;i=6007" DataType="String" BrowseName="1:AASRange">
+        <DisplayName>AASRange</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=69</Reference>
+            <Reference ReferenceType="HasDescription" IsForward="false">ns=1;i=5001</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=6001</Reference>
+        </References>
+        <Value>
+            <uax:String>AASRange</uax:String>
+        </Value>
+    </UAVariable>
+    <UAVariable ParentNodeId="ns=1;i=6004" ReleaseStatus="Deprecated" NodeId="ns=1;i=6008" DataType="String" BrowseName="1:AASRange">
+        <DisplayName>AASRange</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=69</Reference>
+            <Reference ReferenceType="HasDescription" IsForward="false">ns=1;i=5002</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=6004</Reference>
+        </References>
+        <Value>
+            <uax:String>//xs:element[@name='AASRange']</uax:String>
+        </Value>
+    </UAVariable>
+    <UAVariable SymbolicName="IOSBAAS_BinarySchema" ReleaseStatus="Deprecated" NodeId="ns=1;i=6001" DataType="ByteString" BrowseName="1:IOSBAAS">
+        <DisplayName>IOSBAAS</DisplayName>
+        <Description>Collects the data type descriptions of http://iosb.fraunhofer.de/ILT/AAS/</Description>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=72</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">i=93</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=6007</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=6003</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=6002</Reference>
+        </References>
+        <Value>
+            <uax:ByteString>PG9wYzpUeXBlRGljdGlvbmFyeSB4bWxuczp1YT0iaHR0cDovL29wY2ZvdW5kYXRpb24ub3JnL1VBLyIgR
+        GVmYXVsdEJ5dGVPcmRlcj0iTGl0dGxlRW5kaWFuIiB4bWxuczp4c2k9Imh0dHA6Ly93d3cud
+        zMub3JnLzIwMDEvWE1MU2NoZW1hLWluc3RhbmNlIiBUYXJnZXROYW1lc3BhY2U9Imh0dHA6L
+        y9pb3NiLmZyYXVuaG9mZXIuZGUvSUxUL0FBUy8iIHhtbG5zOm9wYz0iaHR0cDovL29wY2Zvd
+        W5kYXRpb24ub3JnL0JpbmFyeVNjaGVtYS8iIHhtbG5zOnRucz0iaHR0cDovL2lvc2IuZnJhd
+        W5ob2Zlci5kZS9JTFQvQUFTLyI+CiA8b3BjOkltcG9ydCBOYW1lc3BhY2U9Imh0dHA6Ly9vc
+        GNmb3VuZGF0aW9uLm9yZy9VQS8iLz4KIDxvcGM6U3RydWN0dXJlZFR5cGUgTmFtZT0iQUFTU
+        mFuZ2UiIEJhc2VUeXBlPSJ1YTpFeHRlbnNpb25PYmplY3QiPgogIDxvcGM6RmllbGQgTmFtZ
+        T0iTWluU3BlY2lmaWVkIiBUeXBlTmFtZT0ib3BjOkJpdCIvPgogIDxvcGM6RmllbGQgTmFtZ
+        T0iTWF4U3BlY2lmaWVkIiBUeXBlTmFtZT0ib3BjOkJpdCIvPgogIDxvcGM6RmllbGQgTmFtZ
+        T0iUmVzZXJ2ZWQxIiBMZW5ndGg9IjMwIiBUeXBlTmFtZT0ib3BjOkJpdCIvPgogIDxvcGM6R
+        mllbGQgTmFtZT0iTWluIiBTd2l0Y2hGaWVsZD0iTWluU3BlY2lmaWVkIiBUeXBlTmFtZT0id
+        WE6VmFyaWFudCIvPgogIDxvcGM6RmllbGQgTmFtZT0iTWF4IiBTd2l0Y2hGaWVsZD0iTWF4U
+        3BlY2lmaWVkIiBUeXBlTmFtZT0idWE6VmFyaWFudCIvPgogPC9vcGM6U3RydWN0dXJlZFR5c
+        GU+Cjwvb3BjOlR5cGVEaWN0aW9uYXJ5Pgo=</uax:ByteString>
+        </Value>
+    </UAVariable>
+    <UAVariable ParentNodeId="ns=1;i=6001" ReleaseStatus="Deprecated" NodeId="ns=1;i=6003" DataType="Boolean" BrowseName="Deprecated">
+        <DisplayName>Deprecated</DisplayName>
+        <Description>Indicates that all of the DataType definitions represented by the DataTypeDictionaryType are available through a DataTypeDefinition Attribute.</Description>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=6001</Reference>
+        </References>
+        <Value>
+            <uax:Boolean>true</uax:Boolean>
+        </Value>
+    </UAVariable>
+    <UAVariable ParentNodeId="ns=1;i=6001" ReleaseStatus="Deprecated" NodeId="ns=1;i=6002" DataType="String" BrowseName="NamespaceUri">
+        <DisplayName>NamespaceUri</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=6001</Reference>
+        </References>
+        <Value>
+            <uax:String>http://iosb.fraunhofer.de/ILT/AAS/</uax:String>
+        </Value>
+    </UAVariable>
+    <UAVariable SymbolicName="IOSBAAS_XmlSchema" ReleaseStatus="Deprecated" NodeId="ns=1;i=6004" DataType="ByteString" BrowseName="1:IOSBAAS">
+        <DisplayName>IOSBAAS</DisplayName>
+        <Description>Collects the data type descriptions of http://iosb.fraunhofer.de/ILT/AAS/</Description>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=72</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">i=92</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=6008</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=6006</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=6005</Reference>
+        </References>
+        <Value>
+            <uax:ByteString>PHhzOnNjaGVtYSB4bWxuczp1YT0iaHR0cDovL29wY2ZvdW5kYXRpb24ub3JnL1VBLzIwMDgvMDIvVHlwZ
+        XMueHNkIiBlbGVtZW50Rm9ybURlZmF1bHQ9InF1YWxpZmllZCIgdGFyZ2V0TmFtZXNwYWNlP
+        SJodHRwOi8vaW9zYi5mcmF1bmhvZmVyLmRlL0lMVC9BQVMvVHlwZXMueHNkIiB4bWxuczp4c
+        z0iaHR0cDovL3d3dy53My5vcmcvMjAwMS9YTUxTY2hlbWEiIHhtbG5zOnRucz0iaHR0cDovL
+        2lvc2IuZnJhdW5ob2Zlci5kZS9JTFQvQUFTL1R5cGVzLnhzZCI+CiA8eHM6aW1wb3J0IG5hb
+        WVzcGFjZT0iaHR0cDovL29wY2ZvdW5kYXRpb24ub3JnL1VBLzIwMDgvMDIvVHlwZXMueHNkI
+        i8+CiA8eHM6Y29tcGxleFR5cGUgbmFtZT0iQUFTUmFuZ2UiPgogIDx4czpzZXF1ZW5jZT4KI
+        CAgPHhzOmVsZW1lbnQgbWluT2NjdXJzPSIwIiBuYW1lPSJFbmNvZGluZ01hc2siIHR5cGU9I
+        nhzOnVuc2lnbmVkSW50Ii8+CiAgIDx4czplbGVtZW50IG1pbk9jY3Vycz0iMCIgbmFtZT0iT
+        WluIiBtYXhPY2N1cnM9IjEiIHR5cGU9InVhOlZhcmlhbnQiLz4KICAgPHhzOmVsZW1lbnQgb
+        WluT2NjdXJzPSIwIiBuYW1lPSJNYXgiIG1heE9jY3Vycz0iMSIgdHlwZT0idWE6VmFyaWFud
+        CIvPgogIDwveHM6c2VxdWVuY2U+CiA8L3hzOmNvbXBsZXhUeXBlPgogPHhzOmVsZW1lbnQgb
+        mFtZT0iQUFTUmFuZ2UiIHR5cGU9InRuczpBQVNSYW5nZSIvPgogPHhzOmNvbXBsZXhUeXBlI
+        G5hbWU9Ikxpc3RPZkFBU1JhbmdlIj4KICA8eHM6c2VxdWVuY2U+CiAgIDx4czplbGVtZW50I
+        G1pbk9jY3Vycz0iMCIgbmFtZT0iQUFTUmFuZ2UiIG1heE9jY3Vycz0idW5ib3VuZGVkIiBua
+        WxsYWJsZT0idHJ1ZSIgdHlwZT0idG5zOkFBU1JhbmdlIi8+CiAgPC94czpzZXF1ZW5jZT4KI
+        DwveHM6Y29tcGxleFR5cGU+CiA8eHM6ZWxlbWVudCBuYW1lPSJMaXN0T2ZBQVNSYW5nZSIgb
+        mlsbGFibGU9InRydWUiIHR5cGU9InRuczpMaXN0T2ZBQVNSYW5nZSIvPgo8L3hzOnNjaGVtY
+        T4K</uax:ByteString>
+        </Value>
+    </UAVariable>
+    <UAVariable ParentNodeId="ns=1;i=6004" ReleaseStatus="Deprecated" NodeId="ns=1;i=6006" DataType="Boolean" BrowseName="Deprecated">
+        <DisplayName>Deprecated</DisplayName>
+        <Description>Indicates that all of the DataType definitions represented by the DataTypeDictionaryType are available through a DataTypeDefinition Attribute.</Description>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=6004</Reference>
+        </References>
+        <Value>
+            <uax:Boolean>true</uax:Boolean>
+        </Value>
+    </UAVariable>
+    <UAVariable ParentNodeId="ns=1;i=6004" ReleaseStatus="Deprecated" NodeId="ns=1;i=6005" DataType="String" BrowseName="NamespaceUri">
+        <DisplayName>NamespaceUri</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=6004</Reference>
+        </References>
+        <Value>
+            <uax:String>http://iosb.fraunhofer.de/ILT/AAS/Types.xsd</uax:String>
+        </Value>
+    </UAVariable>
+    <UAReferenceType NodeId="ns=1;i=4003" BrowseName="1:AASHasCommonAttribute">
+        <DisplayName>AASHasCommonAttribute</DisplayName>
+        <References>
+            <Reference ReferenceType="HasSubtype" IsForward="false">i=47</Reference>
+        </References>
+        <InverseName>AASIsCommonAttributeOf</InverseName>
+    </UAReferenceType>
+    <UAVariableType NodeId="ns=1;i=2003" DataType="AASRange" BrowseName="1:AASRangeType">
+        <DisplayName>AASRangeType</DisplayName>
+        <References>
+            <Reference ReferenceType="HasSubtype" IsForward="false">ns=2;i=2005</Reference>
+        </References>
+    </UAVariableType>
+    <UAObject SymbolicName="http___iosb_fraunhofer_de_ILT_AAS_" NodeId="ns=1;i=5003" BrowseName="1:http://iosb.fraunhofer.de/ILT/AAS/">
+        <DisplayName>http://iosb.fraunhofer.de/ILT/AAS/</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=11616</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">i=11715</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=6018</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=6016</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=6017</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=6009</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=6010</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=6011</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=6012</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=6013</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=6014</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=6015</Reference>
+        </References>
+    </UAObject>
+    <UAVariable ParentNodeId="ns=1;i=5003" NodeId="ns=1;i=6018" DataType="AccessRestrictionType" BrowseName="DefaultAccessRestrictions">
+        <DisplayName>DefaultAccessRestrictions</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=5003</Reference>
+        </References>
+        <RolePermissions>
+            <RolePermission Permissions="98">i=15704</RolePermission>
+            <RolePermission Permissions="1">i=15644</RolePermission>
+        </RolePermissions>
+    </UAVariable>
+    <UAVariable ParentNodeId="ns=1;i=5003" ArrayDimensions="0" ValueRank="1" NodeId="ns=1;i=6016" DataType="RolePermissionType" BrowseName="DefaultRolePermissions">
+        <DisplayName>DefaultRolePermissions</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=5003</Reference>
+        </References>
+        <RolePermissions>
+            <RolePermission Permissions="98">i=15704</RolePermission>
+            <RolePermission Permissions="1">i=15644</RolePermission>
+        </RolePermissions>
+    </UAVariable>
+    <UAVariable ParentNodeId="ns=1;i=5003" ArrayDimensions="0" ValueRank="1" NodeId="ns=1;i=6017" DataType="RolePermissionType" BrowseName="DefaultUserRolePermissions">
+        <DisplayName>DefaultUserRolePermissions</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=5003</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable ParentNodeId="ns=1;i=5003" NodeId="ns=1;i=6009" DataType="Boolean" BrowseName="IsNamespaceSubset">
+        <DisplayName>IsNamespaceSubset</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=5003</Reference>
+        </References>
+        <Value>
+            <uax:Boolean>false</uax:Boolean>
+        </Value>
+    </UAVariable>
+    <UAVariable ParentNodeId="ns=1;i=5003" NodeId="ns=1;i=6010" DataType="DateTime" BrowseName="NamespacePublicationDate">
+        <DisplayName>NamespacePublicationDate</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=5003</Reference>
+        </References>
+        <Value>
+            <uax:DateTime>2026-09-09T13:55:45Z</uax:DateTime>
+        </Value>
+    </UAVariable>
+    <UAVariable ParentNodeId="ns=1;i=5003" NodeId="ns=1;i=6011" DataType="String" BrowseName="NamespaceUri">
+        <DisplayName>NamespaceUri</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=5003</Reference>
+        </References>
+        <Value>
+            <uax:String>http://iosb.fraunhofer.de/ILT/AAS/</uax:String>
+        </Value>
+    </UAVariable>
+    <UAVariable ParentNodeId="ns=1;i=5003" NodeId="ns=1;i=6012" DataType="String" BrowseName="NamespaceVersion">
+        <DisplayName>NamespaceVersion</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=5003</Reference>
+        </References>
+        <Value>
+            <uax:String>1.0.0</uax:String>
+        </Value>
+    </UAVariable>
+    <UAVariable ParentNodeId="ns=1;i=5003" ArrayDimensions="0" ValueRank="1" NodeId="ns=1;i=6013" DataType="IdType" BrowseName="StaticNodeIdTypes">
+        <DisplayName>StaticNodeIdTypes</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=5003</Reference>
+        </References>
+        <Value>
+            <uax:ListOfInt32>
+                <uax:Int32>0</uax:Int32>
+            </uax:ListOfInt32>
+        </Value>
+    </UAVariable>
+    <UAVariable ParentNodeId="ns=1;i=5003" ArrayDimensions="0" ValueRank="1" NodeId="ns=1;i=6014" DataType="NumericRange" BrowseName="StaticNumericNodeIdRange">
+        <DisplayName>StaticNumericNodeIdRange</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=5003</Reference>
+        </References>
+        <Value>
+            <uax:ListOfString/>
+        </Value>
+    </UAVariable>
+    <UAVariable ParentNodeId="ns=1;i=5003" NodeId="ns=1;i=6015" DataType="String" BrowseName="StaticStringNodeIdPattern">
+        <DisplayName>StaticStringNodeIdPattern</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=5003</Reference>
+        </References>
+        <Value>
+            <uax:String></uax:String>
+        </Value>
+    </UAVariable>
+    <UAObject SymbolicName="DefaultBinary" NodeId="ns=1;i=5001" BrowseName="Default Binary">
+        <DisplayName>Default Binary</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=76</Reference>
+            <Reference ReferenceType="HasEncoding" IsForward="false">ns=1;i=3003</Reference>
+            <Reference ReferenceType="HasDescription">ns=1;i=6007</Reference>
+        </References>
+    </UAObject>
+    <UAObject SymbolicName="DefaultXml" NodeId="ns=1;i=5002" BrowseName="Default XML">
+        <DisplayName>Default XML</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=76</Reference>
+            <Reference ReferenceType="HasEncoding" IsForward="false">ns=1;i=3003</Reference>
+            <Reference ReferenceType="HasDescription">ns=1;i=6008</Reference>
+        </References>
+    </UAObject>
+</UANodeSet>

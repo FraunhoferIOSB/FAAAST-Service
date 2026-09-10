@@ -66,6 +66,7 @@ import opc.ua.aas.variabletypes.AASMultiLanguagePropertyType;
 import opc.ua.aas.variabletypes.AASPropertyType;
 import opc.ua.aas.variabletypes.AASReferenceElementType;
 import opc.ua.aas.variabletypes.AASSubmodelElementVariableType;
+import opc.ua.iosb.aas.variabletypes.AASRangeType;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.AnnotatedRelationshipElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
@@ -121,7 +122,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     /**
      * The namespace URI of this node manager
      */
-    public static final String NAMESPACE_URI = "http://www.iosb.fraunhofer.de/ILT/AAS/OPCUA";
+    public static final String NAMESPACE_URI = "http://www.iosb.fraunhofer.de/ILT/AAS/FA3ST";
 
     /**
      * The logger for this class
@@ -613,7 +614,10 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
         try {
             if (node instanceof AASSubmodelElementVariableType aasSubmodelElementVariable) {
-                doRemoveFromMaps(aasSubmodelElementVariable, reference, referable);
+                doRemoveFromMaps(aasSubmodelElementVariable, reference);
+            }
+            if (node instanceof AASSubmodelElementObjectType aasSubmodelElementObject) {
+                doRemoveFromMaps(aasSubmodelElementObject, reference, referable);
             }
             else if (referable instanceof Submodel submodel) {
                 doRemoveFromMaps(reference, submodel);
@@ -633,9 +637,8 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      *
      * @param element The desired SubmodelElement
      * @param reference The reference to the desired SubmodelElement
-     * @param referable The corresponding referable
      */
-    private void doRemoveFromMaps(AASSubmodelElementVariableType element, Reference reference, Referable referable) {
+    private void doRemoveFromMaps(AASSubmodelElementVariableType element, Reference reference) {
         LOGGER.atDebug().log("doRemoveFromMaps: remove SubmodelElement {}", ReferenceHelper.toString(reference));
         SubmodelElementIdentifier smid = SubmodelElementIdentifier.fromReference(reference);
         submodelElementOpcUaMap.remove(smid);
@@ -647,26 +650,10 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 LOGGER.debug("doRemoveFromMaps: remove Property NodeId {}", prop.getNodeId());
             }
         }
-        //else if (element instanceof AASRangeType range) {
-        //    if (submodelElementAasMap.containsKey(range.getMinNode().getNodeId())) {
-        //        submodelElementAasMap.remove(range.getMinNode().getNodeId());
-        //        LOG.debug("doRemoveFromMaps: remove Range Min NodeId {}", range.getMinNode().getNodeId());
-        //    }
-        //    if (submodelElementAasMap.containsKey(range.getMaxNode().getNodeId())) {
-        //        submodelElementAasMap.remove(range.getMaxNode().getNodeId());
-        //        LOG.debug("doRemoveFromMaps: remove Range Max NodeId {}", range.getMaxNode().getNodeId());
-        //    }
-        //}
-        else if (element instanceof AASOperationType oper) {
-            if (submodelElementAasMap.containsKey(oper.getOperationNode().getNodeId())) {
-                submodelElementAasMap.remove(oper.getOperationNode().getNodeId());
-                LOGGER.debug("doRemoveFromMaps: remove Operation NodeId {}", oper.getOperationNode().getNodeId());
-            }
-        }
-        else if (element instanceof AASBlobType blob) {
-            if ((blob.getValueNode() != null) && (submodelElementAasMap.containsKey(blob.getValueNode().getNodeId()))) {
-                submodelElementAasMap.remove(blob.getValueNode().getNodeId());
-                LOGGER.debug("doRemoveFromMaps: remove Blob NodeId {}", blob.getValueNode().getNodeId());
+        else if (element instanceof AASRangeType range) {
+            if (submodelElementAasMap.containsKey(range.getNodeId())) {
+                submodelElementAasMap.remove(range.getNodeId());
+                LOGGER.debug("doRemoveFromMaps: remove Range Max NodeId {}", range.getNodeId());
             }
         }
         else if (element instanceof AASMultiLanguagePropertyType mlp) {
@@ -682,6 +669,36 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 LOGGER.debug("doRemoveFromMaps: remove AASReferenceElement NodeId {}", nid);
             }
         }
+
+        // Capability and File are currently not relevant here
+    }
+
+
+    /**
+     * Removes the given SubmodelElement from the maps.
+     *
+     * @param element The desired SubmodelElement
+     * @param reference The reference to the desired SubmodelElement
+     * @param referable The corresponding referable
+     */
+    private void doRemoveFromMaps(AASSubmodelElementObjectType element, Reference reference, Referable referable) {
+        LOGGER.atDebug().log("doRemoveFromMaps: remove SubmodelElement {}", ReferenceHelper.toString(reference));
+        SubmodelElementIdentifier smid = SubmodelElementIdentifier.fromReference(reference);
+        submodelElementOpcUaMap.remove(smid);
+        LOGGER.atDebug().log("doRemoveFromMaps: remove SubmodelElement from submodelElementOpcUAMap: {}", ReferenceHelper.toString(reference));
+
+        if (element instanceof AASOperationType oper) {
+            if (submodelElementAasMap.containsKey(oper.getOperationNode().getNodeId())) {
+                submodelElementAasMap.remove(oper.getOperationNode().getNodeId());
+                LOGGER.debug("doRemoveFromMaps: remove Operation NodeId {}", oper.getOperationNode().getNodeId());
+            }
+        }
+        else if (element instanceof AASBlobType blob) {
+            if ((blob.getValueNode() != null) && (submodelElementAasMap.containsKey(blob.getValueNode().getNodeId()))) {
+                submodelElementAasMap.remove(blob.getValueNode().getNodeId());
+                LOGGER.debug("doRemoveFromMaps: remove Blob NodeId {}", blob.getValueNode().getNodeId());
+            }
+        }
         else if (element instanceof AASRelationshipElementType relElem) {
             doRemoveRelationshipElement(reference, referable, relElem);
         }
@@ -693,8 +710,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 doRemoveFromMaps(reference, se);
             }
         }
-
-        // Capability and File are currently not relevant here
     }
 
 
@@ -748,7 +763,10 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         if (entry != null) {
             ObjectData element = referableMap.remove(entry.getKey());
             if (element.getNode() instanceof AASSubmodelElementVariableType aasSubmodelElementVariable) {
-                doRemoveFromMaps(aasSubmodelElementVariable, ref, de);
+                doRemoveFromMaps(aasSubmodelElementVariable, ref);
+            }
+            else if (element.getNode() instanceof AASSubmodelElementObjectType aasSubmodelElementObject) {
+                doRemoveFromMaps(aasSubmodelElementObject, ref, de);
             }
         }
         else {

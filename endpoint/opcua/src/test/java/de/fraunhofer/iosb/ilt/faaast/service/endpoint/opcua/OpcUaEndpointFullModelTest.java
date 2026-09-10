@@ -834,6 +834,7 @@ public class OpcUaEndpointFullModelTest {
         client.connect();
 
         aasns = client.getAddressSpace().getNamespaceTable().getIndex(Ids.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
+        int iosbns = client.getAddressSpace().getNamespaceTable().getIndex(opc.ua.iosb.aas.Ids.AASRangeType.getNamespaceUri());
 
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
@@ -864,13 +865,13 @@ public class OpcUaEndpointFullModelTest {
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
-        Assert.assertNotNull("testSubmodelElementListOrdered Browse Result Null", bpres);
-        Assert.assertEquals("testSubmodelElementListOrdered Browse Result: size doesn't match", 4, bpres.length);
-        Assert.assertTrue("testSubmodelElementListOrdered Browse Result 1 Good", bpres[0].getStatusCode().isGood());
-        Assert.assertTrue("testSubmodelElementListOrdered Browse Result 2 Good", bpres[1].getStatusCode().isGood());
+        Assert.assertNotNull(bpres);
+        Assert.assertEquals(4, bpres.length);
+        Assert.assertTrue(bpres[0].getStatusCode().isGood());
+        Assert.assertTrue(bpres[1].getStatusCode().isGood());
         // ValueTypeListElement not set
-        Assert.assertTrue("testSubmodelElementListOrdered Browse Result 3 Bad", bpres[2].getStatusCode().isBad());
-        Assert.assertTrue("testSubmodelElementListOrdered Browse Result 4 Good", bpres[3].getStatusCode().isGood());
+        Assert.assertTrue(bpres[2].getStatusCode().isBad());
+        Assert.assertTrue(bpres[3].getStatusCode().isGood());
 
         // OrderRelevant
         BrowsePathTarget[] targets = bpres[0].getTargets();
@@ -903,11 +904,11 @@ public class OpcUaEndpointFullModelTest {
         List<ReferenceDescription> refs = client.getAddressSpace().browse(listNode, BrowseDirection.Forward,
                 client.getAddressSpace().getNamespaceTable().toNodeId(Ids.AASHasOrderedComponent));
         Assert.assertNotNull(refs);
-        Assert.assertEquals(3, refs.size());
+        Assert.assertEquals(4, refs.size());
         Assert.assertEquals(QualifiedName.from(aasns, "ExampleProperty"), refs.get(0).getBrowseName());
         Assert.assertEquals(QualifiedName.from(aasns, "ExampleMultiLanguageProperty"), refs.get(1).getBrowseName());
-        Assert.assertEquals(QualifiedName.from(aasns, "ExampleCapability"), refs.get(2).getBrowseName());
-        //Assert.assertEquals(QualifiedName.from(aasns, "ExampleRange"), refs.get(2).getBrowseName());
+        Assert.assertEquals(QualifiedName.from(iosbns, "ExampleRange"), refs.get(2).getBrowseName());
+        Assert.assertEquals(QualifiedName.from(aasns, "ExampleCapability"), refs.get(3).getBrowseName());
     }
 
 
@@ -919,33 +920,34 @@ public class OpcUaEndpointFullModelTest {
         client.connect();
 
         aasns = client.getAddressSpace().getNamespaceTable().getIndex(Ids.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
+        int iosbns = client.getAddressSpace().getNamespaceTable().getIndex(opc.ua.iosb.aas.Ids.AASRangeType.getNamespaceUri());
 
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_4_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SM_ELEM_COLL_UO_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SM_ELEM_LIST_UO_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HasComponent, false, true, new QualifiedName(aasns, TestConstants.ORDER_RELEVANT)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         browsePath.clear();
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_4_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SM_ELEM_COLL_UO_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SM_ELEM_LIST_UO_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HasComponent, false, true, new QualifiedName(aasns, TestConstants.TYPE_VALUE_LIST_ELEMENT)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         browsePath.clear();
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_4_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SM_ELEM_COLL_UO_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SM_ELEM_LIST_UO_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HasComponent, false, true, new QualifiedName(aasns, TestConstants.VALUE_TYPE_LIST_ELEMENT)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         browsePath.clear();
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_4_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SM_ELEM_COLL_UO_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SM_ELEM_LIST_UO_NAME)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
@@ -986,11 +988,11 @@ public class OpcUaEndpointFullModelTest {
         List<ReferenceDescription> refs = client.getAddressSpace().browse(listNode, BrowseDirection.Forward,
                 client.getAddressSpace().getNamespaceTable().toNodeId(Ids.AASHasOrderedComponent));
         Assert.assertNotNull(refs);
-        Assert.assertEquals(3, refs.size());
+        Assert.assertEquals(4, refs.size());
         Assert.assertEquals(QualifiedName.from(aasns, "ExampleProperty"), refs.get(0).getBrowseName());
         Assert.assertEquals(QualifiedName.from(aasns, "ExampleCollection"), refs.get(1).getBrowseName());
         Assert.assertEquals(QualifiedName.from(aasns, "ExampleMultiLanguageProperty"), refs.get(2).getBrowseName());
-        //Assert.assertEquals(QualifiedName.from(aasns, "ExampleRange"), refs.get(2).getBrowseName());
+        Assert.assertEquals(QualifiedName.from(iosbns, "ExampleRange"), refs.get(3).getBrowseName());
     }
 
 
@@ -1162,14 +1164,14 @@ public class OpcUaEndpointFullModelTest {
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
-        Assert.assertNotNull("testWriteAnnotatedRelationshipAnnotations Browse Result Null", bpres);
-        Assert.assertEquals("testWriteAnnotatedRelationshipAnnotations Browse Result: size doesn't match", 2, bpres.length);
-        Assert.assertTrue("testWriteAnnotatedRelationshipAnnotations Browse Result 1 Good", bpres[0].getStatusCode().isGood());
-        Assert.assertTrue("testWriteAnnotatedRelationshipAnnotations Browse Result 2 Good", bpres[1].getStatusCode().isGood());
+        Assert.assertNotNull(bpres);
+        Assert.assertEquals(2, bpres.length);
+        Assert.assertTrue(bpres[0].getStatusCode().isGood());
+        Assert.assertTrue(bpres[1].getStatusCode().isGood());
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
-        Assert.assertNotNull("testWriteAnnotatedRelationshipAnnotations Property Null", targets);
-        Assert.assertTrue("testWriteAnnotatedRelationshipAnnotations Property empty", targets.length > 0);
+        Assert.assertNotNull(targets);
+        Assert.assertTrue(targets.length > 0);
 
         // SubmodelElementVariable
         NodeId writeVariable = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());

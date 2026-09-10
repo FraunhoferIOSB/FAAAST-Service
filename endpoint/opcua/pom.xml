@@ -168,6 +168,7 @@
                                     <targets>all</targets>
                                     <uris>
                                         <uri>http://opcfoundation.org/UA/AAS/</uri>
+                                        <uri>http://iosb.fraunhofer.de/ILT/AAS/</uri>
                                     </uris>
                                     <outputs>
                                         <code>${dir.generated-code}</code>
@@ -179,6 +180,10 @@
                                 <namespaceMapping>
                                     <uri>http://opcfoundation.org/UA/AAS/</uri>
                                     <packageName>opc.ua.aas</packageName>
+                                </namespaceMapping>
+                                <namespaceMapping>
+                                    <uri>http://iosb.fraunhofer.de/ILT/AAS/</uri>
+                                    <packageName>opc.ua.iosb.aas</packageName>
                                 </namespaceMapping>
                             </namespaceMappings>
                         </configuration>
