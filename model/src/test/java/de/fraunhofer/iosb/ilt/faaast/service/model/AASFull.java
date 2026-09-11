@@ -1359,7 +1359,6 @@ public class AASFull {
                                 .build())
                         .type(ReferenceTypes.EXTERNAL_REFERENCE)
                         .build())
-                .kind(ModellingKind.TEMPLATE)
                 .submodelElements(new DefaultRelationshipElement.Builder()
                         .idShort("ExampleRelationshipElement")
                         .category("PARAMETER")
