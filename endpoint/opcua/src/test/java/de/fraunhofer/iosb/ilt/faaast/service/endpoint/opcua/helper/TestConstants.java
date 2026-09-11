@@ -20,6 +20,7 @@ import com.prosysopc.ua.stack.builtintypes.ExpandedNodeId;
 public class TestConstants {
 
     public static final String AAS_NAMESPACE_URI = "http://opcfoundation.org/UA/AAS/";
+    public static final String ILT_NAMESPACE_URI = "http://iosb.fraunhofer.de/ILT/AAS/";
     public static final String AAS_ENVIRONMENT_NAME = "AASEnvironment";
     public static final String SIMPLE_AAS_NAME = "ExampleMotor";
     public static final String SIMPLE_ASSET_NAME = "ServoDCMotor";
@@ -69,6 +70,7 @@ public class TestConstants {
     public static final String FULL_SUBMODEL_6_NAME = "TestSubmodel6";
     public static final String FULL_SUBMODEL_6_ID = "https://acplt.org/Test_Submodel_Missing";
     public static final String FULL_SUBMODEL_7_NAME = "TestSubmodelTemplate";
+    public static final String FULL_SUBMODEL_7_ID = "https://acplt.org/Test_Submodel_Template";
     public static final String FULL_REL_ELEMENT_NAME = "ExampleRelationshipElement";
     public static final String FULL_SM_ELEM_LIST_UO_NAME = "ExampleSubmodelElementListUnordered";
     public static final String FULL_SM_ELEM_COLL_NAME = "ExampleSubmodelElementCollection";
@@ -91,6 +93,9 @@ public class TestConstants {
     public static final String DEFAULT_THUMB_NAME = "DefaultThumbnail";
     public static final String GLOBAL_ASSET_ID_NAME = "GlobalAssetId";
     public static final String CONCEPT_DESCRIPTION_NAME = "ConceptDescription";
+    public static final String EVENT_DIRECTION = "Direction";
+    public static final String EVENT_STATE = "State";
+    public static final String EVENT_OBSERVED = "Observed";
 
     public static final String COMMON_ATTRIBUTES = "CommonAttributes";
     public static final String OPERATING_MANUAL_CONCEPT_DESCRIPTION = "http://www.vdi2770.com/blatt1/Entwurf/Okt18/cd/Document";
@@ -108,6 +113,7 @@ public class TestConstants {
     public static final ExpandedNodeId ASSET_KIND_TYPE = new ExpandedNodeId(AAS_NAMESPACE_URI, 3029);
     public static final ExpandedNodeId SPECIFIC_ASSET_TYPE = new ExpandedNodeId(AAS_NAMESPACE_URI, 3028);
     public static final ExpandedNodeId RESOURCE_TYPE = new ExpandedNodeId(AAS_NAMESPACE_URI, 1029);
+    public static final ExpandedNodeId BASIC_EVENT_TYPE = new ExpandedNodeId(ILT_NAMESPACE_URI, 1006);
 
     public static final String SERVER_CERT_PATH = "PKI/CA";
     public static final String USER_CERT_PATH = "USERS_PKI/CA";

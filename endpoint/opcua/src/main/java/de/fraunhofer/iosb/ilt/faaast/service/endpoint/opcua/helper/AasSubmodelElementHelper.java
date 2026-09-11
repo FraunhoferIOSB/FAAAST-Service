@@ -33,7 +33,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.EntityCreato
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.ReferenceCreator;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ValueData;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.AnnotatedRelationshipElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.BlobValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
@@ -65,7 +64,6 @@ import opc.ua.iosb.aas.datatypes.AASRange;
 import opc.ua.iosb.aas.variabletypes.AASRangeType;
 import org.eclipse.digitaltwin.aas4j.v3.model.LangStringTextType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Property;
-import org.eclipse.digitaltwin.aas4j.v3.model.Range;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -226,27 +224,20 @@ public class AasSubmodelElementHelper {
 
 
     /**
-     * Sets the values for the given Range from the corresponding AAS Tange.
+     * Sets the value for the given Range.
      *
-     * @param aasRange The AAS Range.
-     * @param range The OPC UA Range.
-     * @throws ValueMappingException Error when mapping to ElementValue fails
+     * @param range The desired Range.
+     * @param value The new value
      * @throws StatusException If the operation fails
      */
-    public static void setRangeValue(Range aasRange, AASRangeType range) throws ValueMappingException, StatusException {
-        RangeValue<?> typedValue = ElementValueMapper.toValue(aasRange, RangeValue.class);
-        setRangeValue(range, typedValue);
+    public static void setRangeValue(AASRangeType range, RangeValue<?> value) throws StatusException {
+        AASRange rangeValue = new AASRange();
+        rangeValue.setMin(ValueConverter.convertTypedValue(value.getMin()));
+        rangeValue.setMax(ValueConverter.convertTypedValue(value.getMax()));
+        range.setValue(rangeValue);
     }
 
 
-    /**
-     * Sets the values for the given DataElement.
-     *
-     * @param node The desired DataElement.
-     * @param value The new value.
-     * @param nodeManager The corresponding Node Manager.
-     * @throws StatusException If the operation fails
-     */
     private static void setDataElementValue(UaNode node, DataElementValue value, NodeManagerUaNode nodeManager) throws StatusException {
         if ((node instanceof AASPropertyType propertyTypeNode) && (value instanceof PropertyValue propertyValue)) {
             setPropertyValue(propertyTypeNode, propertyValue);
@@ -273,28 +264,12 @@ public class AasSubmodelElementHelper {
     }
 
 
-    /**
-     * Sets the value of a property.
-     *
-     * @param property The desired Property
-     * @param value The new value.
-     * @throws StatusException If the operation fails.
-     */
     private static void setPropertyValue(AASPropertyType property, PropertyValue value) throws StatusException {
         LOGGER.trace("setPropertyValue: {} to {}", property.getBrowseName().getName(), value.getValue());
         property.setValue(ValueConverter.convertTypedValue(value.getValue()));
     }
 
 
-    /**
-     * Sets the values for the given Entity.
-     *
-     * @param entity The desired Entity.
-     * @param value The new value.
-     * @param nodeManager The corresponding Node Manager.
-     * @throws StatusException If the operation fails
-     * @throws ValueFormatException The data format of the value is invalid
-     */
     private static void setEntityPropertyValue(AASEntityType entity, EntityValue value, NodeManagerUaNode nodeManager)
             throws StatusException, ValueFormatException, ServiceResultException {
         // EntityType
@@ -330,14 +305,6 @@ public class AasSubmodelElementHelper {
     }
 
 
-    /**
-     * Sets the values for the given File.
-     *
-     * @param file The desired file.
-     * @param value The new value
-     * @param nodeManager The corresponding Node Manager.
-     * @throws StatusException If the operation fails
-     */
     private static void setFilePropertyValue(AASFileType file, FileValue value, NodeManagerUaNode nodeManager) throws StatusException {
         file.setContentType(value.getContentType());
         if (value.getValue() != null) {
@@ -350,14 +317,6 @@ public class AasSubmodelElementHelper {
     }
 
 
-    /**
-     * Sets the values for the given Blob.
-     *
-     * @param blob The desired blob.
-     * @param value The new value
-     * @param nodeManager The corresponding Node Manager.
-     * @throws StatusException If the operation fails
-     */
     private static void setBlobValue(AASBlobType blob, BlobValue value, NodeManagerUaNode nodeManager) throws StatusException {
         // MimeType
         blob.setContentType(value.getContentType());
@@ -373,13 +332,6 @@ public class AasSubmodelElementHelper {
     }
 
 
-    /**
-     * Sets the value for the given ReferenceElement.
-     *
-     * @param refElement The desired ReferenceElement.
-     * @param value The new value.
-     * @throws StatusException If the operation fails
-     */
     private static void setReferenceElementValue(AASReferenceElementType refElement, ReferenceElementValue value) throws StatusException {
         ReferenceCreator.setAasReferenceData(value.getValue(), refElement);
     }
@@ -415,21 +367,6 @@ public class AasSubmodelElementHelper {
             retval += list2.size();
         }
         return retval;
-    }
-
-
-    /**
-     * Sets the value for the given Range.
-     *
-     * @param range The desired Range.
-     * @param value The new value
-     * @throws StatusException If the operation fails
-     */
-    private static void setRangeValue(AASRangeType range, RangeValue<?> value) throws StatusException {
-        AASRange rangeValue = new AASRange();
-        rangeValue.setMin(ValueConverter.convertTypedValue(value.getMin()));
-        rangeValue.setMax(ValueConverter.convertTypedValue(value.getMax()));
-        range.setValue(rangeValue);
     }
 
 }

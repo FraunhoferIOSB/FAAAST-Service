@@ -68,6 +68,8 @@ import opc.ua.aas.datatypes.AASSpecificAssetId;
 import opc.ua.aas.datatypes.AASSubmodelCommonAttributes;
 import opc.ua.aas.datatypes.AASSubmodelElementCommonAttributes;
 import opc.ua.aas.objecttypes.AASAssetInformationType;
+import opc.ua.iosb.aas.datatypes.AASDirection;
+import opc.ua.iosb.aas.datatypes.AASStateOfEvent;
 import org.awaitility.Awaitility;
 import org.eclipse.digitaltwin.aas4j.v3.model.Qualifier;
 import org.junit.Assert;
@@ -526,6 +528,54 @@ public class TestUtils {
             throws ServiceException, ServiceResultException, StatusException {
         NodeId submodelElementNode = getSubmodelElement(aasns, name, client, baseNodeId);
         checkConceptDescription(client, submodelElementNode, aasns, id, version, revision, data);
+    }
+
+
+    public static void checkBasicEvent(UaClient client, NodeId submodelNode, int aasns, int iltns, String name, String category, AASDirection direction, AASStateOfEvent state,
+                                       AASReference observed)
+            throws ServiceException, ServiceResultException, AddressSpaceException, StatusException {
+        NodeId eventNode = getSubmodelElement(iltns, name, client, submodelNode);
+
+        checkType(client, eventNode, TestConstants.BASIC_EVENT_TYPE);
+        checkDisplayName(client, eventNode, name);
+
+        checkSubmodelElementCommonAttributes(client, aasns, eventNode, category, null);
+
+        List<RelativePath> relPath = new ArrayList<>();
+        List<RelativePathElement> browsePath = new ArrayList<>();
+        browsePath.add(new RelativePathElement(client.getAddressSpace().getNamespaceTable().toNodeId(Ids.AASHasAttribute), false, true,
+                new QualifiedName(iltns, TestConstants.EVENT_DIRECTION)));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+        browsePath.clear();
+        browsePath.add(new RelativePathElement(client.getAddressSpace().getNamespaceTable().toNodeId(Ids.AASHasAttribute), false, true,
+                new QualifiedName(iltns, TestConstants.EVENT_STATE)));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+        browsePath.clear();
+        browsePath.add(new RelativePathElement(client.getAddressSpace().getNamespaceTable().toNodeId(Ids.AASHasAttribute), false, true,
+                new QualifiedName(iltns, TestConstants.EVENT_OBSERVED)));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+
+        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(eventNode, relPath.toArray(RelativePath[]::new));
+        Assert.assertNotNull(bpres);
+        Assert.assertEquals(3, bpres.length);
+
+        // Direction
+        BrowsePathTarget[] targets = bpres[0].getTargets();
+        Assert.assertNotNull(targets);
+        Assert.assertTrue(targets.length > 0);
+        DataValue value = client.readValue(targets[0].getTargetId());
+        Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
+        Assert.assertNotNull(value.getValue());
+        Assert.assertEquals(direction, value.getValue().asOptionSet(AASDirection.SPECIFICATION));
+
+        // State
+        targets = bpres[1].getTargets();
+        Assert.assertNotNull(targets);
+        Assert.assertTrue(targets.length > 0);
+        value = client.readValue(targets[0].getTargetId());
+        Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
+        Assert.assertNotNull(value.getValue());
+        Assert.assertEquals(state, value.getValue().asOptionSet(AASStateOfEvent.SPECIFICATION));
     }
 
 

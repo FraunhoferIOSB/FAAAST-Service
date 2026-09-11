@@ -15,6 +15,8 @@
         <Alias Alias="String">i=12</Alias>
         <Alias Alias="DateTime">i=13</Alias>
         <Alias Alias="ByteString">i=15</Alias>
+        <Alias Alias="LocalizedText">i=21</Alias>
+        <Alias Alias="HasModellingRule">i=37</Alias>
         <Alias Alias="HasEncoding">i=38</Alias>
         <Alias Alias="HasDescription">i=39</Alias>
         <Alias Alias="HasTypeDefinition">i=40</Alias>
@@ -25,13 +27,76 @@
         <Alias Alias="RolePermissionType">i=96</Alias>
         <Alias Alias="IdType">i=256</Alias>
         <Alias Alias="NumericRange">i=291</Alias>
+        <Alias Alias="UtcTime">i=294</Alias>
+        <Alias Alias="DurationString">i=12879</Alias>
+        <Alias Alias="AASReference">ns=2;i=3005</Alias>
+        <Alias Alias="AASMessageTopicType">ns=2;i=3021</Alias>
+        <Alias Alias="AASHasAttribute">ns=2;i=4000</Alias>
         <Alias Alias="AASRange">ns=1;i=3003</Alias>
+        <Alias Alias="AASDirection">ns=1;i=3042</Alias>
+        <Alias Alias="AASStateOfEvent">ns=1;i=3068</Alias>
     </Aliases>
     <Extensions>
         <Extension>
-            <ua:ModelInfo Tool="UaModeler" Version="1.8.2" Hash="LPP8PCVQdruthEJkxq5n4A=="/>
+            <ua:ModelInfo Tool="UaModeler" Version="1.8.2" Hash="ujOUQS8pSss7YcMSvOpDlg=="/>
         </Extension>
     </Extensions>
+    <UADataType NodeId="ns=1;i=3042" BrowseName="1:AASDirection">
+        <DisplayName>AASDirection</DisplayName>
+        <References>
+            <Reference ReferenceType="HasSubtype" IsForward="false">i=5</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=6019</Reference>
+        </References>
+        <Definition Name="1:AASDirection" IsOptionSet="true">
+            <Field Name="input" Value="0"/>
+            <Field Name="output" Value="1"/>
+        </Definition>
+    </UADataType>
+    <UAVariable ParentNodeId="ns=1;i=3042" ArrayDimensions="2" ValueRank="1" NodeId="ns=1;i=6019" DataType="LocalizedText" BrowseName="OptionSetValues">
+        <DisplayName>OptionSetValues</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=3042</Reference>
+        </References>
+        <Value>
+            <uax:ListOfLocalizedText>
+                <uax:LocalizedText>
+                    <uax:Text>input</uax:Text>
+                </uax:LocalizedText>
+                <uax:LocalizedText>
+                    <uax:Text>output</uax:Text>
+                </uax:LocalizedText>
+            </uax:ListOfLocalizedText>
+        </Value>
+    </UAVariable>
+    <UADataType NodeId="ns=1;i=3068" BrowseName="1:AASStateOfEvent">
+        <DisplayName>AASStateOfEvent</DisplayName>
+        <References>
+            <Reference ReferenceType="HasSubtype" IsForward="false">i=5</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=6020</Reference>
+        </References>
+        <Definition Name="1:AASStateOfEvent" IsOptionSet="true">
+            <Field Name="on" Value="0"/>
+            <Field Name="off" Value="1"/>
+        </Definition>
+    </UADataType>
+    <UAVariable ParentNodeId="ns=1;i=3068" ArrayDimensions="2" ValueRank="1" NodeId="ns=1;i=6020" DataType="LocalizedText" BrowseName="OptionSetValues">
+        <DisplayName>OptionSetValues</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=3068</Reference>
+        </References>
+        <Value>
+            <uax:ListOfLocalizedText>
+                <uax:LocalizedText>
+                    <uax:Text>on</uax:Text>
+                </uax:LocalizedText>
+                <uax:LocalizedText>
+                    <uax:Text>off</uax:Text>
+                </uax:LocalizedText>
+            </uax:ListOfLocalizedText>
+        </Value>
+    </UAVariable>
     <UADataType NodeId="ns=1;i=3003" BrowseName="1:AASRange">
         <DisplayName>AASRange</DisplayName>
         <References>
@@ -91,7 +156,14 @@
         mllbGQgTmFtZT0iTWluIiBTd2l0Y2hGaWVsZD0iTWluU3BlY2lmaWVkIiBUeXBlTmFtZT0id
         WE6VmFyaWFudCIvPgogIDxvcGM6RmllbGQgTmFtZT0iTWF4IiBTd2l0Y2hGaWVsZD0iTWF4U
         3BlY2lmaWVkIiBUeXBlTmFtZT0idWE6VmFyaWFudCIvPgogPC9vcGM6U3RydWN0dXJlZFR5c
-        GU+Cjwvb3BjOlR5cGVEaWN0aW9uYXJ5Pgo=</uax:ByteString>
+        GU+CiA8b3BjOkVudW1lcmF0ZWRUeXBlIE5hbWU9IkFBU0RpcmVjdGlvbiIgSXNPcHRpb25TZ
+        XQ9InRydWUiIExlbmd0aEluQml0cz0iMTYiPgogIDxvcGM6RW51bWVyYXRlZFZhbHVlIE5hb
+        WU9ImlucHV0IiBWYWx1ZT0iMCIvPgogIDxvcGM6RW51bWVyYXRlZFZhbHVlIE5hbWU9Im91d
+        HB1dCIgVmFsdWU9IjEiLz4KIDwvb3BjOkVudW1lcmF0ZWRUeXBlPgogPG9wYzpFbnVtZXJhd
+        GVkVHlwZSBOYW1lPSJBQVNTdGF0ZU9mRXZlbnQiIElzT3B0aW9uU2V0PSJ0cnVlIiBMZW5nd
+        GhJbkJpdHM9IjE2Ij4KICA8b3BjOkVudW1lcmF0ZWRWYWx1ZSBOYW1lPSJvbiIgVmFsdWU9I
+        jAiLz4KICA8b3BjOkVudW1lcmF0ZWRWYWx1ZSBOYW1lPSJvZmYiIFZhbHVlPSIxIi8+CiA8L
+        29wYzpFbnVtZXJhdGVkVHlwZT4KPC9vcGM6VHlwZURpY3Rpb25hcnk+Cg==</uax:ByteString>
         </Value>
     </UAVariable>
     <UAVariable ParentNodeId="ns=1;i=6001" ReleaseStatus="Deprecated" NodeId="ns=1;i=6003" DataType="Boolean" BrowseName="Deprecated">
@@ -181,6 +253,90 @@
             <Reference ReferenceType="HasSubtype" IsForward="false">ns=2;i=2005</Reference>
         </References>
     </UAVariableType>
+    <UAObjectType NodeId="ns=1;i=1003" BrowseName="1:AASEventElementType">
+        <DisplayName>AASEventElementType</DisplayName>
+        <References>
+            <Reference ReferenceType="HasSubtype" IsForward="false">ns=2;i=1003</Reference>
+        </References>
+    </UAObjectType>
+    <UAObjectType NodeId="ns=1;i=1006" BrowseName="1:AASBasicEventElementType">
+        <DisplayName>AASBasicEventElementType</DisplayName>
+        <References>
+            <Reference ReferenceType="HasSubtype" IsForward="false">ns=1;i=1003</Reference>
+            <Reference ReferenceType="AASHasAttribute">ns=1;i=6022</Reference>
+            <Reference ReferenceType="AASHasAttribute">ns=1;i=6026</Reference>
+            <Reference ReferenceType="AASHasAttribute">ns=1;i=6028</Reference>
+            <Reference ReferenceType="AASHasAttribute">ns=1;i=6025</Reference>
+            <Reference ReferenceType="AASHasAttribute">ns=1;i=6024</Reference>
+            <Reference ReferenceType="AASHasAttribute">ns=1;i=6027</Reference>
+            <Reference ReferenceType="AASHasAttribute">ns=1;i=6021</Reference>
+            <Reference ReferenceType="AASHasAttribute">ns=1;i=6023</Reference>
+        </References>
+    </UAObjectType>
+    <UAVariable ParentNodeId="ns=1;i=1006" AccessLevel="3" NodeId="ns=1;i=6022" DataType="AASDirection" BrowseName="1:Direction">
+        <DisplayName>Direction</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+            <Reference ReferenceType="HasModellingRule">i=78</Reference>
+            <Reference ReferenceType="AASHasAttribute" IsForward="false">ns=1;i=1006</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable ParentNodeId="ns=1;i=1006" AccessLevel="3" NodeId="ns=1;i=6026" DataType="UtcTime" BrowseName="1:LastUpdate">
+        <DisplayName>LastUpdate</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+            <Reference ReferenceType="HasModellingRule">i=80</Reference>
+            <Reference ReferenceType="AASHasAttribute" IsForward="false">ns=1;i=1006</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable ParentNodeId="ns=1;i=1006" AccessLevel="3" NodeId="ns=1;i=6028" DataType="DurationString" BrowseName="1:MaxInterval">
+        <DisplayName>MaxInterval</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+            <Reference ReferenceType="HasModellingRule">i=80</Reference>
+            <Reference ReferenceType="AASHasAttribute" IsForward="false">ns=1;i=1006</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable ParentNodeId="ns=1;i=1006" AccessLevel="3" NodeId="ns=1;i=6025" DataType="AASReference" BrowseName="1:MessageBroker">
+        <DisplayName>MessageBroker</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+            <Reference ReferenceType="HasModellingRule">i=80</Reference>
+            <Reference ReferenceType="AASHasAttribute" IsForward="false">ns=1;i=1006</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable ParentNodeId="ns=1;i=1006" AccessLevel="3" NodeId="ns=1;i=6024" DataType="AASMessageTopicType" BrowseName="1:MessageTopic">
+        <DisplayName>MessageTopic</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+            <Reference ReferenceType="HasModellingRule">i=80</Reference>
+            <Reference ReferenceType="AASHasAttribute" IsForward="false">ns=1;i=1006</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable ParentNodeId="ns=1;i=1006" AccessLevel="3" NodeId="ns=1;i=6027" DataType="DurationString" BrowseName="1:MinInterval">
+        <DisplayName>MinInterval</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+            <Reference ReferenceType="HasModellingRule">i=80</Reference>
+            <Reference ReferenceType="AASHasAttribute" IsForward="false">ns=1;i=1006</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable ParentNodeId="ns=1;i=1006" AccessLevel="3" NodeId="ns=1;i=6021" DataType="AASReference" BrowseName="1:Observed">
+        <DisplayName>Observed</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+            <Reference ReferenceType="HasModellingRule">i=78</Reference>
+            <Reference ReferenceType="AASHasAttribute" IsForward="false">ns=1;i=1006</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable ParentNodeId="ns=1;i=1006" AccessLevel="3" NodeId="ns=1;i=6023" DataType="AASStateOfEvent" BrowseName="1:State">
+        <DisplayName>State</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+            <Reference ReferenceType="HasModellingRule">i=78</Reference>
+            <Reference ReferenceType="AASHasAttribute" IsForward="false">ns=1;i=1006</Reference>
+        </References>
+    </UAVariable>
     <UAObject SymbolicName="http___iosb_fraunhofer_de_ILT_AAS_" NodeId="ns=1;i=5003" BrowseName="1:http://iosb.fraunhofer.de/ILT/AAS/">
         <DisplayName>http://iosb.fraunhofer.de/ILT/AAS/</DisplayName>
         <References>

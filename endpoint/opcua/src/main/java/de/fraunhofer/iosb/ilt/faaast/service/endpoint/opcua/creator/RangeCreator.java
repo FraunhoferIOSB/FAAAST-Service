@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator;
 
+import com.prosysopc.ua.StatusException;
 import com.prosysopc.ua.UaQualifiedName;
 import com.prosysopc.ua.nodes.UaNode;
 import com.prosysopc.ua.stack.builtintypes.LocalizedText;
@@ -23,6 +24,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManage
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.AasSubmodelElementHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.RangeValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import opc.ua.iosb.aas.Ids;
 import opc.ua.iosb.aas.variabletypes.AASRangeType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Range;
@@ -63,7 +67,7 @@ public class RangeCreator extends SubmodelElementCreator {
 
             addSubmodelElementBaseData(rangeNode, aasRange, nodeManager);
 
-            AasSubmodelElementHelper.setRangeValue(aasRange, rangeNode);
+            setRangeValue(aasRange, rangeNode);
 
             nodeManager.addSubmodelElementOpcUA(rangeRef, rangeNode);
             nodeManager.addSubmodelElementAasMap(nid, new SubmodelElementData(aasRange, submodel, SubmodelElementData.Type.RANGE_VALUE, rangeRef));
@@ -75,6 +79,12 @@ public class RangeCreator extends SubmodelElementCreator {
             LOGGER.error("createAasRange Exception", ex);
         }
         return retval;
+    }
+
+
+    private static void setRangeValue(Range aasRange, AASRangeType range) throws ValueMappingException, StatusException {
+        RangeValue<?> typedValue = ElementValueMapper.toValue(aasRange, RangeValue.class);
+        AasSubmodelElementHelper.setRangeValue(range, typedValue);
     }
 
 }

@@ -352,16 +352,18 @@ public class OpcUaEndpointSimpleModelTest {
 
         NodeId writeNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
 
-        List<AASKey> oldKeys = new ArrayList<>();
-        oldKeys.add(new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Submodel), TestConstants.SUBMODEL_TECH_DATA_NAME));
-        oldKeys.add(new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Property), TestConstants.MAX_ROTATION_SPEED_NAME));
-        AASReference oldValue = new AASReference(AASReferenceTypes.of(UnsignedShort.valueOf(0)), null, oldKeys.toArray(AASKey[]::new));
+        AASKey[] oldKeys = {
+                new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Submodel), TestConstants.SUBMODEL_TECH_DATA_NAME),
+                new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Property), TestConstants.MAX_ROTATION_SPEED_NAME)
+        };
+        AASReference oldValue = new AASReference(AASReferenceTypes.of(UnsignedShort.valueOf(0)), null, oldKeys);
 
         // The DataElementValueMapper changes the order of the elements
-        List<AASKey> newKeys = new ArrayList<>();
-        newKeys.add(new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Submodel), TestConstants.SUBMODEL_TECH_DATA_NAME));
-        newKeys.add(new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Property), "Another property"));
-        AASReference newValue = new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ModelReference), null, newKeys.toArray(AASKey[]::new));
+        AASKey[] newKeys = {
+                new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Submodel), TestConstants.SUBMODEL_TECH_DATA_NAME),
+                new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Property), "Another property")
+        };
+        AASReference newValue = new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ModelReference), null, newKeys);
 
         TestUtils.writeNewValueReference(client, writeNode, oldValue, newValue);
     }

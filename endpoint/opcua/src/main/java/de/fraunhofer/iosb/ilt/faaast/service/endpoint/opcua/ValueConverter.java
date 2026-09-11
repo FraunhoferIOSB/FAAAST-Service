@@ -79,13 +79,16 @@ import opc.ua.aas.datatypes.AASReference;
 import opc.ua.aas.datatypes.AASReferenceTypes;
 import opc.ua.aas.datatypes.AASSubmodelElements;
 import opc.ua.aas.datatypes.AASValueReferencePair;
+import opc.ua.iosb.aas.datatypes.AASDirection;
 import opc.ua.iosb.aas.datatypes.AASRange;
+import opc.ua.iosb.aas.datatypes.AASStateOfEvent;
 import org.eclipse.digitaltwin.aas4j.v3.model.AasSubmodelElements;
 import org.eclipse.digitaltwin.aas4j.v3.model.AbstractLangString;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
 import org.eclipse.digitaltwin.aas4j.v3.model.Blob;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeIec61360;
+import org.eclipse.digitaltwin.aas4j.v3.model.Direction;
 import org.eclipse.digitaltwin.aas4j.v3.model.Entity;
 import org.eclipse.digitaltwin.aas4j.v3.model.EntityType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Key;
@@ -101,6 +104,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceTypes;
 import org.eclipse.digitaltwin.aas4j.v3.model.RelationshipElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.StateOfEvent;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.ValueList;
 import org.eclipse.digitaltwin.aas4j.v3.model.ValueReferencePair;
@@ -126,8 +130,8 @@ public class ValueConverter {
     private static final List<TypeMapper<ReferenceTypes, AASReferenceTypes>> REFERENCE_TYPES_LIST;
     private static final List<TypeMapper<EntityType, AASEntityEnumType>> ENTITY_TYPE_LIST;
     private static final List<TypeMapper<KeyTypes, AASKeyTypes>> KEY_ELEMENTS_LIST;
-    //private static final List<TypeMapper<Direction, AASDirection>> DIRECTION_LIST;
-    //private static final List<TypeMapper<StateOfEvent, AASStateOfEvent>> STATE_OF_EVENT_LIST;
+    private static final List<TypeMapper<Direction, AASDirection>> DIRECTION_LIST;
+    private static final List<TypeMapper<StateOfEvent, AASStateOfEvent>> STATE_OF_EVENT_LIST;
     private static final List<TypeMapper<AasSubmodelElements, AASSubmodelElements>> SUBMODEL_ELEMENTS_DATATYPE;
 
     private static class DatatypeMapper {
@@ -253,13 +257,13 @@ public class ValueConverter {
         KEY_ELEMENTS_LIST.add(new TypeMapper<>(KeyTypes.SUBMODEL_ELEMENT_COLLECTION, AASKeyTypes.of(AASKeyTypes.Options.SubmodelElementCollection)));
         KEY_ELEMENTS_LIST.add(new TypeMapper<>(KeyTypes.SUBMODEL_ELEMENT_LIST, AASKeyTypes.of(AASKeyTypes.Options.SubmodelElementList)));
 
-        //DIRECTION_LIST = new ArrayList<>();
-        //DIRECTION_LIST.add(new TypeMapper<>(Direction.INPUT, AASDirection.of(AASDirection.Options.input)));
-        //DIRECTION_LIST.add(new TypeMapper<>(Direction.OUTPUT, AASDirection.of(AASDirection.Options.output)));
+        DIRECTION_LIST = new ArrayList<>();
+        DIRECTION_LIST.add(new TypeMapper<>(Direction.INPUT, AASDirection.of(AASDirection.Options.input)));
+        DIRECTION_LIST.add(new TypeMapper<>(Direction.OUTPUT, AASDirection.of(AASDirection.Options.output)));
 
-        //STATE_OF_EVENT_LIST = new ArrayList<>();
-        //STATE_OF_EVENT_LIST.add(new TypeMapper<>(StateOfEvent.ON, AASStateOfEvent.of(AASStateOfEvent.Options.on)));
-        //STATE_OF_EVENT_LIST.add(new TypeMapper<>(StateOfEvent.OFF, AASStateOfEvent.of(AASStateOfEvent.Options.off)));
+        STATE_OF_EVENT_LIST = new ArrayList<>();
+        STATE_OF_EVENT_LIST.add(new TypeMapper<>(StateOfEvent.ON, AASStateOfEvent.of(AASStateOfEvent.Options.on)));
+        STATE_OF_EVENT_LIST.add(new TypeMapper<>(StateOfEvent.OFF, AASStateOfEvent.of(AASStateOfEvent.Options.off)));
 
         SUBMODEL_ELEMENTS_DATATYPE = new ArrayList<>();
         SUBMODEL_ELEMENTS_DATATYPE
@@ -906,6 +910,7 @@ public class ValueConverter {
         return retval;
     }
 
+
     /**
      * Converts the given Direction value to the corresponding
      * AASDirectionDataType
@@ -913,38 +918,40 @@ public class ValueConverter {
      * @param value The desired Direction value.
      * @return The converted AASDirectionDataType.
      */
-    //public static AASDirection getAasDirectionDataType(Direction value) {
-    //    AASDirection retval = null;
-    //    var rv = DIRECTION_LIST.stream().filter(m -> m.aasObject == value).findAny();
-    //    if (rv.isEmpty()) {
-    //        LOGGER.warn("getAasDirectionDataType: unknown value {}", value);
-    //        throw new IllegalArgumentException("unknown Direction: " + value);
-    //    }
-    //    else {
-    //        retval = rv.get().opcuaObject;
-    //    }
-    //    return retval;
-    //}
-    // /**
-    // * Converts the given StateOfEvent to the corresponding
-    // * AASStateOfEventDataType.
-    // *
-    // * @param value The desired StateOfEvent
-    // * @return The corresponding AASStateOfEventDataType
-    // */
-    //
-    //public static AASStateOfEvent getAasStateOfEventType(StateOfEvent value) {
-    //    AASStateOfEvent retval;
-    //    var rv = STATE_OF_EVENT_LIST.stream().filter(m -> m.aasObject == value).findAny();
-    //    if (rv.isEmpty()) {
-    //        LOGGER.warn("getAasStateOfEvent: unknown value {}", value);
-    //        throw new IllegalArgumentException("unknown StateOfEvent: " + value);
-    //    }
-    //    else {
-    //        retval = rv.get().opcuaObject;
-    //    }
-    //    return retval;
-    //}
+    public static AASDirection getAasDirectionDataType(Direction value) {
+        AASDirection retval = null;
+        var rv = DIRECTION_LIST.stream().filter(m -> m.aasObject == value).findAny();
+        if (rv.isEmpty()) {
+            LOGGER.warn("getAasDirectionDataType: unknown value {}", value);
+            throw new IllegalArgumentException("unknown Direction: " + value);
+        }
+        else {
+            retval = rv.get().opcuaObject;
+        }
+        return retval;
+    }
+
+
+    /**
+     * Converts the given StateOfEvent to the corresponding
+     * AASStateOfEventDataType.
+     *
+     * @param value The desired StateOfEvent
+     * @return The corresponding AASStateOfEventDataType
+     */
+
+    public static AASStateOfEvent getAasStateOfEventType(StateOfEvent value) {
+        AASStateOfEvent retval;
+        var rv = STATE_OF_EVENT_LIST.stream().filter(m -> m.aasObject == value).findAny();
+        if (rv.isEmpty()) {
+            LOGGER.warn("getAasStateOfEvent: unknown value {}", value);
+            throw new IllegalArgumentException("unknown StateOfEvent: " + value);
+        }
+        else {
+            retval = rv.get().opcuaObject;
+        }
+        return retval;
+    }
 
 
     /**

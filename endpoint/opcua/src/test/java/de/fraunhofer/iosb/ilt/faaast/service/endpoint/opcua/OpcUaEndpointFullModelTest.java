@@ -70,6 +70,8 @@ import opc.ua.aas.datatypes.AASReferenceTypes;
 import opc.ua.aas.datatypes.AASSubmodelElements;
 import opc.ua.aas.objecttypes.AASEntityType;
 import opc.ua.aas.objecttypes.AASRelationshipElementType;
+import opc.ua.iosb.aas.datatypes.AASDirection;
+import opc.ua.iosb.aas.datatypes.AASStateOfEvent;
 import org.awaitility.Awaitility;
 import org.eclipse.digitaltwin.aas4j.v3.model.AasSubmodelElements;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
@@ -222,8 +224,8 @@ public class OpcUaEndpointFullModelTest {
 
         // browse for AAS Environment
         List<ReferenceDescription> refs = client.getAddressSpace().browse(Identifiers.ObjectsFolder);
-        Assert.assertNotNull("Browse ObjectsFolder Refs Null", refs);
-        Assert.assertFalse("Browse ObjectsFolder Refs empty", refs.isEmpty());
+        Assert.assertNotNull(refs);
+        Assert.assertFalse(refs.isEmpty());
         NodeId envNode = null;
         for (ReferenceDescription ref: refs) {
             if (ref.getBrowseName().getName().equals(TestConstants.AAS_ENVIRONMENT_NAME)) {
@@ -232,30 +234,35 @@ public class OpcUaEndpointFullModelTest {
             }
         }
 
-        Assert.assertNotNull("AASEnvironment Null", envNode);
+        Assert.assertNotNull(envNode);
 
         // browse AAS Environment
         refs = client.getAddressSpace().browse(envNode);
-        Assert.assertNotNull("Browse Environment Refs Null", refs);
-        Assert.assertTrue("Browse Environment Refs empty", !refs.isEmpty());
+        Assert.assertNotNull(refs);
+        Assert.assertTrue(!refs.isEmpty());
 
         NodeId submodel1Node = null;
+        NodeId submodel7Node = null;
         for (ReferenceDescription ref: refs) {
             NodeId rid = client.getAddressSpace().getNamespaceTable().toNodeId(ref.getNodeId());
             switch (ref.getBrowseName().getName()) {
                 case TestConstants.FULL_SUBMODEL_1_NAME -> {
                     submodel1Node = rid;
                 }
+                case TestConstants.FULL_SUBMODEL_7_NAME -> {
+                    submodel7Node = rid;
+                }
                 default -> {
-                    // intentionally empty
+                    //intentionally left empty
                 }
             }
-            //intentionally left empty
         }
 
-        Assert.assertNotNull("Submodel 1 Node not found", submodel1Node);
+        Assert.assertNotNull(submodel1Node);
+        Assert.assertNotNull(submodel7Node);
 
         testSubmodel1(submodel1Node);
+        testSubmodel7(submodel7Node);
     }
 
 
@@ -287,18 +294,22 @@ public class OpcUaEndpointFullModelTest {
 
         NodeId writeNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
 
-        List<AASKey> oldKeys = new ArrayList<>();
-        oldKeys.add(new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Submodel), TestConstants.FULL_SUBMODEL_4_ID));
-        oldKeys.add(new AASKey(AASKeyTypes.of(AASKeyTypes.Options.SubmodelElementList), "ExampleSubmodelElementListUnordered"));
-        oldKeys.add(new AASKey(AASKeyTypes.of(AASKeyTypes.Options.MultiLanguageProperty), "ExampleMultiLanguageProperty"));
-        AASReference oldValue = new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ModelReference), null, oldKeys.toArray(AASKey[]::new));
+        //List<AASKey> oldKeys = new ArrayList<>();
+        AASKey[] oldKeys = {
+                new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Submodel), TestConstants.FULL_SUBMODEL_4_ID),
+                new AASKey(AASKeyTypes.of(AASKeyTypes.Options.SubmodelElementList), "ExampleSubmodelElementListUnordered"),
+                new AASKey(AASKeyTypes.of(AASKeyTypes.Options.MultiLanguageProperty), "ExampleMultiLanguageProperty")
+        };
+        AASReference oldValue = new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ModelReference), null, oldKeys);
 
         // The DataElementValueMapper changes the order of the elements
-        List<AASKey> newKeys = new ArrayList<>();
-        newKeys.add(new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Submodel), TestConstants.FULL_SUBMODEL_4_ID));
-        newKeys.add(new AASKey(AASKeyTypes.of(AASKeyTypes.Options.SubmodelElementList), "ExampleSubmodelElementCollection"));
-        newKeys.add(new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Blob), "ExampleBlob"));
-        AASReference newValue = new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ModelReference), null, newKeys.toArray(AASKey[]::new));
+        //List<AASKey> newKeys = new ArrayList<>();
+        AASKey[] newKeys = {
+                new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Submodel), TestConstants.FULL_SUBMODEL_4_ID),
+                new AASKey(AASKeyTypes.of(AASKeyTypes.Options.SubmodelElementList), "ExampleSubmodelElementCollection"),
+                new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Blob), "ExampleBlob")
+        };
+        AASReference newValue = new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ModelReference), null, newKeys);
 
         TestUtils.writeNewValueReference(client, writeNode, oldValue, newValue);
     }
@@ -333,16 +344,20 @@ public class OpcUaEndpointFullModelTest {
 
         NodeId writeNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
 
-        List<AASKey> oldKeys = new ArrayList<>();
-        oldKeys.add(new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Submodel), "https://acplt.org/Test_Submodel_Missing"));
-        oldKeys.add(new AASKey(AASKeyTypes.of(AASKeyTypes.Options.SubmodelElementCollection), "ExampleSubmodelElementCollection"));
-        oldKeys.add(new AASKey(AASKeyTypes.of(AASKeyTypes.Options.File), "ExampleFile"));
-        AASReference oldValue = new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ModelReference), null, oldKeys.toArray(AASKey[]::new));
+        //List<AASKey> oldKeys = new ArrayList<>();
+        AASKey[] oldKeys = {
+                new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Submodel), "https://acplt.org/Test_Submodel_Missing"),
+                new AASKey(AASKeyTypes.of(AASKeyTypes.Options.SubmodelElementCollection), "ExampleSubmodelElementCollection"),
+                new AASKey(AASKeyTypes.of(AASKeyTypes.Options.File), "ExampleFile")
+        };
+        AASReference oldValue = new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ModelReference), null, oldKeys);
 
         // The DataElementValueMapper changes the order of the elements
-        List<AASKey> newKeys = new ArrayList<>();
-        newKeys.add(new AASKey(AASKeyTypes.of(AASKeyTypes.Options.GlobalReference), "https://iosb.fraunhofer.de/TestValue1"));
-        AASReference newValue = new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ModelReference), null, newKeys.toArray(AASKey[]::new));
+        //List<AASKey> newKeys = new ArrayList<>();
+        AASKey[] newKeys = {
+                new AASKey(AASKeyTypes.of(AASKeyTypes.Options.GlobalReference), "https://iosb.fraunhofer.de/TestValue1")
+        };
+        AASReference newValue = new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ModelReference), null, newKeys);
 
         TestUtils.writeNewValueReference(client, writeNode, oldValue, newValue);
     }
@@ -1126,11 +1141,12 @@ public class OpcUaEndpointFullModelTest {
                         return false;
                     }
 
-                    List<AASKey> smeKeys = new ArrayList<>();
-                    smeKeys.add(new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Submodel), "http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial"));
-                    smeKeys.add(new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Entity), "ExampleEntity"));
-                    smeKeys.add(new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Property), "ExampleProperty2"));
-                    AASReference newValue = new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ModelReference), null, smeKeys.toArray(AASKey[]::new));
+                    AASKey[] smeKeys = {
+                            new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Submodel), "http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial"),
+                            new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Entity), "ExampleEntity"),
+                            new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Property), "ExampleProperty2")
+                    };
+                    AASReference newValue = new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ModelReference), null, smeKeys);
 
                     DataValue value = client.readValue(client.getAddressSpace().getNamespaceTable().toNodeId(targets2[0].getTargetId()));
                     return value.getStatusCode().isGood() && (value.getValue() != null) && Objects.equals((AASReference) value.getValue().getValue(), newValue);
@@ -1222,4 +1238,26 @@ public class OpcUaEndpointFullModelTest {
                 "http://acplt.org/ValueId/ACPLT", list);
     }
 
+
+    private void testSubmodel7(NodeId submodelNode) throws ServiceException, AddressSpaceException, ServiceResultException, StatusException {
+        TestUtils.checkDisplayName(client, submodelNode, TestConstants.SUBMODEL_PREFIX + TestConstants.FULL_SUBMODEL_7_NAME);
+        TestUtils.checkType(client, submodelNode, TestConstants.AAS_SUBMODEL_TYPE_ID);
+
+        TestUtils.checkCommonAttributes(client, submodelNode, aasns,
+                new CommonAttributesData("0", "9", "", TestConstants.FULL_SUBMODEL_7_ID,
+                        new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ExternalReference), null,
+                                List.of(new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Submodel), "http://acplt.org/SubmodelTemplates/ExampleSubmodel")).toArray(AASKey[]::new)),
+                        null, AASModellingKind.of(AASModellingKind.Options.Template), new ArrayList<>()));
+
+        int iltns = client.getAddressSpace().getNamespaceTable().getIndex(opc.ua.iosb.aas.Ids.AASBasicEventElementType.getNamespaceUri());
+
+        AASKey[] keysObserved = {
+                new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Submodel), TestConstants.FULL_SUBMODEL_7_ID),
+                new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Operation), TestConstants.FULL_OPERATION_NAME),
+                new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Property), TestConstants.FULL_PROPERTY_NAME)
+        };
+        AASReference observed = new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ModelReference), null, keysObserved);
+        TestUtils.checkBasicEvent(client, submodelNode, aasns, iltns, "ExampleBasicEvent", "PARAMETER", AASDirection.of(AASDirection.Options.output),
+                AASStateOfEvent.of(AASStateOfEvent.Options.off), observed);
+    }
 }
