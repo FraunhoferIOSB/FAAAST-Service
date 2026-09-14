@@ -342,13 +342,13 @@ public class OpcUaEndpointSimpleModelTest {
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
-        Assert.assertNotNull("testWriteReferenceElementValue Browse Result Null", bpres);
-        Assert.assertEquals("testWriteReferenceElementValue Browse Result: size doesn't match", 1, bpres.length);
-        Assert.assertTrue("testWriteReferenceElementValue Browse Result Good", bpres[0].getStatusCode().isGood());
+        Assert.assertNotNull(bpres);
+        Assert.assertEquals(1, bpres.length);
+        Assert.assertTrue(bpres[0].getStatusCode().isGood());
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
-        Assert.assertNotNull("testWriteReferenceElementValue ValueType Null", targets);
-        Assert.assertTrue("testWriteReferenceElementValue ValueType empty", targets.length > 0);
+        Assert.assertNotNull(targets);
+        Assert.assertTrue(targets.length > 0);
 
         NodeId writeNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
 

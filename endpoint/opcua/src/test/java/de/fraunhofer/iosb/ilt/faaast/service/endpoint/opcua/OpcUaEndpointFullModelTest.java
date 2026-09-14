@@ -294,7 +294,6 @@ public class OpcUaEndpointFullModelTest {
 
         NodeId writeNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
 
-        //List<AASKey> oldKeys = new ArrayList<>();
         AASKey[] oldKeys = {
                 new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Submodel), TestConstants.FULL_SUBMODEL_4_ID),
                 new AASKey(AASKeyTypes.of(AASKeyTypes.Options.SubmodelElementList), "ExampleSubmodelElementListUnordered"),
@@ -303,7 +302,6 @@ public class OpcUaEndpointFullModelTest {
         AASReference oldValue = new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ModelReference), null, oldKeys);
 
         // The DataElementValueMapper changes the order of the elements
-        //List<AASKey> newKeys = new ArrayList<>();
         AASKey[] newKeys = {
                 new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Submodel), TestConstants.FULL_SUBMODEL_4_ID),
                 new AASKey(AASKeyTypes.of(AASKeyTypes.Options.SubmodelElementList), "ExampleSubmodelElementCollection"),
@@ -344,7 +342,6 @@ public class OpcUaEndpointFullModelTest {
 
         NodeId writeNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
 
-        //List<AASKey> oldKeys = new ArrayList<>();
         AASKey[] oldKeys = {
                 new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Submodel), "https://acplt.org/Test_Submodel_Missing"),
                 new AASKey(AASKeyTypes.of(AASKeyTypes.Options.SubmodelElementCollection), "ExampleSubmodelElementCollection"),
@@ -353,7 +350,6 @@ public class OpcUaEndpointFullModelTest {
         AASReference oldValue = new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ModelReference), null, oldKeys);
 
         // The DataElementValueMapper changes the order of the elements
-        //List<AASKey> newKeys = new ArrayList<>();
         AASKey[] newKeys = {
                 new AASKey(AASKeyTypes.of(AASKeyTypes.Options.GlobalReference), "https://iosb.fraunhofer.de/TestValue1")
         };
