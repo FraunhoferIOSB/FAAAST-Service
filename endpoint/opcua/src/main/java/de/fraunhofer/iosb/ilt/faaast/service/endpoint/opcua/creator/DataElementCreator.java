@@ -17,7 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator;
 import com.prosysopc.ua.StatusException;
 import com.prosysopc.ua.nodes.UaNode;
 import com.prosysopc.ua.stack.common.ServiceResultException;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.nodemanager.AasServiceNodeManager;
 import opc.ua.aas.Ids;
 import org.eclipse.digitaltwin.aas4j.v3.model.Blob;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataElement;

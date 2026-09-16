@@ -24,16 +24,18 @@ import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.QualifiedName;
 import com.prosysopc.ua.stack.core.Identifiers;
 import com.prosysopc.ua.types.opcua.server.FileTypeNode;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ValueData;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.nodemanager.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValueFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.regex.Pattern;
 import opc.ua.aas.Ids;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.slf4j.Logger;
@@ -45,6 +47,9 @@ import org.slf4j.LoggerFactory;
  */
 public class UaHelper {
     private static final Logger LOGGER = LoggerFactory.getLogger(UaHelper.class);
+
+    // Regex für Standard-IRDI: <ICD>-<OID>#<OPID>#<OPID-OID>-<PI>
+    private static final Pattern IRDI_REGEX = Pattern.compile("^[0-9]{4}-[0-9]+#[0-2]-[0-9A-Za-z_]+#[0-9A-Za-z_-]+$");
 
     /**
      * Sonar wants a private constructor.
@@ -131,6 +136,34 @@ public class UaHelper {
         }
         catch (Exception ex) {
             LOGGER.info("createFile: error creating file", ex);
+        }
+        return retval;
+    }
+
+
+    /**
+     * Checks if the given string is an IRDI.
+     *
+     * @param input The corresponding input string.
+     * @return True if it's an IRDI, false if not.
+     */
+    public static boolean isIrdi(String input) {
+        if (input == null || input.isEmpty()) {
+            return false;
+        }
+        return IRDI_REGEX.matcher(input).matches();
+    }
+
+
+    public static boolean isUri(String input) {
+        Ensure.requireNonNull(input);
+        boolean retval;
+        try {
+            new URI(input);
+            retval = true;
+        }
+        catch (URISyntaxException ex) {
+            retval = false;
         }
         return retval;
     }

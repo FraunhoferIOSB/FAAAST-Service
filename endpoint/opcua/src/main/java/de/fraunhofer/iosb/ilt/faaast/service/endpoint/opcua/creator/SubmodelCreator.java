@@ -23,9 +23,9 @@ import com.prosysopc.ua.stack.builtintypes.LocalizedText;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.QualifiedName;
 import com.prosysopc.ua.stack.common.ServiceResultException;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.nodemanager.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import java.util.List;
 import opc.ua.aas.Ids;
@@ -98,8 +98,11 @@ public class SubmodelCreator {
         // HasSemantics
         smNode.getCommonAttributes().setHasSemantics(BaseDataCreator.getHasSemantics(submodel));
 
+        if (submodel.getSemanticId() != null) {
+            ConceptDescriptionCreator.addSemanticId(smNode, submodel.getSemanticId(), nodeManager);
+        }
+
         // DataSpecifications
-        // TODO EmbeddedDataSpecifications
         HasDataSpecificationCreator.addHasDataSpecification(smNode, submodel);
 
         // Qualifiers

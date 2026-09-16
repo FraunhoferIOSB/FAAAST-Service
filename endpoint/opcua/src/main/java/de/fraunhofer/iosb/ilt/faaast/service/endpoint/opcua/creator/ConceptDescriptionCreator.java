@@ -17,6 +17,8 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator;
 import com.prosysopc.ua.StatusException;
 import com.prosysopc.ua.UaQualifiedName;
 import com.prosysopc.ua.nodes.UaNode;
+import com.prosysopc.ua.server.NodeManagerUaNode;
+import com.prosysopc.ua.stack.builtintypes.ExpandedNodeId;
 import com.prosysopc.ua.stack.builtintypes.LocalizedText;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.QualifiedName;
@@ -24,8 +26,15 @@ import com.prosysopc.ua.stack.common.ServiceResultException;
 import com.prosysopc.ua.stack.core.Identifiers;
 import com.prosysopc.ua.types.opcua.BaseDataVariableType;
 import com.prosysopc.ua.types.opcua.DictionaryEntryType;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
+import com.prosysopc.ua.types.opcua.IrdiDictionaryEntryType;
+import com.prosysopc.ua.types.opcua.UriDictionaryEntryType;
+import com.prosysopc.ua.types.opcua.server.DictionaryFolderTypeNode;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.UaHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.nodemanager.AasServiceNodeManager;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.nodemanager.IrdiDictionaryNodeManager;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.nodemanager.UriDictionaryNodeManager;
+import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -46,6 +55,8 @@ import org.eclipse.digitaltwin.aas4j.v3.model.DataSpecificationContent;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataSpecificationIec61360;
 import org.eclipse.digitaltwin.aas4j.v3.model.EmbeddedDataSpecification;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -53,9 +64,14 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
  */
 public class ConceptDescriptionCreator {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConceptDescriptionCreator.class);
+
+    private static DictionaryFolderTypeNode dictEntriesFolder = null;
+
     /**
      * Maps AAS references to dictionary entry types
      */
+    //private static final Map<Reference, NodeId> dictionaryMap = new HashMap<>();
     private static final Map<Reference, DictionaryEntryType> dictionaryMap = new HashMap<>();
 
     private ConceptDescriptionCreator() {
@@ -173,12 +189,30 @@ public class ConceptDescriptionCreator {
      *
      * @param node The UA node in which the SemanticId should be created
      * @param semanticId The reference of the desired SemanticId
+     * @param nodeManager The NodeManager
      */
-    public static void addSemanticId(UaNode node, Reference semanticId) {
-        if (ReferenceHelper.containsSameReference(dictionaryMap, semanticId)) {
-            node.addReference(ReferenceHelper.getValueBySameReference(dictionaryMap, semanticId), Identifiers.HasDictionaryEntry, false);
+    public static void addSemanticId(UaNode node, Reference semanticId, NodeManagerUaNode nodeManager) {
+        Ensure.requireNonNull(node);
+        Ensure.requireNonNull(semanticId);
+        try {
+            if (ReferenceHelper.containsSameReference(dictionaryMap, semanticId)) {
+                node.addReference(ReferenceHelper.getValueBySameReference(dictionaryMap, semanticId), Identifiers.HasDictionaryEntry, false);
+            }
+            // if entry not found: perhaps create a new one?
+            if ((semanticId.getKeys() != null) && (semanticId.getKeys().size() == 1)) {
+                String id = semanticId.getKeys().get(0).getValue();
+                DictionaryEntryType entry = createDictionaryEntry(id, nodeManager);
+
+                if (entry != null) {
+                    LOGGER.info("addSemanticId: add HasDictionaryEntry reference for Node {} to {}", node.getNodeId().toString(), entry.getNodeId().toString());
+                    node.addReference(entry, Identifiers.HasDictionaryEntry, false);
+                    dictionaryMap.put(semanticId, entry);
+                }
+            }
         }
-        // if entry not found: perhaps create a new one?
+        catch (Exception ex) {
+            LOGGER.error("addSemanticId error", ex);
+        }
     }
 
     //    private static void addConceptDescriptionReference(AASConceptDescription node, Reference ref, AasServiceNodeManager nodeManager) throws StatusException {
@@ -319,4 +353,37 @@ public class ConceptDescriptionCreator {
         return retval;
     }
 
+
+    private static void createDictionaryEntriesFolder(NodeManagerUaNode nodeManager) throws StatusException {
+        // create folder DictionaryEntries
+        final UaNode dictionariesFolder = nodeManager.getServer().getNodeManagerRoot().getNodeOrExternal(Identifiers.Dictionaries);
+        final NodeId dictionarieEntriesFolderId = new NodeId(nodeManager.getNamespaceIndex(), "Dictionaries.DictionaryEntries");
+        dictEntriesFolder = nodeManager.createInstance(DictionaryFolderTypeNode.class, "DictionaryEntries", dictionarieEntriesFolderId);
+
+        nodeManager.addNodeAndReference(dictionariesFolder, dictEntriesFolder, Identifiers.Organizes);
+    }
+
+
+    private static DictionaryEntryType createDictionaryEntry(String id, NodeManagerUaNode nodeManager) throws StatusException, ServiceResultException {
+        DictionaryEntryType entry;
+        if (dictEntriesFolder == null) {
+            createDictionaryEntriesFolder(nodeManager);
+        }
+        if (UaHelper.isIrdi(id)) {
+            entry = nodeManager.createInstance(IrdiDictionaryEntryType.class, id,
+                    nodeManager.getNamespaceTable().toNodeId(new ExpandedNodeId(IrdiDictionaryNodeManager.NAMESPACE, id)));
+            dictEntriesFolder.addComponent(entry);
+        }
+        else if (UaHelper.isUri(id)) {
+            NodeId nodeId = nodeManager.getNamespaceTable().toNodeId(new ExpandedNodeId(UriDictionaryNodeManager.NAMESPACE, id));
+            //entry = nodeManager.createInstance(UriDictionaryEntryType.class, nodeId, QualifiedName.from(nodeId.getNamespaceIndex(), id), LocalizedText.EMPTY);
+            entry = nodeManager.createInstance(UriDictionaryEntryType.class, id, nodeId);
+            dictEntriesFolder.addComponent(entry);
+        }
+        else {
+            LOGGER.info("createDictionaryEntry: SemanticId ({}) is neither an IRDI nor an URI.", id);
+            entry = null;
+        }
+        return entry;
+    }
 }

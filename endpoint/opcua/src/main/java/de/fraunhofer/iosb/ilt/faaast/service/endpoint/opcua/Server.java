@@ -40,6 +40,9 @@ import com.prosysopc.ua.types.opcua.server.BuildInfoTypeNode;
 import com.prosysopc.ua.types.opcua.server.ServerCapabilitiesTypeNode;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.listener.AasCertificateValidationListener;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.listener.AasServiceIoManagerListener;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.nodemanager.AasServiceNodeManager;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.nodemanager.IrdiDictionaryNodeManager;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.nodemanager.UriDictionaryNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import java.io.File;
@@ -304,6 +307,15 @@ public class Server {
 
             AasServiceNodeManager aasNodeManager = new AasServiceNodeManager(uaServer, AasServiceNodeManager.NAMESPACE_URI, aasEnvironment, endpoint, envNode);
             aasNodeManager.getIoManager().addListeners(new AasServiceIoManagerListener(endpoint, aasNodeManager));
+
+            UriDictionaryNodeManager uriNodeManager = new UriDictionaryNodeManager(uaServer, UriDictionaryNodeManager.NAMESPACE);
+            LOGGER.trace("createAddressSpace: created NodeManager for NS {}", uriNodeManager.getNamespaceUri());
+
+            IrdiDictionaryNodeManager irdiNodeManager = new IrdiDictionaryNodeManager(uaServer, IrdiDictionaryNodeManager.NAMESPACE);
+            LOGGER.trace("createAddressSpace: created NodeManager for NS {}", irdiNodeManager.getNamespaceUri());
+
+            //uaServer.getAddressSpace().getNamespaceTable().add(ConceptDescriptionCreator.IRDI_NAMESPACE);
+            //uaServer.getAddressSpace().getNamespaceTable().add(ConceptDescriptionCreator.URI_NAMESPACE);
         }
         catch (Exception ex) {
             LOGGER.error("createAddressSpace Exception", ex);

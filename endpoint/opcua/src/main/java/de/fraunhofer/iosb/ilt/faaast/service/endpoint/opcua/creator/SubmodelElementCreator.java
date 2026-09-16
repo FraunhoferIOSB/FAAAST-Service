@@ -19,7 +19,7 @@ import com.prosysopc.ua.StatusException;
 import com.prosysopc.ua.client.AddressSpaceException;
 import com.prosysopc.ua.nodes.UaNode;
 import com.prosysopc.ua.stack.common.ServiceResultException;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.nodemanager.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
@@ -33,7 +33,6 @@ import opc.ua.aas.datatypes.AASSubmodelElementCommonAttributes;
 import opc.ua.aas.objecttypes.AASSubmodelElementObjectType;
 import opc.ua.aas.variabletypes.AASSubmodelElementVariableType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Capability;
-import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.Entity;
 import org.eclipse.digitaltwin.aas4j.v3.model.EventElement;
@@ -206,14 +205,12 @@ public class SubmodelElementCreator {
 
             setSubmodelElementCommonAttributes(node.getCommonAttributes(), element);
 
-            ConceptDescription conceptDescription = null;
-
             // SemanticId
             if (element.getSemanticId() != null) {
-                conceptDescription = nodeManager.getConceptDescription(element.getSemanticId());
+                ConceptDescriptionCreator.addConceptDescription(node, nodeManager.getConceptDescription(element.getSemanticId()), element.getEmbeddedDataSpecifications(),
+                        nodeManager);
+                ConceptDescriptionCreator.addSemanticId(node, element.getSemanticId(), nodeManager);
             }
-
-            ConceptDescriptionCreator.addConceptDescription(node, conceptDescription, element.getEmbeddedDataSpecifications(), nodeManager);
 
             // Referable
             ReferableCreator.setReferebleNodeData(node, element);
@@ -239,15 +236,13 @@ public class SubmodelElementCreator {
 
             setSubmodelElementCommonAttributes(node.getCommonAttributes(), element);
 
-            ConceptDescription conceptDescription = null;
-
             // HasSemantics
             node.getCommonAttributes().setHasSemantics(BaseDataCreator.getHasSemantics(element));
             if (element.getSemanticId() != null) {
-                conceptDescription = nodeManager.getConceptDescription(element.getSemanticId());
+                ConceptDescriptionCreator.addConceptDescription(node, nodeManager.getConceptDescription(element.getSemanticId()), element.getEmbeddedDataSpecifications(),
+                        nodeManager);
+                ConceptDescriptionCreator.addSemanticId(node, element.getSemanticId(), nodeManager);
             }
-
-            ConceptDescriptionCreator.addConceptDescription(node, conceptDescription, element.getEmbeddedDataSpecifications(), nodeManager);
 
             // Referable
             ReferableCreator.setReferebleNodeData(node, element);

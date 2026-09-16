@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua;
+package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.nodemanager;
 
 import com.prosysopc.ua.ServiceException;
 import com.prosysopc.ua.StatusException;
@@ -24,6 +24,7 @@ import com.prosysopc.ua.server.NodeManagerUaNode;
 import com.prosysopc.ua.server.UaServer;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.common.ServiceResultException;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.OpcUaEndpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.AssetAdministrationShellCreator;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.ConceptDescriptionCreator;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.QualifierCreator;
