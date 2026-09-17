@@ -72,7 +72,6 @@ import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.AnnotatedRelationshipElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
-import org.eclipse.digitaltwin.aas4j.v3.model.EmbeddedDataSpecification;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.eclipse.digitaltwin.aas4j.v3.model.Qualifier;
 import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
@@ -299,7 +298,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         for (ConceptDescription c: aasEnvironment.getConceptDescriptions()) {
             conceptDescriptions.put(c.getId(), c);
         }
-        //ConceptDescriptionCreator.addConceptDescriptions(aasEnvironment.getConceptDescriptions(), this);
+        ConceptDescriptionCreator.addConceptDescriptions(aasEnvironmentNode, aasEnvironment.getConceptDescriptions(), this);
 
         List<Submodel> submodels = aasEnvironment.getSubmodels();
         if (submodels != null) {
@@ -393,9 +392,9 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             parent = ReferenceHelper.getValueBySameReference(referableMap, parentRef);
         }
 
-        //if (value instanceof ConceptDescription conceptDescription) {
-        //    ConceptDescriptionCreator.addConceptDescriptions(List.of(conceptDescription), this);
-        //}
+        if (value instanceof ConceptDescription conceptDescription) {
+            ConceptDescriptionCreator.addConceptDescriptions(aasEnvironmentNode, List.of(conceptDescription), this);
+        }
         if (value instanceof Submodel submodel) {
             SubmodelCreator.addSubmodel(aasEnvironmentNode, submodel, this);
         }
@@ -405,10 +404,10 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             AssetAdministrationShellCreator.addAssetAdministrationShell(aasEnvironmentNode, assetAdministrationShell, this);
         }
         else if (parent != null) {
-            if (value instanceof EmbeddedDataSpecification) {
-                addEmbeddedDataSpecification(parent, value);
-            }
-            else if (value instanceof Qualifier) {
+            //if (value instanceof EmbeddedDataSpecification) {
+            //    addEmbeddedDataSpecification(parent, value);
+            //}
+            if (value instanceof Qualifier) {
                 addQualifier(parent, value);
             }
             else if (value instanceof SubmodelElement) {
@@ -831,25 +830,24 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         }
     }
 
-
-    private void addEmbeddedDataSpecification(ObjectData parent, Referable value) throws StatusException, ServiceResultException {
-        // TODO: add submodel
-        LOGGER.debug("addEmbeddedDataSpecification not fully implemented");
-        //if (parent.getNode() instanceof AASAssetAdministrationShellType aASAssetAdministrationShellType) {
-        //    EmbeddedDataSpecificationCreator.addEmbeddedDataSpecifications(aASAssetAdministrationShellType,
-        //            List.of((EmbeddedDataSpecification) value), this);
-        //}
-        //else if (parent.getNode() instanceof AASSubmodelType aASSubmodelType) {
-        //    EmbeddedDataSpecificationCreator.addEmbeddedDataSpecifications(aASSubmodelType, List.of((EmbeddedDataSpecification) value), this);
-        //}
-        if (parent.getNode() instanceof AASSubmodelElementObjectType aasSubmodelElementType) {
-            ConceptDescriptionCreator.addConceptDescription(aasSubmodelElementType, null, List.of((EmbeddedDataSpecification) value), this);
-        }
-        else if (parent.getNode() instanceof AASSubmodelElementVariableType aasSubmodelElementType) {
-            ConceptDescriptionCreator.addConceptDescription(aasSubmodelElementType, null, List.of((EmbeddedDataSpecification) value), this);
-        }
-        else {
-            LOGGER.debug("elementCreated: EmbeddedDataSpecification parent class not found");
-        }
-    }
+    //    private void addEmbeddedDataSpecification(ObjectData parent, Referable value) throws StatusException, ServiceResultException {
+    //        // TODO: add submodel
+    //        LOGGER.debug("addEmbeddedDataSpecification not fully implemented");
+    //        //if (parent.getNode() instanceof AASAssetAdministrationShellType aASAssetAdministrationShellType) {
+    //        //    EmbeddedDataSpecificationCreator.addEmbeddedDataSpecifications(aASAssetAdministrationShellType,
+    //        //            List.of((EmbeddedDataSpecification) value), this);
+    //        //}
+    //        //else if (parent.getNode() instanceof AASSubmodelType aASSubmodelType) {
+    //        //    EmbeddedDataSpecificationCreator.addEmbeddedDataSpecifications(aASSubmodelType, List.of((EmbeddedDataSpecification) value), this);
+    //        //}
+    //        if (parent.getNode() instanceof AASSubmodelElementObjectType aasSubmodelElementType) {
+    //            ConceptDescriptionCreator.addConceptDescription(aasSubmodelElementType, null, List.of((EmbeddedDataSpecification) value), this);
+    //        }
+    //        else if (parent.getNode() instanceof AASSubmodelElementVariableType aasSubmodelElementType) {
+    //            ConceptDescriptionCreator.addConceptDescription(aasSubmodelElementType, null, List.of((EmbeddedDataSpecification) value), this);
+    //        }
+    //        else {
+    //            LOGGER.debug("elementCreated: EmbeddedDataSpecification parent class not found");
+    //        }
+    //    }
 }

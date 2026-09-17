@@ -54,6 +54,7 @@ import opc.ua.aas.Ids;
 import opc.ua.aas.datatypes.AASAdministrativeInformation;
 import opc.ua.aas.datatypes.AASAssetAdministrationShellCommonAttributes;
 import opc.ua.aas.datatypes.AASAssetKind;
+import opc.ua.aas.datatypes.AASConceptDescription;
 import opc.ua.aas.datatypes.AASDataSpecificationIec61360;
 import opc.ua.aas.datatypes.AASEmbeddedConceptDescription;
 import opc.ua.aas.datatypes.AASEmbeddedDataSpecification;
@@ -489,46 +490,74 @@ public class TestUtils {
     }
 
 
-    public static void checkConceptDescription(UaClient client, NodeId nodeId, int aasns, String id, String version, String revision, DataSpecificationData data)
+    public static void checkConceptDescriptions(UaClient client, NodeId conceptDescriptionsNode, List<ConceptDescriptionData> conceptDescriptions)
+            throws ServiceException, AddressSpaceException, ServiceResultException, StatusException {
+        Assert.assertNotNull(conceptDescriptionsNode);
+        UaNode node = client.getAddressSpace().getNode(conceptDescriptionsNode);
+        Assert.assertEquals(NodeClass.Variable, node.getNodeClass());
+        UaVariable varNode = (UaVariable) node;
+        DataValue dv = varNode.getValue();
+        Assert.assertNotNull(dv);
+        Assert.assertEquals(StatusCode.GOOD, dv.getStatusCode());
+        Variant variant = dv.getValue();
+        if ((variant == null) || (variant.isEmpty())) {
+            Assert.assertNull(conceptDescriptions);
+        }
+        else {
+            Assert.assertTrue(variant.isArray());
+            Assert.assertTrue(variant.getValue() instanceof AASConceptDescription[]);
+            AASConceptDescription[] arr = variant.asClass(AASConceptDescription[].class, null);
+            int max = Math.min(conceptDescriptions.size(), arr.length);
+            for (int i = 0; i < max; i++) {
+                checkConceptDescription(arr[i], conceptDescriptions.get(i));
+            }
+        }
+        //}
+    }
+
+
+    public static void checkConceptDescription(AASConceptDescription conceptDescription, ConceptDescriptionData data)
             throws ServiceResultException, ServiceException, StatusException {
-        NodeId conceptDescriptionNode = getConceptDescription(client, nodeId, aasns);
+        //NodeId conceptDescriptionNode = getConceptDescription(client, nodeId, aasns);
 
-        DataValue value = client.readValue(conceptDescriptionNode);
-        Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
+        //DataValue value = client.readValue(conceptDescriptionNode);
+        //Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
 
-        Variant variant = value.getValue();
-        Assert.assertTrue(variant.getValue() instanceof AASEmbeddedConceptDescription);
-        AASEmbeddedConceptDescription cd = (AASEmbeddedConceptDescription) variant.getValue();
+        //Variant variant = value.getValue();
+        //Assert.assertTrue(variant.getValue() instanceof AASEmbeddedConceptDescription);
 
-        Assert.assertNotNull(cd.getCommonAttributes());
-        checkIdentifiable(cd.getCommonAttributes().getIdentifiable(), id, version, revision);
+        Assert.assertNotNull(conceptDescription.getCommonAttributes());
+        checkIdentifiable(conceptDescription.getCommonAttributes().getIdentifiable(), data.id(), data.version(), data.revision());
 
-        Assert.assertNotNull(cd.getEmbeddedDataSpecification());
-        Assert.assertEquals(1, cd.getEmbeddedDataSpecification().length);
+        if (conceptDescription instanceof AASEmbeddedConceptDescription cd) {
+            //AASEmbeddedConceptDescription cd = (AASEmbeddedConceptDescription) variant.getValue();
 
-        AASEmbeddedDataSpecification embed = cd.getEmbeddedDataSpecification()[0];
-        Assert.assertNotNull(embed);
-        if (data != null) {
-            Assert.assertEquals(data.dataSpecification(), embed.getDataSpecification());
-            Assert.assertNotNull(embed.getDataSpecificationContent());
-            Assert.assertTrue(embed.getDataSpecificationContent() instanceof AASDataSpecificationIec61360);
-            AASDataSpecificationIec61360 ds61360 = (AASDataSpecificationIec61360) embed.getDataSpecificationContent();
-            Assert.assertEquals(data.unit(), ds61360.getUnit());
-            Assert.assertArrayEquals(data.preferredName(), ds61360.getPreferredName());
-            Assert.assertEquals(data.sourceOfDefinition(), ds61360.getSourceOfDefinition());
-            Assert.assertEquals(data.datatype(), ds61360.getDataType());
-            Assert.assertArrayEquals(data.definition(), ds61360.getDefinition());
-            Assert.assertEquals(data.unitId(), ds61360.getUnitId());
+            Assert.assertNotNull(cd.getEmbeddedDataSpecification());
+            Assert.assertEquals(1, cd.getEmbeddedDataSpecification().length);
+
+            AASEmbeddedDataSpecification embed = cd.getEmbeddedDataSpecification()[0];
+            Assert.assertNotNull(embed);
+            if (data.dataSpecificationData() != null) {
+                Assert.assertEquals(data.dataSpecificationData().dataSpecification(), embed.getDataSpecification());
+                Assert.assertNotNull(embed.getDataSpecificationContent());
+                Assert.assertTrue(embed.getDataSpecificationContent() instanceof AASDataSpecificationIec61360);
+                AASDataSpecificationIec61360 ds61360 = (AASDataSpecificationIec61360) embed.getDataSpecificationContent();
+                Assert.assertEquals(data.dataSpecificationData().unit(), ds61360.getUnit());
+                Assert.assertArrayEquals(data.dataSpecificationData().preferredName(), ds61360.getPreferredName());
+                Assert.assertEquals(data.dataSpecificationData().sourceOfDefinition(), ds61360.getSourceOfDefinition());
+                Assert.assertEquals(data.dataSpecificationData().datatype(), ds61360.getDataType());
+                Assert.assertArrayEquals(data.dataSpecificationData().definition(), ds61360.getDefinition());
+                Assert.assertEquals(data.dataSpecificationData().unitId(), ds61360.getUnitId());
+            }
         }
     }
 
-
-    public static void checkSubmodelElementConceptDescription(UaClient client, NodeId baseNodeId, String name, int aasns, String id, String version, String revision,
-                                                              DataSpecificationData data)
-            throws ServiceException, ServiceResultException, StatusException {
-        NodeId submodelElementNode = getSubmodelElement(aasns, name, client, baseNodeId);
-        checkConceptDescription(client, submodelElementNode, aasns, id, version, revision, data);
-    }
+    //public static void checkSubmodelElementConceptDescription(UaClient client, NodeId baseNodeId, String name, int aasns, String id, String version, String revision,
+    //                                                          DataSpecificationData data)
+    //        throws ServiceException, ServiceResultException, StatusException {
+    //    NodeId submodelElementNode = getSubmodelElement(aasns, name, client, baseNodeId);
+    //    checkConceptDescription(client, submodelElementNode, aasns, id, version, revision, data);
+    //}
 
 
     public static void checkBasicEvent(UaClient client, NodeId submodelNode, int aasns, int iltns, String name, String category, AASDirection direction, AASStateOfEvent state,
@@ -578,23 +607,22 @@ public class TestUtils {
         Assert.assertEquals(state, value.getValue().asOptionSet(AASStateOfEvent.SPECIFICATION));
     }
 
-
-    private static NodeId getConceptDescription(UaClient client, NodeId baseNode, int aasns) throws ServiceResultException, ServiceException {
-        List<RelativePath> relPath = new ArrayList<>();
-        List<RelativePathElement> browsePath = new ArrayList<>();
-        browsePath.add(new RelativePathElement(client.getAddressSpace().getNamespaceTable().toNodeId(Ids.AASHasConceptDescription), false, true,
-                new QualifiedName(aasns, TestConstants.CONCEPT_DESCRIPTION_NAME)));
-        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
-
-        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(baseNode, relPath.toArray(RelativePath[]::new));
-        Assert.assertNotNull(bpres);
-        Assert.assertEquals(1, bpres.length);
-
-        BrowsePathTarget[] targets = bpres[0].getTargets();
-        Assert.assertNotNull(targets);
-        Assert.assertTrue(targets.length > 0);
-        return client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
-    }
+    //    private static NodeId getConceptDescription(UaClient client, NodeId baseNode, int aasns) throws ServiceResultException, ServiceException {
+    //        List<RelativePath> relPath = new ArrayList<>();
+    //        List<RelativePathElement> browsePath = new ArrayList<>();
+    //        browsePath.add(new RelativePathElement(client.getAddressSpace().getNamespaceTable().toNodeId(Ids.AASHasConceptDescription), false, true,
+    //                new QualifiedName(aasns, TestConstants.CONCEPT_DESCRIPTION_NAME)));
+    //        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+    //
+    //        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(baseNode, relPath.toArray(RelativePath[]::new));
+    //        Assert.assertNotNull(bpres);
+    //        Assert.assertEquals(1, bpres.length);
+    //
+    //        BrowsePathTarget[] targets = bpres[0].getTargets();
+    //        Assert.assertNotNull(targets);
+    //        Assert.assertTrue(targets.length > 0);
+    //        return client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
+    //    }
 
 
     private static void checkDatatype(UaClient client, NodeId nodeId, ExpandedNodeId datatype) throws ServiceException, AddressSpaceException, ServiceResultException {

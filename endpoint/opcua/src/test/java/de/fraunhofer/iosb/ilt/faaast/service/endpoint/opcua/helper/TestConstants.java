@@ -46,6 +46,7 @@ public class TestConstants {
     public static final String TEST_ENTITY_PROPERTY_NAME = "ExampleProperty2";
     public static final String DECIMAL_PROPERTY = "DecimalProperty";
     public static final String SIMPLE_TITLE_NAME = "Title";
+    public static final String SIMPLE_TITEL_NAME = "Titel";
     public static final String SUBMODEL_DOC_FILE_NAME = "DigitalFile_PDF";
     public static final String SUBMODEL_ELEMENT_LIST_ORDERED_NAME = "ExampleSubmodelElementListOrdered";
     public static final String ORDER_RELEVANT = "OrderRelevant";
@@ -57,6 +58,12 @@ public class TestConstants {
     public static final String MAX_ROTATIONSPEED_DEFINITION_DE = "HöchstezulässigeDrehzahl,mitwelcherderMotoroderdieSpeiseinheitbetriebenwerdendarf";
     public static final String MAX_ROTATIONSPEED_DEFINITION_EN = "Greatestpermissiblerotationspeedwithwhichthemotororfeedingunitmaybeoperated";
     public static final String MAX_ROTATIONSPEED_UNIT_ID = "0173-1#05-AAA650#002";
+    public static final String CONCEPT_DESCRIPTIONS_NODE = "ConceptDescriptions";
+    public static final String CD_DESCRIPTION_TITLE = "http://www.vdi2770.com/blatt1/Entwurf/Okt18/cd/Description/Title";
+    public static final String CD_TITLE_DEFINITION = "SprachabhängigerTiteldesDokuments.";
+    public static final String CD_DIGITAL_FILE = "DigitalFile";
+    public static final String CD_DIGITAL_FILE_DEFINITION = "A file representing the document version. In addition to the mandatory PDF file, other files can be specified.";
+    public static final String CD_DIGITAL_FILE_ID = "http://www.vdi2770.com/blatt1/Entwurf/Okt18/cd/StoredDocumentRepresentation/DigitalFile";
 
     public static final String SUBMODEL_PREFIX = "Submodel:";
     public static final String FULL_SUBMODEL_1_NAME = "Identification";

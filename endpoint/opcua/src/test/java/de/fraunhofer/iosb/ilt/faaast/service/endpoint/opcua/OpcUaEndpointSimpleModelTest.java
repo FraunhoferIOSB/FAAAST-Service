@@ -40,6 +40,7 @@ import com.prosysopc.ua.stack.transport.security.SecurityMode;
 import com.prosysopc.ua.stack.transport.security.SecurityPolicy;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.CommonAttributesData;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.ConceptDescriptionData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.DataSpecificationData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.TestConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.TestService;
@@ -160,8 +161,8 @@ public class OpcUaEndpointSimpleModelTest {
 
         // browse for AAS Environment
         List<ReferenceDescription> refs = client.getAddressSpace().browse(Identifiers.ObjectsFolder);
-        Assert.assertNotNull("Browse ObjectsFolder Refs Null", refs);
-        Assert.assertFalse("Browse ObjectsFolder Refs empty", refs.isEmpty());
+        Assert.assertNotNull(refs);
+        Assert.assertFalse(refs.isEmpty());
         NodeId envNode = null;
         for (ReferenceDescription ref: refs) {
             if (ref.getBrowseName().getName().equals(TestConstants.AAS_ENVIRONMENT_NAME)) {
@@ -170,34 +171,37 @@ public class OpcUaEndpointSimpleModelTest {
             }
         }
 
-        Assert.assertNotNull("AASEnvironment Null", envNode);
+        Assert.assertNotNull(envNode);
 
         aasns = client.getAddressSpace().getNamespaceTable().getIndex(Ids.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
         // browse AAS Environment
         refs = client.getAddressSpace().browse(envNode);
-        Assert.assertNotNull("Browse Environment Refs Null", refs);
-        Assert.assertTrue("Browse Environment Refs empty", !refs.isEmpty());
+        Assert.assertNotNull(refs);
+        Assert.assertTrue(!refs.isEmpty());
         NodeId aasNode = null;
         NodeId submodelDocNode = null;
         NodeId submodelTechDataNode = null;
         NodeId submodelOperDataNode = null;
+        NodeId conceptDescriptionsNode = null;
         for (ReferenceDescription ref: refs) {
             switch (ref.getBrowseName().getName()) {
                 case TestConstants.SIMPLE_AAS_NAME -> aasNode = client.getAddressSpace().getNamespaceTable().toNodeId(ref.getNodeId());
                 case TestConstants.SUBMODEL_DOC_NODE_NAME -> submodelDocNode = client.getAddressSpace().getNamespaceTable().toNodeId(ref.getNodeId());
                 case TestConstants.SUBMODEL_OPER_DATA_NODE_NAME -> submodelOperDataNode = client.getAddressSpace().getNamespaceTable().toNodeId(ref.getNodeId());
                 case TestConstants.SUBMODEL_TECH_DATA_NODE_NAME -> submodelTechDataNode = client.getAddressSpace().getNamespaceTable().toNodeId(ref.getNodeId());
+                case TestConstants.CONCEPT_DESCRIPTIONS_NODE -> conceptDescriptionsNode = client.getAddressSpace().getNamespaceTable().toNodeId(ref.getNodeId());
                 default -> {
                     // intentionally empty
                 }
             }
         }
 
-        Assert.assertNotNull("AAS Node not found", aasNode);
-        Assert.assertNotNull("Submodel Documentation Node not found", submodelDocNode);
-        Assert.assertNotNull("Submodel TechnicalData Node not found", submodelTechDataNode);
-        Assert.assertNotNull("Submodel OperationalData Node not found", submodelOperDataNode);
+        Assert.assertNotNull(aasNode);
+        Assert.assertNotNull(submodelDocNode);
+        Assert.assertNotNull(submodelTechDataNode);
+        Assert.assertNotNull(submodelOperDataNode);
+        Assert.assertNotNull(conceptDescriptionsNode);
 
         TestUtils.checkCommonAttributes(client, aasNode, aasns, new CommonAttributesData("1", "2", null, "http://customer.com/aas/9175_7013_7091_9168"));
 
@@ -213,10 +217,13 @@ public class OpcUaEndpointSimpleModelTest {
 
         // AAS
         refs = client.getAddressSpace().browse(aasNode);
-        Assert.assertNotNull("Browse AASNode Refs Null", refs);
-        Assert.assertFalse("Browse AASNode Refs empty", refs.isEmpty());
+        Assert.assertNotNull(refs);
+        Assert.assertFalse(refs.isEmpty());
 
         testAas(aasNode);
+        testConceptDescriptions(conceptDescriptionsNode);
+
+        // TODO: Check ConceptDescriptions
     }
 
 
@@ -718,25 +725,25 @@ public class OpcUaEndpointSimpleModelTest {
         TestUtils.checkAasPropertyObject(client, submodelNode, aasns, TestConstants.DECIMAL_PROPERTY, "PARAMETER",
                 Datatype.DECIMAL, new BigDecimal(123456), new ArrayList<>());
 
-        AASKey[] keysDataSpec = {
-                new AASKey(AASKeyTypes.of(AASKeyTypes.Options.GlobalReference), TestConstants.MAX_ROTATION_SPEED_DATA_SPEC)
-        };
-        AASKey[] keysUnitId = {
-                new AASKey(AASKeyTypes.of(AASKeyTypes.Options.GlobalReference), TestConstants.MAX_ROTATIONSPEED_UNIT_ID)
-        };
-        LocalizedText[] preferredNames = {
-                new LocalizedText(TestConstants.MAX_DREHZAHL_PREFERRED, "de"),
-                new LocalizedText(TestConstants.MAX_ROTATIONSPEED_PREFERRED, "en")
-        };
-        LocalizedText[] definitions = {
-                new LocalizedText(TestConstants.MAX_ROTATIONSPEED_DEFINITION_DE, "de"),
-                new LocalizedText(TestConstants.MAX_ROTATIONSPEED_DEFINITION_EN, "EN")
-        };
-        DataSpecificationData dataSpec = new DataSpecificationData(
-                new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ExternalReference), null, keysDataSpec), preferredNames,
-                "1/min", AASDataTypeIec61360.of(AASDataTypeIec61360.Options.REAL_MEASURE), "ExampleString", definitions,
-                new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ExternalReference), null, keysUnitId));
-        TestUtils.checkSubmodelElementConceptDescription(client, submodelNode, TestConstants.MAX_ROTATION_SPEED_NAME, aasns, "0173-1#02-BAA120#008", "2", "1", dataSpec);
+        //AASKey[] keysDataSpec = {
+        //        new AASKey(AASKeyTypes.of(AASKeyTypes.Options.GlobalReference), TestConstants.MAX_ROTATION_SPEED_DATA_SPEC)
+        //};
+        //AASKey[] keysUnitId = {
+        //        new AASKey(AASKeyTypes.of(AASKeyTypes.Options.GlobalReference), TestConstants.MAX_ROTATIONSPEED_UNIT_ID)
+        //};
+        //LocalizedText[] preferredNames = {
+        //        new LocalizedText(TestConstants.MAX_DREHZAHL_PREFERRED, "de"),
+        //        new LocalizedText(TestConstants.MAX_ROTATIONSPEED_PREFERRED, "en")
+        //};
+        //LocalizedText[] definitions = {
+        //        new LocalizedText(TestConstants.MAX_ROTATIONSPEED_DEFINITION_DE, "de"),
+        //        new LocalizedText(TestConstants.MAX_ROTATIONSPEED_DEFINITION_EN, "EN")
+        //};
+        //DataSpecificationData dataSpec = new DataSpecificationData(
+        //        new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ExternalReference), null, keysDataSpec), preferredNames,
+        //        "1/min", AASDataTypeIec61360.of(AASDataTypeIec61360.Options.REAL_MEASURE), "ExampleString", definitions,
+        //        new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ExternalReference), null, keysUnitId));
+        //TestUtils.checkSubmodelElementConceptDescription(client, submodelNode, TestConstants.MAX_ROTATION_SPEED_NAME, aasns, "0173-1#02-BAA120#008", "2", "1", dataSpec);
     }
 
 
@@ -755,7 +762,7 @@ public class OpcUaEndpointSimpleModelTest {
         Assert.assertEquals(QualifiedName.from(aasns, "DigitalFile_PDF"), refs.get(1).getBrowseName());
 
         // check ConceptDescription
-        TestUtils.checkConceptDescription(client, node, aasns, TestConstants.OPERATING_MANUAL_CONCEPT_DESCRIPTION, null, null, null);
+        //TestUtils.checkConceptDescription(client, node, aasns, TestConstants.OPERATING_MANUAL_CONCEPT_DESCRIPTION, null, null, null);
 
         TestUtils.checkAasPropertyFile(client, node, aasns, "DigitalFile_PDF", null, "application/pdf",
                 "file:///aasx/OperatingManual.pdf");
@@ -821,5 +828,68 @@ public class OpcUaEndpointSimpleModelTest {
         Assert.assertEquals(QualifiedName.from(aasns, "ExampleProperty2"), refs.get(0).getBrowseName());
         Assert.assertEquals(QualifiedName.from(aasns, "ExampleProperty"), refs.get(1).getBrowseName());
         Assert.assertEquals(QualifiedName.from(aasns, "ExampleCollection1"), refs.get(2).getBrowseName());
+    }
+
+
+    private void testConceptDescriptions(NodeId conceptDescriptionsNode) throws ServiceException, AddressSpaceException, ServiceResultException, StatusException {
+        List<ConceptDescriptionData> list = new ArrayList<>();
+        List<AASKey> keysDataSpec = List.of(new AASKey(AASKeyTypes.of(AASKeyTypes.Options.GlobalReference), TestConstants.MAX_ROTATION_SPEED_DATA_SPEC));
+        //AASKey[] keysUnitId = {
+        //        new AASKey(AASKeyTypes.of(AASKeyTypes.Options.GlobalReference), TestConstants.MAX_ROTATIONSPEED_UNIT_ID)
+        //};
+        List<LocalizedText> preferredNames = List.of(
+                new LocalizedText(TestConstants.SIMPLE_TITLE_NAME, "EN"),
+                new LocalizedText(TestConstants.SIMPLE_TITEL_NAME, "DE"));
+        List<LocalizedText> definitions = List.of(
+                //        new LocalizedText(TestConstants.MAX_ROTATIONSPEED_DEFINITION_DE, "de"),
+                new LocalizedText(TestConstants.CD_TITLE_DEFINITION, "EN"));
+        DataSpecificationData dataSpec = new DataSpecificationData(
+                new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ExternalReference), null, keysDataSpec.toArray(AASKey[]::new)),
+                preferredNames.toArray(LocalizedText[]::new),
+                "ExampleString", AASDataTypeIec61360.of(AASDataTypeIec61360.Options.STRING_TRANSLATABLE), "ExampleString", definitions.toArray(LocalizedText[]::new),
+                null);
+        ConceptDescriptionData cddata = new ConceptDescriptionData(TestConstants.CD_DESCRIPTION_TITLE, null, null, dataSpec);
+        list.add(cddata);
+
+        keysDataSpec = List.of(
+                new AASKey(AASKeyTypes.of(AASKeyTypes.Options.GlobalReference), TestConstants.MAX_ROTATION_SPEED_DATA_SPEC));
+        //List<AASKey> keysUnitId = List.of(
+        //        new AASKey(AASKeyTypes.of(AASKeyTypes.Options.GlobalReference), TestConstants.MAX_ROTATIONSPEED_UNIT_ID));
+        preferredNames = List.of(
+                new LocalizedText(TestConstants.CD_DIGITAL_FILE, "EN"),
+                new LocalizedText(TestConstants.CD_DIGITAL_FILE, "EN"));
+        definitions = List.of(
+                //new LocalizedText(TestConstants.MAX_ROTATIONSPEED_DEFINITION_DE, "de"),
+                new LocalizedText(TestConstants.CD_DIGITAL_FILE_DEFINITION, "EN"));
+        dataSpec = new DataSpecificationData(
+                new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ExternalReference), null, keysDataSpec.toArray(AASKey[]::new)),
+                preferredNames.toArray(LocalizedText[]::new),
+                "ExampleString", AASDataTypeIec61360.of(AASDataTypeIec61360.Options.STRING), "ExampleString", definitions.toArray(LocalizedText[]::new),
+                null);
+        cddata = new ConceptDescriptionData(TestConstants.CD_DIGITAL_FILE_ID, null, null, dataSpec);
+        //TestUtils.checkSubmodelElementConceptDescription(client, submodelNode, TestConstants.MAX_ROTATION_SPEED_NAME, aasns, "0173-1#02-BAA120#008", "2", "1", dataSpec);
+
+        list.add(cddata);
+
+        keysDataSpec = List.of(
+                new AASKey(AASKeyTypes.of(AASKeyTypes.Options.GlobalReference), TestConstants.MAX_ROTATION_SPEED_DATA_SPEC));
+        List<AASKey> keysUnitId = List.of(
+                new AASKey(AASKeyTypes.of(AASKeyTypes.Options.GlobalReference), TestConstants.MAX_ROTATIONSPEED_UNIT_ID));
+        preferredNames = List.of(
+                new LocalizedText(TestConstants.MAX_DREHZAHL_PREFERRED, "de"),
+                new LocalizedText(TestConstants.MAX_ROTATIONSPEED_PREFERRED, "en"));
+        definitions = List.of(
+                new LocalizedText(TestConstants.MAX_ROTATIONSPEED_DEFINITION_DE, "de"),
+                new LocalizedText(TestConstants.MAX_ROTATIONSPEED_DEFINITION_EN, "EN"));
+        dataSpec = new DataSpecificationData(
+                new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ExternalReference), null, keysDataSpec.toArray(AASKey[]::new)),
+                preferredNames.toArray(LocalizedText[]::new),
+                "1/min", AASDataTypeIec61360.of(AASDataTypeIec61360.Options.REAL_MEASURE), "ExampleString", definitions.toArray(LocalizedText[]::new),
+                new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ExternalReference), null, keysUnitId.toArray(AASKey[]::new)));
+        cddata = new ConceptDescriptionData("0173-1#02-BAA120#008", "2", "1", dataSpec);
+        //TestUtils.checkSubmodelElementConceptDescription(client, submodelNode, TestConstants.MAX_ROTATION_SPEED_NAME, aasns, "0173-1#02-BAA120#008", "2", "1", dataSpec);
+
+        list.add(cddata);
+        TestUtils.checkConceptDescriptions(client, conceptDescriptionsNode, list);
     }
 }

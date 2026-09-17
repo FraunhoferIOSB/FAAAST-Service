@@ -268,7 +268,7 @@ public class AssetAdministrationShellCreator {
         else if (refList.size() > 1) {
             referenceListNode.setValueRank(ValueRanks.OneDimension);
             referenceListNode.setArrayDimensions(new UnsignedInteger[] {
-                    UnsignedInteger.ZERO
+                    UnsignedInteger.valueOf(refList.size())
             });
             referenceListNode.setValue(refList.toArray(AASReference[]::new));
         }

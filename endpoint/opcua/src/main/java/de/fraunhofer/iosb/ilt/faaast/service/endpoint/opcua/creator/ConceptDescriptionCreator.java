@@ -15,13 +15,14 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator;
 
 import com.prosysopc.ua.StatusException;
-import com.prosysopc.ua.UaQualifiedName;
+import com.prosysopc.ua.ValueRanks;
 import com.prosysopc.ua.nodes.UaNode;
 import com.prosysopc.ua.server.NodeManagerUaNode;
+import com.prosysopc.ua.stack.builtintypes.DataValue;
 import com.prosysopc.ua.stack.builtintypes.ExpandedNodeId;
-import com.prosysopc.ua.stack.builtintypes.LocalizedText;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
-import com.prosysopc.ua.stack.builtintypes.QualifiedName;
+import com.prosysopc.ua.stack.builtintypes.UnsignedInteger;
+import com.prosysopc.ua.stack.builtintypes.Variant;
 import com.prosysopc.ua.stack.common.ServiceResultException;
 import com.prosysopc.ua.stack.core.Identifiers;
 import com.prosysopc.ua.types.opcua.BaseDataVariableType;
@@ -37,6 +38,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.nodemanager.UriDicti
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,8 +50,6 @@ import opc.ua.aas.datatypes.AASDataSpecificationIec61360;
 import opc.ua.aas.datatypes.AASEmbeddedConceptDescription;
 import opc.ua.aas.datatypes.AASEmbeddedDataSpecification;
 import opc.ua.aas.datatypes.AASLevelType;
-import opc.ua.aas.objecttypes.AASSubmodelElementObjectType;
-import opc.ua.aas.variabletypes.AASSubmodelElementVariableType;
 import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataSpecificationContent;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataSpecificationIec61360;
@@ -65,6 +65,8 @@ import org.slf4j.LoggerFactory;
 public class ConceptDescriptionCreator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ConceptDescriptionCreator.class);
+    private static final String CONCEPT_DESCRIPTIONS = "ConceptDescriptions";
+    //private static final ExpandedNodeId conceptDescriptionsNode = new ExpandedNodeId(AasServiceNodeManager.NAMESPACE_URI, 6034);
 
     private static DictionaryFolderTypeNode dictEntriesFolder = null;
 
@@ -76,6 +78,43 @@ public class ConceptDescriptionCreator {
 
     private ConceptDescriptionCreator() {
         throw new IllegalStateException("Class not instantiable");
+    }
+
+
+    /**
+     * Adds the given Concept Descriptions to the specified node.
+     *
+     * @param baseNode The node where
+     * @param descriptions The desired Concept Descriptions.
+     * @param nodeManager The NodeManager.
+     * @throws ServiceResultException If an error occurs.
+     * @throws StatusException If an error occurs.
+     */
+    public static void addConceptDescriptions(UaNode baseNode, List<ConceptDescription> descriptions, AasServiceNodeManager nodeManager)
+            throws ServiceResultException, StatusException {
+
+        //UaNode node2 = nodeManager.getServer().getAddressSpace().findNode(nodeManager.getNamespaceTable().toNodeId(conceptDescriptionsNode));
+        //UaVariableNode baseNode = (UaVariableNode) node2;
+        NodeId nodeId = nodeManager.createNodeId(baseNode, CONCEPT_DESCRIPTIONS);
+        BaseDataVariableType cdsNode = (BaseDataVariableType) nodeManager.findNode(nodeId);
+        if (cdsNode == null) {
+            cdsNode = nodeManager.createInstance(BaseDataVariableType.class, CONCEPT_DESCRIPTIONS, nodeId);
+            baseNode.addComponent(cdsNode);
+        }
+
+        List<AASConceptDescription> list = getConceptDescriptions(cdsNode);
+        for (ConceptDescription c: descriptions) {
+            AASConceptDescription node = getConceptDescriptionData(c, null);
+            list.add(node);
+            //baseNode.addComponent(node);
+        }
+        //Variant variant = new Variant();
+        cdsNode.setValueRank(ValueRanks.OneDimension);
+        cdsNode.setDataTypeId(nodeManager.getNamespaceTable().toNodeId(Ids.AASConceptDescription));
+        cdsNode.setArrayDimensions(new UnsignedInteger[] {
+                UnsignedInteger.valueOf(list.size())
+        });
+        cdsNode.setValue(list.toArray(AASConceptDescription[]::new));
     }
 
     //    public static void addConceptDescriptions(List<ConceptDescription> descriptions, AasServiceNodeManager nodeManager) throws StatusException {
@@ -125,63 +164,41 @@ public class ConceptDescriptionCreator {
     //        }
     //    }
 
+    //    public static void addConceptDescription(AASSubmodelElementObjectType node, ConceptDescription conceptDescription, List<EmbeddedDataSpecification> embeddedDataSpecifications,
+    //                                             AasServiceNodeManager nodeManager)
+    //            throws StatusException, ServiceResultException {
+    //        if ((conceptDescription == null) && ((embeddedDataSpecifications == null) || embeddedDataSpecifications.isEmpty())) {
+    //            return;
+    //        }
+    //        if (node.getConceptDescriptionNode() == null) {
+    //            // add node
+    //            String name = AASSubmodelElementObjectType.CONCEPT_DESCRIPTION;
+    //            QualifiedName browseName = UaQualifiedName.from(Ids.AASConceptDescription.getNamespaceUri(), name)
+    //                    .toQualifiedName(nodeManager.getNamespaceTable());
+    //            NodeId nid = nodeManager.createNodeId(node, browseName);
+    //            BaseDataVariableType cdnode = nodeManager.createInstance(BaseDataVariableType.class, nid, browseName, LocalizedText.english(name));
+    //            node.addReference(cdnode, nodeManager.getNamespaceTable().toNodeId(Ids.AASHasConceptDescription));
+    //        }
+    //        node.setConceptDescription(getConceptDescriptionData(conceptDescription, embeddedDataSpecifications));
+    //    }
 
-    /**
-     * Adds a ConceptDescription to the given node.
-     *
-     * @param node The node where the ConceptDescription should be added.
-     * @param conceptDescription The desired ConceptDescription.
-     * @param embeddedDataSpecifications The list of embeddedDataSpecifications.
-     * @param nodeManager The NodeManager.
-     * @throws StatusException If an error occurs.
-     * @throws ServiceResultException If an error occurs.
-     */
-    public static void addConceptDescription(AASSubmodelElementObjectType node, ConceptDescription conceptDescription, List<EmbeddedDataSpecification> embeddedDataSpecifications,
-                                             AasServiceNodeManager nodeManager)
-            throws StatusException, ServiceResultException {
-        if ((conceptDescription == null) && ((embeddedDataSpecifications == null) || embeddedDataSpecifications.isEmpty())) {
-            return;
-        }
-        if (node.getConceptDescriptionNode() == null) {
-            // add node
-            String name = AASSubmodelElementObjectType.CONCEPT_DESCRIPTION;
-            QualifiedName browseName = UaQualifiedName.from(Ids.AASConceptDescription.getNamespaceUri(), name)
-                    .toQualifiedName(nodeManager.getNamespaceTable());
-            NodeId nid = nodeManager.createNodeId(node, browseName);
-            BaseDataVariableType cdnode = nodeManager.createInstance(BaseDataVariableType.class, nid, browseName, LocalizedText.english(name));
-            node.addReference(cdnode, nodeManager.getNamespaceTable().toNodeId(Ids.AASHasConceptDescription));
-        }
-        node.setConceptDescription(getConceptDescriptionData(conceptDescription, embeddedDataSpecifications));
-    }
-
-
-    /**
-     * Adds a ConceptDescription to the given node.
-     *
-     * @param node The node where the ConceptDescription should be added.
-     * @param conceptDescription The desired ConceptDescription.
-     * @param embeddedDataSpecifications The list of embeddedDataSpecifications.
-     * @param nodeManager The NodeManager.
-     * @throws StatusException if an error occurs.
-     * @throws ServiceResultException If an error occurs.
-     */
-    public static void addConceptDescription(AASSubmodelElementVariableType node, ConceptDescription conceptDescription, List<EmbeddedDataSpecification> embeddedDataSpecifications,
-                                             AasServiceNodeManager nodeManager)
-            throws StatusException, ServiceResultException {
-        if ((conceptDescription == null) && ((embeddedDataSpecifications == null) || embeddedDataSpecifications.isEmpty())) {
-            return;
-        }
-        if (node.getConceptDescriptionNode() == null) {
-            // add node
-            String name = AASSubmodelElementVariableType.CONCEPT_DESCRIPTION;
-            QualifiedName browseName = UaQualifiedName.from(Ids.AASConceptDescription.getNamespaceUri(), name)
-                    .toQualifiedName(nodeManager.getNamespaceTable());
-            NodeId nid = nodeManager.createNodeId(node, browseName);
-            BaseDataVariableType cdnode = nodeManager.createInstance(BaseDataVariableType.class, nid, browseName, LocalizedText.english(name));
-            node.addReference(cdnode, nodeManager.getNamespaceTable().toNodeId(Ids.AASHasConceptDescription));
-        }
-        node.setConceptDescription(getConceptDescriptionData(conceptDescription, embeddedDataSpecifications));
-    }
+    //    public static void addConceptDescription(AASSubmodelElementVariableType node, ConceptDescription conceptDescription, List<EmbeddedDataSpecification> embeddedDataSpecifications,
+    //                                             AasServiceNodeManager nodeManager)
+    //            throws StatusException, ServiceResultException {
+    //        if ((conceptDescription == null) && ((embeddedDataSpecifications == null) || embeddedDataSpecifications.isEmpty())) {
+    //            return;
+    //        }
+    //        if (node.getConceptDescriptionNode() == null) {
+    //            // add node
+    //            String name = AASSubmodelElementVariableType.CONCEPT_DESCRIPTION;
+    //            QualifiedName browseName = UaQualifiedName.from(Ids.AASConceptDescription.getNamespaceUri(), name)
+    //                    .toQualifiedName(nodeManager.getNamespaceTable());
+    //            NodeId nid = nodeManager.createNodeId(node, browseName);
+    //            BaseDataVariableType cdnode = nodeManager.createInstance(BaseDataVariableType.class, nid, browseName, LocalizedText.english(name));
+    //            node.addReference(cdnode, nodeManager.getNamespaceTable().toNodeId(Ids.AASHasConceptDescription));
+    //        }
+    //        node.setConceptDescription(getConceptDescriptionData(conceptDescription, embeddedDataSpecifications));
+    //    }
 
 
     /**
@@ -385,5 +402,21 @@ public class ConceptDescriptionCreator {
             entry = null;
         }
         return entry;
+    }
+
+
+    private static List<AASConceptDescription> getConceptDescriptions(BaseDataVariableType cdsNode) {
+        List<AASConceptDescription> retval = new ArrayList<>();
+        DataValue dv = cdsNode.getValue();
+        if (dv != null) {
+            Variant variant = dv.getValue();
+            if ((variant != null) && (variant.isArray())) {
+                AASConceptDescription[] arr = variant.asClass(AASConceptDescription[].class, null);
+                if (arr != null) {
+                    retval = Arrays.asList(arr);
+                }
+            }
+        }
+        return retval;
     }
 }

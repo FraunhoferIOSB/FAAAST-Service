@@ -70,7 +70,7 @@ public class SpecificAssetIdCreator {
         else if (list.size() > 1) {
             node.setValueRank(ValueRanks.OneDimension);
             node.setArrayDimensions(new UnsignedInteger[] {
-                    UnsignedInteger.ZERO
+                    UnsignedInteger.valueOf(list.size())
             });
             node.setValue(list.toArray(AASSpecificAssetId[]::new));
         }
