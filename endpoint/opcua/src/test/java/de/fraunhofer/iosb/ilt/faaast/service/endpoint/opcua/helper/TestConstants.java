@@ -90,7 +90,6 @@ public class TestConstants {
     public static final String FULL_PROPERTY_NAME = "ExampleProperty";
     public static final String FULL_ANN_REL_ELEMENT_NAME = "ExampleAnnotatedRelationshipElement";
     public static final String OPERATION_METHOD_NAME = "Operation";
-
     public static final String PROPERTY_VALUE_NAME = "Value";
     public static final String PROPERTY_PATH_NAME = "Path";
     public static final String PROPERTY_CONTENT_TYPE_NAME = "ContentType";
@@ -103,10 +102,8 @@ public class TestConstants {
     public static final String EVENT_DIRECTION = "Direction";
     public static final String EVENT_STATE = "State";
     public static final String EVENT_OBSERVED = "Observed";
-
     public static final String COMMON_ATTRIBUTES = "CommonAttributes";
     public static final String OPERATING_MANUAL_CONCEPT_DESCRIPTION = "http://www.vdi2770.com/blatt1/Entwurf/Okt18/cd/Document";
-
     public static final ExpandedNodeId AAS_AAS_TYPE_ID = new ExpandedNodeId(AAS_NAMESPACE_URI, 1001);
     public static final ExpandedNodeId AAS_SUBMODEL_TYPE_ID = new ExpandedNodeId(AAS_NAMESPACE_URI, 1002);
     public static final ExpandedNodeId AAS_SUBMODEL_ELEM_COLL_TYPE_ID = new ExpandedNodeId(AAS_NAMESPACE_URI, 1004);
@@ -121,7 +118,6 @@ public class TestConstants {
     public static final ExpandedNodeId SPECIFIC_ASSET_TYPE = new ExpandedNodeId(AAS_NAMESPACE_URI, 3028);
     public static final ExpandedNodeId RESOURCE_TYPE = new ExpandedNodeId(AAS_NAMESPACE_URI, 1029);
     public static final ExpandedNodeId BASIC_EVENT_TYPE = new ExpandedNodeId(ILT_NAMESPACE_URI, 1006);
-
     public static final String SERVER_CERT_PATH = "PKI/CA";
     public static final String USER_CERT_PATH = "USERS_PKI/CA";
 }

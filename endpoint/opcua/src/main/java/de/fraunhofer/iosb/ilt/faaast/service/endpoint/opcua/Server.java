@@ -313,9 +313,6 @@ public class Server {
 
             IrdiDictionaryNodeManager irdiNodeManager = new IrdiDictionaryNodeManager(uaServer, IrdiDictionaryNodeManager.NAMESPACE);
             LOGGER.trace("createAddressSpace: created NodeManager for NS {}", irdiNodeManager.getNamespaceUri());
-
-            //uaServer.getAddressSpace().getNamespaceTable().add(ConceptDescriptionCreator.IRDI_NAMESPACE);
-            //uaServer.getAddressSpace().getNamespaceTable().add(ConceptDescriptionCreator.URI_NAMESPACE);
         }
         catch (Exception ex) {
             LOGGER.error("createAddressSpace Exception", ex);

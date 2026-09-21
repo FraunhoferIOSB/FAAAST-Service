@@ -404,9 +404,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             AssetAdministrationShellCreator.addAssetAdministrationShell(aasEnvironmentNode, assetAdministrationShell, this);
         }
         else if (parent != null) {
-            //if (value instanceof EmbeddedDataSpecification) {
-            //    addEmbeddedDataSpecification(parent, value);
-            //}
             if (value instanceof Qualifier) {
                 addQualifier(parent, value);
             }
@@ -830,24 +827,4 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         }
     }
 
-    //    private void addEmbeddedDataSpecification(ObjectData parent, Referable value) throws StatusException, ServiceResultException {
-    //        // TODO: add submodel
-    //        LOGGER.debug("addEmbeddedDataSpecification not fully implemented");
-    //        //if (parent.getNode() instanceof AASAssetAdministrationShellType aASAssetAdministrationShellType) {
-    //        //    EmbeddedDataSpecificationCreator.addEmbeddedDataSpecifications(aASAssetAdministrationShellType,
-    //        //            List.of((EmbeddedDataSpecification) value), this);
-    //        //}
-    //        //else if (parent.getNode() instanceof AASSubmodelType aASSubmodelType) {
-    //        //    EmbeddedDataSpecificationCreator.addEmbeddedDataSpecifications(aASSubmodelType, List.of((EmbeddedDataSpecification) value), this);
-    //        //}
-    //        if (parent.getNode() instanceof AASSubmodelElementObjectType aasSubmodelElementType) {
-    //            ConceptDescriptionCreator.addConceptDescription(aasSubmodelElementType, null, List.of((EmbeddedDataSpecification) value), this);
-    //        }
-    //        else if (parent.getNode() instanceof AASSubmodelElementVariableType aasSubmodelElementType) {
-    //            ConceptDescriptionCreator.addConceptDescription(aasSubmodelElementType, null, List.of((EmbeddedDataSpecification) value), this);
-    //        }
-    //        else {
-    //            LOGGER.debug("elementCreated: EmbeddedDataSpecification parent class not found");
-    //        }
-    //    }
 }

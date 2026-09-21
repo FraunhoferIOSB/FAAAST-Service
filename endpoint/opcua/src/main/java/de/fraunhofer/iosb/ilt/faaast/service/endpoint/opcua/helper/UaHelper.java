@@ -49,7 +49,7 @@ public class UaHelper {
     private static final Logger LOGGER = LoggerFactory.getLogger(UaHelper.class);
 
     // Regex für Standard-IRDI: <ICD>-<OID>#<OPID>#<OPID-OID>-<PI>
-    private static final Pattern IRDI_REGEX = Pattern.compile("^[0-9]{4}-[0-9]+#[0-2]-[0-9A-Za-z_]+#[0-9A-Za-z_-]+$");
+    private static final Pattern IRDI_REGEX = Pattern.compile("^\\d{4}-\\d+#[0-2]-\\w+#[0-9A-Za-z_-]+$");
 
     /**
      * Sonar wants a private constructor.

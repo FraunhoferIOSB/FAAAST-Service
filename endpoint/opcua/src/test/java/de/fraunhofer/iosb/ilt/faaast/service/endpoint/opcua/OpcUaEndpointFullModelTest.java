@@ -1202,8 +1202,6 @@ public class OpcUaEndpointFullModelTest {
         ByteString oldBlob = ByteString.valueOf(Base64.getDecoder().decode("AQIDBAU="));
         ByteString newBlob = ByteString.valueOf(Base64.getDecoder().decode("ERITFBU="));
         TestUtils.writeNewValueIntern(client, writeBlob, oldBlob, newBlob);
-
-        //client.disconnect();
     }
 
 
@@ -1216,8 +1214,6 @@ public class OpcUaEndpointFullModelTest {
                         new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ExternalReference), null,
                                 List.of(new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Submodel), "http://acplt.org/SubmodelTemplates/AssetIdentification")).toArray(AASKey[]::new)),
                         null, AASModellingKind.of(AASModellingKind.Options.Instance), new ArrayList<>()));
-
-        //TestUtils.checkEmbeddedDataSpecificationNode(client, submodelNode, aasns);
 
         ArrayList<Qualifier> list = new ArrayList<>();
         list.add(new DefaultQualifier.Builder()

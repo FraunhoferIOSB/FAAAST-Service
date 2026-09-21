@@ -93,8 +93,6 @@ public class ConceptDescriptionCreator {
     public static void addConceptDescriptions(UaNode baseNode, List<ConceptDescription> descriptions, AasServiceNodeManager nodeManager)
             throws ServiceResultException, StatusException {
 
-        //UaNode node2 = nodeManager.getServer().getAddressSpace().findNode(nodeManager.getNamespaceTable().toNodeId(conceptDescriptionsNode));
-        //UaVariableNode baseNode = (UaVariableNode) node2;
         NodeId nodeId = nodeManager.createNodeId(baseNode, CONCEPT_DESCRIPTIONS);
         BaseDataVariableType cdsNode = (BaseDataVariableType) nodeManager.findNode(nodeId);
         if (cdsNode == null) {
@@ -106,9 +104,7 @@ public class ConceptDescriptionCreator {
         for (ConceptDescription c: descriptions) {
             AASConceptDescription node = getConceptDescriptionData(c, null);
             list.add(node);
-            //baseNode.addComponent(node);
         }
-        //Variant variant = new Variant();
         cdsNode.setValueRank(ValueRanks.OneDimension);
         cdsNode.setDataTypeId(nodeManager.getNamespaceTable().toNodeId(Ids.AASConceptDescription));
         cdsNode.setArrayDimensions(new UnsignedInteger[] {
@@ -393,7 +389,6 @@ public class ConceptDescriptionCreator {
         }
         else if (UaHelper.isUri(id)) {
             NodeId nodeId = nodeManager.getNamespaceTable().toNodeId(new ExpandedNodeId(UriDictionaryNodeManager.NAMESPACE, id));
-            //entry = nodeManager.createInstance(UriDictionaryEntryType.class, nodeId, QualifiedName.from(nodeId.getNamespaceIndex(), id), LocalizedText.EMPTY);
             entry = nodeManager.createInstance(UriDictionaryEntryType.class, id, nodeId);
             dictEntriesFolder.addComponent(entry);
         }

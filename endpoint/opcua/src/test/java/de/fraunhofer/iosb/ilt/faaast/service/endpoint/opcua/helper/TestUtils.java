@@ -32,15 +32,18 @@ import com.prosysopc.ua.stack.builtintypes.Variant;
 import com.prosysopc.ua.stack.common.ServiceResultException;
 import com.prosysopc.ua.stack.core.ApplicationDescription;
 import com.prosysopc.ua.stack.core.ApplicationType;
+import com.prosysopc.ua.stack.core.BrowseDirection;
 import com.prosysopc.ua.stack.core.BrowsePathResult;
 import com.prosysopc.ua.stack.core.BrowsePathTarget;
 import com.prosysopc.ua.stack.core.Identifiers;
 import com.prosysopc.ua.stack.core.NodeClass;
+import com.prosysopc.ua.stack.core.ReferenceDescription;
 import com.prosysopc.ua.stack.core.RelativePath;
 import com.prosysopc.ua.stack.core.RelativePathElement;
 import com.prosysopc.ua.stack.core.StatusCodes;
 import com.prosysopc.ua.types.opcua.BaseDataVariableType;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.nodemanager.UriDictionaryNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -74,6 +77,8 @@ import opc.ua.iosb.aas.datatypes.AASStateOfEvent;
 import org.awaitility.Awaitility;
 import org.eclipse.digitaltwin.aas4j.v3.model.Qualifier;
 import org.junit.Assert;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -81,6 +86,7 @@ import org.junit.Assert;
  */
 public class TestUtils {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(TestUtils.class);
     private static final Duration POLL_TIMEOUT = Duration.ofMillis(100);
     private static final Duration MAX_TIMEOUT = Duration.ofSeconds(5);
 
@@ -518,20 +524,10 @@ public class TestUtils {
 
     public static void checkConceptDescription(AASConceptDescription conceptDescription, ConceptDescriptionData data)
             throws ServiceResultException, ServiceException, StatusException {
-        //NodeId conceptDescriptionNode = getConceptDescription(client, nodeId, aasns);
-
-        //DataValue value = client.readValue(conceptDescriptionNode);
-        //Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
-
-        //Variant variant = value.getValue();
-        //Assert.assertTrue(variant.getValue() instanceof AASEmbeddedConceptDescription);
-
         Assert.assertNotNull(conceptDescription.getCommonAttributes());
         checkIdentifiable(conceptDescription.getCommonAttributes().getIdentifiable(), data.id(), data.version(), data.revision());
 
         if (conceptDescription instanceof AASEmbeddedConceptDescription cd) {
-            //AASEmbeddedConceptDescription cd = (AASEmbeddedConceptDescription) variant.getValue();
-
             Assert.assertNotNull(cd.getEmbeddedDataSpecification());
             Assert.assertEquals(1, cd.getEmbeddedDataSpecification().length);
 
@@ -551,13 +547,6 @@ public class TestUtils {
             }
         }
     }
-
-    //public static void checkSubmodelElementConceptDescription(UaClient client, NodeId baseNodeId, String name, int aasns, String id, String version, String revision,
-    //                                                          DataSpecificationData data)
-    //        throws ServiceException, ServiceResultException, StatusException {
-    //    NodeId submodelElementNode = getSubmodelElement(aasns, name, client, baseNodeId);
-    //    checkConceptDescription(client, submodelElementNode, aasns, id, version, revision, data);
-    //}
 
 
     public static void checkBasicEvent(UaClient client, NodeId submodelNode, int aasns, int iltns, String name, String category, AASDirection direction, AASStateOfEvent state,
@@ -607,22 +596,17 @@ public class TestUtils {
         Assert.assertEquals(state, value.getValue().asOptionSet(AASStateOfEvent.SPECIFICATION));
     }
 
-    //    private static NodeId getConceptDescription(UaClient client, NodeId baseNode, int aasns) throws ServiceResultException, ServiceException {
-    //        List<RelativePath> relPath = new ArrayList<>();
-    //        List<RelativePathElement> browsePath = new ArrayList<>();
-    //        browsePath.add(new RelativePathElement(client.getAddressSpace().getNamespaceTable().toNodeId(Ids.AASHasConceptDescription), false, true,
-    //                new QualifiedName(aasns, TestConstants.CONCEPT_DESCRIPTION_NAME)));
-    //        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
-    //
-    //        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(baseNode, relPath.toArray(RelativePath[]::new));
-    //        Assert.assertNotNull(bpres);
-    //        Assert.assertEquals(1, bpres.length);
-    //
-    //        BrowsePathTarget[] targets = bpres[0].getTargets();
-    //        Assert.assertNotNull(targets);
-    //        Assert.assertTrue(targets.length > 0);
-    //        return client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
-    //    }
+
+    public static void checkUriDictionaryEntry(UaClient client, NodeId nodeId, int aasns, String value) throws ServiceException, ServiceResultException, StatusException {
+        NodeId expected = client.getAddressSpace().getNamespaceTable().toNodeId(new ExpandedNodeId(UriDictionaryNodeManager.NAMESPACE, value));
+        NodeId entryNode;
+        List<ReferenceDescription> refs = client.getAddressSpace().browse(nodeId, BrowseDirection.Forward, Identifiers.HasDictionaryEntry);
+        Assert.assertEquals(1, refs.size());
+        ReferenceDescription ref = refs.get(0);
+        Assert.assertEquals(Identifiers.HasDictionaryEntry, ref.getReferenceTypeId());
+        entryNode = client.getAddressSpace().getNamespaceTable().toNodeId(ref.getNodeId());
+        Assert.assertEquals(expected, entryNode);
+    }
 
 
     private static void checkDatatype(UaClient client, NodeId nodeId, ExpandedNodeId datatype) throws ServiceException, AddressSpaceException, ServiceResultException {

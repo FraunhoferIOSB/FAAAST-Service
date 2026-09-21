@@ -144,19 +144,8 @@ public class OpcUaEndpoint extends AbstractEndpoint<OpcUaEndpointConfig> {
             request.setSubmodelId(submodel.getId());
             request.setPath(path);
             request.setValueParser(ElementValueParser.DEFAULT);
-            //if ((element instanceof MultiLanguageProperty mlp) && ((mlp.getValue() != null) && (mlp.getValue().size() > 1))) {
-            //    for (int i = 0; i < mlp.getValue().size(); i++) {
-            //        LOGGER.atTrace().log("writeValue: MLP {}: {}", i, mlp.getValue().get(i).getText());
-            //    }
-            //}
 
             request.setRawValue(ElementValueMapper.toValue(element));
-
-            //if ((request.getRawValue() instanceof MultiLanguagePropertyValue mlpv) && ((mlpv.getLangStringSet() != null) && (mlpv.getLangStringSet().size() > 1))) {
-            //    for (int i = 0; i < mlpv.getLangStringSet().size(); i++) {
-            //        LOGGER.atTrace().log("writeValue: MLPV {}: {}", i, mlpv.getLangStringSet().toArray()[i]);
-            //    }
-            //}
 
             Response response = serviceContext.execute(this, request);
             LOGGER.atDebug().log("writeValue: Submodel {}; Element {} (Path {}); Status: {}", submodel.getId(), element.getIdShort(), ReferenceHelper.toPath(refElement),
@@ -203,64 +192,12 @@ public class OpcUaEndpoint extends AbstractEndpoint<OpcUaEndpointConfig> {
         return serviceContext.getAssetConnectionManager().hasValueProvider(refElement);
     }
 
-    //    /**
-    //     * Calls the desired operation in the service.
-    //     *
-    //     * @param operation The desired operation
-    //     * @param inputVariables The input arguments
-    //     * @param submodel The corresponding submodel
-    //     * @param refElement The reference to the SubmodelElement
-    //     * @return The OutputArguments The output arguments returned from the operation call
-    //     * @throws StatusException If the operation fails
-    //     */
-    //    public List<OperationVariable> callOperation(Operation operation, List<OperationVariable> inputVariables, Submodel submodel, Reference refElement) throws StatusException {
-    //        List<OperationVariable> outputArguments;
-    //        InvokeOperationSyncRequest request = new InvokeOperationSyncRequest();
-    //
-    //        request.setSubmodelId(submodel.getId());
-    //        request.setPath(ReferenceHelper.toPath(refElement));
-    //        request.setInputArguments(inputVariables);
-    //
-    //        // execute method
-    //        InvokeOperationSyncResponse response = serviceContext.execute(this, request);
-    //        if (response.getStatusCode().isSuccess()) {
-    //            if (response.getPayload().getExecutionState() == ExecutionState.COMPLETED) {
-    //                LOGGER.debug("callOperation: Operation {} executed successfully", operation.getIdShort());
-    //            }
-    //            else {
-    //                LOGGER.warn(CALL_OPERATION_ERROR_TXT, operation.getIdShort(), response.getPayload().getExecutionState());
-    //                throw new StatusException(StatusCodes.Bad_UnexpectedError);
-    //            }
-    //        }
-    //        else if (response.getStatusCode() == StatusCode.CLIENT_METHOD_NOT_ALLOWED) {
-    //            LOGGER.warn(CALL_OPERATION_ERROR_TXT, operation.getIdShort(), response.getStatusCode());
-    //            throw new StatusException(StatusCodes.Bad_NotExecutable);
-    //        }
-    //        else {
-    //            LOGGER.warn(CALL_OPERATION_ERROR_TXT, operation.getIdShort(), response.getStatusCode());
-    //            throw new StatusException(StatusCodes.Bad_UnexpectedError);
-    //        }
-    //
-    //        outputArguments = response.getPayload().getOutputArguments();
-    //
-    //        return outputArguments;
-    //    }
-
 
     public String callOperation(Operation operation, String input, Submodel submodel, Reference refElement)
             throws StatusException, DeserializationException, SerializationException, UnsupportedModifierException {
-        //InvokeOperationSyncRequest request = new InvokeOperationSyncRequest();
-
-        //SubmodelElementIdentifier identifier = SubmodelElementIdentifier.builder()
-        //        .submodelId(submodel.getId())
-        //        .idShortPath(IdShortPath.fromReference(refElement))
-        //        .build();
-
         InvokeOperationSyncRequest request = deserializer.read(input, InvokeOperationSyncRequest.class);
-        //InvokeOperationSyncRequest request = deserializer.readValueOperationRequest(input, InvokeOperationSyncRequest.class, serviceContext, identifier);
         request.setSubmodelId(submodel.getId());
         request.setPath(ReferenceHelper.toPath(refElement));
-        //request.setInputArguments(inputVariables);
 
         // execute method
         InvokeOperationSyncResponse response = serviceContext.execute(this, request);
@@ -282,7 +219,6 @@ public class OpcUaEndpoint extends AbstractEndpoint<OpcUaEndpointConfig> {
             throw new StatusException(StatusCodes.Bad_UnexpectedError);
         }
 
-        //outputArguments = response.getPayload().getOutputArguments();
         return serializer.write(response.getPayload());
     }
 
