@@ -735,8 +735,7 @@ public class OpcUaEndpointSimpleModelTest {
         Assert.assertEquals(QualifiedName.from(aasns, "DigitalFile_PDF"), refs.get(1).getBrowseName());
 
         // check DictionaryEntry
-        TestUtils.checkUriDictionaryEntry(client, node, aasns, TestConstants.OPERATING_MANUAL_CONCEPT_DESCRIPTION);
-        //TestUtils.checkConceptDescription(client, node, aasns, TestConstants.OPERATING_MANUAL_CONCEPT_DESCRIPTION, null, null, null);
+        TestUtils.checkUriDictionaryEntry(client, node, TestConstants.OPERATING_MANUAL_CONCEPT_DESCRIPTION);
 
         TestUtils.checkAasPropertyFile(client, node, aasns, "DigitalFile_PDF", null, "application/pdf",
                 "file:///aasx/OperatingManual.pdf");
@@ -805,7 +804,7 @@ public class OpcUaEndpointSimpleModelTest {
     }
 
 
-    private void testConceptDescriptions(NodeId conceptDescriptionsNode) throws ServiceException, AddressSpaceException, ServiceResultException, StatusException {
+    private void testConceptDescriptions(NodeId conceptDescriptionsNode) throws ServiceException, AddressSpaceException {
         List<ConceptDescriptionData> list = new ArrayList<>();
         List<AASKey> keysDataSpec = List.of(new AASKey(AASKeyTypes.of(AASKeyTypes.Options.GlobalReference), TestConstants.MAX_ROTATION_SPEED_DATA_SPEC));
         List<LocalizedText> preferredNames = List.of(

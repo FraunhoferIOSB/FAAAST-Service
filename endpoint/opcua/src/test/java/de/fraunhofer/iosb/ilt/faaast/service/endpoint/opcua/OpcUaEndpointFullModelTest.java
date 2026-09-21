@@ -1243,13 +1243,7 @@ public class OpcUaEndpointFullModelTest {
 
         int iltns = client.getAddressSpace().getNamespaceTable().getIndex(opc.ua.iosb.aas.Ids.AASBasicEventElementType.getNamespaceUri());
 
-        AASKey[] keysObserved = {
-                new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Submodel), TestConstants.FULL_SUBMODEL_7_ID),
-                new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Operation), TestConstants.FULL_OPERATION_NAME),
-                new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Property), TestConstants.FULL_PROPERTY_NAME)
-        };
-        AASReference observed = new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ModelReference), null, keysObserved);
         TestUtils.checkBasicEvent(client, submodelNode, aasns, iltns, "ExampleBasicEvent", "PARAMETER", AASDirection.of(AASDirection.Options.output),
-                AASStateOfEvent.of(AASStateOfEvent.Options.off), observed);
+                AASStateOfEvent.of(AASStateOfEvent.Options.off));
     }
 }

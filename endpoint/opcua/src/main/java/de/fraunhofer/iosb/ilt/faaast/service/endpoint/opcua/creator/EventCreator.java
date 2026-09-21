@@ -24,6 +24,7 @@ import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.QualifiedName;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.nodemanager.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import opc.ua.iosb.aas.Ids;
@@ -113,20 +114,10 @@ public class EventCreator extends SubmodelElementCreator {
                 nodeManager.addSubmodelElementOpcUA(eventRef, eventNode);
             }
 
-            //nodeManager.addSubmodelElementAasMap(nid, new SubmodelElementData(aasEvent, submodel, SubmodelElementData.Type.PROPERTY_VALUE, eventRef));
+            nodeManager.addSubmodelElementAasMap(nid, new SubmodelElementData(aasEvent, submodel, SubmodelElementData.Type.PROPERTY_VALUE, eventRef));
 
             nodeManager.addReferable(eventRef, new ObjectData(aasEvent, eventNode, submodel));
             retval = eventNode;
-
-            //
-            //            //if (ordered) {
-            //            //    node.addReference(eventNode, Identifiers.HasOrderedComponent, false);
-            //            //}
-            //            //else {
-            //            //    node.addComponent(eventNode);
-            //            //}
-            //
-            //            nodeManager.addReferable(eventRef, new ObjectData(aasEvent, eventNode, submodel));
         }
         catch (Exception ex) {
             LOGGER.error("createAasBasicEventElement Exception", ex);
@@ -136,7 +127,7 @@ public class EventCreator extends SubmodelElementCreator {
 
 
     private static void setBasicEventElementData(AASBasicEventElementType eventNode, BasicEventElement aasEvent)
-            throws StatusException, ValueFormatException {
+            throws StatusException {
         if (aasEvent.getObserved() != null) {
             eventNode.setObserved(ReferenceCreator.getAasReference(aasEvent.getObserved()));
         }
@@ -149,7 +140,6 @@ public class EventCreator extends SubmodelElementCreator {
             eventNode.setState(ValueConverter.getAasStateOfEventType(aasEvent.getState()));
         }
 
-        //String namespaceUri = Ids.AASBasicEventElementType.getNamespaceUri();
         setMessageTopic(aasEvent.getMessageTopic(), eventNode);
         setMessageBroker(aasEvent.getMessageBroker(), eventNode);
         setLastUpdate(aasEvent.getLastUpdate(), eventNode);
@@ -159,42 +149,25 @@ public class EventCreator extends SubmodelElementCreator {
 
 
     private static void setMaxInterval(String maxInterval, AASBasicEventElementType eventNode)
-            throws ValueFormatException, StatusException {
+            throws StatusException {
         if (maxInterval != null) {
-            //if (eventNode.getMaxIntervalNode() == null) {
-            //    UaHelper.addStringUaProperty(eventNode, nodeManager, AASBasicEventElementType.MAX_INTERVAL, maxInterval,
-            //            namespaceUri);
-            //}
-            //else {
             eventNode.setMessageTopic(maxInterval);
-            //}
         }
     }
 
 
     private static void setMinInterval(String minInterval, AASBasicEventElementType eventNode)
-            throws StatusException, ValueFormatException {
+            throws StatusException {
         if (minInterval != null) {
-            //if (eventNode.getMinIntervalNode() == null) {
-            //    UaHelper.addStringUaProperty(eventNode, nodeManager, AASBasicEventElementType.MIN_INTERVAL, minInterval,
-            //            namespaceUri);
-            //}
-            //else {
             eventNode.setMessageTopic(minInterval);
-            //}
         }
     }
 
 
     private static void setLastUpdate(String lastUpdate, AASBasicEventElementType eventNode)
-            throws StatusException, ValueFormatException {
+            throws StatusException {
         if (lastUpdate != null) {
-            //if (eventNode.getLastUpdateNode() == null) {
-            //    UaHelper.addStringUaProperty(eventNode, nodeManager, AASBasicEventElementType.LAST_UPDATE, lastUpdate, namespaceUri);
-            //}
-            //else {
             eventNode.setMessageTopic(lastUpdate);
-            //}
         }
     }
 
@@ -202,27 +175,15 @@ public class EventCreator extends SubmodelElementCreator {
     private static void setMessageBroker(Reference messageBroker, AASBasicEventElementType eventNode)
             throws StatusException {
         if (messageBroker != null) {
-            //if (eventNode.getMessageBrokerNode() == null) {
-            //    AasReferenceCreator.addAasReference(eventNode, messageBroker, AASBasicEventElementType.MESSAGE_BROKER,
-            //            namespaceUri, false,
-            //            nodeManager);
-            //}
-            //else {
             eventNode.setMessageBroker(ReferenceCreator.getAasReference(messageBroker));
-            //}
         }
     }
 
 
     private static void setMessageTopic(String messageTopic, AASBasicEventElementType eventNode)
-            throws StatusException, ValueFormatException {
+            throws StatusException {
         if (messageTopic != null) {
-            //if (eventNode.getMessageTopicNode() == null) {
-            //    UaHelper.addStringUaProperty(eventNode, nodeManager, AASBasicEventElementType.MESSAGE_TOPIC, messageTopic, namespaceUri);
-            //}
-            //else {
             eventNode.setMessageTopic(messageTopic);
-            //}
         }
     }
 

@@ -77,8 +77,6 @@ import opc.ua.iosb.aas.datatypes.AASStateOfEvent;
 import org.awaitility.Awaitility;
 import org.eclipse.digitaltwin.aas4j.v3.model.Qualifier;
 import org.junit.Assert;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -86,7 +84,6 @@ import org.slf4j.LoggerFactory;
  */
 public class TestUtils {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TestUtils.class);
     private static final Duration POLL_TIMEOUT = Duration.ofMillis(100);
     private static final Duration MAX_TIMEOUT = Duration.ofSeconds(5);
 
@@ -238,7 +235,6 @@ public class TestUtils {
         checkType(client, propertyNode, TestConstants.AAS_PROPERTY_TYPE_ID);
         checkDisplayName(client, propertyNode, name);
         checkSubmodelElementCommonAttributes(client, aasns, propertyNode, category, qualifierList);
-        //checkEmbeddedDataSpecificationNode(client, propertyNode, aasns);
 
         UaVariable varNode = (UaVariable) client.getAddressSpace().getNode(propertyNode);
         NodeId datatypeNode = varNode.getDataTypeId();
@@ -338,10 +334,6 @@ public class TestUtils {
                 .atMost(MAX_TIMEOUT)
                 .until(() -> {
                     DataValue val = client.readValue(writeNode);
-                    //if (val.getStatusCode().isGood()) {
-                    //    Object v = val.getValue().getValue();
-                    //    LOGGER.info("writeNewValueIntern: val: {}; old: {}; new: {}", v, oldValue, newValue);
-                    //}
                     return val.getStatusCode().isGood() && (val.getValue() != null) && Objects.equals(val.getValue().getValue(), newValue);
                 });
     }
@@ -497,7 +489,7 @@ public class TestUtils {
 
 
     public static void checkConceptDescriptions(UaClient client, NodeId conceptDescriptionsNode, List<ConceptDescriptionData> conceptDescriptions)
-            throws ServiceException, AddressSpaceException, ServiceResultException, StatusException {
+            throws ServiceException, AddressSpaceException {
         Assert.assertNotNull(conceptDescriptionsNode);
         UaNode node = client.getAddressSpace().getNode(conceptDescriptionsNode);
         Assert.assertEquals(NodeClass.Variable, node.getNodeClass());
@@ -518,12 +510,10 @@ public class TestUtils {
                 checkConceptDescription(arr[i], conceptDescriptions.get(i));
             }
         }
-        //}
     }
 
 
-    public static void checkConceptDescription(AASConceptDescription conceptDescription, ConceptDescriptionData data)
-            throws ServiceResultException, ServiceException, StatusException {
+    public static void checkConceptDescription(AASConceptDescription conceptDescription, ConceptDescriptionData data) {
         Assert.assertNotNull(conceptDescription.getCommonAttributes());
         checkIdentifiable(conceptDescription.getCommonAttributes().getIdentifiable(), data.id(), data.version(), data.revision());
 
@@ -549,8 +539,7 @@ public class TestUtils {
     }
 
 
-    public static void checkBasicEvent(UaClient client, NodeId submodelNode, int aasns, int iltns, String name, String category, AASDirection direction, AASStateOfEvent state,
-                                       AASReference observed)
+    public static void checkBasicEvent(UaClient client, NodeId submodelNode, int aasns, int iltns, String name, String category, AASDirection direction, AASStateOfEvent state)
             throws ServiceException, ServiceResultException, AddressSpaceException, StatusException {
         NodeId eventNode = getSubmodelElement(iltns, name, client, submodelNode);
 
@@ -597,7 +586,7 @@ public class TestUtils {
     }
 
 
-    public static void checkUriDictionaryEntry(UaClient client, NodeId nodeId, int aasns, String value) throws ServiceException, ServiceResultException, StatusException {
+    public static void checkUriDictionaryEntry(UaClient client, NodeId nodeId, String value) throws ServiceException, ServiceResultException, StatusException {
         NodeId expected = client.getAddressSpace().getNamespaceTable().toNodeId(new ExpandedNodeId(UriDictionaryNodeManager.NAMESPACE, value));
         NodeId entryNode;
         List<ReferenceDescription> refs = client.getAddressSpace().browse(nodeId, BrowseDirection.Forward, Identifiers.HasDictionaryEntry);

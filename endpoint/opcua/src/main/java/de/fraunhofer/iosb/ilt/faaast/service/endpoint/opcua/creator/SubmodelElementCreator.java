@@ -196,7 +196,7 @@ public class SubmodelElementCreator {
      * @throws ServiceResultException If an error occurs.
      */
     protected static void addSubmodelElementBaseData(AASSubmodelElementVariableType node, SubmodelElement element, AasServiceNodeManager nodeManager)
-            throws StatusException, ServiceResultException {
+            throws StatusException {
 
         if ((node != null) && (element != null)) {
             if (node.getCommonAttributes() == null) {
@@ -207,8 +207,6 @@ public class SubmodelElementCreator {
 
             // SemanticId
             if (element.getSemanticId() != null) {
-                //ConceptDescriptionCreator.addConceptDescription(node, nodeManager.getConceptDescription(element.getSemanticId()), element.getEmbeddedDataSpecifications(),
-                //        nodeManager);
                 ConceptDescriptionCreator.addSemanticId(node, element.getSemanticId(), nodeManager);
             }
 
@@ -228,7 +226,7 @@ public class SubmodelElementCreator {
      * @throws ServiceResultException If an error occurs.
      */
     protected static void addSubmodelElementBaseData(AASSubmodelElementObjectType node, SubmodelElement element, AasServiceNodeManager nodeManager)
-            throws StatusException, ServiceResultException {
+            throws StatusException {
         if ((node != null) && (element != null)) {
             if (node.getCommonAttributes() == null) {
                 node.setCommonAttributes(new AASSubmodelElementCommonAttributes());
@@ -239,8 +237,6 @@ public class SubmodelElementCreator {
             // HasSemantics
             node.getCommonAttributes().setHasSemantics(BaseDataCreator.getHasSemantics(element));
             if (element.getSemanticId() != null) {
-                //ConceptDescriptionCreator.addConceptDescription(node, nodeManager.getConceptDescription(element.getSemanticId()), element.getEmbeddedDataSpecifications(),
-                //        nodeManager);
                 ConceptDescriptionCreator.addSemanticId(node, element.getSemanticId(), nodeManager);
             }
 
