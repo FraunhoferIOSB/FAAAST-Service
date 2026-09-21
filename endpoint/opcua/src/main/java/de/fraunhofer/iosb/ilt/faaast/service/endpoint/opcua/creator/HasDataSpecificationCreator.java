@@ -44,6 +44,7 @@ public class HasDataSpecificationCreator {
      * @param dataSpecification The desired Data Specification
      */
     public static void addHasDataSpecification(AASAssetAdministrationShellType aasNode, HasDataSpecification dataSpecification) {
+        Ensure.requireNonNull(dataSpecification);
         if (aasNode.getCommonAttributes().getHasDataSpecification() == null) {
             aasNode.getCommonAttributes().setHasDataSpecification(new AASHasDataSpecification());
         }
@@ -59,6 +60,7 @@ public class HasDataSpecificationCreator {
      * @param dataSpecification The desired Data Specification
      */
     public static void addHasDataSpecification(AASConceptDescriptionCommonAttributes aasNode, HasDataSpecification dataSpecification) {
+        Ensure.requireNonNull(dataSpecification);
         if (aasNode.getHasDataSpecification() == null) {
             aasNode.setHasDataSpecification(new AASHasDataSpecification());
         }
@@ -73,6 +75,7 @@ public class HasDataSpecificationCreator {
      * @param dataSpecification The desired Data Specification
      */
     public static void addHasDataSpecification(AASSubmodelElementCommonAttributes submodelElementCommonNode, HasDataSpecification dataSpecification) {
+        Ensure.requireNonNull(dataSpecification);
         if (submodelElementCommonNode.getHasDataSpecification() == null) {
             submodelElementCommonNode.setHasDataSpecification(new AASHasDataSpecification());
         }
