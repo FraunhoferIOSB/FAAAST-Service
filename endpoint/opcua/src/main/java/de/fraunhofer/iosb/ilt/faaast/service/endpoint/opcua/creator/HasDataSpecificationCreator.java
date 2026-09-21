@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator;
 
+import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.util.ArrayList;
 import java.util.List;
 import opc.ua.aas.datatypes.AASConceptDescriptionCommonAttributes;
@@ -87,6 +88,7 @@ public class HasDataSpecificationCreator {
      * @param dataSpecification The desired Data Specification
      */
     public static void addHasDataSpecification(AASSubmodelType submodelNode, HasDataSpecification dataSpecification) {
+        Ensure.requireNonNull(dataSpecification);
         if (submodelNode.getCommonAttributes().getHasDataSpecification() == null) {
             submodelNode.getCommonAttributes().setHasDataSpecification(new AASHasDataSpecification());
         }
