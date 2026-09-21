@@ -14,6 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler.dpp;
 
+import static java.util.Optional.ofNullable;
+
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
@@ -41,6 +43,8 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
  * @param <U> type of the corresponding DPP response
  */
 public abstract class AbstractDppRequestHandler<T extends AbstractDppRequest<U>, U extends AbstractDPPResponse> extends AbstractRequestHandler<T, U> {
+
+    private static final String DPP_METADATA_SUBMODEL_SEMANTIC_ID = "https://admin-shell.io/idta/cds/dppMetadata/1";
 
     /**
      * Get and build a DPP from an AAS as source, fetching its metadata and content submodels.
@@ -74,11 +78,15 @@ public abstract class AbstractDppRequestHandler<T extends AbstractDppRequest<U>,
 
 
     private Submodel getMetadataSubmodel(List<Submodel> submodels) throws ResourceNotFoundException {
+
         return submodels.stream()
                 .filter(sm -> sm.getSemanticId() != null)
                 .filter(sm -> sm.getSemanticId().getKeys() != null)
                 .filter(sm -> !sm.getSemanticId().getKeys().isEmpty())
-                .filter(sm -> Objects.requireNonNull(ReferenceHelper.getEffectiveKey(sm.getSemanticId())).getValue().equals("DPP_SEMANTIC_ID"))
+                .filter(sm -> ofNullable(ReferenceHelper.getEffectiveKey(sm.getSemanticId()))
+                        .map(Key::getValue)
+                        .map(DPP_METADATA_SUBMODEL_SEMANTIC_ID::equals)
+                        .orElse(false))
                 .findFirst()
                 .orElseThrow(() -> new ResourceNotFoundException("DPP Metadata Submodel not found"));
     }
