@@ -117,15 +117,11 @@ public class AssetAdministrationShellCreator {
 
         // AssetInformation
         AssetInformation assetInformation = aas.getAssetInformation();
-        if (assetInformation != null) {
-            addAssetInformation(aasShell, assetInformation, nodeManager);
-        }
+        addAssetInformation(aasShell, assetInformation, nodeManager);
 
         // submodel references
         List<Reference> submodelRefs = aas.getSubmodels();
-        if ((submodelRefs != null) && (!submodelRefs.isEmpty())) {
-            addSubmodelReferences(aasShell, submodelRefs, nodeManager);
-        }
+        addSubmodelReferences(aasShell, submodelRefs, nodeManager);
 
         // add AAS to Environment
         nodeManager.addNodeAndReference(node, aasShell, Identifiers.Organizes);
@@ -136,11 +132,11 @@ public class AssetAdministrationShellCreator {
 
     private static void addAssetInformation(AASAssetAdministrationShellType aasNode, AssetInformation assetInformation, AasServiceNodeManager nodeManager)
             throws StatusException, ValueFormatException, ServiceResultException {
-        if (aasNode == null) {
-            throw new IllegalArgumentException("aasNode = null");
+        if (assetInformation == null) {
+            return;
         }
-        else if (assetInformation == null) {
-            throw new IllegalArgumentException("assetInformation = null");
+        else if (aasNode == null) {
+            throw new IllegalArgumentException("aasNode = null");
         }
 
         boolean created = false;
@@ -240,24 +236,23 @@ public class AssetAdministrationShellCreator {
 
 
     private static void addSubmodelReferences(AASAssetAdministrationShellType node, List<Reference> submodelRefs, AasServiceNodeManager nodeManager) throws StatusException {
-        if (node == null) {
-            throw new IllegalArgumentException(AasServiceNodeManager.NODE_NULL);
+        if ((submodelRefs == null) || submodelRefs.isEmpty()) {
+            return;
         }
-        else if (submodelRefs == null) {
-            throw new IllegalArgumentException("sumodelRefs = null");
+        else if (node == null) {
+            throw new IllegalArgumentException(AasServiceNodeManager.NODE_NULL);
         }
 
         String name = AASAssetAdministrationShellType.SUBMODEL;
         BaseDataVariableType referenceListNode = node.getSubmodelNode();
         LOGGER.debug("addSubmodelReferences: add {} Submodels to Node: {}", submodelRefs.size(), node);
-        boolean added = false;
         if (referenceListNode == null) {
             QualifiedName browseName = UaQualifiedName.from(Ids.AASAssetAdministrationShellType.getNamespaceUri(), name)
                     .toQualifiedName(nodeManager.getNamespaceTable());
             NodeId nid = nodeManager.createNodeId(node, browseName);
             referenceListNode = nodeManager.createInstance(BaseDataVariableType.class, nid, browseName, LocalizedText.english(name));
             LOGGER.debug("addSubmodelReferences: add Node {} to Node {}", referenceListNode.getNodeId(), node.getNodeId());
-            added = true;
+            node.addComponent(referenceListNode);
         }
 
         List<AASReference> refList = ReferenceCreator.getAasReferences(submodelRefs);
@@ -271,10 +266,6 @@ public class AssetAdministrationShellCreator {
                     UnsignedInteger.valueOf(refList.size())
             });
             referenceListNode.setValue(refList.toArray(AASReference[]::new));
-        }
-
-        if (added) {
-            node.addComponent(referenceListNode);
         }
     }
 
