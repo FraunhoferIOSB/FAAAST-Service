@@ -80,7 +80,7 @@ public abstract class AbstractDppRequestHandler<T extends AbstractDppRequest<U>,
         return DigitalProductPassport.builder()
                 .aas(shell)
                 .metadata(metadata)
-                .contents(submodels)
+                .contents(List.copyOf(submodels))
                 .build();
     }
 
