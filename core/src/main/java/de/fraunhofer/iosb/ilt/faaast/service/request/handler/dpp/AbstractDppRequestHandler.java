@@ -14,8 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler.dpp;
 
-import static java.util.Optional.ofNullable;
-
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
@@ -27,13 +25,18 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundExc
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ElementReadEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
+import org.eclipse.digitaltwin.aas4j.v3.model.HasSemantics;
 import org.eclipse.digitaltwin.aas4j.v3.model.Key;
+import org.eclipse.digitaltwin.aas4j.v3.model.Property;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList;
 
 
 /**
@@ -44,7 +47,8 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
  */
 public abstract class AbstractDppRequestHandler<T extends AbstractDppRequest<U>, U extends AbstractDPPResponse> extends AbstractRequestHandler<T, U> {
 
-    private static final String DPP_METADATA_SUBMODEL_SEMANTIC_ID = "https://admin-shell.io/idta/cds/dppMetadata/1";
+    private static final Reference DPP_METADATA_SUBMODEL_SEMANTIC_ID = ReferenceBuilder.global("https://admin-shell.io/idta/cds/dppMetadata/1");
+    private static final Reference CONTENT_SPECIFICATION_IDS_SEMANTIC_ID = ReferenceBuilder.global("https://admin-shell.io/idta/cds/contentSpecificationIds/1");
 
     /**
      * Get and build a DPP from an AAS as source, fetching its metadata and content submodels.
@@ -68,27 +72,51 @@ public abstract class AbstractDppRequestHandler<T extends AbstractDppRequest<U>,
         Submodel metadata = getMetadataSubmodel(submodels);
         submodels.remove(metadata);
 
+        List<Reference> contentSpecificationIds = getContentSpecificationIdsAsReferences(metadata);
+
+        // Remove submodels where semantic ID does not appear in contentSpecificationId list
+        submodels.removeIf(sm -> sm.getSemanticId() == null || contentSpecificationIds.stream().noneMatch(contentId -> hasCorrectSemanticId(sm, contentId)));
+
         return DigitalProductPassport.builder()
                 .aas(shell)
                 .metadata(metadata)
                 .contents(submodels)
                 .build();
-
     }
 
 
     private Submodel getMetadataSubmodel(List<Submodel> submodels) throws ResourceNotFoundException {
-
         return submodels.stream()
-                .filter(sm -> sm.getSemanticId() != null)
-                .filter(sm -> sm.getSemanticId().getKeys() != null)
-                .filter(sm -> !sm.getSemanticId().getKeys().isEmpty())
-                .filter(sm -> ofNullable(ReferenceHelper.getEffectiveKey(sm.getSemanticId()))
-                        .map(Key::getValue)
-                        .map(DPP_METADATA_SUBMODEL_SEMANTIC_ID::equals)
-                        .orElse(false))
+                .filter(Objects::nonNull)
+                .filter(elem -> hasCorrectSemanticId(elem, DPP_METADATA_SUBMODEL_SEMANTIC_ID))
                 .findFirst()
                 .orElseThrow(() -> new ResourceNotFoundException("DPP Metadata Submodel not found"));
+    }
+
+
+    private List<Reference> getContentSpecificationIdsAsReferences(Submodel metadataSubmodel) {
+        return metadataSubmodel.getSubmodelElements()
+                .stream()
+                // find the contentSpecificationId SML
+                .filter(SubmodelElementList.class::isInstance)
+                .filter(elem -> hasCorrectSemanticId(elem, CONTENT_SPECIFICATION_IDS_SEMANTIC_ID))
+                .map(SubmodelElementList.class::cast)
+                .map(SubmodelElementList::getValue)
+                .findFirst()
+                // find all correctly formed content specification ids
+                .map(s -> s.stream()
+                        .filter(Property.class::isInstance)
+                        .map(Property.class::cast)
+                        .map(Property::getValue)
+                        .map(ReferenceBuilder::global)
+                        .toList())
+                .orElse(List.of());
+    }
+
+
+    private boolean hasCorrectSemanticId(HasSemantics hasSemantics, Reference toMatch) {
+        Reference semanticId = hasSemantics.getSemanticId();
+        return semanticId != null && ReferenceHelper.equals(semanticId, toMatch);
     }
 
 
