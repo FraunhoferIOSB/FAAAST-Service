@@ -108,6 +108,7 @@ public abstract class AbstractDppRequestHandler<T extends AbstractDppRequest<U>,
                         .filter(Property.class::isInstance)
                         .map(Property.class::cast)
                         .map(Property::getValue)
+                        .filter(Objects::nonNull)
                         .map(ReferenceBuilder::global)
                         .toList())
                 .orElse(List.of());
