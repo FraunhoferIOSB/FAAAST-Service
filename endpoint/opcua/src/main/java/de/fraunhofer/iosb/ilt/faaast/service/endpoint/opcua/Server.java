@@ -16,20 +16,25 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua;
 
 import com.prosysopc.ua.ApplicationIdentity;
 import com.prosysopc.ua.SecureIdentityException;
+import com.prosysopc.ua.StatusException;
 import com.prosysopc.ua.UaApplication;
 import com.prosysopc.ua.UaApplication.Protocol;
 import com.prosysopc.ua.UserTokenPolicies;
+import com.prosysopc.ua.ValueRanks;
 import com.prosysopc.ua.nodes.UaNode;
+import com.prosysopc.ua.nodes.UaProperty;
 import com.prosysopc.ua.server.UaServer;
 import com.prosysopc.ua.server.UaServerException;
 import com.prosysopc.ua.stack.builtintypes.DateTime;
 import com.prosysopc.ua.stack.builtintypes.ExpandedNodeId;
 import com.prosysopc.ua.stack.builtintypes.LocalizedText;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
+import com.prosysopc.ua.stack.builtintypes.UnsignedInteger;
 import com.prosysopc.ua.stack.builtintypes.UnsignedShort;
 import com.prosysopc.ua.stack.cert.DefaultCertificateValidator;
 import com.prosysopc.ua.stack.cert.DefaultCertificateValidatorListener;
 import com.prosysopc.ua.stack.cert.PkiDirectoryCertificateStore;
+import com.prosysopc.ua.stack.core.AccessLevelType;
 import com.prosysopc.ua.stack.core.ApplicationDescription;
 import com.prosysopc.ua.stack.core.ApplicationType;
 import com.prosysopc.ua.stack.core.MessageSecurityMode;
@@ -43,6 +48,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.listener.AasServiceI
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.nodemanager.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.nodemanager.IrdiDictionaryNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.nodemanager.UriDictionaryNodeManager;
+import de.fraunhofer.iosb.ilt.faaast.service.model.ServiceSpecificationProfile;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import java.io.File;
@@ -51,6 +57,8 @@ import java.net.InetAddress;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
@@ -305,6 +313,7 @@ public class Server {
             }
             LOGGER.info("createAddressSpace: {}", envNode);
 
+            addProfiles(envNode);
             AasServiceNodeManager aasNodeManager = new AasServiceNodeManager(uaServer, AasServiceNodeManager.NAMESPACE_URI, aasEnvironment, endpoint, envNode);
             aasNodeManager.getIoManager().addListeners(new AasServiceIoManagerListener(endpoint, aasNodeManager));
 
@@ -337,5 +346,20 @@ public class Server {
 
         long duration = System.currentTimeMillis() - start;
         LOGGER.trace("loadAasNodes end. Dauer: {} ms", duration);
+    }
+
+
+    private void addProfiles(AASEnvironmentType envNode) throws StatusException {
+        List<ServiceSpecificationProfile> profiles = endpoint.getProfiles();
+        List<String> uris = new ArrayList<>();
+        profiles.forEach(p -> uris.add(p.getId()));
+        UaProperty profilesNode = envNode.getProfilesNode();
+        profilesNode.setArrayDimensions(new UnsignedInteger[] {
+                UnsignedInteger.valueOf(uris.size())
+        });
+        profilesNode.setValueRank(ValueRanks.OneDimension);
+        profilesNode.setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
+        profilesNode.setDescription(LocalizedText.english("The Current Profiles"));
+        envNode.setProfiles(uris.toArray(String[]::new));
     }
 }
