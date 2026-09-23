@@ -308,9 +308,16 @@ public class Server {
             NodeId nodeId = uaServer.getNamespaceTable().toNodeId(new ExpandedNodeId(Ids.AASEnvironmentType.getNamespaceUri(), AAS_ENVIRONMENT_ID));
             UaNode node = uaServer.getAddressSpace().findNode(nodeId);
             AASEnvironmentType envNode = null;
-            if (node instanceof AASEnvironmentType aasEnvironmentType) {
+            if (node == null) {
+                envNode = uaServer.getNodeManagerRoot().createInstance(AASEnvironmentType.class, "AASEnvironment", nodeId);
+            }
+            else if (node instanceof AASEnvironmentType aasEnvironmentType) {
                 envNode = aasEnvironmentType;
             }
+            else {
+                throw new IllegalArgumentException("AASEnvironment node has wrong type");
+            }
+
             LOGGER.info("createAddressSpace: {}", envNode);
 
             addProfiles(envNode);

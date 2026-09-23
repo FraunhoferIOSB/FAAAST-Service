@@ -54,7 +54,6 @@ public class SpecificAssetIdCreator {
     public static void addSpecificAssetIdList(BaseDataVariableType node, List<SpecificAssetId> specificAssetIds, NodeManagerUaNode nodeManager)
             throws StatusException, ServiceResultException {
 
-        //int index = 1;
         List<AASSpecificAssetId> list = new ArrayList<>();
         for (var specificAssetId: specificAssetIds) {
             LOGGER.debug("addSpecificAssetIdList {}; to Node: {}", specificAssetId.getName(), node);
@@ -63,11 +62,7 @@ public class SpecificAssetIdCreator {
         }
 
         node.setDataTypeId(nodeManager.getNamespaceTable().toNodeId(DataTypeIds.AASSpecificAssetId));
-        if (list.size() == 1) {
-            node.setValueRank(ValueRanks.Scalar);
-            node.setValue(list.get(0));
-        }
-        else if (list.size() > 1) {
+        if (!list.isEmpty()) {
             node.setValueRank(ValueRanks.OneDimension);
             node.setArrayDimensions(new UnsignedInteger[] {
                     UnsignedInteger.valueOf(list.size())

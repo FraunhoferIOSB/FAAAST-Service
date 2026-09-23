@@ -256,11 +256,7 @@ public class AssetAdministrationShellCreator {
         }
 
         List<AASReference> refList = ReferenceCreator.getAasReferences(submodelRefs);
-        if (refList.size() == 1) {
-            referenceListNode.setValueRank(ValueRanks.Scalar);
-            referenceListNode.setValue(refList.get(0));
-        }
-        else if (refList.size() > 1) {
+        if (!refList.isEmpty()) {
             referenceListNode.setValueRank(ValueRanks.OneDimension);
             referenceListNode.setArrayDimensions(new UnsignedInteger[] {
                     UnsignedInteger.valueOf(refList.size())
