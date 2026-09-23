@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data;
 
-import com.prosysopc.ua.types.opcua.BaseObjectType;
+import com.prosysopc.ua.nodes.UaNode;
 import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 
@@ -32,7 +32,7 @@ public class ObjectData {
     /**
      * The OPC UA Node
      */
-    private final BaseObjectType node;
+    private final UaNode node;
 
     /**
      * The corresponding Submodel, if available
@@ -45,7 +45,7 @@ public class ObjectData {
      * @param referable The Referable
      * @param node The OPC UA Node
      */
-    public ObjectData(Referable referable, BaseObjectType node) {
+    public ObjectData(Referable referable, UaNode node) {
         this.referable = referable;
         this.node = node;
         this.submodel = null;
@@ -59,7 +59,7 @@ public class ObjectData {
      * @param node The OPC UA Node
      * @param submodel The corresponding Submodel
      */
-    public ObjectData(Referable referable, BaseObjectType node, Submodel submodel) {
+    public ObjectData(Referable referable, UaNode node, Submodel submodel) {
         this.referable = referable;
         this.node = node;
         this.submodel = submodel;
@@ -81,7 +81,7 @@ public class ObjectData {
      *
      * @return The Node
      */
-    public BaseObjectType getNode() {
+    public UaNode getNode() {
         return node;
     }
 

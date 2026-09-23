@@ -37,7 +37,7 @@ public class AasCertificateValidationListener implements DefaultCertificateValid
     public ValidationResult onValidate(Cert cert, ApplicationDescription ad, EnumSet<CertificateCheck> passedChecks) {
 
         try {
-            LOGGER.debug("onValidate: {}, {}", ad, CertificateUtils.getApplicationUriOfCertificate(cert));
+            LOGGER.atDebug().log("onValidate: {}, {}", ad, CertificateUtils.getApplicationUriOfCertificate(cert));
         }
         catch (CertificateParsingException ex) {
             LOGGER.error("onValidate Exception", ex);

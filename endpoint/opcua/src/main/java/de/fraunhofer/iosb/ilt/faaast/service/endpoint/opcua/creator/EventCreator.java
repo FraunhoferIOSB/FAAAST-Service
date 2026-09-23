@@ -17,16 +17,18 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator;
 import com.prosysopc.ua.StatusException;
 import com.prosysopc.ua.UaQualifiedName;
 import com.prosysopc.ua.nodes.UaNode;
+import com.prosysopc.ua.server.instantiation.NodeBuilder;
+import com.prosysopc.ua.server.instantiation.NodeBuilderConfiguration;
 import com.prosysopc.ua.stack.builtintypes.LocalizedText;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.QualifiedName;
-import com.prosysopc.ua.stack.core.Identifiers;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.UaHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.nodemanager.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
-import opc.i4aas.objecttypes.AASBasicEventElementType;
+import opc.ua.iosb.aas.Ids;
+import opc.ua.iosb.aas.objecttypes.AASBasicEventElementType;
 import org.eclipse.digitaltwin.aas4j.v3.model.BasicEventElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.EventElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
@@ -45,71 +47,89 @@ public class EventCreator extends SubmodelElementCreator {
     /**
      * Adds an AAS EventElement to the given node.
      *
-     * @param node The desired UA node
      * @param aasEvent The AAS Event to add
      * @param eventRef The AAS reference to the event
      * @param submodel The corresponding Submodel as parent object of the data element
-     * @param ordered Specifies whether the entity should be added ordered
-     *            (true) or unordered (false)
      * @param nodeManager The corresponding Node Manager
-     * @throws StatusException If the operation fails
-     * @throws ValueFormatException The data format of the value is invalid
+     * @return The created node.
      */
-    public static void addAasEvent(UaNode node, EventElement aasEvent, Reference eventRef, Submodel submodel, boolean ordered, AasServiceNodeManager nodeManager)
-            throws StatusException, ValueFormatException {
-        if ((node != null) && (aasEvent != null) && (aasEvent instanceof BasicEventElement)) {
-            addAasBasicEventElement(node, (BasicEventElement) aasEvent, eventRef, submodel, ordered, nodeManager);
+    public static UaNode createAasEvent(EventElement aasEvent, Reference eventRef, Submodel submodel, AasServiceNodeManager nodeManager) {
+        UaNode retval = null;
+        if (aasEvent instanceof BasicEventElement basicEventElement) {
+            retval = createAasBasicEventElement(basicEventElement, eventRef, submodel, nodeManager);
         }
+        return retval;
     }
 
 
     /**
      * Adds an AAS BasicEventElement to the given node.
      *
-     * @param node The desired UA node
      * @param aasEvent The AAS Event to add
      * @param eventRef The AAS reference to the event
      * @param submodel The corresponding Submodel as parent object of the data element
-     * @param ordered Specifies whether the entity should be added ordered
-     *            (true) or unordered (false)
      * @param nodeManager The corresponding Node Manager
+     * @return The created node.
      * @throws StatusException If the operation fails
      * @throws ValueFormatException The data format of the value is invalid
      */
-    private static void addAasBasicEventElement(UaNode node, BasicEventElement aasEvent, Reference eventRef, Submodel submodel, boolean ordered, AasServiceNodeManager nodeManager)
-            throws StatusException, ValueFormatException {
+    private static UaNode createAasBasicEventElement(BasicEventElement aasEvent, Reference eventRef, Submodel submodel, AasServiceNodeManager nodeManager) {
+        UaNode retval = null;
         try {
             String name = aasEvent.getIdShort();
             if ((name == null) || name.isEmpty()) {
                 name = getNameFromReference(eventRef);
             }
-            QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASBasicEventElementType.getNamespaceUri(), name)
+            QualifiedName browseName = UaQualifiedName.from(Ids.AASBasicEventElementType.getNamespaceUri(), name)
                     .toQualifiedName(nodeManager.getNamespaceTable());
             NodeId nid = nodeManager.getDefaultNodeId();
-            AASBasicEventElementType eventNode = nodeManager.createInstance(AASBasicEventElementType.class, nid, browseName, LocalizedText.english(name));
+
+            NodeBuilderConfiguration conf = new NodeBuilderConfiguration();
+            if (aasEvent.getMessageTopic() != null) {
+                conf.addOptional(Ids.AASBasicEventElementType_MessageTopic);
+            }
+            if (aasEvent.getMessageBroker() != null) {
+                conf.addOptional(Ids.AASBasicEventElementType_MessageBroker);
+            }
+            if (aasEvent.getLastUpdate() != null) {
+                conf.addOptional(Ids.AASBasicEventElementType_LastUpdate);
+            }
+            if (aasEvent.getMinInterval() != null) {
+                conf.addOptional(Ids.AASBasicEventElementType_MinInterval);
+            }
+            if (aasEvent.getMaxInterval() != null) {
+                conf.addOptional(Ids.AASBasicEventElementType_MaxInterval);
+            }
+            NodeBuilder<AASBasicEventElementType> nb = nodeManager.createNodeBuilder(AASBasicEventElementType.class, conf);
+            nb.setBrowseName(browseName);
+            nb.setDisplayName(LocalizedText.english(name));
+            nb.setNodeId(nid);
+            AASBasicEventElementType eventNode = nb.build();
+
             addSubmodelElementBaseData(eventNode, aasEvent, nodeManager);
 
-            setBasicEventElementData(eventNode, aasEvent, nodeManager);
+            setBasicEventElementData(eventNode, aasEvent);
 
-            if (ordered) {
-                node.addReference(eventNode, Identifiers.HasOrderedComponent, false);
+            if (eventRef != null) {
+                nodeManager.addSubmodelElementOpcUA(eventRef, eventNode);
             }
-            else {
-                node.addComponent(eventNode);
-            }
+
+            nodeManager.addSubmodelElementAasMap(nid, new SubmodelElementData(aasEvent, submodel, SubmodelElementData.Type.PROPERTY_VALUE, eventRef));
 
             nodeManager.addReferable(eventRef, new ObjectData(aasEvent, eventNode, submodel));
+            retval = eventNode;
         }
         catch (Exception ex) {
-            LOGGER.error("addAasBasicEventElement Exception", ex);
+            LOGGER.error("createAasBasicEventElement Exception", ex);
         }
+        return retval;
     }
 
 
-    private static void setBasicEventElementData(AASBasicEventElementType eventNode, BasicEventElement aasEvent, AasServiceNodeManager nodeManager)
-            throws StatusException, ValueFormatException {
+    private static void setBasicEventElementData(AASBasicEventElementType eventNode, BasicEventElement aasEvent)
+            throws StatusException {
         if (aasEvent.getObserved() != null) {
-            AasReferenceCreator.setAasReferenceData(aasEvent.getObserved(), eventNode.getObservedNode(), true);
+            eventNode.setObserved(ReferenceCreator.getAasReference(aasEvent.getObserved()));
         }
 
         if (aasEvent.getDirection() != null) {
@@ -120,80 +140,50 @@ public class EventCreator extends SubmodelElementCreator {
             eventNode.setState(ValueConverter.getAasStateOfEventType(aasEvent.getState()));
         }
 
-        String namespaceUri = opc.i4aas.ObjectTypeIds.AASBasicEventElementType.getNamespaceUri();
-        setMessageTopic(aasEvent.getMessageTopic(), eventNode, nodeManager, namespaceUri);
-        setMessageBroker(aasEvent.getMessageBroker(), eventNode, namespaceUri, nodeManager);
-        setLastUpdate(aasEvent.getLastUpdate(), eventNode, nodeManager, namespaceUri);
-        setMinInterval(aasEvent.getMinInterval(), eventNode, nodeManager, namespaceUri);
-        setMaxInterval(aasEvent.getMaxInterval(), eventNode, nodeManager, namespaceUri);
+        setMessageTopic(aasEvent.getMessageTopic(), eventNode);
+        setMessageBroker(aasEvent.getMessageBroker(), eventNode);
+        setLastUpdate(aasEvent.getLastUpdate(), eventNode);
+        setMinInterval(aasEvent.getMinInterval(), eventNode);
+        setMaxInterval(aasEvent.getMaxInterval(), eventNode);
     }
 
 
-    private static void setMaxInterval(String maxInterval, AASBasicEventElementType eventNode, AasServiceNodeManager nodeManager, String namespaceUri)
-            throws ValueFormatException, StatusException {
+    private static void setMaxInterval(String maxInterval, AASBasicEventElementType eventNode)
+            throws StatusException {
         if (maxInterval != null) {
-            if (eventNode.getMaxIntervalNode() == null) {
-                UaHelper.addStringUaProperty(eventNode, nodeManager, AASBasicEventElementType.MAX_INTERVAL, maxInterval,
-                        namespaceUri);
-            }
-            else {
-                eventNode.setMessageTopic(maxInterval);
-            }
+            eventNode.setMessageTopic(maxInterval);
         }
     }
 
 
-    private static void setMinInterval(String minInterval, AASBasicEventElementType eventNode, AasServiceNodeManager nodeManager, String namespaceUri)
-            throws StatusException, ValueFormatException {
+    private static void setMinInterval(String minInterval, AASBasicEventElementType eventNode)
+            throws StatusException {
         if (minInterval != null) {
-            if (eventNode.getMinIntervalNode() == null) {
-                UaHelper.addStringUaProperty(eventNode, nodeManager, AASBasicEventElementType.MIN_INTERVAL, minInterval,
-                        namespaceUri);
-            }
-            else {
-                eventNode.setMessageTopic(minInterval);
-            }
+            eventNode.setMessageTopic(minInterval);
         }
     }
 
 
-    private static void setLastUpdate(String lastUpdate, AASBasicEventElementType eventNode, AasServiceNodeManager nodeManager, String namespaceUri)
-            throws StatusException, ValueFormatException {
+    private static void setLastUpdate(String lastUpdate, AASBasicEventElementType eventNode)
+            throws StatusException {
         if (lastUpdate != null) {
-            if (eventNode.getLastUpdateNode() == null) {
-                UaHelper.addStringUaProperty(eventNode, nodeManager, AASBasicEventElementType.LAST_UPDATE, lastUpdate, namespaceUri);
-            }
-            else {
-                eventNode.setMessageTopic(lastUpdate);
-            }
+            eventNode.setMessageTopic(lastUpdate);
         }
     }
 
 
-    private static void setMessageBroker(Reference messageBroker, AASBasicEventElementType eventNode, String namespaceUri, AasServiceNodeManager nodeManager)
+    private static void setMessageBroker(Reference messageBroker, AASBasicEventElementType eventNode)
             throws StatusException {
         if (messageBroker != null) {
-            if (eventNode.getMessageBrokerNode() == null) {
-                AasReferenceCreator.addAasReference(eventNode, messageBroker, AASBasicEventElementType.MESSAGE_BROKER,
-                        namespaceUri, false,
-                        nodeManager);
-            }
-            else {
-                AasReferenceCreator.setAasReferenceData(messageBroker, eventNode.getMessageBrokerNode(), true);
-            }
+            eventNode.setMessageBroker(ReferenceCreator.getAasReference(messageBroker));
         }
     }
 
 
-    private static void setMessageTopic(String messageTopic, AASBasicEventElementType eventNode, AasServiceNodeManager nodeManager, String namespaceUri)
-            throws StatusException, ValueFormatException {
+    private static void setMessageTopic(String messageTopic, AASBasicEventElementType eventNode)
+            throws StatusException {
         if (messageTopic != null) {
-            if (eventNode.getMessageTopicNode() == null) {
-                UaHelper.addStringUaProperty(eventNode, nodeManager, AASBasicEventElementType.MESSAGE_TOPIC, messageTopic, namespaceUri);
-            }
-            else {
-                eventNode.setMessageTopic(messageTopic);
-            }
+            eventNode.setMessageTopic(messageTopic);
         }
     }
 

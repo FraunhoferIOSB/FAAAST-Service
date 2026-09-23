@@ -14,8 +14,13 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper;
 
+import com.prosysopc.ua.stack.builtintypes.ExpandedNodeId;
+
+
 public class TestConstants {
 
+    public static final String AAS_NAMESPACE_URI = "http://opcfoundation.org/UA/AAS/";
+    public static final String ILT_NAMESPACE_URI = "http://iosb.fraunhofer.de/ILT/AAS/";
     public static final String AAS_ENVIRONMENT_NAME = "AASEnvironment";
     public static final String SIMPLE_AAS_NAME = "ExampleMotor";
     public static final String SIMPLE_ASSET_NAME = "ServoDCMotor";
@@ -40,79 +45,79 @@ public class TestConstants {
     public static final String TEST_ENTITY_NAME = "ExampleEntity";
     public static final String TEST_ENTITY_PROPERTY_NAME = "ExampleProperty2";
     public static final String DECIMAL_PROPERTY = "DecimalProperty";
-    public static final String SUBMODEL_DOC_PROPERTY_TITLE_NAME = "Title";
+    public static final String SIMPLE_TITLE_NAME = "Title";
+    public static final String SIMPLE_TITEL_NAME = "Titel";
     public static final String SUBMODEL_DOC_FILE_NAME = "DigitalFile_PDF";
     public static final String SUBMODEL_ELEMENT_LIST_ORDERED_NAME = "ExampleSubmodelElementListOrdered";
     public static final String ORDER_RELEVANT = "OrderRelevant";
     public static final String TYPE_VALUE_LIST_ELEMENT = "TypeValueListElement";
     public static final String VALUE_TYPE_LIST_ELEMENT = "ValueTypeListElement";
+    public static final String MAX_ROTATION_SPEED_DATA_SPEC = "https://admin-shell.io/aas/3/1/RC02/DataSpecificationIEC61360";
+    public static final String MAX_ROTATIONSPEED_PREFERRED = "Max.rotationspeed";
+    public static final String MAX_DREHZAHL_PREFERRED = "max.Drehzahl";
+    public static final String MAX_ROTATIONSPEED_DEFINITION_DE = "HöchstezulässigeDrehzahl,mitwelcherderMotoroderdieSpeiseinheitbetriebenwerdendarf";
+    public static final String MAX_ROTATIONSPEED_DEFINITION_EN = "Greatestpermissiblerotationspeedwithwhichthemotororfeedingunitmaybeoperated";
+    public static final String MAX_ROTATIONSPEED_UNIT_ID = "0173-1#05-AAA650#002";
+    public static final String CONCEPT_DESCRIPTIONS_NODE = "ConceptDescriptions";
+    public static final String CD_DESCRIPTION_TITLE = "http://www.vdi2770.com/blatt1/Entwurf/Okt18/cd/Description/Title";
+    public static final String CD_TITLE_DEFINITION = "SprachabhängigerTiteldesDokuments.";
+    public static final String CD_DIGITAL_FILE = "DigitalFile";
+    public static final String CD_DIGITAL_FILE_DEFINITION = "A file representing the document version. In addition to the mandatory PDF file, other files can be specified.";
+    public static final String CD_DIGITAL_FILE_ID = "http://www.vdi2770.com/blatt1/Entwurf/Okt18/cd/StoredDocumentRepresentation/DigitalFile";
 
+    public static final String SUBMODEL_PREFIX = "Submodel:";
     public static final String FULL_SUBMODEL_1_NAME = "Identification";
     public static final String FULL_SUBMODEL_1_ID = "http://acplt.org/Submodels/Assets/TestAsset/Identification";
     public static final String FULL_SUBMODEL_2_NAME = "BillOfMaterial";
     public static final String FULL_SUBMODEL_3_NAME = "TestSubmodel3";
+    public static final String FULL_SUBMODEL_3_ID = "https://acplt.org/Test_Submodel";
     public static final String FULL_SUBMODEL_4_NAME = "Test_Submodel_Mandatory";
+    public static final String FULL_SUBMODEL_4_ID = "https://acplt.org/Test_Submodel_Mandatory";
     public static final String FULL_SUBMODEL_5_NAME = "Test_Submodel2_Mandatory";
     public static final String FULL_SUBMODEL_6_NAME = "TestSubmodel6";
     public static final String FULL_SUBMODEL_6_ID = "https://acplt.org/Test_Submodel_Missing";
     public static final String FULL_SUBMODEL_7_NAME = "TestSubmodelTemplate";
+    public static final String FULL_SUBMODEL_7_ID = "https://acplt.org/Test_Submodel_Template";
     public static final String FULL_REL_ELEMENT_NAME = "ExampleRelationshipElement";
-    public static final String FULL_SM_ELEM_COLL_UO_NAME = "ExampleSubmodelElementListUnordered";
-    public static final String FULL_SM_ELEM_LIST_O_NAME = "ExampleSubmodelElementListOrdered";
+    public static final String FULL_SM_ELEM_LIST_UO_NAME = "ExampleSubmodelElementListUnordered";
     public static final String FULL_SM_ELEM_COLL_NAME = "ExampleSubmodelElementCollection";
-    public static final String FULL_SMEC_REF_ELEM_NAME = "ExampleReferenceElement";
     public static final String FULL_SMEC_RANGE_NAME = "ExampleRange";
     public static final String FULL_OPERATION_NAME = "ExampleOperation";
     public static final String FULL_ENTITY2_NAME = "ExampleEntity2";
     public static final String FULL_CAPABILITY_NAME = "ExampleCapability";
     public static final String FULL_DATETIME_PROP_NAME = "DateTimeProperty";
     public static final String FULL_INT64_PROP_NAME = "Int64Property";
-
-    public static final String KIND_NAME = "Kind";
-    public static final String CATEGORY_NAME = "Category";
-    public static final String ADMINISTRATION_NAME = "Administration";
-    public static final String EMBEDDED_DATA_SPECIFICATION_NAME = "EmbeddedDataSpecification";
-    public static final String DATA_SPECIFICATION_NAME = "DataSpecification";
-    public static final String QUALIFIER_NAME = "Qualifier";
+    public static final String FULL_PROPERTY_NAME = "ExampleProperty";
+    public static final String FULL_ANN_REL_ELEMENT_NAME = "ExampleAnnotatedRelationshipElement";
+    public static final String OPERATION_METHOD_NAME = "Operation";
     public static final String PROPERTY_VALUE_NAME = "Value";
     public static final String PROPERTY_PATH_NAME = "Path";
-    public static final String PROPERTY_VALUE_TYPE_NAME = "ValueType";
     public static final String PROPERTY_CONTENT_TYPE_NAME = "ContentType";
-    public static final String PROPERTY_FILE_NAME = "File";
-    public static final String PROPERTY_SIZE_NAME = "Size";
-    public static final String VERSION_NAME = "Version";
-    public static final String REVISION_NAME = "Revision";
     public static final String ASSET_INFORMATION_NAME = "AssetInformation";
     public static final String ASSET_KIND_NAME = "AssetKind";
     public static final String BILL_OF_MATERIAL_NAME = "BillOfMaterial";
     public static final String DEFAULT_THUMB_NAME = "DefaultThumbnail";
     public static final String GLOBAL_ASSET_ID_NAME = "GlobalAssetId";
-    public static final String SPECIFIC_ASSET_ID_NAME = "SpecificAssetId";
-    public static final String ID_KEY_NAME = "Key";
-    public static final String ID_VALUE_NAME = "Value";
-    public static final String KEYS_VALUE_NAME = "Keys";
-
-    public static final int AAS_AAS_TYPE_ID = 1002;
-    public static final int AAS_REFERENCE_TYPE_ID = 1004;
-    public static final int AAS_ASSET_TYPE_ID = 1005;
-    public static final int AAS_SUBMODEL_TYPE_ID = 1006;
-    public static final int AAS_SUBMODEL_ELEM_COLL_TYPE_ID = 1010;
-    public static final int AAS_OREDER_SM_ELEM_COLL_TYPE_ID = 1011;
-    public static final int AAS_PROPERTY_TYPE_ID = 1013;
-    public static final int AAS_IDENTIFIER_TYPE_ID = 1029;
-    public static final int AAS_ADMIN_INFO_TYPE_ID = 1030;
-    public static final int AAS_ASSET_INFO_TYPE_ID = 1031;
-    public static final int AAS_QUALIFIER_TYPE_ID = 1032;
-    public static final int AAS_ID_KEY_VALUE_PAIR_ID = 1035;
-    public static final int AAS_REFERENCE_LIST_ID = 1036;
-    public static final int AAS_QUALIFIER_LIST_ID = 1037;
-    public static final int AAS_ID_KEY_VALUE_PAIR_LIST_ID = 1039;
-    public static final int AAS_SUBMODEL_ELEM_LIST_TYPE = 1040;
-    public static final int AAS_SPECIFIC_ASSET_ID_TYPE_ID = 1041;
-    public static final int AAS_SPECIFIC_ASSET_ID_LIST_TYPE_ID = 1043;
-    public static final int AAS_EMBEDDED_DATA_SPECIFICATION_LIST = 1050;
-    public static final int AAS_KEY_DATA_TYPE_ID = 3011;
-
+    public static final String CONCEPT_DESCRIPTION_NAME = "ConceptDescription";
+    public static final String EVENT_DIRECTION = "Direction";
+    public static final String EVENT_STATE = "State";
+    public static final String EVENT_OBSERVED = "Observed";
+    public static final String COMMON_ATTRIBUTES = "CommonAttributes";
+    public static final String OPERATING_MANUAL_CONCEPT_DESCRIPTION = "http://www.vdi2770.com/blatt1/Entwurf/Okt18/cd/Document";
+    public static final ExpandedNodeId AAS_AAS_TYPE_ID = new ExpandedNodeId(AAS_NAMESPACE_URI, 1001);
+    public static final ExpandedNodeId AAS_SUBMODEL_TYPE_ID = new ExpandedNodeId(AAS_NAMESPACE_URI, 1002);
+    public static final ExpandedNodeId AAS_SUBMODEL_ELEM_COLL_TYPE_ID = new ExpandedNodeId(AAS_NAMESPACE_URI, 1004);
+    public static final ExpandedNodeId AAS_PROPERTY_TYPE_ID = new ExpandedNodeId(AAS_NAMESPACE_URI, 2000);
+    public static final ExpandedNodeId AAS_ASSET_INFO_TYPE_ID = new ExpandedNodeId(AAS_NAMESPACE_URI, 1010);
+    public static final ExpandedNodeId AAS_SUBMODEL_ELEM_LIST_TYPE = new ExpandedNodeId(AAS_NAMESPACE_URI, 1005);
+    public static final ExpandedNodeId AAS_FILE_TYPE_ID = new ExpandedNodeId(AAS_NAMESPACE_URI, 1007);
+    public static final ExpandedNodeId AAS_COMMON_ATTRIBUTES_TYPE = new ExpandedNodeId(AAS_NAMESPACE_URI, 3056);
+    public static final ExpandedNodeId SUBMODEL_COMMON_ATTRIBUTES_TYPE = new ExpandedNodeId(AAS_NAMESPACE_URI, 3057);
+    public static final ExpandedNodeId SUBMODEL_ELEMENT_COMMON_ATTRIBUTES_TYPE = new ExpandedNodeId(AAS_NAMESPACE_URI, 3058);
+    public static final ExpandedNodeId ASSET_KIND_TYPE = new ExpandedNodeId(AAS_NAMESPACE_URI, 3029);
+    public static final ExpandedNodeId SPECIFIC_ASSET_TYPE = new ExpandedNodeId(AAS_NAMESPACE_URI, 3028);
+    public static final ExpandedNodeId RESOURCE_TYPE = new ExpandedNodeId(AAS_NAMESPACE_URI, 1029);
+    public static final ExpandedNodeId BASIC_EVENT_TYPE = new ExpandedNodeId(ILT_NAMESPACE_URI, 1006);
     public static final String SERVER_CERT_PATH = "PKI/CA";
     public static final String USER_CERT_PATH = "USERS_PKI/CA";
 }

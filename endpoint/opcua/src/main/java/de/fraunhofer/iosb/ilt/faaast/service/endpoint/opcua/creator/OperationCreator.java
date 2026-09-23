@@ -14,25 +14,28 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator;
 
+import com.prosysopc.ua.ServiceException;
+import com.prosysopc.ua.StatusException;
 import com.prosysopc.ua.UaQualifiedName;
-import com.prosysopc.ua.ValueRanks;
+import com.prosysopc.ua.client.AddressSpaceException;
 import com.prosysopc.ua.nodes.UaNode;
-import com.prosysopc.ua.server.nodes.PlainMethod;
+import com.prosysopc.ua.server.instantiation.NodeBuilder;
+import com.prosysopc.ua.server.instantiation.NodeBuilderConfiguration;
 import com.prosysopc.ua.stack.builtintypes.LocalizedText;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.QualifiedName;
-import com.prosysopc.ua.stack.core.Argument;
-import com.prosysopc.ua.stack.core.Identifiers;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
+import com.prosysopc.ua.stack.common.ServiceResultException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.nodemanager.AasServiceNodeManager;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
-import java.util.Locale;
-import opc.i4aas.objecttypes.AASOperationType;
+import opc.ua.aas.Ids;
+import opc.ua.aas.objecttypes.AASOperationType;
+import opc.ua.aas.objecttypes.AASOperationVariableType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
-import org.eclipse.digitaltwin.aas4j.v3.model.Property;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.slf4j.Logger;
@@ -49,100 +52,80 @@ public class OperationCreator extends SubmodelElementCreator {
     /**
      * Adds an AAS Operation to the given node.
      *
-     * @param node The desired UA node
      * @param aasOperation The corresponding AAS operation to add
      * @param operationRef The reference to the AAS operation
      * @param submodel The corresponding Submodel as parent object of the data element
-     * @param ordered Specifies whether the operation should be added ordered
-     *            (true) or unordered (false)
      * @param nodeManager The corresponding Node Manager
+     * @return The created node.
      */
-    public static void addAasOperation(UaNode node, Operation aasOperation, Reference operationRef, Submodel submodel, boolean ordered, AasServiceNodeManager nodeManager) {
+    public static UaNode createAasOperation(Operation aasOperation, Reference operationRef, Submodel submodel, AasServiceNodeManager nodeManager) {
+        UaNode retval = null;
         try {
             String name = aasOperation.getIdShort();
             if ((name == null) || name.isEmpty()) {
                 name = getNameFromReference(operationRef);
             }
-            QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASOperationType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
+            QualifiedName browseName = UaQualifiedName.from(Ids.AASOperationType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
             NodeId nid = nodeManager.getDefaultNodeId();
-            AASOperationType oper = nodeManager.createInstance(AASOperationType.class, nid, browseName, LocalizedText.english(name));
+
+            NodeBuilderConfiguration conf = new NodeBuilderConfiguration();
+            conf.addOptional(Ids.AASOperationType_Operation);
+            NodeBuilder<AASOperationType> nb = nodeManager.createNodeBuilder(AASOperationType.class, conf);
+            nb.setBrowseName(browseName);
+            nb.setDisplayName(LocalizedText.english(name));
+            nb.setNodeId(nid);
+            AASOperationType oper = nb.build();
+
             addSubmodelElementBaseData(oper, aasOperation, nodeManager);
 
             // for operations we put the corresponding operation object into the map
             nodeManager.addSubmodelElementAasMap(nid, new SubmodelElementData(aasOperation, submodel, SubmodelElementData.Type.OPERATION, operationRef));
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("addAasOperation: NodeId {}; Property: {}; Reference: {}", nid, aasOperation.getIdShort(), ReferenceHelper.toString(operationRef));
+            LOGGER.atDebug().log("addAasOperation: NodeId {}; Property: {}; Reference: {}", nid, aasOperation.getIdShort(), ReferenceHelper.toString(operationRef));
+
+            // InputArguments
+            // AASOperationVariableType
+            if (!aasOperation.getInputVariables().isEmpty()) {
+                for (var input: aasOperation.getInputVariables()) {
+                    AASOperationVariableType inputNode = createOperationVariable(operationRef, input, submodel, nodeManager);
+                    oper.addReference(inputNode, nodeManager.getNamespaceTable().toNodeId(Ids.AASHasAttribute));
+                }
             }
 
-            // add method
-            NodeId myMethodId = new NodeId(nodeManager.getNamespaceIndex(), nid.getValue().toString() + "." + name);
-            PlainMethod method = new PlainMethod(nodeManager, myMethodId, name, Locale.ENGLISH);
-            Argument[] inputs = new Argument[aasOperation.getInputVariables().size()];
-            for (int i = 0; i < aasOperation.getInputVariables().size(); i++) {
-                OperationVariable v = aasOperation.getInputVariables().get(i);
-                inputs[i] = new Argument();
-                setOperationArgument(inputs[i], v);
+            if (!aasOperation.getInoutputVariables().isEmpty()) {
+                for (var inoutput: aasOperation.getInoutputVariables()) {
+                    AASOperationVariableType inoutputNode = createOperationVariable(operationRef, inoutput, submodel, nodeManager);
+                    oper.addReference(inoutputNode, nodeManager.getNamespaceTable().toNodeId(Ids.AASHasAttribute));
+                }
             }
 
-            method.setInputArguments(inputs);
-
-            Argument[] outputs = new Argument[aasOperation.getOutputVariables().size()];
-            for (int i = 0; i < aasOperation.getOutputVariables().size(); i++) {
-                OperationVariable v = aasOperation.getOutputVariables().get(i);
-                outputs[i] = new Argument();
-                setOperationArgument(outputs[i], v);
-            }
-
-            method.setOutputArguments(outputs);
-
-            method.setDescription(new LocalizedText("", ""));
-            oper.addComponent(method);
-
-            if (ordered) {
-                node.addReference(oper, Identifiers.HasOrderedComponent, false);
-            }
-            else {
-                node.addComponent(oper);
+            if (!aasOperation.getOutputVariables().isEmpty()) {
+                for (var output: aasOperation.getOutputVariables()) {
+                    AASOperationVariableType outputNode = createOperationVariable(operationRef, output, submodel, nodeManager);
+                    oper.addReference(outputNode, nodeManager.getNamespaceTable().toNodeId(Ids.AASHasAttribute));
+                }
             }
 
             nodeManager.addReferable(operationRef, new ObjectData(aasOperation, oper, submodel));
+            retval = oper;
         }
         catch (Exception ex) {
-            LOGGER.error("addAasOperation Exception", ex);
+            LOGGER.error("createasOperation Exception", ex);
         }
+        return retval;
     }
 
 
-    /**
-     * Sets the arguments for the given Operation Variable.
-     *
-     * @param arg The UA argument
-     * @param var The corresponding Operation Variable
-     */
-    private static void setOperationArgument(Argument arg, OperationVariable operVar) {
-        if (operVar.getValue() instanceof Property) {
-            Property prop = (Property) operVar.getValue();
-            arg.setName(prop.getIdShort());
-            arg.setValueRank(ValueRanks.Scalar);
-            arg.setArrayDimensions(null);
+    private static AASOperationVariableType createOperationVariable(Reference operationRef, OperationVariable input, Submodel submodel, AasServiceNodeManager nodeManager)
+            throws StatusException, ValueFormatException, ServiceException, AddressSpaceException, ServiceResultException {
+        Reference elementRef = ReferenceBuilder.with(operationRef).element(input.getValue()).build();
+        UaNode inputElement = SubmodelElementCreator.createSubmodelElement(input.getValue(), elementRef, submodel, nodeManager);
 
-            // Description
-            DescriptionCreator.addDescriptions(arg, prop.getDescription());
-
-            NodeId type = ValueConverter.convertValueTypeStringToNodeId(prop.getValueType());
-            if (type.isNullNodeId()) {
-                LOGGER.warn("setOperationArgument: Property {}: Unknown type: {}", prop.getIdShort(), prop.getValueType());
-
-                // Default type is String. That's what we receive from the AAS Service
-                arg.setDataType(Identifiers.String);
-            }
-            else {
-                arg.setDataType(type);
-            }
-        }
-        else {
-            LOGGER.warn("setOperationArgument: unknown Argument type");
-        }
+        NodeId nid = nodeManager.getDefaultNodeId();
+        String name = input.getValue().getIdShort();
+        QualifiedName browseName = UaQualifiedName.from(Ids.AASOperationType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
+        AASOperationVariableType inputNode = nodeManager.createInstance(AASOperationVariableType.class, nid, browseName, LocalizedText.english(name));
+        inputNode.addReference(inputElement, nodeManager.getNamespaceTable().toNodeId(Ids.AASHasAttribute));
+        return inputNode;
     }
 
 }
