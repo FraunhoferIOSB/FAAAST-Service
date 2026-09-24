@@ -138,8 +138,9 @@ public class PersistenceFile implements Persistence<PersistenceFileConfig> {
 
 
     /**
-     *
      * All operations take effect immediately and rolling back does not undo anything.
+     * 
+     * @return noop transaction
      */
     @Override
     public Transaction beginTransaction() {

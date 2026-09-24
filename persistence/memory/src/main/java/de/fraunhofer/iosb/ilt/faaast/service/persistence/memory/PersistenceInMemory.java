@@ -131,6 +131,8 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
     /**
      * The in-memory persistence cannot group operations into an atomic unit of work, so all operations take effect
      * immediately and rolling back does not undo anything.
+     * 
+     * @return noop transaction
      */
     @Override
     public Transaction beginTransaction() {

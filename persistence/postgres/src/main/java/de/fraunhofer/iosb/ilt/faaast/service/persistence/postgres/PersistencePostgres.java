@@ -157,6 +157,7 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
         }
     }
 
+
     private HikariConfig getHikariConfig() {
         HikariConfig hikariConfig = new HikariConfig();
         hikariConfig.setJdbcUrl(config.getJdbcUrl());
