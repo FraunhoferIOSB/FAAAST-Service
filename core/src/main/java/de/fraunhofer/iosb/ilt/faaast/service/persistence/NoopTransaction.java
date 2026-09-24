@@ -15,17 +15,42 @@
 package de.fraunhofer.iosb.ilt.faaast.service.persistence;
 
 /**
- * A unit of work within a transaction that returns no result.
+ * A Transaction for persistence implementations that do not support grouping.
+ * Rollback does nothing.
  */
-@FunctionalInterface
-public interface TransactionalConsumer {
+public class NoopTransaction implements Transaction {
 
-    /**
-     * Executes the unit of work.
-     *
-     * @param persistence the persistence to use for all operations within this unit of work. Using any other instance runs
-     *            outside the transaction.
-     * @throws Exception if the unit of work fails; causes the transaction to be rolled back
-     */
-    public void execute(Persistence<?> persistence) throws Exception;
+    private boolean active = true;
+
+    @Override
+    public boolean isActive() {
+        return active;
+    }
+
+
+    @Override
+    public void commit() {
+        ensureActive();
+        active = false;
+    }
+
+
+    @Override
+    public void rollback() {
+        ensureActive();
+        active = false;
+    }
+
+
+    @Override
+    public void close() {
+        active = false;
+    }
+
+
+    private void ensureActive() {
+        if (!active) {
+            throw new IllegalStateException("transaction is no longer active");
+        }
+    }
 }

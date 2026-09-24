@@ -35,9 +35,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.AssetAdministrationSh
 import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.DefaultAssetAdministrationShellElementVisitor;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.AssetAdministrationShellSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.ConceptDescriptionSearchCriteria;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.NoopTransaction;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.SubmodelElementSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.SubmodelSearchCriteria;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.Transaction;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.util.QueryModifierHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.CollectionHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
@@ -104,7 +106,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
 
 
     @Override
-    public Environment getEnvironment() {
+    public Environment getEnvironment(Transaction tx) {
         return DeepCopyHelper.deepCopy(environment);
     }
 
@@ -126,13 +128,23 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
     }
 
 
+    /**
+     * The in-memory persistence cannot group operations into an atomic unit of work, so all operations take effect
+     * immediately and rolling back does not undo anything.
+     */
+    @Override
+    public Transaction beginTransaction() {
+        return new NoopTransaction();
+    }
+
+
     public void setOperationStates(Map<OperationHandle, OperationResult> operationStates) {
         this.operationStates = operationStates;
     }
 
 
     @Override
-    public void deleteAssetAdministrationShell(String id) throws ResourceNotFoundException {
+    public void deleteAssetAdministrationShell(String id, Transaction tx) throws ResourceNotFoundException {
         Ensure.requireNonNull(id, MSG_ID_NOT_NULL);
         if (!environment.getAssetAdministrationShells().removeIf(x -> Objects.equals(x.getId(), id))) {
             throw new ResourceNotFoundException(String.format(MSG_RESOURCE_NOT_FOUND_BY_ID, id));
@@ -141,7 +153,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
 
 
     @Override
-    public void deleteConceptDescription(String id) throws ResourceNotFoundException {
+    public void deleteConceptDescription(String id, Transaction tx) throws ResourceNotFoundException {
         Ensure.requireNonNull(id, MSG_ID_NOT_NULL);
         if (!environment.getConceptDescriptions().removeIf(x -> Objects.equals(x.getId(), id))) {
             throw new ResourceNotFoundException(String.format(MSG_RESOURCE_NOT_FOUND_BY_ID, id));
@@ -150,7 +162,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
 
 
     @Override
-    public void deleteSubmodel(String id) throws ResourceNotFoundException {
+    public void deleteSubmodel(String id, Transaction tx) throws ResourceNotFoundException {
         Ensure.requireNonNull(id, MSG_ID_NOT_NULL);
         if (!environment.getSubmodels().removeIf(x -> Objects.equals(x.getId(), id))) {
             throw new ResourceNotFoundException(String.format(MSG_RESOURCE_NOT_FOUND_BY_ID, id));
@@ -162,7 +174,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
 
 
     @Override
-    public void deleteSubmodelElement(SubmodelElementIdentifier identifier) throws ResourceNotFoundException {
+    public void deleteSubmodelElement(SubmodelElementIdentifier identifier, Transaction tx) throws ResourceNotFoundException {
         Ensure.requireNonNull(identifier, "path must be non-null");
         final Reference reference = identifier.toReference();
         final SubmodelElement element = EnvironmentHelper.resolve(reference, environment, SubmodelElement.class);
@@ -210,14 +222,15 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
 
 
     @Override
-    public void deleteAll() throws PersistenceException {
+    public void deleteAll(Transaction tx) throws PersistenceException {
         operationStates.clear();
         environment = new DefaultEnvironment();
     }
 
 
     @Override
-    public Page<AssetAdministrationShell> findAssetAdministrationShells(AssetAdministrationShellSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) {
+    public Page<AssetAdministrationShell> findAssetAdministrationShells(AssetAdministrationShellSearchCriteria criteria, QueryModifier modifier, PagingInfo paging,
+                                                                        Transaction tx) {
         Ensure.requireNonNull(criteria, MSG_CRITERIA_NOT_NULL);
         Ensure.requireNonNull(modifier, MSG_MODIFIER_NOT_NULL);
         Ensure.requireNonNull(paging, MSG_PAGING_NOT_NULL);
@@ -234,7 +247,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
 
 
     @Override
-    public Page<ConceptDescription> findConceptDescriptions(ConceptDescriptionSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) {
+    public Page<ConceptDescription> findConceptDescriptions(ConceptDescriptionSearchCriteria criteria, QueryModifier modifier, PagingInfo paging, Transaction tx) {
         Ensure.requireNonNull(criteria, MSG_CRITERIA_NOT_NULL);
         Ensure.requireNonNull(modifier, MSG_MODIFIER_NOT_NULL);
         Ensure.requireNonNull(paging, MSG_PAGING_NOT_NULL);
@@ -253,7 +266,8 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
 
 
     @Override
-    public Page<SubmodelElement> findSubmodelElements(SubmodelElementSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) throws ResourceNotFoundException {
+    public Page<SubmodelElement> findSubmodelElements(SubmodelElementSearchCriteria criteria, QueryModifier modifier, PagingInfo paging, Transaction tx)
+            throws ResourceNotFoundException {
         Ensure.requireNonNull(criteria, MSG_CRITERIA_NOT_NULL);
         Ensure.requireNonNull(modifier, MSG_MODIFIER_NOT_NULL);
         Ensure.requireNonNull(paging, MSG_PAGING_NOT_NULL);
@@ -299,7 +313,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
 
 
     @Override
-    public Page<Submodel> findSubmodels(SubmodelSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) {
+    public Page<Submodel> findSubmodels(SubmodelSearchCriteria criteria, QueryModifier modifier, PagingInfo paging, Transaction tx) {
         Ensure.requireNonNull(criteria, MSG_CRITERIA_NOT_NULL);
         Ensure.requireNonNull(modifier, MSG_MODIFIER_NOT_NULL);
         Ensure.requireNonNull(paging, MSG_PAGING_NOT_NULL);
@@ -315,7 +329,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
 
 
     @Override
-    public AssetAdministrationShell getAssetAdministrationShell(String id, QueryModifier modifier) throws ResourceNotFoundException {
+    public AssetAdministrationShell getAssetAdministrationShell(String id, QueryModifier modifier, Transaction tx) throws ResourceNotFoundException {
         return prepareResult(
                 filterById(environment.getAssetAdministrationShells().stream(), id)
                         .findFirst()
@@ -325,7 +339,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
 
 
     @Override
-    public ConceptDescription getConceptDescription(String id, QueryModifier modifier) throws ResourceNotFoundException {
+    public ConceptDescription getConceptDescription(String id, QueryModifier modifier, Transaction tx) throws ResourceNotFoundException {
         return prepareResult(
                 filterById(environment.getConceptDescriptions().stream(), id)
                         .findFirst()
@@ -335,7 +349,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
 
 
     @Override
-    public OperationResult getOperationResult(OperationHandle handle) throws ResourceNotFoundException {
+    public OperationResult getOperationResult(OperationHandle handle, Transaction tx) throws ResourceNotFoundException {
         Ensure.requireNonNull(handle, "handle must be non-null");
         return Ensure.requireNonNull(
                 operationStates.get(handle),
@@ -344,7 +358,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
 
 
     @Override
-    public Submodel getSubmodel(String id, QueryModifier modifier) throws ResourceNotFoundException {
+    public Submodel getSubmodel(String id, QueryModifier modifier, Transaction tx) throws ResourceNotFoundException {
         return prepareResult(
                 filterById(environment.getSubmodels().stream(), id)
                         .findFirst()
@@ -354,7 +368,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
 
 
     @Override
-    public SubmodelElement getSubmodelElement(SubmodelElementIdentifier identifier, QueryModifier modifier) throws ResourceNotFoundException {
+    public SubmodelElement getSubmodelElement(SubmodelElementIdentifier identifier, QueryModifier modifier, Transaction tx) throws ResourceNotFoundException {
         return prepareResult(
                 EnvironmentHelper.resolve(identifier.toReference(), environment, SubmodelElement.class),
                 modifier);
@@ -362,9 +376,9 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
 
 
     @Override
-    public Page<Reference> getSubmodelRefs(String aasId, PagingInfo paging) throws ResourceNotFoundException {
+    public Page<Reference> getSubmodelRefs(String aasId, PagingInfo paging, Transaction tx) throws ResourceNotFoundException {
         return preparePagedResult(
-                getAssetAdministrationShell(aasId, QueryModifier.MINIMAL).getSubmodels().stream(),
+                getAssetAdministrationShell(aasId, QueryModifier.MINIMAL, tx).getSubmodels().stream(),
                 paging);
     }
 
@@ -390,7 +404,8 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
 
 
     @Override
-    public void insert(SubmodelElementIdentifier parentIdentifier, SubmodelElement submodelElement) throws ResourceNotFoundException, ResourceNotAContainerElementException {
+    public void insert(SubmodelElementIdentifier parentIdentifier, SubmodelElement submodelElement, Transaction tx)
+            throws ResourceNotFoundException, ResourceNotAContainerElementException {
         Ensure.requireNonNull(parentIdentifier, "parent must be non-null");
         Ensure.requireNonNull(submodelElement, "submodelElement must be non-null");
         Referable parent = EnvironmentHelper.resolve(parentIdentifier.toReference(), environment);
@@ -454,10 +469,10 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
 
 
     @Override
-    public void update(SubmodelElementIdentifier identifier, SubmodelElement submodelElement) throws ResourceNotFoundException {
+    public void update(SubmodelElementIdentifier identifier, SubmodelElement submodelElement, Transaction tx) throws ResourceNotFoundException {
         Ensure.requireNonNull(identifier, "identifier must be non-null");
         Ensure.requireNonNull(submodelElement, "submodelElement must be non-null");
-        SubmodelElement oldElement = getSubmodelElement(identifier, QueryModifier.DEFAULT);
+        SubmodelElement oldElement = getSubmodelElement(identifier, QueryModifier.DEFAULT, tx);
         Referable parent = EnvironmentHelper.resolve(ReferenceHelper.getParent(identifier.toReference()), environment);
 
         if (SubmodelElementList.class.isAssignableFrom(parent.getClass())) {
@@ -514,25 +529,25 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
 
 
     @Override
-    public void save(AssetAdministrationShell assetAdministrationShell) {
+    public void save(AssetAdministrationShell assetAdministrationShell, Transaction tx) {
         saveOrUpdateById(environment.getAssetAdministrationShells(), assetAdministrationShell);
     }
 
 
     @Override
-    public void save(ConceptDescription conceptDescription) {
+    public void save(ConceptDescription conceptDescription, Transaction tx) {
         saveOrUpdateById(environment.getConceptDescriptions(), conceptDescription);
     }
 
 
     @Override
-    public void save(Submodel submodel) {
+    public void save(Submodel submodel, Transaction tx) {
         saveOrUpdateById(environment.getSubmodels(), submodel);
     }
 
 
     @Override
-    public void save(OperationHandle handle, OperationResult result) {
+    public void save(OperationHandle handle, OperationResult result, Transaction tx) {
         operationStates.put(handle, result);
     }
 

@@ -72,6 +72,11 @@ import org.mockito.Mockito;
 
 public class PersistencePostgresTest extends AbstractPersistenceTest<PersistencePostgres, PersistencePostgresConfig> {
 
+    @Override
+    protected boolean supportsRollback() {
+        return true;
+    }
+
     private static final ServiceContext SERVICE_CONTEXT = Mockito.mock(ServiceContext.class);
     private static EmbeddedPostgres embeddedPostgres;
     private static String jdbcUrl;
@@ -742,12 +747,12 @@ public class PersistencePostgresTest extends AbstractPersistenceTest<Persistence
                     .build());
 
             Assert.assertThrows(IllegalStateException.class, () -> persistence.runInTransaction(tx -> {
-                AssetAdministrationShell shell = tx.getAssetAdministrationShell(TX_AAS_ID, QueryModifier.DEFAULT);
+                AssetAdministrationShell shell = persistence.getAssetAdministrationShell(TX_AAS_ID, QueryModifier.DEFAULT, tx);
                 shell.getSubmodels().clear();
                 shell.getSubmodels().add(ReferenceBuilder.forSubmodel(TX_SUBMODEL_NEW_ID));
-                tx.save(shell);
-                tx.deleteSubmodel(TX_SUBMODEL_OLD_ID);
-                tx.save(submodel(TX_SUBMODEL_NEW_ID, "txNew"));
+                persistence.save(shell, tx);
+                persistence.deleteSubmodel(TX_SUBMODEL_OLD_ID, tx);
+                persistence.save(submodel(TX_SUBMODEL_NEW_ID, "txNew"), tx);
                 throw new IllegalStateException("forced failure");
             }));
 
@@ -775,8 +780,8 @@ public class PersistencePostgresTest extends AbstractPersistenceTest<Persistence
             String oldId = "http://example.org/submodel/tx-db-error";
             Submodel invalid = submodel("http://example.org/submodel/tx-db-error-2", "x".repeat(200));
             Assert.assertThrows(PersistenceException.class, () -> persistence.runInTransaction(tx -> {
-                tx.save(submodel(oldId, "txDbError"));
-                tx.save(invalid);
+                persistence.save(submodel(oldId, "txDbError"), tx);
+                persistence.save(invalid, tx);
             }));
             Assert.assertFalse("write preceding the database error must be rolled back", persistence.submodelExists(oldId));
         }

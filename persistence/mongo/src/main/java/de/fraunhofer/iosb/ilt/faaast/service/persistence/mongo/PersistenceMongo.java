@@ -56,9 +56,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundExc
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.UnsupportedModifierException;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.AssetAdministrationShellSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.ConceptDescriptionSearchCriteria;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.NoopTransaction;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.SubmodelElementSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.SubmodelSearchCriteria;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.Transaction;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.util.PersistenceHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.util.QueryModifierHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
@@ -149,19 +151,19 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
 
     @Override
-    public void deleteAssetAdministrationShell(String id) throws ResourceNotFoundException, PersistenceException {
+    public void deleteAssetAdministrationShell(String id, Transaction tx) throws ResourceNotFoundException, PersistenceException {
         deleteElementById(aasCollection, id);
     }
 
 
     @Override
-    public void deleteConceptDescription(String id) throws ResourceNotFoundException, PersistenceException {
+    public void deleteConceptDescription(String id, Transaction tx) throws ResourceNotFoundException, PersistenceException {
         deleteElementById(cdCollection, id);
     }
 
 
     @Override
-    public void deleteSubmodel(String id) throws ResourceNotFoundException, PersistenceException {
+    public void deleteSubmodel(String id, Transaction tx) throws ResourceNotFoundException, PersistenceException {
         deleteElementById(submodelCollection, id);
         Bson filter = Filters.eq("submodels.id", id);
         Bson update = Updates.pull("submodels", filter);
@@ -170,7 +172,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
 
     @Override
-    public void deleteSubmodelElement(SubmodelElementIdentifier identifier) throws ResourceNotFoundException, PersistenceException {
+    public void deleteSubmodelElement(SubmodelElementIdentifier identifier, Transaction tx) throws ResourceNotFoundException, PersistenceException {
         SubmodelElementIdentifier parentIdentifier = SubmodelElementIdentifier.fromReference(ReferenceHelper.getParent(identifier.toReference()));
         UpdateResult result;
         // deleting from submodel
@@ -213,7 +215,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
 
     @Override
-    public void deleteAll() throws PersistenceException {
+    public void deleteAll(Transaction tx) throws PersistenceException {
         LOGGER.debug("Dropping all AAS collections from MongoDB.");
         aasCollection = resetCollection(AAS_COLLECTION_NAME);
         submodelCollection = resetCollection(SUBMODEL_COLLECTION_NAME);
@@ -246,7 +248,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
 
     @Override
-    public Page<AssetAdministrationShell> findAssetAdministrationShells(AssetAdministrationShellSearchCriteria criteria, QueryModifier modifier, PagingInfo paging)
+    public Page<AssetAdministrationShell> findAssetAdministrationShells(AssetAdministrationShellSearchCriteria criteria, QueryModifier modifier, PagingInfo paging, Transaction tx)
             throws PersistenceException {
         Ensure.requireNonNull(criteria, MSG_CRITERIA_NOT_NULL);
         Ensure.requireNonNull(modifier, MSG_MODIFIER_NOT_NULL);
@@ -261,7 +263,8 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
 
     @Override
-    public Page<ConceptDescription> findConceptDescriptions(ConceptDescriptionSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) throws PersistenceException {
+    public Page<ConceptDescription> findConceptDescriptions(ConceptDescriptionSearchCriteria criteria, QueryModifier modifier, PagingInfo paging, Transaction tx)
+            throws PersistenceException {
         Ensure.requireNonNull(criteria, MSG_CRITERIA_NOT_NULL);
         Ensure.requireNonNull(modifier, MSG_MODIFIER_NOT_NULL);
         Ensure.requireNonNull(paging, MSG_PAGING_NOT_NULL);
@@ -277,7 +280,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
 
     @Override
-    public Page<Submodel> findSubmodels(SubmodelSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) throws PersistenceException {
+    public Page<Submodel> findSubmodels(SubmodelSearchCriteria criteria, QueryModifier modifier, PagingInfo paging, Transaction tx) throws PersistenceException {
         Ensure.requireNonNull(criteria, MSG_CRITERIA_NOT_NULL);
         Ensure.requireNonNull(modifier, MSG_MODIFIER_NOT_NULL);
         Ensure.requireNonNull(paging, MSG_PAGING_NOT_NULL);
@@ -291,7 +294,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
 
     @Override
-    public Page<SubmodelElement> findSubmodelElements(SubmodelElementSearchCriteria criteria, QueryModifier modifier, PagingInfo paging)
+    public Page<SubmodelElement> findSubmodelElements(SubmodelElementSearchCriteria criteria, QueryModifier modifier, PagingInfo paging, Transaction tx)
             throws ResourceNotFoundException, PersistenceException {
         Ensure.requireNonNull(criteria, MSG_CRITERIA_NOT_NULL);
         Ensure.requireNonNull(modifier, MSG_MODIFIER_NOT_NULL);
@@ -310,7 +313,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
 
     @Override
-    public AssetAdministrationShell getAssetAdministrationShell(String id, QueryModifier modifier) throws ResourceNotFoundException, PersistenceException {
+    public AssetAdministrationShell getAssetAdministrationShell(String id, QueryModifier modifier, Transaction tx) throws ResourceNotFoundException, PersistenceException {
         return prepareResult(
                 fetch(aasCollection, id, AssetAdministrationShell.class),
                 modifier);
@@ -318,7 +321,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
 
     @Override
-    public ConceptDescription getConceptDescription(String id, QueryModifier modifier) throws ResourceNotFoundException, PersistenceException {
+    public ConceptDescription getConceptDescription(String id, QueryModifier modifier, Transaction tx) throws ResourceNotFoundException, PersistenceException {
         return prepareResult(
                 fetch(cdCollection, id, ConceptDescription.class),
                 modifier);
@@ -326,7 +329,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
 
     @Override
-    public Submodel getSubmodel(String id, QueryModifier modifier) throws ResourceNotFoundException, PersistenceException {
+    public Submodel getSubmodel(String id, QueryModifier modifier, Transaction tx) throws ResourceNotFoundException, PersistenceException {
         return prepareResult(
                 fetch(submodelCollection, id, Submodel.class),
                 modifier);
@@ -334,7 +337,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
 
     @Override
-    public SubmodelElement getSubmodelElement(SubmodelElementIdentifier identifier, QueryModifier modifier) throws ResourceNotFoundException, PersistenceException {
+    public SubmodelElement getSubmodelElement(SubmodelElementIdentifier identifier, QueryModifier modifier, Transaction tx) throws ResourceNotFoundException, PersistenceException {
         return prepareResult(
                 fetch(identifier, SubmodelElement.class),
                 modifier);
@@ -342,9 +345,9 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
 
     @Override
-    public Page<Reference> getSubmodelRefs(String aasId, PagingInfo paging) throws ResourceNotFoundException, PersistenceException {
+    public Page<Reference> getSubmodelRefs(String aasId, PagingInfo paging, Transaction tx) throws ResourceNotFoundException, PersistenceException {
         return preparePagedResult(
-                getAssetAdministrationShell(aasId, QueryModifier.MINIMAL)
+                getAssetAdministrationShell(aasId, QueryModifier.MINIMAL, tx)
                         .getSubmodels()
                         .stream(),
                 paging);
@@ -352,7 +355,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
 
     @Override
-    public OperationResult getOperationResult(OperationHandle handle) throws ResourceNotFoundException, PersistenceException {
+    public OperationResult getOperationResult(OperationHandle handle, Transaction tx) throws ResourceNotFoundException, PersistenceException {
         try {
             Document handleDocument = Document.parse(serializer.write(handle));
             Bson filter = Filters.eq(HANDLE, handleDocument);
@@ -374,16 +377,16 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
 
     @Override
-    public void insert(SubmodelElementIdentifier parentIdentifier, SubmodelElement submodelElement)
+    public void insert(SubmodelElementIdentifier parentIdentifier, SubmodelElement submodelElement, Transaction tx)
             throws ResourceNotFoundException, ResourceNotAContainerElementException, ResourceAlreadyExistsException, PersistenceException {
         Ensure.requireNonNull(parentIdentifier, "parent must be non-null");
         Ensure.requireNonNull(submodelElement, "submodelElement must be non-null");
         Referable parent;
         if (parentIdentifier.getIdShortPath().isEmpty()) {
-            parent = getSubmodel(parentIdentifier.getSubmodelId(), QueryModifier.MINIMAL);
+            parent = getSubmodel(parentIdentifier.getSubmodelId(), QueryModifier.MINIMAL, tx);
         }
         else {
-            parent = getSubmodelElement(parentIdentifier, QueryModifier.MINIMAL);
+            parent = getSubmodelElement(parentIdentifier, QueryModifier.MINIMAL, tx);
         }
         if (!SubmodelElementCollection.class.isAssignableFrom(parent.getClass())
                 && !SubmodelElementList.class.isAssignableFrom(parent.getClass())
@@ -398,7 +401,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
         }
         if (!SubmodelElementList.class.isAssignableFrom(parent.getClass())) {
             ensureIdShortPresent(submodelElement);
-            ensureDoesNotAlreadyExist(parentIdentifier, submodelElement);
+            ensureDoesNotAlreadyExist(parentIdentifier, submodelElement, tx);
         }
 
         MongoSubmodelElementPath filter;
@@ -414,6 +417,17 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
                 getFilterForSubmodel(parentIdentifier.getSubmodelId()),
                 Updates.push(filter.fieldname, asDocument(submodelElement)),
                 new UpdateOptions().arrayFilters(filter.arrayFilters));
+    }
+
+
+    /**
+     *
+     * The MongoDB persistence does not currently support transactions, so all operations take effect
+     * immediately and rolling back does not undo anything.
+     */
+    @Override
+    public Transaction beginTransaction() {
+        return new NoopTransaction();
     }
 
 
@@ -437,7 +451,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
         operationCollection = database.getCollection(OPERATION_COLLECTION_NAME);
 
         if (config.isOverride()) {
-            deleteAll();
+            deleteAll(null);
             try {
                 saveEnvironment(config.loadInitialModel());
             }
@@ -446,7 +460,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
             }
         }
         else if (!databaseHasSavedEnvironment(database)) {
-            deleteAll();
+            deleteAll(null);
             try {
                 saveEnvironment(config.loadInitialModel());
             }
@@ -458,25 +472,25 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
 
     @Override
-    public void save(AssetAdministrationShell assetAdministrationShell) throws PersistenceException {
+    public void save(AssetAdministrationShell assetAdministrationShell, Transaction tx) throws PersistenceException {
         upsert(aasCollection, assetAdministrationShell);
     }
 
 
     @Override
-    public void save(ConceptDescription conceptDescription) throws PersistenceException {
+    public void save(ConceptDescription conceptDescription, Transaction tx) throws PersistenceException {
         upsert(cdCollection, conceptDescription);
     }
 
 
     @Override
-    public void save(Submodel submodel) throws PersistenceException {
+    public void save(Submodel submodel, Transaction tx) throws PersistenceException {
         upsert(submodelCollection, submodel);
     }
 
 
     @Override
-    public void update(SubmodelElementIdentifier identifier, SubmodelElement submodelElement) throws ResourceNotFoundException, PersistenceException {
+    public void update(SubmodelElementIdentifier identifier, SubmodelElement submodelElement, Transaction tx) throws ResourceNotFoundException, PersistenceException {
         UpdateResult result;
         SubmodelElementIdentifier parentIdentifier = SubmodelElementIdentifier.fromReference(ReferenceHelper.getParent(identifier.toReference()));
         if (parentIdentifier.getIdShortPath().isEmpty()) {
@@ -501,7 +515,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
 
     @Override
-    public void save(OperationHandle handle, OperationResult result) {
+    public void save(OperationHandle handle, OperationResult result, Transaction tx) {
         Document document = new Document();
         try {
             Document handleDocument = Document.parse(serializer.write(handle));
@@ -575,9 +589,9 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
     }
 
 
-    private void ensureDoesNotAlreadyExist(SubmodelElementIdentifier parentIdentifier, SubmodelElement submodelElement) throws ResourceAlreadyExistsException {
+    private void ensureDoesNotAlreadyExist(SubmodelElementIdentifier parentIdentifier, SubmodelElement submodelElement, Transaction tx) throws ResourceAlreadyExistsException {
         Reference newElementReference = ReferenceBuilder.forParent(parentIdentifier.toReference(), submodelElement);
-        if (submodelElementExists(newElementReference)) {
+        if (submodelElementExists(newElementReference, tx)) {
             throw new ResourceAlreadyExistsException(newElementReference);
         }
     }

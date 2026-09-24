@@ -35,15 +35,13 @@ import de.fraunhofer.iosb.ilt.faaast.service.persistence.ConceptDescriptionSearc
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.SubmodelElementSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.SubmodelSearchCriteria;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.TransactionalFunction;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.Transaction;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.util.PersistenceHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.util.QueryModifierHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.StringHelper;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Proxy;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -68,19 +66,16 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
  * Persistence implementation for Postgres DB (schema management: {@link DatabaseSchema}).
- * Identifiables are decomposed into normalized tables; submodel elements are stored as one row per
+ * Identifiables are decomposed into normalized tables. Submodel elements are stored as one row per
  * element with a materialized idShort path, so single elements can be read, replaced and deleted without touching the
  * rest of the submodel.
  */
 public class PersistencePostgres implements Persistence<PersistencePostgresConfig> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(PersistencePostgres.class);
     private static final String MSG_ID_NOT_NULL = "id must be non-null";
     private static final String MSG_MODIFIER_NOT_NULL = "modifier must be non-null";
     private static final String MSG_CRITERIA_NOT_NULL = "criteria must be non-null";
@@ -91,91 +86,69 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
     private PersistencePostgresConfig config;
     private HikariDataSource dataSource;
 
-    private Connection bound;
-
-    /** cleared once the transaction has ended. */
-    private boolean valid = true;
-
     @Override
     public void init(CoreConfig coreConfig, PersistencePostgresConfig config, ServiceContext serviceContext) throws ConfigurationInitializationException {
         this.config = config;
     }
 
 
-    /**
-     * Creates the transaction persistence for the given connection.
-     */
-    private PersistencePostgres boundTo(Connection connection) {
-        PersistencePostgres result = new PersistencePostgres();
-        result.config = this.config;
-        result.dataSource = this.dataSource;
-        result.bound = connection;
-        return result;
+    @Override
+    public Transaction beginTransaction() throws PersistenceException {
+        try {
+            return new JdbcTransaction(dataSource.getConnection());
+        }
+        catch (SQLException e) {
+            throw new PersistenceException("Failed to start transaction", e);
+        }
     }
 
 
     /**
-     * Obtains the connection to use for a single operation in transaction.
+     * Obtains the connection to use for a single operation. Without a transaction a pooled connection in auto-commit
+     * mode is handed out and closing it returns it to the pool.
      */
-    private Connection acquire() throws SQLException {
-        if (bound == null) {
+    private Connection acquire(Transaction tx) throws SQLException {
+        if (Objects.isNull(tx)) {
             return dataSource.getConnection();
         }
-        if (!valid) {
-            throw new IllegalStateException("transaction-scoped Persistence used outside the transaction it belongs to");
-        }
-        return nonClosing(bound);
+        return asJdbcTransaction(tx).nonClosingConnection();
     }
 
 
-    private static Connection nonClosing(Connection connection) {
-        return (Connection) Proxy.newProxyInstance(
-                PersistencePostgres.class.getClassLoader(),
-                new Class<?>[] {
-                        Connection.class
-                },
-                (proxy, method, args) -> {
-                    if ("close".equals(method.getName()) && (args == null || args.length == 0)) {
-                        return null;
-                    }
-                    try {
-                        return method.invoke(connection, args);
-                    }
-                    catch (InvocationTargetException e) {
-                        throw e.getCause();
-                    }
-                });
+    private static JdbcTransaction asJdbcTransaction(Transaction tx) {
+        if (!(tx instanceof JdbcTransaction result)) {
+            throw new IllegalArgumentException(String.format(
+                    "transaction does not belong to this persistence (type: %s)",
+                    tx.getClass()));
+        }
+        if (!result.isActive()) {
+            throw new IllegalStateException("transaction is no longer active");
+        }
+        return result;
     }
 
 
     @Override
     public void start() throws PersistenceException {
-        ensureNotBound();
         try {
-            HikariConfig hikariConfig = new HikariConfig();
-            hikariConfig.setJdbcUrl(config.getJdbcUrl());
-            hikariConfig.setUsername(config.getUsername());
-            hikariConfig.setPassword(config.getPassword());
-            hikariConfig.setMaximumPoolSize(config.getMaximumPoolSize());
-            hikariConfig.setTransactionIsolation("TRANSACTION_READ_COMMITTED");
-            // intervals (BasicEventElement min/max interval) are read back in ISO-8601 form
-            hikariConfig.setConnectionInitSql("SET intervalstyle = 'iso_8601'");
+            HikariConfig hikariConfig = getHikariConfig();
             this.dataSource = new HikariDataSource(hikariConfig);
 
-            try (Connection connection = acquire()) {
+            try (Connection connection = acquire(null)) {
                 DatabaseSchema.createSchema(connection);
             }
 
-            if (config.loadInitialModel() != null) {
+            Environment initialModel = config.loadInitialModel();
+            if (initialModel != null) {
                 // the whole initial load in one transaction
                 if (config.getOverride()) {
                     runInTransaction(tx -> {
-                        tx.deleteAll();
-                        save(tx, config.loadInitialModel());
+                        deleteAll(tx);
+                        save(initialModel, tx);
                     });
                 }
                 else if (isDatabaseEmpty()) {
-                    runInTransaction(tx -> save(tx, config.loadInitialModel()));
+                    runInTransaction(tx -> save(initialModel, tx));
                 }
             }
         }
@@ -184,9 +157,21 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
         }
     }
 
+    private HikariConfig getHikariConfig() {
+        HikariConfig hikariConfig = new HikariConfig();
+        hikariConfig.setJdbcUrl(config.getJdbcUrl());
+        hikariConfig.setUsername(config.getUsername());
+        hikariConfig.setPassword(config.getPassword());
+        hikariConfig.setMaximumPoolSize(config.getMaximumPoolSize());
+        hikariConfig.setTransactionIsolation("TRANSACTION_READ_COMMITTED");
+        // intervals (BasicEventElement min/max interval) are read back in ISO-8601 form
+        hikariConfig.setConnectionInitSql("SET intervalstyle = 'iso_8601'");
+        return hikariConfig;
+    }
+
 
     private boolean isDatabaseEmpty() throws SQLException {
-        try (Connection c = acquire();
+        try (Connection c = acquire(null);
                 Statement stmt = c.createStatement();
                 ResultSet rs = stmt.executeQuery("SELECT 1 FROM " + DatabaseSchema.TABLE_AAS + " LIMIT 1")) {
             return !rs.next();
@@ -202,16 +187,8 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
 
     @Override
     public void stop() {
-        ensureNotBound();
         if (dataSource != null) {
             dataSource.close();
-        }
-    }
-
-
-    private void ensureNotBound() {
-        if (bound != null) {
-            throw new UnsupportedOperationException("operations are not available on a transaction Persistence");
         }
     }
 
@@ -220,9 +197,9 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
     // -------------------------------------------------------------------------------------------------
 
 
-    private AssetAdministrationShell getAssetAdministrationShell(String id) throws ResourceNotFoundException, PersistenceException {
+    private AssetAdministrationShell getAssetAdministrationShell(String id, Transaction tx) throws ResourceNotFoundException, PersistenceException {
         Ensure.requireNonNull(id, MSG_ID_NOT_NULL);
-        try (Connection c = acquire()) {
+        try (Connection c = acquire(tx)) {
             Long dbId = AasDb.findDbId(c, id);
             if (dbId == null) {
                 throw new ResourceNotFoundException("AssetAdministrationShell with id " + id + " not found");
@@ -236,15 +213,15 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
 
 
     @Override
-    public AssetAdministrationShell getAssetAdministrationShell(String id, QueryModifier modifier) throws ResourceNotFoundException, PersistenceException {
-        return prepareResult(getAssetAdministrationShell(id), modifier);
+    public AssetAdministrationShell getAssetAdministrationShell(String id, QueryModifier modifier, Transaction tx) throws ResourceNotFoundException, PersistenceException {
+        return prepareResult(getAssetAdministrationShell(id, tx), modifier);
     }
 
 
     @Override
-    public Page<Reference> getSubmodelRefs(String aasId, PagingInfo paging) throws ResourceNotFoundException, PersistenceException {
+    public Page<Reference> getSubmodelRefs(String aasId, PagingInfo paging, Transaction tx) throws ResourceNotFoundException, PersistenceException {
         Ensure.requireNonNull(aasId, MSG_ID_NOT_NULL);
-        try (Connection c = acquire()) {
+        try (Connection c = acquire(tx)) {
             Long dbId = AasDb.findDbId(c, aasId);
             if (dbId == null) {
                 throw new ResourceNotFoundException("AssetAdministrationShell with id " + aasId + " not found");
@@ -258,7 +235,7 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
 
 
     @Override
-    public Page<AssetAdministrationShell> findAssetAdministrationShells(AssetAdministrationShellSearchCriteria criteria, QueryModifier modifier, PagingInfo paging)
+    public Page<AssetAdministrationShell> findAssetAdministrationShells(AssetAdministrationShellSearchCriteria criteria, QueryModifier modifier, PagingInfo paging, Transaction tx)
             throws PersistenceException {
         List<SqlCondition> conditions = new ArrayList<>();
         if (criteria != null) {
@@ -272,7 +249,7 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
         String sql = "SELECT a.id FROM " + DatabaseSchema.TABLE_AAS + " a"
                 + " LEFT JOIN " + DatabaseSchema.TABLE_ASSET_INFORMATION + " ai ON ai.asset_information_id = a.id"
                 + " WHERE a.id > ?";
-        return findIdentifiables(sql, "a.id", conditions, modifier, paging, (c, ids) -> readEach(c, ids, AasDb::read));
+        return findIdentifiables(sql, "a.id", conditions, modifier, paging, (c, ids) -> readEach(c, ids, AasDb::read), tx);
     }
 
 
@@ -311,10 +288,10 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
 
 
     @Override
-    public void save(AssetAdministrationShell shell) throws PersistenceException {
+    public void save(AssetAdministrationShell shell, Transaction tx) throws PersistenceException {
         Ensure.requireNonNull(shell.getId(), MSG_ID_NOT_NULL);
         try {
-            inOwnTransaction(c -> AasDb.save(c, shell), "Failed to save AssetAdministrationShell: " + shell.getId());
+            inOwnTransaction(tx, c -> AasDb.save(c, shell), "Failed to save AssetAdministrationShell: " + shell.getId());
         }
         catch (ResourceNotFoundException e) {
             throw new PersistenceException("Failed to save AssetAdministrationShell: " + shell.getId(), e);
@@ -323,8 +300,8 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
 
 
     @Override
-    public void deleteAssetAdministrationShell(String id) throws ResourceNotFoundException, PersistenceException {
-        deleteIdentifiable(DatabaseSchema.TABLE_AAS, "aas_id", id);
+    public void deleteAssetAdministrationShell(String id, Transaction tx) throws ResourceNotFoundException, PersistenceException {
+        deleteIdentifiable(DatabaseSchema.TABLE_AAS, "aas_id", id, tx);
     }
 
     // -------------------------------------------------------------------------------------------------
@@ -332,9 +309,9 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
     // -------------------------------------------------------------------------------------------------
 
 
-    private Submodel getSubmodel(String id) throws ResourceNotFoundException, PersistenceException {
+    private Submodel getSubmodel(String id, Transaction tx) throws ResourceNotFoundException, PersistenceException {
         Ensure.requireNonNull(id, MSG_ID_NOT_NULL);
-        try (Connection c = acquire()) {
+        try (Connection c = acquire(tx)) {
             Long dbId = SubmodelDb.findDbId(c, id);
             if (dbId == null) {
                 throw new ResourceNotFoundException("Submodel with id " + id + " not found");
@@ -348,13 +325,13 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
 
 
     @Override
-    public Submodel getSubmodel(String id, QueryModifier modifier) throws ResourceNotFoundException, PersistenceException {
-        return prepareResult(getSubmodel(id), modifier);
+    public Submodel getSubmodel(String id, QueryModifier modifier, Transaction tx) throws ResourceNotFoundException, PersistenceException {
+        return prepareResult(getSubmodel(id, tx), modifier);
     }
 
 
     @Override
-    public Page<Submodel> findSubmodels(SubmodelSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) throws PersistenceException {
+    public Page<Submodel> findSubmodels(SubmodelSearchCriteria criteria, QueryModifier modifier, PagingInfo paging, Transaction tx) throws PersistenceException {
         List<SqlCondition> conditions = new ArrayList<>();
         if (criteria != null) {
             if (criteria.getIdShort() != null) {
@@ -376,15 +353,15 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
             }
         }
         String sql = "SELECT s.id FROM " + DatabaseSchema.TABLE_SUBMODEL + " s WHERE s.id > ?";
-        return findIdentifiables(sql, "s.id", conditions, modifier, paging, SubmodelDb::readMany);
+        return findIdentifiables(sql, "s.id", conditions, modifier, paging, SubmodelDb::readMany, tx);
     }
 
 
     @Override
-    public void save(Submodel submodel) throws PersistenceException {
+    public void save(Submodel submodel, Transaction tx) throws PersistenceException {
         Ensure.requireNonNull(submodel.getId(), MSG_ID_NOT_NULL);
         try {
-            inOwnTransaction(c -> SubmodelDb.save(c, submodel), "Failed to save submodel: " + submodel.getId());
+            inOwnTransaction(tx, c -> SubmodelDb.save(c, submodel), "Failed to save submodel: " + submodel.getId());
         }
         catch (ResourceNotFoundException e) {
             throw new PersistenceException("Failed to save submodel: " + submodel.getId(), e);
@@ -393,8 +370,8 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
 
 
     @Override
-    public void deleteSubmodel(String id) throws ResourceNotFoundException, PersistenceException {
-        deleteIdentifiable(DatabaseSchema.TABLE_SUBMODEL, "submodel_identifier", id);
+    public void deleteSubmodel(String id, Transaction tx) throws ResourceNotFoundException, PersistenceException {
+        deleteIdentifiable(DatabaseSchema.TABLE_SUBMODEL, "submodel_identifier", id, tx);
     }
 
     // -------------------------------------------------------------------------------------------------
@@ -403,13 +380,13 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
 
 
     @Override
-    public SubmodelElement getSubmodelElement(SubmodelElementIdentifier identifier, QueryModifier modifier) throws ResourceNotFoundException, PersistenceException {
+    public SubmodelElement getSubmodelElement(SubmodelElementIdentifier identifier, QueryModifier modifier, Transaction tx) throws ResourceNotFoundException, PersistenceException {
         Ensure.requireNonNull(identifier, MSG_ID_NOT_NULL);
         List<String> steps = identifier.getIdShortPath().getElements();
         if (steps.isEmpty()) {
             throw new ResourceNotFoundException(identifier.toReference());
         }
-        try (Connection c = acquire()) {
+        try (Connection c = acquire(tx)) {
             SubmodelElement element = SubmodelElementDb.readSubtree(c, identifier.getSubmodelId(), toDbPath(steps));
             if (element == null) {
                 throw new ResourceNotFoundException(identifier.toReference());
@@ -449,14 +426,14 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
 
 
     @Override
-    public Page<SubmodelElement> findSubmodelElements(SubmodelElementSearchCriteria criteria, QueryModifier modifier, PagingInfo paging)
+    public Page<SubmodelElement> findSubmodelElements(SubmodelElementSearchCriteria criteria, QueryModifier modifier, PagingInfo paging, Transaction tx)
             throws ResourceNotFoundException, PersistenceException {
         Ensure.requireNonNull(criteria, MSG_CRITERIA_NOT_NULL);
         Ensure.requireNonNull(modifier, MSG_MODIFIER_NOT_NULL);
         Ensure.requireNonNull(paging, MSG_PAGING_NOT_NULL);
 
         if (!criteria.isParentSet()) {
-            return findSubmodelElementsAcrossSubmodels(criteria, modifier, paging);
+            return findSubmodelElementsAcrossSubmodels(criteria, modifier, paging, tx);
         }
 
         List<SubmodelElement> elements = new ArrayList<>();
@@ -464,7 +441,7 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
             List<String> steps = criteria.getParent().getIdShortPath() != null
                     ? criteria.getParent().getIdShortPath().getElements()
                     : List.of();
-            try (Connection c = acquire()) {
+            try (Connection c = acquire(tx)) {
                 if (steps.isEmpty()) {
                     Long submodelDbId = SubmodelDb.findDbId(c, criteria.getParent().getSubmodelId());
                     if (submodelDbId == null) {
@@ -539,10 +516,10 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
      * semantics as the in-memory implementation ({@link ReferenceHelper#equals(Reference, Reference)}, including
      * supplemental semantic ids).
      */
-    private Page<SubmodelElement> findSubmodelElementsAcrossSubmodels(SubmodelElementSearchCriteria criteria, QueryModifier modifier, PagingInfo paging)
+    private Page<SubmodelElement> findSubmodelElementsAcrossSubmodels(SubmodelElementSearchCriteria criteria, QueryModifier modifier, PagingInfo paging, Transaction tx)
             throws PersistenceException {
         List<SubmodelElement> matches = new ArrayList<>();
-        try (Connection c = acquire()) {
+        try (Connection c = acquire(tx)) {
             for (long submodelDbId: findCandidateSubmodels(c, criteria)) {
                 for (SubmodelElement root: SubmodelElementDb.readAll(c, submodelDbId)) {
                     collectMatchesDocumentOrder(root, criteria, matches);
@@ -642,12 +619,12 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
 
 
     @Override
-    public void insert(SubmodelElementIdentifier parentIdentifier, SubmodelElement submodelElement)
+    public void insert(SubmodelElementIdentifier parentIdentifier, SubmodelElement submodelElement, Transaction tx)
             throws ResourceNotFoundException, ResourceNotAContainerElementException, ResourceAlreadyExistsException, PersistenceException {
         Ensure.requireNonNull(parentIdentifier, MSG_ID_NOT_NULL);
         Ensure.requireNonNull(submodelElement, MSG_ELEMENT_NOT_NULL);
         List<String> parentSteps = parentIdentifier.getIdShortPath().getElements();
-        inOwnTransaction(c -> {
+        inOwnTransaction(tx, c -> {
             Long submodelDbId = SubmodelDb.findDbId(c, parentIdentifier.getSubmodelId());
             if (submodelDbId == null) {
                 throw new ResourceNotFoundException(parentIdentifier.toReference());
@@ -736,14 +713,14 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
 
 
     @Override
-    public void update(SubmodelElementIdentifier identifier, SubmodelElement submodelElement) throws ResourceNotFoundException, PersistenceException {
+    public void update(SubmodelElementIdentifier identifier, SubmodelElement submodelElement, Transaction tx) throws ResourceNotFoundException, PersistenceException {
         Ensure.requireNonNull(identifier, MSG_ID_NOT_NULL);
         Ensure.requireNonNull(submodelElement, MSG_ELEMENT_NOT_NULL);
         List<String> steps = identifier.getIdShortPath().getElements();
         if (steps.isEmpty()) {
             throw new ResourceNotFoundException(identifier.toReference());
         }
-        inOwnTransaction(c -> {
+        inOwnTransaction(tx, c -> {
             Long submodelDbId = SubmodelDb.findDbId(c, identifier.getSubmodelId());
             if (submodelDbId == null) {
                 throw new ResourceNotFoundException(identifier.toReference());
@@ -762,13 +739,13 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
 
 
     @Override
-    public void deleteSubmodelElement(SubmodelElementIdentifier identifier) throws ResourceNotFoundException, PersistenceException {
+    public void deleteSubmodelElement(SubmodelElementIdentifier identifier, Transaction tx) throws ResourceNotFoundException, PersistenceException {
         Ensure.requireNonNull(identifier, MSG_ID_NOT_NULL);
         List<String> steps = identifier.getIdShortPath().getElements();
         if (steps.isEmpty()) {
             throw new ResourceNotFoundException(identifier.toReference());
         }
-        inOwnTransaction(c -> {
+        inOwnTransaction(tx, c -> {
             Long submodelDbId = SubmodelDb.findDbId(c, identifier.getSubmodelId());
             if (submodelDbId == null) {
                 throw new ResourceNotFoundException(identifier.toReference());
@@ -855,9 +832,9 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
     // -------------------------------------------------------------------------------------------------
 
 
-    private ConceptDescription getConceptDescription(String id) throws ResourceNotFoundException, PersistenceException {
+    private ConceptDescription getConceptDescription(String id, Transaction tx) throws ResourceNotFoundException, PersistenceException {
         Ensure.requireNonNull(id, MSG_ID_NOT_NULL);
-        try (Connection c = acquire();
+        try (Connection c = acquire(tx);
                 PreparedStatement stmt = c.prepareStatement(
                         "SELECT data FROM " + DatabaseSchema.TABLE_CONCEPT_DESCRIPTION + " WHERE id = ?")) {
             stmt.setString(1, id);
@@ -875,13 +852,14 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
 
 
     @Override
-    public ConceptDescription getConceptDescription(String id, QueryModifier modifier) throws ResourceNotFoundException, PersistenceException {
-        return prepareResult(getConceptDescription(id), modifier);
+    public ConceptDescription getConceptDescription(String id, QueryModifier modifier, Transaction tx) throws ResourceNotFoundException, PersistenceException {
+        return prepareResult(getConceptDescription(id, tx), modifier);
     }
 
 
     @Override
-    public Page<ConceptDescription> findConceptDescriptions(ConceptDescriptionSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) throws PersistenceException {
+    public Page<ConceptDescription> findConceptDescriptions(ConceptDescriptionSearchCriteria criteria, QueryModifier modifier, PagingInfo paging, Transaction tx)
+            throws PersistenceException {
         List<SqlCondition> conditions = new ArrayList<>();
         if (criteria != null && criteria.getIdShort() != null) {
             conditions.add(new SqlCondition("cd.id_short = ?", List.of(criteria.getIdShort())));
@@ -889,7 +867,7 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
         if (criteria != null && (criteria.getIsCaseOf() != null || criteria.getDataSpecification() != null)) {
             // reference comparisons that cannot be expressed as indexed SQL equality - filter in
             // memory, but still apply the SQL-able conditions in the query
-            Stream<ConceptDescription> stream = loadAllConceptDescriptions(conditions).stream();
+            Stream<ConceptDescription> stream = loadAllConceptDescriptions(conditions, tx).stream();
             if (criteria.getIsCaseOf() != null) {
                 stream = stream.filter(x -> x.getIsCaseOf() != null && x.getIsCaseOf().contains(criteria.getIsCaseOf()));
             }
@@ -901,7 +879,7 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
             return preparePagedResult(stream, modifier, paging);
         }
         String sql = "SELECT cd.seq FROM " + DatabaseSchema.TABLE_CONCEPT_DESCRIPTION + " cd WHERE cd.seq > ?";
-        return findIdentifiables(sql, "cd.seq", conditions, modifier, paging, (c, ids) -> readEach(c, ids, PersistencePostgres::readConceptDescriptionBySeq));
+        return findIdentifiables(sql, "cd.seq", conditions, modifier, paging, (c, ids) -> readEach(c, ids, PersistencePostgres::readConceptDescriptionBySeq), tx);
     }
 
 
@@ -916,14 +894,14 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
     }
 
 
-    private List<ConceptDescription> loadAllConceptDescriptions(List<SqlCondition> conditions) throws PersistenceException {
+    private List<ConceptDescription> loadAllConceptDescriptions(List<SqlCondition> conditions, Transaction tx) throws PersistenceException {
         StringBuilder sql = new StringBuilder("SELECT data FROM " + DatabaseSchema.TABLE_CONCEPT_DESCRIPTION + " cd");
         for (int i = 0; i < conditions.size(); i++) {
             sql.append(i == 0 ? " WHERE " : " AND ").append(conditions.get(i).clause());
         }
         sql.append(" ORDER BY cd.seq ASC");
         List<ConceptDescription> result = new ArrayList<>();
-        try (Connection c = acquire(); PreparedStatement stmt = c.prepareStatement(sql.toString())) {
+        try (Connection c = acquire(tx); PreparedStatement stmt = c.prepareStatement(sql.toString())) {
             int parameterIndex = 1;
             for (SqlCondition condition: conditions) {
                 for (String parameter: condition.parameters()) {
@@ -944,9 +922,9 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
 
 
     @Override
-    public void save(ConceptDescription conceptDescription) throws PersistenceException {
+    public void save(ConceptDescription conceptDescription, Transaction tx) throws PersistenceException {
         Ensure.requireNonNull(conceptDescription.getId(), MSG_ID_NOT_NULL);
-        try (Connection c = acquire();
+        try (Connection c = acquire(tx);
                 PreparedStatement stmt = c.prepareStatement(
                         "INSERT INTO " + DatabaseSchema.TABLE_CONCEPT_DESCRIPTION + " (id, id_short, data) VALUES (?, ?, ?)"
                                 + " ON CONFLICT (id) DO UPDATE SET id_short = EXCLUDED.id_short, data = EXCLUDED.data")) {
@@ -962,8 +940,8 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
 
 
     @Override
-    public void deleteConceptDescription(String id) throws ResourceNotFoundException, PersistenceException {
-        deleteIdentifiable(DatabaseSchema.TABLE_CONCEPT_DESCRIPTION, "id", id);
+    public void deleteConceptDescription(String id, Transaction tx) throws ResourceNotFoundException, PersistenceException {
+        deleteIdentifiable(DatabaseSchema.TABLE_CONCEPT_DESCRIPTION, "id", id, tx);
     }
 
     // -------------------------------------------------------------------------------------------------
@@ -972,9 +950,9 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
 
 
     @Override
-    public OperationResult getOperationResult(OperationHandle handle) throws ResourceNotFoundException, PersistenceException {
+    public OperationResult getOperationResult(OperationHandle handle, Transaction tx) throws ResourceNotFoundException, PersistenceException {
         Ensure.requireNonNull(handle, MSG_ID_NOT_NULL);
-        try (Connection c = acquire();
+        try (Connection c = acquire(tx);
                 PreparedStatement stmt = c.prepareStatement(
                         "SELECT content FROM " + DatabaseSchema.TABLE_OPERATION_RESULT + " WHERE id = ?")) {
             stmt.setString(1, handle.getHandleId());
@@ -992,9 +970,9 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
 
 
     @Override
-    public void save(OperationHandle handle, OperationResult result) throws PersistenceException {
+    public void save(OperationHandle handle, OperationResult result, Transaction tx) throws PersistenceException {
         Ensure.requireNonNull(handle, MSG_ID_NOT_NULL);
-        try (Connection c = acquire();
+        try (Connection c = acquire(tx);
                 PreparedStatement stmt = c.prepareStatement(
                         "INSERT INTO " + DatabaseSchema.TABLE_OPERATION_RESULT + " (id, content) VALUES (?, ?)"
                                 + " ON CONFLICT (id) DO UPDATE SET content = EXCLUDED.content")) {
@@ -1012,31 +990,31 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
     // -------------------------------------------------------------------------------------------------
 
 
-    private static void save(Persistence<?> target, Environment environment) throws PersistenceException {
+    private void save(Environment environment, Transaction tx) throws PersistenceException {
         if (environment == null) {
             return;
         }
         if (environment.getAssetAdministrationShells() != null) {
             for (AssetAdministrationShell shell: environment.getAssetAdministrationShells()) {
-                target.save(shell);
+                save(shell, tx);
             }
         }
         if (environment.getSubmodels() != null) {
             for (Submodel submodel: environment.getSubmodels()) {
-                target.save(submodel);
+                save(submodel, tx);
             }
         }
         if (environment.getConceptDescriptions() != null) {
             for (ConceptDescription conceptDescription: environment.getConceptDescriptions()) {
-                target.save(conceptDescription);
+                save(conceptDescription, tx);
             }
         }
     }
 
 
     @Override
-    public void deleteAll() throws PersistenceException {
-        try (Connection c = acquire()) {
+    public void deleteAll(Transaction tx) throws PersistenceException {
+        try (Connection c = acquire(tx)) {
             DatabaseSchema.clearData(c);
         }
         catch (SQLException e) {
@@ -1075,25 +1053,29 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
     }
 
 
-    private <T> T inOwnTransaction(ConnectionAction<T> action, String errorMessage)
-            throws PersistenceException, ResourceNotFoundException {
-        if (bound != null) {
-            try {
-                return action.run(acquire());
-            }
-            catch (ResourceNotFoundException | IllegalArgumentException | IllegalStateException e) {
-                throw e;
-            }
-            catch (Exception e) {
-                throw new PersistenceException(errorMessage, e);
-            }
+    /**
+     * Executes a multi-statement operation as part of the given transaction if there is one, otherwise in
+     * a transaction of its own that is committed on success and rolled back on failure.
+     */
+    private <T> T inOwnTransaction(Transaction tx, ConnectionAction<T> action, String errorMessage) {
+        if (Objects.nonNull(tx)) {
+            return run(asJdbcTransaction(tx).nonClosingConnection(), action, errorMessage);
         }
+        return inTransaction(own -> run(asJdbcTransaction(own).nonClosingConnection(), action, errorMessage));
+    }
+
+
+    private static <T> T run(Connection connection, ConnectionAction<T> action, String errorMessage) {
         try {
-            return runTransaction(action, errorMessage);
+            return action.run(connection);
         }
-        catch (ResourceNotFoundException | IllegalArgumentException | IllegalStateException | PersistenceException e) {
+        catch (ResourceNotFoundException | PersistenceException | IllegalArgumentException | IllegalStateException e) {
             // no wrapping
             throw e;
+        }
+        catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new PersistenceException(errorMessage, e);
         }
         catch (Exception e) {
             throw new PersistenceException(errorMessage, e);
@@ -1101,73 +1083,9 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
     }
 
 
-    @Override
-    public boolean supportsTransactions() {
-        return true;
-    }
-
-
-    @Override
-    public <R> R inTransaction(TransactionalFunction<R> action) throws Exception {
-        Ensure.requireNonNull(action, "action must be non-null");
-        if (bound != null) {
-            // already inside a transaction --> join it rather than opening a second one
-            return action.execute(this);
-        }
-        return runTransaction(c -> {
-            PersistencePostgres view = boundTo(c);
-            try {
-                return action.execute(view);
-            }
-            finally {
-                view.valid = false;
-            }
-        }, "transaction failed");
-    }
-
-
-    /**
-     * Opens a transaction on a pooled connection, commits on success and rolls back on any failure.
-     *
-     */
-    private <T> T runTransaction(ConnectionAction<T> action, String errorMessage) throws Exception {
-        try (Connection c = dataSource.getConnection()) {
-            c.setAutoCommit(false);
-            try {
-                T result = action.run(c);
-                c.commit();
-                return result;
-            }
-            catch (Exception e) {
-                try {
-                    c.rollback();
-                }
-                catch (SQLException rollbackFailure) {
-                    e.addSuppressed(rollbackFailure);
-                }
-                if (e instanceof InterruptedException) {
-                    Thread.currentThread().interrupt();
-                }
-                throw e;
-            }
-            finally {
-                try {
-                    c.setAutoCommit(true);
-                }
-                catch (SQLException resetFailure) {
-                    LOGGER.debug("failed to reset autoCommit before returning connection to pool", resetFailure);
-                }
-            }
-        }
-        catch (SQLException e) {
-            throw new PersistenceException(errorMessage, e);
-        }
-    }
-
-
-    private void deleteIdentifiable(String table, String idColumn, String id) throws ResourceNotFoundException, PersistenceException {
+    private void deleteIdentifiable(String table, String idColumn, String id, Transaction tx) throws ResourceNotFoundException, PersistenceException {
         Ensure.requireNonNull(id, MSG_ID_NOT_NULL);
-        try (Connection c = acquire();
+        try (Connection c = acquire(tx);
                 PreparedStatement stmt = c.prepareStatement("DELETE FROM " + table + " WHERE " + idColumn + " = ?")) {
             stmt.setString(1, id);
             if (stmt.executeUpdate() == 0) {
@@ -1187,7 +1105,7 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
      * available.
      */
     private <T extends Referable> Page<T> findIdentifiables(String baseSql, String orderColumn, List<SqlCondition> conditions,
-                                                            QueryModifier modifier, PagingInfo paging, IdentifiableBatchReader<T> reader)
+                                                            QueryModifier modifier, PagingInfo paging, IdentifiableBatchReader<T> reader, Transaction tx)
             throws PersistenceException {
         long previousSeq = paging.getCursor() != null ? readCursor(paging.getCursor()) : 0;
         StringBuilder sql = new StringBuilder(baseSql);
@@ -1201,7 +1119,7 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
         List<T> content;
         long lastSeq = previousSeq;
         boolean hasMore = false;
-        try (Connection c = acquire()) {
+        try (Connection c = acquire(tx)) {
             List<Long> ids = new ArrayList<>();
             try (PreparedStatement stmt = c.prepareStatement(sql.toString())) {
                 int parameterIndex = 1;

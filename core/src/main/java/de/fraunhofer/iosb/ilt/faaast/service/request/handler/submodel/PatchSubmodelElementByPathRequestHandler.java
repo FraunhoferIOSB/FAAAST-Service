@@ -20,6 +20,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.PatchSub
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.PatchSubmodelElementByPathResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.validation.ModelValidator;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.Transaction;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractSubmodelInterfaceRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
@@ -43,16 +44,18 @@ public class PatchSubmodelElementByPathRequestHandler extends AbstractSubmodelIn
                 .submodel(request.getSubmodelId())
                 .idShortPath(request.getPath())
                 .build();
-        PatchOutcome outcome = context.getPersistence().inTransaction(tx -> {
-            Submodel current = tx.getSubmodel(request.getSubmodelId(), QueryModifier.DEFAULT);
+        PatchOutcome outcome;
+        try (Transaction tx = context.getPersistence().beginTransaction()) {
+            Submodel current = context.getPersistence().getSubmodel(request.getSubmodelId(), QueryModifier.DEFAULT, tx);
             Submodel updated = applyMergePatch(request.getChanges(), current, Submodel.class);
-            tx.save(updated);
-            SubmodelElement oldSubmodelElement = tx.getSubmodelElement(reference, QueryModifier.DEFAULT);
+            context.getPersistence().save(updated, tx);
+            SubmodelElement oldSubmodelElement = context.getPersistence().getSubmodelElement(reference, QueryModifier.DEFAULT, tx);
             SubmodelElement newSubmodelElement = applyMergePatch(request.getChanges(), oldSubmodelElement, SubmodelElement.class);
             ModelValidator.validate(newSubmodelElement, context.getCoreConfig().getValidationOnUpdate());
-            tx.update(reference, newSubmodelElement);
-            return new PatchOutcome(oldSubmodelElement, newSubmodelElement);
-        });
+            context.getPersistence().update(reference, newSubmodelElement, tx);
+            outcome = new PatchOutcome(oldSubmodelElement, newSubmodelElement);
+            tx.commit();
+        }
         context.getAssetConnectionManager().cleanupDanglingConnectionsAfterModify(reference);
         context.getAssetConnectionManager().syncValueProvidersOnWrite(
                 reference, outcome.oldSubmodelElement(), outcome.newSubmodelElement(), !request.isInternal());

@@ -37,9 +37,10 @@ public class PutAssetAdministrationShellRequestHandler extends AbstractRequestHa
     public PutAssetAdministrationShellResponse process(PutAssetAdministrationShellRequest request, RequestExecutionContext context) throws Exception {
         ModelValidator.validate(request.getAas(), context.getCoreConfig().getValidationOnUpdate());
         context.getPersistence().runInTransaction(tx -> {
-            tx.getAssetAdministrationShell(request.getId(), QueryModifier.DEFAULT);
-            tx.deleteAssetAdministrationShell(request.getId());
-            tx.save(request.getAas());
+            //check if resource does exist
+            context.getPersistence().getAssetAdministrationShell(request.getId(), QueryModifier.DEFAULT, tx);
+            context.getPersistence().deleteAssetAdministrationShell(request.getId(), tx);
+            context.getPersistence().save(request.getAas(), tx);
         });
         if (!request.isInternal()) {
             context.getMessageBus().publish(ElementUpdateEventMessage.builder()

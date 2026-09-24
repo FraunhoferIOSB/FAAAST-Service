@@ -898,19 +898,74 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
     }
 
 
+    /**
+     * Whether the persistence under test can undo the writes of a failed transaction. Implementations without real
+     * transaction support keep them.
+     *
+     * @return true if a rollback undoes writes, false otherwise
+     */
+    protected boolean supportsRollback() {
+        return false;
+    }
+
+
     @Test
-    public void inTransactionReturnsActionResult() throws Exception {
+    public void inTransactionReturnsActionResult() {
         String expected = "result";
         Assert.assertEquals(expected, persistence.inTransaction(tx -> expected));
     }
 
 
     @Test
-    public void inTransactionAppliesWrites() throws Exception {
+    public void inTransactionAppliesWrites() {
         Submodel expected = DeepCopyHelper.deepCopy(environment.getSubmodels().get(0),
                 environment.getSubmodels().get(0).getClass());
-        persistence.runInTransaction(tx -> tx.save(expected));
+        persistence.runInTransaction(tx -> persistence.save(expected, tx));
         Assert.assertEquals(expected, persistence.getSubmodel(expected.getId(), QueryModifier.DEFAULT));
+    }
+
+
+    @Test
+    public void inTransactionJoinsExistingTransaction() {
+        Submodel expected = DeepCopyHelper.deepCopy(environment.getSubmodels().get(0),
+                environment.getSubmodels().get(0).getClass());
+        String id = "http://example.org/submodel/tx-join";
+        expected.setId(id);
+        persistence.runInTransaction(outer -> persistence.runInTransaction(outer, inner -> {
+            Assert.assertSame("joining must not start a second transaction", outer, inner);
+            persistence.save(expected, inner);
+        }));
+        Assert.assertTrue(persistence.submodelExists(id));
+    }
+
+
+    @Test
+    public void inTransactionRejectsInactiveTransaction() {
+        Transaction tx = persistence.beginTransaction();
+        try {
+            tx.commit();
+            Assert.assertThrows(IllegalStateException.class, () -> persistence.runInTransaction(tx, x -> {
+                // intentionally left empty, joining must fail before the unit of work runs
+            }));
+        }
+        finally {
+            tx.close();
+        }
+    }
+
+
+    /**
+     * The convenience overloads without a transaction must behave exactly like passing a null transaction.
+     */
+    @Test
+    public void operationsWithoutTransactionTakeEffectImmediately() {
+        Submodel expected = DeepCopyHelper.deepCopy(environment.getSubmodels().get(0),
+                environment.getSubmodels().get(0).getClass());
+        String id = "http://example.org/submodel/tx-none";
+        expected.setId(id);
+        persistence.save(expected);
+        Assert.assertTrue(persistence.submodelExists(id));
+        Assert.assertEquals(expected, persistence.getSubmodel(id, QueryModifier.DEFAULT, null));
     }
 
 
@@ -925,12 +980,12 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
         expected.setId(id);
         Assert.assertFalse(persistence.submodelExists(id));
         Assert.assertThrows(IllegalStateException.class, () -> persistence.runInTransaction(tx -> {
-            tx.save(expected);
+            persistence.save(expected, tx);
             throw new IllegalStateException("forced failure");
         }));
         Assert.assertEquals(
-                "implementations supporting transactions must roll the write back, others must keep it",
-                !persistence.supportsTransactions(),
+                "implementations supporting rollback must roll the write back, others must keep it",
+                !supportsRollback(),
                 persistence.submodelExists(id));
     }
 

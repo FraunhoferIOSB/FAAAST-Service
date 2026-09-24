@@ -46,21 +46,21 @@ public class PutSubmodelRequestHandler extends AbstractRequestHandler<PutSubmode
         ModelValidator.validate(request.getSubmodel(), context.getCoreConfig().getValidationOnUpdate());
         Submodel oldSubmodel = context.getPersistence().inTransaction(tx -> {
             //check if resource does exist
-            Submodel existing = tx.getSubmodel(request.getSubmodelId(), QueryModifier.DEFAULT);
+            Submodel existing = context.getPersistence().getSubmodel(request.getSubmodelId(), QueryModifier.DEFAULT, tx);
             if (Objects.nonNull(request.getSubmodel()) && !Objects.equals(request.getSubmodel().getId(), request.getSubmodelId())) {
                 // id has changed, need to update references to this submodel
                 Reference submodelRefOld = ReferenceBuilder.forSubmodel(request.getSubmodelId());
                 Reference submodelRefNew = ReferenceBuilder.forSubmodel(request.getSubmodel().getId());
-                for (AssetAdministrationShell aas: tx.getAllAssetAdministrationShells(QueryModifier.MINIMAL, PagingInfo.ALL).getContent()) {
+                for (AssetAdministrationShell aas: context.getPersistence().getAllAssetAdministrationShells(QueryModifier.MINIMAL, PagingInfo.ALL, tx).getContent()) {
                     if (aas.getSubmodels().stream().anyMatch(submodelRef -> ReferenceHelper.equals(submodelRef, submodelRefOld))) {
                         aas.getSubmodels().removeIf(submodelRef -> ReferenceHelper.equals(submodelRef, submodelRefOld));
                         aas.getSubmodels().add(submodelRefNew);
-                        tx.save(aas);
+                        context.getPersistence().save(aas, tx);
                     }
                 }
-                tx.deleteSubmodel(request.getSubmodelId());
+                context.getPersistence().deleteSubmodel(request.getSubmodelId(), tx);
             }
-            tx.save(request.getSubmodel());
+            context.getPersistence().save(request.getSubmodel(), tx);
             return existing;
         });
         Reference reference = AasUtils.toReference(request.getSubmodel());

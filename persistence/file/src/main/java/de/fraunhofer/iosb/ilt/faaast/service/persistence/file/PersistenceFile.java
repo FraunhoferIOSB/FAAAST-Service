@@ -42,6 +42,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.persistence.ConceptDescriptionSearc
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.SubmodelElementSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.SubmodelSearchCriteria;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.Transaction;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemory;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemoryConfig;
 import java.io.File;
@@ -136,139 +137,152 @@ public class PersistenceFile implements Persistence<PersistenceFileConfig> {
     }
 
 
+    /**
+     *
+     * All operations take effect immediately and rolling back does not undo anything.
+     */
     @Override
-    public AssetAdministrationShell getAssetAdministrationShell(String id, QueryModifier modifier) throws ResourceNotFoundException {
-        return persistence.getAssetAdministrationShell(id, modifier);
+    public Transaction beginTransaction() {
+        return persistence.beginTransaction();
     }
 
 
     @Override
-    public Submodel getSubmodel(String id, QueryModifier modifier) throws ResourceNotFoundException {
-        return persistence.getSubmodel(id, modifier);
+    public AssetAdministrationShell getAssetAdministrationShell(String id, QueryModifier modifier, Transaction tx) throws ResourceNotFoundException {
+        return persistence.getAssetAdministrationShell(id, modifier, tx);
     }
 
 
     @Override
-    public ConceptDescription getConceptDescription(String id, QueryModifier modifier) throws ResourceNotFoundException {
-        return persistence.getConceptDescription(id, modifier);
+    public Submodel getSubmodel(String id, QueryModifier modifier, Transaction tx) throws ResourceNotFoundException {
+        return persistence.getSubmodel(id, modifier, tx);
     }
 
 
     @Override
-    public SubmodelElement getSubmodelElement(SubmodelElementIdentifier identifier, QueryModifier modifier) throws ResourceNotFoundException {
-        return persistence.getSubmodelElement(identifier, modifier);
+    public ConceptDescription getConceptDescription(String id, QueryModifier modifier, Transaction tx) throws ResourceNotFoundException {
+        return persistence.getConceptDescription(id, modifier, tx);
     }
 
 
     @Override
-    public Page<Reference> getSubmodelRefs(String aasId, PagingInfo paging) throws ResourceNotFoundException {
-        return persistence.getSubmodelRefs(aasId, paging);
+    public SubmodelElement getSubmodelElement(SubmodelElementIdentifier identifier, QueryModifier modifier, Transaction tx) throws ResourceNotFoundException {
+        return persistence.getSubmodelElement(identifier, modifier, tx);
     }
 
 
     @Override
-    public OperationResult getOperationResult(OperationHandle handle) throws ResourceNotFoundException {
-        return persistence.getOperationResult(handle);
+    public Page<Reference> getSubmodelRefs(String aasId, PagingInfo paging, Transaction tx) throws ResourceNotFoundException {
+        return persistence.getSubmodelRefs(aasId, paging, tx);
     }
 
 
     @Override
-    public Page<AssetAdministrationShell> findAssetAdministrationShells(AssetAdministrationShellSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) {
-        return persistence.findAssetAdministrationShells(criteria, modifier, paging);
+    public OperationResult getOperationResult(OperationHandle handle, Transaction tx) throws ResourceNotFoundException {
+        return persistence.getOperationResult(handle, tx);
     }
 
 
     @Override
-    public Page<Submodel> findSubmodels(SubmodelSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) {
-        return persistence.findSubmodels(criteria, modifier, paging);
+    public Page<AssetAdministrationShell> findAssetAdministrationShells(AssetAdministrationShellSearchCriteria criteria, QueryModifier modifier, PagingInfo paging,
+                                                                        Transaction tx) {
+        return persistence.findAssetAdministrationShells(criteria, modifier, paging, tx);
     }
 
 
     @Override
-    public Page<SubmodelElement> findSubmodelElements(SubmodelElementSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) throws ResourceNotFoundException {
-        return persistence.findSubmodelElements(criteria, modifier, paging);
+    public Page<Submodel> findSubmodels(SubmodelSearchCriteria criteria, QueryModifier modifier, PagingInfo paging, Transaction tx) {
+        return persistence.findSubmodels(criteria, modifier, paging, tx);
     }
 
 
     @Override
-    public Page<ConceptDescription> findConceptDescriptions(ConceptDescriptionSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) {
-        return persistence.findConceptDescriptions(criteria, modifier, paging);
+    public Page<SubmodelElement> findSubmodelElements(SubmodelElementSearchCriteria criteria, QueryModifier modifier, PagingInfo paging, Transaction tx)
+            throws ResourceNotFoundException {
+        return persistence.findSubmodelElements(criteria, modifier, paging, tx);
     }
 
 
     @Override
-    public void save(AssetAdministrationShell assetAdministrationShell) {
-        persistence.save(assetAdministrationShell);
+    public Page<ConceptDescription> findConceptDescriptions(ConceptDescriptionSearchCriteria criteria, QueryModifier modifier, PagingInfo paging, Transaction tx) {
+        return persistence.findConceptDescriptions(criteria, modifier, paging, tx);
+    }
+
+
+    @Override
+    public void save(AssetAdministrationShell assetAdministrationShell, Transaction tx) {
+        persistence.save(assetAdministrationShell, tx);
         saveEnvironment();
     }
 
 
     @Override
-    public void save(ConceptDescription conceptDescription) {
-        persistence.save(conceptDescription);
+    public void save(ConceptDescription conceptDescription, Transaction tx) {
+        persistence.save(conceptDescription, tx);
         saveEnvironment();
     }
 
 
     @Override
-    public void save(Submodel submodel) {
-        persistence.save(submodel);
+    public void save(Submodel submodel, Transaction tx) {
+        persistence.save(submodel, tx);
         saveEnvironment();
     }
 
 
     @Override
-    public void insert(SubmodelElementIdentifier parentIdentifier, SubmodelElement submodelElement) throws ResourceNotFoundException, ResourceNotAContainerElementException {
-        persistence.insert(parentIdentifier, submodelElement);
+    public void insert(SubmodelElementIdentifier parentIdentifier, SubmodelElement submodelElement, Transaction tx)
+            throws ResourceNotFoundException, ResourceNotAContainerElementException {
+        persistence.insert(parentIdentifier, submodelElement, tx);
         saveEnvironment();
     }
 
 
     @Override
-    public void update(SubmodelElementIdentifier identifier, SubmodelElement submodelElement) throws ResourceNotFoundException {
-        persistence.update(identifier, submodelElement);
+    public void update(SubmodelElementIdentifier identifier, SubmodelElement submodelElement, Transaction tx) throws ResourceNotFoundException {
+        persistence.update(identifier, submodelElement, tx);
         saveEnvironment();
     }
 
 
     @Override
-    public void save(OperationHandle handle, OperationResult result) {
-        persistence.save(handle, result);
+    public void save(OperationHandle handle, OperationResult result, Transaction tx) {
+        persistence.save(handle, result, tx);
         saveOperationStates();
     }
 
 
     @Override
-    public void deleteAssetAdministrationShell(String id) throws ResourceNotFoundException {
-        persistence.deleteAssetAdministrationShell(id);
+    public void deleteAssetAdministrationShell(String id, Transaction tx) throws ResourceNotFoundException {
+        persistence.deleteAssetAdministrationShell(id, tx);
         saveEnvironment();
     }
 
 
     @Override
-    public void deleteSubmodel(String id) throws ResourceNotFoundException {
-        persistence.deleteSubmodel(id);
+    public void deleteSubmodel(String id, Transaction tx) throws ResourceNotFoundException {
+        persistence.deleteSubmodel(id, tx);
         saveEnvironment();
     }
 
 
     @Override
-    public void deleteConceptDescription(String id) throws ResourceNotFoundException {
-        persistence.deleteConceptDescription(id);
+    public void deleteConceptDescription(String id, Transaction tx) throws ResourceNotFoundException {
+        persistence.deleteConceptDescription(id, tx);
         saveEnvironment();
     }
 
 
     @Override
-    public void deleteSubmodelElement(SubmodelElementIdentifier identifier) throws ResourceNotFoundException {
-        persistence.deleteSubmodelElement(identifier);
+    public void deleteSubmodelElement(SubmodelElementIdentifier identifier, Transaction tx) throws ResourceNotFoundException {
+        persistence.deleteSubmodelElement(identifier, tx);
         saveEnvironment();
     }
 
 
     @Override
-    public void deleteAll() throws PersistenceException {
-        persistence.deleteAll();
+    public void deleteAll(Transaction tx) throws PersistenceException {
+        persistence.deleteAll(tx);
         saveEnvironment();
     }
 
@@ -277,7 +291,7 @@ public class PersistenceFile implements Persistence<PersistenceFileConfig> {
         try {
             EnvironmentSerializationManager
                     .serializerFor(config.getDataformat())
-                    .write(new File(String.valueOf(config.getFilePath())), persistence.getEnvironment());
+                    .write(new File(String.valueOf(config.getFilePath())), persistence.getEnvironment(null));
         }
         catch (IOException | SerializationException e) {
             LOGGER.error(String.format("Could not save environment to file %s", config.getFilePath()), e);

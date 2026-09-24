@@ -16,8 +16,38 @@ Each Persistence configuration supports at least the following configuration pro
 Some operations need several persistence calls to take effect together. For example, replacing a Submodel whose id changed rewrites every Asset Administration Shell referencing it, deletes the old Submodel and saves the new one. If
 a part fails, shells are left referencing a Submodel that does not exist.
 
-`Persistence.inTransaction(action)` (and its void variant `runInTransaction`) executes such a sequence as one unit. The
-action receives a `Persistence` instance that must be used for every operation inside it.
+Every persistence operation comes in two forms: one taking a `Transaction` as its last parameter, and a convenience
+overload without it. The overload without a transaction (equivalently, passing `null`) runs the operation on its own and
+it takes effect immediately; passing a transaction groups it with all other operations using the same transaction.
+Existing code that does not care about transactions therefore keeps working unchanged. Implementations only implement
+the transaction-taking form - the convenience overloads are inherited defaults.
+
+`Persistence.inTransaction(work)` (and its void variant `runInTransaction`) executes such a sequence as one unit: it
+starts a transaction, hands it to the unit of work, and commits it - or rolls it back if the unit of work fails.
+
+```java
+Submodel oldSubmodel = persistence.inTransaction(tx -> {
+    Submodel existing = persistence.getSubmodel(submodelId, QueryModifier.DEFAULT, tx);
+    persistence.deleteSubmodel(submodelId, tx);
+    persistence.save(newSubmodel, tx);
+    return existing;
+});
+```
+
+Both methods have a two-argument form taking a transaction to join, e.g. `inTransaction(tx, work)`. If that transaction
+is non-null the unit of work joins it and the outer caller stays responsible for committing, rolling back and closing
+it; if it is null a new transaction is started as above. This lets a helper participate in a caller's transaction
+without knowing whether there is one.
+
+Because `Consumer` and `Function` cannot throw checked exceptions, a unit of work that needs to do so must manage the
+transaction itself via `beginTransaction()`. Leaving the block without committing rolls the transaction back:
+
+```java
+try (Transaction tx = persistence.beginTransaction()) {
+    // ... work that may throw checked exceptions ...
+    tx.commit();
+}
+```
 
 **The atomicity guarantee is optional and depends on the implementation:**
 
@@ -28,8 +58,11 @@ action receives a `Persistence` instance that must be used for every operation i
 | Mongo          | ✗            |
 | Postgres       | ✓            |
 
-Implementations that do not support transactions execute the action directly and provide *no* rollback: whatever was
-written before a failure stays written. Query `supportsTransactions()` to find out which behaviour applies.
+Implementations that do not support transactions hand out a no-op transaction: all operations take effect immediately
+and rolling back does *not* undo anything, so whatever was written before a failure stays written.
+
+Note that all exceptions defined by FA³ST Service are unchecked (they extend `RuntimeException`). The `throws` clauses
+on the persistence API are kept for documentation, but the compiler no longer forces callers to handle them.
 
 When writing request handlers, keep message bus publishing, file storage access and asset connection calls
 **outside** the transaction action. Emitting an event for a change that is later rolled back cannot be undone.
