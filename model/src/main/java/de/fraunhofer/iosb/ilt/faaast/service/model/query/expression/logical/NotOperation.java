@@ -14,9 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.logical;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.EvaluationContext;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.LogicalExpression;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.BooleanValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.visitor.LogicalExpressionVisitor;
 
 
 /**
@@ -24,19 +23,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.BooleanValue;
  * the result is false, and vice versa.
  */
 public record NotOperation(LogicalExpression operand) implements LogicalExpression {
-
     @Override
-    public LogicalExpression evaluatePartially(EvaluationContext evaluationContext) {
-        LogicalExpression evaluated = operand.evaluatePartially(evaluationContext);
-
-        if (evaluated.isBoolean()) {
-            return new BooleanValue(Boolean.FALSE.equals(evaluated.asBoolean()));
-        }
-        return withOperand(evaluated);
-    }
-
-
-    private NotOperation withOperand(LogicalExpression evaluated) {
-        return new NotOperation(evaluated);
+    public <R> R accept(LogicalExpressionVisitor<R> visitor) {
+        return visitor.visit(this);
     }
 }

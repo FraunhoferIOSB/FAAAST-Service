@@ -16,6 +16,8 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.query.expression;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.EvaluationContext;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.Operand;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.visitor.LogicalExpressionVisitor;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.visitor.PartialEvaluationVisitor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.AccessRuleEntity;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
@@ -30,6 +32,16 @@ import javax.annotation.Nullable;
 public interface LogicalExpression extends AccessRuleEntity<LogicalExpression> {
 
     /**
+     * Accepts a visitor and dispatches to the {@code visit} method matching this expression's runtime type.
+     *
+     * @param <R> the return type of the visitor
+     * @param visitor the visitor to accept
+     * @return the result of the visit
+     */
+    <R> R accept(LogicalExpressionVisitor<R> visitor);
+
+
+    /**
      * Evaluates this logical expression partially given the context. A bottom up approach of folding this expression
      * will take place. May throw unchecked exceptions for invalid input arguments to operations. Each node of the
      * expression may return an expression, a function or a literal (TypedValue), depending on the evaluation of its
@@ -40,7 +52,9 @@ public interface LogicalExpression extends AccessRuleEntity<LogicalExpression> {
      * @param evaluationContext The context used to evaluate the expression.
      * @return A (partially) evaluated expression.
      */
-    LogicalExpression evaluatePartially(EvaluationContext evaluationContext);
+    default LogicalExpression evaluatePartially(EvaluationContext evaluationContext) {
+        return accept(new PartialEvaluationVisitor(evaluationContext));
+    }
 
 
     /**

@@ -14,10 +14,10 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.field;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.EvaluationContext;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.Operand;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.Attribute;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.field.path.FieldPath;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.visitor.LogicalExpressionVisitor;
+
 import java.util.Objects;
 
 
@@ -38,9 +38,8 @@ public abstract class FieldIdentifier implements Attribute {
 
 
     @Override
-    public Operand evaluatePartially(EvaluationContext evaluationContext) {
-        // We cannot evaluate this part before looking into the persistence
-        return this;
+    public <R> R accept(LogicalExpressionVisitor<R> visitor) {
+        return visitor.visit(this);
     }
 
 

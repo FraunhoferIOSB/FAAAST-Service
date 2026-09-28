@@ -14,10 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute;
 
-import static java.util.Optional.ofNullable;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.visitor.LogicalExpressionVisitor;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.EvaluationContext;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.StringValue;
 import java.util.Objects;
 
 
@@ -56,6 +54,12 @@ public class ClaimAttribute implements Attribute {
 
 
     @Override
+    public <R> R accept(LogicalExpressionVisitor<R> visitor) {
+        return visitor.visit(this);
+    }
+
+
+    @Override
     public boolean isClaim() {
         return true;
     }
@@ -64,14 +68,6 @@ public class ClaimAttribute implements Attribute {
     @Override
     public ClaimAttribute asClaim() {
         return this;
-    }
-
-
-    @Override
-    public StringValue evaluatePartially(EvaluationContext evaluationContext) {
-        return ofNullable(evaluationContext.getClaim(claim))
-                .map(StringValue::new)
-                .orElseThrow(() -> new IllegalStateException(String.format("Claim %s not present in context", claim)));
     }
 
 
@@ -89,4 +85,5 @@ public class ClaimAttribute implements Attribute {
     public int hashCode() {
         return Objects.hashCode(claim);
     }
+
 }

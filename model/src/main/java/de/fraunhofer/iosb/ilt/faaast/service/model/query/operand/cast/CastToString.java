@@ -29,7 +29,7 @@ public class CastToString extends Cast<StringValue> {
 
 
     @Override
-    protected Cast<StringValue> withOperand(Operand evaluated) {
+    public Cast<StringValue> withOperand(Operand evaluated) {
         return new CastToString(evaluated);
     }
 

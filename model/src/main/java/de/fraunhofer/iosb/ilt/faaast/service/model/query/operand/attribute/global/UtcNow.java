@@ -14,23 +14,13 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.global;
 
-import static java.time.ZoneOffset.UTC;
-
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.EvaluationContext;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DateTimeValue;
-import java.time.LocalDateTime;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.visitor.LogicalExpressionVisitor;
 
 
 /**
  * A global attribute yielding the current time in UTC.
  */
 public class UtcNow implements GlobalAttribute {
-
-    @Override
-    public DateTimeValue evaluatePartially(EvaluationContext evaluationContext) {
-        return new DateTimeValue(LocalDateTime.now().atOffset(UTC));
-    }
-
 
     @Override
     public boolean isUtcNow() {
@@ -47,6 +37,12 @@ public class UtcNow implements GlobalAttribute {
     @Override
     public boolean equals(Object o) {
         return o != null && getClass() == o.getClass();
+    }
+
+
+    @Override
+    public <R> R accept(LogicalExpressionVisitor<R> visitor) {
+        return visitor.visit(this);
     }
 
 

@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.query.comparison;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.Operand;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.visitor.LogicalExpressionVisitor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
 
 import java.util.function.BiFunction;
@@ -39,7 +40,13 @@ public class NotEqualsOperation extends AbstractBinaryComparison {
 
 
     @Override
-    protected AbstractBinaryComparison withOperands(Operand left, Operand right) {
+    public <R> R accept(LogicalExpressionVisitor<R> visitor) {
+        return visitor.visit(this);
+    }
+
+
+    @Override
+    public AbstractBinaryComparison withOperands(Operand left, Operand right) {
         return new NotEqualsOperation(left, right);
     }
 }

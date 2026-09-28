@@ -29,7 +29,7 @@ public class CastToNumber extends Cast<DoubleValue> {
 
 
     @Override
-    protected Cast<DoubleValue> withOperand(Operand evaluated) {
+    public Cast<DoubleValue> withOperand(Operand evaluated) {
         return new CastToNumber(evaluated);
     }
 

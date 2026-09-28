@@ -14,7 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.query.operand;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.EvaluationContext;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.LogicalExpression;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
 
@@ -53,8 +52,4 @@ public interface Operand extends LogicalExpression {
     default TypedValue<?> asTypedValue() {
         throw new UnsupportedOperationException(String.format("%s cannot be transformed to typed value", this.getClass().getSimpleName()));
     }
-
-
-    @Override
-    Operand evaluatePartially(EvaluationContext evaluationContext);
 }

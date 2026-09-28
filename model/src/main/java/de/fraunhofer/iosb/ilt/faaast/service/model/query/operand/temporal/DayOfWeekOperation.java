@@ -32,13 +32,13 @@ public class DayOfWeekOperation extends TemporalOperation {
 
 
     @Override
-    protected Function<DateTimeValue, Integer> operation() {
+    public Function<DateTimeValue, Integer> operation() {
         return dtv -> dtv.getValue().getDayOfWeek().getValue() % 7;
     }
 
 
     @Override
-    protected DayOfWeekOperation withOperand(Operand operand) {
+    public DayOfWeekOperation withOperand(Operand operand) {
         return new DayOfWeekOperation(operand);
     }
 }

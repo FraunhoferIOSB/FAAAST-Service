@@ -32,13 +32,13 @@ public class MonthOperation extends TemporalOperation {
 
 
     @Override
-    protected Function<DateTimeValue, Integer> operation() {
+    public Function<DateTimeValue, Integer> operation() {
         return dtv -> dtv.getValue().getMonthValue();
     }
 
 
     @Override
-    protected MonthOperation withOperand(Operand operand) {
+    public MonthOperation withOperand(Operand operand) {
         return new MonthOperation(operand);
     }
 

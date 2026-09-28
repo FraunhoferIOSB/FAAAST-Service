@@ -14,20 +14,13 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.global;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.EvaluationContext;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.BooleanValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.visitor.LogicalExpressionVisitor;
 
 
 /**
  * A global attribute representing an anonymous principal.
  */
 public class Anonymous implements GlobalAttribute {
-    @Override
-    public BooleanValue evaluatePartially(EvaluationContext evaluationContext) {
-        return new BooleanValue(evaluationContext.isAnonymous());
-    }
-
-
     @Override
     public boolean isAnonymous() {
         return true;
@@ -43,6 +36,12 @@ public class Anonymous implements GlobalAttribute {
     @Override
     public boolean equals(Object o) {
         return o != null && getClass() == o.getClass();
+    }
+
+
+    @Override
+    public <R> R accept(LogicalExpressionVisitor<R> visitor) {
+        return visitor.visit(this);
     }
 
 

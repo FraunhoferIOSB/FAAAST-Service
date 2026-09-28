@@ -29,7 +29,7 @@ public class CastToDateTime extends Cast<DateTimeValue> {
 
 
     @Override
-    protected Cast<DateTimeValue> withOperand(Operand evaluated) {
+    public Cast<DateTimeValue> withOperand(Operand evaluated) {
         return new CastToDateTime(evaluated);
     }
 

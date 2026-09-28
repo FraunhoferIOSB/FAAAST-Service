@@ -15,8 +15,8 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.cast;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.EvaluationContext;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.Operand;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.visitor.LogicalExpressionVisitor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
 
 
@@ -35,12 +35,18 @@ public abstract class Cast<O extends TypedValue<?>> implements Operand {
 
 
     @Override
-    public Operand evaluatePartially(EvaluationContext evaluationContext) {
-        Operand evaluated = operand.evaluatePartially(evaluationContext);
-        if (evaluated.isTypedValue()) {
-            return cast(evaluated.asTypedValue());
-        }
-        return evaluated == operand ? this : withOperand(evaluated);
+    public <R> R accept(LogicalExpressionVisitor<R> visitor) {
+        return visitor.visit(this);
+    }
+
+
+    /**
+     * Returns the operand being cast.
+     *
+     * @return the operand
+     */
+    public Operand getOperand() {
+        return operand;
     }
 
 
@@ -50,7 +56,7 @@ public abstract class Cast<O extends TypedValue<?>> implements Operand {
      * @param evaluated the evaluated operand to wrap
      * @return the new cast operation
      */
-    protected abstract Cast<O> withOperand(Operand evaluated);
+    public abstract Cast<O> withOperand(Operand evaluated);
 
 
     /**
@@ -59,7 +65,7 @@ public abstract class Cast<O extends TypedValue<?>> implements Operand {
      * @param input the typed value to cast
      * @return the cast result
      */
-    protected O cast(TypedValue<?> input) {
+    public O cast(TypedValue<?> input) {
         O o = instance();
         try {
             o.fromString(input.asString());

@@ -29,7 +29,7 @@ public class CastToHex extends Cast<HexBinaryValue> {
 
 
     @Override
-    protected Cast<HexBinaryValue> withOperand(Operand evaluated) {
+    public Cast<HexBinaryValue> withOperand(Operand evaluated) {
         return new CastToHex(evaluated);
     }
 

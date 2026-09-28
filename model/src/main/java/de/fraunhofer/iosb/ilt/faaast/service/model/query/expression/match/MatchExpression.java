@@ -14,11 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.match;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.EvaluationContext;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.LogicalExpression;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.BooleanValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.visitor.LogicalExpressionVisitor;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -30,33 +27,8 @@ import java.util.List;
  * allowed inside a {@code $match}.
  */
 public record MatchExpression(List<QueryMatchElement> elements) implements QueryMatchElement {
-
     @Override
-    public LogicalExpression evaluatePartially(EvaluationContext evaluationContext) {
-        List<QueryMatchElement> evaluated = new ArrayList<>();
-        boolean changed = false;
-
-        for (QueryMatchElement element: elements) {
-            LogicalExpression folded = element.evaluatePartially(evaluationContext);
-            if (folded != element) {
-                changed = true;
-            }
-
-            if (folded.isBoolean()) {
-                // A $match requires all contained conditions to hold, hence a single false condition invalidates it
-                if (Boolean.FALSE.equals(folded.asBoolean())) {
-                    return new BooleanValue(false);
-                }
-                changed = true;
-                continue;
-            }
-
-            evaluated.add((QueryMatchElement) folded);
-        }
-
-        if (evaluated.isEmpty()) {
-            return new BooleanValue(true);
-        }
-        return changed ? new MatchExpression(evaluated) : this;
+    public <R> R accept(LogicalExpressionVisitor<R> visitor) {
+        return visitor.visit(this);
     }
 }

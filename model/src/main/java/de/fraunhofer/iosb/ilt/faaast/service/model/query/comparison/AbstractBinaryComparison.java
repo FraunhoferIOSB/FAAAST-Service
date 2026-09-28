@@ -14,7 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.query.comparison;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.EvaluationContext;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.LogicalExpression;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.match.QueryMatchElement;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.Operand;
@@ -54,33 +53,26 @@ public abstract class AbstractBinaryComparison implements LogicalExpression, Que
     }
 
 
-    @Override
-    public LogicalExpression evaluatePartially(EvaluationContext evaluationContext) {
-        Operand leftEvaluated = left.evaluatePartially(evaluationContext);
-        Operand rightEvaluated = right.evaluatePartially(evaluationContext);
-
-        if (leftEvaluated.isTypedValue() && rightEvaluated.isTypedValue()) {
-            TypedValue<?> leftValue = leftEvaluated.asTypedValue();
-            TypedValue<?> rightValue = rightEvaluated.asTypedValue();
-            validate(leftValue, rightValue);
-
-            return new BooleanValue(
-                    switch (leftValue.getDataType()) {
-                        case STRING -> stringOperation().apply((StringValue) leftValue, (StringValue) rightValue);
-                        case DOUBLE -> doubleOperation().apply((DoubleValue) leftValue, (DoubleValue) rightValue);
-                        case INT -> intOperation().apply((IntValue) leftEvaluated, (IntValue) rightValue);
-                        case HEX_BINARY -> hexOperation().apply((HexBinaryValue) leftValue, (HexBinaryValue) rightValue);
-                        case BOOLEAN -> booleanOperation().apply((BooleanValue) leftEvaluated, (BooleanValue) rightEvaluated);
-                        case DATE_TIME -> dateTimeOperation().apply((DateTimeValue) leftValue, (DateTimeValue) rightValue);
-                        case TIME -> timeOperation().apply((TimeValue) leftValue, (TimeValue) rightValue);
-                        default -> throw new IllegalArgumentException(String.format("Cannot compare %s", leftValue.getDataType()));
-                    });
-        }
-
-        if (leftEvaluated != left || rightEvaluated != right) {
-            return withOperands(leftEvaluated, rightEvaluated);
-        }
-        return this;
+    /**
+     * Computes the comparison result for two fully-evaluated typed value operands.
+     *
+     * @param leftValue the left operand as a typed value
+     * @param rightValue the right operand as a typed value
+     * @return the comparison result
+     * @throws IllegalArgumentException if the operands are not valid for this comparison
+     */
+    public boolean compute(TypedValue<?> leftValue, TypedValue<?> rightValue) {
+        validate(leftValue, rightValue);
+        return switch (leftValue.getDataType()) {
+            case STRING -> stringOperation().apply((StringValue) leftValue, (StringValue) rightValue);
+            case DOUBLE -> doubleOperation().apply((DoubleValue) leftValue, (DoubleValue) rightValue);
+            case INT -> intOperation().apply((IntValue) leftValue, (IntValue) rightValue);
+            case HEX_BINARY -> hexOperation().apply((HexBinaryValue) leftValue, (HexBinaryValue) rightValue);
+            case BOOLEAN -> booleanOperation().apply((BooleanValue) leftValue, (BooleanValue) rightValue);
+            case DATE_TIME -> dateTimeOperation().apply((DateTimeValue) leftValue, (DateTimeValue) rightValue);
+            case TIME -> timeOperation().apply((TimeValue) leftValue, (TimeValue) rightValue);
+            default -> throw new IllegalArgumentException(String.format("Cannot compare %s", leftValue.getDataType()));
+        };
     }
 
 
@@ -106,7 +98,7 @@ public abstract class AbstractBinaryComparison implements LogicalExpression, Que
      * @param right The right operand.
      * @return A new instance of this comparison.
      */
-    protected abstract AbstractBinaryComparison withOperands(Operand left, Operand right);
+    public abstract AbstractBinaryComparison withOperands(Operand left, Operand right);
 
 
     /**

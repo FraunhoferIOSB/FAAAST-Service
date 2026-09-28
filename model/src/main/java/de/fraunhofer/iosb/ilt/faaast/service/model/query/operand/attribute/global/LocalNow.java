@@ -14,26 +14,13 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.global;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.EvaluationContext;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.Operand;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DateTimeValue;
-
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.visitor.LogicalExpressionVisitor;
 
 
 /**
  * A global attribute yielding the current time in the local time zone.
  */
 public class LocalNow implements GlobalAttribute {
-
-    @Override
-    public Operand evaluatePartially(EvaluationContext evaluationContext) {
-        return new DateTimeValue(LocalDateTime.now().atOffset(localOffset()));
-    }
-
 
     @Override
     public boolean isLocalNow() {
@@ -54,12 +41,13 @@ public class LocalNow implements GlobalAttribute {
 
 
     @Override
-    public int hashCode() {
-        return super.hashCode();
+    public <R> R accept(LogicalExpressionVisitor<R> visitor) {
+        return visitor.visit(this);
     }
 
 
-    private ZoneOffset localOffset() {
-        return ZoneId.systemDefault().getRules().getOffset(Instant.now());
+    @Override
+    public int hashCode() {
+        return super.hashCode();
     }
 }

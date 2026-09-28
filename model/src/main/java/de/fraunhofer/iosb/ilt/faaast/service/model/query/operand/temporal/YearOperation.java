@@ -32,13 +32,13 @@ public class YearOperation extends TemporalOperation {
 
 
     @Override
-    protected Function<DateTimeValue, Integer> operation() {
+    public Function<DateTimeValue, Integer> operation() {
         return dtv -> dtv.getValue().getYear();
     }
 
 
     @Override
-    protected YearOperation withOperand(Operand operand) {
+    public YearOperation withOperand(Operand operand) {
         return new YearOperation(operand);
     }
 }

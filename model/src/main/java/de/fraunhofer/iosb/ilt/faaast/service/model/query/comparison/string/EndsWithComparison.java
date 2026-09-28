@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.query.comparison.string;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.comparison.AbstractBinaryComparison;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.Operand;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.visitor.LogicalExpressionVisitor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.StringValue;
 
 import java.util.function.BiFunction;
@@ -33,13 +34,19 @@ public class EndsWithComparison extends AbstractStringComparison {
 
 
     @Override
+    public <R> R accept(LogicalExpressionVisitor<R> visitor) {
+        return visitor.visit(this);
+    }
+
+
+    @Override
     protected BiFunction<StringValue, StringValue, Boolean> stringOperation() {
         return (x, y) -> x.getValue().endsWith(x.getValue());
     }
 
 
     @Override
-    protected AbstractBinaryComparison withOperands(Operand left, Operand right) {
+    public AbstractBinaryComparison withOperands(Operand left, Operand right) {
         return new EndsWithComparison(left, right);
     }
 

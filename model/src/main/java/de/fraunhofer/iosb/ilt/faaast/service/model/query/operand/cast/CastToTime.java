@@ -32,7 +32,7 @@ public class CastToTime extends Cast<TimeValue> {
 
 
     @Override
-    protected Cast<TimeValue> withOperand(Operand evaluated) {
+    public Cast<TimeValue> withOperand(Operand evaluated) {
         return new CastToTime(evaluated);
     }
 
@@ -44,7 +44,7 @@ public class CastToTime extends Cast<TimeValue> {
 
 
     @Override
-    protected TimeValue cast(TypedValue<?> input) {
+    public TimeValue cast(TypedValue<?> input) {
         try {
             return super.cast(input);
         }

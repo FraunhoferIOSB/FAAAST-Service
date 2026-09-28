@@ -29,7 +29,7 @@ public class CastToBoolean extends Cast<BooleanValue> {
 
 
     @Override
-    protected Cast<BooleanValue> withOperand(Operand evaluated) {
+    public Cast<BooleanValue> withOperand(Operand evaluated) {
         return new CastToBoolean(evaluated);
     }
 

@@ -15,8 +15,8 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.value;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.EvaluationContext;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.Operand;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.visitor.LogicalExpressionVisitor;
 
 import java.util.Objects;
 
@@ -45,6 +45,12 @@ public abstract class TypedValue<T> implements Operand {
      */
     public String asString() {
         return value != null ? value.toString() : null;
+    }
+
+
+    @Override
+    public <R> R accept(LogicalExpressionVisitor<R> visitor) {
+        return visitor.visit(this);
     }
 
 
@@ -105,12 +111,6 @@ public abstract class TypedValue<T> implements Operand {
 
     @Override
     public TypedValue<?> asTypedValue() {
-        return this;
-    }
-
-
-    @Override
-    public Operand evaluatePartially(EvaluationContext evaluationContext) {
         return this;
     }
 }

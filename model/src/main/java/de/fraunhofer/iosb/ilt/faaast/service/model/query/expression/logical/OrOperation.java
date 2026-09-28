@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.logical;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.LogicalExpression;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.visitor.LogicalExpressionVisitor;
 
 import java.util.List;
 
@@ -34,13 +35,19 @@ public class OrOperation extends AbstractLogicalOperation {
 
 
     @Override
-    protected boolean neutralElement() {
+    public boolean neutralElement() {
         return false;
     }
 
 
     @Override
-    protected AbstractLogicalOperation withOperands(List<LogicalExpression> operands) {
+    public <R> R accept(LogicalExpressionVisitor<R> visitor) {
+        return visitor.visit(this);
+    }
+
+
+    @Override
+    public AbstractLogicalOperation withOperands(List<LogicalExpression> operands) {
         return new OrOperation(operands);
     }
 }

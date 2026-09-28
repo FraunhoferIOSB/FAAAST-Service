@@ -14,10 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.temporal;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.EvaluationContext;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.Operand;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.visitor.LogicalExpressionVisitor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DateTimeValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.IntValue;
 
 import java.util.function.Function;
 
@@ -35,14 +34,18 @@ public abstract class TemporalOperation implements Operand {
 
 
     @Override
-    public Operand evaluatePartially(EvaluationContext evaluationContext) {
-        Operand evaluated = operand.evaluatePartially(evaluationContext);
+    public <R> R accept(LogicalExpressionVisitor<R> visitor) {
+        return visitor.visit(this);
+    }
 
-        if (!evaluated.isTypedValue()) {
-            return this;
-        }
 
-        return new IntValue(operation().apply(((DateTimeValue) operand.asTypedValue())));
+    /**
+     * Returns the operand this temporal operation is applied to.
+     *
+     * @return the operand
+     */
+    public Operand getOperand() {
+        return operand;
     }
 
 
@@ -51,7 +54,7 @@ public abstract class TemporalOperation implements Operand {
      *
      * @return the temporal extraction function
      */
-    protected abstract Function<DateTimeValue, Integer> operation();
+    public abstract Function<DateTimeValue, Integer> operation();
 
 
     /**
@@ -60,5 +63,5 @@ public abstract class TemporalOperation implements Operand {
      * @param operand the operand to wrap
      * @return the new temporal operation
      */
-    protected abstract TemporalOperation withOperand(Operand operand);
+    public abstract TemporalOperation withOperand(Operand operand);
 }

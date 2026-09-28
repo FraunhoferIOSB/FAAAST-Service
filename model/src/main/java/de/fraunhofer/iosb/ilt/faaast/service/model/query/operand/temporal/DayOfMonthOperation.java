@@ -32,13 +32,13 @@ public class DayOfMonthOperation extends TemporalOperation {
 
 
     @Override
-    protected Function<DateTimeValue, Integer> operation() {
+    public Function<DateTimeValue, Integer> operation() {
         return dtv -> dtv.getValue().getDayOfMonth();
     }
 
 
     @Override
-    protected DayOfMonthOperation withOperand(Operand operand) {
+    public DayOfMonthOperation withOperand(Operand operand) {
         return new DayOfMonthOperation(operand);
     }
 }

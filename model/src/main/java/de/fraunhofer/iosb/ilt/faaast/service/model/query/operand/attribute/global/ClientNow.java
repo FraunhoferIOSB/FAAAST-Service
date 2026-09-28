@@ -14,37 +14,14 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.global;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.EvaluationContext;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.Operand;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DateTimeValue;
-
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.visitor.LogicalExpressionVisitor;
 
 
 /**
  * A global attribute yielding the current time as issued by the client.
  */
 public class ClientNow implements GlobalAttribute {
-    private static final String ISSUED_AT_CLAIM = "iat";
-
-    @Override
-    public Operand evaluatePartially(EvaluationContext evaluationContext) {
-        String iat = evaluationContext.getClaim(ISSUED_AT_CLAIM);
-        if (iat == null) {
-            return this;
-        }
-        var dateTime = new DateTimeValue();
-        try {
-            dateTime.fromString(LocalDateTime.ofEpochSecond(Integer.parseInt(iat), 0, ZoneOffset.UTC).toString());
-        }
-        catch (ValueFormatException e) {
-            throw new IllegalArgumentException(String.format("Could not parse claim 'iat': %s", iat), e);
-        }
-        return dateTime;
-    }
-
+    public static final String ISSUED_AT_CLAIM = "iat";
 
     @Override
     public boolean isClientNow() {
@@ -61,6 +38,12 @@ public class ClientNow implements GlobalAttribute {
     @Override
     public boolean equals(Object o) {
         return o != null && getClass() == o.getClass();
+    }
+
+
+    @Override
+    public <R> R accept(LogicalExpressionVisitor<R> visitor) {
+        return visitor.visit(this);
     }
 
 
