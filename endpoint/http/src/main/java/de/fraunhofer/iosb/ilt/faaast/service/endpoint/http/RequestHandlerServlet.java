@@ -15,7 +15,6 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http;
 
 import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.SharedAttributes.ACL;
-import static de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.LogicalExpression.identity;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.MethodNotAllowedException;
@@ -27,8 +26,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.LogicalExpression;
-import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.logical.OrOperation;
 import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.AccessPermissionRule;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import jakarta.servlet.ServletException;
@@ -159,20 +156,4 @@ public class RequestHandlerServlet extends HttpServlet {
                         .map(Message::getMessageType)
                         .noneMatch(x -> Objects.equals(x, MessageTypeEnum.ERROR) || Objects.equals(x, MessageTypeEnum.EXCEPTION));
     }
-
-
-    /**
-     * Transforms a list of resolved access permission rules to a LogicalExpression, using OR to combine them.
-     *
-     * @param rules The rules to OR-ify
-     * @return The LogicalExpression formula
-     */
-    protected LogicalExpression rulesToFormula(List<AccessPermissionRule> rules) {
-        // Security turned off
-        if (rules == null) {
-            return identity();
-        }
-        return new OrOperation(rules.stream().map(AccessPermissionRule::formula).toList());
-    }
-
 }

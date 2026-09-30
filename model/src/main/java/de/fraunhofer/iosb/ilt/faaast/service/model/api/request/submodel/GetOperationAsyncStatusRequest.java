@@ -31,7 +31,7 @@ public class GetOperationAsyncStatusRequest extends AbstractSubmodelInterfaceReq
     private String path;
     private OperationHandle handle;
 
-    protected GetOperationAsyncStatusRequest() {
+    public GetOperationAsyncStatusRequest() {
         super(EXECUTE, SUBMODEL_ELEMENT);
     }
 

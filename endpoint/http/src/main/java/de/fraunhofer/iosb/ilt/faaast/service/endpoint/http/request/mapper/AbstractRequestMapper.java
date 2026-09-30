@@ -429,9 +429,7 @@ public abstract class AbstractRequestMapper {
     private boolean identifierCheck(AccessObject object, String identifier) {
         // Also check if access to a specific submodel element is granted, even though this request asks for the whole submodel.
         // The submodel element needs to be SELECTed in the persistence
-        object.asIdentifiable().isSubmodel();
-        return (object.isIdentifiable())// TODO uncomment this to allow returning referables when /submodels/{id} is called || object.isReferable())
+        return (object.isIdentifiable())
                 && (((ReferableObject) object).getIdentifier().equals(identifier) || ((ReferableObject) object).isWildcard());
     }
-
 }

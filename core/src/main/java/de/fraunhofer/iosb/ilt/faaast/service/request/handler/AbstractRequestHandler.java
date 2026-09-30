@@ -28,6 +28,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.LogicalExpre
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.logical.OrOperation;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.filter.QueryFilter;
 import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.AccessPermissionRule;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.BooleanValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.FaaastConstants;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
@@ -53,13 +54,10 @@ public abstract class AbstractRequestHandler<I extends Request<O>, O extends Res
      * Creates a empty response object.
      *
      * @return new empty response object
-     * @throws NoSuchMethodException if response type does not implement a
-     *             parameterless constructor
+     * @throws NoSuchMethodException if response type does not implement a parameterless constructor
      * @throws InstantiationException if response type is abstract
-     * @throws InvocationTargetException if parameterless constructor of
-     *             response type throws an exception
-     * @throws IllegalAccessException if parameterless constructor of response
-     *             type is inaccessible
+     * @throws InvocationTargetException if parameterless constructor of response type throws an exception
+     * @throws IllegalAccessException if parameterless constructor of response type is inaccessible
      */
     public O newResponse() throws NoSuchMethodException, InstantiationException, InvocationTargetException, IllegalAccessException {
         return (O) ConstructorUtils.invokeConstructor(
@@ -88,9 +86,8 @@ public abstract class AbstractRequestHandler<I extends Request<O>, O extends Res
      * @param targetBean the original element to apply the update to
      * @param type the type information
      * @return the updated element
-     * @throws
-     * de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException
-     *             if applying the merge patch fails
+     * @throws de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException if applying the merge patch
+     *             fails
      */
     protected <T> T applyMergePatch(JsonMergePatch patch, T targetBean, Class<T> type) throws InvalidRequestException {
         try {
@@ -145,11 +142,18 @@ public abstract class AbstractRequestHandler<I extends Request<O>, O extends Res
 
     /**
      * Combine the remaining rules' formulas to an OR expression.
-     * 
+     *
      * @param request The request containing the formulas
      * @return An Or Operation
      */
     protected LogicalExpression combineRemainingRuleFormulas(Request<?> request) {
+        if (request.isInternal()) {
+            return LogicalExpression.identity();
+        }
+        if (request.getRules().isEmpty()) {
+            return new BooleanValue(false);
+        }
+
         return new OrOperation(request.getRules().stream().map(AccessPermissionRule::formula).toList());
 
     }
@@ -157,11 +161,15 @@ public abstract class AbstractRequestHandler<I extends Request<O>, O extends Res
 
     /**
      * Returns a flat list of all filters of all remaining rules.
-     * 
+     *
      * @param request The request containing the filters
      * @return The filters
      */
     protected List<QueryFilter> getFilters(Request<?> request) {
+        if (request.isInternal() || request.getRules().isEmpty()) {
+            return List.of();
+        }
+
         return request.getRules().stream().map(AccessPermissionRule::filters).flatMap(Collection::stream).toList();
 
     }

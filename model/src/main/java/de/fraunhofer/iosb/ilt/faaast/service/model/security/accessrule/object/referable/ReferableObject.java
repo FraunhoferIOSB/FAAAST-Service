@@ -23,11 +23,11 @@ import java.util.Objects;
  * Base class for access objects that reference a referable element.
  */
 public abstract class ReferableObject implements AccessObject {
-    private static final String WILDCARD = "(\"*\")";
+    private static final String WILDCARD = "\"*\"";
     private final String identifier;
 
     protected ReferableObject(String input) {
-        this.identifier = input.substring(getType().getDesignator().length() + 1, input.lastIndexOf(")") + 1);
+        this.identifier = input.substring(getType().getDesignator().length() + 1, input.length() - 1);
     }
 
 

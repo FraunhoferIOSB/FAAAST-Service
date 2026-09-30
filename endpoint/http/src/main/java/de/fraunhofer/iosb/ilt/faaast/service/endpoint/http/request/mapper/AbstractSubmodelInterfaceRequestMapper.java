@@ -27,6 +27,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.StringHelper;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Matcher;
@@ -129,7 +131,17 @@ public abstract class AbstractSubmodelInterfaceRequestMapper<T extends AbstractS
             httpRequest.setPath(hasAasPath(httpRequest.getPath())
                     ? removeAasPath(removeSubmodelPath(httpRequest.getPath()))
                     : removeSubmodelPath(httpRequest.getPath()));
+
             AbstractSubmodelInterfaceRequest<R> result = doParse(httpRequest, urlParameters);
+
+            List<AccessPermissionRule> list = new ArrayList<>();
+            for (AccessPermissionRule rule: httpRequest.getRules()) {
+                if (doFilter(rule, httpRequest)) {
+                    list.add(rule);
+                }
+            }
+            result.setRules(list);
+
             if (withAasContext) {
                 result.setAasId(getParameterBase64UrlEncoded(urlParameters, AAS_ID));
             }
