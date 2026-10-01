@@ -47,8 +47,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.RelationshipElementValu
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import opc.ua.aas.Ids;
 import opc.ua.aas.objecttypes.AASAnnotatedRelationshipElementType;
 import opc.ua.aas.objecttypes.AASBlobType;
@@ -347,14 +349,12 @@ public class AasSubmodelElementHelper {
 
     private static <T extends AASSubmodelElementObjectType> List<T> getSubmodelElementComponentObjects(UaObject baseNode, NodeManagerUaNode nodeManager, Class<T> type)
             throws ServiceResultException {
-        List<T> retval = new ArrayList<>();
         UaReference[] refs = baseNode.getForwardReferences(nodeManager.getNamespaceTable().toNodeId(Ids.AASHasComponent));
-        for (var ref: refs) {
-            if (ref.getTargetNode().getClass().equals(type)) {
-                retval.add((T) ref.getTargetNode());
-            }
-        }
-        return retval;
+        return Arrays.stream(refs)
+                .map(UaReference::getTargetNode)
+                .filter(node -> node.getClass().equals(type))
+                .map(type::cast)
+                .collect(Collectors.toList());
     }
 
 

@@ -61,17 +61,18 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import opc.ua.aas.DataTypeIds;
 import opc.ua.aas.datatypes.AASAssetKind;
 import opc.ua.aas.datatypes.AASDataTypeIec61360;
 import opc.ua.aas.datatypes.AASEntityEnumType;
 import opc.ua.aas.datatypes.AASHasKind;
-import opc.ua.aas.datatypes.AASKey;
 import opc.ua.aas.datatypes.AASKeyTypes;
 import opc.ua.aas.datatypes.AASModellingKind;
 import opc.ua.aas.datatypes.AASQualifierKind;
@@ -614,10 +615,12 @@ public class ValueConverter {
      */
     public static Reference convertAASReference(AASReference value) {
         Ensure.requireNonNull(value, "value must not be null");
-        List<Key> keys = new ArrayList<>();
-        for (AASKey key: value.getKey()) {
-            keys.add(new DefaultKey.Builder().type(convertAASKeyTypes(key.getType())).value(key.getValue()).build());
-        }
+        List<Key> keys = Arrays.stream(value.getKey())
+                .map(key -> new DefaultKey.Builder()
+                        .type(convertAASKeyTypes(key.getType()))
+                        .value(key.getValue())
+                        .build())
+                .collect(Collectors.toList());
         return new DefaultReference.Builder().type(convertAasReferenceTypes(value.getType())).keys(keys).build();
     }
 
