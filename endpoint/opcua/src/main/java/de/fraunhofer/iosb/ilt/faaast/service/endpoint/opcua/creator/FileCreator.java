@@ -14,20 +14,24 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator;
 
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager.VALUES_READ_ONLY;
+import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.nodemanager.AasServiceNodeManager.VALUES_READ_ONLY;
 
 import com.prosysopc.ua.StatusException;
 import com.prosysopc.ua.UaQualifiedName;
 import com.prosysopc.ua.nodes.UaNode;
+import com.prosysopc.ua.server.instantiation.NodeBuilder;
+import com.prosysopc.ua.server.instantiation.NodeBuilderConfiguration;
 import com.prosysopc.ua.stack.builtintypes.LocalizedText;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.QualifiedName;
 import com.prosysopc.ua.stack.core.AccessLevelType;
-import com.prosysopc.ua.stack.core.Identifiers;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
+import com.prosysopc.ua.types.opcua.server.FileTypeNode;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.AasSubmodelElementHelper;
-import opc.i4aas.objecttypes.AASFileType;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.UaHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.nodemanager.AasServiceNodeManager;
+import opc.ua.aas.Ids;
+import opc.ua.aas.objecttypes.AASFileType;
 import org.eclipse.digitaltwin.aas4j.v3.model.File;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
@@ -45,20 +49,20 @@ public class FileCreator extends SubmodelElementCreator {
     /**
      * Adds an AAS file to the given node.
      *
-     * @param node The desired UA node
      * @param aasFile The AAS file object
      * @param fileRef The AAS reference to the AAS file
      * @param submodel The corresponding Submodel as parent object of the data element
-     * @param ordered Specifies whether the file should be added ordered (true) or unordered (false)
      * @param nodeName The desired Name of the node. If this value is not set,
      *            the IdShort of the file is used.
      * @param nodeManager The corresponding Node Manager
+     * @return The created node.
      * @throws StatusException If the operation fails
      */
-    public static void addAasFile(UaNode node, File aasFile, Reference fileRef, Submodel submodel, boolean ordered, String nodeName, AasServiceNodeManager nodeManager)
+    public static UaNode createAasFile(File aasFile, Reference fileRef, Submodel submodel, String nodeName, AasServiceNodeManager nodeManager)
             throws StatusException {
+        UaNode retval = null;
         try {
-            if ((node != null) && (aasFile != null)) {
+            if (aasFile != null) {
                 String name = aasFile.getIdShort();
                 if ((nodeName != null) && (!nodeName.isEmpty())) {
                     name = nodeName;
@@ -67,28 +71,36 @@ public class FileCreator extends SubmodelElementCreator {
                     name = getNameFromReference(fileRef);
                 }
 
-                QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASFileType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
+                QualifiedName browseName = UaQualifiedName.from(Ids.AASFileType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
                 NodeId nid = nodeManager.getDefaultNodeId();
-                AASFileType fileNode = nodeManager.createInstance(AASFileType.class, nid, browseName, LocalizedText.english(name));
+
+                NodeBuilderConfiguration conf = new NodeBuilderConfiguration();
+                if (!aasFile.getContentType().isEmpty()) {
+                    conf.addOptional(Ids.AASFileType_ContentType);
+                }
+                if (aasFile.getValue() != null) {
+                    conf.addOptional(Ids.AASFileType_Value);
+                }
+                NodeBuilder<AASFileType> nb = nodeManager.createNodeBuilder(AASFileType.class, conf);
+                nb.setBrowseName(browseName);
+                nb.setDisplayName(LocalizedText.english(name));
+                nb.setNodeId(nid);
+                AASFileType fileNode = nb.build();
+
                 addSubmodelElementBaseData(fileNode, aasFile, nodeManager);
 
                 setFileData(aasFile, fileNode, nodeManager);
 
-                if (ordered) {
-                    node.addReference(fileNode, Identifiers.HasOrderedComponent, false);
-                }
-                else {
-                    node.addComponent(fileNode);
-                }
-
                 if (fileRef != null) {
                     nodeManager.addReferable(fileRef, new ObjectData(aasFile, fileNode, submodel));
                 }
+                retval = fileNode;
             }
         }
         catch (Exception ex) {
-            LOGGER.error("addAasFile Exception", ex);
+            LOGGER.error("createAasFile Exception", ex);
         }
+        return retval;
     }
 
 
@@ -101,10 +113,19 @@ public class FileCreator extends SubmodelElementCreator {
         // Value
         if (aasFile.getValue() != null) {
             setValueData(fileNode, aasFile, nodeManager);
+            setFile(aasFile, fileNode, nodeManager);
         }
 
         if (VALUES_READ_ONLY) {
             fileNode.getContentTypeNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
+        }
+    }
+
+
+    private static void setFile(File aasFile, AASFileType fileNode, AasServiceNodeManager nodeManager) {
+        FileTypeNode file = UaHelper.createFile(aasFile.getValue(), fileNode, AASFileType.FILE, nodeManager);
+        if (file != null) {
+            fileNode.addComponent(file);
         }
     }
 

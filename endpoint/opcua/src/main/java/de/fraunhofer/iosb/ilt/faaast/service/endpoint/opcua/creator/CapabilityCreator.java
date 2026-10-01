@@ -20,10 +20,10 @@ import com.prosysopc.ua.nodes.UaNode;
 import com.prosysopc.ua.stack.builtintypes.LocalizedText;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.QualifiedName;
-import com.prosysopc.ua.stack.core.Identifiers;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
-import opc.i4aas.objecttypes.AASCapabilityType;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.nodemanager.AasServiceNodeManager;
+import opc.ua.aas.Ids;
+import opc.ua.aas.objecttypes.AASCapabilityType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Capability;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
@@ -41,41 +41,36 @@ public class CapabilityCreator extends SubmodelElementCreator {
     /**
      * Adds an AAS Capability to the given node.
      *
-     * @param node The desired UA node
      * @param aasCapability The corresponding AAS Capability to add
      * @param capabilityRef The AAS reference to the AAS Capability
      * @param submodel The corresponding Submodel as parent object of the data element
-     * @param ordered Specifies whether the capability should be added ordered
-     *            (true) or unordered (false)
      * @param nodeManager The corresponding Node Manager
+     * @return The created node.
      * @throws StatusException If the operation fails
      */
-    public static void addAasCapability(UaNode node, Capability aasCapability, Reference capabilityRef, Submodel submodel, boolean ordered, AasServiceNodeManager nodeManager)
+    public static UaNode createAasCapability(Capability aasCapability, Reference capabilityRef, Submodel submodel, AasServiceNodeManager nodeManager)
             throws StatusException {
+        UaNode retval = null;
         try {
-            if ((node != null) && (aasCapability != null)) {
+            if (aasCapability != null) {
                 String name = aasCapability.getIdShort();
                 if ((name == null) || name.isEmpty()) {
                     name = getNameFromReference(capabilityRef);
                 }
-                QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASCapabilityType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
+                QualifiedName browseName = UaQualifiedName.from(Ids.AASCapabilityType.getNamespaceUri(), name)
+                        .toQualifiedName(nodeManager.getNamespaceTable());
                 NodeId nid = nodeManager.getDefaultNodeId();
                 AASCapabilityType capabilityNode = nodeManager.createInstance(AASCapabilityType.class, nid, browseName, LocalizedText.english(name));
                 addSubmodelElementBaseData(capabilityNode, aasCapability, nodeManager);
 
-                if (ordered) {
-                    node.addReference(capabilityNode, Identifiers.HasOrderedComponent, false);
-                }
-                else {
-                    node.addComponent(capabilityNode);
-                }
-
                 nodeManager.addReferable(capabilityRef, new ObjectData(aasCapability, capabilityNode, submodel));
+                retval = capabilityNode;
             }
         }
         catch (Exception ex) {
-            LOGGER.error("addAasCapability Exception", ex);
+            LOGGER.error("createAasCapability Exception", ex);
         }
+        return retval;
     }
 
 }

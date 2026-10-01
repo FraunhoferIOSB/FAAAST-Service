@@ -17,31 +17,33 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator;
 import com.prosysopc.ua.StatusException;
 import com.prosysopc.ua.UaBrowseNamePath;
 import com.prosysopc.ua.UaQualifiedName;
+import com.prosysopc.ua.ValueRanks;
 import com.prosysopc.ua.nodes.UaNode;
 import com.prosysopc.ua.server.instantiation.TypeDefinitionBasedNodeBuilderConfiguration;
 import com.prosysopc.ua.stack.builtintypes.LocalizedText;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.QualifiedName;
+import com.prosysopc.ua.stack.builtintypes.UnsignedInteger;
+import com.prosysopc.ua.stack.common.ServiceResultException;
 import com.prosysopc.ua.stack.core.Identifiers;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
+import com.prosysopc.ua.types.opcua.BaseDataVariableType;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.UaHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.nodemanager.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.AmbiguousElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EnvironmentHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.List;
-import opc.i4aas.objecttypes.AASAssetAdministrationShellType;
-import opc.i4aas.objecttypes.AASAssetInformationType;
-import opc.i4aas.objecttypes.AASReferenceList;
-import opc.i4aas.objecttypes.AASSpecificAssetIdList;
-import opc.i4aas.objecttypes.server.AASAssetAdministrationShellTypeNode;
+import opc.ua.aas.Ids;
+import opc.ua.aas.datatypes.AASAssetAdministrationShellCommonAttributes;
+import opc.ua.aas.datatypes.AASReference;
+import opc.ua.aas.objecttypes.AASAssetAdministrationShellType;
+import opc.ua.aas.objecttypes.AASAssetInformationType;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetInformation;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
-import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceTypes;
 import org.eclipse.digitaltwin.aas4j.v3.model.Resource;
 import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
 import org.slf4j.Logger;
@@ -69,14 +71,15 @@ public class AssetAdministrationShellCreator {
      * @throws StatusException If the operation fails
      * @throws ValueFormatException The data format of the value is invalid
      * @throws AmbiguousElementException if there are multiple matching elements in the environment
+     * @throws ServiceResultException If the operation fails
      */
     public static void addAssetAdministrationShell(UaNode node, AssetAdministrationShell aas, AasServiceNodeManager nodeManager)
-            throws StatusException, ValueFormatException, AmbiguousElementException {
+            throws StatusException, ValueFormatException, AmbiguousElementException, ServiceResultException {
         TypeDefinitionBasedNodeBuilderConfiguration.Builder conf = TypeDefinitionBasedNodeBuilderConfiguration.builder();
         Reference derivedFrom = aas.getDerivedFrom();
         if (derivedFrom != null) {
-            UaBrowseNamePath bp = UaBrowseNamePath.from(opc.i4aas.ObjectTypeIds.AASAssetAdministrationShellType,
-                    UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASAssetAdministrationShellType.getNamespaceUri(), AASAssetAdministrationShellType.DERIVED_FROM));
+            UaBrowseNamePath bp = UaBrowseNamePath.from(Ids.AASAssetAdministrationShellType,
+                    UaQualifiedName.from(Ids.AASAssetAdministrationShellType.getNamespaceUri(), AASAssetAdministrationShellType.DERIVED_FROM));
             conf.addOptional(bp);
         }
 
@@ -94,23 +97,31 @@ public class AssetAdministrationShellCreator {
             nid = nodeManager.getDefaultNodeId();
         }
 
-        AASAssetAdministrationShellType aasShell = nodeManager.createInstance(AASAssetAdministrationShellTypeNode.class, nid, browseName, LocalizedText.english(displayName));
-        IdentifiableCreator.addIdentifiable(aasShell, aas.getId(), aas.getAdministration(), aas.getCategory(), nodeManager);
+        AASAssetAdministrationShellType aasShell = nodeManager.createInstance(AASAssetAdministrationShellType.class, nid, browseName, LocalizedText.english(displayName));
+        if (derivedFrom != null) {
+            aasShell.setDerivedFrom(ReferenceCreator.getAasReference(derivedFrom));
+        }
+
+        if (aasShell.getCommonAttributes() == null) {
+            aasShell.setCommonAttributes(new AASAssetAdministrationShellCommonAttributes());
+        }
+
+        // Identifiable
+        aasShell.getCommonAttributes().setIdentifiable(BaseDataCreator.getIdentifiable(aas));
+
+        // Referable
+        ReferableCreator.setReferebleNodeData(node, aas);
 
         // EmbeddedDataSpecifications
-        EmbeddedDataSpecificationCreator.addEmbeddedDataSpecifications(aasShell, aas.getEmbeddedDataSpecifications(), nodeManager);
+        HasDataSpecificationCreator.addHasDataSpecification(aasShell, aas);
 
         // AssetInformation
         AssetInformation assetInformation = aas.getAssetInformation();
-        if (assetInformation != null) {
-            addAssetInformation(aasShell, assetInformation, nodeManager);
-        }
+        addAssetInformation(aasShell, assetInformation, nodeManager);
 
         // submodel references
         List<Reference> submodelRefs = aas.getSubmodels();
-        if ((submodelRefs != null) && (!submodelRefs.isEmpty())) {
-            addSubmodelReferences(aasShell, submodelRefs, nodeManager);
-        }
+        addSubmodelReferences(aasShell, submodelRefs, nodeManager);
 
         // add AAS to Environment
         nodeManager.addNodeAndReference(node, aasShell, Identifiers.Organizes);
@@ -119,21 +130,13 @@ public class AssetAdministrationShellCreator {
     }
 
 
-    /**
-     * Adds an AssetInformation object to the given Node.
-     *
-     * @param aasNode The AAS node where the AssetInformation should be added
-     * @param assetInformation The desired AssetInformation object
-     * @param nodeManager The corresponding Node Manager
-     * @throws StatusException If the operation fails
-     */
     private static void addAssetInformation(AASAssetAdministrationShellType aasNode, AssetInformation assetInformation, AasServiceNodeManager nodeManager)
-            throws StatusException, ValueFormatException {
-        if (aasNode == null) {
-            throw new IllegalArgumentException("aasNode = null");
+            throws StatusException, ValueFormatException, ServiceResultException {
+        if (assetInformation == null) {
+            return;
         }
-        else if (assetInformation == null) {
-            throw new IllegalArgumentException("assetInformation = null");
+        else if (aasNode == null) {
+            throw new IllegalArgumentException("aasNode = null");
         }
 
         boolean created = false;
@@ -141,7 +144,7 @@ public class AssetAdministrationShellCreator {
         assetInfoNode = aasNode.getAssetInformationNode();
         if (assetInfoNode == null) {
             String displayName = "AssetInformation";
-            QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASSubmodelType.getNamespaceUri(), displayName)
+            QualifiedName browseName = UaQualifiedName.from(Ids.AASSubmodelType.getNamespaceUri(), displayName)
                     .toQualifiedName(nodeManager.getNamespaceTable());
             NodeId nid = nodeManager.createNodeId(aasNode, browseName);
             assetInfoNode = nodeManager.createInstance(AASAssetInformationType.class, nid, browseName, LocalizedText.english(displayName));
@@ -159,7 +162,7 @@ public class AssetAdministrationShellCreator {
 
 
     private static void setAssetInformationData(AssetInformation assetInformation, AASAssetInformationType assetInfoNode, AasServiceNodeManager nodeManager)
-            throws StatusException, ValueFormatException {
+            throws StatusException, ValueFormatException, ServiceResultException {
         // AssetKind
         AssetKind assetKind = assetInformation.getAssetKind();
         assetInfoNode.setAssetKind(ValueConverter.convertAssetKind(assetKind));
@@ -169,7 +172,7 @@ public class AssetAdministrationShellCreator {
         if (assetType != null) {
             if (assetInfoNode.getAssetTypeNode() == null) {
                 UaHelper.addStringUaProperty(assetInfoNode, nodeManager, AASAssetInformationType.ASSET_TYPE, assetType,
-                        opc.i4aas.ObjectTypeIds.AASAssetInformationType.getNamespaceUri());
+                        Ids.AASAssetInformationType.getNamespaceUri());
             }
             else {
                 assetInfoNode.setAssetType(assetType);
@@ -187,7 +190,7 @@ public class AssetAdministrationShellCreator {
         if (globalAssetId != null) {
             if (assetInfoNode.getGlobalAssetIdNode() == null) {
                 UaHelper.addStringUaProperty(assetInfoNode, nodeManager, AASAssetInformationType.GLOBAL_ASSET_ID, globalAssetId,
-                        opc.i4aas.ObjectTypeIds.AASAssetInformationType.getNamespaceUri());
+                        Ids.AASAssetInformationType.getNamespaceUri());
             }
             else {
                 assetInfoNode.setGlobalAssetId(globalAssetId);
@@ -197,22 +200,13 @@ public class AssetAdministrationShellCreator {
         // SpecificAssetIds
         List<SpecificAssetId> specificAssetIds = assetInformation.getSpecificAssetIds();
         if ((specificAssetIds != null) && (!specificAssetIds.isEmpty())) {
-            addSpecificAssetIds(assetInfoNode, specificAssetIds, "SpecificAssetIds", nodeManager);
+            addSpecificAssetIds(assetInfoNode, specificAssetIds, nodeManager);
         }
     }
 
 
-    /**
-     * Adds a list of IdentifierKeyValuePairs to the given Node.
-     *
-     * @param assetInfoNode The AssetInformation node in which the IdentifierKeyValuePairs should be created or added
-     * @param list The desired list of IdentifierKeyValuePairs
-     * @param name The desired name of the Node
-     * @param nodeManager The corresponding Node Manager
-     * @throws StatusException If the operation fails
-     */
-    private static void addSpecificAssetIds(AASAssetInformationType assetInfoNode, List<SpecificAssetId> list, String name, AasServiceNodeManager nodeManager)
-            throws StatusException {
+    private static void addSpecificAssetIds(AASAssetInformationType assetInfoNode, List<SpecificAssetId> list, AasServiceNodeManager nodeManager)
+            throws StatusException, ServiceResultException {
         if (assetInfoNode == null) {
             throw new IllegalArgumentException("assetInfoNode = null");
         }
@@ -220,15 +214,16 @@ public class AssetAdministrationShellCreator {
             throw new IllegalArgumentException("list = null");
         }
 
+        String name = AASAssetInformationType.SPECIFIC_ASSET_ID;
         LOGGER.debug("addSpecificAssetIds {}; to Node: {}", name, assetInfoNode);
-        AASSpecificAssetIdList listNode = assetInfoNode.getSpecificAssetIdNode();
+        BaseDataVariableType listNode = assetInfoNode.getSpecificAssetIdNode();
         boolean created = false;
 
         if (listNode == null) {
-            QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASSpecificAssetIdList.getNamespaceUri(), name)
+            QualifiedName browseName = UaQualifiedName.from(Ids.AASAssetInformationType.getNamespaceUri(), name)
                     .toQualifiedName(nodeManager.getNamespaceTable());
             NodeId nid = nodeManager.createNodeId(assetInfoNode, browseName);
-            listNode = nodeManager.createInstance(AASSpecificAssetIdList.class, nid, browseName, LocalizedText.english(name));
+            listNode = nodeManager.createInstance(BaseDataVariableType.class, nid, browseName, LocalizedText.english(name));
             created = true;
         }
 
@@ -240,80 +235,34 @@ public class AssetAdministrationShellCreator {
     }
 
 
-    /**
-     * Adds the given submodel references to the given node.
-     *
-     * @param node The desired UA node in which the objects should be created
-     * @param submodelRefs The desired submodel references
-     * @param nodeManager The corresponding Node Manager
-     * @throws StatusException If the operation fails
-     */
     private static void addSubmodelReferences(AASAssetAdministrationShellType node, List<Reference> submodelRefs, AasServiceNodeManager nodeManager) throws StatusException {
-        if (node == null) {
+        if ((submodelRefs == null) || submodelRefs.isEmpty()) {
+            return;
+        }
+        else if (node == null) {
             throw new IllegalArgumentException(AasServiceNodeManager.NODE_NULL);
         }
-        else if (submodelRefs == null) {
-            throw new IllegalArgumentException("sumodelRefs = null");
-        }
 
-        String name = "Submodel";
-        AASReferenceList referenceListNode = node.getSubmodelNode();
+        String name = AASAssetAdministrationShellType.SUBMODEL;
+        BaseDataVariableType referenceListNode = node.getSubmodelNode();
         LOGGER.debug("addSubmodelReferences: add {} Submodels to Node: {}", submodelRefs.size(), node);
-        boolean added = false;
         if (referenceListNode == null) {
-            QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASReferenceList.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
+            QualifiedName browseName = UaQualifiedName.from(Ids.AASAssetAdministrationShellType.getNamespaceUri(), name)
+                    .toQualifiedName(nodeManager.getNamespaceTable());
             NodeId nid = nodeManager.createNodeId(node, browseName);
-            referenceListNode = nodeManager.createInstance(AASReferenceList.class, nid, browseName, LocalizedText.english(name));
+            referenceListNode = nodeManager.createInstance(BaseDataVariableType.class, nid, browseName, LocalizedText.english(name));
             LOGGER.debug("addSubmodelReferences: add Node {} to Node {}", referenceListNode.getNodeId(), node.getNodeId());
-            added = true;
-        }
-
-        int counter = 1;
-        for (Reference ref: submodelRefs) {
-            UaNode submodelNode = null;
-            String submodelName = getSubmodelName(ref);
-            if (submodelName.isEmpty()) {
-                submodelName = name + counter++;
-            }
-
-            // change reference to model reference here
-            if (ref != null) {
-                ref.setType(ReferenceTypes.MODEL_REFERENCE);
-            }
-            submodelNode = nodeManager.getSubmodelNode(ref);
-
-            UaNode refNode = AasReferenceCreator.addAasReferenceAasNS(referenceListNode, ref, submodelName, nodeManager);
-
-            if (refNode != null) {
-                // add hasAddIn reference to the submodel
-                if (submodelNode != null) {
-                    refNode.addReference(submodelNode, Identifiers.HasAddIn, false);
-                }
-                else if (LOGGER.isWarnEnabled()) {
-                    LOGGER.warn("addSubmodelReferences: Submodel {} not found in submodelRefMap", ReferenceHelper.toString(ref));
-                }
-            }
-        }
-
-        if (added) {
             node.addComponent(referenceListNode);
         }
-    }
 
-
-    /**
-     * Extracts the name from the given Submodel Reference.
-     *
-     * @param submodelRef The submodel reference
-     * @return The Name of the Submodel
-     */
-    private static String getSubmodelName(Reference submodelRef) {
-        String retval = "";
-        if ((submodelRef != null) && (!submodelRef.getKeys().isEmpty())) {
-            retval = submodelRef.getKeys().get(0).getValue();
+        List<AASReference> refList = ReferenceCreator.getAasReferences(submodelRefs);
+        if (!refList.isEmpty()) {
+            referenceListNode.setValueRank(ValueRanks.OneDimension);
+            referenceListNode.setArrayDimensions(new UnsignedInteger[] {
+                    UnsignedInteger.valueOf(refList.size())
+            });
+            referenceListNode.setValue(refList.toArray(AASReference[]::new));
         }
-
-        return retval;
     }
 
 }
