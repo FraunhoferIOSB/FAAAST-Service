@@ -24,6 +24,7 @@ import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.UnsignedInteger;
 import com.prosysopc.ua.stack.builtintypes.Variant;
 import com.prosysopc.ua.stack.common.ServiceResultException;
+import com.prosysopc.ua.stack.core.AccessLevelType;
 import com.prosysopc.ua.stack.core.Identifiers;
 import com.prosysopc.ua.types.opcua.BaseDataVariableType;
 import com.prosysopc.ua.types.opcua.DictionaryEntryType;
@@ -109,6 +110,7 @@ public class ConceptDescriptionCreator {
                 UnsignedInteger.valueOf(list.size())
         });
         cdsNode.setValue(list.toArray(AASConceptDescription[]::new));
+        cdsNode.setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
     }
 
 

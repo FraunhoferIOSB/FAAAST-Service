@@ -19,6 +19,7 @@ import com.prosysopc.ua.StatusException;
 import com.prosysopc.ua.client.AddressSpaceException;
 import com.prosysopc.ua.nodes.UaNode;
 import com.prosysopc.ua.stack.common.ServiceResultException;
+import com.prosysopc.ua.stack.core.AccessLevelType;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.nodemanager.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
@@ -193,7 +194,6 @@ public class SubmodelElementCreator {
      * @param element The corresponding AAS submodel element
      * @throws StatusException If the operation fails
      * @param nodeManager The corresponding Node Manager
-     * @throws ServiceResultException If an error occurs.
      */
     protected static void addSubmodelElementBaseData(AASSubmodelElementVariableType node, SubmodelElement element, AasServiceNodeManager nodeManager)
             throws StatusException {
@@ -212,6 +212,8 @@ public class SubmodelElementCreator {
 
             // Referable
             ReferableCreator.setReferebleNodeData(node, element);
+
+            node.getCommonAttributesNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
         }
     }
 
@@ -223,7 +225,6 @@ public class SubmodelElementCreator {
      * @param element The corresponding AAS submodel element
      * @throws StatusException If the operation fails
      * @param nodeManager The corresponding Node Manager
-     * @throws ServiceResultException If an error occurs.
      */
     protected static void addSubmodelElementBaseData(AASSubmodelElementObjectType node, SubmodelElement element, AasServiceNodeManager nodeManager)
             throws StatusException {
@@ -242,6 +243,8 @@ public class SubmodelElementCreator {
 
             // Referable
             ReferableCreator.setReferebleNodeData(node, element);
+
+            node.getCommonAttributesNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
         }
     }
 

@@ -23,6 +23,7 @@ import com.prosysopc.ua.stack.builtintypes.LocalizedText;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.QualifiedName;
 import com.prosysopc.ua.stack.common.ServiceResultException;
+import com.prosysopc.ua.stack.core.AccessLevelType;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.nodemanager.AasServiceNodeManager;
@@ -122,6 +123,8 @@ public class SubmodelCreator {
         node.addComponent(smNode);
 
         nodeManager.addReferable(AasUtils.toReference(submodel), new ObjectData(submodel, smNode));
+
+        smNode.getCommonAttributesNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
     }
 
 
