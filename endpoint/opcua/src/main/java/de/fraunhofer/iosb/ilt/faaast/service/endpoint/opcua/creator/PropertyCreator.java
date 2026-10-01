@@ -63,7 +63,9 @@ public class PropertyCreator extends SubmodelElementCreator {
             NodeId nid = nodeManager.getDefaultNodeId();
 
             NodeBuilderConfiguration conf = new NodeBuilderConfiguration();
-            conf.addOptional(Ids.AASPropertyType_ValueId);
+            if (aasProperty.getValueId() != null) {
+                conf.addOptional(Ids.AASPropertyType_ValueId);
+            }
             NodeBuilder<AASPropertyType> nb = nodeManager.createNodeBuilder(AASPropertyType.class, conf);
             nb.setBrowseName(browseName);
             LocalizedText displayName = LocalizedText.english(name);

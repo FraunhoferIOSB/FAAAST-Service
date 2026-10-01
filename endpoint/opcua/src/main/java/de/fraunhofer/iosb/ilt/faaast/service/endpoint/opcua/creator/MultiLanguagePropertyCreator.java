@@ -70,7 +70,9 @@ public class MultiLanguagePropertyCreator extends SubmodelElementCreator {
                 NodeId nid = nodeManager.getDefaultNodeId();
 
                 NodeBuilderConfiguration conf = new NodeBuilderConfiguration();
-                conf.addOptional(Ids.AASMultiLanguagePropertyType_ValueId);
+                if (aasMultiLang.getValueId() != null) {
+                    conf.addOptional(Ids.AASMultiLanguagePropertyType_ValueId);
+                }
                 NodeBuilder<AASMultiLanguagePropertyType> nb = nodeManager.createNodeBuilder(AASMultiLanguagePropertyType.class, conf);
                 nb.setBrowseName(browseName);
                 nb.setDisplayName(LocalizedText.english(name));
