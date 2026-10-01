@@ -24,6 +24,7 @@ import io.netty.buffer.ByteBufUtil;
 import java.math.BigInteger;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
+import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -40,12 +41,16 @@ import org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.UByte;
 import org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.UInteger;
 import org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.ULong;
 import org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.UShort;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
  * Converts values bi-directional between OPC UA and AAS types.
  */
 public class ValueConverter {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ValueConverter.class);
 
     private Map<ConversionTypeInfo, AasToOpcUaValueConverter> aasToOpcUaConverters;
     private Map<ConversionTypeInfo, OpcUaToAasValueConverter> opcUaToAasConverters;
@@ -200,7 +205,12 @@ public class ValueConverter {
         try {
             String txt;
             if (value.getValue() instanceof ByteString bs) {
-                txt = ByteBufUtil.hexDump(bs.bytesOrEmpty());
+                if (targetType == Datatype.BASE64_BINARY) {
+                    txt = Base64.getEncoder().encodeToString(bs.bytesOrEmpty());
+                }
+                else {
+                    txt = ByteBufUtil.hexDump(bs.bytesOrEmpty());
+                }
             }
             else {
                 txt = value.getValue().toString();
@@ -232,6 +242,11 @@ public class ValueConverter {
             if ((value.getDataType() == Datatype.DATE_TIME) && (targetType.equals(NodeIds.DateTime))) {
                 return new Variant(new DateTime(((OffsetDateTime) value.getValue()).toInstant()));
             }
+            if (((value.getDataType() == Datatype.HEX_BINARY) || (value.getDataType() == Datatype.BASE64_BINARY)) && (targetType.equals(NodeIds.ByteString))) {
+                Variant v = Variant.ofByteString(new ByteString((byte[]) value.getValue()));
+                //LOGGER.info("convert: datatype: {}", v.getDataType());
+                return v;
+            }
             if (dataType == null) {
                 throw new ValueConversionException("datatype is null");
             }
@@ -245,10 +260,16 @@ public class ValueConverter {
 
         @Override
         public TypedValue<?> convert(Variant value, Datatype targetType) throws ValueConversionException {
+            LOGGER.info("convert: targetType: {}", targetType);
             try {
                 if ((targetType == Datatype.DATE_TIME) && (value.getValue() instanceof DateTime)) {
                     return TypedValueFactory.create(targetType,
                             OffsetDateTime.ofInstant(((DateTime) value.getValue()).getJavaInstant(), ZoneId.systemDefault()).toString());
+                }
+                else if (targetType == Datatype.BASE64_BINARY) {
+                    TypedValue<?> tv = TypedValueFactory.create(targetType, value.getValue().toString());
+                    LOGGER.info("convert: variant: {}; TypedValue: {}", value, tv.getValue());
+                    return tv;
                 }
                 else {
                     return TypedValueFactory.create(targetType, value.getValue().toString());
