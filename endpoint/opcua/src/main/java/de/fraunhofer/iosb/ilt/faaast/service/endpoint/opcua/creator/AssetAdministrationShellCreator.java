@@ -25,6 +25,7 @@ import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.QualifiedName;
 import com.prosysopc.ua.stack.builtintypes.UnsignedInteger;
 import com.prosysopc.ua.stack.common.ServiceResultException;
+import com.prosysopc.ua.stack.core.AccessLevelType;
 import com.prosysopc.ua.stack.core.Identifiers;
 import com.prosysopc.ua.types.opcua.BaseDataVariableType;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
@@ -127,6 +128,8 @@ public class AssetAdministrationShellCreator {
         nodeManager.addNodeAndReference(node, aasShell, Identifiers.Organizes);
 
         nodeManager.addReferable(EnvironmentHelper.asReference(aas, nodeManager.getEnvironment()), new ObjectData(aas, aasShell));
+
+        aasShell.getCommonAttributesNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
     }
 
 
@@ -165,7 +168,9 @@ public class AssetAdministrationShellCreator {
             throws StatusException, ValueFormatException, ServiceResultException {
         // AssetKind
         AssetKind assetKind = assetInformation.getAssetKind();
-        assetInfoNode.setAssetKind(ValueConverter.convertAssetKind(assetKind));
+        if (assetKind != null) {
+            assetInfoNode.setAssetKind(ValueConverter.convertAssetKind(assetKind));
+        }
 
         // AssetType 
         String assetType = assetInformation.getAssetType();
@@ -263,6 +268,7 @@ public class AssetAdministrationShellCreator {
             });
             referenceListNode.setValue(refList.toArray(AASReference[]::new));
         }
+        referenceListNode.setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
     }
 
 }
