@@ -260,7 +260,7 @@ public class ValueConverter {
 
         @Override
         public TypedValue<?> convert(Variant value, Datatype targetType) throws ValueConversionException {
-            LOGGER.info("convert: targetType: {}", targetType);
+            //LOGGER.info("convert: targetType: {}", targetType);
             try {
                 if ((targetType == Datatype.DATE_TIME) && (value.getValue() instanceof DateTime)) {
                     return TypedValueFactory.create(targetType,
@@ -268,7 +268,7 @@ public class ValueConverter {
                 }
                 else if (targetType == Datatype.BASE64_BINARY) {
                     TypedValue<?> tv = TypedValueFactory.create(targetType, value.getValue().toString());
-                    LOGGER.info("convert: variant: {}; TypedValue: {}", value, tv.getValue());
+                    //LOGGER.info("convert: variant: {}; TypedValue: {}", value, tv.getValue());
                     return tv;
                 }
                 else {
