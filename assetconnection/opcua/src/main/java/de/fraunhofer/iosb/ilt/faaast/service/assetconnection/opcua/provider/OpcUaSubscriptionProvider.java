@@ -28,12 +28,16 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
 import org.eclipse.milo.opcua.sdk.client.subscriptions.OpcUaSubscription;
 import org.eclipse.milo.opcua.stack.core.UaException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
  * Implementation of SubscriptionProvider for OPC UA asset connections. Supports subscribing to OPC UA.
  */
 public class OpcUaSubscriptionProvider extends AbstractOpcUaProviderWithArray<OpcUaSubscriptionProviderConfig> implements AssetSubscriptionProvider {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(OpcUaSubscriptionProvider.class);
 
     private OpcUaSubscription opcUaSubscription;
     private SubscriptionMultiplexer multiplexer = null;
@@ -102,6 +106,7 @@ public class OpcUaSubscriptionProvider extends AbstractOpcUaProviderWithArray<Op
         }
         if (opcUaSubscription != null) {
             try {
+                LOGGER.info("close: delete subscription");
                 opcUaSubscription.delete();
             }
             catch (UaException e) {

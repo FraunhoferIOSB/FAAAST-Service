@@ -265,7 +265,7 @@ public class AasSubmodelElementHelper {
 
 
     private static void setPropertyValue(AASPropertyType property, PropertyValue value) throws StatusException {
-        LOGGER.trace("setPropertyValue: {} to {}", property.getBrowseName().getName(), value.getValue());
+        LOGGER.debug("setPropertyValue: {} to {}", property.getBrowseName().getName(), value.getValue());
         property.setValue(ValueConverter.convertTypedValue(value.getValue()));
     }
 

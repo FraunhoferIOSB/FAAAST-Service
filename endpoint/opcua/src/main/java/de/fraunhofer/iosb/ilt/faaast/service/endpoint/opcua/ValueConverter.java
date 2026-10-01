@@ -648,6 +648,7 @@ public class ValueConverter {
             case PROPERTY_VALUE -> {
                 Property aasProp = (Property) submodelElement;
                 String newValue = convertVariantValueToString(variant, aasProp.getValueType());
+                LOGGER.info("setSubmodelElementValue: Variant {}; newValue: {}", variant, newValue);
                 retval = checkValue(aasProp.getValueType(), newValue);
                 aasProp.setValue(newValue);
             }
@@ -894,6 +895,7 @@ public class ValueConverter {
         }
         else if (typedValue instanceof Base64BinaryValue base64BinaryValue) {
             retval = ByteString.valueOf(base64BinaryValue.getValue());
+            LOGGER.info("convertTypedValue: base64: {}; retval: {}", base64BinaryValue.getValue(), retval);
         }
         else if (typedValue instanceof UnsignedShortValue unsShortValue) {
             retval = UnsignedShort.valueOf(unsShortValue.getValue());

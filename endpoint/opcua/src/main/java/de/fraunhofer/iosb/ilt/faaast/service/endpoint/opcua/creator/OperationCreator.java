@@ -84,6 +84,7 @@ public class OperationCreator extends SubmodelElementCreator {
 
             // InputArguments
             // AASOperationVariableType
+            // TODO: use separate reference types
             if (!aasOperation.getInputVariables().isEmpty()) {
                 for (var input: aasOperation.getInputVariables()) {
                     AASOperationVariableType inputNode = createOperationVariable(operationRef, input, submodel, nodeManager);

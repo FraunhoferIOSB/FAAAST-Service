@@ -124,6 +124,7 @@ public class Server {
         hostName = InetAddress.getLocalHost().getHostName();
 
         ApplicationIdentity.setActualHostName(hostName);
+        LOGGER.info("startup: use hostname: {}", ApplicationIdentity.getActualHostName());
 
         uaServer = new UaServer();
 

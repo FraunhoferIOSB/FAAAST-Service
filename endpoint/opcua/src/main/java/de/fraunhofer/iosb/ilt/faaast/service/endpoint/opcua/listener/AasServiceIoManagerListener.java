@@ -146,7 +146,7 @@ public class AasServiceIoManagerListener implements IoManagerListener {
 
     @Override
     public boolean onWriteValue(ServiceContext sc, NodeId nodeId, UaValueNode uvn, NumericRange indexRange, DataValue dv) throws StatusException {
-        LOGGER.atTrace().log("onWriteValue: nodeId={}{}{} value={}", nodeId, uvn != null ? " node=" + uvn.getBrowseName() : "",
+        LOGGER.atDebug().log("onWriteValue: nodeId={}{}{} value={}", nodeId, uvn != null ? " node=" + uvn.getBrowseName() : "",
                 indexRange != null ? " indexRange=" + indexRange : "", dv);
 
         try {
