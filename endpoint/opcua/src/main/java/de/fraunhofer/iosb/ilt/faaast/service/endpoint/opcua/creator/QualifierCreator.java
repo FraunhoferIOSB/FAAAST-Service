@@ -53,11 +53,7 @@ public class QualifierCreator {
 
         LOGGER.info("addQualifiers:; add {} qualifiers", qualifiers.size());
         List<AASQualifier> opcQualifiers = new ArrayList<>();
-        for (Qualifier qualifier: qualifiers) {
-            if (qualifier != null) {
-                opcQualifiers.add(getQualifier(qualifier));
-            }
-        }
+        qualifiers.stream().filter(n -> n != null).forEach(q -> opcQualifiers.add(getQualifier(q)));
         opcQualifiable.setQualifier(opcQualifiers.toArray(AASQualifier[]::new));
     }
 
