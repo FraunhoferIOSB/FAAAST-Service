@@ -225,8 +225,11 @@ public class SubscriptionMultiplexer {
      */
     public void close() throws AssetConnectionException {
         try {
-            opcUaSubscription.removeMonitoredItem(dataItem);
-            opcUaSubscription.synchronizeMonitoredItems();
+            LOGGER.info("close: MonitoredItemId {}", dataItem.getMonitoredItemId().isEmpty() ? "empty" : dataItem.getMonitoredItemId().get());
+            if (dataItem.getMonitoredItemId().isPresent()) {
+                opcUaSubscription.removeMonitoredItem(dataItem);
+                opcUaSubscription.synchronizeMonitoredItems();
+            }
         }
         catch (MonitoredItemSynchronizationException e) {
             throw new AssetConnectionException(
