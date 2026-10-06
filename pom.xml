@@ -70,20 +70,20 @@
         <awaitility.version>4.3.0</awaitility.version>
         <bouncycastle.version>1.86</bouncycastle.version>
         <checkstyle.version>12.3.1</checkstyle.version>
-        <classgraph.version>4.8.195</classgraph.version>
+        <classgraph.version>4.8.196</classgraph.version>
         <cloudevents.version>5.0.0</cloudevents.version>
         <commons.codec.version>1.22.1</commons.codec.version>
         <commons.compress.version>1.28.0</commons.compress.version>
         <commons.fileupload.version>1.6.0</commons.fileupload.version>
         <commons.io.version>2.22.0</commons.io.version>
-        <commons.lang3.version>3.20.0</commons.lang3.version>
+        <commons.lang3.version>3.21.0</commons.lang3.version>
         <container.image.name>fraunhoferiosb/faaast-service</container.image.name>
         <container.image.tag>latest</container.image.tag>
         <de.flapdoodle.embed.version>4.33.0</de.flapdoodle.embed.version>
         <eclipse.jdt.version>4.40</eclipse.jdt.version>
         <equalsverifier.version>4.5.2</equalsverifier.version>
         <glassfish.jaxb-runtime>4.0.5</glassfish.jaxb-runtime>
-        <guava.version>33.7.1-jre</guava.version>
+        <guava.version>33.7.2-jre</guava.version>
         <jackson-jq.version>1.6.5</jackson-jq.version>
         <jackson.annotations.version>2.22</jackson.annotations.version>
         <jackson.databind.version>2.22.3</jackson.databind.version>
@@ -99,7 +99,7 @@
         <jsonpath.version>3.0.0</jsonpath.version>
         <junit.version>4.13.2</junit.version>
         <log4j.api.version>2.26.1</log4j.api.version>
-        <logback.version>1.6.3</logback.version>
+        <logback.version>1.6.5</logback.version>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <maven.plugin.assembly.version>3.8.0</maven.plugin.assembly.version>
@@ -124,11 +124,11 @@
         <maven.plugin.shade.version>3.6.2</maven.plugin.shade.version>
         <maven.plugin.sonar.version>5.8.0.7211</maven.plugin.sonar.version>
         <maven.plugin.source.version>3.4.0</maven.plugin.source.version>
-        <maven.plugin.spotless.version>3.10.2</maven.plugin.spotless.version>
+        <maven.plugin.spotless.version>3.10.3</maven.plugin.spotless.version>
         <maven.plugin.surefire.version>3.5.6</maven.plugin.surefire.version>
         <milo.version>1.1.7</milo.version>
-        <mockito.version>5.23.0</mockito.version>
-        <mongodb.version>5.12.0</mongodb.version>
+        <mockito.version>5.24.0</mockito.version>
+        <mongodb.version>5.13.0</mongodb.version>
         <moquette.version>0.18.6</moquette.version>
         <netty.version>4.2.18.Final</netty.version>
         <org.apache.httpcomponents.client5.version>5.6.4</org.apache.httpcomponents.client5.version>
@@ -146,7 +146,7 @@
         <root.basedir>${project.basedir}</root.basedir>
         <slf4j.ext.version>1.0.0-jdk6</slf4j.ext.version>
         <slf4j.test.version>3.0.3</slf4j.test.version>
-        <slf4j.version>2.0.19</slf4j.version>
+        <slf4j.version>2.0.20</slf4j.version>
         <sonar.coverage.jacoco.xmlReportPaths>${maven.multiModuleProjectDirectory}/test/target/site/jacoco-aggregate/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
         <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
@@ -156,7 +156,7 @@
         <systemstubs.version>2.1.8</systemstubs.version>
         <titanium.jsonld.version>1.7.0</titanium.jsonld.version>
         <wiremock.version>3.13.2</wiremock.version>
-        <woodstox.version>7.2.2</woodstox.version>
+        <woodstox.version>7.3.0</woodstox.version>
     </properties>
     <dependencies>
         <dependency>
