@@ -50,7 +50,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import opc.ua.aas.Ids;
 import opc.ua.aas.objecttypes.AASAnnotatedRelationshipElementType;
 import opc.ua.aas.objecttypes.AASBlobType;
@@ -299,9 +298,11 @@ public class AasSubmodelElementHelper {
                 }
             }
         }
-        for (var statementNode: statementObjects) {
-            if (value.getStatements().containsKey(statementNode.getBrowseName().getName())) {
-                setSubmodelElementValue(statementNode, value.getStatements().get(statementNode.getBrowseName().getName()), nodeManager);
+        if (statementObjects != null) {
+            for (var statementNode: statementObjects) {
+                if (value.getStatements().containsKey(statementNode.getBrowseName().getName())) {
+                    setSubmodelElementValue(statementNode, value.getStatements().get(statementNode.getBrowseName().getName()), nodeManager);
+                }
             }
         }
     }
@@ -354,7 +355,7 @@ public class AasSubmodelElementHelper {
                 .map(UaReference::getTargetNode)
                 .filter(node -> node.getClass().equals(type))
                 .map(type::cast)
-                .collect(Collectors.toList());
+                .toList();
     }
 
 

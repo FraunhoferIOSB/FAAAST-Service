@@ -18,7 +18,6 @@ import com.prosysopc.ua.StatusException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.util.List;
-import java.util.stream.Collectors;
 import opc.ua.aas.datatypes.AASKey;
 import opc.ua.aas.datatypes.AASReference;
 import opc.ua.aas.variabletypes.AASReferenceElementType;
@@ -99,6 +98,6 @@ public class ReferenceCreator {
      * @return The corresponding list of OPC UA references.
      */
     public static List<AASReference> getAasReferences(List<Reference> refs) {
-        return refs.stream().map(ReferenceCreator::getAasReference).collect(Collectors.toList());
+        return refs.stream().map(ReferenceCreator::getAasReference).toList();
     }
 }

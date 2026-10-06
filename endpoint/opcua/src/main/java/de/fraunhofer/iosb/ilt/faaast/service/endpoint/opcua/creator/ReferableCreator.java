@@ -17,7 +17,6 @@ import com.prosysopc.ua.stack.builtintypes.LocalizedText;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.util.List;
-import java.util.stream.Collectors;
 import opc.ua.aas.datatypes.AASExtension;
 import opc.ua.aas.datatypes.AASHasExtensions;
 import opc.ua.aas.datatypes.AASReferable;
@@ -112,7 +111,7 @@ public class ReferableCreator {
         if (extensions == null) {
             return new AASExtension[0];
         }
-        List<AASExtension> list = extensions.stream().map(ReferableCreator::getExtensionData).collect(Collectors.toList());
+        List<AASExtension> list = extensions.stream().map(ReferableCreator::getExtensionData).toList();
         return list.toArray(AASExtension[]::new);
     }
 }
