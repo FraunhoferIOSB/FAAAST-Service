@@ -237,6 +237,7 @@ public class OpcUaAssetConnection extends
         isDisconnecting = true;
         try {
             closeSubscriptions();
+            opcUaSubscription.delete();
             client.disconnect();
         }
         catch (UaException e) {

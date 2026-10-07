@@ -27,7 +27,6 @@ import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
 import org.eclipse.milo.opcua.sdk.client.subscriptions.OpcUaSubscription;
-import org.eclipse.milo.opcua.stack.core.UaException;
 
 
 /**
@@ -100,18 +99,18 @@ public class OpcUaSubscriptionProvider extends AbstractOpcUaProviderWithArray<Op
         if (multiplexer != null) {
             multiplexer.close();
         }
-        if (opcUaSubscription != null) {
-            try {
-                opcUaSubscription.delete();
-            }
-            catch (UaException e) {
-                throw new AssetConnectionException(
-                        String.format("Removing subscription failed (reference: %s, nodeId: %s)",
-                                ReferenceHelper.toString(reference),
-                                providerConfig.getNodeId()),
-                        e);
-            }
-        }
+        //if (opcUaSubscription != null) {
+        //    try {
+        //        opcUaSubscription.delete();
+        //    }
+        //    catch (UaException e) {
+        //        throw new AssetConnectionException(
+        //                String.format("Removing subscription failed (reference: %s, nodeId: %s)",
+        //                        ReferenceHelper.toString(reference),
+        //                        providerConfig.getNodeId()),
+        //                e);
+        //    }
+        //}
     }
 
 
