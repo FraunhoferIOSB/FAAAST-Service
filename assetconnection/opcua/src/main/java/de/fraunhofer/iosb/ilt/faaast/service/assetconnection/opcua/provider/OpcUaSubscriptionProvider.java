@@ -99,18 +99,6 @@ public class OpcUaSubscriptionProvider extends AbstractOpcUaProviderWithArray<Op
         if (multiplexer != null) {
             multiplexer.close();
         }
-        //if (opcUaSubscription != null) {
-        //    try {
-        //        opcUaSubscription.delete();
-        //    }
-        //    catch (UaException e) {
-        //        throw new AssetConnectionException(
-        //                String.format("Removing subscription failed (reference: %s, nodeId: %s)",
-        //                        ReferenceHelper.toString(reference),
-        //                        providerConfig.getNodeId()),
-        //                e);
-        //    }
-        //}
     }
 
 
