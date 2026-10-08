@@ -41,16 +41,12 @@ import org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.UByte;
 import org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.UInteger;
 import org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.ULong;
 import org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.UShort;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
  * Converts values bi-directional between OPC UA and AAS types.
  */
 public class ValueConverter {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(ValueConverter.class);
 
     private Map<ConversionTypeInfo, AasToOpcUaValueConverter> aasToOpcUaConverters;
     private Map<ConversionTypeInfo, OpcUaToAasValueConverter> opcUaToAasConverters;
@@ -244,7 +240,6 @@ public class ValueConverter {
             }
             if (((value.getDataType() == Datatype.HEX_BINARY) || (value.getDataType() == Datatype.BASE64_BINARY)) && (targetType.equals(NodeIds.ByteString))) {
                 Variant v = Variant.ofByteString(new ByteString((byte[]) value.getValue()));
-                //LOGGER.info("convert: datatype: {}", v.getDataType());
                 return v;
             }
             if (dataType == null) {
@@ -260,7 +255,6 @@ public class ValueConverter {
 
         @Override
         public TypedValue<?> convert(Variant value, Datatype targetType) throws ValueConversionException {
-            LOGGER.info("convert: targetType: {}", targetType);
             try {
                 if ((targetType == Datatype.DATE_TIME) && (value.getValue() instanceof DateTime)) {
                     return TypedValueFactory.create(targetType,
@@ -268,7 +262,6 @@ public class ValueConverter {
                 }
                 else if (targetType == Datatype.BASE64_BINARY) {
                     TypedValue<?> tv = TypedValueFactory.create(targetType, value.getValue().toString());
-                    LOGGER.info("convert: variant: {}; TypedValue: {}", value, tv.getValue());
                     return tv;
                 }
                 else {
