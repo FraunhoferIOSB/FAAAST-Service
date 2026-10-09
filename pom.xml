@@ -120,7 +120,7 @@
         <maven.plugin.picocli.version>4.7.7</maven.plugin.picocli.version>
         <maven.plugin.proguard.version>2.7.0</maven.plugin.proguard.version>
         <maven.plugin.prosys.codegen.version>5.8.0-190</maven.plugin.prosys.codegen.version>
-        <maven.plugin.release.version>2.5.3</maven.plugin.release.version>
+        <maven.plugin.release.version>3.3.1</maven.plugin.release.version>
         <maven.plugin.shade.version>3.6.2</maven.plugin.shade.version>
         <maven.plugin.sonar.version>5.8.0.7211</maven.plugin.sonar.version>
         <maven.plugin.source.version>3.4.0</maven.plugin.source.version>
@@ -220,6 +220,11 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>${maven.plugin.compiler.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-release-plugin</artifactId>
+                    <version>${maven.plugin.release.version}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.owasp</groupId>

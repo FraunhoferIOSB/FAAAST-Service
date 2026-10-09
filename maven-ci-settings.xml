@@ -6,6 +6,9 @@
             <id>central</id>
             <username>${env.SONATYPE_USERNAME}</username>
             <password>${env.SONATYPE_PASSWORD}</password>
+            <repositoryOrigins>
+                <repositoryOrigin>https://central.sonatype.com</repositoryOrigin>
+            </repositoryOrigins>
         </server>
         <server>
             <id>faaast-libs-prosys</id>
