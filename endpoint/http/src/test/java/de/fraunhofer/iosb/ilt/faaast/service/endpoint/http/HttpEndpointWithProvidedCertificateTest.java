@@ -91,6 +91,7 @@ public class HttpEndpointWithProvidedCertificateTest extends AbstractHttpEndpoin
                                 .keyStorePath(keyStoreTempFile)
                                 .keyStorePassword(KEYSTORE_PASSWORD)
                                 .build())
+                        .subprotocolBody("id: ${id}. hash: ${id|hash}.MyTestSubprotocolBody")
                         .build(),
                 service);
         server.start();

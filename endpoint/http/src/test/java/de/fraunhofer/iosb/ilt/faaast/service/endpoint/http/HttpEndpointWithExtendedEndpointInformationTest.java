@@ -58,6 +58,7 @@ public class HttpEndpointWithExtendedEndpointInformationTest extends AbstractHtt
                         .port(port)
                         .cors(true)
                         .ssl(false)
+                        .subprotocolBody("id: ${id}. hash: ${id|hash}.MyTestSubprotocolBody")
                         .build(),
                 service);
         server.start();

@@ -29,12 +29,15 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Identifiable;
 
 
 /**
- * Not supported yet! Class to handle a
- * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasbasicdiscovery.GetAllAssetAdministrationShellIdsByAssetLinkRequest}
- * in the service and to send the corresponding response
- * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasbasicdiscovery.GetAllAssetAdministrationShellIdsByAssetLinkResponse}.
- * Is responsible for communication with the persistence and sends the corresponding events to the message bus.
+ * Class to handle a {@link GetAllAssetAdministrationShellIdsByAssetLinkRequest} in the service and to send the
+ * corresponding response
+ * {@link GetAllAssetAdministrationShellIdsByAssetLinkResponse}. Is responsible for communication with the persistence
+ * and sends the corresponding events to the message bus.
+ *
+ * @deprecated GetAllAssetAdministrationShellIdsByAssetLinkRequest was replaced by
+ *             SearchAllAssetAdministrationShellIdsByAssetLinkRequest from AAS API v3.1
  */
+@Deprecated(since = "1.4")
 public class GetAllAssetAdministrationShellIdsByAssetLinkRequestHandler
         extends AbstractRequestHandler<GetAllAssetAdministrationShellIdsByAssetLinkRequest, GetAllAssetAdministrationShellIdsByAssetLinkResponse> {
 

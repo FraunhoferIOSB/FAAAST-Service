@@ -29,7 +29,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.config.RegistrySynchronizationConfig;
@@ -79,7 +78,7 @@ public class RegistrySynchronizationTest {
     @Rule
     public WireMockClassRule instanceRule = wireMockRule;
 
-    private static final String API_PREFIX = "/api/v3.0";
+    private static final String API_PREFIX = "/api/v3.1";
     private static final String AAS_URL_PATH = "/shell-descriptors";
     private static final String SUBMODEL_URL_PATH = "/submodel-descriptors";
     private static final String AUTH_HEADER_NAME = "Authorization";
@@ -118,7 +117,7 @@ public class RegistrySynchronizationTest {
 
 
     @Test
-    public void testAddsAuthHeaderWhenConfigured() throws Exception {
+    public void testAddsAuthHeaderWhenConfigured() {
         registrySynchronization.start();
         registrySynchronization.stop();
 
@@ -151,7 +150,7 @@ public class RegistrySynchronizationTest {
 
 
     @Test
-    public void testAasCreation() throws MessageBusException, JsonProcessingException, SerializationException {
+    public void testAasCreation() throws MessageBusException, SerializationException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(0);
         registrySynchronization.start();
         messageBus.publish(ElementCreateEventMessage.builder()
@@ -163,7 +162,7 @@ public class RegistrySynchronizationTest {
 
 
     @Test
-    public void testAasUpdate() throws MessageBusException, JsonProcessingException, SerializationException {
+    public void testAasUpdate() throws MessageBusException, SerializationException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(0);
         aas.setIdShort("Changed Id Short");
         registrySynchronization.start();
@@ -187,7 +186,7 @@ public class RegistrySynchronizationTest {
 
 
     @Test
-    public void testSubmodelCreation() throws MessageBusException, JsonProcessingException, SerializationException {
+    public void testSubmodelCreation() throws MessageBusException, SerializationException {
         Submodel submodel = environment.getSubmodels().get(0);
         registrySynchronization.start();
         messageBus.publish(ElementCreateEventMessage.builder()
@@ -199,7 +198,7 @@ public class RegistrySynchronizationTest {
 
 
     @Test
-    public void testSubmodelUpdate() throws MessageBusException, JsonProcessingException, SerializationException {
+    public void testSubmodelUpdate() throws MessageBusException, SerializationException {
         Submodel submodel = environment.getSubmodels().get(0);
         String oldIdShort = submodel.getIdShort();
         submodel.setIdShort("Changed Id Short");
@@ -231,7 +230,7 @@ public class RegistrySynchronizationTest {
             String aasId = invocation.getArgument(0);
             return List.of(
                     new org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEndpoint.Builder()
-                            ._interface("AAS-REPOSITORY-3.0")
+                            ._interface("AAS-REPOSITORY-3.1")
                             .protocolInformation(new DefaultProtocolInformation.Builder()
                                     .href(serviceUri.toASCIIString())
                                     .endpointProtocol("HTTP")
@@ -247,7 +246,7 @@ public class RegistrySynchronizationTest {
                                     .build())
                             .build(),
                     new org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEndpoint.Builder()
-                            ._interface("AAS-3.0")
+                            ._interface("AAS-3.1")
                             .protocolInformation(new DefaultProtocolInformation.Builder()
                                     .href(serviceUri.toASCIIString() + "/shells/" + EncodingHelper.base64UrlEncode(aasId))
                                     .endpointProtocol("HTTP")
@@ -258,7 +257,7 @@ public class RegistrySynchronizationTest {
                                             .value("")
                                             .build())
                                     .subprotocol("MyTestSubprotocol")
-                                    .subprotocolBody("id: ${id}. again: ${id}.MyTestSubprotocolBody")
+                                    .subprotocolBody("id: ${id|hash}. again: ${id|hash}.MyTestSubprotocolBody")
                                     .subprotocolBodyEncoding("MyTestSubprotocolBodyEncoding")
                                     .build())
                             .build());
@@ -268,7 +267,7 @@ public class RegistrySynchronizationTest {
             String submodelId = invocation.getArgument(0);
             return List.of(
                     new DefaultEndpoint.Builder()
-                            ._interface("SUBMODEL-REPOSITORY-3.0")
+                            ._interface("SUBMODEL-REPOSITORY-3.1")
                             .protocolInformation(new DefaultProtocolInformation.Builder()
                                     .href(serviceUri.toASCIIString())
                                     .endpointProtocol("HTTP")
@@ -284,7 +283,7 @@ public class RegistrySynchronizationTest {
                                     .build())
                             .build(),
                     new DefaultEndpoint.Builder()
-                            ._interface("SUBMODEL-3.0")
+                            ._interface("SUBMODEL-3.1")
                             .protocolInformation(new DefaultProtocolInformation.Builder()
                                     .href(serviceUri.toASCIIString() + "/submodels/" + EncodingHelper.base64UrlEncode(submodelId))
                                     .endpointProtocol("HTTP")
@@ -376,7 +375,7 @@ public class RegistrySynchronizationTest {
     }
 
 
-    private String getAasDescriptorBody(AssetAdministrationShell aas) throws JsonProcessingException, SerializationException {
+    private String getAasDescriptorBody(AssetAdministrationShell aas) throws SerializationException {
         return mapper.write(new DefaultAssetAdministrationShellDescriptor.Builder()
                 .administration(aas.getAdministration())
                 .id(aas.getId())
@@ -393,14 +392,14 @@ public class RegistrySynchronizationTest {
     }
 
 
-    private String getSubmodelDescriptorBody(Submodel submodel) throws JsonProcessingException, SerializationException {
+    private String getSubmodelDescriptorBody(Submodel submodel) throws SerializationException {
         return mapper.write(new DefaultSubmodelDescriptor.Builder()
                 .administration(submodel.getAdministration())
                 .id(submodel.getId())
                 .idShort(submodel.getIdShort())
                 .description(submodel.getDescription())
                 .semanticId(submodel.getSemanticId())
-                .supplementalSemanticId(submodel.getSupplementalSemanticIds())
+                .supplementalSemanticIds(submodel.getSupplementalSemanticIds())
                 .displayName(submodel.getDisplayName())
                 .extensions(submodel.getExtensions())
                 .endpoints(endpoint.getSubmodelEndpointInformation(submodel.getId()))
@@ -419,7 +418,7 @@ public class RegistrySynchronizationTest {
                         .idShort(x.getIdShort())
                         .description(x.getDescription())
                         .semanticId(x.getSemanticId())
-                        .supplementalSemanticId(x.getSupplementalSemanticIds())
+                        .supplementalSemanticIds(x.getSupplementalSemanticIds())
                         .displayName(x.getDisplayName())
                         .extensions(x.getExtensions())
                         .endpoints(endpoint.getSubmodelEndpointInformation(x.getId()))

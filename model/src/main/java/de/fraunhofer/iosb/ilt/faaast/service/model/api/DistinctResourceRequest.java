@@ -68,10 +68,10 @@ public abstract class DistinctResourceRequest<T extends Response> extends Reques
 
 
     /**
-     * Return whether this request shall return a collection of AAS, Submodel, ConceptDescripion, SubmodelElement, or a
+     * Return whether this request shall return a collection of AAS, Submodel, ConceptDescription, SubmodelElement, or a
      * single item or a subset of items of them.
      * 
-     * @return True if this request returns a collection of AAS, Submodel, ConceptDescripion, SubmodelElement, or a single
+     * @return True if this request returns a collection of AAS, Submodel, ConceptDescription, SubmodelElement, or a single
      *         item or a subset of items of them.
      */
     protected abstract boolean requestsCollection();

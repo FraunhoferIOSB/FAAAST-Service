@@ -20,15 +20,21 @@ import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.dpp.JsonDppSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.QueryParameters;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.filestorage.FileStorage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
+import de.fraunhofer.iosb.ilt.faaast.service.model.DPP;
 import de.fraunhofer.iosb.ilt.faaast.service.model.EnvironmentContext;
 import de.fraunhofer.iosb.ilt.faaast.service.model.TypedInMemoryFile;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
@@ -41,6 +47,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingMetadata;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.PutThumbnailRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasserialization.GenerateSerializationByIdsRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.dpp.ReadDppByIdRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.dpp.ReadDppByProductIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOperationAsyncRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.GetAssetAdministrationShellResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.PutThumbnailResponse;
@@ -48,6 +56,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasrepository.Ge
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasrepository.PostAssetAdministrationShellResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasserialization.GenerateSerializationByIdsResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.conceptdescription.PostConceptDescriptionResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.dpp.ReadDPPByIdResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.dpp.ReadDPPByProductIdResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.dpp.ReadDPPIdsByProductIdsResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.proprietary.ImportResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.proprietary.ImportResult;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetAllSubmodelElementsReferenceResponse;
@@ -59,6 +70,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetSubm
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.InvokeOperationAsyncResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.PostSubmodelElementResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodelrepository.PostSubmodelResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.dpp.DigitalProductPassport;
+import de.fraunhofer.iosb.ilt.faaast.service.model.dpp.DppSerializationMode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.filter.QueryFilter;
 import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
@@ -66,6 +79,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapp
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeExtractor;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.HashHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ResponseHelper;
@@ -83,7 +97,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
 import org.eclipse.digitaltwin.aas4j.v3.model.Endpoint;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.eclipse.digitaltwin.aas4j.v3.model.ExecutionState;
-import org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum;
+import org.eclipse.digitaltwin.aas4j.v3.model.MessageType;
 import org.eclipse.digitaltwin.aas4j.v3.model.ProtocolInformation;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.Result;
@@ -123,7 +137,7 @@ public abstract class AbstractHttpEndpointTest {
 
     protected static final Logger LOGGER = LoggerFactory.getLogger(AbstractHttpEndpointTest.class);
     protected static final String HOST = "localhost";
-    private static final String API_PREFIX = "/api/v3.0";
+    private static final String API_PREFIX = "/api/v3.1";
     protected static String scheme;
     protected static int port;
     protected static HttpClient client;
@@ -207,8 +221,26 @@ public abstract class AbstractHttpEndpointTest {
         when(service.execute(any(), any())).thenReturn(GetAssetAdministrationShellResponse.builder()
                 .statusCode(StatusCode.SUCCESS)
                 .build());
-        ContentResponse response = execute(HttpMethod.GET, "/shells/" + EncodingHelper.base64UrlEncode(id) + "/$reference");
+        ContentResponse response = execute(HttpMethod.GET,
+                "/shells/" + EncodingHelper.base64UrlEncode(id) + "/$reference");
         Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
+    }
+
+
+    @Test
+    public void testGetAasEndpointInformationEvaluatesSubprotocolBodyTemplateFunctions() {
+        String aasId = "https://acplt.org/Test_AssetAdministrationShell";
+        String hashedAasId = HashHelper.sha256(aasId);
+
+        List<Endpoint> actual = endpoint.getAasEndpointInformation(aasId);
+
+        Assert.assertFalse(actual.isEmpty());
+
+        String subprotocolBody = actual.get(0).getProtocolInformation().getSubprotocolBody();
+
+        Assert.assertEquals(
+                String.format("id: %s. hash: %s.MyTestSubprotocolBody", aasId, hashedAasId),
+                subprotocolBody);
     }
 
 
@@ -218,7 +250,8 @@ public abstract class AbstractHttpEndpointTest {
         when(service.execute(any(), any())).thenReturn(GetAssetAdministrationShellResponse.builder()
                 .statusCode(StatusCode.SUCCESS)
                 .build());
-        ContentResponse response = execute(HttpMethod.GET, "/shells/" + EncodingHelper.base64UrlEncode(id) + "/$foo?level=foo");
+        ContentResponse response = execute(HttpMethod.GET,
+                "/shells/" + EncodingHelper.base64UrlEncode(id) + "/$foo?level=foo");
         assertContainsErrorText(response, HttpStatus.BAD_REQUEST_400, "unsupported content modifier 'foo'");
     }
 
@@ -257,7 +290,8 @@ public abstract class AbstractHttpEndpointTest {
                 .statusCode(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND)
                 .payload(null)
                 .build());
-        ContentResponse response = execute(HttpMethod.GET, "/submodels/" + EncodingHelper.base64UrlEncode(idShort));
+        ContentResponse response = execute(HttpMethod.GET,
+                "/submodels/" + EncodingHelper.base64UrlEncode(idShort));
         Assert.assertEquals(HttpStatus.NOT_FOUND_404, response.getStatus());
     }
 
@@ -269,7 +303,8 @@ public abstract class AbstractHttpEndpointTest {
                 .statusCode(StatusCode.SUCCESS)
                 .payload(null)
                 .build());
-        ContentResponse response = execute(HttpMethod.GET, "/submodels/" + EncodingHelper.base64UrlEncode(idShort)
+        ContentResponse response = execute(HttpMethod.GET, "/submodels/"
+                + EncodingHelper.base64UrlEncode(idShort)
                 + "/submodel-elements/ExampleRelationshipElement?level=normal&level=deep");
         Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
     }
@@ -282,7 +317,8 @@ public abstract class AbstractHttpEndpointTest {
                 .statusCode(StatusCode.SUCCESS)
                 .payload(null)
                 .build());
-        ContentResponse response = execute(HttpMethod.GET, "/submodels/" + EncodingHelper.base64UrlEncode(idShort)
+        ContentResponse response = execute(HttpMethod.GET, "/submodels/"
+                + EncodingHelper.base64UrlEncode(idShort)
                 + "/submodel-elements/ExampleRelationshipElement?level=normal&content=");
         Assert.assertEquals(HttpStatus.BAD_REQUEST_400, response.getStatus());
     }
@@ -295,8 +331,9 @@ public abstract class AbstractHttpEndpointTest {
                 .statusCode(StatusCode.SUCCESS)
                 .payload(null)
                 .build());
-        ContentResponse response = execute(HttpMethod.GET, "/submodels/" + EncodingHelper.base64UrlEncode(idShort)
-                + "/submodel-elements/ExampleRelationshipElement?level=normal&bogus");
+        ContentResponse response = execute(HttpMethod.GET,
+                "/submodels/" + EncodingHelper.base64UrlEncode(idShort)
+                        + "/submodel-elements/ExampleRelationshipElement?level=normal&bogus");
         Assert.assertEquals(HttpStatus.BAD_REQUEST_400, response.getStatus());
     }
 
@@ -309,10 +346,11 @@ public abstract class AbstractHttpEndpointTest {
 
         HttpEndpointConfig config = endpoint.asConfig();
 
-        Assert.assertEquals(config.getHostname().concat(endpoint.getPathPrefix()).concat("/shells"), protocolInformation.getHref());
+        Assert.assertEquals(config.getHostname().concat(endpoint.getPathPrefix()).concat("/shells"),
+                protocolInformation.getHref());
         Assert.assertEquals(config.getSubprotocol(), protocolInformation.getSubprotocol());
-        Assert.assertEquals(config.getSubprotocolBody(), protocolInformation.getSubprotocolBody());
-        Assert.assertEquals(config.getSubprotocolBodyEncoding(), protocolInformation.getSubprotocolBodyEncoding());
+        Assert.assertEquals(config.getSubprotocolBodyEncoding(),
+                protocolInformation.getSubprotocolBodyEncoding());
     }
 
 
@@ -374,7 +412,8 @@ public abstract class AbstractHttpEndpointTest {
                 .timeout(1, TimeUnit.HOURS)
                 .idleTimeout(1, TimeUnit.HOURS)
                 .method(HttpMethod.PUT)
-                .path(String.format("%s/shells/%s/asset-information/thumbnail", API_PREFIX, EncodingHelper.base64UrlEncode(aasId)))
+                .path(String.format("%s/shells/%s/asset-information/thumbnail", API_PREFIX,
+                        EncodingHelper.base64UrlEncode(aasId)))
                 .body(multiPart)
                 .scheme(scheme)
                 .send();
@@ -394,7 +433,8 @@ public abstract class AbstractHttpEndpointTest {
         // TODO: server not returning character encoding
         LOGGER.info("http response encoding: {}", response.getEncoding());
         LOGGER.info("http response content: {}", new String(response.getContent(), "UTF-8"));
-        Page<AssetAdministrationShell> actual = deserializer.read(new String(response.getContent(), "UTF-8"), new TypeReference<Page<AssetAdministrationShell>>() {});
+        Page<AssetAdministrationShell> actual = deserializer.read(new String(response.getContent(), "UTF-8"),
+                new TypeReference<Page<AssetAdministrationShell>>() {});
         Assert.assertEquals(expected, actual);
     }
 
@@ -416,7 +456,8 @@ public abstract class AbstractHttpEndpointTest {
         // TODO: server not returning character encoding
         LOGGER.info("http response encoding: {}", response.getEncoding());
         LOGGER.info("http response content: {}", new String(response.getContent(), "UTF-8"));
-        Page<AssetAdministrationShell> actual = deserializer.read(new String(response.getContent(), "UTF-8"), new TypeReference<Page<AssetAdministrationShell>>() {});
+        Page<AssetAdministrationShell> actual = deserializer.read(new String(response.getContent(), "UTF-8"),
+                new TypeReference<Page<AssetAdministrationShell>>() {});
         Assert.assertEquals(expected, actual);
     }
 
@@ -439,10 +480,13 @@ public abstract class AbstractHttpEndpointTest {
                 HttpMethod.GET,
                 "/serialization",
                 Map.of(
-                        "aasIds", EncodingHelper.base64UrlEncode(expected.getAssetAdministrationShells().stream()
-                                .map(x -> x.getId())
-                                .collect(Collectors.joining(","))),
-                        "submodelIds", EncodingHelper.base64UrlEncode(expected.getSubmodels().stream()
+                        "aasIds",
+                        EncodingHelper.base64UrlEncode(
+                                expected.getAssetAdministrationShells().stream()
+                                        .map(x -> x.getId())
+                                        .collect(Collectors.joining(","))),
+                        "submodelIds",
+                        EncodingHelper.base64UrlEncode(expected.getSubmodels().stream()
                                 .map(x -> x.getId())
                                 .collect(Collectors.joining(","))),
                         QueryParameters.INCLUDE_CONCEPT_DESCRIPTIONS, "false"),
@@ -450,7 +494,8 @@ public abstract class AbstractHttpEndpointTest {
                 null,
                 null,
                 Map.of(
-                        HttpConstants.HEADER_ACCEPT, DataFormat.JSON.getContentType().withoutParameters().toString()));
+                        HttpConstants.HEADER_ACCEPT,
+                        DataFormat.JSON.getContentType().withoutParameters().toString()));
         Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
         LOGGER.info("http response encoding: {}", response.getEncoding());
         LOGGER.info("http response content: {}", response.getContentAsString());
@@ -466,7 +511,9 @@ public abstract class AbstractHttpEndpointTest {
                 .submodels(AASFull.SUBMODEL_4)
                 .submodels(AASFull.SUBMODEL_5)
                 .build();
-        when(service.execute(any(), argThat((GenerateSerializationByIdsRequest request) -> request.getSerializationFormat() == DataFormat.JSON)))
+        when(service.execute(any(),
+                argThat((GenerateSerializationByIdsRequest request) -> request
+                        .getSerializationFormat() == DataFormat.JSON)))
                 .thenReturn(GenerateSerializationByIdsResponse.builder()
                         .dataformat(DataFormat.JSON)
                         .payload(EnvironmentContext.builder()
@@ -478,10 +525,13 @@ public abstract class AbstractHttpEndpointTest {
                 HttpMethod.GET,
                 "/serialization",
                 Map.of(
-                        "aasIds", EncodingHelper.base64UrlEncode(expected.getAssetAdministrationShells().stream()
-                                .map(x -> x.getId())
-                                .collect(Collectors.joining(","))),
-                        "submodelIds", EncodingHelper.base64UrlEncode(expected.getSubmodels().stream()
+                        "aasIds",
+                        EncodingHelper.base64UrlEncode(
+                                expected.getAssetAdministrationShells().stream()
+                                        .map(x -> x.getId())
+                                        .collect(Collectors.joining(","))),
+                        "submodelIds",
+                        EncodingHelper.base64UrlEncode(expected.getSubmodels().stream()
                                 .map(x -> x.getId())
                                 .collect(Collectors.joining(","))),
                         QueryParameters.INCLUDE_CONCEPT_DESCRIPTIONS, "false"),
@@ -510,7 +560,8 @@ public abstract class AbstractHttpEndpointTest {
                 .content(Content.VALUE)
                 .build());
         Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
-        Page<AssetAdministrationShell> actualPayload = deserializer.read(new String(response.getContent()), Page.class);
+        Page<AssetAdministrationShell> actualPayload = deserializer.read(new String(response.getContent()),
+                Page.class);
         Assert.assertEquals(expectedPayload, actualPayload);
     }
 
@@ -533,13 +584,16 @@ public abstract class AbstractHttpEndpointTest {
                 .statusCode(StatusCode.SUCCESS)
                 .payload(Page.of(submodelElements))
                 .build());
-        ContentResponse response = execute(HttpMethod.GET, "/submodels/foo/submodel-elements", new OutputModifier.Builder()
-                .content(Content.VALUE)
-                .build());
+        ContentResponse response = execute(HttpMethod.GET, "/submodels/foo/submodel-elements",
+                new OutputModifier.Builder()
+                        .content(Content.VALUE)
+                        .build());
         Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
-        Page<ElementValue> actual = deserializer.readValuePage(new String(response.getContent()), TypeExtractor.extractTypeInfo(submodelElements));
+        Page<ElementValue> actual = deserializer.readValuePage(new String(response.getContent()),
+                TypeExtractor.extractTypeInfo(submodelElements));
         Page<ElementValue> expected = Page.of(submodelElements.stream()
-                .map(LambdaExceptionHelper.rethrowFunction(x -> (ElementValue) ElementValueMapper.toValue(x)))
+                .map(LambdaExceptionHelper
+                        .rethrowFunction(x -> (ElementValue) ElementValueMapper.toValue(x)))
                 .collect(Collectors.toList()));
         Assert.assertEquals(expected, actual);
     }
@@ -560,11 +614,13 @@ public abstract class AbstractHttpEndpointTest {
                 .statusCode(StatusCode.SUCCESS)
                 .payload(expected)
                 .build());
-        ContentResponse response = execute(HttpMethod.GET, "/submodels/foo/submodel-elements", new OutputModifier.Builder()
-                .content(Content.METADATA)
-                .build());
+        ContentResponse response = execute(HttpMethod.GET, "/submodels/foo/submodel-elements",
+                new OutputModifier.Builder()
+                        .content(Content.METADATA)
+                        .build());
         Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
-        Page<SubmodelElement> actual = deserializer.read(new String(response.getContent()), new TypeReference<Page<SubmodelElement>>() {});
+        Page<SubmodelElement> actual = deserializer.read(new String(response.getContent()),
+                new TypeReference<Page<SubmodelElement>>() {});
         Assert.assertEquals(expected, actual);
     }
 
@@ -578,9 +634,11 @@ public abstract class AbstractHttpEndpointTest {
                 .statusCode(StatusCode.SUCCESS)
                 .payload(expected)
                 .build());
-        ContentResponse response = execute(HttpMethod.GET, "/submodels/foo/submodel-elements", Content.REFERENCE);
+        ContentResponse response = execute(HttpMethod.GET, "/submodels/foo/submodel-elements",
+                Content.REFERENCE);
         Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
-        Page<Reference> actual = deserializer.read(new String(response.getContent()), new TypeReference<Page<Reference>>() {});
+        Page<Reference> actual = deserializer.read(new String(response.getContent()),
+                new TypeReference<Page<Reference>>() {});
         Assert.assertEquals(expected, actual);
     }
 
@@ -603,11 +661,13 @@ public abstract class AbstractHttpEndpointTest {
                 .statusCode(StatusCode.SUCCESS)
                 .payload(expected)
                 .build());
-        ContentResponse response = execute(HttpMethod.GET, "/submodels/foo/submodel-elements", new OutputModifier.Builder()
-                .content(Content.NORMAL)
-                .build());
+        ContentResponse response = execute(HttpMethod.GET, "/submodels/foo/submodel-elements",
+                new OutputModifier.Builder()
+                        .content(Content.NORMAL)
+                        .build());
         Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
-        Page<SubmodelElement> actual = deserializer.read(new String(response.getContent()), new TypeReference<Page<SubmodelElement>>() {});
+        Page<SubmodelElement> actual = deserializer.read(new String(response.getContent()),
+                new TypeReference<Page<SubmodelElement>>() {});
         Assert.assertEquals(expected, actual);
     }
 
@@ -657,7 +717,8 @@ public abstract class AbstractHttpEndpointTest {
                         .content(Content.NORMAL)
                         .build());
         Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
-        Page<SubmodelElement> actual = deserializer.read(new String(response.getContent()), new TypeReference<Page<SubmodelElement>>() {});
+        Page<SubmodelElement> actual = deserializer.read(new String(response.getContent()),
+                new TypeReference<Page<SubmodelElement>>() {});
         Assert.assertEquals(expected, actual);
     }
 
@@ -698,7 +759,8 @@ public abstract class AbstractHttpEndpointTest {
                         .statusCode(StatusCode.CLIENT_RESOURCE_CONFLICT)
                         .build());
         ContentResponse response = execute(
-                HttpMethod.POST, "/submodels/" + EncodingHelper.base64UrlEncode(id) + "/submodel-elements",
+                HttpMethod.POST,
+                "/submodels/" + EncodingHelper.base64UrlEncode(id) + "/submodel-elements",
                 new DefaultProperty.Builder().build());
         Assert.assertEquals(HttpStatus.CONFLICT_409, response.getStatus());
     }
@@ -751,7 +813,8 @@ public abstract class AbstractHttpEndpointTest {
                         .payload(null)
                         .statusCode(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND)
                         .build());
-        ContentResponse responseStatusNotFound = execute(HttpMethod.GET, "/submodels/foo/submodel-elements/bar/operation-status/" + handleId);
+        ContentResponse responseStatusNotFound = execute(HttpMethod.GET,
+                "/submodels/foo/submodel-elements/bar/operation-status/" + handleId);
         Assert.assertEquals(HttpStatus.NOT_FOUND_404, responseStatusNotFound.getStatus());
 
         // check COMPLETED = 302
@@ -768,7 +831,8 @@ public abstract class AbstractHttpEndpointTest {
         Assert.assertTrue(responseStatusCompleted.getHeaders().contains(HttpHeader.LOCATION));
         // check content for state == COMPLETED
 
-        URI urlResult = urlStatus.resolve(responseStatusCompleted.getHeaders().getField(HttpHeader.LOCATION).getValue());
+        URI urlResult = urlStatus
+                .resolve(responseStatusCompleted.getHeaders().getField(HttpHeader.LOCATION).getValue());
         when(service.execute(any(), any())).thenReturn(
                 GetOperationAsyncResultResponse.builder()
                         .payload(new DefaultOperationResult.Builder()
@@ -786,7 +850,7 @@ public abstract class AbstractHttpEndpointTest {
     public void testResultServerError() throws Exception {
         Result expected = new DefaultResult.Builder()
                 .messages(Message.builder()
-                        .messageType(MessageTypeEnum.ERROR)
+                        .messageType(MessageType.ERROR)
                         .text(HttpStatus.getMessage(500))
                         .build())
                 .build();
@@ -805,7 +869,7 @@ public abstract class AbstractHttpEndpointTest {
     public void testResultBadRequest() throws Exception {
         Result expected = new DefaultResult.Builder()
                 .messages(Message.builder()
-                        .messageType(MessageTypeEnum.ERROR)
+                        .messageType(MessageType.ERROR)
                         .text("no matching request mapper found for URL 'shellsX'")
                         .build())
                 .build();
@@ -819,7 +883,7 @@ public abstract class AbstractHttpEndpointTest {
     public void testMethodNotAllowed() throws Exception {
         Result expected = new DefaultResult.Builder()
                 .messages(Message.builder()
-                        .messageType(MessageTypeEnum.ERROR)
+                        .messageType(MessageType.ERROR)
                         .text("method 'PUT' not allowed for URL 'shells' (allowed methods: GET, POST)")
                         .build())
                 .build();
@@ -833,7 +897,7 @@ public abstract class AbstractHttpEndpointTest {
     public void testResultNotFound() throws Exception {
         Result expected = new DefaultResult.Builder()
                 .messages(Message.builder()
-                        .messageType(MessageTypeEnum.ERROR)
+                        .messageType(MessageType.ERROR)
                         .text(HttpStatus.getMessage(404))
                         .build())
                 .build();
@@ -843,9 +907,10 @@ public abstract class AbstractHttpEndpointTest {
                 .result(expected)
                 .build());
         String id = "foo";
-        ContentResponse response = execute(HttpMethod.GET, "/submodels/" + EncodingHelper.base64UrlEncode(id) + "/submodel-elements/Invalid");
+        ContentResponse response = execute(HttpMethod.GET,
+                "/submodels/" + EncodingHelper.base64UrlEncode(id) + "/submodel-elements/Invalid");
         Result actual = deserializer.read(new String(response.getContent()), Result.class);
-        Assert.assertEquals(MessageTypeEnum.ERROR, actual.getMessages().get(0).getMessageType());
+        Assert.assertEquals(MessageType.ERROR, actual.getMessages().get(0).getMessageType());
     }
 
 
@@ -860,14 +925,125 @@ public abstract class AbstractHttpEndpointTest {
                         .statusCode(StatusCode.SUCCESS)
                         .payload(expected)
                         .build());
-        ContentResponse response = execute(HttpMethod.POST, "/import", null, null, "{}", "application/json", null);
+        ContentResponse response = execute(HttpMethod.POST, "/import", null, null, "{}", "application/json",
+                null);
         Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
         ImportResult actual = deserializer.read(new String(response.getContent()), ImportResult.class);
         Assert.assertEquals(expected, actual);
     }
 
 
-    protected ContentResponse execute(HttpMethod method, String path, Map<String, String> parameters) throws Exception {
+    @Test
+    public void testReadDPPById() throws Exception {
+        DigitalProductPassport expected = DPP.DPP_1;
+        ReadDppByIdRequest expectedRequest = ReadDppByIdRequest.builder()
+                .id(DPP.DPP_1.getAAS().getId())
+                .dppSerializationMode(DppSerializationMode.DEFAULT)
+                .build();
+        when(service.execute(any(), eq(expectedRequest))).thenReturn(ReadDPPByIdResponse.builder()
+                .statusCode(StatusCode.SUCCESS)
+                .payload(expected)
+                .build());
+        ContentResponse response = execute(HttpMethod.GET,
+                "/v1/dpps/" + EncodingHelper.base64UrlEncode(DPP.DPP_1.getAAS().getId()));
+        Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
+        assertCompressedDppEquals(expected, response.getContent());
+    }
+
+
+    @Test
+    public void testReadDPPByIdNotFound() throws Exception {
+        String dppId = "non-existent-id";
+        when(service.execute(any(), any())).thenReturn(ReadDPPByIdResponse.builder()
+                .statusCode(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND)
+                .payload(null)
+                .build());
+        ContentResponse response = execute(HttpMethod.GET,
+                "/v1/dpps/" + EncodingHelper.base64UrlEncode(dppId));
+        Assert.assertEquals(HttpStatus.NOT_FOUND_404, response.getStatus());
+    }
+
+
+    @Test
+    public void testReadDPPByProductId() throws Exception {
+        DigitalProductPassport expected = DPP.DPP_1;
+        String productId = DPP.DPP_1.getAAS().getAssetInformation().getGlobalAssetId();
+        ReadDppByProductIdRequest expectedRequest = ReadDppByProductIdRequest.builder()
+                .id(productId)
+                .dppSerializationMode(DppSerializationMode.DEFAULT)
+                .build();
+        when(service.execute(any(), eq(expectedRequest))).thenReturn(ReadDPPByProductIdResponse.builder()
+                .statusCode(StatusCode.SUCCESS)
+                .payload(expected)
+                .build());
+        ContentResponse response = execute(HttpMethod.GET,
+                "/v1/dppsByProductId/" + EncodingHelper.base64UrlEncode(productId));
+        Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
+        assertCompressedDppEquals(expected, response.getContent());
+    }
+
+
+    @Test
+    public void testReadDPPByProductIdNotFound() throws Exception {
+        String productId = "non-existent-product-id";
+        when(service.execute(any(), any())).thenReturn(ReadDPPByProductIdResponse.builder()
+                .statusCode(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND)
+                .payload(null)
+                .build());
+        ContentResponse response = execute(HttpMethod.GET,
+                "/v1/dppsByProductId/" + EncodingHelper.base64UrlEncode(productId));
+        Assert.assertEquals(HttpStatus.NOT_FOUND_404, response.getStatus());
+    }
+
+
+    @Test
+    public void testReadDPPIdsByProductIds() throws Exception {
+        Page<String> expected = Page.of(DPP.DPP_1.getAAS().getId(), DPP.DPP_2.getAAS().getId());
+        when(service.execute(any(), any())).thenReturn(ReadDPPIdsByProductIdsResponse.builder()
+                .statusCode(StatusCode.SUCCESS)
+                .payload(expected)
+                .build());
+        List<String> productIds = List.of(
+                DPP.DPP_1.getAAS().getAssetInformation().getGlobalAssetId(),
+                DPP.DPP_2.getAAS().getAssetInformation().getGlobalAssetId());
+        ContentResponse response = execute(HttpMethod.POST,
+                "/v1/dppsByProductIds", productIds);
+        Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
+        Page<String> actual = deserializer.read(new String(response.getContent()),
+                new TypeReference<Page<String>>() {});
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testReadDPPByIdSerializationModeExpanded() throws Exception {
+        DigitalProductPassport expected = DPP.DPP_1;
+        ReadDppByIdRequest expectedRequest = ReadDppByIdRequest.builder()
+                .id(DPP.DPP_1.getAAS().getId())
+                .dppSerializationMode(DppSerializationMode.EXPANDED)
+                .build();
+        when(service.execute(any(), eq(expectedRequest))).thenReturn(ReadDPPByIdResponse.builder()
+                .statusCode(StatusCode.SUCCESS)
+                .payload(expected)
+                .build());
+        ContentResponse response = execute(HttpMethod.GET,
+                "/v1/dpps/" + EncodingHelper.base64UrlEncode(DPP.DPP_1.getAAS().getId()),
+                Map.of("representation", DppSerializationMode.EXPANDED.getName()));
+        Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR_500, response.getStatus());
+    }
+
+
+    @Test
+    public void testReadDPPByIdSerializationModeInvalid() throws Exception {
+        ContentResponse response = execute(HttpMethod.GET,
+                "/v1/dpps/" + EncodingHelper.base64UrlEncode(DPP.DPP_1.getAAS().getId()),
+                Map.of("representation", "invalid"));
+        Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR_500, response.getStatus());
+    }
+
+
+    protected ContentResponse execute(HttpMethod method, String path, Map<String, String> parameters)
+            throws Exception {
         return execute(method, path, parameters, null, null, null, null);
     }
 
@@ -901,7 +1077,8 @@ public abstract class AbstractHttpEndpointTest {
     }
 
 
-    protected ContentResponse execute(HttpMethod method, String path, OutputModifier outputModifier) throws Exception {
+    protected ContentResponse execute(HttpMethod method, String path, OutputModifier outputModifier)
+            throws Exception {
         return execute(
                 method,
                 path,
@@ -959,7 +1136,18 @@ public abstract class AbstractHttpEndpointTest {
     }
 
 
-    private void assertContainsErrorText(ContentResponse response, int status, String... textSnippets) throws DeserializationException {
+    private void assertCompressedDppEquals(DigitalProductPassport expected, byte[] actual) throws SerializationException, JsonProcessingException {
+        JsonNode actualNode = new ObjectMapper().readValue(new String(actual), JsonNode.class);
+        JsonDppSerializer serializer = new JsonDppSerializer();
+        String expectedString = serializer.write(expected, DppSerializationMode.COMPRESSED);
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode expectedNode = mapper.readTree(expectedString);
+        Assert.assertEquals(expectedNode, actualNode);
+    }
+
+
+    private void assertContainsErrorText(ContentResponse response, int status, String... textSnippets)
+            throws DeserializationException {
         Assert.assertEquals(status, response.getStatus());
         Result actual = new HttpJsonApiDeserializer().read(response.getContentAsString(), Result.class);
         Assert.assertNotNull(actual.getMessages());

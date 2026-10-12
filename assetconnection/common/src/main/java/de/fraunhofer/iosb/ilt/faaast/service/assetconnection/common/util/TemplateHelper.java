@@ -37,6 +37,9 @@ public class TemplateHelper {
      * @return {@code template} with replaced values
      */
     public static String replace(String template, Map<String, Object> values) {
+        if (template == null) {
+            return "";
+        }
         return values.entrySet().stream()
                 .reduce(template,
                         (temp, element) -> temp.replaceAll(

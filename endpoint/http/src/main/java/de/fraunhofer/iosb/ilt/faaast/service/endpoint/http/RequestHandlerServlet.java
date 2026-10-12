@@ -39,14 +39,13 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.eclipse.digitaltwin.aas4j.v3.model.Message;
-import org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum;
+import org.eclipse.digitaltwin.aas4j.v3.model.MessageType;
 import org.eclipse.jetty.server.Response;
 
 
 /**
  * HTTP handler that actually handles all requests to the endpoint by finding the matching request class, deserializing
- * the request, executing it using the serviceContext and
- * serializing the result.
+ * the request, executing it using the serviceContext and serializing the result.
  */
 public class RequestHandlerServlet extends HttpServlet {
 
@@ -154,6 +153,6 @@ public class RequestHandlerServlet extends HttpServlet {
                         .orElse(List.of())
                         .stream()
                         .map(Message::getMessageType)
-                        .noneMatch(x -> Objects.equals(x, MessageTypeEnum.ERROR) || Objects.equals(x, MessageTypeEnum.EXCEPTION));
+                        .noneMatch(x -> Objects.equals(x, MessageType.ERROR) || Objects.equals(x, MessageType.EXCEPTION));
     }
 }

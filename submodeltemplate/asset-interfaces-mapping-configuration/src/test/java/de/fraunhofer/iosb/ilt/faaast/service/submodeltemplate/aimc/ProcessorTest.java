@@ -30,6 +30,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.confi
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.HttpValueProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.MqttAssetConnectionConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.config.MqttSubscriptionProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.OpcUaAssetConnectionConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config.OpcUaSubscriptionProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config.OpcUaValueProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentSerializationManager;
 import de.fraunhofer.iosb.ilt.faaast.service.filestorage.FileStorage;
@@ -59,13 +62,16 @@ import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelElementCollection;
+import org.eclipse.milo.opcua.stack.core.security.SecurityPolicy;
+import org.eclipse.milo.opcua.stack.core.types.enumerated.MessageSecurityMode;
 import org.junit.Assert;
 import org.junit.Test;
 
 
 public class ProcessorTest {
 
-    private static final String SERVER_URL = "http://plugfest.thingweb.io:8083";
+    private static final String HTTP_SERVER_URL = "http://plugfest.thingweb.io:8083";
+    private static final String OPC_UA_SERVER_URL = "opc.tcp://ilt752-vm:62541/Quickstarts/ReferenceServer";
     private static final String SUBMODEL_ID_AIMC = "https://example.com/ids/sm/AssetInterfacesMappingConfiguration";
 
     private AimcSubmodelTemplateProcessor smtProcessor;
@@ -111,7 +117,7 @@ public class ProcessorTest {
         smtProcessor.add(submodel.get());
 
         HttpAssetConnectionConfig httpExpected = new HttpAssetConnectionConfig.Builder()
-                .baseUrl(SERVER_URL)
+                .baseUrl(HTTP_SERVER_URL)
                 .subscriptionProvider(new DefaultReference.Builder()
                         .type(ReferenceTypes.MODEL_REFERENCE)
                         .keys(new DefaultKey.Builder().type(KeyTypes.SUBMODEL).value("https://example.com/ids/sm/OperationalData").build())
@@ -158,8 +164,32 @@ public class ProcessorTest {
                                 .topic("/sampleDevice/properties/status")
                                 .build())
                 .build();
+        OpcUaAssetConnectionConfig opcuaExpected = new OpcUaAssetConnectionConfig.Builder()
+                .host(OPC_UA_SERVER_URL)
+                .securityMode(MessageSecurityMode.SignAndEncrypt)
+                .securityPolicy(SecurityPolicy.Basic256Sha256)
+                .subscriptionProvider(new DefaultReference.Builder()
+                        .type(ReferenceTypes.MODEL_REFERENCE)
+                        .keys(new DefaultKey.Builder().type(KeyTypes.SUBMODEL).value("https://example.com/ids/sm/OperationalData").build())
+                        .keys(new DefaultKey.Builder().type(KeyTypes.SUBMODEL_ELEMENT_COLLECTION).value("OPCUA_Data").build())
+                        .keys(new DefaultKey.Builder().type(KeyTypes.PROPERTY).value("value_double").build())
+                        .build(),
+                        OpcUaSubscriptionProviderConfig.builder()
+                                .nodeId("ns=5;i=2813")
+                                .build())
+                .valueProvider(new DefaultReference.Builder()
+                        .type(ReferenceTypes.MODEL_REFERENCE)
+                        .keys(new DefaultKey.Builder().type(KeyTypes.SUBMODEL).value("https://example.com/ids/sm/OperationalData").build())
+                        .keys(new DefaultKey.Builder().type(KeyTypes.SUBMODEL_ELEMENT_COLLECTION).value("OPCUA_Data").build())
+                        .keys(new DefaultKey.Builder().type(KeyTypes.PROPERTY).value("value_int").build())
+                        .build(),
+                        OpcUaValueProviderConfig.builder()
+                                .nodeId("ns=5;i=2808")
+                                .build())
+                .build();
+
         verify(assetConnectionManager).updateConnections(isNull(), argThat((List<AssetConnectionConfig> actual) -> {
-            if (actual.size() != 2) {
+            if (actual.size() != 3) {
                 return false;
             }
             Optional<MqttAssetConnectionConfig> mqttConfig = actual.stream()
@@ -170,7 +200,7 @@ public class ProcessorTest {
                 return false;
             }
             mqttExpected.setClientId(mqttConfig.get().getClientId());
-            return Objects.equals(Set.of(mqttExpected, httpExpected), new HashSet<>(actual));
+            return Objects.equals(Set.of(opcuaExpected, mqttExpected, httpExpected), new HashSet<>(actual));
         }));
     }
 

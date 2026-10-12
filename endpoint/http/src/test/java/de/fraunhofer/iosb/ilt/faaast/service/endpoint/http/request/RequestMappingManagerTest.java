@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.model.DPP.DPP_1;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -50,6 +51,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasbasicdiscovery
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasbasicdiscovery.GetAllAssetAdministrationShellIdsByAssetLinkRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasbasicdiscovery.GetAllAssetLinksByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasbasicdiscovery.PostAllAssetLinksByIdRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasbasicdiscovery.SearchAllAssetAdministrationShellIdsByAssetLinkRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository.DeleteAssetAdministrationShellByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository.GetAllAssetAdministrationShellsByAssetIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository.GetAllAssetAdministrationShellsByIdShortRequest;
@@ -65,6 +67,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescriptio
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.PostConceptDescriptionRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.PutConceptDescriptionByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.description.GetSelfDescriptionRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.dpp.ReadDppByIdRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.dpp.ReadDppByProductIdRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.dpp.ReadDppIdsByProductIdsRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.proprietary.DeleteOperationProviderByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.proprietary.ImportRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.proprietary.PostOperationProviderByPathRequest;
@@ -95,6 +100,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepositor
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.GetAllSubmodelsRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.PostSubmodelRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetSubmodelElementByPathResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.dpp.DppSerializationMode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
@@ -278,6 +284,20 @@ public class RequestMappingManagerTest {
                 .method(HttpMethod.GET)
                 .path("lookup/shells")
                 .query("assetIds=" + EncodingHelper.base64UrlEncode(serializer.write(ASSET_IDENTIFIERS)))
+                .build());
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testSearchAllAssetAdministrationShellIdsByAssetLink() throws SerializationException, InvalidRequestException {
+        Request expected = SearchAllAssetAdministrationShellIdsByAssetLinkRequest.builder()
+                .assetIdentifierPairs(ASSET_IDENTIFIERS)
+                .build();
+        Request actual = mappingManager.map(HttpRequest.builder()
+                .method(HttpMethod.POST)
+                .path("lookup/shellsByAssetLink")
+                .body(serializer.write(ASSET_IDENTIFIERS))
                 .build());
         Assert.assertEquals(expected, actual);
     }
@@ -567,6 +587,51 @@ public class RequestMappingManagerTest {
         Request actual = mappingManager.map(HttpRequest.builder()
                 .method(HttpMethod.GET)
                 .path("concept-descriptions/" + EncodingHelper.base64UrlEncode(CONCEPT_DESCRIPTION.getId()))
+                .build());
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testReadDPPById() throws InvalidRequestException {
+        String dppId = DPP_1.getAAS().getId();
+        Request expected = ReadDppByIdRequest.builder()
+                .id(dppId)
+                .dppSerializationMode(DppSerializationMode.DEFAULT)
+                .build();
+        Request actual = mappingManager.map(HttpRequest.builder()
+                .method(HttpMethod.GET)
+                .path("v1/dpps/" + EncodingHelper.base64UrlEncode(dppId))
+                .build());
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testReadDPPByProductId() throws InvalidRequestException {
+        String productId = "http://example.org/productId";
+        Request expected = ReadDppByProductIdRequest.builder()
+                .id(productId)
+                .dppSerializationMode(DppSerializationMode.DEFAULT)
+                .build();
+        Request actual = mappingManager.map(HttpRequest.builder()
+                .method(HttpMethod.GET)
+                .path("v1/dppsByProductId/" + EncodingHelper.base64UrlEncode(productId))
+                .build());
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testReadDPPIdsByProductIds() throws InvalidRequestException, SerializationException {
+        List<String> productIds = List.of("http://example.org/productId1", "http://example.org/productId2");
+        Request expected = ReadDppIdsByProductIdsRequest.builder()
+                .productIds(productIds)
+                .build();
+        Request actual = mappingManager.map(HttpRequest.builder()
+                .method(HttpMethod.POST)
+                .path("v1/dppsByProductIds")
+                .body(serializer.write(productIds))
                 .build());
         Assert.assertEquals(expected, actual);
     }

@@ -48,8 +48,8 @@ public class AnnotatedRelationshipElementValueDeserializer extends ContextAwareE
         if (node.has(JsonFieldNames.ANNOTATED_RELATIONSHIP_ELEMENT_VALUE_SECOND)) {
             builder.second(context.readTreeAsValue(node.get(JsonFieldNames.ANNOTATED_RELATIONSHIP_ELEMENT_VALUE_SECOND), Reference.class));
         }
-        if (node.has(JsonFieldNames.ANNOTATED_RELATIONSHIP_ELEMENT_VALUE_ANNOTATION)) {
-            builder.annotations(deserializeChildren(node.get(JsonFieldNames.ANNOTATED_RELATIONSHIP_ELEMENT_VALUE_ANNOTATION), context, DataElementValue.class));
+        if (node.has(JsonFieldNames.ANNOTATED_RELATIONSHIP_ELEMENT_VALUE_ANNOTATIONS)) {
+            builder.annotations(deserializeChildren(node.get(JsonFieldNames.ANNOTATED_RELATIONSHIP_ELEMENT_VALUE_ANNOTATIONS), context, DataElementValue.class));
         }
         return builder.build();
     }

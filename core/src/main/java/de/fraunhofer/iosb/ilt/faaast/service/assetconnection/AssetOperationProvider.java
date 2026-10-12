@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -60,6 +61,7 @@ public interface AssetOperationProvider<T extends AssetOperationProviderConfig> 
         invokeAsync(
                 input,
                 inoutput,
+                x -> {},
                 (x, y) -> {
                     result.set(x);
                     modifiedInoutput.set(y);
@@ -106,13 +108,17 @@ public interface AssetOperationProvider<T extends AssetOperationProviderConfig> 
      * @param input input parameters
      * @param inoutput inoutput parameters, i.e. parameters that are passed as input to the operation but can be
      *            modified while execution
+     * @param callbackProgress callback handler that is called whenever there is any progress to report about the execution
      * @param callbackSuccess callback handler that is called when the operation is finished successfully providing the
      *            result and inoutput variables
      * @param callbackFailure callback handler that is called when execution the operation fails
      * @throws de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException when invoking operation on
      *             asset connection fails
      */
-    public default void invokeAsync(OperationVariable[] input, OperationVariable[] inoutput, BiConsumer<OperationVariable[], OperationVariable[]> callbackSuccess,
+    public default void invokeAsync(OperationVariable[] input,
+                                    OperationVariable[] inoutput,
+                                    Consumer<Message> callbackProgress,
+                                    BiConsumer<OperationVariable[], OperationVariable[]> callbackSuccess,
                                     Consumer<Throwable> callbackFailure)
             throws AssetConnectionException {
         CompletableFuture

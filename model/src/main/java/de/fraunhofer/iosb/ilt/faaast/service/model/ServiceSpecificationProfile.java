@@ -51,6 +51,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescriptio
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.PutConceptDescriptionByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.QueryConceptDescriptionsRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.description.GetSelfDescriptionRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.dpp.ReadDppByIdRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.dpp.ReadDppByProductIdRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.dpp.ReadDppIdsByProductIdsRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.proprietary.DeleteOperationProviderByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.proprietary.ImportRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.proprietary.PostOperationProviderByPathRequest;
@@ -85,6 +88,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepositor
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.GetAllSubmodelsRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.PostSubmodelRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.QuerySubmodelsRequest;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -94,7 +98,7 @@ import java.util.List;
  */
 public enum ServiceSpecificationProfile {
     AAS_FULL(
-            "https://admin-shell.io/aas/API/3/0/AssetAdministrationShellServiceSpecification/SSP-001",
+            "https://admin-shell.io/aas/API/3/1/AssetAdministrationShellServiceSpecification/SSP-001",
             List.of(
                     Interface.AAS,
                     Interface.SUBMODEL,
@@ -140,7 +144,7 @@ public enum ServiceSpecificationProfile {
                     GenerateSerializationByIdsRequest.class,
                     GetSelfDescriptionRequest.class)),
     AAS_READ(
-            "https://admin-shell.io/aas/API/3/0/AssetAdministrationShellServiceSpecification/SSP-002",
+            "https://admin-shell.io/aas/API/3/1/AssetAdministrationShellServiceSpecification/SSP-002",
             List.of(
                     Interface.AAS,
                     Interface.SUBMODEL,
@@ -163,7 +167,7 @@ public enum ServiceSpecificationProfile {
                     GetSubmodelRequest.class,
                     GetSelfDescriptionRequest.class)),
     SUBMODEL_FULL(
-            "https://admin-shell.io/aas/API/3/0/SubmodelServiceSpecification/SSP-001",
+            "https://admin-shell.io/aas/API/3/1/SubmodelServiceSpecification/SSP-001",
             List.of(
                     Interface.SUBMODEL,
                     Interface.SERIALIZATION,
@@ -196,7 +200,7 @@ public enum ServiceSpecificationProfile {
                     GenerateSerializationByIdsRequest.class,
                     GetSelfDescriptionRequest.class)),
     SUBMODEL_READ(
-            "https://admin-shell.io/aas/API/3/0/SubmodelServiceSpecification/SSP-002",
+            "https://admin-shell.io/aas/API/3/1/SubmodelServiceSpecification/SSP-002",
             List.of(
                     Interface.SUBMODEL,
                     Interface.SERIALIZATION,
@@ -214,7 +218,7 @@ public enum ServiceSpecificationProfile {
                     GenerateSerializationByIdsRequest.class,
                     GetSelfDescriptionRequest.class)),
     SUBMODEL_VALUE(
-            "https://admin-shell.io/aas/API/3/0/SubmodelServiceSpecification/SSP-003",
+            "https://admin-shell.io/aas/API/3/1/SubmodelServiceSpecification/SSP-003",
             List.of(
                     Interface.SUBMODEL,
                     Interface.DESCRIPTION),
@@ -223,30 +227,46 @@ public enum ServiceSpecificationProfile {
                     InvokeOperationSyncRequest.class,
                     GetSelfDescriptionRequest.class)),
     AASX_FILE_SERVER_FULL(
-            "https://admin-shell.io/aas/API/3/0/AasxFileServerServiceSpecification/SSP-001",
+            "https://admin-shell.io/aas/API/3/1/AasxFileServerServiceSpecification/SSP-001",
             List.of(
                     Interface.AASX_FILE_SERVER,
                     Interface.DESCRIPTION),
             List.of(
                     GetSelfDescriptionRequest.class)),
     AAS_REGISTRY_FULL(
-            "https://admin-shell.io/aas/API/3/0/AssetAdministrationShellRegistryServiceSpecification/SSP-001",
+            "https://admin-shell.io/aas/API/3/1/AssetAdministrationShellRegistryServiceSpecification/SSP-001",
             List.of(),
             List.of()),
     AAS_REGISTRY_READ(
-            "https://admin-shell.io/aas/API/3/0/AssetAdministrationShellRegistryServiceSpecification/SSP-002",
+            "https://admin-shell.io/aas/API/3/1/AssetAdministrationShellRegistryServiceSpecification/SSP-002",
+            List.of(),
+            List.of()),
+    AAS_REGISTRY_BULK(
+            "https://admin-shell.io/aas/API/3/1/AssetAdministrationShellRegistryServiceSpecification/SSP-003",
+            List.of(),
+            List.of()),
+    AAS_REGISTRY_QUERY(
+            "https://admin-shell.io/aas/API/3/1/AssetAdministrationShellRegistryServiceSpecification/SSP-004",
             List.of(),
             List.of()),
     SUBMODEL_REGISTRY_FULL(
-            "https://admin-shell.io/aas/API/3/0/SubmodelRegistryServiceSpecification/SSP-001",
+            "https://admin-shell.io/aas/API/3/1/SubmodelRegistryServiceSpecification/SSP-001",
             List.of(),
             List.of()),
     SUBMODEL_REGISTRY_READ(
-            "https://admin-shell.io/aas/API/3/0/SubmodelRegistryServiceSpecification/SSP-002",
+            "https://admin-shell.io/aas/API/3/1/SubmodelRegistryServiceSpecification/SSP-002",
+            List.of(),
+            List.of()),
+    SUBMODEL_REGISTRY_BULK(
+            "https://admin-shell.io/aas/API/3/1/SubmodelRegistryServiceSpecification/SSP-003",
+            List.of(),
+            List.of()),
+    SUBMODEL_REGISTRY_QUERY(
+            "https://admin-shell.io/aas/API/3/1/SubmodelRegistryServiceSpecification/SSP-004",
             List.of(),
             List.of()),
     DISCOVERY_FULL(
-            "https://admin-shell.io/aas/API/3/0/DiscoveryServiceSpecification/SSP-001",
+            "https://admin-shell.io/aas/API/3/1/DiscoveryServiceSpecification/SSP-001",
             List.of(
                     Interface.AAS_BASIC_DISCOVERY,
                     Interface.DESCRIPTION),
@@ -257,7 +277,7 @@ public enum ServiceSpecificationProfile {
                     PostAllAssetLinksByIdRequest.class,
                     GetSelfDescriptionRequest.class)),
     AAS_REPOSITORY_FULL(
-            "https://admin-shell.io/aas/API/3/0/AssetAdministrationShellRepositoryServiceSpecification/SSP-001",
+            "https://admin-shell.io/aas/API/3/1/AssetAdministrationShellRepositoryServiceSpecification/SSP-001",
             List.of(
                     Interface.AAS_REPOSITORY,
                     Interface.AAS,
@@ -320,7 +340,7 @@ public enum ServiceSpecificationProfile {
                     GenerateSerializationByIdsRequest.class,
                     GetSelfDescriptionRequest.class)),
     AAS_REPOSITORY_READ(
-            "https://admin-shell.io/aas/API/3/0/AssetAdministrationShellRepositoryServiceSpecification/SSP-002",
+            "https://admin-shell.io/aas/API/3/1/AssetAdministrationShellRepositoryServiceSpecification/SSP-002",
             List.of(
                     Interface.AAS_REPOSITORY,
                     Interface.AAS,
@@ -358,7 +378,7 @@ public enum ServiceSpecificationProfile {
                     GenerateSerializationByIdsRequest.class,
                     GetSelfDescriptionRequest.class)),
     SUBMODEL_REPOSITORY_FULL(
-            "https://admin-shell.io/aas/API/3/0/SubmodelRepositoryServiceSpecification/SSP-001",
+            "https://admin-shell.io/aas/API/3/1/SubmodelRepositoryServiceSpecification/SSP-001",
             List.of(
                     Interface.SUBMODEL_REPOSITORY,
                     Interface.SUBMODEL,
@@ -399,7 +419,7 @@ public enum ServiceSpecificationProfile {
                     GenerateSerializationByIdsRequest.class,
                     GetSelfDescriptionRequest.class)),
     SUBMODEL_REPOSITORY_READ(
-            "https://admin-shell.io/aas/API/3/0/SubmodelRepositoryServiceSpecification/SSP-002",
+            "https://admin-shell.io/aas/API/3/1/SubmodelRepositoryServiceSpecification/SSP-002",
             List.of(
                     Interface.SUBMODEL_REPOSITORY,
                     Interface.SUBMODEL,
@@ -423,7 +443,7 @@ public enum ServiceSpecificationProfile {
                     GenerateSerializationByIdsRequest.class,
                     GetSelfDescriptionRequest.class)),
     CONCEPT_DESCRIPTION_FULL(
-            "https://admin-shell.io/aas/API/3/0/ConceptDescriptionServiceSpecification/SSP-001",
+            "https://admin-shell.io/aas/API/3/1/ConceptDescriptionServiceSpecification/SSP-001",
             List.of(
                     Interface.CONCEPT_DESCRIPTION_REPOSITORY,
                     Interface.SERIALIZATION,
@@ -452,7 +472,12 @@ public enum ServiceSpecificationProfile {
             List.of(),
             List.of(
                     PostOperationProviderByPathRequest.class,
-                    DeleteOperationProviderByPathRequest.class));
+                    DeleteOperationProviderByPathRequest.class)),
+    DPP_READ("https://github.com/FraunhoferIOSB/FAAAST-Service/API/DppRead",
+            List.of(),
+            List.of(ReadDppByIdRequest.class,
+                    ReadDppByProductIdRequest.class,
+                    ReadDppIdsByProductIdsRequest.class));
 
     public static List<ServiceSpecificationProfile> ALL = Arrays.asList(ServiceSpecificationProfile.values());
 

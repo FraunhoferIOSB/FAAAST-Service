@@ -312,7 +312,7 @@ public class App implements Runnable {
                             COMMAND_NO_VALIDATION));
         }
         catch (Exception e) {
-            throw new InitializationException("Error loading model file. Ensure that the model is valid and conformant to v3 of the AAS specficiation.", e);
+            throw new InitializationException("Error loading model file. Ensure that the model is valid and conformant to v3 of the AAS specification.", e);
         }
 
     }
@@ -594,7 +594,7 @@ public class App implements Runnable {
 
     private void printEndpointInfo(ServiceConfig config) {
         if (LOGGER.isInfoEnabled()) {
-            config.getEndpoints().stream().forEach(x -> {
+            config.getEndpoints().forEach(x -> {
                 if (HttpEndpointConfig.class.isAssignableFrom(x.getClass())) {
                     LOGGER.info("HTTP endpoint available on port {}", ((HttpEndpointConfig) x).getPort());
                 }

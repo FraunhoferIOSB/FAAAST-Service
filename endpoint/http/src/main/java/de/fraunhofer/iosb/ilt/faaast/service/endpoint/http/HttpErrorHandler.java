@@ -34,7 +34,7 @@ import java.util.Comparator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum;
+import org.eclipse.digitaltwin.aas4j.v3.model.MessageType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Result;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultResult;
 import org.eclipse.jetty.http.HttpHeader;
@@ -87,14 +87,10 @@ public class HttpErrorHandler extends ErrorHandler {
 
 
     private static Optional<StatusCode> getStatus(Throwable cause) {
-        Optional<Class<?>> key = exceptionToStatusCode.keySet().stream()
+        return exceptionToStatusCode.keySet().stream()
                 .filter(x -> x.isAssignableFrom(cause.getClass()))
-                .sorted(Comparator.comparing(x -> x, new MostSpecificClassComparator()))
-                .findFirst();
-        if (key.isEmpty()) {
-            return Optional.empty();
-        }
-        return Optional.ofNullable(exceptionToStatusCode.get(key.get()));
+                .min(Comparator.comparing(x -> x, new MostSpecificClassComparator()))
+                .map(exceptionToStatusCode::get);
     }
 
 
@@ -102,10 +98,8 @@ public class HttpErrorHandler extends ErrorHandler {
     public boolean handle(Request request, Response response, Callback callback) throws Exception {
         LOGGER.debug("handle error (request: {}, response: {}, callback: {})", request, response, callback);
         Throwable cause = findRealCause((Throwable) request.getAttribute(ERROR_EXCEPTION));
-        StatusCode statusCode = StatusCode.SERVER_INTERNAL_ERROR;
-        if (Objects.nonNull(cause) && isWellKnown(cause)) {
-            statusCode = getStatus(cause).get();
-        }
+        StatusCode statusCode = getStatus(cause).orElse(StatusCode.SERVER_INTERNAL_ERROR);
+
         send(response, statusCode, cause, callback);
         return true;
     }
@@ -122,7 +116,7 @@ public class HttpErrorHandler extends ErrorHandler {
                 .build();
         if (config.isIncludeErrorDetails() && Objects.nonNull(cause)) {
             result.getMessages().add(Message.builder()
-                    .messageType(MessageTypeEnum.EXCEPTION)
+                    .messageType(MessageType.EXCEPTION)
                     .text(getStacktrace(
                             cause))
                     .build());

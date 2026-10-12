@@ -129,8 +129,10 @@ public class InvokeOperationSyncRequestHandler extends AbstractInvokeOperationRe
                     .outputArguments(Arrays.asList(outputVariables))
                     .success(true)
                     .build();
+            LOGGER.trace("executeOperation succeeded");
         }
         catch (TimeoutException e) {
+            LOGGER.debug("executeOperation Timeout", e);
             future.cancel(true);
             result = new DefaultOperationResult.Builder()
                     .inoutputArguments(request.getInoutputArguments())
@@ -139,6 +141,7 @@ public class InvokeOperationSyncRequestHandler extends AbstractInvokeOperationRe
                     .build();
         }
         catch (ExecutionException e) {
+            LOGGER.debug("executeOperation failed", e);
             result = new DefaultOperationResult.Builder()
                     .inoutputArguments(request.getInoutputArguments())
                     .executionState(ExecutionState.FAILED)
@@ -146,6 +149,7 @@ public class InvokeOperationSyncRequestHandler extends AbstractInvokeOperationRe
                     .build();
         }
         catch (InterruptedException e) {
+            LOGGER.debug("executeOperation interrupted", e);
             result = new DefaultOperationResult.Builder()
                     .inoutputArguments(request.getInoutputArguments())
                     .executionState(ExecutionState.FAILED)

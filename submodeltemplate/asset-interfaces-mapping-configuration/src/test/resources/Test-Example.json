@@ -159,13 +159,13 @@
                         {
                             "idShort": "EndpointMetadata",
                             "semanticId": {
-                              "type": "ExternalReference",
-                              "keys": [
-                                {
-                                  "type": "GlobalReference",
-                                  "value": "https://admin-shell.io/idta/AssetInterfacesDescription/1/0/EndpointMetadata"
-                                }
-                              ]
+                                "type": "ExternalReference",
+                                "keys": [
+                                    {
+                                        "type": "GlobalReference",
+                                        "value": "https://admin-shell.io/idta/AssetInterfacesDescription/1/0/EndpointMetadata"
+                                    }
+                                ]
                             },
                             "embeddedDataSpecifications": [
                             ],
@@ -931,13 +931,13 @@
                         {
                             "idShort": "EndpointMetadata",
                             "semanticId": {
-                              "type": "ExternalReference",
-                              "keys": [
-                                {
-                                  "type": "GlobalReference",
-                                  "value": "https://admin-shell.io/idta/AssetInterfacesDescription/1/0/EndpointMetadata"
-                                }
-                              ]
+                                "type": "ExternalReference",
+                                "keys": [
+                                    {
+                                        "type": "GlobalReference",
+                                        "value": "https://admin-shell.io/idta/AssetInterfacesDescription/1/0/EndpointMetadata"
+                                    }
+                                ]
                             },
                             "embeddedDataSpecifications": [
                             ],
@@ -1615,6 +1615,1387 @@
                         }
                     ],
                     "modelType": "SubmodelElementCollection"
+                },
+                {
+                    "idShort": "InterfaceOPCUA",
+                    "displayName": [
+                        {
+                            "language": "en",
+                            "text": "Interface Template for OPC UA"
+                        }
+                    ],
+                    "description": [
+                        {
+                            "language": "en",
+                            "text": "Indicates entry point for OPC UA interface."
+                        }
+                    ],
+                    "semanticId": {
+                        "type": "ExternalReference",
+                        "keys": [
+                            {
+                                "type": "GlobalReference",
+                                "value": "https://admin-shell.io/idta/AssetInterfacesDescription/1/0/Interface"
+                            }
+                        ]
+                    },
+                    "supplementalSemanticIds": [
+                        {
+                            "type": "ExternalReference",
+                            "keys": [
+                                {
+                                    "type": "GlobalReference",
+                                    "value": "http://opcfoundation.org/UA/WoT-Binding/"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "ExternalReference",
+                            "keys": [
+                                {
+                                    "type": "GlobalReference",
+                                    "value": "https://www.w3.org/2019/wot/td"
+                                }
+                            ]
+                        }
+                    ],
+                    "qualifiers": [
+                        {
+                            "kind": "ConceptQualifier",
+                            "type": "Cardinality",
+                            "valueType": "xs:string",
+                            "value": "ZeroToMany"
+                        }
+                    ],
+                    "value": [
+                        {
+                            "idShort": "title",
+                            "displayName": [
+                                {
+                                    "language": "en",
+                                    "text": "Title"
+                                }
+                            ],
+                            "description": [
+                                {
+                                    "language": "en",
+                                    "text": "Provides a human-readable title to give a human-readable context of the interface."
+                                }
+                            ],
+                            "semanticId": {
+                                "type": "ExternalReference",
+                                "keys": [
+                                    {
+                                        "type": "GlobalReference",
+                                        "value": "https://www.w3.org/2019/wot/td#title"
+                                    }
+                                ]
+                            },
+                            "qualifiers": [
+                                {
+                                    "kind": "ConceptQualifier",
+                                    "type": "Cardinality",
+                                    "valueType": "xs:string",
+                                    "value": "One"
+                                }
+                            ],
+                            "valueType": "xs:string",
+                            "value": "OpcUaDevice",
+                            "modelType": "Property"
+                        },
+                        {
+                            "idShort": "created",
+                            "displayName": [
+                                {
+                                    "language": "en",
+                                    "text": "Created"
+                                }
+                            ],
+                            "description": [
+                                {
+                                    "language": "en",
+                                    "text": "Provides information when the AID Submodel was created."
+                                }
+                            ],
+                            "semanticId": {
+                                "type": "ExternalReference",
+                                "keys": [
+                                    {
+                                        "type": "GlobalReference",
+                                        "value": "http://purl.org/dc/terms/created"
+                                    }
+                                ]
+                            },
+                            "qualifiers": [
+                                {
+                                    "kind": "ConceptQualifier",
+                                    "type": "Cardinality",
+                                    "valueType": "xs:string",
+                                    "value": "ZeroToOne"
+                                }
+                            ],
+                            "valueType": "xs:dateTime",
+                            "value": "2026-07-01 08:00:00.000000",
+                            "modelType": "Property"
+                        },
+                        {
+                            "idShort": "modified",
+                            "displayName": [
+                                {
+                                    "language": "en",
+                                    "text": "Modified"
+                                }
+                            ],
+                            "description": [
+                                {
+                                    "language": "en",
+                                    "text": "Provides information when the AID Submodel was modified."
+                                }
+                            ],
+                            "semanticId": {
+                                "type": "ExternalReference",
+                                "keys": [
+                                    {
+                                        "type": "GlobalReference",
+                                        "value": "http://purl.org/dc/terms/modified"
+                                    }
+                                ]
+                            },
+                            "qualifiers": [
+                                {
+                                    "kind": "ConceptQualifier",
+                                    "type": "Cardinality",
+                                    "valueType": "xs:string",
+                                    "value": "ZeroToOne"
+                                }
+                            ],
+                            "valueType": "xs:dateTime",
+                            "value": "2026-07-01 09:01:02.000000",
+                            "modelType": "Property"
+                        },
+                        {
+                            "idShort": "support",
+                            "displayName": [
+                                {
+                                    "language": "en",
+                                    "text": "Support"
+                                }
+                            ],
+                            "description": [
+                                {
+                                    "language": "en",
+                                    "text": "Provides an address on how to contact the maintainer of AID Submodel as URI scheme."
+                                }
+                            ],
+                            "semanticId": {
+                                "type": "ExternalReference",
+                                "keys": [
+                                    {
+                                        "type": "GlobalReference",
+                                        "value": "https://www.w3.org/2019/wot/td#supportContact"
+                                    }
+                                ]
+                            },
+                            "qualifiers": [
+                                {
+                                    "kind": "ConceptQualifier",
+                                    "type": "Cardinality",
+                                    "valueType": "xs:string",
+                                    "value": "ZeroToOne"
+                                }
+                            ],
+                            "valueType": "xs:anyURI",
+                            "modelType": "Property"
+                        },
+                        {
+                            "idShort": "EndpointMetadata",
+                            "displayName": [
+                                {
+                                    "language": "en",
+                                    "text": "Endpoint Metadata"
+                                }
+                            ],
+                            "description": [
+                                {
+                                    "language": "en",
+                                    "text": "Provides the metadata of the asset’s endpoint (base, content type that is used for interaction, etc)"
+                                }
+                            ],
+                            "semanticId": {
+                                "type": "ExternalReference",
+                                "keys": [
+                                    {
+                                        "type": "GlobalReference",
+                                        "value": "https://admin-shell.io/idta/AssetInterfacesDescription/1/0/EndpointMetadata"
+                                    }
+                                ]
+                            },
+                            "qualifiers": [
+                                {
+                                    "kind": "ConceptQualifier",
+                                    "type": "Cardinality",
+                                    "valueType": "xs:string",
+                                    "value": "One"
+                                }
+                            ],
+                            "value": [
+                                {
+                                    "idShort": "base",
+                                    "displayName": [
+                                        {
+                                            "language": "en",
+                                            "text": "Base"
+                                        }
+                                    ],
+                                    "description": [
+                                        {
+                                            "language": "en",
+                                            "text": "Defines asset connection entry point. The base pattern for HTTP is defined in Qalifier."
+                                        }
+                                    ],
+                                    "semanticId": {
+                                        "type": "ExternalReference",
+                                        "keys": [
+                                            {
+                                                "type": "GlobalReference",
+                                                "value": "https://www.w3.org/2019/wot/td#baseURI"
+                                            }
+                                        ]
+                                    },
+                                    "qualifiers": [
+                                        {
+                                            "kind": "ConceptQualifier",
+                                            "type": "Cardinality",
+                                            "valueType": "xs:string",
+                                            "value": "One"
+                                        }
+                                    ],
+                                    "valueType": "xs:anyURI",
+                                    "value": "opc.tcp://ilt752-vm:62541/Quickstarts/ReferenceServer",
+                                    "modelType": "Property"
+                                },
+                                {
+                                    "idShort": "contentType",
+                                    "displayName": [
+                                        {
+                                            "language": "en",
+                                            "text": "Content Type"
+                                        }
+                                    ],
+                                    "description": [
+                                        {
+                                            "language": "en",
+                                            "text": "Defines content type based on a media type (e.g., text/plain) and potential character decoding/encoding type (e.g., charset=utf-8) for the media type (see RFC2046) of the whole interface."
+                                        }
+                                    ],
+                                    "semanticId": {
+                                        "type": "ExternalReference",
+                                        "keys": [
+                                            {
+                                                "type": "GlobalReference",
+                                                "value": "https://www.w3.org/2019/wot/hypermedia#forContentType"
+                                            }
+                                        ]
+                                    },
+                                    "qualifiers": [
+                                        {
+                                            "kind": "ConceptQualifier",
+                                            "type": "Cardinality",
+                                            "valueType": "xs:string",
+                                            "value": "One"
+                                        }
+                                    ],
+                                    "valueType": "xs:string",
+                                    "value": "application/octet-stream",
+                                    "modelType": "Property"
+                                },
+                                {
+                                    "idShort": "security",
+                                    "displayName": [
+                                        {
+                                            "language": "en",
+                                            "text": "Security"
+                                        }
+                                    ],
+                                    "description": [
+                                        {
+                                            "language": "en",
+                                            "text": "Selects one or more of the security scheme(s) that can be applied at runtime from the collection of security schemes defines in securityDefinitions. "
+                                        }
+                                    ],
+                                    "semanticId": {
+                                        "type": "ExternalReference",
+                                        "keys": [
+                                            {
+                                                "type": "GlobalReference",
+                                                "value": "https://www.w3.org/2019/wot/td#hasSecurityConfiguration"
+                                            }
+                                        ]
+                                    },
+                                    "qualifiers": [
+                                        {
+                                            "kind": "ConceptQualifier",
+                                            "type": "Cardinality",
+                                            "valueType": "xs:string",
+                                            "value": "One"
+                                        }
+                                    ],
+                                    "orderRelevant": true,
+                                    "semanticIdListElement": {
+                                        "type": "ExternalReference",
+                                        "keys": [
+                                            {
+                                                "type": "GlobalReference",
+                                                "value": "https://www.w3.org/2019/wot/td#hasSecurityConfiguration"
+                                            }
+                                        ]
+                                    },
+                                    "typeValueListElement": "ReferenceElement",
+                                    "value": [
+                                        {
+                                            "idShort": "definesSecurityScheme",
+                                            "displayName": [
+                                                {
+                                                    "language": "en",
+                                                    "text": "Defines Security Scheme"
+                                                }
+                                            ],
+                                            "description": [
+                                                {
+                                                    "language": "en",
+                                                    "text": "ReferenceElement within the SML points to a sercurity scheme definition in the SMC securityDefinitions."
+                                                }
+                                            ],
+                                            "semanticId": {
+                                                "type": "ExternalReference",
+                                                "keys": [
+                                                    {
+                                                        "type": "GlobalReference",
+                                                        "value": "https://www.w3.org/2019/wot/td#hasSecurityConfiguration"
+                                                    }
+                                                ]
+                                            },
+                                            "value": {
+                                                "type": "ModelReference",
+                                                "keys": [
+                                                    {
+                                                        "type": "Submodel",
+                                                        "value": "https://example.com/ids/sm/AssetInterfacesDescription"
+                                                    },
+                                                    {
+                                                        "type": "SubmodelElementCollection",
+                                                        "value": "InterfaceOPCUA"
+                                                    },
+                                                    {
+                                                        "type": "SubmodelElementCollection",
+                                                        "value": "EndpointMetadata"
+                                                    },
+                                                    {
+                                                        "type": "SubmodelElementCollection",
+                                                        "value": "securityDefinitions"
+                                                    },
+                                                    {
+                                                        "type": "SubmodelElementCollection",
+                                                        "value": "opcua_channel_sc"
+                                                    }
+                                                ]
+                                            },
+                                            "modelType": "ReferenceElement"
+                                        }
+                                    ],
+                                    "modelType": "SubmodelElementList"
+                                },
+                                {
+                                    "idShort": "securityDefinitions",
+                                    "displayName": [
+                                        {
+                                            "language": "en",
+                                            "text": "Security Definitions"
+                                        }
+                                    ],
+                                    "description": [
+                                        {
+                                            "language": "en",
+                                            "text": "Defines the security scheme according to W3C."
+                                        }
+                                    ],
+                                    "semanticId": {
+                                        "type": "ExternalReference",
+                                        "keys": [
+                                            {
+                                                "type": "GlobalReference",
+                                                "value": "https://www.w3.org/2019/wot/td#definesSecurityScheme"
+                                            }
+                                        ]
+                                    },
+                                    "qualifiers": [
+                                        {
+                                            "kind": "ConceptQualifier",
+                                            "type": "Cardinality",
+                                            "valueType": "xs:string",
+                                            "value": "One"
+                                        }
+                                    ],
+                                    "value": [
+                                        {
+                                            "idShort": "nosec_sc",
+                                            "displayName": [
+                                                {
+                                                    "language": "en",
+                                                    "text": "Nosec Sc"
+                                                }
+                                            ],
+                                            "description": [
+                                                {
+                                                    "language": "en",
+                                                    "text": "This SubmodelElements holds the information about security mechanism based on nosec security."
+                                                }
+                                            ],
+                                            "semanticId": {
+                                                "type": "ExternalReference",
+                                                "keys": [
+                                                    {
+                                                        "type": "GlobalReference",
+                                                        "value": "https://www.w3.org/2019/wot/security#NoSecurityScheme"
+                                                    }
+                                                ]
+                                            },
+                                            "qualifiers": [
+                                                {
+                                                    "kind": "ConceptQualifier",
+                                                    "type": "Cardinality",
+                                                    "valueType": "xs:string",
+                                                    "value": "ZeroToOne"
+                                                }
+                                            ],
+                                            "value": [
+                                                {
+                                                    "idShort": "scheme",
+                                                    "displayName": [
+                                                        {
+                                                            "language": "en",
+                                                            "text": "Scheme"
+                                                        }
+                                                    ],
+                                                    "description": [
+                                                        {
+                                                            "language": "en",
+                                                            "text": "Defines the security mechanism that used during access. the scheme for nosec_sc is nosec"
+                                                        }
+                                                    ],
+                                                    "semanticId": {
+                                                        "type": "ExternalReference",
+                                                        "keys": [
+                                                            {
+                                                                "type": "GlobalReference",
+                                                                "value": "https://www.w3.org/2019/wot/security#SecurityScheme"
+                                                            }
+                                                        ]
+                                                    },
+                                                    "qualifiers": [
+                                                        {
+                                                            "kind": "ConceptQualifier",
+                                                            "type": "Cardinality",
+                                                            "valueType": "xs:string",
+                                                            "value": "One"
+                                                        }
+                                                    ],
+                                                    "valueType": "xs:string",
+                                                    "value": "nosec",
+                                                    "modelType": "Property"
+                                                }
+                                            ],
+                                            "modelType": "SubmodelElementCollection"
+                                        },
+                                        {
+                                            "idShort": "auto_sc",
+                                            "displayName": [
+                                                {
+                                                    "language": "en",
+                                                    "text": "Auto Sc"
+                                                }
+                                            ],
+                                            "description": [
+                                                {
+                                                    "language": "en",
+                                                    "text": "This SubmodelElements holds the information about security mechanism based on auto security."
+                                                }
+                                            ],
+                                            "semanticId": {
+                                                "type": "ExternalReference",
+                                                "keys": [
+                                                    {
+                                                        "type": "GlobalReference",
+                                                        "value": "https://www.w3.org/2019/wot/security#AutoSecurityScheme"
+                                                    }
+                                                ]
+                                            },
+                                            "qualifiers": [
+                                                {
+                                                    "kind": "ConceptQualifier",
+                                                    "type": "Cardinality",
+                                                    "valueType": "xs:string",
+                                                    "value": "ZeroToOne"
+                                                }
+                                            ],
+                                            "value": [
+                                                {
+                                                    "idShort": "scheme",
+                                                    "displayName": [
+                                                        {
+                                                            "language": "en",
+                                                            "text": "Scheme"
+                                                        }
+                                                    ],
+                                                    "description": [
+                                                        {
+                                                            "language": "en",
+                                                            "text": "Defines the security mechanism that used during access. The scheme for auto_sc is auto."
+                                                        }
+                                                    ],
+                                                    "semanticId": {
+                                                        "type": "ExternalReference",
+                                                        "keys": [
+                                                            {
+                                                                "type": "GlobalReference",
+                                                                "value": "https://www.w3.org/2019/wot/security#SecurityScheme"
+                                                            }
+                                                        ]
+                                                    },
+                                                    "qualifiers": [
+                                                        {
+                                                            "kind": "ConceptQualifier",
+                                                            "type": "Cardinality",
+                                                            "valueType": "xs:string",
+                                                            "value": "One"
+                                                        }
+                                                    ],
+                                                    "valueType": "xs:string",
+                                                    "value": "auto",
+                                                    "modelType": "Property"
+                                                }
+                                            ],
+                                            "modelType": "SubmodelElementCollection"
+                                        },
+                                        {
+                                            "idShort": "opcua_channel_sc",
+                                            "displayName": [
+                                                {
+                                                    "language": "en",
+                                                    "text": "OPC UA Channel Sc"
+                                                }
+                                            ],
+                                            "description": [
+                                                {
+                                                    "language": "en",
+                                                    "text": "This SubmodelElements holds the information about security mechanism based on opcua_channel security."
+                                                }
+                                            ],
+                                            "semanticId": {
+                                                "type": "ExternalReference",
+                                                "keys": [
+                                                    {
+                                                        "type": "GlobalReference",
+                                                        "value": "http://opcfoundation.org/UA/WoT-Binding/OPCUASecurityChannelScheme"
+                                                    }
+                                                ]
+                                            },
+                                            "qualifiers": [
+                                                {
+                                                    "kind": "ConceptQualifier",
+                                                    "type": "Cardinality",
+                                                    "valueType": "xs:string",
+                                                    "value": "ZeroToOne"
+                                                }
+                                            ],
+                                            "value": [
+                                                {
+                                                    "idShort": "scheme",
+                                                    "displayName": [
+                                                        {
+                                                            "language": "en",
+                                                            "text": "Scheme"
+                                                        }
+                                                    ],
+                                                    "description": [
+                                                        {
+                                                            "language": "en",
+                                                            "text": "Defines the security mechanism that used during access. The scheme for opcua_channel_sc is ua_channelsec."
+                                                        }
+                                                    ],
+                                                    "semanticId": {
+                                                        "type": "ExternalReference",
+                                                        "keys": [
+                                                            {
+                                                                "type": "GlobalReference",
+                                                                "value": "https://www.w3.org/2019/wot/security#SecurityScheme"
+                                                            }
+                                                        ]
+                                                    },
+                                                    "qualifiers": [
+                                                        {
+                                                            "kind": "ConceptQualifier",
+                                                            "type": "Cardinality",
+                                                            "valueType": "xs:string",
+                                                            "value": "One"
+                                                        }
+                                                    ],
+                                                    "valueType": "xs:string",
+                                                    "value": "ua_channelsec",
+                                                    "modelType": "Property"
+                                                },
+                                                {
+                                                    "idShort": "uav_securityMode",
+                                                    "displayName": [
+                                                        {
+                                                            "language": "en",
+                                                            "text": "Uav Security Mode"
+                                                        }
+                                                    ],
+                                                    "description": [
+                                                        {
+                                                            "language": "en",
+                                                            "text": "Provides information about the security modes supported by the OPC UA server endpoint(e.g None, Sign,SignAndEncrypt)"
+                                                        }
+                                                    ],
+                                                    "semanticId": {
+                                                        "type": "ExternalReference",
+                                                        "keys": [
+                                                            {
+                                                                "type": "GlobalReference",
+                                                                "value": "http://opcfoundation.org/UA/WoT-Binding/securityMode"
+                                                            }
+                                                        ]
+                                                    },
+                                                    "qualifiers": [
+                                                        {
+                                                            "kind": "ConceptQualifier",
+                                                            "type": "Cardinality",
+                                                            "valueType": "xs:string",
+                                                            "value": "One"
+                                                        }
+                                                    ],
+                                                    "valueType": "xs:string",
+                                                    "value": "SignAndEncrypt",
+                                                    "modelType": "Property"
+                                                },
+                                                {
+                                                    "idShort": "uav_securityPolicy",
+                                                    "displayName": [
+                                                        {
+                                                            "language": "en",
+                                                            "text": "Uav Security Policy"
+                                                        }
+                                                    ],
+                                                    "description": [
+                                                        {
+                                                            "language": "en",
+                                                            "text": "Provides information about which policy options are available from the supported endpoints of the OPC UA server(e.g None, Basic256Sha256)"
+                                                        }
+                                                    ],
+                                                    "semanticId": {
+                                                        "type": "ExternalReference",
+                                                        "keys": [
+                                                            {
+                                                                "type": "GlobalReference",
+                                                                "value": "http://opcfoundation.org/UA/WoT-Binding/securityPolicy"
+                                                            }
+                                                        ]
+                                                    },
+                                                    "qualifiers": [
+                                                        {
+                                                            "kind": "ConceptQualifier",
+                                                            "type": "Cardinality",
+                                                            "valueType": "xs:string",
+                                                            "value": "One"
+                                                        }
+                                                    ],
+                                                    "valueType": "xs:string",
+                                                    "value": "Basic256Sha256",
+                                                    "modelType": "Property"
+                                                }
+                                            ],
+                                            "modelType": "SubmodelElementCollection"
+                                        },
+                                        {
+                                            "idShort": "opcua_authentication_sc",
+                                            "displayName": [
+                                                {
+                                                    "language": "en",
+                                                    "text": "OPC UA Authentication Sc"
+                                                }
+                                            ],
+                                            "description": [
+                                                {
+                                                    "language": "en",
+                                                    "text": "This SubmodelElements holds the information about security mechanism based on opcua_authentication security."
+                                                }
+                                            ],
+                                            "semanticId": {
+                                                "type": "ExternalReference",
+                                                "keys": [
+                                                    {
+                                                        "type": "GlobalReference",
+                                                        "value": "http://opcfoundation.org/UA/WoT-Binding/OPCUASecurityAuthenticationScheme"
+                                                    }
+                                                ]
+                                            },
+                                            "qualifiers": [
+                                                {
+                                                    "kind": "ConceptQualifier",
+                                                    "type": "Cardinality",
+                                                    "valueType": "xs:string",
+                                                    "value": "ZeroToOne"
+                                                }
+                                            ],
+                                            "value": [
+                                                {
+                                                    "idShort": "scheme",
+                                                    "displayName": [
+                                                        {
+                                                            "language": "en",
+                                                            "text": "Scheme"
+                                                        }
+                                                    ],
+                                                    "description": [
+                                                        {
+                                                            "language": "en",
+                                                            "text": "Defines the security mechanism that used during access. The scheme for opcua_authentication_sc is ua_authentication."
+                                                        }
+                                                    ],
+                                                    "semanticId": {
+                                                        "type": "ExternalReference",
+                                                        "keys": [
+                                                            {
+                                                                "type": "GlobalReference",
+                                                                "value": "https://www.w3.org/2019/wot/security#SecurityScheme"
+                                                            }
+                                                        ]
+                                                    },
+                                                    "qualifiers": [
+                                                        {
+                                                            "kind": "ConceptQualifier",
+                                                            "type": "Cardinality",
+                                                            "valueType": "xs:string",
+                                                            "value": "One"
+                                                        }
+                                                    ],
+                                                    "valueType": "xs:string",
+                                                    "value": "ua_authentication",
+                                                    "modelType": "Property"
+                                                },
+                                                {
+                                                    "idShort": "uav_userIdentityToken",
+                                                    "displayName": [
+                                                        {
+                                                            "language": "en",
+                                                            "text": "Uav User Identity Token"
+                                                        }
+                                                    ],
+                                                    "description": [
+                                                        {
+                                                            "language": "en",
+                                                            "text": "Provides information about which policy options are available from the supported endpoints of the OPC UA server (e.g Anonymous)"
+                                                        }
+                                                    ],
+                                                    "semanticId": {
+                                                        "type": "ExternalReference",
+                                                        "keys": [
+                                                            {
+                                                                "type": "GlobalReference",
+                                                                "value": "http://opcfoundation.org/UA/WoT-Binding/userIdentityToken"
+                                                            }
+                                                        ]
+                                                    },
+                                                    "qualifiers": [
+                                                        {
+                                                            "kind": "ConceptQualifier",
+                                                            "type": "Cardinality",
+                                                            "valueType": "xs:string",
+                                                            "value": "One"
+                                                        }
+                                                    ],
+                                                    "valueType": "xs:string",
+                                                    "value": "Certificate",
+                                                    "modelType": "Property"
+                                                }
+                                            ],
+                                            "modelType": "SubmodelElementCollection"
+                                        }
+                                    ],
+                                    "modelType": "SubmodelElementCollection"
+                                }
+                            ],
+                            "modelType": "SubmodelElementCollection"
+                        },
+                        {
+                            "idShort": "InteractionMetadata",
+                            "displayName": [
+                                {
+                                    "language": "en",
+                                    "text": "Interaction Metadata"
+                                }
+                            ],
+                            "description": [
+                                {
+                                    "language": "en",
+                                    "text": "Provides the metadata of the actually interfaces such as which datapoints and functions are provided by the properties, actions, and events interaction abstraction. "
+                                }
+                            ],
+                            "semanticId": {
+                                "type": "ExternalReference",
+                                "keys": [
+                                    {
+                                        "type": "GlobalReference",
+                                        "value": "https://admin-shell.io/idta/AssetInterfacesDescription/1/0/InteractionMetadata"
+                                    }
+                                ]
+                            },
+                            "supplementalSemanticIds": [
+                                {
+                                    "type": "ExternalReference",
+                                    "keys": [
+                                        {
+                                            "type": "GlobalReference",
+                                            "value": "https://www.w3.org/2019/wot/td#InteractionAffordance"
+                                        }
+                                    ]
+                                }
+                            ],
+                            "qualifiers": [
+                                {
+                                    "kind": "ConceptQualifier",
+                                    "type": "Cardinality",
+                                    "valueType": "xs:string",
+                                    "value": "One"
+                                }
+                            ],
+                            "value": [
+                                {
+                                    "idShort": "properties",
+                                    "displayName": [
+                                        {
+                                            "language": "en",
+                                            "text": "Properties"
+                                        }
+                                    ],
+                                    "description": [
+                                        {
+                                            "language": "en",
+                                            "text": "Collection of asset’s datapoint definitions"
+                                        }
+                                    ],
+                                    "semanticId": {
+                                        "type": "ExternalReference",
+                                        "keys": [
+                                            {
+                                                "type": "GlobalReference",
+                                                "value": "https://www.w3.org/2019/wot/td#PropertyAffordance"
+                                            }
+                                        ]
+                                    },
+                                    "qualifiers": [
+                                        {
+                                            "kind": "ConceptQualifier",
+                                            "type": "Cardinality",
+                                            "valueType": "xs:string",
+                                            "value": "ZeroToOne"
+                                        }
+                                    ],
+                                    "value": [
+                                        {
+                                            "idShort": "value_double",
+                                            "displayName": [
+                                                {
+                                                    "language": "en",
+                                                    "text": "Double Property"
+                                                }
+                                            ],
+                                            "description": [
+                                                {
+                                                    "language": "en",
+                                                    "text": "A property of type double"
+                                                }
+                                            ],
+                                            "semanticId": {
+                                                "type": "ExternalReference",
+                                                "keys": [
+                                                    {
+                                                        "type": "GlobalReference",
+                                                        "value": "https://admin-shell.io/idta/AssetInterfacesDescription/1/0/PropertyDefinition"
+                                                    }
+                                                ]
+                                            },
+                                            "supplementalSemanticIds": [
+                                                {
+                                                    "type": "ExternalReference",
+                                                    "keys": [
+                                                        {
+                                                            "type": "GlobalReference",
+                                                            "value": "https://www.w3.org/2019/wot/td#name"
+                                                        }
+                                                    ]
+                                                }
+                                            ],
+                                            "qualifiers": [
+                                                {
+                                                    "kind": "ConceptQualifier",
+                                                    "type": "Cardinality",
+                                                    "valueType": "xs:string",
+                                                    "value": "ZeroToMany"
+                                                }
+                                            ],
+                                            "value": [
+                                                {
+                                                    "idShort": "key",
+                                                    "displayName": [
+                                                        {
+                                                            "language": "en",
+                                                            "text": "Key"
+                                                        }
+                                                    ],
+                                                    "description": [
+                                                        {
+                                                            "language": "en",
+                                                            "text": "Optional element when the idShort of {property_name} cannot be used to reflect the desired property name due to the idShort restrictions (e.g., payload message uses “temperature-value” as key term)."
+                                                        }
+                                                    ],
+                                                    "semanticId": {
+                                                        "type": "ExternalReference",
+                                                        "keys": [
+                                                            {
+                                                                "type": "GlobalReference",
+                                                                "value": "https://admin-shell.io/idta/AssetInterfacesDescription/1/0/key"
+                                                            }
+                                                        ]
+                                                    },
+                                                    "supplementalSemanticIds": [
+                                                        {
+                                                            "type": "ExternalReference",
+                                                            "keys": [
+                                                                {
+                                                                    "type": "GlobalReference",
+                                                                    "value": "https://www.w3.org/2019/wot/td#name"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ],
+                                                    "qualifiers": [
+                                                        {
+                                                            "kind": "ConceptQualifier",
+                                                            "type": "Cardinality",
+                                                            "valueType": "xs:string",
+                                                            "value": "ZeroToOne"
+                                                        }
+                                                    ],
+                                                    "valueType": "xs:string",
+                                                    "value": "value_double",
+                                                    "modelType": "Property"
+                                                },
+                                                {
+                                                    "idShort": "type",
+                                                    "displayName": [
+                                                        {
+                                                            "language": "en",
+                                                            "text": "Type"
+                                                        }
+                                                    ],
+                                                    "description": [
+                                                        {
+                                                            "language": "en",
+                                                            "text": "Indicates the abstract data type (one of object, array, string, number, integer, boolean, or null) of the described datapoint."
+                                                        }
+                                                    ],
+                                                    "semanticId": {
+                                                        "type": "ExternalReference",
+                                                        "keys": [
+                                                            {
+                                                                "type": "GlobalReference",
+                                                                "value": "https://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+                                                            }
+                                                        ]
+                                                    },
+                                                    "qualifiers": [
+                                                        {
+                                                            "kind": "ConceptQualifier",
+                                                            "type": "Cardinality",
+                                                            "valueType": "xs:string",
+                                                            "value": "ZeroToOne"
+                                                        }
+                                                    ],
+                                                    "valueType": "xs:string",
+                                                    "value": "double",
+                                                    "modelType": "Property"
+                                                },
+                                                {
+                                                    "idShort": "title",
+                                                    "displayName": [
+                                                        {
+                                                            "language": "en",
+                                                            "text": "Title"
+                                                        }
+                                                    ],
+                                                    "description": [
+                                                        {
+                                                            "language": "en",
+                                                            "text": "Provides a human-readable title of this interaction (e.g., display a text for UI representation)"
+                                                        }
+                                                    ],
+                                                    "semanticId": {
+                                                        "type": "ExternalReference",
+                                                        "keys": [
+                                                            {
+                                                                "type": "GlobalReference",
+                                                                "value": "https://www.w3.org/2019/wot/td#title"
+                                                            }
+                                                        ]
+                                                    },
+                                                    "qualifiers": [
+                                                        {
+                                                            "kind": "ConceptQualifier",
+                                                            "type": "Cardinality",
+                                                            "valueType": "xs:string",
+                                                            "value": "ZeroToOne"
+                                                        }
+                                                    ],
+                                                    "valueType": "xs:string",
+                                                    "value": "doubleProperty",
+                                                    "modelType": "Property"
+                                                },
+                                                {
+                                                    "idShort": "observable",
+                                                    "displayName": [
+                                                        {
+                                                            "language": "en",
+                                                            "text": "Observable"
+                                                        }
+                                                    ],
+                                                    "description": [
+                                                        {
+                                                            "language": "en",
+                                                            "text": "An indicator that tells that the interaction datapoint can be observed with a, e.g., subscription mechanism by an underlying protocol."
+                                                        }
+                                                    ],
+                                                    "semanticId": {
+                                                        "type": "ExternalReference",
+                                                        "keys": [
+                                                            {
+                                                                "type": "GlobalReference",
+                                                                "value": "https://www.w3.org/2019/wot/td#isObservable"
+                                                            }
+                                                        ]
+                                                    },
+                                                    "qualifiers": [
+                                                        {
+                                                            "kind": "ConceptQualifier",
+                                                            "type": "Cardinality",
+                                                            "valueType": "xs:string",
+                                                            "value": "ZeroToOne"
+                                                        }
+                                                    ],
+                                                    "valueType": "xs:boolean",
+                                                    "value": "true",
+                                                    "modelType": "Property"
+                                                },
+                                                {
+                                                    "idShort": "forms",
+                                                    "displayName": [
+                                                        {
+                                                            "language": "en",
+                                                            "text": "Forms"
+                                                        }
+                                                    ],
+                                                    "description": [
+                                                        {
+                                                            "language": "en",
+                                                            "text": "Contains information about datapoint resource location. Note, forms is only available at the top level {property_name}"
+                                                        }
+                                                    ],
+                                                    "semanticId": {
+                                                        "type": "ExternalReference",
+                                                        "keys": [
+                                                            {
+                                                                "type": "GlobalReference",
+                                                                "value": "https://www.w3.org/2019/wot/td#hasForm"
+                                                            }
+                                                        ]
+                                                    },
+                                                    "value": [
+                                                        {
+                                                            "idShort": "href",
+                                                            "displayName": [
+                                                                {
+                                                                    "language": "en",
+                                                                    "text": "Href"
+                                                                }
+                                                            ],
+                                                            "description": [
+                                                                {
+                                                                    "language": "en",
+                                                                    "text": "Indicates target IRI relative path or full IRI of asset’s datapoint. The relative endpoint definition in href is always relative to base defined in EndpointMetadata. "
+                                                                }
+                                                            ],
+                                                            "semanticId": {
+                                                                "type": "ExternalReference",
+                                                                "keys": [
+                                                                    {
+                                                                        "type": "GlobalReference",
+                                                                        "value": "https://www.w3.org/2019/wot/hypermedia#hasTarget"
+                                                                    }
+                                                                ]
+                                                            },
+                                                            "qualifiers": [
+                                                                {
+                                                                    "kind": "ConceptQualifier",
+                                                                    "type": "Cardinality",
+                                                                    "valueType": "xs:string",
+                                                                    "value": "One"
+                                                                }
+                                                            ],
+                                                            "valueType": "xs:string",
+                                                            "value": "/?id=ns=5;i=2813",
+                                                            "modelType": "Property"
+                                                        }
+                                                    ],
+                                                    "modelType": "SubmodelElementCollection"
+                                                }
+                                            ],
+                                            "modelType": "SubmodelElementCollection"
+                                        },
+                                        {
+                                            "idShort": "value_int",
+                                            "description": [
+                                                {
+                                                    "language": "en",
+                                                    "text": "Current counter value"
+                                                },
+                                                {
+                                                    "language": "de",
+                                                    "text": "Derzeitiger Zählerwert"
+                                                },
+                                                {
+                                                    "language": "it",
+                                                    "text": "Valore attuale del contatore"
+                                                }
+                                            ],
+                                            "semanticId": {
+                                                "type": "ExternalReference",
+                                                "keys": [
+                                                    {
+                                                        "type": "GlobalReference",
+                                                        "value": "https://admin-shell.io/idta/AssetInterfacesDescription/1/0/PropertyDefinition"
+                                                    }
+                                                ]
+                                            },
+                                            "supplementalSemanticIds": [
+                                                {
+                                                    "type": "ExternalReference",
+                                                    "keys": [
+                                                        {
+                                                            "type": "GlobalReference",
+                                                            "value": "https://www.w3.org/2019/wot/td#name"
+                                                        }
+                                                    ]
+                                                }
+                                            ],
+                                            "qualifiers": [
+                                                {
+                                                    "kind": "ConceptQualifier",
+                                                    "type": "Cardinality",
+                                                    "valueType": "xs:string",
+                                                    "value": "ZeroToMany"
+                                                }
+                                            ],
+                                            "value": [
+                                                {
+                                                    "idShort": "type",
+                                                    "semanticId": {
+                                                        "type": "ExternalReference",
+                                                        "keys": [
+                                                            {
+                                                                "type": "GlobalReference",
+                                                                "value": "https://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+                                                            }
+                                                        ]
+                                                    },
+                                                    "qualifiers": [
+                                                        {
+                                                            "kind": "ConceptQualifier",
+                                                            "type": "Cardinality",
+                                                            "valueType": "xs:string",
+                                                            "value": "ZeroToOne"
+                                                        }
+                                                    ],
+                                                    "valueType": "xs:string",
+                                                    "value": "integer",
+                                                    "modelType": "Property"
+                                                },
+                                                {
+                                                    "idShort": "title",
+                                                    "semanticId": {
+                                                        "type": "ExternalReference",
+                                                        "keys": [
+                                                            {
+                                                                "type": "GlobalReference",
+                                                                "value": "https://www.w3.org/2019/wot/td#title"
+                                                            }
+                                                        ]
+                                                    },
+                                                    "qualifiers": [
+                                                        {
+                                                            "kind": "ConceptQualifier",
+                                                            "type": "Cardinality",
+                                                            "valueType": "xs:string",
+                                                            "value": "ZeroToOne"
+                                                        }
+                                                    ],
+                                                    "valueType": "xs:string",
+                                                    "value": "intProperty",
+                                                    "modelType": "Property"
+                                                },
+                                                {
+                                                    "idShort": "observable",
+                                                    "semanticId": {
+                                                        "type": "ExternalReference",
+                                                        "keys": [
+                                                            {
+                                                                "type": "GlobalReference",
+                                                                "value": "https://www.w3.org/2019/wot/td#isObservable"
+                                                            }
+                                                        ]
+                                                    },
+                                                    "qualifiers": [
+                                                        {
+                                                            "kind": "ConceptQualifier",
+                                                            "type": "Cardinality",
+                                                            "valueType": "xs:string",
+                                                            "value": "ZeroToOne"
+                                                        }
+                                                    ],
+                                                    "valueType": "xs:boolean",
+                                                    "value": "false",
+                                                    "modelType": "Property"
+                                                },
+                                                {
+                                                    "idShort": "forms",
+                                                    "semanticId": {
+                                                        "type": "ExternalReference",
+                                                        "keys": [
+                                                            {
+                                                                "type": "GlobalReference",
+                                                                "value": "https://www.w3.org/2019/wot/td#hasForm"
+                                                            }
+                                                        ]
+                                                    },
+                                                    "value": [
+                                                        {
+                                                            "idShort": "href",
+                                                            "semanticId": {
+                                                                "type": "ExternalReference",
+                                                                "keys": [
+                                                                    {
+                                                                        "type": "GlobalReference",
+                                                                        "value": "https://www.w3.org/2019/wot/hypermedia#hasTarget"
+                                                                    }
+                                                                ]
+                                                            },
+                                                            "qualifiers": [
+                                                                {
+                                                                    "kind": "ConceptQualifier",
+                                                                    "type": "Cardinality",
+                                                                    "valueType": "xs:string",
+                                                                    "value": "One"
+                                                                },
+                                                                {
+                                                                    "type": "nodeId Example",
+                                                                    "valueType": "xs:string",
+                                                                    "value": "ns=10;i=12345"
+                                                                }
+                                                            ],
+                                                            "valueType": "xs:string",
+                                                            "value": "/?id = ns=5;i=2808",
+                                                            "modelType": "Property"
+                                                        }
+                                                    ],
+                                                    "modelType": "SubmodelElementCollection"
+                                                }
+                                            ],
+                                            "modelType": "SubmodelElementCollection"
+                                        }
+                                    ],
+                                    "modelType": "SubmodelElementCollection"
+                                },
+                                {
+                                    "idShort": "actions",
+                                    "displayName": [
+                                        {
+                                            "language": "en",
+                                            "text": "Actions"
+                                        }
+                                    ],
+                                    "description": [
+                                        {
+                                            "language": "en",
+                                            "text": "Collection of functions that can be done on asset as action SMC"
+                                        }
+                                    ],
+                                    "semanticId": {
+                                        "type": "ExternalReference",
+                                        "keys": [
+                                            {
+                                                "type": "GlobalReference",
+                                                "value": "https://www.w3.org/2019/wot/td#ActionAffordance"
+                                            }
+                                        ]
+                                    },
+                                    "qualifiers": [
+                                        {
+                                            "kind": "ConceptQualifier",
+                                            "type": "Cardinality",
+                                            "valueType": "xs:string",
+                                            "value": "ZeroToOne"
+                                        }
+                                    ],
+                                    "modelType": "SubmodelElementCollection"
+                                },
+                                {
+                                    "idShort": "events",
+                                    "displayName": [
+                                        {
+                                            "language": "en",
+                                            "text": "Events"
+                                        }
+                                    ],
+                                    "description": [
+                                        {
+                                            "language": "en",
+                                            "text": "Collection of events triggerable by datapoint state as event SMC"
+                                        }
+                                    ],
+                                    "semanticId": {
+                                        "type": "ExternalReference",
+                                        "keys": [
+                                            {
+                                                "type": "GlobalReference",
+                                                "value": "https://www.w3.org/2019/wot/td#EventAffordance"
+                                            }
+                                        ]
+                                    },
+                                    "qualifiers": [
+                                        {
+                                            "kind": "ConceptQualifier",
+                                            "type": "Cardinality",
+                                            "valueType": "xs:string",
+                                            "value": "ZeroToOne"
+                                        }
+                                    ],
+                                    "modelType": "SubmodelElementCollection"
+                                }
+                            ],
+                            "modelType": "SubmodelElementCollection"
+                        }
+                    ],
+                    "modelType": "SubmodelElementCollection"
                 }
             ],
             "modelType": "Submodel"
@@ -1650,6 +3031,24 @@
                         {
                             "idShort": "status",
                             "valueType": "xs:string",
+                            "modelType": "Property"
+                        }
+                    ],
+                    "modelType": "SubmodelElementCollection"
+                },
+                {
+                    "idShort": "OPCUA_Data",
+                    "value": [
+                        {
+                            "idShort": "value_double",
+                            "valueType": "xs:double",
+                            "value": "0",
+                            "modelType": "Property"
+                        },
+                        {
+                            "idShort": "value_int",
+                            "valueType": "xs:int",
+                            "value": "0",
                             "modelType": "Property"
                         }
                     ],
@@ -1980,6 +3379,152 @@
                                                     {
                                                         "type": "Property",
                                                         "value": "status"
+                                                    }
+                                                ]
+                                            },
+                                            "modelType": "RelationshipElement"
+                                        }
+                                    ],
+                                    "modelType": "SubmodelElementList"
+                                }
+                            ],
+                            "modelType": "SubmodelElementCollection"
+                        },
+                        {
+                            "value": [
+                                {
+                                    "idShort": "InterfaceReference",
+                                    "semanticId": {
+                                        "type": "ExternalReference",
+                                        "keys": [
+                                            {
+                                                "type": "GlobalReference",
+                                                "value": "https://admin-shell.io/idta/AssetInterfacesMappingConfiguration/1/0/InterfaceReference"
+                                            }
+                                        ]
+                                    },
+                                    "value": {
+                                        "type": "ModelReference",
+                                        "keys": [
+                                            {
+                                                "type": "Submodel",
+                                                "value": "https://example.com/ids/sm/AssetInterfacesDescription"
+                                            },
+                                            {
+                                                "type": "SubmodelElementCollection",
+                                                "value": "InterfaceOPCUA"
+                                            }
+                                        ]
+                                    },
+                                    "modelType": "ReferenceElement"
+                                },
+                                {
+                                    "idShort": "MappingSourceSinkRelations",
+                                    "semanticId": {
+                                        "type": "ExternalReference",
+                                        "keys": [
+                                            {
+                                                "type": "GlobalReference",
+                                                "value": "https://admin-shell.io/idta/AssetInterfacesMappingConfiguration/1/0/MappingSourceSinkRelations"
+                                            }
+                                        ]
+                                    },
+                                    "semanticIdListElement": {
+                                        "type": "ExternalReference",
+                                        "keys": [
+                                            {
+                                                "type": "GlobalReference",
+                                                "value": "https://admin-shell.io/idta/AssetInterfacesMappingConfiguration/1/0/MappingSourceSinkRelation"
+                                            }
+                                        ]
+                                    },
+                                    "typeValueListElement": "RelationshipElement",
+                                    "value": [
+                                        {
+                                            "first": {
+                                                "type": "ModelReference",
+                                                "keys": [
+                                                    {
+                                                        "type": "Submodel",
+                                                        "value": "https://example.com/ids/sm/AssetInterfacesDescription"
+                                                    },
+                                                    {
+                                                        "type": "SubmodelElementCollection",
+                                                        "value": "InterfaceOPCUA"
+                                                    },
+                                                    {
+                                                        "type": "SubmodelElementCollection",
+                                                        "value": "InteractionMetadata"
+                                                    },
+                                                    {
+                                                        "type": "SubmodelElementCollection",
+                                                        "value": "properties"
+                                                    },
+                                                    {
+                                                        "type": "SubmodelElementCollection",
+                                                        "value": "value_double"
+                                                    }
+                                                ]
+                                            },
+                                            "second": {
+                                                "type": "ModelReference",
+                                                "keys": [
+                                                    {
+                                                        "type": "Submodel",
+                                                        "value": "https://example.com/ids/sm/OperationalData"
+                                                    },
+                                                    {
+                                                        "type": "SubmodelElementCollection",
+                                                        "value": "OPCUA_Data"
+                                                    },
+                                                    {
+                                                        "type": "Property",
+                                                        "value": "value_double"
+                                                    }
+                                                ]
+                                            },
+                                            "modelType": "RelationshipElement"
+                                        },
+                                        {
+                                            "first": {
+                                                "type": "ModelReference",
+                                                "keys": [
+                                                    {
+                                                        "type": "Submodel",
+                                                        "value": "https://example.com/ids/sm/AssetInterfacesDescription"
+                                                    },
+                                                    {
+                                                        "type": "SubmodelElementCollection",
+                                                        "value": "InterfaceOPCUA"
+                                                    },
+                                                    {
+                                                        "type": "SubmodelElementCollection",
+                                                        "value": "InteractionMetadata"
+                                                    },
+                                                    {
+                                                        "type": "SubmodelElementCollection",
+                                                        "value": "properties"
+                                                    },
+                                                    {
+                                                        "type": "SubmodelElementCollection",
+                                                        "value": "value_int"
+                                                    }
+                                                ]
+                                            },
+                                            "second": {
+                                                "type": "ModelReference",
+                                                "keys": [
+                                                    {
+                                                        "type": "Submodel",
+                                                        "value": "https://example.com/ids/sm/OperationalData"
+                                                    },
+                                                    {
+                                                        "type": "SubmodelElementCollection",
+                                                        "value": "OPCUA_Data"
+                                                    },
+                                                    {
+                                                        "type": "Property",
+                                                        "value": "value_int"
                                                     }
                                                 ]
                                             },

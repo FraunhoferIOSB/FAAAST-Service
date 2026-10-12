@@ -150,12 +150,13 @@ public abstract class AbstractRequestHandler<I extends Request<O>, O extends Res
         if (request.isInternal()) {
             return LogicalExpression.identity();
         }
-        if (request.getRules().isEmpty()) {
+        if (request.getRules() == null || request.getRules().isEmpty()) {
             return new BooleanValue(false);
         }
 
-        return new OrOperation(request.getRules().stream().map(AccessPermissionRule::formula).toList());
-
+        return new OrOperation(request.getRules().stream()
+                .map(AccessPermissionRule::formula)
+                .toList());
     }
 
 

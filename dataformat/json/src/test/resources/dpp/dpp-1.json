@@ -1,0 +1,51 @@
+{
+    "digitalProductPassportId": "http://example.org/dpp/1",
+    "uniqueProductIdentifier": "http://example.org/product/1",
+    "granularity": "Item",
+    "dppSchemaVersion": "ENXXX:v1.0",
+    "dppStatus": "Active",
+    "lastUpdate": "2025-08-22T03:12:00Z",
+    "economicOperatorId": "gxx:ppp456789",
+    "facilityId": "gxx:xxx987654",
+    "contentSpecificationIds": [
+        "https://admin-shell.io/idta/CarbonFootprint/CarbonFootprint/1/0",
+        "http://example.org/smts/custom/1"
+    ],
+    "https://admin-shell.io/idta/CarbonFootprint/CarbonFootprint/1/0": {
+        "ProductCarbonFootprints": [
+            {
+                "QuantityOfMeasureForCalculation": 5.0,
+                "PcfCalculationMethod": [
+                    "ISO 14067"
+                ],
+                "ExplanatoryStatement": {
+                    "contentType": "application/pdf",
+                    "url": "Statement.pdf"
+                },
+                "GoodsHandoverAddress": {
+                },
+                "PcfCO2eq": 17.2,
+                "ReferenceImpactUnitForCalculation": "piece",
+                "LifeCyclePhases": [
+                    "2025-08-22T03:12:00Z"
+                ]
+            }
+        ]
+    },
+    "http://example.org/smts/custom/1": {
+        "foo": [
+            {
+                "value": "english text",
+                "language": "en"
+            },
+            {
+                "value": "deutscher text",
+                "language": "de"
+            }
+        ],
+        "bar": {
+            "contentType": "application/pdf",
+            "url": "SomeFile.pdf"
+        }
+    }
+}

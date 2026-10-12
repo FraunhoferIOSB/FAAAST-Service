@@ -18,7 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import java.util.Objects;
-import org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum;
+import org.eclipse.digitaltwin.aas4j.v3.model.MessageType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Result;
 import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultResult;
@@ -72,7 +72,7 @@ public abstract class AbstractResponse implements Response {
         setStatusCode(statusCode);
         setResult(new DefaultResult.Builder()
                 .messages(Message.builder()
-                        .messageType(MessageTypeEnum.ERROR)
+                        .messageType(MessageType.ERROR)
                         .text(message)
                         .build())
                 .build());
@@ -129,7 +129,7 @@ public abstract class AbstractResponse implements Response {
             getBuildingInstance().setResult(
                     new DefaultResult.Builder()
                             .messages(Message.builder()
-                                    .messageType(MessageTypeEnum.ERROR)
+                                    .messageType(MessageType.ERROR)
                                     .text(message)
                                     .build())
                             .build());

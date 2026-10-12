@@ -21,6 +21,13 @@
             <artifactId>checkstyle</artifactId>
             <version>${checkstyle.version}</version>
             <scope>compile</scope>
+            <exclusions>
+                <!-- Fixes CVE-2026-54399 & CVE-2026-54428 -->
+                <exclusion>
+                    <groupId>org.apache.httpcomponents</groupId>
+                    <artifactId>httpcore</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
     <build>

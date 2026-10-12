@@ -35,7 +35,6 @@ public abstract class Request<T extends Response> {
         this.rules = List.of();
     }
 
-
     /**
      * Get this requests access control formula.
      *
@@ -44,7 +43,6 @@ public abstract class Request<T extends Response> {
     public List<AccessPermissionRule> getRules() {
         return rules;
     }
-
 
     /**
      * Set this requests access control rules.
