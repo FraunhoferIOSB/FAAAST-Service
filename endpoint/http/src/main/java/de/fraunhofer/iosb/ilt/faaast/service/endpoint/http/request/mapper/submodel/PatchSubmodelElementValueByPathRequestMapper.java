@@ -17,7 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.submo
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractSubmodelInterfaceRequestMapper;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractSubmodelElementInterfaceRequestMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.PatchSubmodelElementValueByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PatchSubmodelElementValueByPathResponse;
@@ -29,9 +29,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValueParser;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
-import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
 import java.util.Map;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 
@@ -41,10 +39,9 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
  * shells/{aasIdentifier}/submodels/{submodelIdentifier}/submodel-elements/{idShortPath}.
  */
 public class PatchSubmodelElementValueByPathRequestMapper
-        extends AbstractSubmodelInterfaceRequestMapper<PatchSubmodelElementValueByPathRequest<?>, PatchSubmodelElementValueByPathResponse> {
+        extends AbstractSubmodelElementInterfaceRequestMapper<PatchSubmodelElementValueByPathRequest<?>, PatchSubmodelElementValueByPathResponse> {
 
-    private static final String SUBMODEL_ELEMENT_PATH = RegExHelper.uniqueGroupName();
-    private static final String PATTERN = String.format("submodel-elements/%s/\\$value", pathElement(SUBMODEL_ELEMENT_PATH));
+    private static final String PATTERN = "\\$value";
 
     public PatchSubmodelElementValueByPathRequestMapper(ServiceContext serviceContext) {
         super(serviceContext, HttpMethod.PATCH, PATTERN);
@@ -54,7 +51,7 @@ public class PatchSubmodelElementValueByPathRequestMapper
     @Override
     public PatchSubmodelElementValueByPathRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier)
             throws InvalidRequestException {
-        final String path = EncodingHelper.urlDecode(urlParameters.get(SUBMODEL_ELEMENT_PATH));
+        final String path = getIdShortPath(urlParameters);
         final String identifier = getParameterBase64UrlEncoded(urlParameters, SUBMODEL_ID);
         return PatchSubmodelElementValueByPathRequest.builder()
                 .path(path)

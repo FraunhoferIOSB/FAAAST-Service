@@ -16,7 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.submo
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractSubmodelInterfaceRequestMapper;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractSubmodelElementInterfaceRequestMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationHandle;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetOperationAsyncResultRequest;
@@ -24,6 +24,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetOper
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
+
 import java.util.Map;
 
 
@@ -32,13 +33,10 @@ import java.util.Map;
  * submodels/{submodelIdentifier}/submodel-elements/{idShortPath}/operation-results/(.*),
  * shells/{aasIdentifier}/submodels/{submodelIdentifier}/submodel-elements/{idShortPath}/operation-results/(.*).
  */
-public class GetOperationAsyncResultRequestMapper extends AbstractSubmodelInterfaceRequestMapper<GetOperationAsyncResultRequest, GetOperationAsyncResultResponse> {
+public class GetOperationAsyncResultRequestMapper extends AbstractSubmodelElementInterfaceRequestMapper<GetOperationAsyncResultRequest, GetOperationAsyncResultResponse> {
 
-    private static final String SUBMODEL_ELEMENT_PATH = RegExHelper.uniqueGroupName();
     private static final String HANDLE_ID = RegExHelper.uniqueGroupName();
-    private static final String PATTERN = String.format("submodel-elements/%s/operation-results/%s(/\\$value)?",
-            pathElement(SUBMODEL_ELEMENT_PATH),
-            pathElement(HANDLE_ID));
+    private static final String PATTERN = String.format("operation-results/%s(/\\$value)?", pathElement(HANDLE_ID));
 
     public GetOperationAsyncResultRequestMapper(ServiceContext serviceContext) {
         super(serviceContext, HttpMethod.GET, PATTERN);
@@ -48,7 +46,7 @@ public class GetOperationAsyncResultRequestMapper extends AbstractSubmodelInterf
     @Override
     public GetOperationAsyncResultRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) throws InvalidRequestException {
         return GetOperationAsyncResultRequest.builder()
-                .path(urlParameters.get(SUBMODEL_ELEMENT_PATH))
+                .path(getIdShortPath(urlParameters))
                 .handle(OperationHandle.builder()
                         .handleId(getParameterBase64UrlEncoded(urlParameters, HANDLE_ID))
                         .build())

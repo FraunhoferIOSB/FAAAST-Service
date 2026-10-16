@@ -16,7 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.submo
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractSubmodelInterfaceRequestMapper;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractSubmodelElementInterfaceRequestMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationHandle;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetOperationAsyncStatusRequest;
@@ -32,13 +32,10 @@ import java.util.Map;
  * submodels/{submodelIdentifier}/submodel-elements/{idShortPath}/operation-status/(.*),
  * shells/{aasIdentifier}/submodels/{submodelIdentifier}/submodel-elements/{idShortPath}/operation-status/(.*).
  */
-public class GetOperationAsyncStatusRequestMapper extends AbstractSubmodelInterfaceRequestMapper<GetOperationAsyncStatusRequest, GetOperationAsyncStatusResponse> {
+public class GetOperationAsyncStatusRequestMapper extends AbstractSubmodelElementInterfaceRequestMapper<GetOperationAsyncStatusRequest, GetOperationAsyncStatusResponse> {
 
-    private static final String SUBMODEL_ELEMENT_PATH = RegExHelper.uniqueGroupName();
     private static final String HANDLE_ID = RegExHelper.uniqueGroupName();
-    private static final String PATTERN = String.format("submodel-elements/%s/operation-status/%s",
-            pathElement(SUBMODEL_ELEMENT_PATH),
-            pathElement(HANDLE_ID));
+    private static final String PATTERN = String.format("operation-status/%s", pathElement(HANDLE_ID));
 
     public GetOperationAsyncStatusRequestMapper(ServiceContext serviceContext) {
         super(serviceContext, HttpMethod.GET, PATTERN);
@@ -48,7 +45,7 @@ public class GetOperationAsyncStatusRequestMapper extends AbstractSubmodelInterf
     @Override
     public GetOperationAsyncStatusRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) throws InvalidRequestException {
         return GetOperationAsyncStatusRequest.builder()
-                .path(urlParameters.get(SUBMODEL_ELEMENT_PATH))
+                .path(getIdShortPath(urlParameters))
                 .handle(OperationHandle.builder()
                         .handleId(getParameterBase64UrlEncoded(urlParameters, HANDLE_ID))
                         .build())

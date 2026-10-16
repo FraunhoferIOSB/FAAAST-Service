@@ -23,7 +23,7 @@ import java.time.temporal.ChronoField;
 
 
 /**
- * A year value.
+ * A year-and-month value.
  */
 public class GYearMonthValue extends AbstractDateTimeValue<OffsetDateTime> {
 

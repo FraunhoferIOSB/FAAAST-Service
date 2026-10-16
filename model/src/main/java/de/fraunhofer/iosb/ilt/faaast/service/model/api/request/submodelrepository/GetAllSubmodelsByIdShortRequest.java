@@ -14,6 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.referable.REFERABLE_TYPES.SUBMODEL;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.Right.READ;
+
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithModifierAndPaging;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.OutputModifierConstraints;
@@ -29,7 +32,7 @@ public class GetAllSubmodelsByIdShortRequest extends AbstractRequestWithModifier
     private String idShort;
 
     public GetAllSubmodelsByIdShortRequest() {
-        super(OutputModifierConstraints.SUBMODEL);
+        super(OutputModifierConstraints.SUBMODEL, READ, SUBMODEL);
     }
 
 
@@ -40,6 +43,12 @@ public class GetAllSubmodelsByIdShortRequest extends AbstractRequestWithModifier
 
     public void setIdShort(String idShort) {
         this.idShort = idShort;
+    }
+
+
+    @Override
+    protected boolean requestsCollection() {
+        return true;
     }
 
 

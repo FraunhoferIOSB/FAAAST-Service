@@ -14,19 +14,32 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.dpp;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithId;
 import de.fraunhofer.iosb.ilt.faaast.service.model.dpp.DppSerializationMode;
 
 import java.util.Objects;
 
 
 /**
- * Abstract request class for DPP requests with content.
+ * Abstract request class for DPP requests with content. Cannot inherit from AbstractRequestWithId as this is a
+ * multi-resource request (AAS, SM) and AbstractRequestWithId inherits
+ * from DistinctResourceRequest.
  */
-public abstract class AbstractDppRequest<T extends Response> extends AbstractRequestWithId<T> {
+public abstract class AbstractDppRequest<T extends Response> extends Request<T> {
 
+    private String id;
     private DppSerializationMode dppSerializationMode;
+
+    public String getId() {
+        return id;
+    }
+
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
 
     public DppSerializationMode getDppSerializationMode() {
         return dppSerializationMode;
@@ -48,6 +61,7 @@ public abstract class AbstractDppRequest<T extends Response> extends AbstractReq
         }
         AbstractDppRequest<T> that = (AbstractDppRequest<T>) o;
         return super.equals(that) &&
+                Objects.equals(this.id, that.id) &&
                 this.dppSerializationMode == that.dppSerializationMode;
     }
 
@@ -57,11 +71,18 @@ public abstract class AbstractDppRequest<T extends Response> extends AbstractReq
         return Objects.hash(super.hashCode());
     }
 
-    public abstract static class AbstractBuilder<T extends AbstractDppRequest, B extends AbstractRequestWithId.AbstractBuilder<T, B>>
-            extends AbstractRequestWithId.AbstractBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends AbstractDppRequest, B extends AbstractBuilder<T, B>>
+            extends Request.AbstractBuilder<T, B> {
+        public B id(String value) {
+            getBuildingInstance().setId(value);
+            return getSelf();
+        }
+
+
         public B dppSerializationMode(DppSerializationMode value) {
             getBuildingInstance().setDppSerializationMode(value);
             return getSelf();
         }
+
     }
 }

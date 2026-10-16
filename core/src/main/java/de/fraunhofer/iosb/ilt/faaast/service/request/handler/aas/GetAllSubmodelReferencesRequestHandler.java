@@ -14,6 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler.aas;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.LogicalExpression.identity;
+
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
@@ -22,6 +24,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.GetAllSubmod
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ElementReadEventMessage;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.filter.QueryFilter;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
@@ -32,16 +35,18 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
  * Class to handle a {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.GetAllSubmodelReferencesRequest}
  * in the service and to send the corresponding response
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.GetAllSubmodelReferencesResponse}. Is responsible
- * for communication with the persistence and sends the corresponding events to the message bus.
+ * for communication with the persistence and sends the
+ * corresponding events to the message bus.
  */
 public class GetAllSubmodelReferencesRequestHandler extends AbstractRequestHandler<GetAllSubmodelReferencesRequest, GetAllSubmodelReferencesResponse> {
 
     @Override
     public GetAllSubmodelReferencesResponse process(GetAllSubmodelReferencesRequest request, RequestExecutionContext context)
             throws ResourceNotFoundException, MessageBusException, PersistenceException {
-        Page<Reference> page = context.getPersistence().getSubmodelRefs(request.getId(), request.getPagingInfo());
+        Page<Reference> page = context.getPersistence().getSubmodelRefs(request.getId(), request.getPagingInfo(),
+                combineRemainingRuleFormulas(request), getFilters(request));
         if (!request.isInternal()) {
-            AssetAdministrationShell aas = context.getPersistence().getAssetAdministrationShell(request.getId(), OutputModifier.MINIMAL);
+            AssetAdministrationShell aas = context.getPersistence().getAssetAdministrationShell(request.getId(), OutputModifier.MINIMAL, identity(), QueryFilter.EMPTY);
             context.getMessageBus().publish(ElementReadEventMessage.builder()
                     .element(aas)
                     .value(aas)

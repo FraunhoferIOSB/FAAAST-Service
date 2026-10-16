@@ -16,7 +16,10 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.proprietary;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.proprietary.ImportResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.AccessPermissionRule;
+
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 

@@ -14,6 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler.submodel;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.LogicalExpression.identity;
+
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
@@ -29,6 +31,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.Eleme
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractSubmodelInterfaceRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
+import java.util.List;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 
@@ -36,9 +39,11 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 /**
  * Class to handle a
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetSubmodelElementByPathReferenceRequest} in
- * the service and to send the corresponding response
+ * the service and to send the corresponding
+ * response
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetSubmodelElementByPathReferenceResponse}.
- * Is responsible for communication with the persistence and sends the corresponding events to the message bus.
+ * Is responsible for communication with the
+ * persistence and sends the corresponding events to the message bus.
  */
 public class GetSubmodelElementByPathReferenceRequestHandler
         extends AbstractSubmodelInterfaceRequestHandler<GetSubmodelElementByPathReferenceRequest, GetSubmodelElementByPathReferenceResponse> {
@@ -47,7 +52,8 @@ public class GetSubmodelElementByPathReferenceRequestHandler
     public GetSubmodelElementByPathReferenceResponse doProcess(GetSubmodelElementByPathReferenceRequest request, RequestExecutionContext context)
             throws ResourceNotFoundException, ValueMappingException, AssetConnectionException, MessageBusException, ResourceNotAContainerElementException, PersistenceException {
         Reference reference = resolveReferenceWithTypes(request.getSubmodelId(), request.getPath(), context);
-        SubmodelElement submodelElement = context.getPersistence().getSubmodelElement(reference, request.getOutputModifier());
+        SubmodelElement submodelElement = context.getPersistence().getSubmodelElement(reference, request.getOutputModifier(),
+                combineRemainingRuleFormulas(request), getFilters(request));
         if (!request.isInternal()) {
             context.getMessageBus().publish(ElementReadEventMessage.builder()
                     .element(reference)
@@ -72,7 +78,9 @@ public class GetSubmodelElementByPathReferenceRequestHandler
                             .submodelId(submodelId)
                             .idShortPath(subPath)
                             .build(),
-                    QueryModifier.MINIMAL);
+                    QueryModifier.MINIMAL,
+                    identity(),
+                    List.of());
             if (pathElement.startsWith("[") && pathElement.endsWith("]")) {
                 builder.element(pathElement.substring(1, pathElement.length() - 1), submodelElement.getClass());
             }

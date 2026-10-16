@@ -14,6 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.referable.REFERABLE_TYPES.AAS;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.Right.READ;
+
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithModifierAndPaging;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.OutputModifierConstraints;
@@ -32,8 +35,14 @@ public class GetAllAssetAdministrationShellsByAssetIdRequest extends AbstractReq
     private List<SpecificAssetId> assetIds;
 
     public GetAllAssetAdministrationShellsByAssetIdRequest() {
-        super(OutputModifierConstraints.ASSET_ADMINISTRATION_SHELL);
+        super(OutputModifierConstraints.ASSET_ADMINISTRATION_SHELL, READ, AAS);
         this.assetIds = new ArrayList<>();
+    }
+
+
+    @Override
+    protected boolean requestsCollection() {
+        return true;
     }
 
 

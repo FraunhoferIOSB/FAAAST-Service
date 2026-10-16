@@ -19,15 +19,13 @@ import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpConst
 import com.google.common.net.MediaType;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractSubmodelInterfaceRequestMapper;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractSubmodelElementInterfaceRequestMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.TypedInMemoryFile;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.PutFileByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.PutFileByPathResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
-import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
 import java.util.Map;
 
 
@@ -36,10 +34,9 @@ import java.util.Map;
  * submodels/{submodelIdentifier}/submodel-elements/{idShortPath}/attachment,
  * shells/{aasIdentifier}/submodels/{submodelIdentifier}/submodel-elements/{idShortPath}/attachment.
  */
-public class PutFileByPathRequestMapper extends AbstractSubmodelInterfaceRequestMapper<PutFileByPathRequest, PutFileByPathResponse> {
+public class PutFileByPathRequestMapper extends AbstractSubmodelElementInterfaceRequestMapper<PutFileByPathRequest, PutFileByPathResponse> {
 
-    private static final String SUBMODEL_ELEMENT_PATH = RegExHelper.uniqueGroupName();
-    private static final String PATTERN = String.format("submodel-elements/%s/attachment", pathElement(SUBMODEL_ELEMENT_PATH));
+    private static final String PATTERN = "attachment";
 
     public PutFileByPathRequestMapper(ServiceContext serviceContext) {
         super(serviceContext, HttpMethod.PUT, PATTERN);
@@ -51,7 +48,7 @@ public class PutFileByPathRequestMapper extends AbstractSubmodelInterfaceRequest
         MediaType contentType = MediaType.parse(httpRequest.getHeader(HEADER_CONTENT_TYPE));
         Map<String, TypedInMemoryFile> multipart = parseMultiPartBody(httpRequest, contentType);
         return PutFileByPathRequest.builder()
-                .path(EncodingHelper.urlDecode(urlParameters.get(SUBMODEL_ELEMENT_PATH)))
+                .path(getIdShortPath(urlParameters))
                 .content(new TypedInMemoryFile.Builder()
                         .content(multipart.get("file").getContent())
                         .contentType(multipart.get("file").getContentType())

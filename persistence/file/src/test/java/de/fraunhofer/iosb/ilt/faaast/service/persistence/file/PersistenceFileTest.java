@@ -14,6 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.persistence.file;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.LogicalExpression.identity;
+
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
@@ -22,6 +24,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializati
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.filter.QueryFilter;
 import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.AbstractPersistenceTest;
 import de.fraunhofer.iosb.ilt.faaast.service.util.FileHelper;
@@ -155,7 +158,7 @@ public class PersistenceFileTest extends AbstractPersistenceTest<PersistenceFile
                         .map(Path::toString)
                         .filter(x -> x.endsWith(".json"))
                         .count());
-        Assert.assertThrows(ResourceNotFoundException.class, () -> newPersistence.getAssetAdministrationShell(identifier, QueryModifier.DEFAULT));
+        Assert.assertThrows(ResourceNotFoundException.class, () -> newPersistence.getAssetAdministrationShell(identifier, QueryModifier.DEFAULT, identity(), QueryFilter.EMPTY));
     }
 
 

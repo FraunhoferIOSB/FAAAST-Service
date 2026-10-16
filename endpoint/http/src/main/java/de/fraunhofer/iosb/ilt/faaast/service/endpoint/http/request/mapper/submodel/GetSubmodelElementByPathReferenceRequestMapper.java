@@ -16,15 +16,13 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.submo
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractSubmodelInterfaceRequestMapper;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractSubmodelElementInterfaceRequestMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetSubmodelElementByPathReferenceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetSubmodelElementByPathReferenceResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
-import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
 import java.util.Map;
 
 
@@ -34,10 +32,9 @@ import java.util.Map;
  * shells/{aasIdentifier}/submodels/{submodelIdentifier}/submodel-elements/{idShortPath}/$reference.
  */
 public class GetSubmodelElementByPathReferenceRequestMapper
-        extends AbstractSubmodelInterfaceRequestMapper<GetSubmodelElementByPathReferenceRequest, GetSubmodelElementByPathReferenceResponse> {
+        extends AbstractSubmodelElementInterfaceRequestMapper<GetSubmodelElementByPathReferenceRequest, GetSubmodelElementByPathReferenceResponse> {
 
-    private static final String SUBMODEL_ELEMENT_PATH = RegExHelper.uniqueGroupName();
-    private static final String PATTERN = String.format("submodel-elements/%s/\\$reference", pathElement(SUBMODEL_ELEMENT_PATH));
+    private static final String PATTERN = "\\$reference";
 
     public GetSubmodelElementByPathReferenceRequestMapper(ServiceContext serviceContext) {
         super(serviceContext, HttpMethod.GET, PATTERN, Content.METADATA, Content.NORMAL, Content.PATH, Content.VALUE);
@@ -48,7 +45,7 @@ public class GetSubmodelElementByPathReferenceRequestMapper
     public GetSubmodelElementByPathReferenceRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier)
             throws InvalidRequestException {
         return GetSubmodelElementByPathReferenceRequest.builder()
-                .path(EncodingHelper.urlDecode(urlParameters.get(SUBMODEL_ELEMENT_PATH)))
+                .path(getIdShortPath(urlParameters))
                 .build();
     }
 }
