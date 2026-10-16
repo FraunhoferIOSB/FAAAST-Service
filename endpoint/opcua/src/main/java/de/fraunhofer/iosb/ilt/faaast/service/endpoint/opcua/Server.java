@@ -16,28 +16,39 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua;
 
 import com.prosysopc.ua.ApplicationIdentity;
 import com.prosysopc.ua.SecureIdentityException;
+import com.prosysopc.ua.StatusException;
 import com.prosysopc.ua.UaApplication;
 import com.prosysopc.ua.UaApplication.Protocol;
 import com.prosysopc.ua.UserTokenPolicies;
+import com.prosysopc.ua.ValueRanks;
+import com.prosysopc.ua.nodes.UaNode;
+import com.prosysopc.ua.nodes.UaProperty;
 import com.prosysopc.ua.server.UaServer;
 import com.prosysopc.ua.server.UaServerException;
 import com.prosysopc.ua.stack.builtintypes.DateTime;
+import com.prosysopc.ua.stack.builtintypes.ExpandedNodeId;
 import com.prosysopc.ua.stack.builtintypes.LocalizedText;
+import com.prosysopc.ua.stack.builtintypes.NodeId;
+import com.prosysopc.ua.stack.builtintypes.UnsignedInteger;
 import com.prosysopc.ua.stack.builtintypes.UnsignedShort;
 import com.prosysopc.ua.stack.cert.DefaultCertificateValidator;
 import com.prosysopc.ua.stack.cert.DefaultCertificateValidatorListener;
 import com.prosysopc.ua.stack.cert.PkiDirectoryCertificateStore;
+import com.prosysopc.ua.stack.core.AccessLevelType;
 import com.prosysopc.ua.stack.core.ApplicationDescription;
 import com.prosysopc.ua.stack.core.ApplicationType;
 import com.prosysopc.ua.stack.core.MessageSecurityMode;
 import com.prosysopc.ua.stack.core.UserTokenPolicy;
 import com.prosysopc.ua.stack.core.UserTokenType;
-import com.prosysopc.ua.stack.transport.security.HttpsSecurityPolicy;
 import com.prosysopc.ua.stack.transport.security.SecurityMode;
 import com.prosysopc.ua.types.opcua.server.BuildInfoTypeNode;
 import com.prosysopc.ua.types.opcua.server.ServerCapabilitiesTypeNode;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.listener.AasCertificateValidationListener;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.listener.AasServiceIoManagerListener;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.nodemanager.AasServiceNodeManager;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.nodemanager.IrdiDictionaryNodeManager;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.nodemanager.UriDictionaryNodeManager;
+import de.fraunhofer.iosb.ilt.faaast.service.model.ServiceSpecificationProfile;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import java.io.File;
@@ -46,10 +57,13 @@ import java.net.InetAddress;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Paths;
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
+import opc.ua.aas.Ids;
+import opc.ua.aas.objecttypes.AASEnvironmentType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,6 +79,7 @@ public class Server {
     private static final String APPLICATION_URI = "urn:hostname:Fraunhofer:OPCUA:AasServer";
     private static final int CERT_KEY_SIZE = 2048;
     private static final String ISSUERS_PATH = "issuers";
+    private static final int AAS_ENVIRONMENT_ID = 5020;
 
     private final int tcpPort;
     private final Environment aasEnvironment;
@@ -135,8 +150,6 @@ public class Server {
 
         setSecurityPolicies();
 
-        uaServer.getHttpsSettings().setCertificateValidator(applicationCertificateValidator);
-
         if (Objects.isNull(config.getSupportedAuthentications()) || config.getSupportedAuthentications().isEmpty()) {
             throw new IllegalArgumentException("no supported authentications available!");
         }
@@ -206,22 +219,11 @@ public class Server {
                 SecurityMode.combinations(
                         Set.of(MessageSecurityMode.values()),
                         config.getSupportedSecurityPolicies()));
-
-        uaServer.getHttpsSecurityModes().addAll(
-                SecurityMode.combinations(
-                        Set.of(MessageSecurityMode.None, MessageSecurityMode.Sign),
-                        config.getSupportedSecurityPolicies()));
-
-        Set<HttpsSecurityPolicy> supportedHttpsSecurityPolicies = new HashSet<>();
-        supportedHttpsSecurityPolicies.addAll(HttpsSecurityPolicy.ALL_102);
-        supportedHttpsSecurityPolicies.addAll(HttpsSecurityPolicy.ALL_103);
-        supportedHttpsSecurityPolicies.addAll(HttpsSecurityPolicy.ALL_104);
-        uaServer.getHttpsSettings().setHttpsSecurityPolicies(supportedHttpsSecurityPolicies);
     }
 
 
     private void registerDiscovery() throws URISyntaxException {
-        if ((endpoint.asConfig().getDiscoveryServerUrl() != null) && (endpoint.asConfig().getDiscoveryServerUrl().length() > 0)) {
+        if ((endpoint.asConfig().getDiscoveryServerUrl() != null) && (!endpoint.asConfig().getDiscoveryServerUrl().isEmpty())) {
             // Register to the local discovery server (if present)
             uaServer.setDiscoveryServerUrl(endpoint.asConfig().getDiscoveryServerUrl());
         }
@@ -282,14 +284,16 @@ public class Server {
 
     private static UserTokenPolicy getUserTokenPolicy(UserTokenType userTokenType) {
         switch (userTokenType) {
-            case Anonymous:
+            case Anonymous -> {
                 return UserTokenPolicies.ANONYMOUS;
-            case UserName:
+            }
+            case UserName -> {
                 return UserTokenPolicies.SECURE_USERNAME_PASSWORD_BASIC256SHA256;
-            case Certificate:
+            }
+            case Certificate -> {
                 return UserTokenPolicies.SECURE_CERTIFICATE_BASIC256SHA256;
-            default:
-                throw new IllegalArgumentException(String.format("unsupported UserTokenType '%s'", userTokenType));
+            }
+            default -> throw new IllegalArgumentException(String.format("unsupported UserTokenType '%s'", userTokenType));
         }
     }
 
@@ -299,9 +303,32 @@ public class Server {
      */
     private void createAddressSpace() {
         try {
-            loadI4AasNodes();
-            AasServiceNodeManager aasNodeManager = new AasServiceNodeManager(uaServer, AasServiceNodeManager.NAMESPACE_URI, aasEnvironment, endpoint);
+            loadAasNodes();
+
+            NodeId nodeId = uaServer.getNamespaceTable().toNodeId(new ExpandedNodeId(Ids.AASEnvironmentType.getNamespaceUri(), AAS_ENVIRONMENT_ID));
+            UaNode node = uaServer.getAddressSpace().findNode(nodeId);
+            AASEnvironmentType envNode = null;
+            if (node == null) {
+                envNode = uaServer.getNodeManagerRoot().createInstance(AASEnvironmentType.class, "AASEnvironment", nodeId);
+            }
+            else if (node instanceof AASEnvironmentType aasEnvironmentType) {
+                envNode = aasEnvironmentType;
+            }
+            else {
+                throw new IllegalArgumentException("AASEnvironment node has wrong type");
+            }
+
+            LOGGER.info("createAddressSpace: {}", envNode);
+
+            addProfiles(envNode);
+            AasServiceNodeManager aasNodeManager = new AasServiceNodeManager(uaServer, AasServiceNodeManager.NAMESPACE_URI, aasEnvironment, endpoint, envNode);
             aasNodeManager.getIoManager().addListeners(new AasServiceIoManagerListener(endpoint, aasNodeManager));
+
+            UriDictionaryNodeManager uriNodeManager = new UriDictionaryNodeManager(uaServer, UriDictionaryNodeManager.NAMESPACE);
+            LOGGER.trace("createAddressSpace: created NodeManager for NS {}", uriNodeManager.getNamespaceUri());
+
+            IrdiDictionaryNodeManager irdiNodeManager = new IrdiDictionaryNodeManager(uaServer, IrdiDictionaryNodeManager.NAMESPACE);
+            LOGGER.trace("createAddressSpace: created NodeManager for NS {}", irdiNodeManager.getNamespaceUri());
         }
         catch (Exception ex) {
             LOGGER.error("createAddressSpace Exception", ex);
@@ -312,17 +339,34 @@ public class Server {
     /**
      * Loads the AAS nodes from the NodeSet file
      */
-    private void loadI4AasNodes() {
+    private void loadAasNodes() {
         long start = System.currentTimeMillis();
         try {
-            LOGGER.debug("loadI4AasNodes start I4AAS");
-            uaServer.getAddressSpace().loadModel(opc.i4aas.server.ServerInformationModel.getLocationURI());
+            LOGGER.debug("loadAasNodes start AAS");
+            uaServer.getAddressSpace().loadModel(opc.ua.aas.server.ServerInformationModel.getLocationURI());
+            LOGGER.debug("loadAasNodes start AAS - IOSB extension");
+            uaServer.getAddressSpace().loadModel(opc.ua.iosb.aas.server.ServerInformationModel.getLocationURI());
         }
         catch (Exception ex) {
-            LOGGER.error("loadI4AasNodes Exception", ex);
+            LOGGER.error("loadAasNodes Exception", ex);
         }
 
         long duration = System.currentTimeMillis() - start;
-        LOGGER.trace("loadI4AasNodes end. Dauer: {} ms", duration);
+        LOGGER.trace("loadAasNodes end. Dauer: {} ms", duration);
+    }
+
+
+    private void addProfiles(AASEnvironmentType envNode) throws StatusException {
+        List<ServiceSpecificationProfile> profiles = endpoint.getProfiles();
+        List<String> uris = new ArrayList<>();
+        profiles.forEach(p -> uris.add(p.getId()));
+        UaProperty profilesNode = envNode.getProfilesNode();
+        profilesNode.setArrayDimensions(new UnsignedInteger[] {
+                UnsignedInteger.valueOf(uris.size())
+        });
+        profilesNode.setValueRank(ValueRanks.OneDimension);
+        profilesNode.setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
+        profilesNode.setDescription(LocalizedText.english("The Current Profiles"));
+        envNode.setProfiles(uris.toArray(String[]::new));
     }
 }

@@ -15,11 +15,11 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua;
 
 import com.prosysopc.ua.MethodCallStatusException;
-import com.prosysopc.ua.SecureIdentityException;
 import com.prosysopc.ua.ServiceException;
 import com.prosysopc.ua.StatusException;
 import com.prosysopc.ua.client.AddressSpaceException;
 import com.prosysopc.ua.client.UaClient;
+import com.prosysopc.ua.stack.builtintypes.ByteString;
 import com.prosysopc.ua.stack.builtintypes.DataValue;
 import com.prosysopc.ua.stack.builtintypes.DateTime;
 import com.prosysopc.ua.stack.builtintypes.LocalizedText;
@@ -28,6 +28,7 @@ import com.prosysopc.ua.stack.builtintypes.QualifiedName;
 import com.prosysopc.ua.stack.builtintypes.StatusCode;
 import com.prosysopc.ua.stack.builtintypes.Variant;
 import com.prosysopc.ua.stack.common.ServiceResultException;
+import com.prosysopc.ua.stack.core.BrowseDirection;
 import com.prosysopc.ua.stack.core.BrowsePathResult;
 import com.prosysopc.ua.stack.core.BrowsePathTarget;
 import com.prosysopc.ua.stack.core.Identifiers;
@@ -38,6 +39,9 @@ import com.prosysopc.ua.stack.core.ServerState;
 import com.prosysopc.ua.stack.core.StatusCodes;
 import com.prosysopc.ua.stack.core.UserTokenType;
 import com.prosysopc.ua.stack.transport.security.SecurityMode;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonApiDeserializer;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.CommonAttributesData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.TestConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.TestService;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.TestUtils;
@@ -47,28 +51,36 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementDeleteEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.util.PortHelper;
-import java.io.IOException;
 import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
-import opc.i4aas.VariableIds;
-import opc.i4aas.datatypes.AASDataTypeDefXsd;
-import opc.i4aas.datatypes.AASKeyDataType;
-import opc.i4aas.datatypes.AASKeyTypesDataType;
-import opc.i4aas.datatypes.AASModellingKindDataType;
-import opc.i4aas.objecttypes.AASEntityType;
-import opc.i4aas.objecttypes.AASRelationshipElementType;
+import java.util.Objects;
+import opc.ua.aas.Ids;
+import opc.ua.aas.datatypes.AASKey;
+import opc.ua.aas.datatypes.AASKeyTypes;
+import opc.ua.aas.datatypes.AASModellingKind;
+import opc.ua.aas.datatypes.AASReference;
+import opc.ua.aas.datatypes.AASReferenceTypes;
+import opc.ua.aas.datatypes.AASSubmodelElements;
+import opc.ua.aas.objecttypes.AASEntityType;
+import opc.ua.aas.objecttypes.AASRelationshipElementType;
+import opc.ua.iosb.aas.datatypes.AASDirection;
+import opc.ua.iosb.aas.datatypes.AASStateOfEvent;
 import org.awaitility.Awaitility;
 import org.eclipse.digitaltwin.aas4j.v3.model.AasSubmodelElements;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
+import org.eclipse.digitaltwin.aas4j.v3.model.ExecutionState;
 import org.eclipse.digitaltwin.aas4j.v3.model.Key;
 import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
+import org.eclipse.digitaltwin.aas4j.v3.model.OperationResult;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
+import org.eclipse.digitaltwin.aas4j.v3.model.Property;
 import org.eclipse.digitaltwin.aas4j.v3.model.Qualifier;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceTypes;
@@ -79,6 +91,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultQualifier;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultRelationshipElement;
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -96,11 +109,37 @@ public class OpcUaEndpointFullModelTest {
 
     private static final Duration POLL_TIMEOUT = Duration.ofMillis(100);
     private static final Duration MAX_TIMEOUT = Duration.ofSeconds(5);
+    private static final String OPERATION_INPUT_ARGS = """
+                                                       {
+                                                         "inputArguments": [
+                                                           {
+                                                             "value": {
+                                                               "modelType": "Property",
+                                                               "value": "123454",
+                                                               "valueType": "xs:string",
+                                                               "idShort": "ExampleProperty1"
+                                                             }
+                                                           }
+                                                         ],
+                                                         "inoutputArguments": [
+                                                           {
+                                                             "value": {
+                                                               "modelType": "Property",
+                                                               "value": "some value",
+                                                               "valueType": "xs:string",
+                                                               "idShort": "ExampleProperty3"
+                                                             }
+                                                           }
+                                                         ]
+                                                       }
+            """;
 
     private static TestService service;
     private static int aasns;
     private static int opcTcpPort;
     private static String endpointUrl;
+
+    private UaClient client;
 
     @BeforeClass
     public static void startTest() throws Exception {
@@ -132,7 +171,7 @@ public class OpcUaEndpointFullModelTest {
 
         // register another Operation 
         keys = new ArrayList<>();
-        keys.add(new DefaultKey.Builder().type(KeyTypes.SUBMODEL).value("https://acplt.org/Test_Submodel_Mandatory").build());
+        keys.add(new DefaultKey.Builder().type(KeyTypes.SUBMODEL).value(TestConstants.FULL_SUBMODEL_4_ID).build());
         keys.add(new DefaultKey.Builder().type(KeyTypes.OPERATION).value("ExampleOperation").build());
         Reference ref2 = new DefaultReference.Builder()
                 .type(ReferenceTypes.MODEL_REFERENCE)
@@ -157,27 +196,36 @@ public class OpcUaEndpointFullModelTest {
     }
 
 
+    @After
+    public void shutdown() {
+        if (client != null) {
+            if (client.hasConnected()) {
+                client.disconnect();
+            }
+            client = null;
+        }
+    }
+
+
     @Test
     public void testOpcUaEndpointFull()
-            throws SecureIdentityException, IOException, ServiceException, StatusException, ServiceResultException, AddressSpaceException {
-        UaClient client = new UaClient(endpointUrl);
+            throws ServiceException, StatusException, ServiceResultException, AddressSpaceException {
+        client = new UaClient(endpointUrl);
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
-        Assert.assertTrue("client not connected", client.isConnected());
-        System.out.println("client connected");
+        Assert.assertTrue("client not connected", client.hasConnected());
 
         DataValue value = client.readValue(Identifiers.Server_ServerStatus_State);
-        System.out.println(value);
         Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
         Assert.assertEquals(ServerState.Running.ordinal(), value.getValue().intValue());
 
-        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
+        aasns = client.getAddressSpace().getNamespaceTable().getIndex(Ids.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
         // browse for AAS Environment
         List<ReferenceDescription> refs = client.getAddressSpace().browse(Identifiers.ObjectsFolder);
-        Assert.assertNotNull("Browse ObjectsFolder Refs Null", refs);
-        Assert.assertFalse("Browse ObjectsFolder Refs empty", refs.isEmpty());
+        Assert.assertNotNull(refs);
+        Assert.assertFalse(refs.isEmpty());
         NodeId envNode = null;
         for (ReferenceDescription ref: refs) {
             if (ref.getBrowseName().getName().equals(TestConstants.AAS_ENVIRONMENT_NAME)) {
@@ -186,44 +234,46 @@ public class OpcUaEndpointFullModelTest {
             }
         }
 
-        Assert.assertNotNull("AASEnvironment Null", envNode);
+        Assert.assertNotNull(envNode);
 
         // browse AAS Environment
         refs = client.getAddressSpace().browse(envNode);
-        Assert.assertNotNull("Browse Environment Refs Null", refs);
-        Assert.assertTrue("Browse Environment Refs empty", !refs.isEmpty());
+        Assert.assertNotNull(refs);
+        Assert.assertTrue(!refs.isEmpty());
 
         NodeId submodel1Node = null;
+        NodeId submodel7Node = null;
         for (ReferenceDescription ref: refs) {
             NodeId rid = client.getAddressSpace().getNamespaceTable().toNodeId(ref.getNodeId());
             switch (ref.getBrowseName().getName()) {
-                case TestConstants.FULL_SUBMODEL_1_NAME: {
+                case TestConstants.FULL_SUBMODEL_1_NAME -> {
                     submodel1Node = rid;
-                    break;
                 }
-                default:
+                case TestConstants.FULL_SUBMODEL_7_NAME -> {
+                    submodel7Node = rid;
+                }
+                default -> {
                     //intentionally left empty
+                }
             }
         }
 
-        Assert.assertNotNull("Submodel 1 Node not found", submodel1Node);
+        Assert.assertNotNull(submodel1Node);
+        Assert.assertNotNull(submodel7Node);
 
-        testSubmodel1(client, submodel1Node);
-
-        System.out.println("disconnect client");
-        client.disconnect();
+        testSubmodel1(submodel1Node);
+        testSubmodel7(submodel7Node);
     }
 
 
     @Test
-    public void testWriteRelationshipElementValue() throws SecureIdentityException, IOException, ServiceException, StatusException, ServiceResultException {
-        UaClient client = new UaClient(endpointUrl);
+    public void testWriteRelationshipElementValue() throws ServiceException, StatusException, ServiceResultException {
+        client = new UaClient(endpointUrl);
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
-        System.out.println("client connected");
 
-        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
+        aasns = client.getAddressSpace().getNamespaceTable().getIndex(Ids.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
@@ -231,7 +281,6 @@ public class OpcUaEndpointFullModelTest {
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_4_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_REL_ELEMENT_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, AASRelationshipElementType.SECOND)));
-        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.KEYS_VALUE_NAME)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
@@ -245,43 +294,41 @@ public class OpcUaEndpointFullModelTest {
 
         NodeId writeNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
 
-        List<AASKeyDataType> oldValue = new ArrayList<>();
-        oldValue.add(new AASKeyDataType(AASKeyTypesDataType.Submodel, "https://acplt.org/Test_Submodel_Mandatory"));
-        oldValue.add(new AASKeyDataType(AASKeyTypesDataType.SubmodelElementList, "ExampleSubmodelElementListUnordered"));
-        oldValue.add(new AASKeyDataType(AASKeyTypesDataType.MultiLanguageProperty, "ExampleMultiLanguageProperty"));
+        AASKey[] oldKeys = {
+                new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Submodel), TestConstants.FULL_SUBMODEL_4_ID),
+                new AASKey(AASKeyTypes.of(AASKeyTypes.Options.SubmodelElementList), "ExampleSubmodelElementListUnordered"),
+                new AASKey(AASKeyTypes.of(AASKeyTypes.Options.MultiLanguageProperty), "ExampleMultiLanguageProperty")
+        };
+        AASReference oldValue = new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ModelReference), null, oldKeys);
 
         // The DataElementValueMapper changes the order of the elements
-        List<AASKeyDataType> newValue = new ArrayList<>();
-        newValue.add(new AASKeyDataType(AASKeyTypesDataType.Submodel, "https://acplt.org/Test_Submodel_Mandatory"));
-        newValue.add(new AASKeyDataType(AASKeyTypesDataType.SubmodelElementList, "ExampleSubmodelElementListUnordered"));
-        newValue.add(new AASKeyDataType(AASKeyTypesDataType.Range, "ExampleRange"));
+        AASKey[] newKeys = {
+                new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Submodel), TestConstants.FULL_SUBMODEL_4_ID),
+                new AASKey(AASKeyTypes.of(AASKeyTypes.Options.SubmodelElementList), "ExampleSubmodelElementCollection"),
+                new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Blob), "ExampleBlob")
+        };
+        AASReference newValue = new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ModelReference), null, newKeys);
 
-        TestUtils.writeNewValueArray(client, writeNode, oldValue.toArray(AASKeyDataType[]::new), newValue.toArray(AASKeyDataType[]::new));
-
-        System.out.println("disconnect client");
-        client.disconnect();
+        TestUtils.writeNewValueReference(client, writeNode, oldValue, newValue);
     }
 
 
     @Test
     public void testWriteSubmodelElementCollectionValue()
-            throws SecureIdentityException, IOException, ServiceException, StatusException, ServiceResultException {
-        UaClient client = new UaClient(endpointUrl);
+            throws ServiceException, StatusException, ServiceResultException {
+        client = new UaClient(endpointUrl);
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
-        System.out.println("client connected");
 
-        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
+        aasns = client.getAddressSpace().getNamespaceTable().getIndex(Ids.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_6_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SM_ELEM_COLL_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SMEC_REF_ELEM_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.PROPERTY_VALUE_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.KEYS_VALUE_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.TEST_REF_ELEM_NAME)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
@@ -295,40 +342,39 @@ public class OpcUaEndpointFullModelTest {
 
         NodeId writeNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
 
-        List<AASKeyDataType> oldValue = new ArrayList<>();
-        oldValue.add(new AASKeyDataType(AASKeyTypesDataType.Submodel, "https://acplt.org/Test_Submodel_Missing"));
-        oldValue.add(new AASKeyDataType(AASKeyTypesDataType.SubmodelElementCollection, "ExampleSubmodelElementCollection"));
-        oldValue.add(new AASKeyDataType(AASKeyTypesDataType.File, "ExampleFile"));
+        AASKey[] oldKeys = {
+                new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Submodel), "https://acplt.org/Test_Submodel_Missing"),
+                new AASKey(AASKeyTypes.of(AASKeyTypes.Options.SubmodelElementCollection), "ExampleSubmodelElementCollection"),
+                new AASKey(AASKeyTypes.of(AASKeyTypes.Options.File), "ExampleFile")
+        };
+        AASReference oldValue = new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ModelReference), null, oldKeys);
 
         // The DataElementValueMapper changes the order of the elements
-        List<AASKeyDataType> newValue = new ArrayList<>();
-        newValue.add(new AASKeyDataType(AASKeyTypesDataType.GlobalReference, "https://iosb.fraunhofer.de/TestValue1"));
+        AASKey[] newKeys = {
+                new AASKey(AASKeyTypes.of(AASKeyTypes.Options.GlobalReference), "https://iosb.fraunhofer.de/TestValue1")
+        };
+        AASReference newValue = new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ModelReference), null, newKeys);
 
-        TestUtils.writeNewValueArray(client, writeNode, oldValue.toArray(AASKeyDataType[]::new), newValue.toArray(AASKeyDataType[]::new));
-
-        System.out.println("disconnect client");
-        client.disconnect();
+        TestUtils.writeNewValueReference(client, writeNode, oldValue, newValue);
     }
 
 
     @Test
     public void testWriteSubmodelElementListValue()
-            throws SecureIdentityException, IOException, ServiceException, StatusException, ServiceResultException {
-        UaClient client = new UaClient(endpointUrl);
+            throws ServiceException, StatusException, ServiceResultException {
+        client = new UaClient(endpointUrl);
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
-        System.out.println("client connected");
 
-        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
+        aasns = client.getAddressSpace().getNamespaceTable().getIndex(Ids.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_6_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SM_ELEM_LIST_O_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SMEC_RANGE_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.RANGE_MIN_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.SUBMODEL_ELEMENT_LIST_ORDERED_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_PROPERTY_NAME)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
@@ -342,31 +388,26 @@ public class OpcUaEndpointFullModelTest {
 
         NodeId writeNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
 
-        TestUtils.writeNewValueIntern(client, writeNode, 0, 4);
-
-        System.out.println("disconnect client");
-        client.disconnect();
+        TestUtils.writeNewValueIntern(client, writeNode, "exampleValue", "a new value");
     }
 
 
     @Test
     public void testWriteSubmodelElementListValue2()
-            throws SecureIdentityException, IOException, ServiceException, StatusException, ServiceResultException {
-        UaClient client = new UaClient(endpointUrl);
+            throws ServiceException, StatusException, ServiceResultException {
+        client = new UaClient(endpointUrl);
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
-        System.out.println("client connected");
 
-        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
+        aasns = client.getAddressSpace().getNamespaceTable().getIndex(Ids.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_7_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SM_ELEM_LIST_O_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.SUBMODEL_ELEMENT_LIST_ORDERED_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.TEST_MULTI_LAN_PROP_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.PROPERTY_VALUE_NAME)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
@@ -386,29 +427,25 @@ public class OpcUaEndpointFullModelTest {
         newValue.add(new LocalizedText("deutsches Test-Element", "de"));
 
         TestUtils.writeNewValueArray(client, writeNode, new ArrayList<>().toArray(LocalizedText[]::new), newValue.toArray(LocalizedText[]::new));
-
-        System.out.println("disconnect client");
-        client.disconnect();
     }
 
 
     @Test
     public void testWriteEntityGlobalAssetId()
-            throws SecureIdentityException, IOException, ServiceException, StatusException, ServiceResultException {
-        UaClient client = new UaClient(endpointUrl);
+            throws ServiceException, StatusException, ServiceResultException {
+        client = new UaClient(endpointUrl);
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
-        System.out.println("testWriteEntityGlobalAssetId: client connected");
 
-        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
+        aasns = client.getAddressSpace().getNamespaceTable().getIndex(Ids.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_2_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_ENTITY2_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, AASEntityType.GLOBAL_ASSET_ID)));
+        browsePath.add(new RelativePathElement(Identifiers.HasComponent, false, true, new QualifiedName(aasns, AASEntityType.GLOBAL_ASSET_ID)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
@@ -425,22 +462,18 @@ public class OpcUaEndpointFullModelTest {
         String newValue = "https://acplt2.org/Test_Asset3";
 
         TestUtils.writeNewValueIntern(client, writeNode, oldValue, newValue);
-
-        System.out.println("disconnect client");
-        client.disconnect();
     }
 
 
     @Test
-    public void testCallOperationSuccess() throws SecureIdentityException, IOException, ServiceException, ServiceResultException, MethodCallStatusException {
-        UaClient client = new UaClient(endpointUrl);
+    public void testCallOperationSuccess()
+            throws ServiceException, ServiceResultException, MethodCallStatusException, DeserializationException {
+        client = new UaClient(endpointUrl);
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
-        System.out.println("client connected");
 
-        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
-        int serverns = client.getAddressSpace().getNamespaceTable().getIndex(AasServiceNodeManager.NAMESPACE_URI);
+        aasns = client.getAddressSpace().getNamespaceTable().getIndex(Ids.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
@@ -453,50 +486,52 @@ public class OpcUaEndpointFullModelTest {
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_3_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_OPERATION_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(serverns, TestConstants.FULL_OPERATION_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.OPERATION_METHOD_NAME)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
-        Assert.assertNotNull("testCallOperationSuccess Browse Result Null", bpres);
-        Assert.assertEquals("testCallOperationSuccess Browse Result: size doesn't match", 2, bpres.length);
-        Assert.assertTrue("testCallOperationSuccess Browse Result Good", bpres[0].getStatusCode().isGood());
+        Assert.assertNotNull(bpres);
+        Assert.assertEquals(2, bpres.length);
+        Assert.assertTrue(bpres[0].getStatusCode().isGood());
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
-        Assert.assertNotNull("testCallOperationSuccess Object Targets Null", targets);
-        Assert.assertTrue("testCallOperationSuccess Object Targets empty", targets.length > 0);
+        Assert.assertNotNull(targets);
+        Assert.assertTrue(targets.length > 0);
 
         NodeId objectNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
-        Assert.assertNotNull("testCallOperationSuccess objectNode Null", objectNode);
+        Assert.assertNotNull(objectNode);
 
         targets = bpres[1].getTargets();
-        Assert.assertNotNull("testCallOperationSuccess Method Targets Null", targets);
-        Assert.assertTrue("testCallOperationSuccess Method Targets empty", targets.length > 0);
+        Assert.assertNotNull(targets);
+        Assert.assertTrue(targets.length > 0);
 
         NodeId methodNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
-        Assert.assertNotNull("testCallOperationSuccess methodNode Null", methodNode);
+        Assert.assertNotNull(methodNode);
 
         Variant[] inputArguments = new Variant[1];
-        inputArguments[0] = new Variant("123454");
+        inputArguments[0] = new Variant(OPERATION_INPUT_ARGS);
         Variant[] outputs = client.call(objectNode, methodNode, inputArguments);
-        Assert.assertNotNull("testCallOperationSuccess output Arguments Null", outputs);
-        Assert.assertEquals("testCallOperationSuccess output Arguments length not equal", 1, outputs.length);
-        Assert.assertEquals("testCallOperationSuccess output Argument 0 not equal", new Variant("XYZ1"), outputs[0]);
-
-        System.out.println("disconnect client");
-        client.disconnect();
+        Assert.assertNotNull(outputs);
+        Assert.assertEquals(1, outputs.length);
+        JsonApiDeserializer deserializer = new JsonApiDeserializer();
+        OperationResult operationResult = deserializer.read(outputs[0].toString(), OperationResult.class);
+        Assert.assertNotNull(operationResult);
+        Assert.assertEquals(ExecutionState.COMPLETED, operationResult.getExecutionState());
+        Assert.assertEquals(true, operationResult.getSuccess());
+        Assert.assertEquals(1, operationResult.getOutputArguments().size());
+        Assert.assertEquals("XYZ1", ((Property) operationResult.getOutputArguments().get(0).getValue()).getValue());
+        Assert.assertEquals(1, operationResult.getInoutputArguments().size());
     }
 
 
     @Test
-    public void testCallOperationArgsMissing() throws SecureIdentityException, IOException, ServiceException, ServiceResultException {
-        UaClient client = new UaClient(endpointUrl);
+    public void testCallOperationArgsMissing() throws ServiceException, ServiceResultException {
+        client = new UaClient(endpointUrl);
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
-        System.out.println("client connected");
 
-        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
-        int serverns = client.getAddressSpace().getNamespaceTable().getIndex(AasServiceNodeManager.NAMESPACE_URI);
+        aasns = client.getAddressSpace().getNamespaceTable().getIndex(Ids.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
@@ -509,48 +544,44 @@ public class OpcUaEndpointFullModelTest {
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_3_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_OPERATION_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(serverns, TestConstants.FULL_OPERATION_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.OPERATION_METHOD_NAME)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
-        Assert.assertNotNull("testCallOperationArgsMissing Browse Result Null", bpres);
-        Assert.assertEquals("testCallOperationArgsMissing Browse Result: size doesn't match", 2, bpres.length);
-        Assert.assertTrue("testCallOperationArgsMissing Browse Result Good", bpres[0].getStatusCode().isGood());
+        Assert.assertNotNull(bpres);
+        Assert.assertEquals(2, bpres.length);
+        Assert.assertTrue(bpres[0].getStatusCode().isGood());
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
-        Assert.assertNotNull("testCallOperationArgsMissing Object Targets Null", targets);
-        Assert.assertTrue("testCallOperationArgsMissing Object Targets empty", targets.length > 0);
+        Assert.assertNotNull(targets);
+        Assert.assertTrue(targets.length > 0);
 
         NodeId objectNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
-        Assert.assertNotNull("testCallOperationArgsMissing objectNode Null", objectNode);
+        Assert.assertNotNull(objectNode);
 
         targets = bpres[1].getTargets();
-        Assert.assertNotNull("testCallOperationArgsMissing Method Targets Null", targets);
-        Assert.assertTrue("testCallOperationArgsMissing Method Targets empty", targets.length > 0);
+        Assert.assertNotNull(targets);
+        Assert.assertTrue(targets.length > 0);
 
         NodeId methodNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
-        Assert.assertNotNull("testCallOperationArgsMissing methodNode Null", methodNode);
+        Assert.assertNotNull(methodNode);
 
         Variant[] inputArguments = new Variant[0];
         StatusException exception = Assert.assertThrows(StatusException.class, () -> {
             client.call(objectNode, methodNode, inputArguments);
         });
         Assert.assertEquals(StatusCodes.Bad_ArgumentsMissing, exception.getStatusCode().getValue());
-
-        System.out.println("disconnect client");
-        client.disconnect();
     }
 
 
     @Test
-    public void testAddProperty() throws SecureIdentityException, IOException, ServiceException, MessageBusException {
-        UaClient client = new UaClient(endpointUrl);
+    public void testAddProperty() throws ServiceException, MessageBusException {
+        client = new UaClient(endpointUrl);
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
-        System.out.println("testAddProperty: client connected");
 
-        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
+        aasns = client.getAddressSpace().getNamespaceTable().getIndex(Ids.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
         String propName = "NewProperty789";
 
@@ -561,7 +592,6 @@ public class OpcUaEndpointFullModelTest {
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_3_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SM_ELEM_COLL_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, propName)));
-        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.PROPERTY_VALUE_NAME)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
@@ -595,21 +625,17 @@ public class OpcUaEndpointFullModelTest {
                     BrowsePathResult[] bpr = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
                     return bpr != null && bpr.length == 1 && bpr[0].getStatusCode().isGood();
                 });
-
-        System.out.println("disconnect client");
-        client.disconnect();
     }
 
 
     @Test
-    public void testDeleteSubmodel() throws SecureIdentityException, IOException, ServiceException, MessageBusException {
-        UaClient client = new UaClient(endpointUrl);
+    public void testDeleteSubmodel() throws ServiceException, MessageBusException, ServiceResultException {
+        client = new UaClient(endpointUrl);
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
-        System.out.println("testDeleteSubmodel: client connected");
 
-        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
+        aasns = client.getAddressSpace().getNamespaceTable().getIndex(Ids.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
         // make sure the element exists
         List<RelativePath> relPath = new ArrayList<>();
@@ -619,7 +645,8 @@ public class OpcUaEndpointFullModelTest {
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         // add more elements to the browse path
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, "Id")));
+        browsePath.add(new RelativePathElement(client.getAddressSpace().getNamespaceTable().toNodeId(Ids.AASHasCommonAttribute), false, true,
+                new QualifiedName(aasns, TestConstants.COMMON_ATTRIBUTES)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
@@ -646,21 +673,17 @@ public class OpcUaEndpointFullModelTest {
                     BrowsePathResult[] bpr = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
                     return bpr != null && bpr.length == 2 && bpr[0].getStatusCode().isBad() && bpr[1].getStatusCode().isBad();
                 });
-
-        System.out.println("disconnect client");
-        client.disconnect();
     }
 
 
     @Test
-    public void testDeleteCapability() throws SecureIdentityException, IOException, ServiceException, MessageBusException {
-        UaClient client = new UaClient(endpointUrl);
+    public void testDeleteCapability() throws ServiceException, MessageBusException, ServiceResultException {
+        client = new UaClient(endpointUrl);
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
-        System.out.println("testDeleteCapability: client connected");
 
-        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
+        aasns = client.getAddressSpace().getNamespaceTable().getIndex(Ids.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
         // make sure the element exists
         List<RelativePath> relPath = new ArrayList<>();
@@ -671,7 +694,8 @@ public class OpcUaEndpointFullModelTest {
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         // add more elements to the browse path
-        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.CATEGORY_NAME)));
+        browsePath.add(new RelativePathElement(client.getAddressSpace().getNamespaceTable().toNodeId(Ids.AASHasCommonAttribute), false, true,
+                new QualifiedName(aasns, TestConstants.COMMON_ATTRIBUTES)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
@@ -699,22 +723,18 @@ public class OpcUaEndpointFullModelTest {
                     BrowsePathResult[] bpr = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
                     return bpr != null && bpr.length == 2 && bpr[0].getStatusCode().isBad() && bpr[1].getStatusCode().isBad();
                 });
-
-        System.out.println("disconnect client");
-        client.disconnect();
     }
 
 
     @Test
     public void testDateTimeProperty()
-            throws SecureIdentityException, IOException, ServiceException, ServiceResultException, AddressSpaceException, StatusException {
-        UaClient client = new UaClient(endpointUrl);
+            throws ServiceException, ServiceResultException, AddressSpaceException, StatusException {
+        client = new UaClient(endpointUrl);
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
-        System.out.println("client connected");
 
-        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
+        aasns = client.getAddressSpace().getNamespaceTable().getIndex(Ids.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
@@ -737,7 +757,6 @@ public class OpcUaEndpointFullModelTest {
         browsePath.clear();
         relPath.clear();
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_DATETIME_PROP_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.PROPERTY_VALUE_NAME)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(smNode, relPath.toArray(RelativePath[]::new));
@@ -753,27 +772,23 @@ public class OpcUaEndpointFullModelTest {
 
         DateTime dt = DateTime.fromInstant(ZonedDateTime.of(2022, 7, 8, 10, 22, 4, 0, ZoneId.systemDefault()).toInstant());
         TestUtils.checkAasPropertyObject(client, smNode, aasns, TestConstants.FULL_DATETIME_PROP_NAME, "Parameter",
-                AASDataTypeDefXsd.DateTime, dt, new ArrayList<>());
+                Datatype.DATE_TIME, dt, new ArrayList<>());
 
         OffsetDateTime odtnew = OffsetDateTime.now(ZoneId.systemDefault());
         DateTime dtnew = DateTime.fromInstant(odtnew.toInstant());
         TestUtils.writeNewValueIntern(client, propValueNode, dt, dtnew);
-
-        System.out.println("disconnect client");
-        client.disconnect();
     }
 
 
     @Test
-    public void testCallOperationNoArgs() throws SecureIdentityException, IOException, ServiceException, ServiceResultException, MethodCallStatusException {
-        UaClient client = new UaClient(endpointUrl);
+    public void testCallOperationNoArgs()
+            throws ServiceException, ServiceResultException, MethodCallStatusException, DeserializationException {
+        client = new UaClient(endpointUrl);
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
-        System.out.println("client connected");
 
-        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
-        int serverns = client.getAddressSpace().getNamespaceTable().getIndex(AasServiceNodeManager.NAMESPACE_URI);
+        aasns = client.getAddressSpace().getNamespaceTable().getIndex(Ids.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
@@ -786,88 +801,93 @@ public class OpcUaEndpointFullModelTest {
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_4_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_OPERATION_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(serverns, TestConstants.FULL_OPERATION_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.OPERATION_METHOD_NAME)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
-        Assert.assertNotNull("testCallOperationNoArgs Browse Result Null", bpres);
-        Assert.assertEquals("testCallOperationNoArgs Browse Result: size doesn't match", 2, bpres.length);
-        Assert.assertTrue("testCallOperationNoArgs Browse Result Good", bpres[0].getStatusCode().isGood());
+        Assert.assertNotNull(bpres);
+        Assert.assertEquals(2, bpres.length);
+        Assert.assertTrue(bpres[0].getStatusCode().isGood());
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
-        Assert.assertNotNull("testCallOperationNoArgs Object Targets Null", targets);
-        Assert.assertTrue("testCallOperationNoArgs Object Targets empty", targets.length > 0);
+        Assert.assertNotNull(targets);
+        Assert.assertTrue(targets.length > 0);
 
         NodeId objectNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
-        Assert.assertNotNull("testCallOperationNoArgs objectNode Null", objectNode);
+        Assert.assertNotNull(objectNode);
 
         targets = bpres[1].getTargets();
-        Assert.assertNotNull("testCallOperationNoArgs Method Targets Null", targets);
-        Assert.assertTrue("testCallOperationNoArgs Method Targets empty", targets.length > 0);
+        Assert.assertNotNull(targets);
+        Assert.assertTrue(targets.length > 0);
 
         NodeId methodNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
-        Assert.assertNotNull("testCallOperationNoArgs methodNode Null", methodNode);
+        Assert.assertNotNull(methodNode);
 
-        Variant[] outputs = client.call(objectNode, methodNode);
-        Assert.assertNotNull("testCallOperationNoArgs output Arguments Null", outputs);
-        Assert.assertEquals("testCallOperationNoArgs output Arguments length not equal", 0, outputs.length);
-
-        System.out.println("disconnect client");
-        client.disconnect();
+        Variant[] inputArguments = new Variant[1];
+        inputArguments[0] = new Variant("{}");
+        Variant[] outputs = client.call(objectNode, methodNode, inputArguments);
+        Assert.assertNotNull(outputs);
+        Assert.assertEquals(1, outputs.length);
+        JsonApiDeserializer deserializer = new JsonApiDeserializer();
+        OperationResult operationResult = deserializer.read(outputs[0].toString(), OperationResult.class);
+        Assert.assertNotNull(operationResult);
+        Assert.assertEquals(ExecutionState.COMPLETED, operationResult.getExecutionState());
+        Assert.assertEquals(true, operationResult.getSuccess());
+        Assert.assertEquals(0, operationResult.getOutputArguments().size());
     }
 
 
     @Test
-    public void testSubmodelElementList() throws ServiceException, SecureIdentityException, IOException, StatusException, ServiceResultException, AddressSpaceException {
-        UaClient client = new UaClient(endpointUrl);
+    public void testSubmodelElementListOrdered() throws ServiceException, StatusException, ServiceResultException, AddressSpaceException {
+        client = new UaClient(endpointUrl);
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
-        System.out.println("testSubmodelElementList: client connected");
 
-        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
+        aasns = client.getAddressSpace().getNamespaceTable().getIndex(Ids.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
+        int iosbns = client.getAddressSpace().getNamespaceTable().getIndex(opc.ua.iosb.aas.Ids.AASRangeType.getNamespaceUri());
 
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_3_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_6_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.SUBMODEL_ELEMENT_LIST_ORDERED_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.ORDER_RELEVANT)));
+        browsePath.add(new RelativePathElement(Identifiers.HasComponent, false, true, new QualifiedName(aasns, TestConstants.ORDER_RELEVANT)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         browsePath.clear();
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_3_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_6_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.SUBMODEL_ELEMENT_LIST_ORDERED_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.TYPE_VALUE_LIST_ELEMENT)));
+        browsePath.add(new RelativePathElement(Identifiers.HasComponent, false, true, new QualifiedName(aasns, TestConstants.TYPE_VALUE_LIST_ELEMENT)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         browsePath.clear();
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_3_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_6_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.SUBMODEL_ELEMENT_LIST_ORDERED_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.VALUE_TYPE_LIST_ELEMENT)));
+        browsePath.add(new RelativePathElement(Identifiers.HasComponent, false, true, new QualifiedName(aasns, TestConstants.VALUE_TYPE_LIST_ELEMENT)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         browsePath.clear();
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_3_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_6_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.SUBMODEL_ELEMENT_LIST_ORDERED_NAME)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
-        Assert.assertNotNull("testSubmodelElementList Browse Result Null", bpres);
-        Assert.assertEquals("testSubmodelElementList Browse Result: size doesn't match", 4, bpres.length);
-        Assert.assertTrue("testSubmodelElementList Browse Result 1 Good", bpres[0].getStatusCode().isGood());
-        Assert.assertTrue("testSubmodelElementList Browse Result 2 Good", bpres[1].getStatusCode().isGood());
+        Assert.assertNotNull(bpres);
+        Assert.assertEquals(4, bpres.length);
+        Assert.assertTrue(bpres[0].getStatusCode().isGood());
+        Assert.assertTrue(bpres[1].getStatusCode().isGood());
         // ValueTypeListElement not set
-        Assert.assertTrue("testSubmodelElementList Browse Result 3 Bad", bpres[2].getStatusCode().isBad());
-        Assert.assertTrue("testSubmodelElementList Browse Result 4 Good", bpres[3].getStatusCode().isGood());
+        Assert.assertTrue(bpres[2].getStatusCode().isBad());
+        Assert.assertTrue(bpres[3].getStatusCode().isGood());
 
         // OrderRelevant
         BrowsePathTarget[] targets = bpres[0].getTargets();
-        Assert.assertNotNull("testSubmodelElementList OrderRelevant Null", targets);
-        Assert.assertTrue("testSubmodelElementList OrderRelevant empty", targets.length > 0);
+        Assert.assertNotNull("testSubmodelElementListOrdered OrderRelevant Null", targets);
+        Assert.assertTrue("testSubmodelElementListOrdered OrderRelevant empty", targets.length > 0);
         DataValue value = client.readValue(targets[0].getTargetId());
         Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
         Boolean orderRelevantExpected = true;
@@ -875,40 +895,133 @@ public class OpcUaEndpointFullModelTest {
 
         // TypeValueListElement
         targets = bpres[1].getTargets();
-        Assert.assertNotNull("testSubmodelElementList TypeValueListElement Null", targets);
-        Assert.assertTrue("testSubmodelElementList TypeValueListElement empty", targets.length > 0);
+        Assert.assertNotNull("testSubmodelElementListOrdered TypeValueListElement Null", targets);
+        Assert.assertTrue("testSubmodelElementListOrdered TypeValueListElement empty", targets.length > 0);
         value = client.readValue(targets[0].getTargetId());
         Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
-        Integer tvListElementExpected = ValueConverter.getAasSubmodelElementsType(AasSubmodelElements.SUBMODEL_ELEMENT).ordinal();
-        Assert.assertEquals("TypeValueListElement not equal", tvListElementExpected, value.getValue().getValue());
+        AASSubmodelElements tvListElementExpected = ValueConverter.convertAasSubmodelElements(AasSubmodelElements.SUBMODEL_ELEMENT);
+        Assert.assertEquals("TypeValueListElement not equal", tvListElementExpected, value.getValue().asOptionSet(AASSubmodelElements.SPECIFICATION));
 
         // SubmodelElementList type
         targets = bpres[3].getTargets();
         NodeId listNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
-        TestUtils.checkType(client, listNode, new NodeId(aasns, TestConstants.AAS_SUBMODEL_ELEM_LIST_TYPE));
+        TestUtils.checkType(client, listNode, TestConstants.AAS_SUBMODEL_ELEM_LIST_TYPE);
 
-        System.out.println("disconnect client");
-        client.disconnect();
+        TestUtils.checkDescriptions(client, listNode, List.of(LocalizedText.from(
+                "Example SubmodelElementListOrdered object",
+                "en-us")));
+
+        // List elements
+        List<ReferenceDescription> refs = client.getAddressSpace().browse(listNode, BrowseDirection.Forward,
+                client.getAddressSpace().getNamespaceTable().toNodeId(Ids.AASHasOrderedComponent));
+        Assert.assertNotNull(refs);
+        Assert.assertEquals(4, refs.size());
+        Assert.assertEquals(QualifiedName.from(aasns, "ExampleProperty"), refs.get(0).getBrowseName());
+        Assert.assertEquals(QualifiedName.from(aasns, "ExampleMultiLanguageProperty"), refs.get(1).getBrowseName());
+        Assert.assertEquals(QualifiedName.from(iosbns, "ExampleRange"), refs.get(2).getBrowseName());
+        Assert.assertEquals(QualifiedName.from(aasns, "ExampleCapability"), refs.get(3).getBrowseName());
+    }
+
+
+    @Test
+    public void testSubmodelElementListUnordered() throws ServiceException, StatusException, ServiceResultException, AddressSpaceException {
+        client = new UaClient(endpointUrl);
+        client.setSecurityMode(SecurityMode.NONE);
+        TestUtils.initialize(client);
+        client.connect();
+
+        aasns = client.getAddressSpace().getNamespaceTable().getIndex(Ids.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
+        int iosbns = client.getAddressSpace().getNamespaceTable().getIndex(opc.ua.iosb.aas.Ids.AASRangeType.getNamespaceUri());
+
+        List<RelativePath> relPath = new ArrayList<>();
+        List<RelativePathElement> browsePath = new ArrayList<>();
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_4_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SM_ELEM_LIST_UO_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HasComponent, false, true, new QualifiedName(aasns, TestConstants.ORDER_RELEVANT)));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+
+        browsePath.clear();
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_4_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SM_ELEM_LIST_UO_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HasComponent, false, true, new QualifiedName(aasns, TestConstants.TYPE_VALUE_LIST_ELEMENT)));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+
+        browsePath.clear();
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_4_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SM_ELEM_LIST_UO_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HasComponent, false, true, new QualifiedName(aasns, TestConstants.VALUE_TYPE_LIST_ELEMENT)));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+
+        browsePath.clear();
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_4_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SM_ELEM_LIST_UO_NAME)));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+
+        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
+        Assert.assertNotNull(bpres);
+        Assert.assertEquals(4, bpres.length);
+        Assert.assertTrue(bpres[0].getStatusCode().isGood());
+        Assert.assertTrue(bpres[1].getStatusCode().isGood());
+        // ValueTypeListElement not set
+        Assert.assertTrue(bpres[2].getStatusCode().isBad());
+        Assert.assertTrue(bpres[3].getStatusCode().isGood());
+
+        // OrderRelevant
+        BrowsePathTarget[] targets = bpres[0].getTargets();
+        Assert.assertNotNull(targets);
+        Assert.assertTrue(targets.length > 0);
+        DataValue value = client.readValue(targets[0].getTargetId());
+        Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
+        Boolean orderRelevantExpected = false;
+        Assert.assertEquals(orderRelevantExpected, value.getValue().getValue());
+
+        // TypeValueListElement
+        targets = bpres[1].getTargets();
+        Assert.assertNotNull(targets);
+        Assert.assertTrue(targets.length > 0);
+        value = client.readValue(targets[0].getTargetId());
+        Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
+        AASSubmodelElements tvListElementExpected = ValueConverter.convertAasSubmodelElements(AasSubmodelElements.SUBMODEL_ELEMENT);
+        Assert.assertEquals(tvListElementExpected, value.getValue().asOptionSet(AASSubmodelElements.SPECIFICATION));
+
+        // SubmodelElementList type
+        targets = bpres[3].getTargets();
+        NodeId listNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
+        TestUtils.checkType(client, listNode, TestConstants.AAS_SUBMODEL_ELEM_LIST_TYPE);
+
+        TestUtils.checkDescriptions(client, listNode, List.of());
+
+        // List elements
+        List<ReferenceDescription> refs = client.getAddressSpace().browse(listNode, BrowseDirection.Forward,
+                client.getAddressSpace().getNamespaceTable().toNodeId(Ids.AASHasOrderedComponent));
+        Assert.assertNotNull(refs);
+        Assert.assertEquals(4, refs.size());
+        Assert.assertEquals(QualifiedName.from(aasns, "ExampleProperty"), refs.get(0).getBrowseName());
+        Assert.assertEquals(QualifiedName.from(aasns, "ExampleCollection"), refs.get(1).getBrowseName());
+        Assert.assertEquals(QualifiedName.from(aasns, "ExampleMultiLanguageProperty"), refs.get(2).getBrowseName());
+        Assert.assertEquals(QualifiedName.from(iosbns, "ExampleRange"), refs.get(3).getBrowseName());
     }
 
 
     @Test
     public void testWriteProperty()
-            throws SecureIdentityException, ServiceException, IOException, StatusException, ServiceResultException {
-        UaClient client = new UaClient(endpointUrl);
+            throws ServiceException, StatusException, ServiceResultException {
+        client = new UaClient(endpointUrl);
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
-        System.out.println("testWriteProperty: client connected");
 
-        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
+        aasns = client.getAddressSpace().getNamespaceTable().getIndex(Ids.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_6_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_INT64_PROP_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.PROPERTY_VALUE_NAME)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
@@ -925,21 +1038,17 @@ public class OpcUaEndpointFullModelTest {
 
         NodeId writeNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
         TestUtils.writeNewValueIntern(client, writeNode, oldValue, newValue);
-
-        System.out.println("disconnect client");
-        client.disconnect();
     }
 
 
     @Test
-    public void testUpdateSubmodelElement() throws SecureIdentityException, IOException, ServiceException, MessageBusException {
-        UaClient client = new UaClient(endpointUrl);
+    public void testUpdateSubmodelElement() throws ServiceException, MessageBusException {
+        client = new UaClient(endpointUrl);
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
-        System.out.println("testUpdateSubmodelElement: client connected");
 
-        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
+        aasns = client.getAddressSpace().getNamespaceTable().getIndex(Ids.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
         // make sure one of the old elements exists, the new element exists not yet
         List<RelativePath> relPath = new ArrayList<>();
@@ -948,7 +1057,6 @@ public class OpcUaEndpointFullModelTest {
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_6_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_REL_ELEMENT_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, AASRelationshipElementType.SECOND)));
-        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.KEYS_VALUE_NAME)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
@@ -1029,31 +1137,83 @@ public class OpcUaEndpointFullModelTest {
                         return false;
                     }
 
-                    List<AASKeyDataType> smeValue = new ArrayList<>();
-                    smeValue.add(new AASKeyDataType(AASKeyTypesDataType.Submodel, "http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial"));
-                    smeValue.add(new AASKeyDataType(AASKeyTypesDataType.Entity, "ExampleEntity"));
-                    smeValue.add(new AASKeyDataType(AASKeyTypesDataType.Property, "ExampleProperty2"));
+                    AASKey[] smeKeys = {
+                            new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Submodel), "http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial"),
+                            new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Entity), "ExampleEntity"),
+                            new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Property), "ExampleProperty2")
+                    };
+                    AASReference newValue = new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ModelReference), null, smeKeys);
 
                     DataValue value = client.readValue(client.getAddressSpace().getNamespaceTable().toNodeId(targets2[0].getTargetId()));
-                    return value.getStatusCode().isGood() && Arrays.equals(smeValue.toArray(AASKeyDataType[]::new), (AASKeyDataType[]) value.getValue().getValue());
+                    return value.getStatusCode().isGood() && (value.getValue() != null) && Objects.equals((AASReference) value.getValue().getValue(), newValue);
                 });
-
-        System.out.println("disconnect client");
-        client.disconnect();
     }
 
 
-    private void testSubmodel1(UaClient client, NodeId submodelNode) throws ServiceException, AddressSpaceException, ServiceResultException, StatusException {
-        TestUtils.checkDisplayName(client, submodelNode, "Submodel:" + TestConstants.FULL_SUBMODEL_1_NAME);
-        TestUtils.checkType(client, submodelNode, new NodeId(aasns, TestConstants.AAS_SUBMODEL_TYPE_ID));
+    @Test
+    public void testWriteAnnotatedRelationshipAnnotations() throws ServiceException, StatusException, ServiceResultException {
+        client = new UaClient(endpointUrl);
+        client.setSecurityMode(SecurityMode.NONE);
+        TestUtils.initialize(client);
+        client.connect();
 
-        TestUtils.checkIdentification(client, submodelNode, aasns, TestConstants.FULL_SUBMODEL_1_ID);
-        TestUtils.checkAdministrationNode(client, submodelNode, aasns, "0", "9");
-        TestUtils.checkModelingKindNode(client, submodelNode, aasns, AASModellingKindDataType.Instance);
-        TestUtils.checkCategoryNode(client, submodelNode, aasns, "");
-        TestUtils.checkEmbeddedDataSpecificationNode(client, submodelNode, aasns);
+        aasns = client.getAddressSpace().getNamespaceTable().getIndex(Ids.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
-        TestUtils.checkQualifierNode(client, submodelNode, aasns, new ArrayList<>());
+        List<RelativePath> relPath = new ArrayList<>();
+        List<RelativePathElement> browsePath = new ArrayList<>();
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_6_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_ANN_REL_ELEMENT_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, "ExampleProperty")));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+
+        browsePath.clear();
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_6_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_ANN_REL_ELEMENT_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, "AnnotationBlob")));
+        browsePath.add(new RelativePathElement(Identifiers.HasComponent, false, true, new QualifiedName(aasns, TestConstants.PROPERTY_VALUE_NAME)));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+
+        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
+        Assert.assertNotNull(bpres);
+        Assert.assertEquals(2, bpres.length);
+        Assert.assertTrue(bpres[0].getStatusCode().isGood());
+        Assert.assertTrue(bpres[1].getStatusCode().isGood());
+
+        BrowsePathTarget[] targets = bpres[0].getTargets();
+        Assert.assertNotNull(targets);
+        Assert.assertTrue(targets.length > 0);
+
+        // SubmodelElementVariable
+        NodeId writeVariable = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
+
+        String oldValue = "some example annotation";
+        String newValue = "any other strange annptation value!";
+        TestUtils.writeNewValueIntern(client, writeVariable, oldValue, newValue);
+
+        targets = bpres[1].getTargets();
+        Assert.assertNotNull("testWriteAnnotatedRelationshipAnnotations Blob Null", targets);
+        Assert.assertTrue("testWriteAnnotatedRelationshipAnnotations Blob empty", targets.length > 0);
+
+        // SubmodelElementObject
+        NodeId writeBlob = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
+
+        ByteString oldBlob = ByteString.valueOf(Base64.getDecoder().decode("AQIDBAU="));
+        ByteString newBlob = ByteString.valueOf(Base64.getDecoder().decode("ERITFBU="));
+        TestUtils.writeNewValueIntern(client, writeBlob, oldBlob, newBlob);
+    }
+
+
+    private void testSubmodel1(NodeId submodelNode) throws ServiceException, AddressSpaceException, ServiceResultException {
+        TestUtils.checkDisplayName(client, submodelNode, TestConstants.SUBMODEL_PREFIX + TestConstants.FULL_SUBMODEL_1_NAME);
+        TestUtils.checkType(client, submodelNode, TestConstants.AAS_SUBMODEL_TYPE_ID);
+
+        TestUtils.checkCommonAttributes(client, submodelNode, aasns,
+                new CommonAttributesData("0", "9", "", TestConstants.FULL_SUBMODEL_1_ID,
+                        new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ExternalReference), null,
+                                List.of(new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Submodel), "http://acplt.org/SubmodelTemplates/AssetIdentification")).toArray(AASKey[]::new)),
+                        null, AASModellingKind.of(AASModellingKind.Options.Instance), new ArrayList<>()));
 
         ArrayList<Qualifier> list = new ArrayList<>();
         list.add(new DefaultQualifier.Builder()
@@ -1066,7 +1226,24 @@ public class OpcUaEndpointFullModelTest {
                 .valueType(DataTypeDefXsd.INT)
                 .type("http://acplt.org/Qualifier/ExampleQualifier2")
                 .build());
-        TestUtils.checkAasPropertyString(client, submodelNode, aasns, "ManufacturerName", "", AASDataTypeDefXsd.String,
+        TestUtils.checkAasPropertyString(client, submodelNode, aasns, "ManufacturerName", null, Datatype.STRING,
                 "http://acplt.org/ValueId/ACPLT", list);
+    }
+
+
+    private void testSubmodel7(NodeId submodelNode) throws ServiceException, AddressSpaceException, ServiceResultException, StatusException {
+        TestUtils.checkDisplayName(client, submodelNode, TestConstants.SUBMODEL_PREFIX + TestConstants.FULL_SUBMODEL_7_NAME);
+        TestUtils.checkType(client, submodelNode, TestConstants.AAS_SUBMODEL_TYPE_ID);
+
+        TestUtils.checkCommonAttributes(client, submodelNode, aasns,
+                new CommonAttributesData("0", "9", "", TestConstants.FULL_SUBMODEL_7_ID,
+                        new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ExternalReference), null,
+                                List.of(new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Submodel), "http://acplt.org/SubmodelTemplates/ExampleSubmodel")).toArray(AASKey[]::new)),
+                        null, AASModellingKind.of(AASModellingKind.Options.Template), new ArrayList<>()));
+
+        int iltns = client.getAddressSpace().getNamespaceTable().getIndex(opc.ua.iosb.aas.Ids.AASBasicEventElementType.getNamespaceUri());
+
+        TestUtils.checkBasicEvent(client, submodelNode, aasns, iltns, "ExampleBasicEvent", "PARAMETER", AASDirection.of(AASDirection.Options.output),
+                AASStateOfEvent.of(AASStateOfEvent.Options.off));
     }
 }

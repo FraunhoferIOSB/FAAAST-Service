@@ -17,17 +17,19 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator;
 import com.prosysopc.ua.StatusException;
 import com.prosysopc.ua.UaQualifiedName;
 import com.prosysopc.ua.nodes.UaNode;
+import com.prosysopc.ua.server.instantiation.NodeBuilder;
+import com.prosysopc.ua.server.instantiation.NodeBuilderConfiguration;
 import com.prosysopc.ua.stack.builtintypes.ByteString;
 import com.prosysopc.ua.stack.builtintypes.LocalizedText;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.QualifiedName;
 import com.prosysopc.ua.stack.core.AccessLevelType;
-import com.prosysopc.ua.stack.core.Identifiers;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.AasSubmodelElementHelper;
-import opc.i4aas.objecttypes.AASBlobType;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.nodemanager.AasServiceNodeManager;
+import opc.ua.aas.Ids;
+import opc.ua.aas.objecttypes.AASBlobType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Blob;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
@@ -43,28 +45,40 @@ public class BlobCreator extends SubmodelElementCreator {
     private static final Logger LOGGER = LoggerFactory.getLogger(BlobCreator.class);
 
     /**
-     * Adds an AAS Blob to the given UA node.
+     * Creates an AAS Blob to the given UA node.
      *
-     * @param node The desired UA node
      * @param aasBlob The AAS blob to add
      * @param blobRef Tne reference to the AAS blob
      * @param submodel The corresponding Submodel as parent object of the data element
-     * @param ordered Specifies whether the blob should be added ordered (true)
-     *            or unordered (false)
      * @param nodeManager The corresponding Node Manager
+     * @return The created node.
      * @throws StatusException If the operation fails
      */
-    public static void addAasBlob(UaNode node, Blob aasBlob, Reference blobRef, Submodel submodel, boolean ordered, AasServiceNodeManager nodeManager)
+    public static UaNode createAasBlob(Blob aasBlob, Reference blobRef, Submodel submodel, AasServiceNodeManager nodeManager)
             throws StatusException {
+        UaNode retval = null;
         try {
-            if ((node != null) && (aasBlob != null)) {
+            if (aasBlob != null) {
                 String name = aasBlob.getIdShort();
                 if ((name == null) || name.isEmpty()) {
                     name = getNameFromReference(blobRef);
                 }
-                QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASBlobType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
+                QualifiedName browseName = UaQualifiedName.from(Ids.AASBlobType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
                 NodeId nid = nodeManager.getDefaultNodeId();
-                AASBlobType blobNode = nodeManager.createInstance(AASBlobType.class, nid, browseName, LocalizedText.english(name));
+
+                NodeBuilderConfiguration conf = new NodeBuilderConfiguration();
+                if (aasBlob.getContentType() != null) {
+                    conf.addOptional(Ids.AASBlobType_ContentType);
+                }
+                if (aasBlob.getValue() != null) {
+                    conf.addOptional(Ids.AASBlobType_Value);
+                }
+                NodeBuilder<AASBlobType> nb = nodeManager.createNodeBuilder(AASBlobType.class, conf);
+                nb.setBrowseName(browseName);
+                nb.setDisplayName(LocalizedText.english(name));
+                nb.setNodeId(nid);
+                AASBlobType blobNode = nb.build();
+
                 addSubmodelElementBaseData(blobNode, aasBlob, nodeManager);
 
                 // ContentType
@@ -76,21 +90,16 @@ public class BlobCreator extends SubmodelElementCreator {
                     blobNode.getContentTypeNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
                 }
 
-                if (ordered) {
-                    node.addReference(blobNode, Identifiers.HasOrderedComponent, false);
-                }
-                else {
-                    node.addComponent(blobNode);
-                }
-
                 if (blobRef != null) {
                     nodeManager.addReferable(blobRef, new ObjectData(aasBlob, blobNode, submodel));
                 }
+                retval = blobNode;
             }
         }
         catch (Exception ex) {
-            LOGGER.error("addAasBlob Exception", ex);
+            LOGGER.error("createAasBlob Exception", ex);
         }
+        return retval;
     }
 
 
@@ -103,9 +112,7 @@ public class BlobCreator extends SubmodelElementCreator {
 
             nodeManager.addSubmodelElementAasMap(blobNode.getValueNode().getNodeId(),
                     new SubmodelElementData(aasBlob, submodel, SubmodelElementData.Type.BLOB_VALUE, blobRef));
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("addAasBlob: NodeId {}; Blob: {}", blobNode.getValueNode().getNodeId(), aasBlob.getIdShort());
-            }
+            LOGGER.atDebug().log("addAasBlob: NodeId {}; Blob: {}", blobNode.getValueNode().getNodeId(), aasBlob.getIdShort());
 
             if (blobRef != null) {
                 nodeManager.addSubmodelElementOpcUA(blobRef, blobNode);

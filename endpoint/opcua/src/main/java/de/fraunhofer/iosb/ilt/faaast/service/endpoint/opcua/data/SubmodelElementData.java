@@ -89,8 +89,8 @@ public class SubmodelElementData {
      */
     public enum Type {
         PROPERTY_VALUE,
-        RANGE_MIN,
-        RANGE_MAX,
+        RANGE_VALUE,
+        //RANGE_MAX,
         OPERATION,
         BLOB_VALUE,
         MULTI_LANGUAGE_VALUE,
