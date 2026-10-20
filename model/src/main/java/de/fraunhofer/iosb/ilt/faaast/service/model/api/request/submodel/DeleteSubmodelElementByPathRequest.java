@@ -14,6 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.referable.REFERABLE_TYPES.SUBMODEL_ELEMENT;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.Right.DELETE;
+
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractSubmodelInterfaceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.DeleteSubmodelElementByPathResponse;
 import java.util.Objects;
@@ -27,6 +30,7 @@ public class DeleteSubmodelElementByPathRequest extends AbstractSubmodelInterfac
     private String path;
 
     public DeleteSubmodelElementByPathRequest() {
+        super(DELETE, SUBMODEL_ELEMENT);
         this.path = "";
     }
 
@@ -38,6 +42,12 @@ public class DeleteSubmodelElementByPathRequest extends AbstractSubmodelInterfac
 
     public void setPath(String path) {
         this.path = path;
+    }
+
+
+    @Override
+    protected boolean requestsCollection() {
+        return false;
     }
 
 

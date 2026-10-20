@@ -14,6 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.referable.REFERABLE_TYPES.AAS;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.Right.READ;
+
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithModifierAndPaging;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.OutputModifierConstraints;
@@ -27,7 +30,13 @@ import java.util.Objects;
 public class GetAllAssetAdministrationShellsRequest extends AbstractRequestWithModifierAndPaging<GetAllAssetAdministrationShellsResponse> {
 
     public GetAllAssetAdministrationShellsRequest() {
-        super(OutputModifierConstraints.ASSET_ADMINISTRATION_SHELL);
+        super(OutputModifierConstraints.ASSET_ADMINISTRATION_SHELL, READ, AAS);
+    }
+
+
+    @Override
+    protected boolean requestsCollection() {
+        return true;
     }
 
 

@@ -27,9 +27,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWi
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.UnsupportedContentModifierException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.AccessPermissionRule;
 import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.StringHelper;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Matcher;
@@ -61,7 +64,8 @@ public abstract class AbstractRequestMapperWithOutputModifier<T extends Abstract
      *
      * @param urlPattern the url pattern
      * @param excludedContentModifiers content modifiers that are not allowed for this request as they are handled
-     *            explicitely by another request. This is requred so that the generated URL patterns do not overlap.
+     *            explicitely by another request. This is requred so that
+     *            the generated URL patterns do not overlap.
      * @return the potentially modified url pattern accepting content modifier
      */
     protected static String ensureUrlPatternAllowsContentModifier(String urlPattern, Content... excludedContentModifiers) {
@@ -141,6 +145,15 @@ public abstract class AbstractRequestMapperWithOutputModifier<T extends Abstract
             OutputModifier outputModifier = outputModifierBuilder.build();
             T result = doParse(httpRequest, urlParameters, outputModifier);
             result.setOutputModifier(outputModifier);
+
+            List<AccessPermissionRule> list = new ArrayList<>();
+            for (AccessPermissionRule rule: httpRequest.getRules()) {
+                if (doFilter(rule, httpRequest)) {
+                    list.add(rule);
+                }
+            }
+            result.setRules(list);
+
             return result;
         }
         catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException | SecurityException e) {

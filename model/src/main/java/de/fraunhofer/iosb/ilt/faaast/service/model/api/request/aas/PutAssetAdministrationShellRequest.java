@@ -14,6 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.referable.REFERABLE_TYPES.AAS;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.Right.UPDATE;
+
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithId;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.PutAssetAdministrationShellResponse;
 import java.util.Objects;
@@ -26,6 +29,11 @@ import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 public class PutAssetAdministrationShellRequest extends AbstractRequestWithId<PutAssetAdministrationShellResponse> {
 
     private AssetAdministrationShell aas;
+
+    protected PutAssetAdministrationShellRequest() {
+        super(UPDATE, AAS);
+    }
+
 
     public AssetAdministrationShell getAas() {
         return aas;

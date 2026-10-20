@@ -14,6 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.referable.REFERABLE_TYPES.SUBMODEL_ELEMENT;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.Right.READ;
+
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractSubmodelInterfaceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.OutputModifierConstraints;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetFileByPathResponse;
@@ -28,7 +31,7 @@ public class GetFileByPathRequest extends AbstractSubmodelInterfaceRequest<GetFi
     private String path;
 
     public GetFileByPathRequest() {
-        super(OutputModifierConstraints.NONE);
+        super(OutputModifierConstraints.NONE, READ, SUBMODEL_ELEMENT);
         this.path = "";
     }
 
@@ -40,6 +43,12 @@ public class GetFileByPathRequest extends AbstractSubmodelInterfaceRequest<GetFi
 
     public void setPath(String path) {
         this.path = path;
+    }
+
+
+    @Override
+    protected boolean requestsCollection() {
+        return false;
     }
 
 

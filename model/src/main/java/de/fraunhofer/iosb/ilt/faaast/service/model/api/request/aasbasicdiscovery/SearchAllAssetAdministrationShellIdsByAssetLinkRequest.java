@@ -16,6 +16,8 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasbasicdiscover
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithPaging;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasbasicdiscovery.SearchAllAssetAdministrationShellIdsByAssetLinkResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.referable.REFERABLE_TYPES;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.Right;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -31,6 +33,7 @@ public class SearchAllAssetAdministrationShellIdsByAssetLinkRequest extends Abst
     private List<SpecificAssetId> assetIdentifierPairs;
 
     public SearchAllAssetAdministrationShellIdsByAssetLinkRequest() {
+        super(Right.VIEW, REFERABLE_TYPES.AAS);
         this.assetIdentifierPairs = new ArrayList<>();
     }
 
@@ -42,6 +45,12 @@ public class SearchAllAssetAdministrationShellIdsByAssetLinkRequest extends Abst
 
     public void setAssetIdentifierPairs(List<SpecificAssetId> assetIdentifierPairs) {
         this.assetIdentifierPairs = assetIdentifierPairs;
+    }
+
+
+    @Override
+    protected boolean requestsCollection() {
+        return true;
     }
 
 

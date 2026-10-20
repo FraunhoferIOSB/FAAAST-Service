@@ -14,6 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.referable.REFERABLE_TYPES.SUBMODEL;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.Right.READ;
+
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithModifierAndPaging;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.OutputModifierConstraints;
@@ -30,7 +33,7 @@ public class GetAllSubmodelsBySemanticIdRequest extends AbstractRequestWithModif
     private Reference semanticId;
 
     public GetAllSubmodelsBySemanticIdRequest() {
-        super(OutputModifierConstraints.SUBMODEL);
+        super(OutputModifierConstraints.SUBMODEL, READ, SUBMODEL);
     }
 
 
@@ -41,6 +44,12 @@ public class GetAllSubmodelsBySemanticIdRequest extends AbstractRequestWithModif
 
     public void setSemanticId(Reference semanticId) {
         this.semanticId = semanticId;
+    }
+
+
+    @Override
+    protected boolean requestsCollection() {
+        return true;
     }
 
 

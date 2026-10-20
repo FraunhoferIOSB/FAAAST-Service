@@ -53,13 +53,15 @@ public abstract class AbstractDppRequestHandler<T extends AbstractDppRequest<U>,
     /**
      * Get and build a DPP from an AAS as source, fetching its metadata and content submodels.
      *
+     * @param request The request.
      * @param shell The DPP shell.
      * @param persistence The persistence where the DPP submodels are stored.
      * @return A complete DigitalProductPassport with resolved metadata and contents.
      * @throws ResourceNotFoundException Any of the submodels were not found.
      * @throws PersistenceException Requesting the persistence failed.
      */
-    protected DigitalProductPassport buildFrom(AssetAdministrationShell shell, Persistence<?> persistence) throws ResourceNotFoundException, PersistenceException {
+    protected DigitalProductPassport buildFrom(AbstractDppRequest<?> request, AssetAdministrationShell shell, Persistence<?> persistence) throws ResourceNotFoundException,
+            PersistenceException {
         List<String> submodelIds = shell.getSubmodels().stream()
                 .map(ReferenceHelper::getEffectiveKey).filter(Objects::nonNull)
                 .map(Key::getValue)
@@ -67,7 +69,7 @@ public abstract class AbstractDppRequestHandler<T extends AbstractDppRequest<U>,
 
         List<Submodel> submodels = new ArrayList<>();
         for (String id: submodelIds) {
-            submodels.add(persistence.getSubmodel(id, QueryModifier.MAXIMAL));
+            submodels.add(persistence.getSubmodel(id, QueryModifier.MAXIMAL, combineRemainingRuleFormulas(request), getFilters(request)));
         }
         Submodel metadata = getMetadataSubmodel(submodels);
         submodels.remove(metadata);

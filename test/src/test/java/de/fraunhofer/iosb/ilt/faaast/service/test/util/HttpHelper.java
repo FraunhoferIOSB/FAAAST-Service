@@ -24,6 +24,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.UnsupportedModifierException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
+
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -33,7 +34,9 @@ import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 
@@ -81,23 +84,6 @@ public class HttpHelper {
     }
 
 
-    public static HttpResponse<String> execute(HttpClient client, HttpMethod method, String url, Object payload)
-            throws IOException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException, UnsupportedModifierException {
-        switch (method) {
-            case GET:
-                return get(client, url);
-            case PUT:
-                return put(client, url, payload);
-            case POST:
-                return post(client, url, payload);
-            case DELETE:
-                return delete(client, url);
-            default:
-                throw new UnsupportedOperationException(String.format("unsupported HTTP method: %s", method));
-        }
-    }
-
-
     public static HttpResponse<String> execute(HttpClient client, HttpMethod method, String url)
             throws IOException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException, UnsupportedModifierException {
         return execute(client, method, url, null);
@@ -105,9 +91,40 @@ public class HttpHelper {
 
 
     public static HttpResponse<String> put(HttpClient client, String url, Object payload)
+            throws IOException, InterruptedException, URISyntaxException, NoSuchAlgorithmException, KeyManagementException, SerializationException, UnsupportedModifierException {
+        return put(client, url, payload, Map.of());
+    }
+
+
+    public static HttpResponse<String> execute(HttpClient client, HttpMethod method, String url, Object payload)
             throws IOException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException, UnsupportedModifierException {
+        return execute(client, method, url, payload, Map.of());
+    }
+
+
+    public static HttpResponse<String> execute(HttpClient client, HttpMethod method, String url, Object payload, Map<String, String> headers)
+            throws IOException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException, UnsupportedModifierException {
+        return switch (method) {
+            case GET -> get(client, url, headers);
+            case PUT -> put(client, url, payload, headers);
+            case POST -> post(client, url, payload, headers);
+            case DELETE -> delete(client, url, headers);
+            default -> throw new UnsupportedOperationException(String.format("unsupported HTTP method: %s", method));
+        };
+    }
+
+
+    public static HttpResponse<String> put(HttpClient client, String url, Object payload, Map<String, String> headers)
+            throws IOException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException, UnsupportedModifierException {
+        HttpRequest.Builder builder = HttpRequest.newBuilder();
+        if (headers != null && !headers.isEmpty()) {
+            builder.headers(headers.entrySet().stream()
+                    .map(entry -> List.of(entry.getKey(), entry.getValue()))
+                    .flatMap(Collection::stream)
+                    .toArray(String[]::new));
+        }
         return client
-                .send(HttpRequest.newBuilder()
+                .send(builder
                         .uri(new URI(url))
                         .header(HttpConstants.HEADER_CONTENT_TYPE, MediaType.JSON_UTF_8.toString())
                         .PUT(HttpRequest.BodyPublishers.ofString(new JsonApiSerializer().write(payload)))
@@ -117,9 +134,23 @@ public class HttpHelper {
 
 
     public static HttpResponse<String> post(HttpClient client, String url, Object payload)
+            throws IOException, InterruptedException, URISyntaxException, NoSuchAlgorithmException, KeyManagementException, SerializationException, UnsupportedModifierException {
+        return post(client, url, payload, Map.of());
+    }
+
+
+    public static HttpResponse<String> post(HttpClient client, String url, Object payload, Map<String, String> headers)
             throws IOException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException, UnsupportedModifierException {
+        HttpRequest.Builder builder = HttpRequest.newBuilder();
+        if (headers != null && !headers.isEmpty()) {
+            builder.headers(headers.entrySet().stream()
+                    .map(entry -> List.of(entry.getKey(), entry.getValue()))
+                    .flatMap(Collection::stream)
+                    .toArray(String[]::new));
+        }
+
         return client
-                .send(HttpRequest.newBuilder()
+                .send(builder
                         .uri(new URI(url))
                         .header(HttpConstants.HEADER_CONTENT_TYPE, MediaType.JSON_UTF_8.toString())
                         .POST(HttpRequest.BodyPublishers.ofString(Objects.nonNull(payload) && String.class.isAssignableFrom(payload.getClass())
@@ -132,8 +163,22 @@ public class HttpHelper {
 
     public static HttpResponse<String> delete(HttpClient client, String url)
             throws IOException, InterruptedException, URISyntaxException, NoSuchAlgorithmException, KeyManagementException {
+        return delete(client, url, Map.of());
+    }
+
+
+    public static HttpResponse<String> delete(HttpClient client, String url, Map<String, String> headers)
+            throws IOException, InterruptedException, URISyntaxException, NoSuchAlgorithmException, KeyManagementException {
+        HttpRequest.Builder builder = HttpRequest.newBuilder();
+        if (headers != null && !headers.isEmpty()) {
+            builder.headers(headers.entrySet().stream()
+                    .map(entry -> List.of(entry.getKey(), entry.getValue()))
+                    .flatMap(Collection::stream)
+                    .toArray(String[]::new));
+        }
+
         return client
-                .send(HttpRequest.newBuilder()
+                .send(builder
                         .uri(new URI(url))
                         .DELETE()
                         .build(),
@@ -143,12 +188,25 @@ public class HttpHelper {
 
     public static HttpResponse<String> get(HttpClient client, String url)
             throws IOException, InterruptedException, URISyntaxException, NoSuchAlgorithmException, KeyManagementException {
-        return client
-                .send(HttpRequest.newBuilder()
+        return get(client, url, Map.of());
+    }
+
+
+    public static HttpResponse<String> get(HttpClient client, String url, Map<String, String> headers)
+            throws IOException, InterruptedException, URISyntaxException, NoSuchAlgorithmException, KeyManagementException {
+        HttpRequest.Builder builder = HttpRequest.newBuilder();
+        if (headers != null && !headers.isEmpty()) {
+            builder.headers(headers.entrySet().stream()
+                    .map(entry -> List.of(entry.getKey(), entry.getValue()))
+                    .flatMap(Collection::stream)
+                    .toArray(String[]::new));
+        }
+        return client.send(
+                builder
                         .uri(new URI(url))
                         .GET()
                         .build(),
-                        BodyHandlers.ofString());
+                BodyHandlers.ofString());
     }
 
 

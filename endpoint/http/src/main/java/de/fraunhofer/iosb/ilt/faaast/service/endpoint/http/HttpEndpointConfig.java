@@ -44,6 +44,7 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
         return new Builder();
     }
 
+    private String aclFolder;
     private CertificateConfig certificate;
     private boolean corsEnabled;
     private boolean corsAllowCredentials;
@@ -53,8 +54,9 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
     private String corsExposedHeaders;
     private long corsMaxAge;
     private String hostname;
-    private String pathPrefix;
     private boolean includeErrorDetails;
+    private String jwkProvider;
+    private String pathPrefix;
     private int port;
     private boolean sniEnabled;
     private boolean sslEnabled;
@@ -256,6 +258,26 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
     }
 
 
+    public String getJwkProvider() {
+        return jwkProvider;
+    }
+
+
+    public void setJwkProvider(String jwkProvider) {
+        this.jwkProvider = jwkProvider;
+    }
+
+
+    public String getAclFolder() {
+        return aclFolder;
+    }
+
+
+    public void setAclFolder(String aclFolder) {
+        this.aclFolder = aclFolder;
+    }
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -279,10 +301,13 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
                 && Objects.equals(includeErrorDetails, that.includeErrorDetails)
                 && Objects.equals(port, that.port)
                 && Objects.equals(sniEnabled, that.sniEnabled)
-                && Objects.equals(profiles, that.profiles)
                 && Objects.equals(subprotocol, that.subprotocol)
                 && Objects.equals(subprotocolBody, that.subprotocolBody)
-                && Objects.equals(subprotocolBodyEncoding, that.subprotocolBodyEncoding);
+                && Objects.equals(subprotocolBodyEncoding, that.subprotocolBodyEncoding)
+                && Objects.equals(sslEnabled, that.sslEnabled)
+                && Objects.equals(jwkProvider, that.jwkProvider)
+                && Objects.equals(aclFolder, that.aclFolder)
+                && Objects.equals(profiles, that.profiles);
     }
 
 
@@ -307,7 +332,10 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
                 profiles,
                 subprotocol,
                 subprotocolBody,
-                subprotocolBodyEncoding);
+                subprotocolBodyEncoding,
+                jwkProvider,
+                aclFolder,
+                profiles);
     }
 
 
@@ -384,6 +412,12 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
         }
 
 
+        public B jwkProvider(String value) {
+            getBuildingInstance().setJwkProvider(value);
+            return getSelf();
+        }
+
+
         public B pathPrefix(String value) {
             getBuildingInstance().setPathPrefix(value);
             return getSelf();
@@ -428,6 +462,12 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
 
         public B ssl(boolean value) {
             getBuildingInstance().setSslEnabled(value);
+            return getSelf();
+        }
+
+
+        public B aclFolder(String value) {
+            getBuildingInstance().setAclFolder(value);
             return getSelf();
         }
 

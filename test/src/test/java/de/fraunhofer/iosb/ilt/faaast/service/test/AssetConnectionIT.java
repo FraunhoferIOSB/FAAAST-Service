@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.test;
 
 import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper.toHttpStatusCode;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.LogicalExpression.identity;
 import static de.fraunhofer.iosb.ilt.faaast.service.test.model.AssetConnectionModelSimple.ENVIRONMENT;
 import static de.fraunhofer.iosb.ilt.faaast.service.test.model.AssetConnectionModelSimple.INITIAL_VALUE;
 import static de.fraunhofer.iosb.ilt.faaast.service.test.model.AssetConnectionModelSimple.NODE_ID_SOURCE_1;
@@ -68,6 +69,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundExc
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.UnsupportedModifierException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.filter.QueryFilter;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.AssetAdministrationShellElementWalker;
@@ -429,7 +431,7 @@ public class AssetConnectionIT extends AbstractIntegrationTest {
 
 
     private void setValue(Service service, Reference reference, String value) throws ResourceNotFoundException, PersistenceException, ValueFormatException {
-        Property property = (Property) service.getPersistence().getSubmodelElement(reference, QueryModifier.MINIMAL, Property.class);
+        Property property = (Property) service.getPersistence().getSubmodelElement(reference, QueryModifier.MINIMAL, Property.class, identity(), QueryFilter.EMPTY);
         property.setValue(value);
         PatchSubmodelElementValueByPathResponse response = service.execute(PatchSubmodelElementValueByPathRequest.builder()
                 .submodelId(SubmodelElementIdentifier.fromReference(reference).getSubmodelId())

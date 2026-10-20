@@ -1,0 +1,78 @@
+/*
+ * Copyright (c) 2021 Fraunhofer IOSB, eine rechtlich nicht selbstaendige
+ * Einrichtung der Fraunhofer-Gesellschaft zur Foerderung der angewandten
+ * Forschung e.V.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.field;
+
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.Attribute;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.operand.attribute.field.path.FieldPath;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.visitor.LogicalExpressionVisitor;
+
+import java.util.Objects;
+
+
+/**
+ * A field identifier referencing a specific AAS attribute to be examined in a query.
+ *
+ * <p>A field identifier follows the notation
+ * {@code <RootDeclaration> ( "." <IdShortPath> | "" ) "#" <AttributeDeclaration>},
+ * e.g. {@code $sme#value} or {@code $aas#assetInformation.assetKind}. The root declaration selects the kind of element
+ * the expression starts from and the attribute declaration points to an atomic value used as input for comparisons.
+ */
+public abstract class FieldIdentifier implements Attribute {
+    protected final FieldPath fieldPath;
+
+    public FieldIdentifier(FieldPath fieldPath) {
+        this.fieldPath = fieldPath;
+    }
+
+
+    @Override
+    public <R> R accept(LogicalExpressionVisitor<R> visitor) {
+        return visitor.visit(this);
+    }
+
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        FieldIdentifier other = (FieldIdentifier) obj;
+        return Objects.equals(fieldPath, other.fieldPath);
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getClass(), fieldPath);
+    }
+
+
+    @Override
+    public String toString() {
+        return getScopeSyntax() + "#" + fieldPath;
+    }
+
+
+    /**
+     * Returns the scope syntax (notation) of this field identifier.
+     *
+     * @return the scope syntax
+     */
+    protected abstract String getScopeSyntax();
+
+}

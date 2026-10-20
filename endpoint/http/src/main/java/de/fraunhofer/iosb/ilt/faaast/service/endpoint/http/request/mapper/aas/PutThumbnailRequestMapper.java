@@ -19,23 +19,21 @@ import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpConst
 import com.google.common.net.MediaType;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractRequestMapper;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractRequestMapperWithId;
 import de.fraunhofer.iosb.ilt.faaast.service.model.TypedInMemoryFile;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.PutThumbnailRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
-import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
 import java.util.Map;
 
 
 /**
  * class to map HTTP-PUT-Request path: shells/{aasIdentifier}/asset-information/thumbnail.
  */
-public class PutThumbnailRequestMapper extends AbstractRequestMapper {
+public class PutThumbnailRequestMapper extends AbstractRequestMapperWithId {
 
-    private static final String AAS_ID = RegExHelper.uniqueGroupName();
-    private static final String PATTERN = String.format("shells/%s/asset-information/thumbnail", pathElement(AAS_ID));
+    private static final String PATTERN = "shells/%s/asset-information/thumbnail";
 
     public PutThumbnailRequestMapper(ServiceContext serviceContext) {
         super(serviceContext, HttpMethod.PUT, PATTERN);
@@ -47,7 +45,7 @@ public class PutThumbnailRequestMapper extends AbstractRequestMapper {
         MediaType contentType = MediaType.parse(httpRequest.getHeader(HEADER_CONTENT_TYPE));
         Map<String, TypedInMemoryFile> multipart = parseMultiPartBody(httpRequest, contentType);
         return PutThumbnailRequest.builder()
-                .id(getParameterBase64UrlEncoded(urlParameters, AAS_ID))
+                .id(getId(urlParameters))
                 .content(new TypedInMemoryFile.Builder()
                         .content(multipart.get("file").getContent())
                         .contentType(multipart.get("file").getContentType())

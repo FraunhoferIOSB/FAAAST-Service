@@ -14,6 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.referable.REFERABLE_TYPES.AAS;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.Right.READ;
+
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithId;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.GetAssetInformationResponse;
 import java.util.Objects;
@@ -23,6 +26,11 @@ import java.util.Objects;
  * Request class for GetAssetInformation requests.
  */
 public class GetAssetInformationRequest extends AbstractRequestWithId<GetAssetInformationResponse> {
+
+    protected GetAssetInformationRequest() {
+        super(READ, AAS);
+    }
+
 
     @Override
     public boolean equals(Object o) {
