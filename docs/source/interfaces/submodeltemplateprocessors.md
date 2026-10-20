@@ -141,19 +141,43 @@ In the Property Forms of AID, the following attributes are currently evaluated:
 :::
 
 ```{code-block} json
-:caption: Example configuration section for AID + AIMC SubmodelTemplate Processor.
+:caption: Example configuration section for AID + AIMC SubmodelTemplate Processor with BasicCredentials.
 :lineno-start: 1
 {
     "@class": "de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.AimcSubmodelTemplateProcessor",
     "credentials": {
         "http://myserver.example.com:8088": [
             {
+                "@class": "de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.config.BasicCredentials",
                 "username": "user1",
                 "password": "pw1"
             },
             {
+                "@class": "de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.config.BasicCredentials",
                 "username": "user2",
                 "password": "pw2"
+            }
+        ]
+    }
+}
+```
+
+```{code-block} json
+:caption: Example configuration section for AID + AIMC SubmodelTemplate Processor with OPC UA CertificateCredentials.
+:lineno-start: 1
+{
+    "@class": "de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.AimcSubmodelTemplateProcessor",
+    "credentials": {
+        "opc.tcp://myopcuaserver.example.com:4840": [
+            {
+                "@class": "de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.config.CertificateCredentials",
+                "authenticationCertificate": {
+                    "keyStoreType": "PKCS12",
+                    "keyStorePath": ".\\user_certificate.pfx",
+                    "keyStorePassword": "storepw",
+                    "keyAlias": "user1",
+                    "keyPassword": "keypw"
+                }
             }
         ]
     }
