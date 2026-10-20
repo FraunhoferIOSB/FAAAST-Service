@@ -80,7 +80,7 @@ public class ReferableCreator {
         if (hasExtensions == null) {
             return null;
         }
-        return new AASHasExtensions(getExtensionData(hasExtensions.getExtensions()));
+        return new AASHasExtensions(getExtensionData(hasExtensions.getExtensions()), null);
     }
 
 

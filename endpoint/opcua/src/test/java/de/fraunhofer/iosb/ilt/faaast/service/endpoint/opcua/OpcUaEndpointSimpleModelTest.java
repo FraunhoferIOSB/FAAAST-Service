@@ -361,14 +361,14 @@ public class OpcUaEndpointSimpleModelTest {
                 new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Submodel), TestConstants.SUBMODEL_TECH_DATA_NAME),
                 new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Property), TestConstants.MAX_ROTATION_SPEED_NAME)
         };
-        AASReference oldValue = new AASReference(AASReferenceTypes.of(UnsignedShort.valueOf(0)), null, oldKeys);
+        AASReference oldValue = new AASReference(AASReferenceTypes.of(UnsignedShort.valueOf(0)), null, oldKeys, null);
 
         // The DataElementValueMapper changes the order of the elements
         AASKey[] newKeys = {
                 new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Submodel), TestConstants.SUBMODEL_TECH_DATA_NAME),
                 new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Property), "Another property")
         };
-        AASReference newValue = new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ModelReference), null, newKeys);
+        AASReference newValue = new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ModelReference), null, newKeys, null);
 
         TestUtils.writeNewValueReference(client, writeNode, oldValue, newValue);
     }
@@ -711,7 +711,7 @@ public class OpcUaEndpointSimpleModelTest {
         TestUtils.checkCommonAttributes(client, submodelNode, aasns,
                 new CommonAttributesData(null, null, "", TestConstants.SUBMODEL_TECH_DATA_NAME,
                         new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ExternalReference), null,
-                                List.of(new AASKey(AASKeyTypes.of(AASKeyTypes.Options.GlobalReference), "0173-1#01-AFZ615#016")).toArray(AASKey[]::new)),
+                                List.of(new AASKey(AASKeyTypes.of(AASKeyTypes.Options.GlobalReference), "0173-1#01-AFZ615#016")).toArray(AASKey[]::new), null),
                         null, AASModellingKind.of(AASModellingKind.Options.Instance), new ArrayList<>()));
 
         TestUtils.checkAasPropertyObject(client, submodelNode, aasns, TestConstants.MAX_ROTATION_SPEED_NAME, "PARAMETER",
@@ -763,11 +763,11 @@ public class OpcUaEndpointSimpleModelTest {
 
         List<AASReference> refs = new ArrayList<>();
         refs.add(new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ModelReference), null,
-                List.of(new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Submodel), TestConstants.SUBMODEL_TECH_DATA_NAME)).toArray(AASKey[]::new)));
+                List.of(new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Submodel), TestConstants.SUBMODEL_TECH_DATA_NAME)).toArray(AASKey[]::new), null));
         refs.add(new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ModelReference), null,
-                List.of(new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Submodel), TestConstants.SUBMODEL_OPER_DATA_NAME)).toArray(AASKey[]::new)));
+                List.of(new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Submodel), TestConstants.SUBMODEL_OPER_DATA_NAME)).toArray(AASKey[]::new), null));
         refs.add(new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ModelReference), null,
-                List.of(new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Submodel), TestConstants.SUBMODEL_DOC_NAME)).toArray(AASKey[]::new)));
+                List.of(new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Submodel), TestConstants.SUBMODEL_DOC_NAME)).toArray(AASKey[]::new), null));
 
         TestUtils.checkSubmodelRefs(client, refNode, refs);
     }
@@ -814,7 +814,7 @@ public class OpcUaEndpointSimpleModelTest {
                 //        new LocalizedText(TestConstants.MAX_ROTATIONSPEED_DEFINITION_DE, "de"),
                 new LocalizedText(TestConstants.CD_TITLE_DEFINITION, "EN"));
         DataSpecificationData dataSpec = new DataSpecificationData(
-                new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ExternalReference), null, keysDataSpec.toArray(AASKey[]::new)),
+                new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ExternalReference), null, keysDataSpec.toArray(AASKey[]::new), null),
                 preferredNames.toArray(LocalizedText[]::new),
                 "ExampleString", AASDataTypeIec61360.of(AASDataTypeIec61360.Options.STRING_TRANSLATABLE), "ExampleString", definitions.toArray(LocalizedText[]::new),
                 null);
@@ -829,7 +829,7 @@ public class OpcUaEndpointSimpleModelTest {
         definitions = List.of(
                 new LocalizedText(TestConstants.CD_DIGITAL_FILE_DEFINITION, "EN"));
         dataSpec = new DataSpecificationData(
-                new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ExternalReference), null, keysDataSpec.toArray(AASKey[]::new)),
+                new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ExternalReference), null, keysDataSpec.toArray(AASKey[]::new), null),
                 preferredNames.toArray(LocalizedText[]::new),
                 "ExampleString", AASDataTypeIec61360.of(AASDataTypeIec61360.Options.STRING), "ExampleString", definitions.toArray(LocalizedText[]::new),
                 null);
@@ -848,10 +848,10 @@ public class OpcUaEndpointSimpleModelTest {
                 new LocalizedText(TestConstants.MAX_ROTATIONSPEED_DEFINITION_DE, "de"),
                 new LocalizedText(TestConstants.MAX_ROTATIONSPEED_DEFINITION_EN, "EN"));
         dataSpec = new DataSpecificationData(
-                new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ExternalReference), null, keysDataSpec.toArray(AASKey[]::new)),
+                new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ExternalReference), null, keysDataSpec.toArray(AASKey[]::new), null),
                 preferredNames.toArray(LocalizedText[]::new),
                 "1/min", AASDataTypeIec61360.of(AASDataTypeIec61360.Options.REAL_MEASURE), "ExampleString", definitions.toArray(LocalizedText[]::new),
-                new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ExternalReference), null, keysUnitId.toArray(AASKey[]::new)));
+                new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ExternalReference), null, keysUnitId.toArray(AASKey[]::new), null));
         cddata = new ConceptDescriptionData("0173-1#02-BAA120#008", "2", "1", dataSpec);
 
         list.add(cddata);

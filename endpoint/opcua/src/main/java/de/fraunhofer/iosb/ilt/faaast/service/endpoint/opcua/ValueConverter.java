@@ -381,7 +381,7 @@ public class ValueConverter {
      * @return The corresponding OPC UA HasKind.
      */
     public static AASHasKind convertHasKind(ModellingKind value) {
-        return new AASHasKind(convertModellingKind(value));
+        return new AASHasKind(convertModellingKind(value), null);
     }
 
 

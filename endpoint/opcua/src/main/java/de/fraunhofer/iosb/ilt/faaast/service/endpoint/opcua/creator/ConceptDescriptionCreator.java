@@ -41,8 +41,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import opc.ua.aas.Ids;
 import opc.ua.aas.datatypes.AASConceptDescription;
 import opc.ua.aas.datatypes.AASConceptDescriptionCommonAttributes;
@@ -226,7 +228,21 @@ public class ConceptDescriptionCreator {
 
             if (content61360.getLevelType() != null) {
                 var level = content61360.getLevelType();
-                builder.setLevelType(new AASLevelType(level.getMin(), level.getMax(), level.getNom(), level.getTyp()));
+                Set<AASLevelType.Options> levels = new HashSet<>();
+                if (level.getMin()) {
+                    levels.add(AASLevelType.Options.Min);
+                }
+                if (level.getMax()) {
+                    levels.add(AASLevelType.Options.Max);
+                }
+                if (level.getNom()) {
+                    levels.add(AASLevelType.Options.Nom);
+                }
+                if (level.getTyp()) {
+                    levels.add(AASLevelType.Options.Type);
+                }
+                builder.setLevelType(AASLevelType.of(levels));
+                //builder.setLevelType(new AASLevelType(level.getMin(), level.getMax(), level.getNom(), level.getTyp()));
             }
 
             if (content61360.getPreferredName() != null) {

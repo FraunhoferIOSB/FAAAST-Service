@@ -299,7 +299,7 @@ public class OpcUaEndpointFullModelTest {
                 new AASKey(AASKeyTypes.of(AASKeyTypes.Options.SubmodelElementList), "ExampleSubmodelElementListUnordered"),
                 new AASKey(AASKeyTypes.of(AASKeyTypes.Options.MultiLanguageProperty), "ExampleMultiLanguageProperty")
         };
-        AASReference oldValue = new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ModelReference), null, oldKeys);
+        AASReference oldValue = new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ModelReference), null, oldKeys, null);
 
         // The DataElementValueMapper changes the order of the elements
         AASKey[] newKeys = {
@@ -307,7 +307,7 @@ public class OpcUaEndpointFullModelTest {
                 new AASKey(AASKeyTypes.of(AASKeyTypes.Options.SubmodelElementList), "ExampleSubmodelElementCollection"),
                 new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Blob), "ExampleBlob")
         };
-        AASReference newValue = new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ModelReference), null, newKeys);
+        AASReference newValue = new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ModelReference), null, newKeys, null);
 
         TestUtils.writeNewValueReference(client, writeNode, oldValue, newValue);
     }
@@ -347,13 +347,13 @@ public class OpcUaEndpointFullModelTest {
                 new AASKey(AASKeyTypes.of(AASKeyTypes.Options.SubmodelElementCollection), "ExampleSubmodelElementCollection"),
                 new AASKey(AASKeyTypes.of(AASKeyTypes.Options.File), "ExampleFile")
         };
-        AASReference oldValue = new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ModelReference), null, oldKeys);
+        AASReference oldValue = new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ModelReference), null, oldKeys, null);
 
         // The DataElementValueMapper changes the order of the elements
         AASKey[] newKeys = {
                 new AASKey(AASKeyTypes.of(AASKeyTypes.Options.GlobalReference), "https://iosb.fraunhofer.de/TestValue1")
         };
-        AASReference newValue = new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ModelReference), null, newKeys);
+        AASReference newValue = new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ModelReference), null, newKeys, null);
 
         TestUtils.writeNewValueReference(client, writeNode, oldValue, newValue);
     }
@@ -1142,7 +1142,7 @@ public class OpcUaEndpointFullModelTest {
                             new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Entity), "ExampleEntity"),
                             new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Property), "ExampleProperty2")
                     };
-                    AASReference newValue = new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ModelReference), null, smeKeys);
+                    AASReference newValue = new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ModelReference), null, smeKeys, null);
 
                     DataValue value = client.readValue(client.getAddressSpace().getNamespaceTable().toNodeId(targets2[0].getTargetId()));
                     return value.getStatusCode().isGood() && (value.getValue() != null) && Objects.equals((AASReference) value.getValue().getValue(), newValue);
@@ -1212,7 +1212,8 @@ public class OpcUaEndpointFullModelTest {
         TestUtils.checkCommonAttributes(client, submodelNode, aasns,
                 new CommonAttributesData("0", "9", "", TestConstants.FULL_SUBMODEL_1_ID,
                         new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ExternalReference), null,
-                                List.of(new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Submodel), "http://acplt.org/SubmodelTemplates/AssetIdentification")).toArray(AASKey[]::new)),
+                                List.of(new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Submodel), "http://acplt.org/SubmodelTemplates/AssetIdentification")).toArray(AASKey[]::new),
+                                null),
                         null, AASModellingKind.of(AASModellingKind.Options.Instance), new ArrayList<>()));
 
         ArrayList<Qualifier> list = new ArrayList<>();
@@ -1238,7 +1239,8 @@ public class OpcUaEndpointFullModelTest {
         TestUtils.checkCommonAttributes(client, submodelNode, aasns,
                 new CommonAttributesData("0", "9", "", TestConstants.FULL_SUBMODEL_7_ID,
                         new AASReference(AASReferenceTypes.of(AASReferenceTypes.Options.ExternalReference), null,
-                                List.of(new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Submodel), "http://acplt.org/SubmodelTemplates/ExampleSubmodel")).toArray(AASKey[]::new)),
+                                List.of(new AASKey(AASKeyTypes.of(AASKeyTypes.Options.Submodel), "http://acplt.org/SubmodelTemplates/ExampleSubmodel")).toArray(AASKey[]::new),
+                                null),
                         null, AASModellingKind.of(AASModellingKind.Options.Template), new ArrayList<>()));
 
         int iltns = client.getAddressSpace().getNamespaceTable().getIndex(opc.ua.iosb.aas.Ids.AASBasicEventElementType.getNamespaceUri());
