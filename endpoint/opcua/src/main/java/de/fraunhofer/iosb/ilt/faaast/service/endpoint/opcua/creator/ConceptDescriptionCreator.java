@@ -242,7 +242,6 @@ public class ConceptDescriptionCreator {
                     levels.add(AASLevelType.Options.Type);
                 }
                 builder.setLevelType(AASLevelType.of(levels));
-                //builder.setLevelType(new AASLevelType(level.getMin(), level.getMax(), level.getNom(), level.getTyp()));
             }
 
             if (content61360.getPreferredName() != null) {

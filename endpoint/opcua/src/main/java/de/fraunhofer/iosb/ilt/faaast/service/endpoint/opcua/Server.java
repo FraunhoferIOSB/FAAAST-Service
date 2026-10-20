@@ -312,7 +312,6 @@ public class Server {
 
             LOGGER.info("createAddressSpace: {}", envNode);
 
-            //addProfiles(envNode);
             AasServiceNodeManager aasNodeManager = new AasServiceNodeManager(uaServer, AasServiceNodeManager.NAMESPACE_URI, aasEnvironment, endpoint, envNode);
             aasNodeManager.getIoManager().addListeners(new AasServiceIoManagerListener(endpoint, aasNodeManager));
 
@@ -346,18 +345,4 @@ public class Server {
         long duration = System.currentTimeMillis() - start;
         LOGGER.trace("loadAasNodes end. Dauer: {} ms", duration);
     }
-
-    //    private void addProfiles(AASEnvironmentType envNode) throws StatusException {
-    //        List<ServiceSpecificationProfile> profiles = endpoint.getProfiles();
-    //        List<String> uris = new ArrayList<>();
-    //        profiles.forEach(p -> uris.add(p.getId()));
-    //        UaProperty profilesNode = envNode.getProfilesNode();
-    //        profilesNode.setArrayDimensions(new UnsignedInteger[] {
-    //                UnsignedInteger.valueOf(uris.size())
-    //        });
-    //        profilesNode.setValueRank(ValueRanks.OneDimension);
-    //        profilesNode.setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
-    //        profilesNode.setDescription(LocalizedText.english("The Current Profiles"));
-    //        envNode.setProfiles(uris.toArray(String[]::new));
-    //    }
 }
