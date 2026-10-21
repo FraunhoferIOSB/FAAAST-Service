@@ -734,9 +734,6 @@ public class OpcUaEndpointSimpleModelTest {
         Assert.assertEquals(QualifiedName.from(aasns, "Title"), refs.get(0).getBrowseName());
         Assert.assertEquals(QualifiedName.from(aasns, "DigitalFile_PDF"), refs.get(1).getBrowseName());
 
-        // check DictionaryEntry
-        TestUtils.checkUriDictionaryEntry(client, node, TestConstants.OPERATING_MANUAL_CONCEPT_DESCRIPTION);
-
         TestUtils.checkAasPropertyFile(client, node, aasns, "DigitalFile_PDF", null, "application/pdf",
                 "file:///aasx/OperatingManual.pdf");
     }

@@ -127,18 +127,10 @@ public class ConceptDescriptionCreator {
         Ensure.requireNonNull(node);
         Ensure.requireNonNull(semanticId);
         try {
-            if (ReferenceHelper.containsSameReference(dictionaryMap, semanticId)) {
-                node.addReference(ReferenceHelper.getValueBySameReference(dictionaryMap, semanticId), Identifiers.HasDictionaryEntry, false);
-            }
-            // if entry not found: perhaps create a new one?
-            if ((semanticId.getKeys() != null) && (semanticId.getKeys().size() == 1)) {
-                String id = semanticId.getKeys().get(0).getValue();
-                DictionaryEntryType entry = createDictionaryEntry(id, nodeManager);
-
-                if (entry != null) {
-                    LOGGER.atDebug().log("addSemanticId: add HasDictionaryEntry reference for Node {} to {}", node.getNodeId().toString(), entry.getNodeId().toString());
-                    node.addReference(entry, Identifiers.HasDictionaryEntry, false);
-                    dictionaryMap.put(semanticId, entry);
+            if (!ReferenceHelper.containsSameReference(dictionaryMap, semanticId)) {
+                if ((semanticId.getKeys() != null) && (semanticId.getKeys().size() == 1)) {
+                    String id = semanticId.getKeys().get(0).getValue();
+                    createDictionaryEntry(id, nodeManager);
                 }
             }
         }

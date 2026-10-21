@@ -32,18 +32,15 @@ import com.prosysopc.ua.stack.builtintypes.Variant;
 import com.prosysopc.ua.stack.common.ServiceResultException;
 import com.prosysopc.ua.stack.core.ApplicationDescription;
 import com.prosysopc.ua.stack.core.ApplicationType;
-import com.prosysopc.ua.stack.core.BrowseDirection;
 import com.prosysopc.ua.stack.core.BrowsePathResult;
 import com.prosysopc.ua.stack.core.BrowsePathTarget;
 import com.prosysopc.ua.stack.core.Identifiers;
 import com.prosysopc.ua.stack.core.NodeClass;
-import com.prosysopc.ua.stack.core.ReferenceDescription;
 import com.prosysopc.ua.stack.core.RelativePath;
 import com.prosysopc.ua.stack.core.RelativePathElement;
 import com.prosysopc.ua.stack.core.StatusCodes;
 import com.prosysopc.ua.types.opcua.BaseDataVariableType;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.nodemanager.UriDictionaryNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -583,18 +580,6 @@ public class TestUtils {
         Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
         Assert.assertNotNull(value.getValue());
         Assert.assertEquals(state, value.getValue().asOptionSet(AASStateOfEvent.SPECIFICATION));
-    }
-
-
-    public static void checkUriDictionaryEntry(UaClient client, NodeId nodeId, String value) throws ServiceException, ServiceResultException, StatusException {
-        NodeId expected = client.getAddressSpace().getNamespaceTable().toNodeId(new ExpandedNodeId(UriDictionaryNodeManager.NAMESPACE, value));
-        NodeId entryNode;
-        List<ReferenceDescription> refs = client.getAddressSpace().browse(nodeId, BrowseDirection.Forward, Identifiers.HasDictionaryEntry);
-        Assert.assertEquals(1, refs.size());
-        ReferenceDescription ref = refs.get(0);
-        Assert.assertEquals(Identifiers.HasDictionaryEntry, ref.getReferenceTypeId());
-        entryNode = client.getAddressSpace().getNamespaceTable().toNodeId(ref.getNodeId());
-        Assert.assertEquals(expected, entryNode);
     }
 
 
