@@ -546,12 +546,6 @@
             <Reference ReferenceType="HasSubtype" IsForward="false">i=12</Reference>
         </References>
     </UADataType>
-    <UADataType NodeId="ns=1;i=3021" BrowseName="1:AASMessageTopicType">
-        <DisplayName>AASMessageTopicType</DisplayName>
-        <References>
-            <Reference ReferenceType="HasSubtype" IsForward="false">i=12</Reference>
-        </References>
-    </UADataType>
     <UADataType NodeId="ns=1;i=3022" BrowseName="1:AASMultiLanguageNameType">
         <DisplayName>AASMultiLanguageNameType</DisplayName>
         <References>
