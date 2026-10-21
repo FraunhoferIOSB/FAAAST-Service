@@ -127,11 +127,9 @@ public class ConceptDescriptionCreator {
         Ensure.requireNonNull(node);
         Ensure.requireNonNull(semanticId);
         try {
-            if (!ReferenceHelper.containsSameReference(dictionaryMap, semanticId)) {
-                if ((semanticId.getKeys() != null) && (semanticId.getKeys().size() == 1)) {
-                    String id = semanticId.getKeys().get(0).getValue();
-                    createDictionaryEntry(id, nodeManager);
-                }
+            if ((!ReferenceHelper.containsSameReference(dictionaryMap, semanticId)) && ((semanticId.getKeys() != null) && (semanticId.getKeys().size() == 1))) {
+                String id = semanticId.getKeys().get(0).getValue();
+                createDictionaryEntry(id, nodeManager);
             }
         }
         catch (Exception ex) {

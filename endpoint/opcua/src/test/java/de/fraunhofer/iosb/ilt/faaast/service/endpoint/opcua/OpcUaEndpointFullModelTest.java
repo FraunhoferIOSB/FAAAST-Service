@@ -54,7 +54,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.Eleme
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.util.PortHelper;
 import java.time.Duration;
-import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -62,6 +61,7 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
 import opc.ua.aas.Ids;
+import opc.ua.aas.datatypes.AASDateTime;
 import opc.ua.aas.datatypes.AASKey;
 import opc.ua.aas.datatypes.AASKeyTypes;
 import opc.ua.aas.datatypes.AASModellingKind;
@@ -743,16 +743,16 @@ public class OpcUaEndpointFullModelTest {
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
-        Assert.assertNotNull("testDateTimeProperty Browse Result Null", bpres);
-        Assert.assertEquals("testDateTimeProperty Browse Result: size doesn't match", 1, bpres.length);
-        Assert.assertTrue("testDateTimeProperty Browse Result Good", bpres[0].getStatusCode().isGood());
+        Assert.assertNotNull(bpres);
+        Assert.assertEquals(1, bpres.length);
+        Assert.assertTrue(bpres[0].getStatusCode().isGood());
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
-        Assert.assertNotNull("testDateTimeProperty Submodel Null", targets);
-        Assert.assertTrue("testDateTimeProperty Submodel empty", targets.length > 0);
+        Assert.assertNotNull(targets);
+        Assert.assertTrue(targets.length > 0);
 
         NodeId smNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
-        Assert.assertNotNull("testDateTimeProperty SubmodelNode Null", smNode);
+        Assert.assertNotNull(smNode);
 
         browsePath.clear();
         relPath.clear();
@@ -760,23 +760,24 @@ public class OpcUaEndpointFullModelTest {
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(smNode, relPath.toArray(RelativePath[]::new));
-        Assert.assertNotNull("testDateTimeProperty Browse (2) Result Null", bpres);
-        Assert.assertEquals("testDateTimeProperty Browse (2) Result: size doesn't match", 1, bpres.length);
-        Assert.assertTrue("testDateTimeProperty Browse (2) Result Good", bpres[0].getStatusCode().isGood());
+        Assert.assertNotNull(bpres);
+        Assert.assertEquals(1, bpres.length);
+        Assert.assertTrue(bpres[0].getStatusCode().isGood());
         targets = bpres[0].getTargets();
-        Assert.assertNotNull("testDateTimeProperty Property Null", targets);
-        Assert.assertTrue("testDateTimeProperty Property empty", targets.length > 0);
+        Assert.assertNotNull(targets);
+        Assert.assertTrue(targets.length > 0);
 
         NodeId propValueNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
-        Assert.assertNotNull("testDateTimeProperty Node Null", propValueNode);
+        Assert.assertNotNull(propValueNode);
 
-        DateTime dt = DateTime.fromInstant(ZonedDateTime.of(2022, 7, 8, 10, 22, 4, 0, ZoneId.systemDefault()).toInstant());
+        ZonedDateTime zdt = ZonedDateTime.of(2022, 7, 8, 10, 22, 4, 0, ZoneId.systemDefault());
+        AASDateTime adt = new AASDateTime(DateTime.fromInstant(zdt.toInstant()), zdt.getOffset().getId());
         TestUtils.checkAasPropertyObject(client, smNode, aasns, TestConstants.FULL_DATETIME_PROP_NAME, "Parameter",
-                Datatype.DATE_TIME, dt, new ArrayList<>());
+                Datatype.DATE_TIME, adt, new ArrayList<>());
 
-        OffsetDateTime odtnew = OffsetDateTime.now(ZoneId.systemDefault());
-        DateTime dtnew = DateTime.fromInstant(odtnew.toInstant());
-        TestUtils.writeNewValueIntern(client, propValueNode, dt, dtnew);
+        ZonedDateTime zdtnew = ZonedDateTime.now(ZoneId.systemDefault());
+        AASDateTime adtnew = new AASDateTime(DateTime.fromInstant(zdtnew.toInstant()), zdtnew.getOffset().getId());
+        TestUtils.writeNewValueIntern(client, propValueNode, adt, adtnew);
     }
 
 

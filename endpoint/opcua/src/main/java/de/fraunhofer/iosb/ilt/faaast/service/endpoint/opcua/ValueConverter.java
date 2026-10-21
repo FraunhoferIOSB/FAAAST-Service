@@ -68,9 +68,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import opc.ua.aas.DataTypeIds;
+import opc.ua.aas.Ids;
 import opc.ua.aas.datatypes.AASAssetKind;
 import opc.ua.aas.datatypes.AASDataTypeIec61360;
+import opc.ua.aas.datatypes.AASDateTime;
 import opc.ua.aas.datatypes.AASEntityEnumType;
 import opc.ua.aas.datatypes.AASHasKind;
 import opc.ua.aas.datatypes.AASKeyTypes;
@@ -159,16 +160,16 @@ public class ValueConverter {
 
     static {
         TYPE_LIST = new ArrayList<>();
-        TYPE_LIST.add(new DatatypeMapper(DataTypeIds.AASBase64Binary, Datatype.BASE64_BINARY));
-        TYPE_LIST.add(new DatatypeMapper(DataTypeIds.AASHexBinary, Datatype.HEX_BINARY));
+        TYPE_LIST.add(new DatatypeMapper(Ids.AASBase64Binary, Datatype.BASE64_BINARY));
+        TYPE_LIST.add(new DatatypeMapper(Ids.AASHexBinary, Datatype.HEX_BINARY));
         TYPE_LIST.add(new DatatypeMapper(new ExpandedNodeId(Identifiers.Boolean), Datatype.BOOLEAN));
-        TYPE_LIST.add(new DatatypeMapper(new ExpandedNodeId(Identifiers.DateTime), Datatype.DATE_TIME));
+        TYPE_LIST.add(new DatatypeMapper(Ids.AASDateTime, Datatype.DATE_TIME));
         TYPE_LIST.add(new DatatypeMapper(new ExpandedNodeId(Identifiers.Decimal), Datatype.DECIMAL));
-        TYPE_LIST.add(new DatatypeMapper(DataTypeIds.AASInteger, Datatype.INTEGER));
-        TYPE_LIST.add(new DatatypeMapper(DataTypeIds.AASPositiveInteger, Datatype.POSITIVE_INTEGER));
-        TYPE_LIST.add(new DatatypeMapper(DataTypeIds.AASNonNegativeInteger, Datatype.NON_NEGATIVE_INTEGER));
-        TYPE_LIST.add(new DatatypeMapper(DataTypeIds.AASNegativeInteger, Datatype.NEGATIVE_INTEGER));
-        TYPE_LIST.add(new DatatypeMapper(DataTypeIds.AASNonPositiveInteger, Datatype.NON_POSITIVE_INTEGER));
+        TYPE_LIST.add(new DatatypeMapper(Ids.AASInteger, Datatype.INTEGER));
+        TYPE_LIST.add(new DatatypeMapper(Ids.AASPositiveInteger, Datatype.POSITIVE_INTEGER));
+        TYPE_LIST.add(new DatatypeMapper(Ids.AASNonNegativeInteger, Datatype.NON_NEGATIVE_INTEGER));
+        TYPE_LIST.add(new DatatypeMapper(Ids.AASNegativeInteger, Datatype.NEGATIVE_INTEGER));
+        TYPE_LIST.add(new DatatypeMapper(Ids.AASNonPositiveInteger, Datatype.NON_POSITIVE_INTEGER));
         TYPE_LIST.add(new DatatypeMapper(new ExpandedNodeId(Identifiers.Int32), Datatype.INT));
         TYPE_LIST.add(new DatatypeMapper(new ExpandedNodeId(Identifiers.UInt32), Datatype.UNSIGNED_INT));
         TYPE_LIST.add(new DatatypeMapper(new ExpandedNodeId(Identifiers.Int64), Datatype.LONG));
@@ -184,11 +185,11 @@ public class ValueConverter {
         TYPE_LIST.add(new DatatypeMapper(new ExpandedNodeId(Identifiers.DateString), Datatype.DATE));
         TYPE_LIST.add(new DatatypeMapper(new ExpandedNodeId(Identifiers.TimeString), Datatype.TIME));
         TYPE_LIST.add(new DatatypeMapper(new ExpandedNodeId(Identifiers.DurationString), Datatype.DURATION));
-        TYPE_LIST.add(new DatatypeMapper(DataTypeIds.AASgDay, Datatype.GDAY));
-        TYPE_LIST.add(new DatatypeMapper(DataTypeIds.AASgMonth, Datatype.GMONTH));
-        TYPE_LIST.add(new DatatypeMapper(DataTypeIds.AASgMonthDay, Datatype.GMONTH_DAY));
-        TYPE_LIST.add(new DatatypeMapper(DataTypeIds.AASgYear, Datatype.GYEAR));
-        TYPE_LIST.add(new DatatypeMapper(DataTypeIds.AASgYearMonth, Datatype.GYEAR_MONTH));
+        TYPE_LIST.add(new DatatypeMapper(Ids.AASgDay, Datatype.GDAY));
+        TYPE_LIST.add(new DatatypeMapper(Ids.AASgMonth, Datatype.GMONTH));
+        TYPE_LIST.add(new DatatypeMapper(Ids.AASgMonthDay, Datatype.GMONTH_DAY));
+        TYPE_LIST.add(new DatatypeMapper(Ids.AASgYear, Datatype.GYEAR));
+        TYPE_LIST.add(new DatatypeMapper(Ids.AASgYearMonth, Datatype.GYEAR_MONTH));
 
         MODELING_KIND_MAP = new EnumMap<>(ModellingKind.class);
         MODELING_KIND_MAP.put(ModellingKind.INSTANCE, AASModellingKind.of(AASModellingKind.Options.Instance));
@@ -784,8 +785,8 @@ public class ValueConverter {
      * @param value The input Java date time
      * @return The OPC UA date time
      */
-    public static DateTime createDateTime(OffsetDateTime value) {
-        return DateTime.fromInstant(value.toInstant());
+    public static AASDateTime createDateTime(OffsetDateTime value) {
+        return new AASDateTime(DateTime.fromInstant(value.toInstant()), value.getOffset().getId());
     }
 
 
@@ -805,9 +806,19 @@ public class ValueConverter {
             return null;
         }
         String retval;
-        // special treatment for DateTime and ByteString
+        // special treatment for DateTime, AASDateTime and ByteString
         if (object instanceof DateTime dt) {
             retval = OffsetDateTime.ofInstant(dt.toInstant(), ZoneId.systemDefault()).toString();
+        }
+        else if (object instanceof AASDateTime adt) {
+            ZoneId zone;
+            if ((adt.getTimeZone() == null) || (adt.getTimeZone().isEmpty())) {
+                zone = ZoneId.systemDefault();
+            }
+            else {
+                zone = ZoneId.of(adt.getTimeZone());
+            }
+            retval = OffsetDateTime.ofInstant(adt.getDateTime().toInstant(), zone).toString();
         }
         else if (object instanceof ByteString bt) {
             if (type == DataTypeDefXsd.HEX_BINARY) {
