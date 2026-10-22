@@ -62,6 +62,7 @@ import java.util.Set;
 import opc.ua.aas.Ids;
 import opc.ua.aas.datatypes.AASDataTypeIec61360;
 import opc.ua.aas.datatypes.AASEntityEnumType;
+import opc.ua.aas.datatypes.AASInteger;
 import opc.ua.aas.datatypes.AASKey;
 import opc.ua.aas.datatypes.AASKeyTypes;
 import opc.ua.aas.datatypes.AASModellingKind;
@@ -700,7 +701,7 @@ public class OpcUaEndpointSimpleModelTest {
         testEntity(submodelNode);
 
         TestUtils.checkAasPropertyObject(client, submodelNode, aasns, TestConstants.ROTATION_SPEED_NAME, "VARIABLE", Datatype.INTEGER,
-                new BigDecimal(4370), new ArrayList<>());
+                new AASInteger(Long.valueOf(4370), null), new ArrayList<>());
     }
 
 
@@ -715,7 +716,7 @@ public class OpcUaEndpointSimpleModelTest {
                         null, AASModellingKind.of(AASModellingKind.Options.Instance), new ArrayList<>()));
 
         TestUtils.checkAasPropertyObject(client, submodelNode, aasns, TestConstants.MAX_ROTATION_SPEED_NAME, "PARAMETER",
-                Datatype.INTEGER, new BigDecimal(5000), new ArrayList<>());
+                Datatype.INTEGER, new AASInteger(Long.valueOf(5000), null), new ArrayList<>());
         TestUtils.checkAasPropertyObject(client, submodelNode, aasns, TestConstants.DECIMAL_PROPERTY, "PARAMETER",
                 Datatype.DECIMAL, new BigDecimal(123456), new ArrayList<>());
     }

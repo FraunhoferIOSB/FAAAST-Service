@@ -56,7 +56,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.UnsignedIntVa
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.UnsignedLongValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.UnsignedShortValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
-import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
@@ -74,8 +74,13 @@ import opc.ua.aas.datatypes.AASDataTypeIec61360;
 import opc.ua.aas.datatypes.AASDateTime;
 import opc.ua.aas.datatypes.AASEntityEnumType;
 import opc.ua.aas.datatypes.AASHasKind;
+import opc.ua.aas.datatypes.AASInteger;
 import opc.ua.aas.datatypes.AASKeyTypes;
 import opc.ua.aas.datatypes.AASModellingKind;
+import opc.ua.aas.datatypes.AASNegativeInteger;
+import opc.ua.aas.datatypes.AASNonNegativeInteger;
+import opc.ua.aas.datatypes.AASNonPositiveInteger;
+import opc.ua.aas.datatypes.AASPositiveInteger;
 import opc.ua.aas.datatypes.AASQualifierKind;
 import opc.ua.aas.datatypes.AASReference;
 import opc.ua.aas.datatypes.AASReferenceTypes;
@@ -832,6 +837,14 @@ public class ValueConverter {
                 retval = Base64.getEncoder().encodeToString(bt.getValue());
             }
         }
+        else if (object instanceof AASInteger aasint) {
+            if (aasint.getIVal() != null) {
+                retval = aasint.getIVal().toString();
+            }
+            else {
+                retval = aasint.getSVal();
+            }
+        }
         else {
             retval = object.toString();
         }
@@ -877,7 +890,13 @@ public class ValueConverter {
         }
         Object retval = typedValue.getValue();
         if (typedValue instanceof IntegerValue integerValue) {
-            retval = new BigDecimal(integerValue.getValue());
+            BigInteger bigval = integerValue.getValue();
+            if (bigval.compareTo(BigInteger.valueOf(Long.MAX_VALUE)) > 0) {
+                retval = new AASInteger(null, bigval.toString());
+            }
+            else {
+                retval = new AASInteger(bigval.longValue(), null);
+            }
         }
         else if (typedValue instanceof DurationValue dv) {
             retval = dv.asString();
@@ -886,16 +905,40 @@ public class ValueConverter {
             retval = decimalValue.getValue();
         }
         else if (typedValue instanceof PositiveIntegerValue positiveIntegerValue) {
-            retval = new BigDecimal(positiveIntegerValue.getValue());
+            BigInteger bigval = positiveIntegerValue.getValue();
+            if (bigval.compareTo(BigInteger.valueOf(Long.MAX_VALUE)) > 0) {
+                retval = new AASPositiveInteger(null, bigval.toString());
+            }
+            else {
+                retval = new AASPositiveInteger(bigval.longValue(), null);
+            }
         }
         else if (typedValue instanceof NonPositiveIntegerValue nonPositiveIntegerValue) {
-            retval = new BigDecimal(nonPositiveIntegerValue.getValue());
+            BigInteger bigval = nonPositiveIntegerValue.getValue();
+            if (bigval.compareTo(BigInteger.valueOf(Long.MAX_VALUE)) > 0) {
+                retval = new AASNonPositiveInteger(null, bigval.toString());
+            }
+            else {
+                retval = new AASNonPositiveInteger(bigval.longValue(), null);
+            }
         }
         else if (typedValue instanceof NegativeIntegerValue negativeIntegerValue) {
-            retval = new BigDecimal(negativeIntegerValue.getValue());
+            BigInteger bigval = negativeIntegerValue.getValue();
+            if (bigval.compareTo(BigInteger.valueOf(Long.MAX_VALUE)) > 0) {
+                retval = new AASNegativeInteger(null, bigval.toString());
+            }
+            else {
+                retval = new AASNegativeInteger(bigval.longValue(), null);
+            }
         }
         else if (typedValue instanceof NonNegativeIntegerValue nonNegativeIntegerValue) {
-            retval = new BigDecimal(nonNegativeIntegerValue.getValue());
+            BigInteger bigval = nonNegativeIntegerValue.getValue();
+            if (bigval.compareTo(BigInteger.valueOf(Long.MAX_VALUE)) > 0) {
+                retval = new AASNonNegativeInteger(null, bigval.toString());
+            }
+            else {
+                retval = new AASNonNegativeInteger(bigval.longValue(), null);
+            }
         }
         else if (typedValue instanceof DateTimeValue dateTimeValue) {
             retval = convertDateTime(dateTimeValue);
