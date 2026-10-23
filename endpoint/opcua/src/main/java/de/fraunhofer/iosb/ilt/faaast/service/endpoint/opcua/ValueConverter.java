@@ -208,6 +208,8 @@ public class ValueConverter {
         ASSET_KIND_MAP = new EnumMap<>(AssetKind.class);
         ASSET_KIND_MAP.put(AssetKind.TYPE, AASAssetKind.of(AASAssetKind.Options.Type));
         ASSET_KIND_MAP.put(AssetKind.INSTANCE, AASAssetKind.of(AASAssetKind.Options.Instance));
+        ASSET_KIND_MAP.put(AssetKind.NOT_APPLICABLE, AASAssetKind.of(AASAssetKind.Options.NotApplicable));
+        ASSET_KIND_MAP.put(AssetKind.ROLE, AASAssetKind.of(AASAssetKind.Options.Role));
 
         DATATYPE_61360_LIST = new ArrayList<>();
         DATATYPE_61360_LIST.add(new TypeMapper<>(DataTypeIec61360.BLOB, AASDataTypeIec61360.of(AASDataTypeIec61360.Options.BLOB)));
