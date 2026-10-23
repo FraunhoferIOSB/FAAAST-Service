@@ -19,32 +19,37 @@ import com.prosysopc.ua.UaQualifiedName;
 import com.prosysopc.ua.nodes.UaNode;
 import com.prosysopc.ua.server.NodeManagerUaNode;
 import com.prosysopc.ua.server.nodes.PlainProperty;
-import com.prosysopc.ua.stack.builtintypes.DataValue;
 import com.prosysopc.ua.stack.builtintypes.LocalizedText;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.QualifiedName;
-import com.prosysopc.ua.stack.builtintypes.Variant;
 import com.prosysopc.ua.stack.core.Identifiers;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
+import com.prosysopc.ua.types.opcua.server.FileTypeNode;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ValueData;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.nodemanager.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValueFactory;
-import opc.i4aas.datatypes.AASDataTypeDefXsd;
-import opc.i4aas.datatypes.AASModellingKindDataType;
-import opc.i4aas.datatypes.AASQualifierKindDataType;
-import opc.i4aas.datatypes.AASSubmodelElementsDataType;
-import org.eclipse.digitaltwin.aas4j.v3.model.AasSubmodelElements;
-import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
-import org.eclipse.digitaltwin.aas4j.v3.model.ModellingKind;
-import org.eclipse.digitaltwin.aas4j.v3.model.QualifierKind;
+import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.regex.Pattern;
+import opc.ua.aas.Ids;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
  * Helper class with general OPC UA helper methods.
  */
 public class UaHelper {
+    private static final Logger LOGGER = LoggerFactory.getLogger(UaHelper.class);
+
+    // Regex für Standard-IRDI: <ICD>-<OID>#<OPID>#<OPID-OID>-<PI>
+    private static final Pattern IRDI_REGEX = Pattern.compile("^\\d{4}-\\d+#[0-2]-\\w+#[0-9A-Za-z_-]+$");
 
     /**
      * Sonar wants a private constructor.
@@ -72,25 +77,6 @@ public class UaHelper {
 
 
     /**
-     * Creates an OPC UA boolean property.
-     * 
-     * @param valueData The desired Value Data
-     * @param typedValue The desired value
-     * @return The created OPC UA property
-     * @throws StatusException If an error occurs
-     */
-    public static PlainProperty<Boolean> createBooleanProperty(ValueData valueData, TypedValue<?> typedValue) throws StatusException {
-        PlainProperty<Boolean> boolProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
-        boolProperty.setDataTypeId(Identifiers.Boolean);
-        boolProperty.setDescription(new LocalizedText("", ""));
-        if ((typedValue != null) && (typedValue.getValue() != null)) {
-            boolProperty.setValue(typedValue.getValue());
-        }
-        return boolProperty;
-    }
-
-
-    /**
      * Adds an OPC UA String property to the given node.
      * 
      * @param parentNode The node where the property should be added.
@@ -111,173 +97,74 @@ public class UaHelper {
 
 
     /**
-     * Adds an OPC UA Boolean property to the given node.
-     * 
-     * @param parentNode The node where the property should be added.
-     * @param nodeManager The corresponding NodeManager.
-     * @param name The name of the desired property.
-     * @param value The value of the desired property.
-     * @param namespaceUri The URI of the desired Namespace.
-     * @throws StatusException If an error occurs
-     * @throws ValueFormatException The data format of the value is invalid
+     * Extracts the id from the given reference.
+     *
+     * @param reference The desired reference.
+     * @return The extracted id.
      */
-    public static void addBooleanUaProperty(UaNode parentNode, NodeManagerUaNode nodeManager, String name, boolean value, String namespaceUri)
-            throws StatusException, ValueFormatException {
-        NodeId nodeId = new NodeId(nodeManager.getNamespaceIndex(), parentNode.getNodeId().getValue().toString() + "." + name);
-        QualifiedName browseName = UaQualifiedName.from(namespaceUri, name).toQualifiedName(nodeManager.getNamespaceTable());
-        LocalizedText displayName = LocalizedText.english(name);
-        parentNode.addProperty(
-                createBooleanProperty(new ValueData(nodeId, browseName, displayName, nodeManager), TypedValueFactory.create(Datatype.BOOLEAN, Boolean.toString(value))));
+    public static String extractId(Reference reference) {
+        Ensure.requireNonNull(reference);
+        if ((reference.getKeys() != null) && (reference.getKeys().size() == 1)) {
+            return reference.getKeys().get(0).getValue();
+        }
+        return null;
+    }
+
+
+    public static FileTypeNode createFile(String filePath, UaNode parentNode, String name, AasServiceNodeManager nodeManager) {
+        FileTypeNode retval = null;
+        Path path = null;
+        try {
+            URI uri = URI.create(filePath);
+            path = Path.of(uri);
+        }
+        catch (Exception ex) {
+            LOGGER.info("createFile: error parsing URI", ex);
+        }
+        try {
+            if (path == null) {
+                path = Path.of(filePath);
+            }
+            if (Files.exists(path)) {
+                QualifiedName browseName = UaQualifiedName.from(Ids.AASFileType.getNamespaceUri(), name)
+                        .toQualifiedName(nodeManager.getNamespaceTable());
+                NodeId nid = nodeManager.createNodeId(parentNode, browseName);
+                FileTypeNode file = nodeManager.createInstance(FileTypeNode.class, nid, browseName, LocalizedText.english(name));
+                file.setFile(path.toFile());
+                retval = file;
+            }
+        }
+        catch (Exception ex) {
+            LOGGER.info("createFile: error creating file", ex);
+        }
+        return retval;
     }
 
 
     /**
-     * Creates a kind property.
+     * Checks if the given string is an IRDI.
      *
-     * @param valueData the desired value data.
-     * @param kind The desired Kind.
-     * @return The created property.
-     * @throws StatusException If an error occurs
+     * @param input The corresponding input string.
+     * @return True if it's an IRDI, false if not.
      */
-    public static PlainProperty<AASModellingKindDataType> createKindProperty(ValueData valueData, ModellingKind kind) throws StatusException {
-        PlainProperty<AASModellingKindDataType> kindProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(),
-                valueData.getDisplayName());
-        kindProperty.setDataTypeId(AASModellingKindDataType.SPECIFICATION.getTypeId().asNodeId(valueData.getNodeManager().getNamespaceTable()));
-        kindProperty.setDescription(new LocalizedText("", ""));
-        DataValue value = new DataValue(new Variant(ValueConverter.convertModellingKind(kind).getValue()));
-        kindProperty.setValue(value);
-
-        return kindProperty;
+    public static boolean isIrdi(String input) {
+        if (input == null || input.isEmpty()) {
+            return false;
+        }
+        return IRDI_REGEX.matcher(input).matches();
     }
 
 
-    /**
-     * Adds a kind property to the given node.
-     *
-     * @param parentNode The node where the property should be added.
-     * @param nodeManager The corresponding NodeManager.
-     * @param name The name of the desired property.
-     * @param value The value of the desired property.
-     * @param namespaceUri The URI of the desired Namespace.
-     * @throws StatusException If an error occurs
-     */
-    public static void addKindProperty(UaNode parentNode, NodeManagerUaNode nodeManager, String name, ModellingKind value, String namespaceUri) throws StatusException {
-        parentNode.addProperty(createKindProperty(createValueData(parentNode, nodeManager, name, namespaceUri), value));
-    }
-
-
-    /**
-     * Creates a Qualifier Kind Property.
-     *
-     * @param valueData The desired Value Data
-     * @param kind The desired Kind
-     * @return The created OPC UA property
-     * @throws StatusException If an error occurs
-     */
-    public static PlainProperty<AASQualifierKindDataType> createQualifierKindProperty(ValueData valueData, QualifierKind kind) throws StatusException {
-        PlainProperty<AASQualifierKindDataType> kindProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(),
-                valueData.getDisplayName());
-        kindProperty.setDataTypeId(AASQualifierKindDataType.SPECIFICATION.getTypeId().asNodeId(valueData.getNodeManager().getNamespaceTable()));
-        kindProperty.setDescription(new LocalizedText("", ""));
-        DataValue value = new DataValue(new Variant(ValueConverter.convertQualifierKind(kind).getValue()));
-        kindProperty.setValue(value);
-
-        return kindProperty;
-    }
-
-
-    /**
-     * Adds a qualifier kind property to the given node.
-     *
-     * @param parentNode The node where the property should be added.
-     * @param nodeManager The corresponding NodeManager.
-     * @param name The name of the desired property.
-     * @param value The value of the desired property.
-     * @param namespaceUri The URI of the desired Namespace.
-     * @throws StatusException If an error occurs
-     */
-    public static void addQualifierKindProperty(UaNode parentNode, NodeManagerUaNode nodeManager, String name, QualifierKind value, String namespaceUri) throws StatusException {
-        parentNode.addProperty(createQualifierKindProperty(createValueData(parentNode, nodeManager, name, namespaceUri), value));
-    }
-
-
-    /**
-     * Creates a DataTypeDefXsd property.
-     *
-     * @param valueData the desired value data.
-     * @param datatype The desired datatype value.
-     * @return The created property.
-     * @throws StatusException If an error occurs
-     */
-    public static PlainProperty<AASDataTypeDefXsd> createDataTypeDefProperty(ValueData valueData, DataTypeDefXsd datatype) throws StatusException {
-        PlainProperty<AASDataTypeDefXsd> datatypeProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(),
-                valueData.getDisplayName());
-        datatypeProperty.setDataTypeId(AASDataTypeDefXsd.SPECIFICATION.getTypeId().asNodeId(valueData.getNodeManager().getNamespaceTable()));
-        datatypeProperty.setDescription(new LocalizedText("", ""));
-        DataValue value = new DataValue(new Variant(ValueConverter.convertDataTypeDefXsd(datatype).getValue()));
-        datatypeProperty.setValue(value);
-
-        return datatypeProperty;
-    }
-
-
-    /**
-     * Adds a DataTypeDefXsd property to the given node.
-     *
-     * @param parentNode The node where the property should be added.
-     * @param nodeManager The corresponding NodeManager.
-     * @param name The name of the desired property.
-     * @param value The value of the desired property.
-     * @param namespaceUri The URI of the desired Namespace.
-     * @throws StatusException If an error occurs
-     */
-    public static void addDataTypeDefProperty(UaNode parentNode, NodeManagerUaNode nodeManager, String name, DataTypeDefXsd value, String namespaceUri) throws StatusException {
-        parentNode.addProperty(createDataTypeDefProperty(createValueData(parentNode, nodeManager, name, namespaceUri), value));
-    }
-
-
-    /**
-     * Creates a AasSubmodelElements property.
-     *
-     * @param valueData the desired value data.
-     * @param submodelElement The desired SubmodelElement value.
-     * @return The created property.
-     * @throws StatusException If an error occurs
-     */
-    public static PlainProperty<AASSubmodelElementsDataType> createAasSubmodelElementsProperty(ValueData valueData, AasSubmodelElements submodelElement) throws StatusException {
-        PlainProperty<AASSubmodelElementsDataType> smelemProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(),
-                valueData.getDisplayName());
-        smelemProperty.setDataTypeId(AASSubmodelElementsDataType.SPECIFICATION.getTypeId().asNodeId(valueData.getNodeManager().getNamespaceTable()));
-        smelemProperty.setDescription(new LocalizedText("", ""));
-        DataValue value = new DataValue(new Variant(ValueConverter.getAasSubmodelElementsType(submodelElement).getValue()));
-        smelemProperty.setValue(value);
-
-        return smelemProperty;
-    }
-
-
-    /**
-     * Adds a AasSubmodelElements property to the given node.
-     *
-     * @param parentNode The node where the property should be added.
-     * @param nodeManager The corresponding NodeManager.
-     * @param name The name of the desired property.
-     * @param value The value of the desired property.
-     * @param namespaceUri The URI of the desired Namespace.
-     * @throws StatusException If an error occurs
-     */
-    public static void addAasSubmodelElementsProperty(UaNode parentNode, NodeManagerUaNode nodeManager, String name, AasSubmodelElements value, String namespaceUri)
-            throws StatusException {
-        parentNode.addProperty(createAasSubmodelElementsProperty(createValueData(parentNode, nodeManager, name, namespaceUri), value));
-    }
-
-
-    private static ValueData createValueData(UaNode parentNode, NodeManagerUaNode nodeManager, String name, String namespaceUri) {
-        ValueData retval;
-        NodeId nodeId = new NodeId(nodeManager.getNamespaceIndex(), parentNode.getNodeId().getValue().toString() + "." + name);
-        QualifiedName browseName = UaQualifiedName.from(namespaceUri, name).toQualifiedName(nodeManager.getNamespaceTable());
-        LocalizedText displayName = LocalizedText.english(name);
-        retval = new ValueData(nodeId, browseName, displayName, nodeManager);
+    public static boolean isUri(String input) {
+        Ensure.requireNonNull(input);
+        boolean retval;
+        try {
+            new URI(input);
+            retval = true;
+        }
+        catch (URISyntaxException ex) {
+            retval = false;
+        }
         return retval;
     }
 }
