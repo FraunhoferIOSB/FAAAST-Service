@@ -111,7 +111,7 @@ public class SubmodelCreator {
         setQualifierData(qualifiers, smNode);
 
         // Referable
-        ReferableCreator.setReferebleNodeData(node, submodel);
+        ReferableCreator.setReferableNodeData(smNode, submodel);
 
         Reference refSubmodel = AasUtils.toReference(submodel);
 

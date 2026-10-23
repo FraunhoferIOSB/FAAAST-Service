@@ -211,7 +211,7 @@ public class SubmodelElementCreator {
             }
 
             // Referable
-            ReferableCreator.setReferebleNodeData(node, element);
+            ReferableCreator.setReferableNodeData(node, element);
 
             node.getCommonAttributesNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
         }
@@ -242,7 +242,7 @@ public class SubmodelElementCreator {
             }
 
             // Referable
-            ReferableCreator.setReferebleNodeData(node, element);
+            ReferableCreator.setReferableNodeData(node, element);
 
             node.getCommonAttributesNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
         }

@@ -24,12 +24,16 @@ import opc.ua.aas.datatypes.AASReference;
 import org.eclipse.digitaltwin.aas4j.v3.model.Extension;
 import org.eclipse.digitaltwin.aas4j.v3.model.HasExtensions;
 import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
  * Helper class for AAS Referable data.
  */
 public class ReferableCreator {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ReferableCreator.class);
 
     private ReferableCreator() {}
 
@@ -45,6 +49,14 @@ public class ReferableCreator {
             return null;
         }
         AASReferable retval = new AASReferable();
+        if (referable.getDisplayName() != null) {
+            retval.setDisplayName(ValueConverter.convertLangStringSet(referable.getDisplayName()));
+        }
+
+        if (referable.getDescription() != null) {
+            retval.setDescription(ValueConverter.convertLangStringSet(referable.getDescription()));
+        }
+
         if (referable.getCategory() != null) {
             retval.setCategory(referable.getCategory());
         }
@@ -57,20 +69,22 @@ public class ReferableCreator {
 
 
     /**
-     * Adds DisplayNamer and Descriptions to the given node.
+     * Adds DisplayNames and Descriptions to the given node.
      *
      * @param node The desired node.
      * @param referable The referable.
      */
-    public static void setReferebleNodeData(UaNode node, Referable referable) {
+    public static void setReferableNodeData(UaNode node, Referable referable) {
         Ensure.requireNonNull(node);
         Ensure.requireNonNull(referable);
         LocalizedText[] textList = ValueConverter.convertLangStringSet(referable.getDisplayName());
         if ((textList != null) && (textList.length > 0)) {
+            LOGGER.debug("setReferableNodeData: node: {}; setDisplayName: {}", node, textList[0]);
             node.setDisplayName(textList[0]);
         }
         textList = ValueConverter.convertLangStringSet(referable.getDescription());
         if ((textList != null) && (textList.length > 0)) {
+            LOGGER.debug("setReferableNodeData: node: {}; setDescription: {}", node, textList[0]);
             node.setDescription(textList[0]);
         }
     }
