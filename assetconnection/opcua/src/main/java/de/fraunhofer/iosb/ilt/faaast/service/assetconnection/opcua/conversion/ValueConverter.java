@@ -239,8 +239,7 @@ public class ValueConverter {
                 return new Variant(new DateTime(((OffsetDateTime) value.getValue()).toInstant()));
             }
             if (((value.getDataType() == Datatype.HEX_BINARY) || (value.getDataType() == Datatype.BASE64_BINARY)) && (targetType.equals(NodeIds.ByteString))) {
-                Variant v = Variant.ofByteString(new ByteString((byte[]) value.getValue()));
-                return v;
+                return Variant.ofByteString(new ByteString((byte[]) value.getValue()));
             }
             if (dataType == null) {
                 throw new ValueConversionException("datatype is null");
@@ -261,8 +260,7 @@ public class ValueConverter {
                             OffsetDateTime.ofInstant(((DateTime) value.getValue()).getJavaInstant(), ZoneId.systemDefault()).toString());
                 }
                 else if (targetType == Datatype.BASE64_BINARY) {
-                    TypedValue<?> tv = TypedValueFactory.create(targetType, value.getValue().toString());
-                    return tv;
+                    return TypedValueFactory.create(targetType, value.getValue().toString());
                 }
                 else {
                     return TypedValueFactory.create(targetType, value.getValue().toString());
