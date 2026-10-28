@@ -109,7 +109,7 @@
         <maven.plugin.compiler.version>3.16.0</maven.plugin.compiler.version>
         <maven.plugin.dependency-check.autoUpdate>true</maven.plugin.dependency-check.autoUpdate>
         <maven.plugin.dependency.version>3.11.0</maven.plugin.dependency.version>
-        <maven.plugin.failsafe.version>3.6.0</maven.plugin.failsafe.version>
+        <maven.plugin.failsafe.version>3.6.1</maven.plugin.failsafe.version>
         <maven.plugin.git.commit.id.version>10.0.1</maven.plugin.git.commit.id.version>
         <maven.plugin.gpg.version>3.2.8</maven.plugin.gpg.version>
         <maven.plugin.jacoco.version>0.8.15</maven.plugin.jacoco.version>
@@ -136,7 +136,7 @@
         <paho.version>1.2.5</paho.version>
         <parsson.version>1.1.9</parsson.version>
         <picocli.version>4.7.7</picocli.version>
-        <poi.ooxml.version>5.5.1</poi.ooxml.version>
+        <poi.ooxml.version>6.0.0</poi.ooxml.version>
         <proguard.core.version>9.4.0</proguard.core.version>
         <proguard.version>7.10.0</proguard.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
