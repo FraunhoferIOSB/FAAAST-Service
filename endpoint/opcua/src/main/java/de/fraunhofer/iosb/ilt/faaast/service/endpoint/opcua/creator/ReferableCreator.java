@@ -79,13 +79,21 @@ public class ReferableCreator {
         Ensure.requireNonNull(referable);
         LocalizedText[] textList = ValueConverter.convertLangStringSet(referable.getDisplayName());
         if ((textList != null) && (textList.length > 0)) {
-            LOGGER.debug("setReferableNodeData: node: {}; setDisplayName: {}", node, textList[0]);
-            node.setDisplayName(textList[0]);
+            for (LocalizedText lt: textList) {
+                LOGGER.debug("setReferableNodeData: node: {}; DisplayName: {}", node, lt);
+                node.setDisplayName(lt);
+            }
         }
         textList = ValueConverter.convertLangStringSet(referable.getDescription());
         if ((textList != null) && (textList.length > 0)) {
-            LOGGER.debug("setReferableNodeData: node: {}; setDescription: {}", node, textList[0]);
-            node.setDescription(textList[0]);
+            for (LocalizedText lt: textList) {
+                LOGGER.debug("setReferableNodeData: node: {}; Description: {}", node, lt);
+                node.setDescription(lt);
+            }
+        }
+        else {
+            // workaround for "bug" in SDK
+            node.setDescription(LocalizedText.EMPTY);
         }
     }
 

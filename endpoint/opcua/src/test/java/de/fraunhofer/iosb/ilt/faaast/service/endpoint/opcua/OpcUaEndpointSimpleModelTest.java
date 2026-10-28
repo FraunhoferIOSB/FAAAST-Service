@@ -787,9 +787,13 @@ public class OpcUaEndpointSimpleModelTest {
         Assert.assertTrue("testEntity Entity empty", targets.length > 0);
 
         NodeId entityNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
-        TestUtils.checkDescriptions(client, entityNode, List.of(LocalizedText.from(
-                "Legally valid designation of the natural or judicial person which is directly responsible for the design, production, packaging and labeling of a product in respect to its being brought into circulation.",
-                "en-us")));
+        TestUtils.checkDescriptions(client, entityNode, List.of(
+                LocalizedText.from(
+                        "Legally valid designation of the natural or judicial person which is directly responsible for the design, production, packaging and labeling of a product in respect to its being brought into circulation.",
+                        "en-us"),
+                LocalizedText.from(
+                        "Bezeichnung für eine natürliche oder juristische Person, die für die Auslegung, Herstellung und Verpackung sowie die Etikettierung eines Produkts im Hinblick auf das 'Inverkehrbringen' im eigenen Namen verantwortlich ist",
+                        "de")));
 
         // browse for Statements
         List<ReferenceDescription> refs = client.getAddressSpace().browse(entityNode, BrowseDirection.Forward,

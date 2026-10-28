@@ -472,15 +472,15 @@ public class TestUtils {
     }
 
 
-    public static void checkDescriptions(UaClient client, NodeId nodeId, List<LocalizedText> descriptions) throws ServiceException, AddressSpaceException {
+    public static void checkDescriptions(UaClient client, NodeId nodeId, List<LocalizedText> descriptions) throws ServiceException, AddressSpaceException, ServiceResultException {
         UaNode node = client.getAddressSpace().getNode(nodeId);
         Assert.assertNotNull(node);
         LocalizedText text = node.getDescription();
         if ((descriptions == null) || (descriptions.isEmpty())) {
-            Assert.assertNull(text);
+            Assert.assertEquals(LocalizedText.EMPTY, text);
         }
         else {
-            Assert.assertEquals(descriptions.get(0), text);
+            Assert.assertTrue(descriptions.stream().anyMatch(d -> Objects.equals(d, text)));
         }
     }
 

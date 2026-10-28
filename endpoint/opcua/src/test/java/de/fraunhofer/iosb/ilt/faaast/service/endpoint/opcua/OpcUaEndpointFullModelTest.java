@@ -908,9 +908,9 @@ public class OpcUaEndpointFullModelTest {
         NodeId listNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
         TestUtils.checkType(client, listNode, TestConstants.AAS_SUBMODEL_ELEM_LIST_TYPE);
 
-        TestUtils.checkDescriptions(client, listNode, List.of(LocalizedText.from(
-                "Example SubmodelElementListOrdered object",
-                "en-us")));
+        TestUtils.checkDescriptions(client, listNode, List.of(
+                LocalizedText.from("Example SubmodelElementListOrdered object", "en-us"),
+                LocalizedText.from("Beispiel SubmodelElementListOrdered Element", "de")));
 
         // List elements
         List<ReferenceDescription> refs = client.getAddressSpace().browse(listNode, BrowseDirection.Forward,
