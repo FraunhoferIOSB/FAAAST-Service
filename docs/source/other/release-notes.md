@@ -18,8 +18,6 @@
 	- Improves parsing of JSON payload for operations so that if no mappings are provided it tries to use the variable name (if there are multiple parameters) or the whole object if there is only one parameter
 	- OPC UA
 		- When connecting to an OPC UA asset and the discovery service returns mutliple URLs to use, the ones with a reachable host are preferred.
-		- Fixed a bug that caused values mapped to datatype Base64Binary to be converted incorrectly
-		- Fixed a bug that removing a SubscriptionProvider caused the whole subscription to be removed
 	- HTTP
 		- Fixed bug that Operation Provider failed in an operation with arguments when no template was configured.
 		- Extend Operation Provider to support asynchronous operations.
@@ -53,6 +51,9 @@
 	- Fixed asset connection JSON serialization not including blob values in serialization
 	- HTTP
 		- Add logging of raw HTTP requests & responses with level `TRACE`
+	- OPC UA
+		- Fixed a bug that caused values mapped to datatype Base64Binary to be converted incorrectly
+		- Fixed a bug that removing a SubscriptionProvider caused the whole subscription to be removed
 - MessageBus
     - CloudEventsMessageBus now available implementing the async-aas specification in https://factory-x-contributions.github.io/async-aas-helm/
 	- MQTT
