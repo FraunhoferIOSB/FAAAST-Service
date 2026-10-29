@@ -793,6 +793,9 @@ public class ValueConverter {
      * @return The OPC UA date time
      */
     public static AASDateTime createDateTime(OffsetDateTime value) {
+        if (value == null) {
+            return null;
+        }
         return new AASDateTime(DateTime.fromInstant(value.toInstant()), value.getOffset().getId());
     }
 
@@ -804,6 +807,9 @@ public class ValueConverter {
      * @return The OPC UA date time
      */
     public static DateTime createDateTime(LocalDateTime value) {
+        if (value == null) {
+            return null;
+        }
         return DateTime.fromInstant(value.atZone(OffsetDateTime.now(ZoneId.systemDefault()).getOffset()).toInstant());
     }
 
