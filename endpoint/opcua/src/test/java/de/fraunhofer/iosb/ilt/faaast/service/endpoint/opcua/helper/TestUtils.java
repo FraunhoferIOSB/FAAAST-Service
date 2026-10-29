@@ -109,13 +109,13 @@ public class TestUtils {
     public static void checkBrowseName(UaNode node, String desiredName) {
         QualifiedName qname = node.getBrowseName();
         Assert.assertNotNull(qname);
-        Assert.assertEquals("BrowseName not equal", desiredName, qname.getName());
+        Assert.assertEquals(desiredName, qname.getName());
     }
 
 
     public static void checkDisplayName(UaClient client, NodeId nodeId, String desiredName) throws ServiceException, AddressSpaceException {
         UaNode node = client.getAddressSpace().getNode(nodeId);
-        Assert.assertNotNull("Node is null: " + desiredName, node);
+        Assert.assertNotNull(node);
         LocalizedText lt = node.getDisplayName();
         Assert.assertEquals(desiredName, lt.getText());
     }
@@ -190,12 +190,12 @@ public class TestUtils {
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(node, relPath.toArray(RelativePath[]::new));
-        Assert.assertNotNull("checkVariableBool Browse Result Null", bpres);
-        Assert.assertEquals("checkVariableBool Browse Result: size doesn't match", 1, bpres.length);
+        Assert.assertNotNull(bpres);
+        Assert.assertEquals(1, bpres.length);
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
-        Assert.assertNotNull("checkVariableBool Node Targets Null", targets);
-        Assert.assertTrue("checkVariableBool Node targets empty", targets.length > 0);
+        Assert.assertNotNull(targets);
+        Assert.assertTrue(targets.length > 0);
 
         DataValue value = client.readValue(targets[0].getTargetId());
         Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
@@ -275,8 +275,8 @@ public class TestUtils {
 
         // Value
         targets = bpres[1].getTargets();
-        Assert.assertNotNull("checkAasPropertyFile Path Null", targets);
-        Assert.assertTrue("checkAasPropertyFile Path empty", targets.length > 0);
+        Assert.assertNotNull(targets);
+        Assert.assertTrue(targets.length > 0);
         value = client.readValue(targets[0].getTargetId());
         Assert.assertEquals(propPath, value.getValue().toString());
     }
@@ -294,7 +294,7 @@ public class TestUtils {
 
     public static void checkType(UaClient client, NodeId node, NodeId typeNode) throws ServiceException, AddressSpaceException, ServiceResultException {
         NodeId refId = getType(client, node);
-        Assert.assertEquals("type not equal", typeNode, refId);
+        Assert.assertEquals(typeNode, refId);
     }
 
 
@@ -315,10 +315,10 @@ public class TestUtils {
         DataValue value = client.readValue(writeNode);
         Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
         if (oldValue == null) {
-            Assert.assertTrue("intial null value not equal", value.getValue().isEmpty());
+            Assert.assertTrue(value.getValue().isEmpty());
         }
         else {
-            Assert.assertEquals("intial value not equal", oldValue, value.getValue().getValue());
+            Assert.assertEquals(oldValue, value.getValue().getValue());
         }
 
         client.writeValue(writeNode, newValue);
@@ -340,7 +340,7 @@ public class TestUtils {
             throws ServiceException, StatusException {
         DataValue value = client.readValue(writeNode);
         Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
-        Assert.assertArrayEquals("intial value not equal", oldValue, (LocalizedText[]) value.getValue().getValue());
+        Assert.assertArrayEquals(oldValue, (LocalizedText[]) value.getValue().getValue());
 
         client.writeValue(writeNode, newValue);
 
@@ -361,7 +361,7 @@ public class TestUtils {
             throws ServiceException, StatusException {
         DataValue value = client.readValue(writeNode);
         Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
-        Assert.assertEquals("intial value not equal", oldValue, (AASReference) value.getValue().getValue());
+        Assert.assertEquals(oldValue, (AASReference) value.getValue().getValue());
 
         boolean rv = client.writeValue(writeNode, newValue);
         Assert.assertTrue(rv);
@@ -426,21 +426,21 @@ public class TestUtils {
         browsePath.clear();
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(propertyNode, relPath.toArray(RelativePath[]::new));
-        Assert.assertNotNull("checkAasPropertyThumbnail Browse Path & Type Result Null", bpres);
-        Assert.assertEquals("checkAasPropertyThumbnail Browse Path & Type Result: size doesn't match", 2, bpres.length);
+        Assert.assertNotNull(bpres);
+        Assert.assertEquals(2, bpres.length);
 
         // ContentType
         BrowsePathTarget[] targets = bpres[0].getTargets();
-        Assert.assertNotNull("checkAasPropertyThumbnail ContentType Null", targets);
-        Assert.assertTrue("checkAasPropertyThumbnail ContentType empty", targets.length > 0);
+        Assert.assertNotNull(targets);
+        Assert.assertTrue(targets.length > 0);
         DataValue value = client.readValue(targets[0].getTargetId());
         Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
         Assert.assertEquals(mimeType, value.getValue().toString());
 
         // Path
         targets = bpres[1].getTargets();
-        Assert.assertNotNull("checkAasPropertyThumbnail Path Null", targets);
-        Assert.assertTrue("checkAasPropertyThumbnail Path empty", targets.length > 0);
+        Assert.assertNotNull(targets);
+        Assert.assertTrue(targets.length > 0);
         value = client.readValue(targets[0].getTargetId());
         Assert.assertEquals(propPath, value.getValue().toString());
     }
@@ -454,12 +454,12 @@ public class TestUtils {
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(node, relPath.toArray(RelativePath[]::new));
-        Assert.assertNotNull("checkVariableString Browse Property Result Null", bpres);
-        Assert.assertEquals("checkVariableString Browse Property Result: size doesn't match", 1, bpres.length);
+        Assert.assertNotNull(bpres);
+        Assert.assertEquals(1, bpres.length);
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
-        Assert.assertNotNull("checkAasPropertyString Property Null", targets);
-        Assert.assertTrue("checkAasPropertyString Property empty", targets.length > 0);
+        Assert.assertNotNull(targets);
+        Assert.assertTrue(targets.length > 0);
         NodeId propertyNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
 
         checkDisplayName(client, propertyNode, name);
@@ -472,7 +472,7 @@ public class TestUtils {
     }
 
 
-    public static void checkDescriptions(UaClient client, NodeId nodeId, List<LocalizedText> descriptions) throws ServiceException, AddressSpaceException, ServiceResultException {
+    public static void checkDescriptions(UaClient client, NodeId nodeId, List<LocalizedText> descriptions) throws ServiceException, AddressSpaceException {
         UaNode node = client.getAddressSpace().getNode(nodeId);
         Assert.assertNotNull(node);
         LocalizedText text = node.getDescription();

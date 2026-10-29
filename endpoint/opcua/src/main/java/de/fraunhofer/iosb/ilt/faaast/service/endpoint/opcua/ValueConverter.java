@@ -818,26 +818,10 @@ public class ValueConverter {
             retval = OffsetDateTime.ofInstant(dt.toInstant(), ZoneId.systemDefault()).toString();
         }
         else if (object instanceof AASDateTime adt) {
-            ZoneId zone;
-            if ((adt.getTimeZone() == null) || (adt.getTimeZone().isEmpty())) {
-                zone = ZoneId.systemDefault();
-            }
-            else {
-                zone = ZoneId.of(adt.getTimeZone());
-            }
-            retval = OffsetDateTime.ofInstant(adt.getDateTime().toInstant(), zone).toString();
+            retval = convertDateTimeToString(adt);
         }
-        else if (object instanceof ByteString bt) {
-            if (type == DataTypeDefXsd.HEX_BINARY) {
-                retval = bt.toHex();
-                // we must remove the '0x' at the beginning
-                if ((retval != null) && (retval.startsWith("0x"))) {
-                    retval = retval.substring(2);
-                }
-            }
-            else {
-                retval = Base64.getEncoder().encodeToString(bt.getValue());
-            }
+        else if (object instanceof ByteString bs) {
+            retval = convertByteStringToString(type, bs);
         }
         else if (object instanceof AASInteger aasint) {
             if (aasint.getIVal() != null) {
@@ -1188,6 +1172,36 @@ public class ValueConverter {
             retval = rv.get().typeNode;
         }
 
+        return retval;
+    }
+
+
+    private static String convertByteStringToString(DataTypeDefXsd type, ByteString bs) {
+        String retval;
+        if (type == DataTypeDefXsd.HEX_BINARY) {
+            retval = bs.toHex();
+            // we must remove the '0x' at the beginning
+            if ((retval != null) && (retval.startsWith("0x"))) {
+                retval = retval.substring(2);
+            }
+        }
+        else {
+            retval = Base64.getEncoder().encodeToString(bs.getValue());
+        }
+        return retval;
+    }
+
+
+    private static String convertDateTimeToString(AASDateTime adt) {
+        String retval;
+        ZoneId zone;
+        if ((adt.getTimeZone() == null) || (adt.getTimeZone().isEmpty())) {
+            zone = ZoneId.systemDefault();
+        }
+        else {
+            zone = ZoneId.of(adt.getTimeZone());
+        }
+        retval = OffsetDateTime.ofInstant(adt.getDateTime().toInstant(), zone).toString();
         return retval;
     }
 
