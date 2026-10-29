@@ -99,7 +99,7 @@
         <jsonpath.version>3.0.0</jsonpath.version>
         <junit.version>4.13.2</junit.version>
         <log4j.api.version>2.26.1</log4j.api.version>
-        <logback.version>1.6.5</logback.version>
+        <logback.version>1.6.6</logback.version>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <maven.plugin.assembly.version>3.8.0</maven.plugin.assembly.version>
@@ -109,10 +109,10 @@
         <maven.plugin.compiler.version>3.16.0</maven.plugin.compiler.version>
         <maven.plugin.dependency-check.autoUpdate>true</maven.plugin.dependency-check.autoUpdate>
         <maven.plugin.dependency.version>3.11.0</maven.plugin.dependency.version>
-        <maven.plugin.failsafe.version>3.6.0</maven.plugin.failsafe.version>
+        <maven.plugin.failsafe.version>3.6.1</maven.plugin.failsafe.version>
         <maven.plugin.git.commit.id.version>10.0.1</maven.plugin.git.commit.id.version>
         <maven.plugin.gpg.version>3.2.8</maven.plugin.gpg.version>
-        <maven.plugin.jacoco.version>0.8.15</maven.plugin.jacoco.version>
+        <maven.plugin.jacoco.version>0.8.16</maven.plugin.jacoco.version>
         <maven.plugin.jar.version>3.5.1</maven.plugin.jar.version>
         <maven.plugin.javadoc.version>3.12.0</maven.plugin.javadoc.version>
         <maven.plugin.license.version>2.0.0</maven.plugin.license.version>
