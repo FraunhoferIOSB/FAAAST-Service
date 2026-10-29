@@ -98,7 +98,7 @@ public class AssetAdministrationShellCreator {
             nid = nodeManager.getDefaultNodeId();
         }
 
-        AASAssetAdministrationShellType aasShell = nodeManager.createInstance(AASAssetAdministrationShellType.class, nid, browseName, LocalizedText.english(displayName));
+        AASAssetAdministrationShellType aasShell = nodeManager.createInstance(AASAssetAdministrationShellType.class, nid, browseName, new LocalizedText(displayName));
         if (derivedFrom != null) {
             aasShell.setDerivedFrom(ReferenceCreator.getAasReference(derivedFrom));
         }
@@ -150,7 +150,7 @@ public class AssetAdministrationShellCreator {
             QualifiedName browseName = UaQualifiedName.from(Ids.AASSubmodelType.getNamespaceUri(), displayName)
                     .toQualifiedName(nodeManager.getNamespaceTable());
             NodeId nid = nodeManager.createNodeId(aasNode, browseName);
-            assetInfoNode = nodeManager.createInstance(AASAssetInformationType.class, nid, browseName, LocalizedText.english(displayName));
+            assetInfoNode = nodeManager.createInstance(AASAssetInformationType.class, nid, browseName, new LocalizedText(displayName));
             created = true;
         }
 
@@ -228,7 +228,7 @@ public class AssetAdministrationShellCreator {
             QualifiedName browseName = UaQualifiedName.from(Ids.AASAssetInformationType.getNamespaceUri(), name)
                     .toQualifiedName(nodeManager.getNamespaceTable());
             NodeId nid = nodeManager.createNodeId(assetInfoNode, browseName);
-            listNode = nodeManager.createInstance(BaseDataVariableType.class, nid, browseName, LocalizedText.english(name));
+            listNode = nodeManager.createInstance(BaseDataVariableType.class, nid, browseName, new LocalizedText(name));
             created = true;
         }
 
@@ -255,7 +255,7 @@ public class AssetAdministrationShellCreator {
             QualifiedName browseName = UaQualifiedName.from(Ids.AASAssetAdministrationShellType.getNamespaceUri(), name)
                     .toQualifiedName(nodeManager.getNamespaceTable());
             NodeId nid = nodeManager.createNodeId(node, browseName);
-            referenceListNode = nodeManager.createInstance(BaseDataVariableType.class, nid, browseName, LocalizedText.english(name));
+            referenceListNode = nodeManager.createInstance(BaseDataVariableType.class, nid, browseName, new LocalizedText(name));
             LOGGER.debug("addSubmodelReferences: add Node {} to Node {}", referenceListNode.getNodeId(), node.getNodeId());
             node.addComponent(referenceListNode);
         }

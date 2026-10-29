@@ -94,7 +94,7 @@ public class SubmodelElementListCreator extends SubmodelElementCreator {
                 }
                 NodeBuilder<AASSubmodelElementListType> nb = nodeManager.createNodeBuilder(AASSubmodelElementListType.class, conf);
                 nb.setBrowseName(browseName);
-                nb.setDisplayName(LocalizedText.english(name));
+                nb.setDisplayName(new LocalizedText(name));
                 nb.setNodeId(nid);
                 AASSubmodelElementListType collNode = nb.build();
 

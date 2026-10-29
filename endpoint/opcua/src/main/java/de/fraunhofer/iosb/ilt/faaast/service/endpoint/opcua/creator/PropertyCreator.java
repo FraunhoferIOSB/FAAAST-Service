@@ -68,7 +68,7 @@ public class PropertyCreator extends SubmodelElementCreator {
             }
             NodeBuilder<AASPropertyType> nb = nodeManager.createNodeBuilder(AASPropertyType.class, conf);
             nb.setBrowseName(browseName);
-            LocalizedText displayName = LocalizedText.english(name);
+            LocalizedText displayName = new LocalizedText(name);
             nb.setDisplayName(displayName);
             nb.setNodeId(nid);
             AASPropertyType prop = nb.build();

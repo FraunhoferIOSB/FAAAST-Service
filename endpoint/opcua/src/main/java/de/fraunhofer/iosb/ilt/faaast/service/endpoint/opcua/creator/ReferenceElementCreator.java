@@ -61,7 +61,7 @@ public class ReferenceElementCreator extends SubmodelElementCreator {
                 QualifiedName browseName = UaQualifiedName.from(Ids.AASReferenceElementType.getNamespaceUri(), name)
                         .toQualifiedName(nodeManager.getNamespaceTable());
                 NodeId nid = nodeManager.getDefaultNodeId();
-                AASReferenceElementType refElemNode = nodeManager.createInstance(AASReferenceElementType.class, nid, browseName, LocalizedText.english(name));
+                AASReferenceElementType refElemNode = nodeManager.createInstance(AASReferenceElementType.class, nid, browseName, new LocalizedText(name));
                 addSubmodelElementBaseData(refElemNode, aasRefElem, nodeManager);
 
                 ReferenceCreator.setAasReferenceData(aasRefElem.getValue(), refElemNode);

@@ -204,12 +204,12 @@ public class TestUtils {
 
 
     public static void checkAasPropertyString(UaClient client, NodeId node, int aasns, String name, String category, Datatype valueType,
-                                              String propValue, List<Qualifier> qualifierList)
+                                              String propValue, List<Qualifier> qualifierList, String displayName)
             throws ServiceException, AddressSpaceException, ServiceResultException {
         NodeId propertyNode = getSubmodelElement(aasns, name, client, node);
 
         checkType(client, propertyNode, TestConstants.AAS_PROPERTY_TYPE_ID);
-        checkDisplayName(client, propertyNode, name);
+        checkDisplayName(client, propertyNode, displayName);
 
         checkSubmodelElementCommonAttributes(client, aasns, propertyNode, category, qualifierList);
 

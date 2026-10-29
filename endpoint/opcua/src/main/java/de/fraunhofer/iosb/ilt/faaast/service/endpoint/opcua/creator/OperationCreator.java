@@ -72,7 +72,7 @@ public class OperationCreator extends SubmodelElementCreator {
             conf.addOptional(Ids.AASOperationType_Operation);
             NodeBuilder<AASOperationType> nb = nodeManager.createNodeBuilder(AASOperationType.class, conf);
             nb.setBrowseName(browseName);
-            nb.setDisplayName(LocalizedText.english(name));
+            nb.setDisplayName(new LocalizedText(name));
             nb.setNodeId(nid);
             AASOperationType oper = nb.build();
 
@@ -123,7 +123,7 @@ public class OperationCreator extends SubmodelElementCreator {
         NodeId nid = nodeManager.getDefaultNodeId();
         String name = input.getValue().getIdShort();
         QualifiedName browseName = UaQualifiedName.from(Ids.AASOperationType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
-        AASOperationVariableType inputNode = nodeManager.createInstance(AASOperationVariableType.class, nid, browseName, LocalizedText.english(name));
+        AASOperationVariableType inputNode = nodeManager.createInstance(AASOperationVariableType.class, nid, browseName, new LocalizedText(name));
         inputNode.addReference(inputElement, nodeManager.getNamespaceTable().toNodeId(Ids.AASHasAttribute));
         return inputNode;
     }

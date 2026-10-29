@@ -79,21 +79,25 @@ public class ReferableCreator {
         Ensure.requireNonNull(referable);
         LocalizedText[] textList = ValueConverter.convertLangStringSet(referable.getDisplayName());
         if ((textList != null) && (textList.length > 0)) {
+            // Initially, we remove the default display name.
+            node.setDisplayName(LocalizedText.EMPTY);
+            var builder = LocalizedText.builder();
             for (LocalizedText lt: textList) {
                 LOGGER.debug("setReferableNodeData: node: {}; DisplayName: {}", node, lt);
-                node.setDisplayName(lt);
+                builder.setTexts(lt);
             }
+            node.setDisplayName(builder.build());
         }
+        // workaround for "bug" in SDK
         textList = ValueConverter.convertLangStringSet(referable.getDescription());
+        node.setDescription(LocalizedText.EMPTY);
         if ((textList != null) && (textList.length > 0)) {
+            var builder = LocalizedText.builder();
             for (LocalizedText lt: textList) {
                 LOGGER.debug("setReferableNodeData: node: {}; Description: {}", node, lt);
-                node.setDescription(lt);
+                builder.setTexts(lt);
             }
-        }
-        else {
-            // workaround for "bug" in SDK
-            node.setDescription(LocalizedText.EMPTY);
+            node.setDescription(builder.build());
         }
     }
 

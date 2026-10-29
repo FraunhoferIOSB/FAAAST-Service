@@ -1229,7 +1229,7 @@ public class OpcUaEndpointFullModelTest {
                 .type("http://acplt.org/Qualifier/ExampleQualifier2")
                 .build());
         TestUtils.checkAasPropertyString(client, submodelNode, aasns, "ManufacturerName", null, Datatype.STRING,
-                "http://acplt.org/ValueId/ACPLT", list);
+                "http://acplt.org/ValueId/ACPLT", list, "Manufacturer Name");
     }
 
 

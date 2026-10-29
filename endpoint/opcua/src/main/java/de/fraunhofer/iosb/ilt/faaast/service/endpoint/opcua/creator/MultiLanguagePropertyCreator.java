@@ -75,7 +75,7 @@ public class MultiLanguagePropertyCreator extends SubmodelElementCreator {
                 }
                 NodeBuilder<AASMultiLanguagePropertyType> nb = nodeManager.createNodeBuilder(AASMultiLanguagePropertyType.class, conf);
                 nb.setBrowseName(browseName);
-                nb.setDisplayName(LocalizedText.english(name));
+                nb.setDisplayName(new LocalizedText(name));
                 nb.setNodeId(nid);
                 AASMultiLanguagePropertyType multiLangNode = nb.build();
 

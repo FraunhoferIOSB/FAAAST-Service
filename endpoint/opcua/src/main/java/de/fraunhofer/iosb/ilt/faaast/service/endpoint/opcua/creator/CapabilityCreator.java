@@ -60,7 +60,7 @@ public class CapabilityCreator extends SubmodelElementCreator {
                 QualifiedName browseName = UaQualifiedName.from(Ids.AASCapabilityType.getNamespaceUri(), name)
                         .toQualifiedName(nodeManager.getNamespaceTable());
                 NodeId nid = nodeManager.getDefaultNodeId();
-                AASCapabilityType capabilityNode = nodeManager.createInstance(AASCapabilityType.class, nid, browseName, LocalizedText.english(name));
+                AASCapabilityType capabilityNode = nodeManager.createInstance(AASCapabilityType.class, nid, browseName, new LocalizedText(name));
                 addSubmodelElementBaseData(capabilityNode, aasCapability, nodeManager);
 
                 nodeManager.addReferable(capabilityRef, new ObjectData(aasCapability, capabilityNode, submodel));

@@ -71,7 +71,7 @@ public class SubmodelElementCollectionCreator extends SubmodelElementCreator {
                 NodeId nid = nodeManager.getDefaultNodeId();
                 AASSubmodelElementCollectionType collNode;
 
-                collNode = nodeManager.createInstance(AASSubmodelElementCollectionType.class, nid, browseName, LocalizedText.english(name));
+                collNode = nodeManager.createInstance(AASSubmodelElementCollectionType.class, nid, browseName, new LocalizedText(name));
 
                 addSubmodelElementBaseData(collNode, aasColl, nodeManager);
 

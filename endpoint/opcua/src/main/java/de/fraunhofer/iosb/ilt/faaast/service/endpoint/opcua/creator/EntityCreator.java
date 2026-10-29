@@ -89,7 +89,7 @@ public class EntityCreator extends SubmodelElementCreator {
                 }
                 NodeBuilder<AASEntityType> nb = nodeManager.createNodeBuilder(AASEntityType.class, conf);
                 nb.setBrowseName(browseName);
-                nb.setDisplayName(LocalizedText.english(name));
+                nb.setDisplayName(new LocalizedText(name));
                 nb.setNodeId(nid);
                 AASEntityType entityNode = nb.build();
 
@@ -146,7 +146,7 @@ public class EntityCreator extends SubmodelElementCreator {
             QualifiedName browseName = UaQualifiedName.from(Ids.AASEntityType.getNamespaceUri(), AASEntityType.SPECIFIC_ASSET_ID)
                     .toQualifiedName(nodeManager.getNamespaceTable());
             NodeId nid = nodeManager.createNodeId(entityNode, browseName);
-            listNode = nodeManager.createInstance(BaseDataVariableType.class, nid, browseName, LocalizedText.english(AASEntityType.SPECIFIC_ASSET_ID));
+            listNode = nodeManager.createInstance(BaseDataVariableType.class, nid, browseName, new LocalizedText(AASEntityType.SPECIFIC_ASSET_ID));
             entityNode.addComponent(listNode);
         }
 

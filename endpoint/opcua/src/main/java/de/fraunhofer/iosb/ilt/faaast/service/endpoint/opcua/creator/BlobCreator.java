@@ -75,7 +75,7 @@ public class BlobCreator extends SubmodelElementCreator {
                 }
                 NodeBuilder<AASBlobType> nb = nodeManager.createNodeBuilder(AASBlobType.class, conf);
                 nb.setBrowseName(browseName);
-                nb.setDisplayName(LocalizedText.english(name));
+                nb.setDisplayName(new LocalizedText(name));
                 nb.setNodeId(nid);
                 AASBlobType blobNode = nb.build();
 

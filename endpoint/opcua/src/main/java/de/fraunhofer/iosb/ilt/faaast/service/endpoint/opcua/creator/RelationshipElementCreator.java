@@ -82,7 +82,7 @@ public class RelationshipElementCreator extends SubmodelElementCreator {
                 else {
                     NodeBuilder<AASRelationshipElementType> nb = nodeManager.createNodeBuilder(AASRelationshipElementType.class, conf);
                     nb.setBrowseName(browseName);
-                    nb.setDisplayName(LocalizedText.english(name));
+                    nb.setDisplayName(new LocalizedText(name));
                     nb.setNodeId(nid);
                     relElemNode = nb.build();
                 }
@@ -123,7 +123,7 @@ public class RelationshipElementCreator extends SubmodelElementCreator {
 
         NodeBuilder<AASAnnotatedRelationshipElementType> nb = nodeManager.createNodeBuilder(AASAnnotatedRelationshipElementType.class, conf);
         nb.setBrowseName(browseName);
-        nb.setDisplayName(LocalizedText.english(aasRelElem.getIdShort()));
+        nb.setDisplayName(new LocalizedText(aasRelElem.getIdShort()));
         nb.setNodeId(nodeId);
         AASAnnotatedRelationshipElementType relElemNode = nb.build();
 

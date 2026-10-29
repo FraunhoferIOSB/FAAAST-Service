@@ -170,7 +170,7 @@ public class AasSubmodelElementHelper {
         NodeId propertyId = new NodeId(nodeManager.getNamespaceIndex(), node.getNodeId().getValue().toString() + "." + AASBlobType.VALUE);
         PlainProperty<ByteString> property = new PlainProperty<>(nodeManager, propertyId,
                 UaQualifiedName.from(Ids.AASBlobType.getNamespaceUri(), AASBlobType.VALUE).toQualifiedName(nodeManager.getNamespaceTable()),
-                LocalizedText.english(AASBlobType.VALUE));
+                new LocalizedText(AASBlobType.VALUE));
         property.setDataTypeId(Identifiers.ByteString);
         property.setDescription(new LocalizedText("", ""));
         node.addProperty(property);
@@ -187,7 +187,7 @@ public class AasSubmodelElementHelper {
         NodeId propertyId = new NodeId(nodeManager.getNamespaceIndex(), fileNode.getNodeId().getValue().toString() + "." + AASFileType.VALUE);
         PlainProperty<String> property = new PlainProperty<>(nodeManager, propertyId,
                 UaQualifiedName.from(Ids.AASFileType.getNamespaceUri(), AASFileType.VALUE).toQualifiedName(nodeManager.getNamespaceTable()),
-                LocalizedText.english(AASFileType.VALUE));
+                new LocalizedText(AASFileType.VALUE));
         property.setDataTypeId(Identifiers.String);
         if (AasServiceNodeManager.VALUES_READ_ONLY) {
             property.setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));

@@ -61,7 +61,7 @@ public class RangeCreator extends SubmodelElementCreator {
             }
             QualifiedName browseName = UaQualifiedName.from(Ids.AASRangeType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
             NodeId nid = nodeManager.getDefaultNodeId();
-            AASRangeType rangeNode = nodeManager.createInstance(AASRangeType.class, nid, browseName, LocalizedText.english(name));
+            AASRangeType rangeNode = nodeManager.createInstance(AASRangeType.class, nid, browseName, new LocalizedText(name));
 
             LOGGER.info("createAasRange: {}: create {}", name, nid);
 

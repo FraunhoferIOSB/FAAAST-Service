@@ -91,7 +91,7 @@ public class UaHelper {
             throws StatusException, ValueFormatException {
         NodeId nodeId = new NodeId(nodeManager.getNamespaceIndex(), parentNode.getNodeId().getValue().toString() + "." + name);
         QualifiedName browseName = UaQualifiedName.from(namespaceUri, name).toQualifiedName(nodeManager.getNamespaceTable());
-        LocalizedText displayName = LocalizedText.english(name);
+        LocalizedText displayName = new LocalizedText(name);
         parentNode.addProperty(createStringProperty(new ValueData(nodeId, browseName, displayName, nodeManager), TypedValueFactory.create(Datatype.STRING, value)));
     }
 
@@ -129,7 +129,7 @@ public class UaHelper {
                 QualifiedName browseName = UaQualifiedName.from(Ids.AASFileType.getNamespaceUri(), name)
                         .toQualifiedName(nodeManager.getNamespaceTable());
                 NodeId nid = nodeManager.createNodeId(parentNode, browseName);
-                FileTypeNode file = nodeManager.createInstance(FileTypeNode.class, nid, browseName, LocalizedText.english(name));
+                FileTypeNode file = nodeManager.createInstance(FileTypeNode.class, nid, browseName, new LocalizedText(name));
                 file.setFile(path.toFile());
                 retval = file;
             }

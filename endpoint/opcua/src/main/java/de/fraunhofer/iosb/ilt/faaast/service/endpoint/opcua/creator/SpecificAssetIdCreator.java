@@ -49,7 +49,7 @@ public class SpecificAssetIdCreator {
      * @param specificAssetIds The desired list of SpecificAssetIds
      * @param nodeManager The corresponding Node Manager
      * @throws StatusException If the operation fails
-     * @throws com.prosysopc.ua.stack.common.ServiceResultException
+     * @throws ServiceResultException If an error occurs
      */
     public static void addSpecificAssetIdList(BaseDataVariableType node, List<SpecificAssetId> specificAssetIds, NodeManagerUaNode nodeManager)
             throws StatusException, ServiceResultException {

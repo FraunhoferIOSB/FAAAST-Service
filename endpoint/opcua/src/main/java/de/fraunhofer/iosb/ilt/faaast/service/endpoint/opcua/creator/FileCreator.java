@@ -83,7 +83,7 @@ public class FileCreator extends SubmodelElementCreator {
                 }
                 NodeBuilder<AASFileType> nb = nodeManager.createNodeBuilder(AASFileType.class, conf);
                 nb.setBrowseName(browseName);
-                nb.setDisplayName(LocalizedText.english(name));
+                nb.setDisplayName(new LocalizedText(name));
                 nb.setNodeId(nid);
                 AASFileType fileNode = nb.build();
 

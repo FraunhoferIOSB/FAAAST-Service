@@ -87,7 +87,7 @@ public class SubmodelCreator {
 
         LOGGER.trace("addSubmodel: create Submodel {}; NodeId: {}; Kind {}", submodel.getIdShort(), nid, submodel.getKind());
 
-        AASSubmodelType smNode = nodeManager.createInstance(AASSubmodelType.class, nid, browseName, LocalizedText.english(displayName));
+        AASSubmodelType smNode = nodeManager.createInstance(AASSubmodelType.class, nid, browseName, new LocalizedText(displayName));
 
         if (smNode.getCommonAttributes() == null) {
             smNode.setCommonAttributes(new AASSubmodelCommonAttributes());

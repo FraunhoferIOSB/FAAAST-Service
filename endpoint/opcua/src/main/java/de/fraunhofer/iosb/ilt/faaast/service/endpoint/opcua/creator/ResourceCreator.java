@@ -55,7 +55,7 @@ public class ResourceCreator {
         if ((node != null) && (aasResource != null)) {
             NodeId nodeId = new NodeId(nodeManager.getNamespaceIndex(), node.getNodeId().getValue().toString() + "." + name);
             QualifiedName browseName = UaQualifiedName.from(Ids.AASResourceType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
-            AASResourceType resourceNode = nodeManager.createInstance(AASResourceType.class, nodeId, browseName, LocalizedText.english(name));
+            AASResourceType resourceNode = nodeManager.createInstance(AASResourceType.class, nodeId, browseName, new LocalizedText(name));
 
             setResourceData(aasResource, resourceNode, nodeManager);
             node.addComponent(resourceNode);
