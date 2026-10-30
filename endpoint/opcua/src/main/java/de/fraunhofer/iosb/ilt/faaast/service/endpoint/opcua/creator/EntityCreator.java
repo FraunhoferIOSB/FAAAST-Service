@@ -128,10 +128,12 @@ public class EntityCreator extends SubmodelElementCreator {
     }
 
 
-    public static void setGlobalAssetIdData(AASEntityType entityNode, String value, NodeManagerUaNode nodeManager) throws StatusException, ValueFormatException {
+    public static void setGlobalAssetIdData(AASEntityType entityNode, String value, NodeManagerUaNode nodeManager)
+            throws StatusException, ValueFormatException, ServiceResultException {
         if (entityNode.getGlobalAssetIdNode() == null) {
             // create node
-            UaHelper.addStringUaProperty(entityNode, nodeManager, AASEntityType.GLOBAL_ASSET_ID, value, Ids.AASEntityType.getNamespaceUri());
+            UaHelper.addStringUaVariable(entityNode, nodeManager, AASEntityType.GLOBAL_ASSET_ID, value, Ids.AASEntityType.getNamespaceUri(),
+                    nodeManager.getNamespaceTable().toNodeId(Ids.AASHasAttribute));
         }
         else {
             entityNode.setGlobalAssetId(value);
@@ -155,7 +157,7 @@ public class EntityCreator extends SubmodelElementCreator {
 
 
     private static void addGlobalAssetIdData(AASEntityType entityNode, Entity aasEntity, AasServiceNodeManager nodeManager, Submodel submodel, Reference entityRef)
-            throws StatusException, ValueFormatException {
+            throws StatusException, ValueFormatException, ServiceResultException {
 
         setGlobalAssetIdData(entityNode, aasEntity.getGlobalAssetId(), nodeManager);
         nodeManager.addSubmodelElementAasMap(entityNode.getGlobalAssetIdNode().getNodeId(),

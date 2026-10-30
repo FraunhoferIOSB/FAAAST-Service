@@ -98,7 +98,7 @@ public class ConceptDescriptionCreator {
         BaseDataVariableType cdsNode = (BaseDataVariableType) nodeManager.findNode(nodeId);
         if (cdsNode == null) {
             cdsNode = nodeManager.createInstance(BaseDataVariableType.class, CONCEPT_DESCRIPTIONS, nodeId);
-            baseNode.addComponent(cdsNode);
+            baseNode.addReference(cdsNode, nodeManager.getNamespaceTable().toNodeId(Ids.AASHasConceptDescription));
         }
 
         List<AASConceptDescription> list = getConceptDescriptions(cdsNode);

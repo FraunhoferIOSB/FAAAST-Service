@@ -120,7 +120,7 @@ public class SubmodelCreator {
 
         nodeManager.addSubmodelOpcUA(AasUtils.toReference(submodel), smNode);
 
-        node.addComponent(smNode);
+        node.addReference(smNode, nodeManager.getNamespaceTable().toNodeId(Ids.AASHasSubmodel));
 
         nodeManager.addReferable(AasUtils.toReference(submodel), new ObjectData(submodel, smNode));
 

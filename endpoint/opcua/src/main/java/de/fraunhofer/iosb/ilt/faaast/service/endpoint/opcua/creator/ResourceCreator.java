@@ -20,6 +20,7 @@ import com.prosysopc.ua.nodes.UaNode;
 import com.prosysopc.ua.stack.builtintypes.LocalizedText;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.QualifiedName;
+import com.prosysopc.ua.stack.common.ServiceResultException;
 import com.prosysopc.ua.types.opcua.server.FileTypeNode;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.UaHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.nodemanager.AasServiceNodeManager;
@@ -50,24 +51,27 @@ public class ResourceCreator {
      * @param nodeManager The corresponding Node Manager
      * @throws StatusException If the operation fails
      * @throws ValueFormatException The data format of the value is invalid
+     * @throws ServiceResultException If an error occurs
      */
-    public static void addAasResource(UaNode node, Resource aasResource, String name, AasServiceNodeManager nodeManager) throws StatusException, ValueFormatException {
+    public static void addAasResource(UaNode node, Resource aasResource, String name, AasServiceNodeManager nodeManager)
+            throws StatusException, ValueFormatException, ServiceResultException {
         if ((node != null) && (aasResource != null)) {
             NodeId nodeId = new NodeId(nodeManager.getNamespaceIndex(), node.getNodeId().getValue().toString() + "." + name);
             QualifiedName browseName = UaQualifiedName.from(Ids.AASResourceType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
             AASResourceType resourceNode = nodeManager.createInstance(AASResourceType.class, nodeId, browseName, new LocalizedText(name));
 
             setResourceData(aasResource, resourceNode, nodeManager);
-            node.addComponent(resourceNode);
+            node.addReference(resourceNode, nodeManager.getNamespaceTable().toNodeId(Ids.AASHasAttribute));
         }
     }
 
 
-    private static void setResourceData(Resource aasResource, AASResourceType resourceNode, AasServiceNodeManager nodeManager) throws StatusException, ValueFormatException {
+    private static void setResourceData(Resource aasResource, AASResourceType resourceNode, AasServiceNodeManager nodeManager)
+            throws StatusException, ValueFormatException, ServiceResultException {
         if (!aasResource.getContentType().isEmpty()) {
             if (resourceNode.getContentTypeNode() == null) {
-                UaHelper.addStringUaProperty(resourceNode, nodeManager, AASResourceType.CONTENT_TYPE, aasResource.getContentType(),
-                        Ids.AASResourceType.getNamespaceUri());
+                UaHelper.addStringUaVariable(resourceNode, nodeManager, AASResourceType.CONTENT_TYPE, aasResource.getContentType(),
+                        Ids.AASResourceType.getNamespaceUri(), nodeManager.getNamespaceTable().toNodeId(Ids.AASHasAttribute));
             }
             else {
                 resourceNode.setContentType(aasResource.getContentType());
@@ -76,7 +80,8 @@ public class ResourceCreator {
 
         if (aasResource.getPath() != null) {
             if (resourceNode.getPathNode() == null) {
-                UaHelper.addStringUaProperty(resourceNode, nodeManager, AASResourceType.PATH, aasResource.getPath(), Ids.AASResourceType.getNamespaceUri());
+                UaHelper.addStringUaVariable(resourceNode, nodeManager, AASResourceType.PATH, aasResource.getPath(), Ids.AASResourceType.getNamespaceUri(),
+                        nodeManager.getNamespaceTable().toNodeId(Ids.AASHasAttribute));
             }
             else {
                 resourceNode.setPath(aasResource.getPath());
