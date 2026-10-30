@@ -32,6 +32,8 @@
         - Consolidated temporarily introduced `CoreConfig.callbackAddress` into `HttpEndpointConfig.hostname`. If `MessageBusCloudEvents` is used in combination with multiple `HttpEndpoints`, one of them will be chosen to fill a `CloudEvent`'s `source` URI. The implementation will prefer non-local hostnames (i.e. **not** `localhost`/`127.0.0.1`).
         - Added configurability for registry synchronization's `subprotocol*` values (`Descriptor.Endpoint.ProtocolInformation.subprotocol*`). in `subprotocolBody`, `${id}` is substituted with the identifiable's identifier and `${id|hash}` with the sha256-hash value of it. Configurable in `HttpEndpointConfig`
         - Added DPP endpoints ReadDPPById, ReadDPPByProductId, ReadDPPIdsByIds, DPP serialization (compressed mode)
+	- OPC UA
+        - Updated OPC UA Endpoint to new OPC UA Companion Specification OPC 30271 (OPC UA for AAS Generic Mapping)
 - SMT Processor
 	- Updated processor for SMT Asset Interfaces Description (AID) to support AID version 1.1 including OPC UA binding.
 
