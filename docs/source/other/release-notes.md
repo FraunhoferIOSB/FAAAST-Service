@@ -51,6 +51,9 @@
 	- Fixed asset connection JSON serialization not including blob values in serialization
 	- HTTP
 		- Add logging of raw HTTP requests & responses with level `TRACE`
+	- OPC UA
+		- Fixed a bug that caused values mapped to datatype Base64Binary to be converted incorrectly
+		- Fixed a bug that removing a SubscriptionProvider caused the whole subscription to be removed
 - MessageBus
     - CloudEventsMessageBus now available implementing the async-aas specification in https://factory-x-contributions.github.io/async-aas-helm/
 	- MQTT

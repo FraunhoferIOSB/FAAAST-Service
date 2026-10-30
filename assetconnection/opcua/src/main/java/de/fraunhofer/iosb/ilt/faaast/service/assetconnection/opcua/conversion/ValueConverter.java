@@ -24,6 +24,7 @@ import io.netty.buffer.ByteBufUtil;
 import java.math.BigInteger;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
+import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -200,7 +201,12 @@ public class ValueConverter {
         try {
             String txt;
             if (value.getValue() instanceof ByteString bs) {
-                txt = ByteBufUtil.hexDump(bs.bytesOrEmpty());
+                if (targetType == Datatype.BASE64_BINARY) {
+                    txt = Base64.getEncoder().encodeToString(bs.bytesOrEmpty());
+                }
+                else {
+                    txt = ByteBufUtil.hexDump(bs.bytesOrEmpty());
+                }
             }
             else {
                 txt = value.getValue().toString();
@@ -232,6 +238,9 @@ public class ValueConverter {
             if ((value.getDataType() == Datatype.DATE_TIME) && (targetType.equals(NodeIds.DateTime))) {
                 return new Variant(new DateTime(((OffsetDateTime) value.getValue()).toInstant()));
             }
+            if (((value.getDataType() == Datatype.HEX_BINARY) || (value.getDataType() == Datatype.BASE64_BINARY)) && (targetType.equals(NodeIds.ByteString))) {
+                return Variant.ofByteString(new ByteString((byte[]) value.getValue()));
+            }
             if (dataType == null) {
                 throw new ValueConversionException("datatype is null");
             }
@@ -249,6 +258,9 @@ public class ValueConverter {
                 if ((targetType == Datatype.DATE_TIME) && (value.getValue() instanceof DateTime)) {
                     return TypedValueFactory.create(targetType,
                             OffsetDateTime.ofInstant(((DateTime) value.getValue()).getJavaInstant(), ZoneId.systemDefault()).toString());
+                }
+                else if (targetType == Datatype.BASE64_BINARY) {
+                    return TypedValueFactory.create(targetType, value.getValue().toString());
                 }
                 else {
                     return TypedValueFactory.create(targetType, value.getValue().toString());
