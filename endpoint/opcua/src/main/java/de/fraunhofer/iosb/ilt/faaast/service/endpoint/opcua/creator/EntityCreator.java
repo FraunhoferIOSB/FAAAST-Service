@@ -32,7 +32,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.UaHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.nodemanager.AasServiceNodeManager;
-import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import java.util.List;
 import opc.ua.aas.Ids;
 import opc.ua.aas.objecttypes.AASEntityType;
@@ -63,10 +62,9 @@ public class EntityCreator extends SubmodelElementCreator {
      * @throws ServiceException If the operation fails
      * @throws AddressSpaceException If the operation fails
      * @throws ServiceResultException If the operation fails
-     * @throws ValueFormatException The data format of the value is invalid
      */
     public static UaNode createAasEntity(Entity aasEntity, Reference entityRef, Submodel submodel, AasServiceNodeManager nodeManager)
-            throws StatusException, ServiceException, AddressSpaceException, ServiceResultException, ValueFormatException {
+            throws StatusException, ServiceException, AddressSpaceException, ServiceResultException {
         UaNode retval = null;
         try {
             if (aasEntity != null) {
@@ -157,7 +155,7 @@ public class EntityCreator extends SubmodelElementCreator {
 
 
     private static void addGlobalAssetIdData(AASEntityType entityNode, Entity aasEntity, AasServiceNodeManager nodeManager, Submodel submodel, Reference entityRef)
-            throws StatusException, ValueFormatException, ServiceResultException {
+            throws StatusException, ServiceResultException {
 
         setGlobalAssetIdData(entityNode, aasEntity.getGlobalAssetId(), nodeManager);
         nodeManager.addSubmodelElementAasMap(entityNode.getGlobalAssetIdNode().getNodeId(),
