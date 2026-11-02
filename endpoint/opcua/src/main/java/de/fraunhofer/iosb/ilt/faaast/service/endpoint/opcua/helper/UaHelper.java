@@ -26,7 +26,6 @@ import com.prosysopc.ua.stack.core.Identifiers;
 import com.prosysopc.ua.types.opcua.BaseDataVariableType;
 import com.prosysopc.ua.types.opcua.server.FileTypeNode;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.nodemanager.AasServiceNodeManager;
-import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -53,25 +52,6 @@ public class UaHelper {
      */
     private UaHelper() {}
 
-    //    /**
-    //     * Creates an OPC UA String property.
-    //     * 
-    //     * @param valueData The desired Value Data
-    //     * @param typedValue The desired value
-    //     * @return The created OPC UA property
-    //     * @throws StatusException If an error occurs
-    //     */
-    //    public static BaseDataVariableType createVariable(ValueData valueData, TypedValue<?> typedValue) throws StatusException {
-    //        BaseDataVariableType()
-    //        PlainProperty<String> stringProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
-    //        stringProperty.setDataTypeId(Identifiers.String);
-    //        stringProperty.setDescription(new LocalizedText("", ""));
-    //        if ((typedValue != null) && (typedValue.getValue() != null)) {
-    //            stringProperty.setValue(typedValue.asString());
-    //        }
-    //        return stringProperty;
-    //    }
-
 
     /**
      * Adds an OPC UA String variable to the given node.
@@ -83,10 +63,9 @@ public class UaHelper {
      * @param namespaceUri The URI of the desired Namespace.
      * @param referenceType The desired reference type.
      * @throws StatusException If an error occurs
-     * @throws ValueFormatException The data format of the value is invalid
      */
     public static void addStringUaVariable(UaNode parentNode, NodeManagerUaNode nodeManager, String name, String value, String namespaceUri, NodeId referenceType)
-            throws StatusException, ValueFormatException {
+            throws StatusException {
         NodeId nodeId = new NodeId(nodeManager.getNamespaceIndex(), parentNode.getNodeId().getValue().toString() + "." + name);
         QualifiedName browseName = UaQualifiedName.from(namespaceUri, name).toQualifiedName(nodeManager.getNamespaceTable());
         LocalizedText displayName = new LocalizedText(name);
@@ -95,7 +74,6 @@ public class UaHelper {
         variable.setValueRank(ValueRanks.Scalar);
         variable.setValue(value);
         parentNode.addReference(variable, referenceType);
-        //parentNode.addProperty(createStringProperty(new ValueData(nodeId, browseName, displayName, nodeManager), TypedValueFactory.create(Datatype.STRING, value)));
     }
 
 
