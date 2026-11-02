@@ -32,7 +32,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.UaHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.nodemanager.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.AmbiguousElementException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EnvironmentHelper;
 import java.util.List;
 import opc.ua.aas.Ids;
@@ -69,12 +68,11 @@ public class AssetAdministrationShellCreator {
      * @param aas The desirted AssetAdministrationShell.
      * @param nodeManager The corresponding Node Manager
      * @throws StatusException If the operation fails
-     * @throws ValueFormatException The data format of the value is invalid
      * @throws AmbiguousElementException if there are multiple matching elements in the environment
      * @throws ServiceResultException If the operation fails
      */
     public static void addAssetAdministrationShell(UaNode node, AssetAdministrationShell aas, AasServiceNodeManager nodeManager)
-            throws StatusException, ValueFormatException, AmbiguousElementException, ServiceResultException {
+            throws StatusException, AmbiguousElementException, ServiceResultException {
         TypeDefinitionBasedNodeBuilderConfiguration.Builder conf = TypeDefinitionBasedNodeBuilderConfiguration.builder();
         Reference derivedFrom = aas.getDerivedFrom();
         if (derivedFrom != null) {
@@ -133,7 +131,7 @@ public class AssetAdministrationShellCreator {
 
 
     private static void addAssetInformation(AASAssetAdministrationShellType aasNode, AssetInformation assetInformation, AasServiceNodeManager nodeManager)
-            throws StatusException, ValueFormatException, ServiceResultException {
+            throws StatusException, ServiceResultException {
         if (assetInformation == null) {
             return;
         }
@@ -164,7 +162,7 @@ public class AssetAdministrationShellCreator {
 
 
     private static void setAssetInformationData(AssetInformation assetInformation, AASAssetInformationType assetInfoNode, AasServiceNodeManager nodeManager)
-            throws StatusException, ValueFormatException, ServiceResultException {
+            throws StatusException, ServiceResultException {
         // AssetKind
         AssetKind assetKind = assetInformation.getAssetKind();
         if (assetKind != null) {

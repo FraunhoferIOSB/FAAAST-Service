@@ -129,7 +129,7 @@ public class EntityCreator extends SubmodelElementCreator {
 
 
     public static void setGlobalAssetIdData(AASEntityType entityNode, String value, NodeManagerUaNode nodeManager)
-            throws StatusException, ValueFormatException, ServiceResultException {
+            throws StatusException, ServiceResultException {
         if (entityNode.getGlobalAssetIdNode() == null) {
             // create node
             UaHelper.addStringUaVariable(entityNode, nodeManager, AASEntityType.GLOBAL_ASSET_ID, value, Ids.AASEntityType.getNamespaceUri(),
