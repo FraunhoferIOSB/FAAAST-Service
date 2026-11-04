@@ -73,8 +73,12 @@ public class RelationshipElementCreator extends SubmodelElementCreator {
                 NodeId nid = nodeManager.getDefaultNodeId();
 
                 NodeBuilderConfiguration conf = new NodeBuilderConfiguration();
-                conf.addOptional(Ids.AASRelationshipElementType_First);
-                conf.addOptional(Ids.AASRelationshipElementType_Second);
+                if (aasRelElem.getFirst() != null) {
+                    conf.addOptional(Ids.AASRelationshipElementType_First);
+                }
+                if (aasRelElem.getSecond() != null) {
+                    conf.addOptional(Ids.AASRelationshipElementType_Second);
+                }
 
                 if (aasRelElem instanceof AnnotatedRelationshipElement annotatedRelationshipElement) {
                     relElemNode = createAnnotatedRelationshipElement(annotatedRelationshipElement, relElemRef, submodel, nid, nodeManager, conf);
@@ -90,13 +94,16 @@ public class RelationshipElementCreator extends SubmodelElementCreator {
                 if (relElemNode != null) {
                     addSubmodelElementBaseData(relElemNode, aasRelElem, nodeManager);
 
-                    relElemNode.setFirst(ReferenceCreator.getAasReference(aasRelElem.getFirst()));
-                    relElemNode.setSecond(ReferenceCreator.getAasReference(aasRelElem.getSecond()));
-
-                    nodeManager.addSubmodelElementAasMap(relElemNode.getFirstNode().getNodeId(),
-                            new SubmodelElementData(aasRelElem, submodel, SubmodelElementData.Type.RELATIONSHIP_ELEMENT_FIRST, relElemRef));
-                    nodeManager.addSubmodelElementAasMap(relElemNode.getSecondNode().getNodeId(),
-                            new SubmodelElementData(aasRelElem, submodel, SubmodelElementData.Type.RELATIONSHIP_ELEMENT_SECOND, relElemRef));
+                    if (aasRelElem.getFirst() != null) {
+                        relElemNode.setFirst(ReferenceCreator.getAasReference(aasRelElem.getFirst()));
+                        nodeManager.addSubmodelElementAasMap(relElemNode.getFirstNode().getNodeId(),
+                                new SubmodelElementData(aasRelElem, submodel, SubmodelElementData.Type.RELATIONSHIP_ELEMENT_FIRST, relElemRef));
+                    }
+                    if (aasRelElem.getSecond() != null) {
+                        relElemNode.setSecond(ReferenceCreator.getAasReference(aasRelElem.getSecond()));
+                        nodeManager.addSubmodelElementAasMap(relElemNode.getSecondNode().getNodeId(),
+                                new SubmodelElementData(aasRelElem, submodel, SubmodelElementData.Type.RELATIONSHIP_ELEMENT_SECOND, relElemRef));
+                    }
 
                     nodeManager.addSubmodelElementOpcUA(relElemRef, relElemNode);
 

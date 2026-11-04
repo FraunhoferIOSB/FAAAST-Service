@@ -39,7 +39,7 @@ public class ReferenceCreator {
      * Sets the data in the given Reference node.
      *
      * @param ref The desired UA reference object
-     * @param refNode The AAS Reference object with the source data
+     * @param refNode The OPC UA Reference Element Node
      * @throws StatusException If the operation fails
      */
     public static void setAasReferenceData(Reference ref, AASReferenceElementType refNode) throws StatusException {
