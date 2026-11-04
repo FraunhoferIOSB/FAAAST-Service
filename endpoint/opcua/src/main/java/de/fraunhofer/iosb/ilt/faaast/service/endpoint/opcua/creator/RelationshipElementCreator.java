@@ -91,31 +91,38 @@ public class RelationshipElementCreator extends SubmodelElementCreator {
                     relElemNode = nb.build();
                 }
 
-                if (relElemNode != null) {
-                    addSubmodelElementBaseData(relElemNode, aasRelElem, nodeManager);
-
-                    if (aasRelElem.getFirst() != null) {
-                        relElemNode.setFirst(ReferenceCreator.getAasReference(aasRelElem.getFirst()));
-                        nodeManager.addSubmodelElementAasMap(relElemNode.getFirstNode().getNodeId(),
-                                new SubmodelElementData(aasRelElem, submodel, SubmodelElementData.Type.RELATIONSHIP_ELEMENT_FIRST, relElemRef));
-                    }
-                    if (aasRelElem.getSecond() != null) {
-                        relElemNode.setSecond(ReferenceCreator.getAasReference(aasRelElem.getSecond()));
-                        nodeManager.addSubmodelElementAasMap(relElemNode.getSecondNode().getNodeId(),
-                                new SubmodelElementData(aasRelElem, submodel, SubmodelElementData.Type.RELATIONSHIP_ELEMENT_SECOND, relElemRef));
-                    }
-
-                    nodeManager.addSubmodelElementOpcUA(relElemRef, relElemNode);
-
-                    nodeManager.addReferable(relElemRef, new ObjectData(aasRelElem, relElemNode, submodel));
-                    retval = relElemNode;
-                }
+                setRelationshipElementData(relElemNode, aasRelElem, nodeManager, submodel, relElemRef);
+                retval = relElemNode;
             }
         }
         catch (Exception ex) {
             LOGGER.error("createAasRelationshipElement Exception", ex);
         }
         return retval;
+    }
+
+
+    private static void setRelationshipElementData(AASRelationshipElementType relElemNode, RelationshipElement aasRelElem, AasServiceNodeManager nodeManager, Submodel submodel,
+                                                   Reference relElemRef)
+            throws StatusException {
+        if (relElemNode != null) {
+            addSubmodelElementBaseData(relElemNode, aasRelElem, nodeManager);
+
+            if (aasRelElem.getFirst() != null) {
+                relElemNode.setFirst(ReferenceCreator.getAasReference(aasRelElem.getFirst()));
+                nodeManager.addSubmodelElementAasMap(relElemNode.getFirstNode().getNodeId(),
+                        new SubmodelElementData(aasRelElem, submodel, SubmodelElementData.Type.RELATIONSHIP_ELEMENT_FIRST, relElemRef));
+            }
+            if (aasRelElem.getSecond() != null) {
+                relElemNode.setSecond(ReferenceCreator.getAasReference(aasRelElem.getSecond()));
+                nodeManager.addSubmodelElementAasMap(relElemNode.getSecondNode().getNodeId(),
+                        new SubmodelElementData(aasRelElem, submodel, SubmodelElementData.Type.RELATIONSHIP_ELEMENT_SECOND, relElemRef));
+            }
+
+            nodeManager.addSubmodelElementOpcUA(relElemRef, relElemNode);
+
+            nodeManager.addReferable(relElemRef, new ObjectData(aasRelElem, relElemNode, submodel));
+        }
     }
 
 
