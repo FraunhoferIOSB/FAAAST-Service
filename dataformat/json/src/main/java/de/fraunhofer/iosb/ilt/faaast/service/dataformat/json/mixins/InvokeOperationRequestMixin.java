@@ -18,6 +18,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOperationRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.AccessPermissionRule;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.referable.REFERABLE_TYPES;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.Right;
 import java.util.List;
 import javax.xml.datatype.Duration;
 import org.eclipse.digitaltwin.aas4j.v3.model.Key;
@@ -31,6 +34,12 @@ public abstract class InvokeOperationRequestMixin {
 
     @JsonIgnore
     protected boolean internal;
+    @JsonIgnore
+    protected List<AccessPermissionRule> rules;
+    @JsonIgnore
+    protected REFERABLE_TYPES type;
+    @JsonIgnore
+    protected Right right;
     @JsonIgnore
     protected String id;
     @JsonIgnore

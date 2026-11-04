@@ -14,6 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.referable.REFERABLE_TYPES.AAS;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.Right.UPDATE;
+
 import de.fraunhofer.iosb.ilt.faaast.service.model.TypedInMemoryFile;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithId;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.PutThumbnailResponse;
@@ -26,6 +29,11 @@ import java.util.Objects;
 public class PutThumbnailRequest extends AbstractRequestWithId<PutThumbnailResponse> {
 
     private TypedInMemoryFile content;
+
+    protected PutThumbnailRequest() {
+        super(UPDATE, AAS);
+    }
+
 
     public TypedInMemoryFile getContent() {
         return content;

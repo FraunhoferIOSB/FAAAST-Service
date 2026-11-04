@@ -16,14 +16,12 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.submo
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractSubmodelInterfaceRequestMapper;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractSubmodelElementInterfaceRequestMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.PutSubmodelElementByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.PutSubmodelElementByPathResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
-import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
 import java.util.Map;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 
@@ -32,20 +30,17 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
  * class to map HTTP-PUT-Request paths: submodels/{submodelIdentifier}/submodel-elements/{idShortPath},
  * shells/{aasIdentifier}/submodels/{submodelIdentifier}/submodel-elements/{idShortPath}.
  */
-public class PutSubmodelElementByPathRequestMapper extends AbstractSubmodelInterfaceRequestMapper<PutSubmodelElementByPathRequest, PutSubmodelElementByPathResponse> {
-
-    private static final String SUBMODEL_ELEMENT_PATH = RegExHelper.uniqueGroupName();
-    private static final String PATTERN = String.format("submodel-elements/%s", pathElement(SUBMODEL_ELEMENT_PATH));
+public class PutSubmodelElementByPathRequestMapper extends AbstractSubmodelElementInterfaceRequestMapper<PutSubmodelElementByPathRequest, PutSubmodelElementByPathResponse> {
 
     public PutSubmodelElementByPathRequestMapper(ServiceContext serviceContext) {
-        super(serviceContext, HttpMethod.PUT, PATTERN);
+        super(serviceContext, HttpMethod.PUT, "");
     }
 
 
     @Override
     public PutSubmodelElementByPathRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) throws InvalidRequestException {
         return PutSubmodelElementByPathRequest.builder()
-                .path(EncodingHelper.urlDecode(urlParameters.get(SUBMODEL_ELEMENT_PATH)))
+                .path(getIdShortPath(urlParameters))
                 .submodelElement(parseBody(httpRequest, SubmodelElement.class))
                 .build();
     }

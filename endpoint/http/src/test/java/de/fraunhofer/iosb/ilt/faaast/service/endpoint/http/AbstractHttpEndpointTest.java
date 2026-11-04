@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.LogicalExpression.identity;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
@@ -71,6 +72,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.PostSub
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodelrepository.PostSubmodelResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.dpp.DigitalProductPassport;
 import de.fraunhofer.iosb.ilt.faaast.service.model.dpp.DppSerializationMode;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.filter.QueryFilter;
 import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
@@ -703,7 +705,8 @@ public abstract class AbstractHttpEndpointTest {
                 aas.getId(),
                 new OutputModifier.Builder()
                         .level(Level.CORE)
-                        .build()))
+                        .build(),
+                identity(), QueryFilter.EMPTY))
                 .thenReturn(aas);
         ContentResponse response = execute(
                 HttpMethod.GET,

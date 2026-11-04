@@ -14,6 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.referable.REFERABLE_TYPES.CONCEPT_DESCRIPTION;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.Right.DELETE;
+
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithId;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.conceptdescription.DeleteConceptDescriptionByIdResponse;
 import java.util.Objects;
@@ -23,6 +26,11 @@ import java.util.Objects;
  * Request class for DeleteConceptDescriptionById requests.
  */
 public class DeleteConceptDescriptionByIdRequest extends AbstractRequestWithId<DeleteConceptDescriptionByIdResponse> {
+
+    public DeleteConceptDescriptionByIdRequest() {
+        super(DELETE, CONCEPT_DESCRIPTION);
+    }
+
 
     @Override
     public boolean equals(Object o) {

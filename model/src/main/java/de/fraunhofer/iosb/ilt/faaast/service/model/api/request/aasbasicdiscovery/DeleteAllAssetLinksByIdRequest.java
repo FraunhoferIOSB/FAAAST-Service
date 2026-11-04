@@ -14,6 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasbasicdiscovery;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.referable.REFERABLE_TYPES.AAS;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.Right.DELETE;
+
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithId;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasbasicdiscovery.DeleteAllAssetLinksByIdResponse;
 import java.util.Objects;
@@ -23,6 +26,11 @@ import java.util.Objects;
  * Request class for DeleteAllAssetLinksById requests.
  */
 public class DeleteAllAssetLinksByIdRequest extends AbstractRequestWithId<DeleteAllAssetLinksByIdResponse> {
+
+    protected DeleteAllAssetLinksByIdRequest() {
+        super(DELETE, AAS);
+    }
+
 
     @Override
     public boolean equals(Object o) {

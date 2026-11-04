@@ -30,9 +30,10 @@ import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 public class ReadDppByIdRequestHandler extends AbstractDppRequestHandler<ReadDppByIdRequest, ReadDPPByIdResponse> {
     @Override
     public ReadDPPByIdResponse process(ReadDppByIdRequest request, RequestExecutionContext context) throws Exception {
-        AssetAdministrationShell aas = context.getPersistence().getAssetAdministrationShell(request.getId(), QueryModifier.MAXIMAL);
+        AssetAdministrationShell aas = context.getPersistence().getAssetAdministrationShell(request.getId(), QueryModifier.MAXIMAL, combineRemainingRuleFormulas(request),
+                getFilters(request));
 
-        DigitalProductPassport dpp = buildFrom(aas, context.getPersistence());
+        DigitalProductPassport dpp = buildFrom(request, aas, context.getPersistence());
 
         if (!request.isInternal()) {
             distributeReadEvents(dpp, context.getMessageBus());
