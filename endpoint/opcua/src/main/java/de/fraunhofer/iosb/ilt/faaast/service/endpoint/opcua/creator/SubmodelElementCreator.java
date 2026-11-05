@@ -235,8 +235,6 @@ public class SubmodelElementCreator {
 
             setSubmodelElementCommonAttributes(node.getCommonAttributes(), element);
 
-            // HasSemantics
-            node.getCommonAttributes().setHasSemantics(BaseDataCreator.getHasSemantics(element));
             if (element.getSemanticId() != null) {
                 ConceptDescriptionCreator.addSemanticId(node, element.getSemanticId(), nodeManager);
             }
@@ -279,5 +277,8 @@ public class SubmodelElementCreator {
 
             QualifierCreator.addQualifiers(commonAttributes.getQualifiable(), qualifiers);
         }
+
+        // HasSemantics
+        commonAttributes.setHasSemantics(BaseDataCreator.getHasSemantics(element));
     }
 }
