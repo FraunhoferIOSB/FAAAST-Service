@@ -27,6 +27,7 @@ import com.prosysopc.ua.stack.common.ServiceResultException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.nodemanager.AasServiceNodeManager;
+import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import opc.ua.aas.Ids;
 import opc.ua.aas.objecttypes.AASAnnotatedRelationshipElementType;
@@ -105,6 +106,7 @@ public class RelationshipElementCreator extends SubmodelElementCreator {
     private static void setRelationshipElementData(AASRelationshipElementType relElemNode, RelationshipElement aasRelElem, AasServiceNodeManager nodeManager, Submodel submodel,
                                                    Reference relElemRef)
             throws StatusException {
+        Ensure.requireNonNull(aasRelElem);
         if (relElemNode != null) {
             addSubmodelElementBaseData(relElemNode, aasRelElem, nodeManager);
 
