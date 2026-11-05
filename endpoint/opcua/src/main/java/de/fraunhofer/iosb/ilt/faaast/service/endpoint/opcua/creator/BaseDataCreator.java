@@ -12,10 +12,13 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator;
 
+import java.util.ArrayList;
 import java.util.List;
+import opc.ua.aas.datatypes.AASHasDataSpecification;
 import opc.ua.aas.datatypes.AASHasSemantics;
 import opc.ua.aas.datatypes.AASIdentifiable;
 import opc.ua.aas.datatypes.AASReference;
+import org.eclipse.digitaltwin.aas4j.v3.model.HasDataSpecification;
 import org.eclipse.digitaltwin.aas4j.v3.model.HasSemantics;
 import org.eclipse.digitaltwin.aas4j.v3.model.Identifiable;
 
@@ -65,4 +68,22 @@ public class BaseDataCreator {
         }
         return retval;
     }
+
+
+    public static AASHasDataSpecification getHasDataSpecification(HasDataSpecification dataSpecification) {
+        if (dataSpecification == null) {
+            return null;
+        }
+        AASHasDataSpecification retval = null;
+        var list = dataSpecification.getEmbeddedDataSpecifications();
+        if ((list != null) && (!list.isEmpty())) {
+            List<AASReference> refList = new ArrayList<>();
+            for (var embedDataSpec: list) {
+                refList.add(ReferenceCreator.getAasReference(embedDataSpec.getDataSpecification()));
+            }
+            retval = new AASHasDataSpecification(refList.toArray(AASReference[]::new), null);
+        }
+        return retval;
+    }
+
 }

@@ -104,7 +104,7 @@ public class SubmodelCreator {
         }
 
         // DataSpecifications
-        HasDataSpecificationCreator.addHasDataSpecification(smNode, submodel);
+        smNode.getCommonAttributes().setHasDataSpecification(BaseDataCreator.getHasDataSpecification(submodel));
 
         // Qualifiers
         List<Qualifier> qualifiers = submodel.getQualifiers();

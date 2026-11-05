@@ -174,7 +174,7 @@ public class ConceptDescriptionCreator {
         }
 
         descriptionNode.getCommonAttributes().setIdentifiable(BaseDataCreator.getIdentifiable(conceptDescription));
-        HasDataSpecificationCreator.addHasDataSpecification(descriptionNode.getCommonAttributes(), conceptDescription);
+        descriptionNode.getCommonAttributes().setHasDataSpecification(BaseDataCreator.getHasDataSpecification(conceptDescription));
 
         return descriptionNode;
     }

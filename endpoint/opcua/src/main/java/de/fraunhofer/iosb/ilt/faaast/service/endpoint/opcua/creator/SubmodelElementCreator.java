@@ -268,7 +268,7 @@ public class SubmodelElementCreator {
         commonAttributes.setReferable(ReferableCreator.getReferable(element));
 
         // DataSpecifications
-        HasDataSpecificationCreator.addHasDataSpecification(commonAttributes, element);
+        commonAttributes.setHasDataSpecification(BaseDataCreator.getHasDataSpecification(element));
 
         // Qualifiers
         List<Qualifier> qualifiers = element.getQualifiers();

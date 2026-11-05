@@ -55,6 +55,8 @@ public class AdministrativeInformationCreator {
             if (info.getCreator() != null) {
                 retval.setCreator(ReferenceCreator.getAasReference(info.getCreator()));
             }
+
+            retval.setHasDataSpecification(BaseDataCreator.getHasDataSpecification(info));
         }
         return retval;
     }
