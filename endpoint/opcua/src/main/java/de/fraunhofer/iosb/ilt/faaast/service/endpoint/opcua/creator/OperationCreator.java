@@ -87,21 +87,21 @@ public class OperationCreator extends SubmodelElementCreator {
             if (!aasOperation.getInputVariables().isEmpty()) {
                 for (var input: aasOperation.getInputVariables()) {
                     AASOperationVariableType inputNode = createOperationVariable(operationRef, input, submodel, nodeManager);
-                    oper.addReference(inputNode, nodeManager.getNamespaceTable().toNodeId(Ids.AASHasAttribute));
+                    oper.addReference(inputNode, nodeManager.getNamespaceTable().toNodeId(Ids.AASHasInputVariable));
                 }
             }
 
             if (!aasOperation.getInoutputVariables().isEmpty()) {
                 for (var inoutput: aasOperation.getInoutputVariables()) {
                     AASOperationVariableType inoutputNode = createOperationVariable(operationRef, inoutput, submodel, nodeManager);
-                    oper.addReference(inoutputNode, nodeManager.getNamespaceTable().toNodeId(Ids.AASHasAttribute));
+                    oper.addReference(inoutputNode, nodeManager.getNamespaceTable().toNodeId(Ids.AASHasInoutputVariable));
                 }
             }
 
             if (!aasOperation.getOutputVariables().isEmpty()) {
                 for (var output: aasOperation.getOutputVariables()) {
                     AASOperationVariableType outputNode = createOperationVariable(operationRef, output, submodel, nodeManager);
-                    oper.addReference(outputNode, nodeManager.getNamespaceTable().toNodeId(Ids.AASHasAttribute));
+                    oper.addReference(outputNode, nodeManager.getNamespaceTable().toNodeId(Ids.AASHasOutputVariable));
                 }
             }
 

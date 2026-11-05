@@ -110,7 +110,7 @@ public class AssetAdministrationShellCreator {
         // Referable
         ReferableCreator.setReferableNodeData(aasShell, aas);
 
-        // EmbeddedDataSpecifications
+        // HasDataSpecification
         aasShell.getCommonAttributes().setHasDataSpecification(BaseDataCreator.getHasDataSpecification(aas));
 
         // AssetInformation
