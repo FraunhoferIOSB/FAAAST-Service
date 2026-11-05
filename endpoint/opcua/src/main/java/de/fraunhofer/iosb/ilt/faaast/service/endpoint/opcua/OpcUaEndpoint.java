@@ -16,6 +16,10 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua;
 
 import com.prosysopc.ua.StatusException;
 import com.prosysopc.ua.stack.core.StatusCodes;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonApiDeserializer;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonApiSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.AbstractEndpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
@@ -27,18 +31,16 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOp
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetSubmodelElementByPathResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.InvokeOperationSyncResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.UnsupportedModifierException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValueParser;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.MultiLanguagePropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
-import java.util.List;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.eclipse.digitaltwin.aas4j.v3.model.ExecutionState;
-import org.eclipse.digitaltwin.aas4j.v3.model.MultiLanguageProperty;
 import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
-import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
@@ -54,6 +56,8 @@ public class OpcUaEndpoint extends AbstractEndpoint<OpcUaEndpointConfig> {
     private static final Logger LOGGER = LoggerFactory.getLogger(OpcUaEndpoint.class);
     private static final String CALL_OPERATION_ERROR_TXT = "callOperation: Operation {} error executing operation: {}";
 
+    private final JsonApiDeserializer deserializer;
+    private final JsonApiSerializer serializer;
     private Environment aasEnvironment;
     private Server server;
 
@@ -64,6 +68,8 @@ public class OpcUaEndpoint extends AbstractEndpoint<OpcUaEndpointConfig> {
         aasEnvironment = null;
         config = null;
         server = null;
+        deserializer = new JsonApiDeserializer();
+        serializer = new JsonApiSerializer();
     }
 
 
@@ -132,33 +138,18 @@ public class OpcUaEndpoint extends AbstractEndpoint<OpcUaEndpointConfig> {
 
         try {
             String path = ReferenceHelper.toPath(refElement);
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("writeValue: Reference {}; Path {}", ReferenceHelper.toString(refElement), path);
-            }
-            PatchSubmodelElementValueByPathRequest request = new PatchSubmodelElementValueByPathRequest();
+            LOGGER.atDebug().log("writeValue: Reference {}; element: {}; Path {}", ReferenceHelper.toString(refElement), element.getIdShort(), path);
+            PatchSubmodelElementValueByPathRequest<ElementValue> request = new PatchSubmodelElementValueByPathRequest<>();
 
             request.setSubmodelId(submodel.getId());
             request.setPath(path);
             request.setValueParser(ElementValueParser.DEFAULT);
-            if ((element instanceof MultiLanguageProperty mlp) && ((mlp.getValue() != null) && (mlp.getValue().size() > 1))) {
-                for (int i = 0; i < mlp.getValue().size(); i++) {
-                    LOGGER.trace("writeValue: MLP {}: {}", i, mlp.getValue().get(i).getText());
-                }
-            }
 
             request.setRawValue(ElementValueMapper.toValue(element));
 
-            if ((request.getRawValue() instanceof MultiLanguagePropertyValue mlpv) && ((mlpv.getLangStringSet() != null) && (mlpv.getLangStringSet().size() > 1))) {
-                for (int i = 0; i < mlpv.getLangStringSet().size(); i++) {
-                    LOGGER.trace("writeValue: MLPV {}: {}", i, mlpv.getLangStringSet().toArray()[i]);
-                }
-            }
-
             Response response = serviceContext.execute(this, request);
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("writeValue: Submodel {}; Element {} (Path {}); Status: {}", submodel.getId(), element.getIdShort(), ReferenceHelper.toPath(refElement),
-                        response.getStatusCode());
-            }
+            LOGGER.atDebug().log("writeValue: Submodel {}; Element {} (Path {}); Status: {}", submodel.getId(), element.getIdShort(), ReferenceHelper.toPath(refElement),
+                    response.getStatusCode());
             if (response.getStatusCode().isSuccess()) {
                 retval = true;
             }
@@ -179,9 +170,7 @@ public class OpcUaEndpoint extends AbstractEndpoint<OpcUaEndpointConfig> {
      * @return The value of the desired SubmodelElement, null if the read failed.
      */
     public SubmodelElement readValue(String submodelId, Reference refElement) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("readValue: Submodel: {}; Ref: {}", submodelId, ReferenceHelper.toString(refElement));
-        }
+        LOGGER.atDebug().log("readValue: Submodel: {}; Ref: {}", submodelId, ReferenceHelper.toString(refElement));
         SubmodelElement retval = null;
         GetSubmodelElementByPathRequest request = new GetSubmodelElementByPathRequest.Builder().submodelId(submodelId).path(ReferenceHelper.toPath(refElement)).build();
         Response response = serviceContext.execute(this, request);
@@ -204,23 +193,11 @@ public class OpcUaEndpoint extends AbstractEndpoint<OpcUaEndpointConfig> {
     }
 
 
-    /**
-     * Calls the desired operation in the service.
-     *
-     * @param operation The desired operation
-     * @param inputVariables The input arguments
-     * @param submodel The corresponding submodel
-     * @param refElement The reference to the SubmodelElement
-     * @return The OutputArguments The output arguments returned from the operation call
-     * @throws StatusException If the operation fails
-     */
-    public List<OperationVariable> callOperation(Operation operation, List<OperationVariable> inputVariables, Submodel submodel, Reference refElement) throws StatusException {
-        List<OperationVariable> outputArguments;
-        InvokeOperationSyncRequest request = new InvokeOperationSyncRequest();
-
+    public String callOperation(Operation operation, String input, Submodel submodel, Reference refElement)
+            throws StatusException, DeserializationException, SerializationException, UnsupportedModifierException {
+        InvokeOperationSyncRequest request = deserializer.read(input, InvokeOperationSyncRequest.class);
         request.setSubmodelId(submodel.getId());
         request.setPath(ReferenceHelper.toPath(refElement));
-        request.setInputArguments(inputVariables);
 
         // execute method
         InvokeOperationSyncResponse response = serviceContext.execute(this, request);
@@ -242,9 +219,7 @@ public class OpcUaEndpoint extends AbstractEndpoint<OpcUaEndpointConfig> {
             throw new StatusException(StatusCodes.Bad_UnexpectedError);
         }
 
-        outputArguments = response.getPayload().getOutputArguments();
-
-        return outputArguments;
+        return serializer.write(response.getPayload());
     }
 
 
