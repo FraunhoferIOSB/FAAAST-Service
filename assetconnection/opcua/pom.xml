@@ -12,6 +12,7 @@
     <name>assetconnection-opcua</name>
     <description>OPC UA Asset Connection implementation of the FA³ST Service.</description>
     <properties>
+        <maven.compiler.release>21</maven.compiler.release>
         <root.basedir>${project.parent.basedir}</root.basedir>
     </properties>
     <dependencies>

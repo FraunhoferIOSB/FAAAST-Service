@@ -11,6 +11,7 @@
     <name>starter</name>
     <description>Starter for the FA³ST Service.</description>
     <properties>
+        <maven.compiler.release>21</maven.compiler.release>
         <root.basedir>${project.parent.basedir}</root.basedir>
     </properties>
     <dependencies>

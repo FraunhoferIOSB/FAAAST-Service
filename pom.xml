@@ -100,8 +100,8 @@
         <junit.version>4.13.2</junit.version>
         <log4j.api.version>2.26.1</log4j.api.version>
         <logback.version>1.6.6</logback.version>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
         <maven.plugin.assembly.version>3.8.0</maven.plugin.assembly.version>
         <maven.plugin.buildhelper.version>3.6.2</maven.plugin.buildhelper.version>
         <maven.plugin.central-publishing.version>0.12.0</maven.plugin.central-publishing.version>
