@@ -41,6 +41,8 @@ public class HostnameUtil {
 
 
     /**
+     * Get the host name.
+     *
      * @return the local hostname, if possible. Failure results in "localhost".
      */
     public static String getHostname() {

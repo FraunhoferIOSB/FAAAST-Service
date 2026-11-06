@@ -24,6 +24,7 @@ import com.puppycrawl.tools.checkstyle.checks.javadoc.MissingJavadocMethodCheck;
 import com.puppycrawl.tools.checkstyle.utils.AnnotationUtil;
 import com.puppycrawl.tools.checkstyle.utils.ScopeUtil;
 import de.fraunhofer.iosb.ilt.faaast.service.checks.util.InterfaceHelper;
+import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -177,7 +178,10 @@ public class ExtendedMissingJavadocMethodCheck extends BuilderAwareCheck {
         DetailAST current = methodDef.findFirstToken(TokenTypes.TYPE);
         String result = null;
         while (result == null) {
-            if (current.findFirstToken(TokenTypes.IDENT) != null) {
+            if (current == null) {
+                result = UNSUPPORTED_TYPE;
+            }
+            else if (current.findFirstToken(TokenTypes.IDENT) != null) {
                 result = current.findFirstToken(TokenTypes.IDENT).getText();
             }
             else if (current.findFirstToken(TokenTypes.DOT) != null) {
@@ -228,12 +232,12 @@ public class ExtendedMissingJavadocMethodCheck extends BuilderAwareCheck {
 
 
     private boolean shouldCheck(final DetailAST ast, final Scope nodeScope) {
-        final Scope surroundingScope = ScopeUtil.getSurroundingScope(ast);
+        final Optional<Scope> surroundingScope = ScopeUtil.getSurroundingScope(ast);
         return (excludeScope == null
                 || nodeScope != excludeScope
-                        && surroundingScope != excludeScope)
+                        && surroundingScope.isPresent() && surroundingScope.get() != excludeScope)
                 && nodeScope.isIn(scope)
-                && surroundingScope.isIn(scope);
+                && surroundingScope.isPresent() && surroundingScope.get().isIn(scope);
     }
 
 
