@@ -23,6 +23,7 @@ import com.puppycrawl.tools.checkstyle.api.TokenTypes;
 import com.puppycrawl.tools.checkstyle.utils.AnnotationUtil;
 import com.puppycrawl.tools.checkstyle.utils.CommonUtil;
 import com.puppycrawl.tools.checkstyle.utils.ScopeUtil;
+import java.util.Optional;
 import java.util.Set;
 
 
@@ -97,14 +98,14 @@ public class ExtendedMissingJavadocTypeCheck extends BuilderAwareCheck {
 
     private boolean shouldCheck(final DetailAST ast) {
         final Scope customScope = ScopeUtil.getScope(ast);
-        final Scope surroundingScope = ScopeUtil.getSurroundingScope(ast);
+        final Optional<Scope> surroundingScope = ScopeUtil.getSurroundingScope(ast);
         return customScope.isIn(scope)
                 && !(ignoreBuilder && currentlyInBuilder)
-                && (surroundingScope == null || surroundingScope.isIn(scope))
+                && (surroundingScope.isEmpty() || surroundingScope.get().isIn(scope))
                 && (excludeScope == null
                         || !customScope.isIn(excludeScope)
-                        || surroundingScope != null
-                                && !surroundingScope.isIn(excludeScope))
+                        || surroundingScope.isPresent()
+                                && !surroundingScope.get().isIn(excludeScope))
                 && !AnnotationUtil.containsAnnotation(ast, skipAnnotations);
     }
 }

@@ -2,7 +2,7 @@
 
 ## Requirements
 
--	Java Runtime 17 or newer
+-	Java Runtime 21 or newer
 
 ## Precompiled JAR
 

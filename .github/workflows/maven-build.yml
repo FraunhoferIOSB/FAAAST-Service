@@ -27,11 +27,11 @@ jobs:
         key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
         restore-keys: ${{ runner.os }}-maven
 
-    - name: Set up JDK 17
+    - name: Set up JDK
       uses: actions/setup-java@v6
       with:
         distribution: 'temurin'
-        java-version: 17
+        java-version: 21
 
     - name: Build with Maven
       env:

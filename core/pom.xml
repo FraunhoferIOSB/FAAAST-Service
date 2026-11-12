@@ -12,6 +12,7 @@
     <name>core</name>
     <description>Core of the FA³ST Service containing component interfaces and service main classes.</description>
     <properties>
+        <maven.compiler.release>21</maven.compiler.release>
         <root.basedir>${project.parent.basedir}</root.basedir>
     </properties>
     <dependencies>

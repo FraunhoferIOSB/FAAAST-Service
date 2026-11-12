@@ -12,6 +12,7 @@
     <name>test</name>
     <description>Integration tests for FA³ST Service.</description>
     <properties>
+        <maven.compiler.release>21</maven.compiler.release>
         <root.basedir>${project.parent.basedir}</root.basedir>
         <sonar.skip>true</sonar.skip>
     </properties>
