@@ -14,7 +14,6 @@
     <properties>
         <dir.generated-code>${project.build.directory}/generated-sources</dir.generated-code>
         <dir.generated-resources>${project.build.directory}/generated-resources</dir.generated-resources>
-        <maven.compiler.release>21</maven.compiler.release>
         <root.basedir>${project.parent.basedir}</root.basedir>
     </properties>
     <dependencies>
