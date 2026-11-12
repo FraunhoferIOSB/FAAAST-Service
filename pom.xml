@@ -66,7 +66,7 @@
         <url>https://github.com/FraunhoferIOSB/FAAAST-Service/issues</url>
     </issueManagement>
     <properties>
-        <aas4j.version>2.0.3</aas4j.version>
+        <aas4j.version>3.0.0</aas4j.version>
         <awaitility.version>4.3.0</awaitility.version>
         <bouncycastle.version>1.86</bouncycastle.version>
         <checkstyle.version>14.4.0</checkstyle.version>
