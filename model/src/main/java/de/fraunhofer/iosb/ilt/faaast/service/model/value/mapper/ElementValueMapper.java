@@ -49,10 +49,10 @@ public class ElementValueMapper {
     private static void init() {
         if (mappers == null) {
             ScanResult scanResult = new ClassGraph()
-                    .enableAllInfo()
+                    .enableClassInfo()
                     .acceptPackages(DataValueMapper.class.getPackageName())
                     .scan();
-            mappers = scanResult.getClassesImplementing(DataValueMapper.class).loadClasses().stream()
+            mappers = scanResult.getAllClassesImplementing(DataValueMapper.class).loadClasses().stream()
                     .map(x -> (Class<? extends DataValueMapper>) x)
                     .collect(Collectors.toMap(
                             x -> (Class<? extends SubmodelElement>) TypeToken.of(x).resolveType(DataValueMapper.class.getTypeParameters()[0]).getRawType(),
@@ -86,8 +86,7 @@ public class ElementValueMapper {
      * @param <T> type of the input SubmodelElement
      * @return a value representation of the submodel element
      * @throws IllegalArgumentException if submodelElement is null
-     * @throws ValueMappingException is no mapper for type of submodelElement can be found
-     * @throws ValueMappingException if mapping fails
+     * @throws ValueMappingException is no mapper for type of submodelElement can be found or mapping fails
      */
     public static <T extends SubmodelElement> ElementValue toValue(T submodelElement) throws ValueMappingException {
         init();
