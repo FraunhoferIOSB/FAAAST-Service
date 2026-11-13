@@ -70,26 +70,15 @@ public class DataElementCreator extends SubmodelElementCreator {
             throws StatusException {
         UaNode retval = null;
         if (aasDataElement != null) {
-            if (aasDataElement instanceof Property property) {
-                retval = PropertyCreator.createAasProperty(property, elementRef, submodel, nodeManager);
-            }
-            else if (aasDataElement instanceof File file) {
-                retval = FileCreator.createAasFile(file, elementRef, submodel, null, nodeManager);
-            }
-            else if (aasDataElement instanceof Blob blob) {
-                retval = BlobCreator.createAasBlob(blob, elementRef, submodel, nodeManager);
-            }
-            else if (aasDataElement instanceof ReferenceElement referenceElement) {
-                retval = ReferenceElementCreator.createAasReferenceElement(referenceElement, elementRef, submodel, nodeManager);
-            }
-            else if (aasDataElement instanceof Range range) {
-                retval = RangeCreator.createAasRange(range, elementRef, submodel, nodeManager);
-            }
-            else if (aasDataElement instanceof MultiLanguageProperty multiLanguageProperty) {
-                retval = MultiLanguagePropertyCreator.createAasMultiLanguageProperty(multiLanguageProperty, elementRef, submodel, nodeManager);
-            }
-            else {
-                LOGGER.warn("createAasDataElement: unknown DataElement: {}; Class {}", aasDataElement.getIdShort(), aasDataElement.getClass());
+            switch (aasDataElement) {
+                case Property property -> retval = PropertyCreator.createAasProperty(property, elementRef, submodel, nodeManager);
+                case File file -> retval = FileCreator.createAasFile(file, elementRef, submodel, null, nodeManager);
+                case Blob blob -> retval = BlobCreator.createAasBlob(blob, elementRef, submodel, nodeManager);
+                case ReferenceElement referenceElement -> retval = ReferenceElementCreator.createAasReferenceElement(referenceElement, elementRef, submodel, nodeManager);
+                case Range range -> retval = RangeCreator.createAasRange(range, elementRef, submodel, nodeManager);
+                case MultiLanguageProperty multiLanguageProperty ->
+                    retval = MultiLanguagePropertyCreator.createAasMultiLanguageProperty(multiLanguageProperty, elementRef, submodel, nodeManager);
+                default -> LOGGER.warn("createAasDataElement: unknown DataElement: {}; Class {}", aasDataElement.getIdShort(), aasDataElement.getClass());
             }
         }
         return retval;

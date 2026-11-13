@@ -820,25 +820,19 @@ public class ValueConverter {
         }
         String retval;
         // special treatment for DateTime, AASDateTime and ByteString
-        if (object instanceof DateTime dt) {
-            retval = OffsetDateTime.ofInstant(dt.toInstant(), ZoneId.systemDefault()).toString();
-        }
-        else if (object instanceof AASDateTime adt) {
-            retval = convertDateTimeToString(adt);
-        }
-        else if (object instanceof ByteString bs) {
-            retval = convertByteStringToString(type, bs);
-        }
-        else if (object instanceof AASInteger aasint) {
-            if (aasint.getIVal() != null) {
-                retval = aasint.getIVal().toString();
+        switch (object) {
+            case DateTime dt -> retval = OffsetDateTime.ofInstant(dt.toInstant(), ZoneId.systemDefault()).toString();
+            case AASDateTime adt -> retval = convertDateTimeToString(adt);
+            case ByteString bs -> retval = convertByteStringToString(type, bs);
+            case AASInteger aasint -> {
+                if (aasint.getIVal() != null) {
+                    retval = aasint.getIVal().toString();
+                }
+                else {
+                    retval = aasint.getSVal();
+                }
             }
-            else {
-                retval = aasint.getSVal();
-            }
-        }
-        else {
-            retval = object.toString();
+            default -> retval = object.toString();
         }
         return retval;
     }
@@ -881,80 +875,64 @@ public class ValueConverter {
             return null;
         }
         Object retval = typedValue.getValue();
-        if (typedValue instanceof IntegerValue integerValue) {
-            BigInteger bigval = integerValue.getValue();
-            if (bigval.compareTo(BigInteger.valueOf(Long.MAX_VALUE)) > 0) {
-                retval = new AASInteger(null, bigval.toString());
+        switch (typedValue) {
+            case IntegerValue integerValue -> {
+                BigInteger bigval = integerValue.getValue();
+                if (bigval.compareTo(BigInteger.valueOf(Long.MAX_VALUE)) > 0) {
+                    retval = new AASInteger(null, bigval.toString());
+                }
+                else {
+                    retval = new AASInteger(bigval.longValue(), null);
+                }
             }
-            else {
-                retval = new AASInteger(bigval.longValue(), null);
+            case DurationValue dv -> retval = dv.asString();
+            case DecimalValue decimalValue -> retval = decimalValue.getValue();
+            case PositiveIntegerValue positiveIntegerValue -> {
+                BigInteger bigval = positiveIntegerValue.getValue();
+                if (bigval.compareTo(BigInteger.valueOf(Long.MAX_VALUE)) > 0) {
+                    retval = new AASPositiveInteger(null, bigval.toString());
+                }
+                else {
+                    retval = new AASPositiveInteger(bigval.longValue(), null);
+                }
             }
-        }
-        else if (typedValue instanceof DurationValue dv) {
-            retval = dv.asString();
-        }
-        else if (typedValue instanceof DecimalValue decimalValue) {
-            retval = decimalValue.getValue();
-        }
-        else if (typedValue instanceof PositiveIntegerValue positiveIntegerValue) {
-            BigInteger bigval = positiveIntegerValue.getValue();
-            if (bigval.compareTo(BigInteger.valueOf(Long.MAX_VALUE)) > 0) {
-                retval = new AASPositiveInteger(null, bigval.toString());
+            case NonPositiveIntegerValue nonPositiveIntegerValue -> {
+                BigInteger bigval = nonPositiveIntegerValue.getValue();
+                if (bigval.compareTo(BigInteger.valueOf(Long.MAX_VALUE)) > 0) {
+                    retval = new AASNonPositiveInteger(null, bigval.toString());
+                }
+                else {
+                    retval = new AASNonPositiveInteger(bigval.longValue(), null);
+                }
             }
-            else {
-                retval = new AASPositiveInteger(bigval.longValue(), null);
+            case NegativeIntegerValue negativeIntegerValue -> {
+                BigInteger bigval = negativeIntegerValue.getValue();
+                if (bigval.compareTo(BigInteger.valueOf(Long.MAX_VALUE)) > 0) {
+                    retval = new AASNegativeInteger(null, bigval.toString());
+                }
+                else {
+                    retval = new AASNegativeInteger(bigval.longValue(), null);
+                }
             }
-        }
-        else if (typedValue instanceof NonPositiveIntegerValue nonPositiveIntegerValue) {
-            BigInteger bigval = nonPositiveIntegerValue.getValue();
-            if (bigval.compareTo(BigInteger.valueOf(Long.MAX_VALUE)) > 0) {
-                retval = new AASNonPositiveInteger(null, bigval.toString());
+            case NonNegativeIntegerValue nonNegativeIntegerValue -> {
+                BigInteger bigval = nonNegativeIntegerValue.getValue();
+                if (bigval.compareTo(BigInteger.valueOf(Long.MAX_VALUE)) > 0) {
+                    retval = new AASNonNegativeInteger(null, bigval.toString());
+                }
+                else {
+                    retval = new AASNonNegativeInteger(bigval.longValue(), null);
+                }
             }
-            else {
-                retval = new AASNonPositiveInteger(bigval.longValue(), null);
+            case DateTimeValue dateTimeValue -> retval = convertDateTime(dateTimeValue);
+            case AbstractDateTimeValue<?> sbstractDateTimeValue -> retval = sbstractDateTimeValue.asString();
+            case HexBinaryValue hexBinaryValue -> retval = ByteString.valueOf(hexBinaryValue.getValue());
+            case Base64BinaryValue base64BinaryValue -> retval = ByteString.valueOf(base64BinaryValue.getValue());
+            case UnsignedShortValue unsShortValue -> retval = UnsignedShort.valueOf(unsShortValue.getValue());
+            case UnsignedIntValue unsIntValue -> retval = UnsignedInteger.valueOf(unsIntValue.getValue());
+            case UnsignedLongValue unsLongValue -> retval = UnsignedLong.valueOf(unsLongValue.getValue());
+            case UnsignedByteValue unsByteVylue -> retval = UnsignedByte.valueOf(unsByteVylue.getValue());
+            default -> {
             }
-        }
-        else if (typedValue instanceof NegativeIntegerValue negativeIntegerValue) {
-            BigInteger bigval = negativeIntegerValue.getValue();
-            if (bigval.compareTo(BigInteger.valueOf(Long.MAX_VALUE)) > 0) {
-                retval = new AASNegativeInteger(null, bigval.toString());
-            }
-            else {
-                retval = new AASNegativeInteger(bigval.longValue(), null);
-            }
-        }
-        else if (typedValue instanceof NonNegativeIntegerValue nonNegativeIntegerValue) {
-            BigInteger bigval = nonNegativeIntegerValue.getValue();
-            if (bigval.compareTo(BigInteger.valueOf(Long.MAX_VALUE)) > 0) {
-                retval = new AASNonNegativeInteger(null, bigval.toString());
-            }
-            else {
-                retval = new AASNonNegativeInteger(bigval.longValue(), null);
-            }
-        }
-        else if (typedValue instanceof DateTimeValue dateTimeValue) {
-            retval = convertDateTime(dateTimeValue);
-        }
-        else if (typedValue instanceof AbstractDateTimeValue<?> sbstractDateTimeValue) {
-            retval = sbstractDateTimeValue.asString();
-        }
-        else if (typedValue instanceof HexBinaryValue hexBinaryValue) {
-            retval = ByteString.valueOf(hexBinaryValue.getValue());
-        }
-        else if (typedValue instanceof Base64BinaryValue base64BinaryValue) {
-            retval = ByteString.valueOf(base64BinaryValue.getValue());
-        }
-        else if (typedValue instanceof UnsignedShortValue unsShortValue) {
-            retval = UnsignedShort.valueOf(unsShortValue.getValue());
-        }
-        else if (typedValue instanceof UnsignedIntValue unsIntValue) {
-            retval = UnsignedInteger.valueOf(unsIntValue.getValue());
-        }
-        else if (typedValue instanceof UnsignedLongValue unsLongValue) {
-            retval = UnsignedLong.valueOf(unsLongValue.getValue());
-        }
-        else if (typedValue instanceof UnsignedByteValue unsByteVylue) {
-            retval = UnsignedByte.valueOf(unsByteVylue.getValue());
         }
         return retval;
     }
