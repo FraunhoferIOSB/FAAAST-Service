@@ -16,6 +16,8 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.dpp;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithPaging;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.dpp.ReadDPPIdsByProductIdsResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.referable.REFERABLE_TYPES;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.Right;
 
 import java.util.List;
 import java.util.Objects;
@@ -27,6 +29,17 @@ import java.util.Objects;
 public class ReadDppIdsByProductIdsRequest extends AbstractRequestWithPaging<ReadDPPIdsByProductIdsResponse> {
 
     private List<String> productIds;
+
+    public ReadDppIdsByProductIdsRequest() {
+        super(Right.VIEW, REFERABLE_TYPES.DPP);
+    }
+
+
+    @Override
+    protected boolean requestsCollection() {
+        return true;
+    }
+
 
     @Override
     public boolean equals(Object o) {

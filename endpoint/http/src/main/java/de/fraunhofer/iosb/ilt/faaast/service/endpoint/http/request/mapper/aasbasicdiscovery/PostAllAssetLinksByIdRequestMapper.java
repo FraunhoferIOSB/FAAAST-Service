@@ -16,12 +16,11 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.aasba
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractRequestMapper;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractRequestMapperWithId;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasbasicdiscovery.PostAllAssetLinksByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
-import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
 import java.util.Map;
 import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
 
@@ -29,10 +28,9 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
 /**
  * class to map HTTP-POST-Request path: lookup/shells/{aasIdentifier}.
  */
-public class PostAllAssetLinksByIdRequestMapper extends AbstractRequestMapper {
+public class PostAllAssetLinksByIdRequestMapper extends AbstractRequestMapperWithId {
 
-    private static final String AAS_ID = RegExHelper.uniqueGroupName();
-    private static final String PATTERN = String.format("lookup/shells/%s", pathElement(AAS_ID));
+    private static final String PATTERN = "lookup/shells/%s";
 
     public PostAllAssetLinksByIdRequestMapper(ServiceContext serviceContext) {
         super(serviceContext, HttpMethod.POST, PATTERN);
@@ -42,7 +40,7 @@ public class PostAllAssetLinksByIdRequestMapper extends AbstractRequestMapper {
     @Override
     public Request doParse(HttpRequest httpRequest, Map<String, String> urlParameters) throws InvalidRequestException {
         return PostAllAssetLinksByIdRequest.builder()
-                .id(getParameterBase64UrlEncoded(urlParameters, AAS_ID))
+                .id(getId(urlParameters))
                 .assetLinks(parseBodyAsList(httpRequest, SpecificAssetId.class))
                 .build();
     }

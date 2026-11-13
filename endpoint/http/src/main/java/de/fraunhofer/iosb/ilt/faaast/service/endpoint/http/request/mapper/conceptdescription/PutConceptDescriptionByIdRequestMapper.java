@@ -16,12 +16,11 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.conce
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractRequestMapper;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractRequestMapperWithId;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.PutConceptDescriptionByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
-import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
 import java.util.Map;
 import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
 
@@ -29,10 +28,9 @@ import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
 /**
  * class to map HTTP-PUT-Request path: concept-descriptions/{cdIdentifier}.
  */
-public class PutConceptDescriptionByIdRequestMapper extends AbstractRequestMapper {
+public class PutConceptDescriptionByIdRequestMapper extends AbstractRequestMapperWithId {
 
-    private static final String CONCEPT_ID = RegExHelper.uniqueGroupName();
-    private static final String PATTERN = String.format("concept-descriptions/%s", pathElement(CONCEPT_ID));
+    private static final String PATTERN = "concept-descriptions/%s";
 
     public PutConceptDescriptionByIdRequestMapper(ServiceContext serviceContext) {
         super(serviceContext, HttpMethod.PUT, PATTERN);
@@ -42,7 +40,7 @@ public class PutConceptDescriptionByIdRequestMapper extends AbstractRequestMappe
     @Override
     public Request doParse(HttpRequest httpRequest, Map<String, String> urlParameters) throws InvalidRequestException {
         return PutConceptDescriptionByIdRequest.builder()
-                .id(getParameterBase64UrlEncoded(urlParameters, CONCEPT_ID))
+                .id(getId(urlParameters))
                 .conceptDescription(parseBody(httpRequest, ConceptDescription.class))
                 .build();
     }

@@ -14,6 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.referable.REFERABLE_TYPES.SUBMODEL_ELEMENT;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.Right.READ;
+
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractSubmodelInterfaceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractSubmodelInterfaceRequestWithPaging;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.OutputModifierConstraints;
@@ -27,7 +30,7 @@ import java.util.Objects;
 public class GetAllSubmodelElementsRequest extends AbstractSubmodelInterfaceRequestWithPaging<GetAllSubmodelElementsResponse> {
 
     public GetAllSubmodelElementsRequest() {
-        super(OutputModifierConstraints.SUBMODEL_ELEMENT);
+        super(OutputModifierConstraints.SUBMODEL_ELEMENT, READ, SUBMODEL_ELEMENT);
     }
 
 
@@ -41,6 +44,12 @@ public class GetAllSubmodelElementsRequest extends AbstractSubmodelInterfaceRequ
         }
         GetAllSubmodelElementsRequest that = (GetAllSubmodelElementsRequest) o;
         return super.equals(that);
+    }
+
+
+    @Override
+    protected boolean requestsCollection() {
+        return true;
     }
 
 

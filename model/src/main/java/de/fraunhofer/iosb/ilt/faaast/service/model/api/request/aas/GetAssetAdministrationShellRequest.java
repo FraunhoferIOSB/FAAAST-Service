@@ -14,6 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.referable.REFERABLE_TYPES.AAS;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.Right.READ;
+
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.OutputModifierConstraints;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.GetAssetAdministrationShellResponse;
@@ -28,7 +31,7 @@ public class GetAssetAdministrationShellRequest extends AbstractRequestWithModif
     private String id;
 
     public GetAssetAdministrationShellRequest() {
-        super(OutputModifierConstraints.ASSET_ADMINISTRATION_SHELL);
+        super(OutputModifierConstraints.ASSET_ADMINISTRATION_SHELL, READ, AAS);
     }
 
 
@@ -39,6 +42,12 @@ public class GetAssetAdministrationShellRequest extends AbstractRequestWithModif
 
     public void setId(String id) {
         this.id = id;
+    }
+
+
+    @Override
+    protected boolean requestsCollection() {
+        return false;
     }
 
 

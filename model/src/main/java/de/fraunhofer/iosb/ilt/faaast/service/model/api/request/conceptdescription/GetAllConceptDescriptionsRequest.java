@@ -14,6 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.referable.REFERABLE_TYPES.CONCEPT_DESCRIPTION;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.Right.READ;
+
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithModifierAndPaging;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.conceptdescription.GetAllConceptDescriptionsResponse;
@@ -25,6 +28,11 @@ import java.util.Objects;
  */
 public class GetAllConceptDescriptionsRequest extends AbstractRequestWithModifierAndPaging<GetAllConceptDescriptionsResponse> {
 
+    public GetAllConceptDescriptionsRequest() {
+        super(READ, CONCEPT_DESCRIPTION);
+    }
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -35,6 +43,12 @@ public class GetAllConceptDescriptionsRequest extends AbstractRequestWithModifie
         }
         GetAllConceptDescriptionsRequest that = (GetAllConceptDescriptionsRequest) o;
         return super.equals(that);
+    }
+
+
+    @Override
+    protected boolean requestsCollection() {
+        return true;
     }
 
 

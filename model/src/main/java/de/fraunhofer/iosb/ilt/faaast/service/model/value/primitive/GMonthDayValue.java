@@ -23,7 +23,7 @@ import java.time.temporal.ChronoField;
 
 
 /**
- * A month value.
+ * A month-and-day value.
  */
 public class GMonthDayValue extends AbstractDateTimeValue<OffsetDateTime> {
 

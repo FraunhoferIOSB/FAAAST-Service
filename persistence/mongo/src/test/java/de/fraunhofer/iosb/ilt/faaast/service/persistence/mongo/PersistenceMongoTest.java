@@ -14,6 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.persistence.mongo;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.LogicalExpression.identity;
+
 import de.flapdoodle.embed.mongo.distribution.Version;
 import de.flapdoodle.embed.mongo.transitions.Mongod;
 import de.flapdoodle.embed.mongo.transitions.RunningMongodProcess;
@@ -32,6 +34,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceExceptio
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceAlreadyExistsException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.filter.QueryFilter;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.AbstractPersistenceTest;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
@@ -103,13 +106,13 @@ public class PersistenceMongoTest extends AbstractPersistenceTest<PersistenceMon
         Persistence noOverridePersistence = getPersistenceConfig(null, environment, false).newInstance(CoreConfig.DEFAULT, SERVICE_CONTEXT);
         noOverridePersistence.start();
         Assert.assertThrows(ResourceNotFoundException.class, () -> {
-            noOverridePersistence.getAssetAdministrationShell(AASSimple.AAS_IDENTIFIER, QueryModifier.DEFAULT);
+            noOverridePersistence.getAssetAdministrationShell(AASSimple.AAS_IDENTIFIER, QueryModifier.DEFAULT, identity(), QueryFilter.EMPTY);
         });
         noOverridePersistence.stop();
         Persistence overridePersistence = getPersistenceConfig(null, environment, true).newInstance(CoreConfig.DEFAULT, SERVICE_CONTEXT);
         overridePersistence.start();
         AssetAdministrationShell expected = environment.getAssetAdministrationShells().get(0);
-        AssetAdministrationShell actual = overridePersistence.getAssetAdministrationShell(AASSimple.AAS_IDENTIFIER, QueryModifier.DEFAULT);
+        AssetAdministrationShell actual = overridePersistence.getAssetAdministrationShell(AASSimple.AAS_IDENTIFIER, QueryModifier.DEFAULT, identity(), QueryFilter.EMPTY);
         Assert.assertEquals(expected, actual);
         overridePersistence.stop();
     }
@@ -135,7 +138,9 @@ public class PersistenceMongoTest extends AbstractPersistenceTest<PersistenceMon
                 reference,
                 new QueryModifier.Builder()
                         .extend(Extent.WITH_BLOB_VALUE)
-                        .build());
+                        .build(),
+                identity(),
+                QueryFilter.EMPTY);
         Assert.assertEquals(expected, actual);
         persistence.stop();
     }

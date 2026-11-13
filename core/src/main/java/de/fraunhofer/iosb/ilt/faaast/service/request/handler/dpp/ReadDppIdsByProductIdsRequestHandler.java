@@ -40,7 +40,8 @@ public class ReadDppIdsByProductIdsRequestHandler extends AbstractRequestHandler
 
         request.getProductIds().stream().map(id -> GlobalAssetIdentification.builder().value(id).build()).forEach(criteriaBuilder::assetId);
 
-        Page<AssetAdministrationShell> dpps = context.getPersistence().findAssetAdministrationShells(criteriaBuilder.build(), QueryModifier.MAXIMAL, PagingInfo.ALL);
+        Page<AssetAdministrationShell> dpps = context.getPersistence().findAssetAdministrationShells(criteriaBuilder.build(), QueryModifier.MAXIMAL, PagingInfo.ALL,
+                combineRemainingRuleFormulas(request), getFilters(request));
 
         List<String> result = dpps.getContent().stream()
                 .map(Identifiable::getId)

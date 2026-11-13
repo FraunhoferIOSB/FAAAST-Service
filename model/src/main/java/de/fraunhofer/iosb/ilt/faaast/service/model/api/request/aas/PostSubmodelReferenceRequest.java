@@ -14,6 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.referable.REFERABLE_TYPES.AAS;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.Right.CREATE;
+
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithId;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.PostSubmodelReferenceResponse;
 import java.util.Objects;
@@ -26,6 +29,11 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 public class PostSubmodelReferenceRequest extends AbstractRequestWithId<PostSubmodelReferenceResponse> {
 
     private Reference submodelRef;
+
+    protected PostSubmodelReferenceRequest() {
+        super(CREATE, AAS);
+    }
+
 
     public Reference getSubmodelRef() {
         return submodelRef;

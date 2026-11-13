@@ -14,6 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.referable.REFERABLE_TYPES.SUBMODEL;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.Right.VIEW;
+
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithModifierAndPaging;
@@ -32,7 +35,14 @@ public class GetAllSubmodelsReferenceRequest extends AbstractRequestWithModifier
                 .supportedContentModifiers(Content.REFERENCE)
                 .supportsExtent(false)
                 .supportsLevel(false)
-                .build());
+                .build(),
+                VIEW, SUBMODEL);
+    }
+
+
+    @Override
+    protected boolean requestsCollection() {
+        return true;
     }
 
 

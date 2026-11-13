@@ -14,6 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.referable.REFERABLE_TYPES.CONCEPT_DESCRIPTION;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.Right.CREATE_UPDATE;
+
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithId;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.conceptdescription.PutConceptDescriptionByIdResponse;
 import java.util.Objects;
@@ -26,6 +29,11 @@ import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
 public class PutConceptDescriptionByIdRequest extends AbstractRequestWithId<PutConceptDescriptionByIdResponse> {
 
     private ConceptDescription conceptDescription;
+
+    public PutConceptDescriptionByIdRequest() {
+        super(CREATE_UPDATE, CONCEPT_DESCRIPTION);
+    }
+
 
     public ConceptDescription getConceptDescription() {
         return conceptDescription;

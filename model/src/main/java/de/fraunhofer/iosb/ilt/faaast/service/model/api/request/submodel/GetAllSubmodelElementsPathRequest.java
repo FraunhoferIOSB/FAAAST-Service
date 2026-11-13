@@ -14,6 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.referable.REFERABLE_TYPES.SUBMODEL_ELEMENT;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.Right.VIEW;
+
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractSubmodelInterfaceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractSubmodelInterfaceRequestWithPaging;
@@ -32,7 +35,13 @@ public class GetAllSubmodelElementsPathRequest extends AbstractSubmodelInterface
                 .supportedContentModifiers(Content.PATH)
                 .supportsExtent(false)
                 .supportsLevel(true)
-                .build());
+                .build(), VIEW, SUBMODEL_ELEMENT);
+    }
+
+
+    @Override
+    protected boolean requestsCollection() {
+        return true;
     }
 
 
