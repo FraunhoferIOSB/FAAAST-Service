@@ -4,6 +4,7 @@
 
 **New Features & Major Changes**
 - General
+	- Now requires Java 21+
 	- Updated to AAS metamodel v3.1.
 	- Added support for reading/writing operation arguments from/to referenced other AAS elements (by using Qualifiers)
 	- Added CLI argument --show-stacktrace
