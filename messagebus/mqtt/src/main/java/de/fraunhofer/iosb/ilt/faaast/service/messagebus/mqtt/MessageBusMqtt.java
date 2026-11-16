@@ -26,6 +26,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.EventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionId;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReflectionHelper;
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ScanResult;
 import java.io.IOException;
@@ -39,8 +40,8 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * MessageBusMqtt: Implements the external MessageBus interface subscribe/unsubscribe and publishes/dispatches
- * EventMessages.
+ * MessageBusMqtt: Implements the external MessageBus interface
+ * subscribe/unsubscribe and publishes/dispatches EventMessages.
  */
 public class MessageBusMqtt implements MessageBus<MessageBusMqttConfig> {
 
@@ -140,10 +141,10 @@ public class MessageBusMqtt implements MessageBus<MessageBusMqttConfig> {
         try (ScanResult scanResult = new ClassGraph().acceptPackages("de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event")
                 .enableClassInfo().scan()) {
             if (Modifier.isAbstract(messageType.getModifiers())) {
-                return scanResult
-                        .getSubclasses(messageType.getName())
-                        .filter(x -> !x.isAbstract())
-                        .loadClasses(EventMessage.class);
+                return ReflectionHelper.loadClasses(scanResult
+                        .getAllSubclasses(messageType.getName())
+                        .filter(x -> !x.isAbstract()),
+                        EventMessage.class);
             }
             else {
                 List<Class<EventMessage>> list = new ArrayList<>();

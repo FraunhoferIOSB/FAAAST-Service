@@ -34,9 +34,10 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Central class for bringing together submodel elements and their corresponding value representation, e.g. supports
- * converting submodel elements to their value representation and updating the value of a submodel element by providing
- * a value representation.
+ * Central class for bringing together submodel elements and their corresponding
+ * value representation, e.g. supports converting submodel elements to their
+ * value representation and updating the value of a submodel element by
+ * providing a value representation.
  */
 public class ElementValueMapper {
 
@@ -52,7 +53,9 @@ public class ElementValueMapper {
                     .enableClassInfo()
                     .acceptPackages(DataValueMapper.class.getPackageName())
                     .scan();
-            mappers = scanResult.getAllClassesImplementing(DataValueMapper.class).loadClasses().stream()
+            mappers = de.fraunhofer.iosb.ilt.faaast.service.util.ReflectionHelper.loadClasses(
+                    scanResult.getAllClassesImplementing(DataValueMapper.class), DataValueMapper.class)
+                    .stream()
                     .map(x -> (Class<? extends DataValueMapper>) x)
                     .collect(Collectors.toMap(
                             x -> (Class<? extends SubmodelElement>) TypeToken.of(x).resolveType(DataValueMapper.class.getTypeParameters()[0]).getRawType(),
@@ -79,14 +82,16 @@ public class ElementValueMapper {
 
 
     /**
-     * Extracts the value of a {@link org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement} into a corresponding
-     * {@link ElementValue} instance.
+     * Extracts the value of a
+     * {@link org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement} into a
+     * corresponding {@link ElementValue} instance.
      *
      * @param submodelElement for which a ElementValue should be created
      * @param <T> type of the input SubmodelElement
      * @return a value representation of the submodel element
      * @throws IllegalArgumentException if submodelElement is null
-     * @throws ValueMappingException is no mapper for type of submodelElement can be found or mapping fails
+     * @throws ValueMappingException is no mapper for type of submodelElement
+     *             can be found or mapping fails
      */
     public static <T extends SubmodelElement> ElementValue toValue(T submodelElement) throws ValueMappingException {
         init();
@@ -100,8 +105,9 @@ public class ElementValueMapper {
 
 
     /**
-     * Extracts the value of a {@link org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement} into a corresponding
-     * {@link ElementValue} instance.
+     * Extracts the value of a
+     * {@link org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement} into a
+     * corresponding {@link ElementValue} instance.
      *
      *
      * @param submodelElement for which a ElementValue should be created
@@ -110,7 +116,8 @@ public class ElementValueMapper {
      * @param type expected result type
      * @return a value representation of the submodel element
      * @throws IllegalArgumentException if submodelElement is null
-     * @throws ValueMappingException is no mapper for type of submodelElement can be found
+     * @throws ValueMappingException is no mapper for type of submodelElement
+     *             can be found
      * @throws ValueMappingException if mapping fails
      */
     public static <I extends SubmodelElement, O extends ElementValue> O toValue(I submodelElement, Class<O> type) throws ValueMappingException {
@@ -137,7 +144,8 @@ public class ElementValueMapper {
      * @param elementType submodel element type
      * @return corresponding value type
      * @throws IllegalArgumentException if submodelElement is null
-     * @throws IllegalArgumentException is no corresppnding value type can be found
+     * @throws IllegalArgumentException is no corresppnding value type can be
+     *             found
      */
     public static Class<? extends ElementValue> getValueClass(Class<? extends SubmodelElement> elementType) {
         init();
@@ -157,7 +165,8 @@ public class ElementValueMapper {
      * @param valueType value type
      * @return corresponding submodel element type
      * @throws IllegalArgumentException if valueType is null
-     * @throws IllegalArgumentException is no corresppnding value type can be found
+     * @throws IllegalArgumentException is no corresppnding value type can be
+     *             found
      */
     public static Class<? extends SubmodelElement> getElementClass(Class<? extends ElementValue> valueType) {
         init();
@@ -176,13 +185,16 @@ public class ElementValueMapper {
 
 
     /**
-     * Sets the value of a submodel element to value provided as value representation.
+     * Sets the value of a submodel element to value provided as value
+     * representation.
      *
      * @param submodelElement for which the values will be set
      * @param elementValue which contains the values for the SubmodelElement
      * @param <T> type of the input/output SubmodelElement
      * @return the SubmodelElement instance with the ElementValue values set
-     * @throws de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException if setting the value fails
+     * @throws
+     * de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException
+     *             if setting the value fails
      * @throws IllegalArgumentException if submodelElement is null
      * @throws IllegalArgumentException is no mapper for type of submodelElement
      */
