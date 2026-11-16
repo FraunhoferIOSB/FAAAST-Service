@@ -931,9 +931,7 @@ public class ValueConverter {
             case UnsignedIntValue unsIntValue -> retval = UnsignedInteger.valueOf(unsIntValue.getValue());
             case UnsignedLongValue unsLongValue -> retval = UnsignedLong.valueOf(unsLongValue.getValue());
             case UnsignedByteValue unsByteVylue -> retval = UnsignedByte.valueOf(unsByteVylue.getValue());
-            default -> {
-                retval = typedValue.getValue();
-            }
+            default -> retval = typedValue.getValue();
         }
         return retval;
     }
