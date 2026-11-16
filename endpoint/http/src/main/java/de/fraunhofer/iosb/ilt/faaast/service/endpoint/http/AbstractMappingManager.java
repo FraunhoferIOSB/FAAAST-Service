@@ -15,6 +15,8 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http;
 
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ImplementationManager;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReflectionHelper;
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ScanResult;
 import java.lang.reflect.InvocationTargetException;
@@ -28,7 +30,8 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Base class for mapping managers finding implementation classes via reflection.
+ * Base class for mapping managers finding implementation classes via
+ * reflection.
  *
  * @param <T> type of mapping class to search for
  */
@@ -51,13 +54,15 @@ public abstract class AbstractMappingManager<T> {
 
     private void init() {
         try (ScanResult scanResult = new ClassGraph()
-                .enableAllInfo()
+                .enableClassInfo()
+                .enableClassLoaders(ImplementationManager.getClassLoader())
                 .acceptPackages(getClass().getPackageName())
                 .scan()) {
-            mappers = scanResult
-                    .getSubclasses(mapperType.getName())
-                    .filter(x -> !x.isAbstract() && !x.isInterface())
-                    .loadClasses(mapperType)
+            mappers = ReflectionHelper.loadClasses(
+                    scanResult
+                            .getAllSubclasses(mapperType.getName())
+                            .filter(x -> !x.isAbstract() && !x.isInterface()),
+                    mapperType)
                     .stream()
                     .map(x -> {
                         try {

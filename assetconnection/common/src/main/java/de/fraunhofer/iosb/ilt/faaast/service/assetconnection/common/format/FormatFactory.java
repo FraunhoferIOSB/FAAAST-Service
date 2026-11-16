@@ -26,7 +26,8 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Factory to resolve implementations of Format interface based on key (given by Dataformat annotation).
+ * Factory to resolve implementations of Format interface based on key (given by
+ * Dataformat annotation).
  */
 public class FormatFactory {
 
@@ -43,21 +44,30 @@ public class FormatFactory {
         formats = new ConcurrentHashMap<>();
         try (ScanResult scanResult = new ClassGraph()
                 .enableClassInfo()
+                .enableClassLoaders(ImplementationManager.getClassLoader())
                 .enableAnnotationInfo()
-                .addClassLoader(ImplementationManager.getClassLoader())
                 .scan()) {
-            for (var classInfo: scanResult.getClassesWithAnnotation(Dataformat.class)) {
-                String key = ((Dataformat) classInfo.getAnnotationInfo(Dataformat.class).loadClassAndInstantiate()).key();
-                if (StringUtils.isBlank(key)) {
-                    LOGGER.warn("Ignoring data format with empty key (class: {})", classInfo.getName());
-                    continue;
+            for (var classInfo: scanResult
+                    .getAllClassesImplementing(Format.class)
+                    .filter(x -> x.hasAnnotation(Dataformat.class))) {
+                Class<? extends Format> cls;
+                try {
+                    cls = (Class<? extends Format>) Class.forName(classInfo.getName(), false, ImplementationManager.getClassLoader());
+                    String key = cls.getAnnotation(Dataformat.class).key();
+                    if (StringUtils.isBlank(key)) {
+                        LOGGER.warn("Ignoring data format with empty key (class: {})", classInfo.getName());
+                        continue;
+                    }
+                    if (!classInfo.implementsInterface(Format.class)) {
+                        LOGGER.warn("Ignoring data format with key '{}' because implementing class does not implement interface 'Format' (class: {})",
+                                key, classInfo.getName());
+                        continue;
+                    }
+                    formats.put(key, cls);
                 }
-                if (!classInfo.implementsInterface(Format.class)) {
-                    LOGGER.warn("Ignoring data format with key '{}' because implementing class does not implement interface 'Format' (class: {})",
-                            key, classInfo.getName());
-                    continue;
+                catch (ClassNotFoundException e) {
+                    LOGGER.debug("failed to instantiate format (class: {})", classInfo);
                 }
-                formats.put(key, classInfo.loadClass(Format.class));
             }
         }
     }
@@ -68,7 +78,8 @@ public class FormatFactory {
      *
      * @param key the key to identify the format
      * @return new format representation
-     * @throws IllegalArgumentException if no matching format can be found for {@code key}
+     * @throws IllegalArgumentException if no matching format can be found for
+     *             {@code key}
      * @throws RuntimeException is instantiation of format fails
      */
     public static Format create(String key) {

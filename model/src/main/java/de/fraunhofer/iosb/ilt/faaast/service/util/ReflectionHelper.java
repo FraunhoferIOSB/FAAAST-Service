@@ -16,10 +16,13 @@ package de.fraunhofer.iosb.ilt.faaast.service.util;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.ServiceSpecificationProfile;
 import io.github.classgraph.ClassGraph;
+import io.github.classgraph.ClassInfo;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -27,6 +30,7 @@ import java.util.stream.Collectors;
  */
 public class ReflectionHelper {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ReflectionHelper.class);
     private static final String ROOT_PACKAGE_NAME = "de.fraunhofer.iosb.ilt.faaast.service";
     private static final String MODEL_PACKAGE_NAME = ROOT_PACKAGE_NAME + ".model";
     private static final List<Class<? extends Enum>> EXCLUDED = List.of(ServiceSpecificationProfile.class);
@@ -38,13 +42,39 @@ public class ReflectionHelper {
 
     private ReflectionHelper() {}
 
+
+    /**
+     * Replaces ClassInfoList.loadClasses(Enum.class, true) from 4.x. Loads each
+     * class without initializing it and skips classes that cannot be loaded or
+     * are not subtypes of the target type.
+     *
+     * @param <T> target type
+     * @param infos class info input from class graph
+     * @param type target type
+     * @return loaded classes
+     */
+    public static <T> List<Class<T>> loadClasses(List<ClassInfo> infos, Class<T> type) {
+        return infos.stream()
+                .map(x -> {
+                    try {
+                        Class<?> c = Class.forName(x.getName(), false, Thread.currentThread().getContextClassLoader());
+                        return type.isAssignableFrom(c) ? (Class<T>) c.asSubclass(type) : null;
+                    }
+                    catch (Exception e) {
+                        LOGGER.debug("failed to load class {}", x.getName());
+                        return null;
+                    }
+                })
+                .filter(c -> c != null)
+                .collect(Collectors.toList());
+    }
+
     static {
-        ENUMS = new ClassGraph()
+        ENUMS = loadClasses(new ClassGraph()
                 .enableClassInfo()
                 .acceptPackages(MODEL_PACKAGE_NAME)
                 .scan()
-                .getAllEnums()
-                .loadClasses(Enum.class)
+                .getAllEnums(), Enum.class)
                 .stream()
                 .filter(x -> !EXCLUDED.contains(x))
                 .collect(Collectors.toList());
