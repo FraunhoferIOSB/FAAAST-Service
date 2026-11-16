@@ -874,7 +874,7 @@ public class ValueConverter {
         if (typedValue == null) {
             return null;
         }
-        Object retval = typedValue.getValue();
+        Object retval;
         switch (typedValue) {
             case IntegerValue integerValue -> {
                 BigInteger bigval = integerValue.getValue();
@@ -932,6 +932,7 @@ public class ValueConverter {
             case UnsignedLongValue unsLongValue -> retval = UnsignedLong.valueOf(unsLongValue.getValue());
             case UnsignedByteValue unsByteVylue -> retval = UnsignedByte.valueOf(unsByteVylue.getValue());
             default -> {
+                retval = typedValue.getValue();
             }
         }
         return retval;
