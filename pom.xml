@@ -92,7 +92,7 @@
         <jakarta.xml.bind-api.version>4.0.5</jakarta.xml.bind-api.version>
         <janino.version>3.1.12</janino.version>
         <jaxb.api.version>2.3.1</jaxb.api.version>
-        <jetty.version>12.1.14</jetty.version>
+        <jetty.version>12.1.15</jetty.version>
         <json-patch.version>1.13</json-patch.version>
         <json-smart.version>2.6.1</json-smart.version>
         <jsonassert.version>2.0-rc1</jsonassert.version>
@@ -103,7 +103,7 @@
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <maven.plugin.assembly.version>3.8.0</maven.plugin.assembly.version>
-        <maven.plugin.buildhelper.version>3.7.0</maven.plugin.buildhelper.version>
+        <maven.plugin.buildhelper.version>3.8.0</maven.plugin.buildhelper.version>
         <maven.plugin.central-publishing.version>0.12.0</maven.plugin.central-publishing.version>
         <maven.plugin.checkstyle.version>3.6.0</maven.plugin.checkstyle.version>
         <maven.plugin.compiler.version>3.16.0</maven.plugin.compiler.version>
@@ -334,7 +334,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>license-maven-plugin</artifactId>
-                    <version>2.8.0</version>
+                    <version>2.9.0</version>
                     <configuration>
                         <outputDirectory>${root.basedir}/docs/third_party_licenses_report</outputDirectory>
                         <licenseMerges>
