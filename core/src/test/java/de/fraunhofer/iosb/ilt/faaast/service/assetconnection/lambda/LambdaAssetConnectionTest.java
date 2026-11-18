@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda;
 
 import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -62,9 +63,11 @@ import org.eclipse.digitaltwin.aas4j.v3.model.OperationResult;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Property;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperation;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelElementList;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -303,6 +306,88 @@ public class LambdaAssetConnectionTest {
         assertTrue(Property.class.isAssignableFrom(result.getOutputArguments().get(0).getValue().getClass()));
         Property resultProperty = (Property) result.getOutputArguments().get(0).getValue();
         assertEquals(3, Integer.parseInt(resultProperty.getValue()));
+    }
+
+
+    @Test
+    public void testOperationProviderModifiedInoutputWithException() throws Exception {
+        final String submodelId = "submodel";
+        final String operationId = "property";
+        final String inoutput1Id = "inout1";
+        final String inoutput2Id = "inout2";
+        final String inoutput1Expected = "123";
+        final String newPropertyExpected = "456";
+
+        final Operation operation = new DefaultOperation.Builder()
+                .idShort(operationId)
+                .inoutputVariables(new DefaultOperationVariable.Builder()
+                        .value(new DefaultProperty.Builder()
+                                .idShort(inoutput1Id)
+                                .valueType(DataTypeDefXsd.INT)
+                                .build())
+                        .build())
+                .inoutputVariables(new DefaultOperationVariable.Builder()
+                        .value(new DefaultSubmodelElementList.Builder()
+                                .idShort(inoutput2Id)
+                                .build())
+                        .build())
+                .build();
+
+        final Reference reference = new ReferenceBuilder()
+                .submodel(submodelId)
+                .element(operationId)
+                .build();
+
+        when(persistence.getSubmodelElement(eq(reference), any(), eq(Operation.class))).thenReturn(operation);
+        service.getAssetConnectionManager().registerLambdaOperationProvider(
+                reference,
+                LambdaOperationProvider.builder()
+                        .handle((input, inoutput) -> {
+                            for (var inout: inoutput) {
+                                if (Objects.equals(inout.getValue().getIdShort(), inoutput1Id)) {
+                                    ((Property) inout.getValue()).setValue(inoutput1Expected);
+                                }
+                                else if (Objects.equals(inout.getValue().getIdShort(), inoutput2Id)) {
+                                    ((SubmodelElementList) inout.getValue()).getValue().add(
+                                            new DefaultProperty.Builder()
+                                                    .value(newPropertyExpected)
+                                                    .valueType(DataTypeDefXsd.INT)
+                                                    .build());
+                                }
+                            }
+                            throw new RuntimeException();
+                        })
+                        .build());
+        service.start();
+
+        Response response = service.execute(InvokeOperationSyncRequest.builder()
+                .submodelId(ReferenceHelper.findFirstKeyType(reference, KeyTypes.SUBMODEL))
+                .path(ReferenceHelper.findFirstKeyType(reference, KeyTypes.SUBMODEL_ELEMENT))
+                .inoutputArgument(new DefaultOperationVariable.Builder()
+                        .value(new DefaultProperty.Builder()
+                                .idShort(inoutput1Id)
+                                .value("11")
+                                .valueType(DataTypeDefXsd.INT)
+                                .build())
+                        .build())
+                .build());
+        if (!response.getStatusCode().isSuccess()
+                || !InvokeOperationSyncResponse.class.isAssignableFrom(response.getClass())) {
+            throw new RuntimeException();
+        }
+        OperationResult result = ((InvokeOperationSyncResponse) response).getPayload();
+        assertFalse(result.getSuccess());
+
+        assertEquals(2, result.getInoutputArguments().size());
+        assertTrue(Property.class.isAssignableFrom(result.getInoutputArguments().get(0).getValue().getClass()));
+        Property inout1 = (Property) result.getInoutputArguments().get(0).getValue();
+        assertEquals(Integer.parseInt(inoutput1Expected), Integer.parseInt(inout1.getValue()));
+        assertTrue(SubmodelElementList.class.isAssignableFrom(result.getInoutputArguments().get(1).getValue().getClass()));
+        SubmodelElementList inout2 = (SubmodelElementList) result.getInoutputArguments().get(1).getValue();
+        assertEquals(1, inout2.getValue().size());
+        assertTrue(Property.class.isAssignableFrom(inout2.getValue().get(0).getClass()));
+        Property newProperty = (Property) inout2.getValue().get(0);
+        assertEquals(Integer.parseInt(newPropertyExpected), Integer.parseInt(newProperty.getValue()));
     }
 
 

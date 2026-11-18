@@ -50,6 +50,7 @@
 - Asset Connection
 	- Fixed bug that reading a SubmodelElement container, like a `SubmodelElementCollection`, didn't trigger the asset connection value providers of underlying elements recursively.
 	- Fixed asset connection JSON serialization not including blob values in serialization
+	- Fixed handling of operation provider inoutput parameters w.r.t. default values
 	- HTTP
 		- Add logging of raw HTTP requests & responses with level `TRACE`
 	- OPC UA

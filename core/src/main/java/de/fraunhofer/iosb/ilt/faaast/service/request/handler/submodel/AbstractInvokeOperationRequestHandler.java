@@ -138,7 +138,7 @@ public abstract class AbstractInvokeOperationRequestHandler<T extends InvokeOper
                     throw new InvalidRequestException(String.format("missing required input argument '%s'", definedArgument.getIdShort()));
                 }
                 if (mode == ArgumentValidationMode.REQUIRE_PRESENT_OR_DEFAULT) {
-                    if (argumentType == ArgumentType.INPUT) {
+                    if (argumentType == ArgumentType.INPUT || argumentType == ArgumentType.INOUTPUT) {
                         actual = handleNotProvidedInputArgument(definedArgument, context);
                     }
                     else if (argumentType == ArgumentType.OUTPUT) {
