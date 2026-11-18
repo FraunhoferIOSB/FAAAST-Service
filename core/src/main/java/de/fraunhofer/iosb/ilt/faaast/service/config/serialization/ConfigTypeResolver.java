@@ -16,14 +16,14 @@ package de.fraunhofer.iosb.ilt.faaast.service.config.serialization;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
-import com.fasterxml.jackson.databind.DatabindContext;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.jsontype.impl.TypeIdResolverBase;
 import com.google.common.reflect.TypeToken;
 import de.fraunhofer.iosb.ilt.faaast.service.config.Config;
 import de.fraunhofer.iosb.ilt.faaast.service.config.Configurable;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ImplementationManager;
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.DatabindContext;
+import tools.jackson.databind.JavaType;
+import tools.jackson.databind.jsontype.impl.TypeIdResolverBase;
 
 
 /**
@@ -38,7 +38,7 @@ public class ConfigTypeResolver extends TypeIdResolverBase {
 
 
     @Override
-    public String idFromValue(Object value) {
+    public String idFromValue(DatabindContext ctxt, Object value) throws JacksonException {
         TypeToken<? extends Object> type = TypeToken.of(value.getClass());
         if (type.isSubtypeOf(Config.class)) {
             TypeToken<?> resolvedType = type.resolveType(Config.class.getTypeParameters()[0]);
@@ -49,24 +49,24 @@ public class ConfigTypeResolver extends TypeIdResolverBase {
 
 
     @Override
-    public String idFromValueAndType(Object value, Class<?> suggestedType) {
+    public String idFromValueAndType(DatabindContext ctxt, Object value, Class<?> suggestedType) throws JacksonException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 
     @Override
-    public JavaType typeFromId(DatabindContext context, String id) throws IOException {
+    public JavaType typeFromId(DatabindContext context, String id) throws JacksonException {
         try {
             Class<?> type = Class.forName(id, true, ImplementationManager.getClassLoader());
             if (!Configurable.class.isAssignableFrom(type)) {
-                throw new IOException(
+                throw new IllegalArgumentException(
                         String.format("class '%s' must implement interface '%s' to be used with the dynamic configuration feature", id, Configurable.class.getSimpleName()));
             }
             TypeToken<?> resolvedType = TypeToken.of(type).resolveType(Configurable.class.getTypeParameters()[0]);
             return context.constructType(resolvedType.getRawType());
         }
         catch (ClassNotFoundException e) {
-            throw new IOException(String.format("class '%s' not found in classplath", id), e);
+            throw new IllegalArgumentException(String.format("class '%s' not found in classplath", id), e);
         }
     }
 

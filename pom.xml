@@ -66,7 +66,7 @@
         <url>https://github.com/FraunhoferIOSB/FAAAST-Service/issues</url>
     </issueManagement>
     <properties>
-        <aas4j.version>3.0.0</aas4j.version>
+        <aas4j.version>3.0.1</aas4j.version>
         <awaitility.version>4.3.0</awaitility.version>
         <bouncycastle.version>1.86</bouncycastle.version>
         <checkstyle.version>14.4.0</checkstyle.version>
@@ -93,7 +93,7 @@
         <janino.version>3.1.12</janino.version>
         <jaxb.api.version>2.3.1</jaxb.api.version>
         <jetty.version>12.1.15</jetty.version>
-        <json-patch.version>1.13</json-patch.version>
+        <json-patch.version>1.1.0</json-patch.version>
         <json-smart.version>2.6.1</json-smart.version>
         <jsonassert.version>2.0-rc1</jsonassert.version>
         <jsonpath.version>3.0.0</jsonpath.version>

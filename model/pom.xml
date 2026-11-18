@@ -15,33 +15,6 @@
     </properties>
     <dependencies>
         <dependency>
-            <groupId>com.github.java-json-tools</groupId>
-            <artifactId>json-patch</artifactId>
-            <version>${json-patch.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>tools.jackson.core</groupId>
-                    <artifactId>jackson-databind</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.core</groupId>
-                    <artifactId>jackson-databind</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.core</groupId>
-                    <artifactId>jackson-core</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>tools.jackson.core</groupId>
-                    <artifactId>jackson-core</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.core</groupId>
-                    <artifactId>jackson-annotations</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>${guava.version}</version>
@@ -88,8 +61,16 @@
                     <artifactId>slf4j-simple</artifactId>
                 </exclusion>
                 <exclusion>
+                    <groupId>tools.jackson.core</groupId>
+                    <artifactId>jackson-databind</artifactId>
+                </exclusion>
+                <exclusion>
                     <groupId>com.fasterxml.jackson.core</groupId>
                     <artifactId>jackson-databind</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>tools.jackson.dataformat</groupId>
+                    <artifactId>jackson-dataformat-xml</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>com.fasterxml.jackson.dataformat</groupId>
@@ -105,6 +86,10 @@
                 <exclusion>
                     <groupId>org.slf4j</groupId>
                     <artifactId>slf4j-simple</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>tools.jackson.core</groupId>
+                    <artifactId>jackson-databind</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>com.fasterxml.jackson.core</groupId>
@@ -123,6 +108,10 @@
                 </exclusion>
                 <exclusion>
                     <groupId>com.fasterxml.jackson.dataformat</groupId>
+                    <artifactId>jackson-dataformat-yaml</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>tools.jackson.dataformat</groupId>
                     <artifactId>jackson-dataformat-yaml</artifactId>
                 </exclusion>
             </exclusions>
@@ -152,6 +141,11 @@
                     <artifactId>license-maven-plugin</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.opentmf.commons</groupId>
+            <artifactId>opentmf-json-patch</artifactId>
+            <version>${json-patch.version}</version>
         </dependency>
         <dependency>
             <groupId>org.skyscreamer</groupId>

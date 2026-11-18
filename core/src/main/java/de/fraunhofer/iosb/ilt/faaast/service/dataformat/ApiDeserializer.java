@@ -14,10 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.model.SubmodelElementIdentifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
@@ -44,6 +40,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.JavaType;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.type.TypeFactory;
 
 
 /**
@@ -84,7 +84,7 @@ public interface ApiDeserializer {
      * @throws DeserializationException if deserialization fails
      */
     public default <T> T read(String json, TypeReference<T> type) throws DeserializationException {
-        return read(json, TypeFactory.defaultInstance().constructType(type));
+        return read(json, TypeFactory.createDefaultInstance().constructType(type));
     }
 
 
@@ -304,7 +304,7 @@ public interface ApiDeserializer {
      * @throws DeserializationException if deserialization fails
      */
     public default <T> List<T> readList(String json, TypeReference<T> type) throws DeserializationException {
-        return readList(json, TypeFactory.defaultInstance().constructType(type));
+        return readList(json, TypeFactory.createDefaultInstance().constructType(type));
     }
 
 

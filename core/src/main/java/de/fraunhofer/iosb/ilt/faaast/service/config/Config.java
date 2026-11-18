@@ -15,12 +15,12 @@
 package de.fraunhofer.iosb.ilt.faaast.service.config;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;
 import com.google.common.reflect.TypeToken;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.serialization.ConfigTypeResolver;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInstantiationException;
+import tools.jackson.databind.annotation.JsonTypeIdResolver;
 
 
 /**
