@@ -14,17 +14,17 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer;
 
-import com.fasterxml.jackson.core.JacksonException;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValueFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.ElementValueTypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.deser.std.StdDeserializer;
+import tools.jackson.databind.exc.InvalidFormatException;
 
 
 /**
@@ -33,7 +33,7 @@ import java.io.IOException;
 public class TypedValueDeserializer extends StdDeserializer<TypedValue> {
 
     public TypedValueDeserializer() {
-        this(null);
+        this(TypedValue.class);
     }
 
 
@@ -43,7 +43,7 @@ public class TypedValueDeserializer extends StdDeserializer<TypedValue> {
 
 
     @Override
-    public TypedValue deserialize(JsonParser parser, DeserializationContext context) throws IOException, JacksonException {
+    public TypedValue deserialize(JsonParser parser, DeserializationContext context) throws JacksonException {
         TypeInfo typeInfo = ContextAwareElementValueDeserializer.getTypeInfo(context);
         if (typeInfo == null || !ElementValueTypeInfo.class.isAssignableFrom(typeInfo.getClass())) {
             throw new IllegalArgumentException("missing datatype information");
@@ -53,7 +53,7 @@ public class TypedValueDeserializer extends StdDeserializer<TypedValue> {
             return TypedValueFactory.create(datatype, parser.getValueAsString());
         }
         catch (ValueFormatException e) {
-            throw new IOException(String.format("error deserializing typed value (datatype: %s, value %s", datatype.getName(), parser.getValueAsString()), e);
+            throw InvalidFormatException.from(context, String.format("error deserializing typed value (datatype: %s, value %s", datatype.getName(), parser.getValueAsString()), e);
         }
     }
 

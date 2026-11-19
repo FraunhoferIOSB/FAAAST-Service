@@ -14,14 +14,14 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueHelper;
-import java.io.IOException;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 
 /**
@@ -42,19 +42,20 @@ public class SubmodelElementValueSerializer extends StdSerializer<SubmodelElemen
 
 
     @Override
-    public void serialize(SubmodelElement value, JsonGenerator generator, SerializerProvider provider) throws IOException {
+    public void serialize(SubmodelElement value, JsonGenerator generator, SerializationContext context) throws JacksonException {
         if (value != null && ElementValueHelper.isSerializableAsValue(value.getClass())) {
             try {
                 generator.writeStartObject();
-                provider.defaultSerializeField(value.getIdShort(), ElementValueMapper.toValue(value), generator);
+                Object val = ElementValueMapper.toValue(value);
+                context.defaultSerializeProperty(value.getIdShort(), val, generator);
                 generator.writeEndObject();
             }
             catch (ValueMappingException e) {
-                provider.reportMappingProblem(e, "error mapping submodel element to value");
+                context.reportMappingProblem(e, "error mapping submodel element to value");
             }
         }
         else {
-            provider.defaultSerializeValue(value, generator);
+            context.writeValue(generator, value);
         }
     }
 

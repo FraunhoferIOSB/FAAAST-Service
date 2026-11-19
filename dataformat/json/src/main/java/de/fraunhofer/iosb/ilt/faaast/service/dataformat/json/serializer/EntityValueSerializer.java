@@ -14,19 +14,19 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonFieldNames;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.EntityValue;
-import java.io.IOException;
 import java.util.Map;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.internal.serialization.EnumSerializer;
 import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
 import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceTypes;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 
 /**
@@ -45,19 +45,19 @@ public class EntityValueSerializer extends StdSerializer<EntityValue> {
 
 
     @Override
-    public void serialize(EntityValue value, JsonGenerator generator, SerializerProvider provider) throws IOException {
+    public void serialize(EntityValue value, JsonGenerator generator, SerializationContext context) throws JacksonException {
         if (value != null) {
             generator.writeStartObject();
             if (value.getStatements() != null && !value.getStatements().isEmpty()) {
-                generator.writeFieldName(JsonFieldNames.ENTITY_VALUE_STATEMENTS);
+                generator.writeName(JsonFieldNames.ENTITY_VALUE_STATEMENTS);
                 generator.writeStartObject();
                 for (Map.Entry<String, ElementValue> annotation: value.getStatements().entrySet()) {
-                    provider.defaultSerializeField(annotation.getKey(), annotation.getValue(), generator);
+                    context.defaultSerializeProperty(annotation.getKey(), annotation.getValue(), generator);
                 }
                 generator.writeEndObject();
             }
-            generator.writeStringField(JsonFieldNames.ENTITY_VALUE_ENTITY_TYPE, EnumSerializer.serializeEnumName(value.getEntityType().name()));
-            provider.defaultSerializeField(JsonFieldNames.ENTITY_VALUE_GLOBAL_ASSET_ID, new DefaultReference.Builder()
+            generator.writeStringProperty(JsonFieldNames.ENTITY_VALUE_ENTITY_TYPE, EnumSerializer.serializeEnumName(value.getEntityType().name()));
+            context.defaultSerializeProperty(JsonFieldNames.ENTITY_VALUE_GLOBAL_ASSET_ID, new DefaultReference.Builder()
                     .type(ReferenceTypes.EXTERNAL_REFERENCE)
                     .keys(new DefaultKey.Builder()
                             .type(KeyTypes.GLOBAL_REFERENCE)

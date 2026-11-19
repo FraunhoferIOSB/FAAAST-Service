@@ -14,12 +14,12 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.event;
 
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonNode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.AnnotatedRelationshipElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
-import java.io.IOException;
 import java.util.Map;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.JsonNode;
 
 
 /**
@@ -29,7 +29,7 @@ public class AnnotatedRelationshipElementValueDeserializer
         extends de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.AnnotatedRelationshipElementValueDeserializer {
 
     public AnnotatedRelationshipElementValueDeserializer() {
-        this(null);
+        this(AnnotatedRelationshipElementValue.class);
     }
 
 
@@ -39,7 +39,7 @@ public class AnnotatedRelationshipElementValueDeserializer
 
 
     @Override
-    protected <T extends ElementValue> Map<String, T> deserializeChildren(JsonNode node, DeserializationContext context, Class<T> type) throws IOException {
+    protected <T extends ElementValue> Map<String, T> deserializeChildren(JsonNode node, DeserializationContext context, Class<T> type) throws JacksonException {
         return EventDeserializationHelper.deserializeChildren(node, context, type);
     }
 

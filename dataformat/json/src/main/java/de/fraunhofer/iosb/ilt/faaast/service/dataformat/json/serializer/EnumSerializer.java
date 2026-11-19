@@ -14,26 +14,26 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReflectionHelper;
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ValueSerializer;
 
 
 /**
  * Enum Serializer applying the AAS naming strategy.
  */
-public class EnumSerializer extends JsonSerializer<Enum> {
+public class EnumSerializer extends ValueSerializer<Enum> {
 
     @Override
-    public void serialize(Enum value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+    public void serialize(Enum value, JsonGenerator gen, SerializationContext context) throws JacksonException {
         if (value != null) {
             if (ReflectionHelper.ENUMS.contains(value.getClass())) {
                 gen.writeString(org.eclipse.digitaltwin.aas4j.v3.dataformat.core.internal.serialization.EnumSerializer.serializeEnumName(value.name()));
             }
             else {
-                provider.findValueSerializer(Enum.class).serialize(value, gen, provider);
+                context.findValueSerializer(Enum.class).serialize(value, gen, context);
             }
         }
     }

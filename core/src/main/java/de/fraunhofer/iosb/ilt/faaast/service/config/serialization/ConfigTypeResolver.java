@@ -59,7 +59,7 @@ public class ConfigTypeResolver extends TypeIdResolverBase {
         try {
             Class<?> type = Class.forName(id, true, ImplementationManager.getClassLoader());
             if (!Configurable.class.isAssignableFrom(type)) {
-                throw new IllegalArgumentException(
+                context.reportBadDefinition(type,
                         String.format("class '%s' must implement interface '%s' to be used with the dynamic configuration feature", id, Configurable.class.getSimpleName()));
             }
             TypeToken<?> resolvedType = TypeToken.of(type).resolveType(Configurable.class.getTypeParameters()[0]);

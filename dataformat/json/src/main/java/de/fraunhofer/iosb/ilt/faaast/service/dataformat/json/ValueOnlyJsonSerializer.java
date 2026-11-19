@@ -14,19 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.BeanDescription;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationConfig;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
-import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
-import com.fasterxml.jackson.databind.util.TokenBuffer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.AbstractRequestWithModifierMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.AbstractSubmodelInterfaceRequestMixin;
@@ -81,7 +68,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.AbstractDateTimeValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReflectionHelper;
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -93,6 +79,19 @@ import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Result;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.BeanDescription;
+import tools.jackson.databind.JacksonModule;
+import tools.jackson.databind.JavaType;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.SerializationConfig;
+import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.introspect.JacksonAnnotationIntrospector;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.module.SimpleModule;
+import tools.jackson.databind.ser.BeanPropertyWriter;
+import tools.jackson.databind.ser.ValueSerializerModifier;
+import tools.jackson.databind.util.TokenBuffer;
 
 
 /**
@@ -112,7 +111,8 @@ public class ValueOnlyJsonSerializer {
 
 
     public ValueOnlyJsonSerializer() {
-        this.wrapper = new SerializerWrapper(x -> modifyMapper(x));
+        //this.wrapper = new SerializerWrapper(x -> modifyMapper(x));
+        this.wrapper = new SerializerWrapper(this::modifyMapper);
     }
 
 
@@ -188,7 +188,7 @@ public class ValueOnlyJsonSerializer {
                     .withAttribute(ModifierAwareSerializer.EXTEND, extend)
                     .writeValueAsString(obj);
         }
-        catch (JsonProcessingException e) {
+        catch (JacksonException | NullPointerException e) {
             throw new SerializationException("serialization failed", e);
         }
     }
@@ -256,14 +256,16 @@ public class ValueOnlyJsonSerializer {
             throw new UnsupportedContentModifierException(Content.VALUE, obj.getClass());
         }
         try {
-            TokenBuffer buffer = new TokenBuffer(wrapper.getMapper(), false);
-            wrapper.getMapper().writer()
+            // TODO: must be checked
+            //TokenBuffer buffer = new TokenBuffer(wrapper.getMapper(), false);
+            //TokenBuffer buffer = new TokenBuffer(ObjectWriteContext.empty(), false);
+            TokenBuffer buffer = wrapper.getMapper().writer()
                     .withAttribute(ModifierAwareSerializer.LEVEL, level)
                     .withAttribute(ModifierAwareSerializer.EXTEND, extend)
-                    .writeValue(buffer, obj);
+                    .writeValueIntoBuffer(obj);
             return wrapper.getMapper().readTree(buffer.asParser());
         }
-        catch (IOException e) {
+        catch (JacksonException e) {
             throw new SerializationException("serialization failed", e);
         }
     }
@@ -286,24 +288,6 @@ public class ValueOnlyJsonSerializer {
      * @return the updated mapper
      */
     protected JsonMapper modifyMapper(JsonMapper mapper) {
-        mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
-        mapper.setAnnotationIntrospector(new JacksonAnnotationIntrospector());
-        mapper.addMixIn(PropertyValue.class, PropertyValueMixin.class);
-        mapper.addMixIn(SubmodelElementCollectionValue.class, SubmodelElementCollectionValueMixin.class);
-        mapper.addMixIn(SubmodelElementListValue.class, SubmodelElementListValueMixin.class);
-        mapper.addMixIn(TypedValue.class, TypedValueMixin.class);
-        mapper.addMixIn(AbstractDateTimeValue.class, AbstractDateTimeValueMixIn.class);
-        mapper.addMixIn(ReferenceElementValue.class, ReferenceElementValueMixin.class);
-        mapper.addMixIn(Page.class, PageMixin.class);
-        mapper.addMixIn(Message.class, MessageMixin.class);
-        mapper.addMixIn(ImportResult.class, ImportResultMixin.class);
-        mapper.addMixIn(AbstractRequestWithModifier.class, AbstractRequestWithModifierMixin.class);
-        mapper.addMixIn(AbstractSubmodelInterfaceRequest.class, AbstractSubmodelInterfaceRequestMixin.class);
-        mapper.addMixIn(InvokeOperationRequest.class, InvokeOperationRequestValueMixin.class);
-        mapper.addMixIn(Response.class, ResponseMixin.class);
-        mapper.addMixIn(Result.class, ResultMixin.class);
-        mapper.addMixIn(GetOperationAsyncResultResponse.class, GetOperationAsyncResultResponseValueMixin.class);
-        mapper.addMixIn(OperationResult.class, OperationResultValueMixin.class);
         SimpleModule module = new SimpleModule();
         ReflectionHelper.ENUMS.forEach(x -> module.addSerializer(x, new EnumSerializer()));
         module.addSerializer(MultiLanguagePropertyValue.class, new MultiLanguagePropertyValueSerializer());
@@ -315,26 +299,46 @@ public class ValueOnlyJsonSerializer {
         module.addSerializer(SubmodelElement.class, new SubmodelElementValueSerializer());
         module.addSerializer(Submodel.class, new SubmodelValueSerializer());
         module.addSerializer(PagingMetadata.class, new PagingMetadataSerializer());
-        ObjectMapper result = mapper.registerModule(module);
-        result = result.registerModule(new SimpleModule() {
-            @Override
-            public void setupModule(SetupContext context) {
-                super.setupModule(context);
-                context.addBeanSerializerModifier(new BeanSerializerModifier() {
+
+        return mapper.rebuild()
+                .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
+                .annotationIntrospector(new JacksonAnnotationIntrospector())
+                .addMixIn(PropertyValue.class, PropertyValueMixin.class)
+                .addMixIn(SubmodelElementCollectionValue.class, SubmodelElementCollectionValueMixin.class)
+                .addMixIn(SubmodelElementListValue.class, SubmodelElementListValueMixin.class)
+                .addMixIn(TypedValue.class, TypedValueMixin.class)
+                .addMixIn(AbstractDateTimeValue.class, AbstractDateTimeValueMixIn.class)
+                .addMixIn(ReferenceElementValue.class, ReferenceElementValueMixin.class)
+                .addMixIn(Page.class, PageMixin.class)
+                .addMixIn(Message.class, MessageMixin.class)
+                .addMixIn(ImportResult.class, ImportResultMixin.class)
+                .addMixIn(AbstractRequestWithModifier.class, AbstractRequestWithModifierMixin.class)
+                .addMixIn(AbstractSubmodelInterfaceRequest.class, AbstractSubmodelInterfaceRequestMixin.class)
+                .addMixIn(InvokeOperationRequest.class, InvokeOperationRequestValueMixin.class)
+                .addMixIn(Response.class, ResponseMixin.class)
+                .addMixIn(Result.class, ResultMixin.class)
+                .addMixIn(GetOperationAsyncResultResponse.class, GetOperationAsyncResultResponseValueMixin.class)
+                .addMixIn(OperationResult.class, OperationResultValueMixin.class)
+                .addModule(module)
+                .addModule((new SimpleModule() {
                     @Override
-                    public List<BeanPropertyWriter> changeProperties(SerializationConfig config,
-                                                                     BeanDescription beanDesc, List<BeanPropertyWriter> beanProperties) {
-                        beanProperties.removeIf(property -> !evalContainerType(property.getType()).stream()
-                                .allMatch(
-                                        x -> isJreType(x.getRawClass())
-                                                || ElementValueHelper.isValueOnlySupported(x.getRawClass())
-                                                || isExplicitelyAcceptedType(x.getRawClass())));
-                        return beanProperties;
+                    public void setupModule(JacksonModule.SetupContext context) {
+                        super.setupModule(context);
+                        context.addSerializerModifier(new ValueSerializerModifier() {
+                            @Override
+                            public List<BeanPropertyWriter> changeProperties(SerializationConfig config,
+                                                                             BeanDescription.Supplier beanDesc, List<BeanPropertyWriter> beanProperties) {
+                                beanProperties.removeIf(property -> !evalContainerType(property.getType()).stream()
+                                        .allMatch(
+                                                x -> isJreType(x.getRawClass())
+                                                        || ElementValueHelper.isValueOnlySupported(x.getRawClass())
+                                                        || isExplicitelyAcceptedType(x.getRawClass())));
+                                return beanProperties;
+                            }
+                        });
                     }
-                });
-            }
-        });
-        return (JsonMapper) result;
+                }))
+                .build();
     }
 
 

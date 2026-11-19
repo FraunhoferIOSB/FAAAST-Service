@@ -14,14 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.BeanDescription;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializationConfig;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.event.EventMessageMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.value.ReferenceElementValueMixin;
@@ -43,6 +35,13 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.MultiLanguagePropertyVa
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ReferenceElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReflectionHelper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.BeanDescription;
+import tools.jackson.databind.SerializationConfig;
+import tools.jackson.databind.ValueSerializer;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.module.SimpleModule;
+import tools.jackson.databind.ser.ValueSerializerModifier;
 
 
 /**
@@ -61,16 +60,17 @@ public class JsonEventSerializer {
      * Modifies Jackson JsonMapper.
      *
      * @param mapper mapper to modify
+     * @return the modified JsonMapper.
      */
-    protected void modifyMapper(JsonMapper mapper) {
+    protected JsonMapper modifyMapper(JsonMapper mapper) {
         SimpleModule module = new SimpleModule();
         ReflectionHelper.ENUMS.forEach(x -> module.addSerializer(x, new EnumSerializer()));
 
-        module.setSerializerModifier(new BeanSerializerModifier() {
+        module.setSerializerModifier(new ValueSerializerModifier() {
             @Override
-            public JsonSerializer<?> modifySerializer(SerializationConfig config, BeanDescription beanDesc, JsonSerializer<?> serializer) {
+            public ValueSerializer<?> modifySerializer(SerializationConfig config, BeanDescription.Supplier beanDesc, ValueSerializer<?> serializer) {
                 if (ElementValue.class.isAssignableFrom(beanDesc.getBeanClass())) {
-                    return new ElementValueSerializer((JsonSerializer<Object>) serializer);
+                    return new ElementValueSerializer((ValueSerializer<Object>) serializer);
                 }
                 return serializer;
             }
@@ -81,10 +81,13 @@ public class JsonEventSerializer {
         module.addSerializer(MultiLanguagePropertyValue.class, new MultiLanguagePropertyValueSerializer());
         module.addSerializer(AnnotatedRelationshipElementValue.class, new AnnotatedRelationshipElementValueSerializer());
         module.addSerializer(TypedValue.class, new TypedValueSerializer());
-        mapper.registerModule(module);
-        mapper.registerModule(new JavaTimeModule());
-        mapper.addMixIn(EventMessage.class, EventMessageMixin.class);
-        mapper.addMixIn(ReferenceElementValue.class, ReferenceElementValueMixin.class);
+
+        return mapper.rebuild()
+                .addModule(module)
+                .addMixIn(EventMessage.class, EventMessageMixin.class)
+                .addMixIn(ReferenceElementValue.class, ReferenceElementValueMixin.class)
+                .build();
+        //mapper.registerModule(new JavaTimeModule());
     }
 
 
@@ -99,7 +102,7 @@ public class JsonEventSerializer {
         try {
             return wrapper.getMapper().writer().writeValueAsString(msg);
         }
-        catch (JsonProcessingException e) {
+        catch (JacksonException e) {
             throw new SerializationException("serialization failed", e);
         }
     }

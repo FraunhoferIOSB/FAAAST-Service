@@ -14,18 +14,18 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.event;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonFieldNames;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
-import java.io.IOException;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.internal.util.ReflectionHelper;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.deser.std.StdDeserializer;
+import tools.jackson.databind.node.ObjectNode;
 
 
 /**
@@ -34,7 +34,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 public class ElementValueDeserializer extends StdDeserializer<ElementValue> {
 
     public ElementValueDeserializer() {
-        this(null);
+        this(ElementValue.class);
     }
 
 
@@ -60,7 +60,7 @@ public class ElementValueDeserializer extends StdDeserializer<ElementValue> {
 
 
     @Override
-    public ElementValue deserialize(JsonParser parser, DeserializationContext context) throws IOException {
+    public ElementValue deserialize(JsonParser parser, DeserializationContext context) throws JacksonException {
         JsonNode root = parser.readValueAsTree();
         return (ElementValue) context.readTreeAsValue(root, getInlineTypeInfo(root));
     }

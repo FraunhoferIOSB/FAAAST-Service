@@ -14,16 +14,16 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer;
 
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonNode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.SubmodelElementListValue;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.JsonNode;
 
 
 /**
@@ -32,7 +32,7 @@ import java.util.Objects;
 public class SubmodelElementListValueDeserializer extends ContextAwareElementValueDeserializer<SubmodelElementListValue> {
 
     public SubmodelElementListValueDeserializer() {
-        this(null);
+        this(SubmodelElementListValue.class);
     }
 
 
@@ -42,14 +42,14 @@ public class SubmodelElementListValueDeserializer extends ContextAwareElementVal
 
 
     @Override
-    public SubmodelElementListValue deserializeValue(JsonNode node, DeserializationContext context) throws IOException {
+    public SubmodelElementListValue deserializeValue(JsonNode node, DeserializationContext context) throws JacksonException {
         return new SubmodelElementListValue.Builder()
                 .values(deserializeChildrenInternal(node, context))
                 .build();
     }
 
 
-    private <T extends ElementValue> List<T> deserializeChildrenInternal(JsonNode node, DeserializationContext context) throws IOException {
+    private <T extends ElementValue> List<T> deserializeChildrenInternal(JsonNode node, DeserializationContext context) throws JacksonException {
         List<T> result = new ArrayList<>();
         if (node == null) {
             return result;
@@ -61,7 +61,7 @@ public class SubmodelElementListValueDeserializer extends ContextAwareElementVal
         if (!SubmodelElementListValue.class.equals(typeInfo.getType()) || !node.isArray()) {
             return result;
         }
-        Iterator<JsonNode> iterator = node.elements();
+        Iterator<JsonNode> iterator = node.values().iterator();
         TypeInfo genericChildTypeInfo = (TypeInfo) typeInfo.getElements().get(null);
         if (Objects.isNull(genericChildTypeInfo)) {
             if (typeInfo.getElements().size() < node.size()) {
