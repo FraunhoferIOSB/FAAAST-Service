@@ -14,13 +14,13 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.ServiceDescription;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
-import java.io.IOException;
 import java.util.Objects;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 
 /**
@@ -41,9 +41,9 @@ public class ServiceDescriptionSerializer extends StdSerializer<ServiceDescripti
 
 
     @Override
-    public void serialize(ServiceDescription value, JsonGenerator generator, SerializerProvider provider) throws IOException {
+    public void serialize(ServiceDescription value, JsonGenerator generator, SerializationContext provider) throws JacksonException {
         generator.writeStartObject();
-        generator.writeFieldName(FIELD_PROFILES);
+        generator.writeName(FIELD_PROFILES);
         generator.writeStartArray();
         if (Objects.nonNull(value) && Objects.nonNull(value.getProfiles())) {
             value.getProfiles().forEach(LambdaExceptionHelper.rethrowConsumer(x -> generator.writeString(x.getId())));

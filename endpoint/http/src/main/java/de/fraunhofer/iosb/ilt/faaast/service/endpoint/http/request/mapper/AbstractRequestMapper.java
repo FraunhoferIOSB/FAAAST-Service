@@ -14,9 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.fge.jsonpatch.mergepatch.JsonMergePatch;
 import com.google.common.net.MediaType;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
@@ -40,6 +37,8 @@ import java.util.function.UnaryOperator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.fileupload.MultipartStream;
+import org.opentmf.commons.patch.JsonMergePatch;
+import tools.jackson.core.JacksonException;
 
 
 /**
@@ -329,9 +328,9 @@ public abstract class AbstractRequestMapper {
     protected JsonMergePatch parseMergePatch(String json) throws InvalidRequestException {
 
         try {
-            return new ObjectMapper().readValue(json, JsonMergePatch.class);
+            return JsonMergePatch.fromJson(json);
         }
-        catch (JsonProcessingException e) {
+        catch (JacksonException e) {
             throw new InvalidRequestException(String.format("unable to create JSON merge patch (reason: %s, JSON payload: %s)",
                     e.getMessage(),
                     json),

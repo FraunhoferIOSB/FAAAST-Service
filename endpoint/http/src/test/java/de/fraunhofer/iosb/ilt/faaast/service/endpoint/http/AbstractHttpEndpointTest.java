@@ -19,10 +19,6 @@ import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
@@ -129,6 +125,11 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 
 public abstract class AbstractHttpEndpointTest {
@@ -1133,11 +1134,11 @@ public abstract class AbstractHttpEndpointTest {
     }
 
 
-    private void assertCompressedDppEquals(DigitalProductPassport expected, byte[] actual) throws SerializationException, JsonProcessingException {
+    private void assertCompressedDppEquals(DigitalProductPassport expected, byte[] actual) throws SerializationException, JacksonException {
         JsonNode actualNode = new ObjectMapper().readValue(new String(actual), JsonNode.class);
-        JsonDppSerializer serializer = new JsonDppSerializer();
-        String expectedString = serializer.write(expected, DppSerializationMode.COMPRESSED);
-        ObjectMapper mapper = new ObjectMapper();
+        JsonDppSerializer dppserializer = new JsonDppSerializer();
+        String expectedString = dppserializer.write(expected, DppSerializationMode.COMPRESSED);
+        ObjectMapper mapper = new JsonMapper();
         JsonNode expectedNode = mapper.readTree(expectedString);
         Assert.assertEquals(expectedNode, actualNode);
     }

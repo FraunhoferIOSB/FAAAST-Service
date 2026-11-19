@@ -14,12 +14,12 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization;
 
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.databind.util.StdDateFormat;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonApiSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.ServiceDescription;
+import tools.jackson.databind.cfg.DateTimeFeature;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.module.SimpleModule;
+import tools.jackson.databind.util.StdDateFormat;
 
 
 /**
@@ -28,12 +28,14 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.ServiceDescription;
 public class HttpJsonApiSerializer extends JsonApiSerializer {
 
     @Override
-    protected void modifyMapper(JsonMapper mapper) {
-        super.modifyMapper(mapper);
-        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-        mapper.setDateFormat(new StdDateFormat().withColonInTimeZone(true));
+    protected JsonMapper modifyMapper(JsonMapper mapper) {
         SimpleModule module = new SimpleModule();
         module.addSerializer(ServiceDescription.class, new ServiceDescriptionSerializer());
-        mapper.registerModule(module);
+
+        return super.modifyMapper(mapper).rebuild()
+                .disable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .defaultDateFormat(new StdDateFormat().withColonInTimeZone(true))
+                .addModule(module)
+                .build();
     }
 }
