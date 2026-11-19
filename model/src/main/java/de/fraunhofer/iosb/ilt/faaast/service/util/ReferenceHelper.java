@@ -606,6 +606,21 @@ public class ReferenceHelper {
 
 
     /**
+     * Checks if a list of
+     * {@link org.eclipse.digitaltwin.aas4j.v3.model.Reference} contains a
+     * semantically equivalent reference.
+     *
+     * @param list the list to check
+     * @param reference the reference to check for
+     * @return true if the list contains a semantically equivalent reference,
+     *         otherwise false
+     */
+    public static boolean containsSameReference(Collection<Reference> list, Reference reference) {
+        return !findSameReferences(list, reference).isEmpty();
+    }
+
+
+    /**
      * Gets the value of a map with key type
      * {@link org.eclipse.digitaltwin.aas4j.v3.model.Reference} with a
      * semantically equivalent reference.
