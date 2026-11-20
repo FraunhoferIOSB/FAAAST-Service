@@ -14,21 +14,21 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.environment.deserializer;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleAbstractTypeResolver;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SupportedDataformat;
 import de.fraunhofer.iosb.ilt.faaast.service.model.EnvironmentContext;
 import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.JsonMapperFactory;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.SimpleAbstractTypeResolverFactory;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.module.SimpleAbstractTypeResolver;
 
 
 /**
@@ -42,7 +42,7 @@ public class JsonEnvironmentDeserializer implements EnvironmentDeserializer {
 
     public JsonEnvironmentDeserializer() {
         typeResolver = new SimpleAbstractTypeResolverFactory().create();
-        mapper = new JsonMapperFactory().create(typeResolver).enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+        mapper = new JsonMapperFactory().create(typeResolver).rebuild().enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).build();
     }
 
 
@@ -53,7 +53,7 @@ public class JsonEnvironmentDeserializer implements EnvironmentDeserializer {
                     .environment(mapper.readValue(new InputStreamReader(in, charset), Environment.class))
                     .build();
         }
-        catch (IOException e) {
+        catch (JacksonException e) {
             throw new DeserializationException("JSON deserialization failed", e);
         }
     }

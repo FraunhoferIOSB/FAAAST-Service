@@ -30,8 +30,6 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.ArgumentValidationMode;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionConfig;
@@ -228,6 +226,8 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
+import tools.jackson.databind.JavaType;
+import tools.jackson.databind.type.TypeFactory;
 
 
 public class RequestHandlerManagerTest {
@@ -720,7 +720,7 @@ public class RequestHandlerManagerTest {
         assertReadWithAssetConnection(
                 data,
                 null,
-                TypeFactory.defaultInstance().constructParametricType(Page.class, Submodel.class),
+                TypeFactory.createDefaultInstance().constructParametricType(Page.class, Submodel.class),
                 new GetAllSubmodelsRequest.Builder()
                         .outputModifier(OutputModifier.DEFAULT)
                         .build(),
@@ -767,7 +767,7 @@ public class RequestHandlerManagerTest {
         assertReadWithAssetConnection(
                 data,
                 null,
-                TypeFactory.defaultInstance().constructParametricType(Page.class, Submodel.class),
+                TypeFactory.createDefaultInstance().constructParametricType(Page.class, Submodel.class),
                 new GetAllSubmodelsBySemanticIdRequest.Builder()
                         .semanticId(SUBMODEL_ELEMENT_REF)
                         .outputModifier(OutputModifier.DEFAULT)
@@ -815,7 +815,7 @@ public class RequestHandlerManagerTest {
         assertReadWithAssetConnection(
                 data,
                 null,
-                TypeFactory.defaultInstance().constructParametricType(Page.class, Submodel.class),
+                TypeFactory.createDefaultInstance().constructParametricType(Page.class, Submodel.class),
                 new GetAllSubmodelsByIdShortRequest.Builder()
                         .idShort("Test")
                         .outputModifier(OutputModifier.DEFAULT)
@@ -846,7 +846,7 @@ public class RequestHandlerManagerTest {
         assertWriteWithAssetConnection(
                 submodel,
                 null,
-                TypeFactory.defaultInstance().constructType(Submodel.class),
+                TypeFactory.createDefaultInstance().constructType(Submodel.class),
                 x -> new PostSubmodelRequest.Builder()
                         .submodel(x)
                         .build(),
@@ -917,7 +917,7 @@ public class RequestHandlerManagerTest {
         assertWriteWithAssetConnection(
                 submodel,
                 null,
-                TypeFactory.defaultInstance().constructType(Submodel.class),
+                TypeFactory.createDefaultInstance().constructType(Submodel.class),
                 x -> new PutSubmodelRequest.Builder()
                         .submodelId(submodel.getId())
                         .submodel(x)
@@ -975,7 +975,7 @@ public class RequestHandlerManagerTest {
         assertReadWithAssetConnection(
                 submodel,
                 null,
-                TypeFactory.defaultInstance().constructType(Submodel.class),
+                TypeFactory.createDefaultInstance().constructType(Submodel.class),
                 new GetSubmodelRequest.Builder()
                         .submodelId(submodel.getId())
                         .outputModifier(OutputModifier.DEFAULT)
@@ -1020,7 +1020,7 @@ public class RequestHandlerManagerTest {
         assertReadWithAssetConnection(
                 data,
                 ReferenceBuilder.forSubmodel(submodel),
-                TypeFactory.defaultInstance().constructParametricType(Page.class, SubmodelElement.class),
+                TypeFactory.createDefaultInstance().constructParametricType(Page.class, SubmodelElement.class),
                 new GetAllSubmodelElementsRequest.Builder()
                         .submodelId(submodel.getId())
                         .outputModifier(OutputModifier.DEFAULT)
@@ -1058,7 +1058,7 @@ public class RequestHandlerManagerTest {
         assertWriteWithAssetConnection(
                 submodelElement,
                 ReferenceBuilder.forSubmodel(submodel, submodelElement),
-                TypeFactory.defaultInstance().constructType(SubmodelElement.class),
+                TypeFactory.createDefaultInstance().constructType(SubmodelElement.class),
                 x -> new PostSubmodelElementRequest.Builder()
                         .submodelId(submodel.getId())
                         .submodelElement(x)
@@ -1141,7 +1141,7 @@ public class RequestHandlerManagerTest {
         assertReadWithAssetConnection(
                 submodelElement,
                 ReferenceBuilder.forSubmodel(submodel, submodelElement),
-                TypeFactory.defaultInstance().constructType(SubmodelElement.class),
+                TypeFactory.createDefaultInstance().constructType(SubmodelElement.class),
                 new GetSubmodelElementByPathRequest.Builder()
                         .submodelId(submodel.getId())
                         .outputModifier(OutputModifier.DEFAULT)
@@ -1241,7 +1241,7 @@ public class RequestHandlerManagerTest {
         assertWriteWithAssetConnection(
                 newProperty,
                 refNewElement,
-                TypeFactory.defaultInstance().constructType(SubmodelElement.class),
+                TypeFactory.createDefaultInstance().constructType(SubmodelElement.class),
                 x -> new PostSubmodelElementByPathRequest.Builder()
                         .submodelId(submodel.getId())
                         .submodelElement(x)

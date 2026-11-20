@@ -14,25 +14,29 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.key;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdKeySerializers;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
-import java.io.IOException;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ValueSerializer;
 
 
 /**
  * Serializer for Reference objects when used as key in lists.
+ * TODO: implementation mostly AI-generated. Must be verified!
  */
-public class ReferenceKeySerializer extends StdKeySerializers.StringKeySerializer {
+public class ReferenceKeySerializer extends ValueSerializer<Object> {
+
     @Override
-    public void serialize(Object key, JsonGenerator gen, SerializerProvider provider) throws IOException {
+    public void serialize(Object key, JsonGenerator gen, SerializationContext context) {
         if (key instanceof Reference reference) {
-            gen.writeFieldName(ReferenceHelper.asString(reference));
+            gen.writeName(ReferenceHelper.asString(reference));
+        }
+        else if (key != null) {
+            gen.writeName(key.toString());
         }
         else {
-            super.serialize(key, gen, provider);
+            gen.writeName("");
         }
     }
 }

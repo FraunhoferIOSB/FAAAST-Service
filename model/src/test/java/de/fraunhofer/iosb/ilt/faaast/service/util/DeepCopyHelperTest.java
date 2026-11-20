@@ -14,7 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.util;
 
-import com.fasterxml.jackson.databind.type.TypeFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import java.util.List;
@@ -30,6 +29,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultRange;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodel;
 import org.junit.Assert;
 import org.junit.Test;
+import tools.jackson.databind.type.TypeFactory;
 
 
 public class DeepCopyHelperTest {
@@ -141,7 +141,7 @@ public class DeepCopyHelperTest {
                                 .value("some value")
                                 .build())
                         .build());
-        Page<Submodel> actual = DeepCopyHelper.deepCopyAny(expected, TypeFactory.defaultInstance().constructParametricType(Page.class, Submodel.class));
+        Page<Submodel> actual = DeepCopyHelper.deepCopyAny(expected, TypeFactory.createDefaultInstance().constructParametricType(Page.class, Submodel.class));
         Assert.assertEquals(expected, actual);
     }
 
@@ -158,7 +158,7 @@ public class DeepCopyHelperTest {
                         .min("max")
                         .valueType(DataTypeDefXsd.STRING)
                         .build());
-        Page<SubmodelElement> actual = DeepCopyHelper.deepCopyAny(expected, TypeFactory.defaultInstance().constructParametricType(Page.class, SubmodelElement.class));
+        Page<SubmodelElement> actual = DeepCopyHelper.deepCopyAny(expected, TypeFactory.createDefaultInstance().constructParametricType(Page.class, SubmodelElement.class));
         Assert.assertEquals(expected, actual);
     }
 

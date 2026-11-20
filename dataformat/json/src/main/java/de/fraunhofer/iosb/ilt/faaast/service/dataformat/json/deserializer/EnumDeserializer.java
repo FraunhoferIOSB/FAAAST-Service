@@ -14,11 +14,11 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
 
 
 /**
@@ -26,7 +26,7 @@ import java.io.IOException;
  *
  * @param <T> the enum type
  */
-public class EnumDeserializer<T extends Enum> extends JsonDeserializer<T> {
+public class EnumDeserializer<T extends Enum> extends ValueDeserializer<T> {
 
     /**
      * Actual type of the enum to deserialize.
@@ -40,7 +40,7 @@ public class EnumDeserializer<T extends Enum> extends JsonDeserializer<T> {
 
 
     @Override
-    public T deserialize(JsonParser parser, DeserializationContext context) throws IOException {
+    public T deserialize(JsonParser parser, DeserializationContext context) throws JacksonException {
         return (T) Enum.valueOf(type, org.eclipse.digitaltwin.aas4j.v3.dataformat.core.internal.deserialization.EnumDeserializer.deserializeEnumName(parser.getText()));
     }
 }

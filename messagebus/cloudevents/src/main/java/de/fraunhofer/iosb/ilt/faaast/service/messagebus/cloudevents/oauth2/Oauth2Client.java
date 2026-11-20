@@ -14,10 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.messagebus.cloudevents.oauth2;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import java.io.IOException;
 import java.net.URI;
@@ -25,6 +21,11 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.PropertyNamingStrategies;
+import tools.jackson.databind.json.JsonMapper;
 
 
 /**
@@ -42,9 +43,10 @@ public class Oauth2Client {
      */
     public Oauth2Client(HttpClient httpClient) {
         this.httpClient = httpClient;
-        mapper = new ObjectMapper()
+        mapper = JsonMapper.builder()
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                .setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
+                .propertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
+                .build();
     }
 
 
@@ -54,9 +56,9 @@ public class Oauth2Client {
      * @param request Token request containing required credentials
      * @return Token response containing token and expiry information
      * @throws MessageBusException If the status code of the token response was not 2xx.
-     * @throws JsonProcessingException Failed deserializing token response.
+     * @throws JacksonException Failed deserializing token response.
      */
-    public Oauth2CredentialsResponse requestToken(Oauth2CredentialsRequest request) throws MessageBusException, JsonProcessingException {
+    public Oauth2CredentialsResponse requestToken(Oauth2CredentialsRequest request) throws MessageBusException, JacksonException {
 
         HttpResponse<String> response;
         try {

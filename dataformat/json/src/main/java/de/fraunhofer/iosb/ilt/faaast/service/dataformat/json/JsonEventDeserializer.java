@@ -14,8 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json;
 
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.BasicEventElementValueDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.ContextAwareElementValueDeserializer;
@@ -42,7 +40,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.ReferenceElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.SubmodelElementCollectionValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReflectionHelper;
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.module.SimpleModule;
 
 
 /**
@@ -61,8 +61,9 @@ public class JsonEventDeserializer {
      * Modifies Jackson JsonMapper.
      *
      * @param mapper mapper to modify
+     * @return the modified JsonMapper.
      */
-    protected void modifyMapper(JsonMapper mapper) {
+    protected JsonMapper modifyMapper(JsonMapper mapper) {
         SimpleModule module = new SimpleModule();
         ReflectionHelper.ENUMS.forEach(x -> module.addDeserializer(x, new EnumDeserializer(x)));
         module.addDeserializer(TypedValue.class, new TypedValueDeserializer());
@@ -74,9 +75,11 @@ public class JsonEventDeserializer {
         module.addDeserializer(EntityValue.class, new EntityValueDeserializer());
         module.addDeserializer(RangeValue.class, new RangeValueDeserializer());
         module.addDeserializer(ElementValue.class, new ElementValueDeserializer());
-        mapper.registerModule(module);
-        mapper.addMixIn(EventMessage.class, EventMessageMixin.class);
-        mapper.addMixIn(ReferenceElementValue.class, ReferenceElementValueMixin.class);
+        return mapper.rebuild()
+                .addModule(module)
+                .addMixIn(EventMessage.class, EventMessageMixin.class)
+                .addMixIn(ReferenceElementValue.class, ReferenceElementValueMixin.class)
+                .build();
     }
 
 
@@ -91,11 +94,11 @@ public class JsonEventDeserializer {
      */
     public <T extends EventMessage> T read(String json, Class<T> type) throws DeserializationException {
         try {
-            return wrapper.getMapper().reader()
+            return wrapper.getMapper().readerFor(type)
                     .withAttribute(ContextAwareElementValueDeserializer.CONTEXT_IS_EVENT, true)
-                    .readValue(json, type);
+                    .readValue(json);
         }
-        catch (IOException e) {
+        catch (JacksonException e) {
             throw new DeserializationException(
                     String.format("Deserializing event message failed (reason: %s)",
                             e.getMessage()),

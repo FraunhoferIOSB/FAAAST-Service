@@ -18,10 +18,6 @@ import static org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes.ASSET_ADMINISTRATI
 import static org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes.SUBMODEL;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.EventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.OperationFinishEventMessage;
@@ -34,7 +30,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.cloudevents.CloudEvent;
 import io.cloudevents.core.builder.CloudEventBuilder;
-import io.cloudevents.jackson.JsonFormat;
+import io.cloudevents.jackson3.JsonFormat;
 import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -48,6 +44,11 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.json.JsonMapper;
 
 
 /**
@@ -76,11 +77,13 @@ public abstract class CloudEventMapper {
      */
     protected CloudEventMapper(CloudEventMapperConfig config) {
         this.config = config;
-        this.mapper = new ObjectMapper()
+        this.mapper = JsonMapper.builder()
                 .enable(SerializationFeature.INDENT_OUTPUT)
                 .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-                .setDefaultPropertyInclusion(JsonInclude.Include.NON_EMPTY)
-                .registerModule(JsonFormat.getCloudEventJacksonModule());
+                .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_EMPTY))
+                .changeDefaultPropertyInclusion(incl -> incl.withContentInclusion(JsonInclude.Include.NON_EMPTY))
+                .addModule(JsonFormat.getCloudEventJacksonModule())
+                .build();
     }
 
 
@@ -152,9 +155,9 @@ public abstract class CloudEventMapper {
      *
      * @param message The message to get the data field from
      * @return The content of the data field or an empty array if no data is to be sent.
-     * @throws JsonProcessingException On serialization of the data.
+     * @throws JacksonException On serialization of the data.
      */
-    protected abstract byte[] getData(EventMessage message) throws JsonProcessingException;
+    protected abstract byte[] getData(EventMessage message) throws JacksonException;
 
 
     /**
@@ -185,7 +188,7 @@ public abstract class CloudEventMapper {
         try {
             cloudEventBuilder.withData(getData(message));
         }
-        catch (JsonProcessingException e) {
+        catch (JacksonException e) {
             LOGGER.warn("{} when trying to write cloud event data field: {}", e.getClass().getName(), e.getMessage());
         }
     }

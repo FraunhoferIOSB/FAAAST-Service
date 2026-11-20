@@ -14,10 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.util;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingMetadata;
 import java.util.Collection;
@@ -30,6 +26,10 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperationVariable;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JavaType;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.type.TypeFactory;
 
 
 /**
@@ -46,7 +46,7 @@ public class DeepCopyHelper {
 
     static {
         mapper = new JsonMapperFactory().create(new SimpleAbstractTypeResolverFactory().create());
-        mapper.setTypeFactory(mapper.getTypeFactory().withClassLoader(ImplementationManager.getClassLoader()));
+        //mapper.setTypeFactory(mapper.getTypeFactory().withClassLoader(ImplementationManager.getClassLoader()));
     }
 
     private DeepCopyHelper() {}
@@ -63,7 +63,7 @@ public class DeepCopyHelper {
         try {
             return mapper.readValue(mapper.writeValueAsString(env), Environment.class);
         }
-        catch (JsonProcessingException e) {
+        catch (JacksonException e) {
             throw new IllegalArgumentException("deep copy of AAS environment failed", e);
         }
     }
@@ -107,7 +107,7 @@ public class DeepCopyHelper {
         try {
             return mapper.readValue(mapper.writeValueAsString(referable), outputClass);
         }
-        catch (JsonProcessingException e) {
+        catch (JacksonException e) {
             throw new RuntimeException("deep copy of AAS environment failed", e);
         }
     }
@@ -188,7 +188,7 @@ public class DeepCopyHelper {
      * @throws RuntimeException when deep copy fails
      */
     public static <T> T deepCopyAny(T original, Class<T> type) {
-        return deepCopyAny(original, TypeFactory.defaultInstance().constructType(type));
+        return deepCopyAny(original, TypeFactory.createDefaultInstance().constructType(type));
     }
 
 

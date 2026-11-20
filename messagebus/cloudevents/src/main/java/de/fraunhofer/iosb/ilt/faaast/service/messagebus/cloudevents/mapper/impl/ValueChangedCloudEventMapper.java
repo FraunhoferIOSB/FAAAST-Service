@@ -14,7 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.messagebus.cloudevents.mapper.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.cloudevents.mapper.CloudEventMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.cloudevents.mapper.CloudEventMapperConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.EventMessage;
@@ -23,6 +22,7 @@ import java.util.List;
 import java.util.function.Function;
 import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import tools.jackson.core.JacksonException;
 
 
 /**
@@ -52,7 +52,7 @@ public class ValueChangedCloudEventMapper extends CloudEventMapper {
 
 
     @Override
-    protected byte[] getData(EventMessage message) throws JsonProcessingException {
+    protected byte[] getData(EventMessage message) throws JacksonException {
         return mapper.writeValueAsBytes(referableResolver.apply(message.getElement()));
     }
 

@@ -14,13 +14,12 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer;
 
-import com.fasterxml.jackson.core.JacksonException;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonNode;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonFieldNames;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.BasicEventElementValue;
-import java.io.IOException;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.JsonNode;
 
 
 /**
@@ -29,7 +28,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 public class BasicEventElementValueDeserializer extends ContextAwareElementValueDeserializer<BasicEventElementValue> {
 
     public BasicEventElementValueDeserializer() {
-        this(null);
+        this(BasicEventElementValue.class);
     }
 
 
@@ -39,7 +38,7 @@ public class BasicEventElementValueDeserializer extends ContextAwareElementValue
 
 
     @Override
-    public BasicEventElementValue deserializeValue(JsonNode node, DeserializationContext context) throws IOException, JacksonException {
+    public BasicEventElementValue deserializeValue(JsonNode node, DeserializationContext context) throws JacksonException {
         BasicEventElementValue.Builder builder = new BasicEventElementValue.Builder();
         if (node.has(JsonFieldNames.BASIC_EVENT_ELEMENT_OBSERVED)) {
             builder.observed(context.readTreeAsValue(node.get(JsonFieldNames.BASIC_EVENT_ELEMENT_OBSERVED), Reference.class));

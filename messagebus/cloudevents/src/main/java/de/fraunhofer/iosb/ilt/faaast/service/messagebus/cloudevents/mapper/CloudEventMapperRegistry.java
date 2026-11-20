@@ -14,12 +14,12 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.messagebus.cloudevents.mapper;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.EventMessage;
 import io.cloudevents.CloudEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import tools.jackson.core.JacksonException;
 
 
 /**
@@ -60,10 +60,10 @@ public class CloudEventMapperRegistry {
      *
      * @param message The FA³ST event message
      * @return The mapped CloudEvent
-     * @throws JsonProcessingException Mapping AAS referable to JSON failed
+     * @throws JacksonException Mapping AAS referable to JSON failed
      * @throws NoSuchElementException No mapper can handle this EventMessage type
      */
-    public CloudEvent createCloudEvent(EventMessage message) throws JsonProcessingException {
+    public CloudEvent createCloudEvent(EventMessage message) throws JacksonException {
         return mappers.stream()
                 .filter(mapper -> mapper.canHandle(message))
                 .findFirst().orElseThrow()

@@ -14,7 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.test.util;
 
-import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.google.common.net.MediaType;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
@@ -35,6 +34,7 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Objects;
+import tools.jackson.databind.type.TypeFactory;
 
 
 /**
@@ -163,6 +163,6 @@ public class HttpHelper {
 
 
     public static <T> Page<T> readResponsePage(HttpResponse<String> response, Class<T> type) throws DeserializationException {
-        return new JsonApiDeserializer().read(response.body(), TypeFactory.defaultInstance().constructParametricType(Page.class, type));
+        return new JsonApiDeserializer().read(response.body(), TypeFactory.createDefaultInstance().constructParametricType(Page.class, type));
     }
 }

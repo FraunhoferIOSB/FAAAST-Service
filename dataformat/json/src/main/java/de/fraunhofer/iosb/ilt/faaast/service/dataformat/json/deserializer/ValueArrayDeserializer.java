@@ -14,17 +14,17 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.deser.std.ContainerDeserializerBase;
-import com.fasterxml.jackson.databind.deser.std.ObjectArrayDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.ContainerTypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
-import java.io.IOException;
 import java.util.Collection;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.deser.jdk.ObjectArrayDeserializer;
+import tools.jackson.databind.deser.std.ContainerDeserializerBase;
 
 
 /**
@@ -38,13 +38,13 @@ public class ValueArrayDeserializer extends ContainerDeserializerBase<Object[]> 
 
 
     @Override
-    public ElementValue[] deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+    public ElementValue[] deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException {
         return deserialize(p, ctxt, null);
     }
 
 
     @Override
-    public ElementValue[] deserialize(JsonParser parser, DeserializationContext context, Object[] temp) throws IOException {
+    public ElementValue[] deserialize(JsonParser parser, DeserializationContext context, Object[] temp) throws JacksonException {
         TypeInfo typeInfo = ContextAwareElementValueDeserializer.getTypeInfo(context);
         if (typeInfo == null) {
             return context.reportBadDefinition(Collection.class, "missing type information");
@@ -72,7 +72,7 @@ public class ValueArrayDeserializer extends ContainerDeserializerBase<Object[]> 
 
 
     @Override
-    public JsonDeserializer<Object> getContentDeserializer() {
+    public ValueDeserializer<Object> getContentDeserializer() {
         return null;
     }
 }

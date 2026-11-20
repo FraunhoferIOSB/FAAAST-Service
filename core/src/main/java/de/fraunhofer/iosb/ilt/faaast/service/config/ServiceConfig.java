@@ -15,9 +15,6 @@
 package de.fraunhofer.iosb.ilt.faaast.service.config;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.EndpointConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.filestorage.FileStorageConfig;
@@ -31,6 +28,11 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.type.TypeFactory;
 
 
 /**
@@ -176,11 +178,19 @@ public class ServiceConfig {
 
 
     private static ObjectMapper getMapper() {
-        ObjectMapper mapper = new ObjectMapper()
+        ObjectMapper mapper = JsonMapper.builder()
                 .enable(SerializationFeature.INDENT_OUTPUT)
                 .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-                .setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-        mapper.setTypeFactory(mapper.getTypeFactory().withClassLoader(ImplementationManager.getClassLoader()));
+                .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_EMPTY))
+                .changeDefaultPropertyInclusion(incl -> incl.withContentInclusion(JsonInclude.Include.NON_EMPTY))
+                .typeFactory(TypeFactory.createDefaultInstance().withClassLoader(ImplementationManager.getClassLoader()))
+                .build();
+
+        //ObjectMapper mapper = new ObjectMapper()
+        //        .enable(SerializationFeature.INDENT_OUTPUT)
+        //        .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+        //        .setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+        //mapper.setTypeFactory(mapper.getTypeFactory().withClassLoader(ImplementationManager.getClassLoader()));
         return mapper;
     }
 

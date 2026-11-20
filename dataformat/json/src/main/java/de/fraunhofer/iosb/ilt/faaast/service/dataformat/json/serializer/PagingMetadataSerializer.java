@@ -14,14 +14,14 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingMetadata;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.FaaastConstants;
-import java.io.IOException;
 import java.util.Objects;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 
 /**
@@ -40,10 +40,10 @@ public class PagingMetadataSerializer extends StdSerializer<PagingMetadata> {
 
 
     @Override
-    public void serialize(PagingMetadata value, JsonGenerator generator, SerializerProvider provider) throws IOException {
+    public void serialize(PagingMetadata value, JsonGenerator generator, SerializationContext provider) throws JacksonException {
         generator.writeStartObject();
         if (Objects.nonNull(value.getCursor())) {
-            generator.writeStringField(FaaastConstants.CURSOR, EncodingHelper.base64UrlEncode(value.getCursor()));
+            generator.writeStringProperty(FaaastConstants.CURSOR, EncodingHelper.base64UrlEncode(value.getCursor()));
         }
         generator.writeEndObject();
     }

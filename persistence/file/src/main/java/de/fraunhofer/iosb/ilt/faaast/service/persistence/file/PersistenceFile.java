@@ -14,14 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.persistence.file;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.KeyDeserializer;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
@@ -58,6 +50,15 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.KeyDeserializer;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ValueSerializer;
+import tools.jackson.databind.module.SimpleModule;
 
 
 /**
@@ -81,15 +82,15 @@ public class PersistenceFile implements Persistence<PersistenceFileConfig> {
     public PersistenceFile() {
         mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule();
-        module.addKeySerializer(OperationHandle.class, new JsonSerializer<OperationHandle>() {
+        module.addKeySerializer(OperationHandle.class, new ValueSerializer<OperationHandle>() {
             @Override
-            public void serialize(OperationHandle value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-                gen.writeFieldName(value.getHandleId());
+            public void serialize(OperationHandle value, JsonGenerator gen, SerializationContext serializers) throws JacksonException {
+                gen.writeName(value.getHandleId());
             }
         });
         module.addKeyDeserializer(OperationHandle.class, new KeyDeserializer() {
             @Override
-            public Object deserializeKey(String key, DeserializationContext ctxt) throws IOException {
+            public Object deserializeKey(String key, DeserializationContext ctxt) throws JacksonException {
                 return OperationHandle.builder()
                         .handleId(key)
                         .build();
@@ -289,7 +290,7 @@ public class PersistenceFile implements Persistence<PersistenceFileConfig> {
         try {
             mapper.writeValue(operationStatesFile, persistence.getOperationStates());
         }
-        catch (IOException e) {
+        catch (JacksonException e) {
             LOGGER.error(String.format("Error persisting operation states to file %s", operationStatesFile.getAbsolutePath()), e);
         }
     }
@@ -304,7 +305,7 @@ public class PersistenceFile implements Persistence<PersistenceFileConfig> {
                                 new TypeReference<HashMap<OperationHandle, OperationResult>>() {}));
             }
         }
-        catch (IOException e) {
+        catch (JacksonException e) {
             LOGGER.error(String.format("Error loading operation states from file %s", operationStatesFile.getAbsolutePath()), e);
         }
     }

@@ -15,14 +15,15 @@
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.event;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
-import com.fasterxml.jackson.databind.DatabindContext;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.jsontype.impl.TypeIdResolverBase;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.EventMessage;
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ScanResult;
 import java.util.List;
 import java.util.Objects;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.DatabindContext;
+import tools.jackson.databind.JavaType;
+import tools.jackson.databind.jsontype.impl.TypeIdResolverBase;
 
 
 /**
@@ -46,14 +47,14 @@ public class EventMessageIdResolver extends TypeIdResolverBase {
 
 
     @Override
-    public String idFromValue(Object obj) {
-        return idFromValueAndType(obj, obj.getClass());
+    public String idFromValue(DatabindContext ctxt, Object value) throws JacksonException {
+        return idFromValueAndType(ctxt, value, value.getClass());
     }
 
 
     @Override
-    public String idFromValueAndType(Object obj, Class<?> subType) {
-        return removeSuffix(subType.getSimpleName());
+    public String idFromValueAndType(DatabindContext ctxt, Object value, Class<?> suggestedType) throws JacksonException {
+        return removeSuffix(suggestedType.getSimpleName());
     }
 
 

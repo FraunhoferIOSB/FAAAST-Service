@@ -14,10 +14,10 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json;
 
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.databind.util.StdDateFormat;
-import java.util.function.Consumer;
+import java.util.function.UnaryOperator;
+import tools.jackson.databind.cfg.DateTimeFeature;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.util.StdDateFormat;
 
 
 /**
@@ -30,12 +30,15 @@ public class SerializerWrapper extends org.eclipse.digitaltwin.aas4j.v3.dataform
     }
 
 
-    public SerializerWrapper(Consumer<JsonMapper> modifier) {
+    public SerializerWrapper(UnaryOperator<JsonMapper> modifier) {
         if (modifier != null) {
-            modifier.accept(mapper);
-            mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-            mapper.enable(SerializationFeature.WRITE_DATES_WITH_ZONE_ID);
-            mapper.setDateFormat(new StdDateFormat().withColonInTimeZone(true));
+            //modifier.accept(mapper);
+            mapper = modifier.apply(mapper);
+            mapper = mapper.rebuild()
+                    .disable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
+                    .enable(DateTimeFeature.WRITE_DATES_WITH_ZONE_ID)
+                    .defaultDateFormat(new StdDateFormat().withColonInTimeZone(true))
+                    .build();
         }
     }
 

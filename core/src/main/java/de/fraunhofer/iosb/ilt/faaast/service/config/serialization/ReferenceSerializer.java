@@ -14,22 +14,21 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.config.serialization;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
-import java.io.IOException;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ValueSerializer;
 
 
 /**
  * Serializer for type {@link org.eclipse.digitaltwin.aas4j.v3.model.Reference}.
  */
-public class ReferenceSerializer extends JsonSerializer<Reference> {
+public class ReferenceSerializer extends ValueSerializer<Reference> {
 
     @Override
-    public void serialize(Reference value, JsonGenerator gen, SerializerProvider serializers) throws IOException, JsonProcessingException {
-        gen.writeFieldName(ReferenceHelper.toString(value));
+    public void serialize(Reference value, JsonGenerator gen, SerializationContext ctxt) throws JacksonException {
+        gen.writeName(ReferenceHelper.toString(value));
     }
 }

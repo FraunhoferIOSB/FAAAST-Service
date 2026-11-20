@@ -14,14 +14,13 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.event;
 
-import com.fasterxml.jackson.core.JacksonException;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonNode;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.ContextAwareElementValueDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.SubmodelElementCollectionValue;
-import java.io.IOException;
 import java.util.Map;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.JsonNode;
 
 
 /**
@@ -30,7 +29,7 @@ import java.util.Map;
 public class SubmodelElementCollectionValueDeserializer extends ContextAwareElementValueDeserializer<SubmodelElementCollectionValue> {
 
     public SubmodelElementCollectionValueDeserializer() {
-        this(null);
+        this(SubmodelElementCollectionValue.class);
     }
 
 
@@ -40,7 +39,7 @@ public class SubmodelElementCollectionValueDeserializer extends ContextAwareElem
 
 
     @Override
-    public SubmodelElementCollectionValue deserializeValue(JsonNode node, DeserializationContext context) throws IOException, JacksonException {
+    public SubmodelElementCollectionValue deserializeValue(JsonNode node, DeserializationContext context) throws JacksonException {
         return new SubmodelElementCollectionValue.Builder()
                 .values(deserializeChildren(node, context, ElementValue.class))
                 .build();
@@ -48,7 +47,7 @@ public class SubmodelElementCollectionValueDeserializer extends ContextAwareElem
 
 
     @Override
-    protected <T extends ElementValue> Map<String, T> deserializeChildren(JsonNode node, DeserializationContext context, Class<T> type) throws IOException {
+    protected <T extends ElementValue> Map<String, T> deserializeChildren(JsonNode node, DeserializationContext context, Class<T> type) throws JacksonException {
         return EventDeserializationHelper.deserializeChildren(node, context, type);
     }
 

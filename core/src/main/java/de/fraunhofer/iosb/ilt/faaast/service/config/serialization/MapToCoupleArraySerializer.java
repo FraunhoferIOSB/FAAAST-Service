@@ -14,19 +14,18 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.config.serialization;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import java.io.IOException;
 import java.util.Map;
 import java.util.Map.Entry;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ValueSerializer;
 
 
 /**
  * Utility class for serializing Java Map instances as key-value pairs in JSON using Jackson framework.
  */
-public class MapToCoupleArraySerializer extends JsonSerializer<Map<?, ?>> {
+public class MapToCoupleArraySerializer extends ValueSerializer<Map<?, ?>> {
 
     public static final String DEFAULT_TAG_KEY = "key";
     public static final String DEFAULT_TAG_VALUE = "value";
@@ -47,12 +46,12 @@ public class MapToCoupleArraySerializer extends JsonSerializer<Map<?, ?>> {
 
 
     @Override
-    public void serialize(Map<?, ?> value, JsonGenerator generator, SerializerProvider serializers) throws IOException, JsonProcessingException {
+    public void serialize(Map<?, ?> value, JsonGenerator generator, SerializationContext context) throws JacksonException {
         generator.writeStartArray();
         for (Entry<?, ?> entry: value.entrySet()) {
             generator.writeStartObject();
-            generator.writeObjectField(tagKey, entry.getKey());
-            generator.writeObjectField(tagValue, entry.getValue());
+            generator.writePOJOProperty(tagKey, entry.getKey());
+            generator.writePOJOProperty(tagValue, entry.getValue());
             generator.writeEndObject();
         }
         generator.writeEndArray();

@@ -14,8 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.serialization.json;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.PathJsonSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
@@ -45,6 +43,8 @@ import org.json.JSONException;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 
 public class PathJsonSerializerTest {
@@ -342,7 +342,7 @@ public class PathJsonSerializerTest {
 
 
     @Test
-    public void testComplex() throws SerializationException, JSONException, IOException, ValueMappingException, JsonProcessingException, UnsupportedModifierException {
+    public void testComplex() throws SerializationException, JSONException, IOException, ValueMappingException, JacksonException, UnsupportedModifierException {
         Object input = new DefaultSubmodel.Builder()
                 .idShort("TestSubmodel3")
                 .id("https://acplt.org/Test_Submodel")
@@ -442,7 +442,7 @@ public class PathJsonSerializerTest {
 
 
     private void assertEquals(IdShortPath parent, Object obj, Path path, Level level)
-            throws SerializationException, JsonProcessingException, JSONException, UnsupportedModifierException {
+            throws SerializationException, JacksonException, JSONException, UnsupportedModifierException {
         String actual = serializer.write(parent, obj, level);
         String expected = new ObjectMapper().writeValueAsString(path.getPaths());
         JSONAssert.assertEquals(expected, actual, JSONCompareMode.NON_EXTENSIBLE);
@@ -450,14 +450,14 @@ public class PathJsonSerializerTest {
 
 
     private void assertEquals(IdShortPath parent, Object obj, List<String> expectedPaths, Level level)
-            throws SerializationException, JsonProcessingException, JSONException, UnsupportedModifierException {
+            throws SerializationException, JacksonException, JSONException, UnsupportedModifierException {
         String actual = serializer.write(parent, obj, level);
         String expected = new ObjectMapper().writeValueAsString(expectedPaths);
         JSONAssert.assertEquals(expected, actual, JSONCompareMode.NON_EXTENSIBLE);
     }
 
 
-    private void assertEquals(IdShortPath parent, Object obj, Path path) throws SerializationException, JsonProcessingException, JSONException, UnsupportedModifierException {
+    private void assertEquals(IdShortPath parent, Object obj, Path path) throws SerializationException, JacksonException, JSONException, UnsupportedModifierException {
         assertEquals(parent, obj, path.asCorePath(), Level.CORE);
         assertEquals(parent, obj, path, Level.DEEP);
     }

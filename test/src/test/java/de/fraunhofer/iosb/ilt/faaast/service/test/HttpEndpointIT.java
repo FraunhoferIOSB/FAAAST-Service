@@ -24,9 +24,6 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.net.MediaType;
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.ArgumentValidationMode;
@@ -172,6 +169,9 @@ import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.skyscreamer.jsonassert.JSONAssert;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 
 public class HttpEndpointIT extends AbstractIntegrationTest {
@@ -2993,7 +2993,7 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
     }
 
 
-    private void assertCompressedDppEquals(DigitalProductPassport expected, String actual) throws SerializationException, JsonProcessingException {
+    private void assertCompressedDppEquals(DigitalProductPassport expected, String actual) throws SerializationException, JacksonException {
         JsonNode actualNode = new ObjectMapper().readValue(actual, JsonNode.class);
         JsonDppSerializer serializer = new JsonDppSerializer();
         String expectedString = serializer.write(expected, DppSerializationMode.COMPRESSED);

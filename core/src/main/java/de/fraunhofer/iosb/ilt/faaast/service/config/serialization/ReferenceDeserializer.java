@@ -14,11 +14,11 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.config.serialization;
 
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.KeyDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
-import java.io.IOException;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.KeyDeserializer;
 
 
 /**
@@ -27,7 +27,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 public class ReferenceDeserializer extends KeyDeserializer {
 
     @Override
-    public Reference deserializeKey(String value, DeserializationContext context) throws IOException {
+    public Reference deserializeKey(String value, DeserializationContext context) throws JacksonException {
         return ReferenceHelper.parseReference(value);
     }
 }

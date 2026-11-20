@@ -14,11 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.util;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import org.eclipse.digitaltwin.aas4j.v3.model.Message;
@@ -26,6 +21,12 @@ import org.eclipse.digitaltwin.aas4j.v3.model.MessageType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.node.ObjectNode;
 
 
 /**
@@ -34,8 +35,9 @@ import org.slf4j.LoggerFactory;
 public class OperationProviderHelper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OperationProviderHelper.class);
-    private static final ObjectMapper MAPPER = new ObjectMapper()
-            .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+    private static final ObjectMapper MAPPER = JsonMapper.builder()
+            .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+            .build();
 
     private static final String CORRELATION_ID_PROGRESS_PERCENTAGE = "progress-percentage";
     private static final String CORRELATION_ID_PROGRESS_STATUS = "progress-status";
@@ -63,14 +65,15 @@ public class OperationProviderHelper {
             if (provider == null) {
                 throw new InvalidRequestException("invalid JSON: 'provider' field not found");
             }
-            ObjectNode resultNode = connection.deepCopy();
+            //ObjectNode resultNode = connection.deepCopy();
+            ObjectNode resultNode = connection.deepCopy().asObject();
             ObjectNode operationProviders = MAPPER.createObjectNode();
             operationProviders.set(ReferenceHelper.asString(operationReference), provider);
             resultNode.set("operationProviders", operationProviders);
             LOGGER.atTrace().log("New JSON: {}", resultNode.toPrettyString());
             return MAPPER.treeToValue(resultNode, AssetConnectionConfig.class);
         }
-        catch (JsonProcessingException e) {
+        catch (JacksonException e) {
             throw new InvalidRequestException("failed to parse asset connection config from JSON", e);
         }
     }

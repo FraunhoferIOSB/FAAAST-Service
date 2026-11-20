@@ -14,7 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.format;
 
-import com.fasterxml.jackson.core.io.JsonStringEncoder;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.InvalidPathException;
 import com.jayway.jsonpath.JsonPath;
@@ -42,6 +41,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
+import tools.jackson.core.io.JsonStringEncoder;
 
 
 /**
@@ -142,6 +142,9 @@ public class JsonFormat implements Format {
 
 
     private static String escapeJson(String json) {
-        return new String(JsonStringEncoder.getInstance().quoteAsString(json));
+        StringBuilder retval = new StringBuilder();
+        JsonStringEncoder.getInstance().quoteAsString(json, retval);
+        return retval.toString();
+        //return new String(JsonStringEncoder.getInstance().quoteAsString(json));
     }
 }
