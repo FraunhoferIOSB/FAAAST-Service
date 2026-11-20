@@ -14,6 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.referable.REFERABLE_TYPES.AAS;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.Right.DELETE;
+
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithId;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.DeleteThumbnailResponse;
 import java.util.Objects;
@@ -23,6 +26,11 @@ import java.util.Objects;
  * Request class for DeleteThumbnail requests.
  */
 public class DeleteThumbnailRequest extends AbstractRequestWithId<DeleteThumbnailResponse> {
+
+    protected DeleteThumbnailRequest() {
+        super(DELETE, AAS);
+    }
+
 
     @Override
     public boolean equals(Object o) {

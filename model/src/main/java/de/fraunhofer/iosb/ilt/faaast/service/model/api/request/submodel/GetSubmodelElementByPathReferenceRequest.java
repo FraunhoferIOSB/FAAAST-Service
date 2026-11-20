@@ -14,6 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.referable.REFERABLE_TYPES.SUBMODEL_ELEMENT;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.Right.VIEW;
+
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractSubmodelInterfaceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.OutputModifierConstraints;
@@ -33,7 +36,8 @@ public class GetSubmodelElementByPathReferenceRequest extends AbstractSubmodelIn
                 .supportedContentModifiers(Content.REFERENCE)
                 .supportsExtent(false)
                 .supportsLevel(false)
-                .build());
+                .build(),
+                VIEW, SUBMODEL_ELEMENT);
         this.path = "";
     }
 
@@ -45,6 +49,12 @@ public class GetSubmodelElementByPathReferenceRequest extends AbstractSubmodelIn
 
     public void setPath(String path) {
         this.path = path;
+    }
+
+
+    @Override
+    protected boolean requestsCollection() {
+        return false;
     }
 
 

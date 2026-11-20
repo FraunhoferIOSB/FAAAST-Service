@@ -15,6 +15,9 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.referable.REFERABLE_TYPES;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.Right;
+
 import java.util.Objects;
 
 
@@ -29,13 +32,13 @@ public abstract class AbstractSubmodelInterfaceRequest<T extends Response> exten
     protected String aasId;
     protected String submodelId;
 
-    protected AbstractSubmodelInterfaceRequest() {
-        super();
+    protected AbstractSubmodelInterfaceRequest(Right right, REFERABLE_TYPES type) {
+        super(right, type);
     }
 
 
-    protected AbstractSubmodelInterfaceRequest(OutputModifierConstraints outputModifierConstraints) {
-        super(outputModifierConstraints);
+    protected AbstractSubmodelInterfaceRequest(OutputModifierConstraints outputModifierConstraints, Right right, REFERABLE_TYPES type) {
+        super(outputModifierConstraints, right, type);
     }
 
 

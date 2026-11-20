@@ -14,6 +14,10 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.referable.REFERABLE_TYPES.AAS;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.Right.CREATE;
+
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.DistinctResourceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasrepository.PostAssetAdministrationShellResponse;
 import java.util.Objects;
@@ -23,9 +27,14 @@ import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 /**
  * Request class for PostAssetAdministrationShell requests.
  */
-public class PostAssetAdministrationShellRequest extends Request<PostAssetAdministrationShellResponse> {
+public class PostAssetAdministrationShellRequest extends DistinctResourceRequest<PostAssetAdministrationShellResponse> {
 
     private AssetAdministrationShell aas;
+
+    protected PostAssetAdministrationShellRequest() {
+        super(CREATE, AAS);
+    }
+
 
     public AssetAdministrationShell getAas() {
         return aas;
@@ -34,6 +43,12 @@ public class PostAssetAdministrationShellRequest extends Request<PostAssetAdmini
 
     public void setAas(AssetAdministrationShell aas) {
         this.aas = aas;
+    }
+
+
+    @Override
+    protected boolean requestsCollection() {
+        return false;
     }
 
 

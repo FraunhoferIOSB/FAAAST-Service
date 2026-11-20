@@ -70,7 +70,8 @@ public abstract class AbstractInvokeOperationRequestHandler<T extends InvokeOper
                     "error executing operation - no operation provider defined for reference '%s'",
                     ReferenceHelper.toString(reference)));
         }
-        Operation operation = context.getPersistence().getSubmodelElement(reference, QueryModifier.MINIMAL, Operation.class);
+        Operation operation = context.getPersistence().getSubmodelElement(reference, QueryModifier.MINIMAL, Operation.class,
+                combineRemainingRuleFormulas(request), getFilters(request));
         request.setInputArguments(validateAndPrepare(
                 operation.getInputVariables(),
                 request.getInputArguments(),
@@ -199,6 +200,7 @@ public abstract class AbstractInvokeOperationRequestHandler<T extends InvokeOper
 
     private static <T extends SubmodelElement> T loadValueFromReference(T argument, Reference reference, RequestExecutionContext context) throws InvalidRequestException {
         try {
+            // TODO unfiltered access allowed here?
             SubmodelElement referencedElement = context.getPersistence().getSubmodelElement(reference, QueryModifier.MAXIMAL);
             T result = DeepCopyHelper.deepCopy(argument);
             ElementValueMapper.setValue(result, ElementValueMapper.toValue(referencedElement));
@@ -216,6 +218,7 @@ public abstract class AbstractInvokeOperationRequestHandler<T extends InvokeOper
 
     private static void writeValueToReference(SubmodelElement argument, Reference reference, RequestExecutionContext context) throws InvalidRequestException {
         try {
+            // TODO unfiltered access allowed here?
             SubmodelElement referencedElement = context.getPersistence().getSubmodelElement(reference, QueryModifier.MAXIMAL);
             ElementValueMapper.setValue(referencedElement, ElementValueMapper.toValue(argument));
             context.getPersistence().update(reference, referencedElement);

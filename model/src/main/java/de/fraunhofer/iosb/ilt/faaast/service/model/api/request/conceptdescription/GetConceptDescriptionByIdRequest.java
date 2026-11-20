@@ -14,6 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.referable.REFERABLE_TYPES.CONCEPT_DESCRIPTION;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.Right.READ;
+
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.conceptdescription.GetConceptDescriptionByIdResponse;
 import java.util.Objects;
@@ -26,6 +29,11 @@ public class GetConceptDescriptionByIdRequest extends AbstractRequestWithModifie
 
     private String id;
 
+    protected GetConceptDescriptionByIdRequest() {
+        super(READ, CONCEPT_DESCRIPTION);
+    }
+
+
     public String getId() {
         return id;
     }
@@ -33,6 +41,12 @@ public class GetConceptDescriptionByIdRequest extends AbstractRequestWithModifie
 
     public void setId(String cdIdentifier) {
         this.id = cdIdentifier;
+    }
+
+
+    @Override
+    protected boolean requestsCollection() {
+        return false;
     }
 
 

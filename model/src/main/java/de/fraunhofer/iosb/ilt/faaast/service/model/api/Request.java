@@ -14,6 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.AccessPermissionRule;
+import java.util.List;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
@@ -26,9 +28,29 @@ import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 public abstract class Request<T extends Response> {
 
     private boolean internal;
+    private List<AccessPermissionRule> rules;
 
     protected Request() {
         this.internal = false;
+        this.rules = List.of();
+    }
+
+    /**
+     * Get this requests access control formula.
+     *
+     * @return The formula.
+     */
+    public List<AccessPermissionRule> getRules() {
+        return rules;
+    }
+
+    /**
+     * Set this requests access control rules.
+     *
+     * @param rules The rules.
+     */
+    public void setRules(List<AccessPermissionRule> rules) {
+        this.rules = rules;
     }
 
 
@@ -51,13 +73,14 @@ public abstract class Request<T extends Response> {
             return false;
         }
         Request<?> that = (Request<?>) o;
-        return Objects.equals(internal, that.internal);
+        return Objects.equals(internal, that.internal) &&
+                Objects.equals(rules, that.rules);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(internal);
+        return Objects.hash(internal, rules);
     }
 
     public abstract static class AbstractBuilder<T extends Request, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
@@ -70,6 +93,12 @@ public abstract class Request<T extends Response> {
 
         public B internal() {
             getBuildingInstance().setInternal(true);
+            return getSelf();
+        }
+
+
+        public B rules(List<AccessPermissionRule> value) {
+            getBuildingInstance().setRules(value);
             return getSelf();
         }
     }

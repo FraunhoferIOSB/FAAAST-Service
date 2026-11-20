@@ -1,0 +1,185 @@
+{
+  "AllAccessPermissionRules": {
+    "rules": [
+      {
+        "ACL": {
+          "ATTRIBUTES": [
+            {
+              "CLAIM": "BusinessPartnerNumber"
+            }
+          ],
+          "RIGHTS": [
+            "READ"
+          ],
+          "ACCESS": "ALLOW"
+        },
+        "OBJECTS": [
+          {
+            "DESCRIPTOR": "(aasdesc)*"
+          }
+        ],
+        "FORMULA": {
+          "$and": [
+            {
+              "$eq": [
+                {
+                  "$attribute": {
+                    "CLAIM": "BusinessPartnerNumber"
+                  }
+                },
+                {
+                  "$strVal": "BPNL00000000000A"
+                }
+              ]
+            },
+            {
+              "$match": [
+                {
+                  "$eq": [
+                    {
+                      "$field": "$aasdesc#specificAssetIds[].name"
+                    },
+                    {
+                      "$strVal": "manufacturerPartId"
+                    }
+                  ]
+                },
+                {
+                  "$eq": [
+                    {
+                      "$field": "$aasdesc#specificAssetIds[].value"
+                    },
+                    {
+                      "$strVal": "99991"
+                    }
+                  ]
+                },
+                {
+                  "$eq": [
+                    {
+                      "$field": "$aasdesc#specificAssetIds[].externalSubjectId"
+                    },
+                    {
+                      "$strVal": "PUBLIC_READABLE"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "$match": [
+                {
+                  "$eq": [
+                    {
+                      "$field": "$aasdesc#specificAssetIds[].name"
+                    },
+                    {
+                      "$strVal": "customerPartId"
+                    }
+                  ]
+                },
+                {
+                  "$eq": [
+                    {
+                      "$field": "$aasdesc#specificAssetIds[].value"
+                    },
+                    {
+                      "$strVal": "ACME001"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "FILTER": {
+          "FRAGMENT": "$aasdesc#specificAssetIds[]",
+          "CONDITION": {
+            "$or": [
+              {
+                "$match": [
+                  {
+                    "$eq": [
+                      {
+                        "$field": "$aasdesc#specificAssetIds[].name"
+                      },
+                      {
+                        "$strVal": "manufacturerPartId"
+                      }
+                    ]
+                  },
+                  {
+                    "$eq": [
+                      {
+                        "$field": "$aasdesc#specificAssetIds[].value"
+                      },
+                      {
+                        "$strVal": "99991"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "$match": [
+                  {
+                    "$eq": [
+                      {
+                        "$field": "$aasdesc#specificAssetIds[].name"
+                      },
+                      {
+                        "$strVal": "customerPartId"
+                      }
+                    ]
+                  },
+                  {
+                    "$eq": [
+                      {
+                        "$field": "$aasdesc#specificAssetIds[].value"
+                      },
+                      {
+                        "$strVal": "ACME001"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "$eq": [
+                  {
+                    "$field": "$aasdesc#specificAssetIds[].name"
+                  },
+                  {
+                    "$strVal": "partInstanceId"
+                  }
+                ]
+              },
+              {
+                "$eq": [
+                  {
+                    "$field": "$aasdesc#specificAssetIds[].externalSubjectId"
+                  },
+                  {
+                    "$attribute": {
+                      "CLAIM": "BusinessPartnerNumber"
+                    }
+                  }
+                ]
+              },
+              {
+                "$eq": [
+                  {
+                    "$field": "$aasdesc#specificAssetIds[].externalSubjectId"
+                  },
+                  {
+                    "$strVal": "PUBLIC_READABLE"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      }
+    ]
+  }
+}

@@ -14,6 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasbasicdiscovery;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.referable.REFERABLE_TYPES.AAS;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.Right.VIEW;
+
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithId;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasbasicdiscovery.GetAllAssetLinksByIdResponse;
 import java.util.Objects;
@@ -23,6 +26,11 @@ import java.util.Objects;
  * Request class for GetAllAssetLinksById requests.
  */
 public class GetAllAssetLinksByIdRequest extends AbstractRequestWithId<GetAllAssetLinksByIdResponse> {
+
+    protected GetAllAssetLinksByIdRequest() {
+        super(VIEW, AAS);
+    }
+
 
     @Override
     public boolean equals(Object o) {

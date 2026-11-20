@@ -14,6 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.referable.REFERABLE_TYPES.SUBMODEL_ELEMENT;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.Right.UPDATE;
+
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PatchSubmodelElementValueByPathResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValueParser;
 import java.util.Objects;
@@ -30,6 +33,7 @@ public class PatchSubmodelElementValueByPathRequest<T> extends AbstractSubmodelI
     private boolean syncWithAsset;
 
     public PatchSubmodelElementValueByPathRequest() {
+        super(UPDATE, SUBMODEL_ELEMENT);
         this.syncWithAsset = true;
         this.path = "";
         this.valueParser = ElementValueParser.DEFAULT;
@@ -73,6 +77,12 @@ public class PatchSubmodelElementValueByPathRequest<T> extends AbstractSubmodelI
 
     protected void setSyncWithAsset(boolean syncWithAsset) {
         this.syncWithAsset = syncWithAsset;
+    }
+
+
+    @Override
+    protected boolean requestsCollection() {
+        return false;
     }
 
 

@@ -14,6 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.referable.REFERABLE_TYPES.CONCEPT_DESCRIPTION;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.Right.READ;
+
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithModifierAndPaging;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.conceptdescription.GetAllConceptDescriptionsByIsCaseOfResponse;
@@ -28,6 +31,11 @@ public class GetAllConceptDescriptionsByIsCaseOfRequest extends AbstractRequestW
 
     private Reference isCaseOf;
 
+    public GetAllConceptDescriptionsByIsCaseOfRequest() {
+        super(READ, CONCEPT_DESCRIPTION);
+    }
+
+
     public Reference getIsCaseOf() {
         return isCaseOf;
     }
@@ -35,6 +43,12 @@ public class GetAllConceptDescriptionsByIsCaseOfRequest extends AbstractRequestW
 
     public void setIsCaseOf(Reference isCaseOf) {
         this.isCaseOf = isCaseOf;
+    }
+
+
+    @Override
+    protected boolean requestsCollection() {
+        return false;
     }
 
 

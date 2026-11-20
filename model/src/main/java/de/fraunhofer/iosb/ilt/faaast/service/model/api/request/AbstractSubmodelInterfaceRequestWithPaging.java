@@ -16,6 +16,9 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.api.request;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.referable.REFERABLE_TYPES;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.Right;
+
 import java.util.Objects;
 
 
@@ -29,13 +32,14 @@ public abstract class AbstractSubmodelInterfaceRequestWithPaging<T extends Respo
 
     protected PagingInfo pagingInfo;
 
-    protected AbstractSubmodelInterfaceRequestWithPaging() {
+    protected AbstractSubmodelInterfaceRequestWithPaging(Right right, REFERABLE_TYPES type) {
+        super(right, type);
         this.pagingInfo = PagingInfo.ALL;
     }
 
 
-    protected AbstractSubmodelInterfaceRequestWithPaging(OutputModifierConstraints outputModifierConstraints) {
-        super(outputModifierConstraints);
+    protected AbstractSubmodelInterfaceRequestWithPaging(OutputModifierConstraints outputModifierConstraints, Right right, REFERABLE_TYPES type) {
+        super(outputModifierConstraints, right, type);
         this.pagingInfo = PagingInfo.ALL;
     }
 

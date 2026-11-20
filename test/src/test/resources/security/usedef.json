@@ -1,0 +1,92 @@
+{
+  "AllAccessPermissionRules": {
+    "DEFACLS": [
+      {
+        "name": "acl1",
+        "acl": {
+          "ATTRIBUTES": [
+            {
+              "CLAIM": "email"
+            }
+          ],
+          "RIGHTS": [
+            "READ",
+            "UPDATE"
+          ],
+          "ACCESS": "ALLOW"
+        }
+      }
+    ],
+    "DEFOBJECTS": [
+      {
+        "name": "Properties",
+        "objects": [
+          {
+            "REFERABLE": "(Submodel)https://s1.com, (Property)p1"
+          },
+          {
+            "REFERABLE": "(Submodel)https://s1.com, (Property)p2"
+          }
+        ]
+      }
+    ],
+    "DEFFORMULAS": [
+      {
+        "name": "allowSubjectGroup1",
+        "formula": {
+          "$and": [
+            {
+              "$eq": [
+                {
+                  "$attribute": {
+                    "GLOBAL": "UTCNOW"
+                  }
+                },
+                {
+                  "$timeVal": "15:00"
+                }
+              ]
+            },
+            {
+              "$or": [
+                {
+                  "$eq": [
+                    {
+                      "$attribute": {
+                        "CLAIM": "email"
+                      }
+                    },
+                    {
+                      "$strVal": "user1@company1.com"
+                    }
+                  ]
+                },
+                {
+                  "$eq": [
+                    {
+                      "$attribute": {
+                        "CLAIM": "email"
+                      }
+                    },
+                    {
+                      "$strVal": "user2@company2.com"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "rules": [
+      {
+        "USEACL": "acl1",
+        "USEOBJECTS": [
+          "Properties"
+        ],
+        "USEFORMULA": "allowSubjectGroup1"
+      }
+    ]
+  }
+}

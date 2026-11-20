@@ -14,6 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.referable.REFERABLE_TYPES.SUBMODEL;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.Right.DELETE;
+
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractSubmodelInterfaceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodelrepository.DeleteSubmodelByIdResponse;
 import java.util.Objects;
@@ -23,6 +26,17 @@ import java.util.Objects;
  * Request class for DeleteSubmodelById requests.
  */
 public class DeleteSubmodelByIdRequest extends AbstractSubmodelInterfaceRequest<DeleteSubmodelByIdResponse> {
+
+    public DeleteSubmodelByIdRequest() {
+        super(DELETE, SUBMODEL);
+    }
+
+
+    @Override
+    protected boolean requestsCollection() {
+        return false;
+    }
+
 
     @Override
     public boolean equals(Object o) {

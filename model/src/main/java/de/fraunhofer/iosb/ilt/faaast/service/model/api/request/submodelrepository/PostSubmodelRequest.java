@@ -14,6 +14,10 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.referable.REFERABLE_TYPES.SUBMODEL;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.Right.CREATE;
+
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.DistinctResourceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodelrepository.PostSubmodelResponse;
 import java.util.Objects;
@@ -23,9 +27,14 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 /**
  * Request class for PostSubmodel requests.
  */
-public class PostSubmodelRequest extends Request<PostSubmodelResponse> {
+public class PostSubmodelRequest extends DistinctResourceRequest<PostSubmodelResponse> {
 
     private Submodel submodel;
+
+    protected PostSubmodelRequest() {
+        super(CREATE, SUBMODEL);
+    }
+
 
     public Submodel getSubmodel() {
         return submodel;
@@ -34,6 +43,12 @@ public class PostSubmodelRequest extends Request<PostSubmodelResponse> {
 
     public void setSubmodel(Submodel submodel) {
         this.submodel = submodel;
+    }
+
+
+    @Override
+    protected boolean requestsCollection() {
+        return false;
     }
 
 

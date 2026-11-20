@@ -17,7 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.submo
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractSubmodelInterfaceRequestMapper;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractSubmodelElementInterfaceRequestMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
 import de.fraunhofer.iosb.ilt.faaast.service.model.SubmodelElementIdentifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
@@ -26,8 +26,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOp
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.InvokeOperationSyncResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.http.HttpMethod;
-import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.Right;
+
+import java.util.List;
 import java.util.Map;
 
 
@@ -35,10 +36,9 @@ import java.util.Map;
  * class to map HTTP-POST-Request paths: submodels/{submodelIdentifier}/submodel-elements/{idShortPath}/invoke,
  * shells/{aasIdentifier}/submodels/{submodelIdentifier}/submodel-elements/{idShortPath}/invoke.
  */
-public class InvokeOperationSyncRequestMapper extends AbstractSubmodelInterfaceRequestMapper<InvokeOperationSyncRequest, InvokeOperationSyncResponse> {
+public class InvokeOperationSyncRequestMapper extends AbstractSubmodelElementInterfaceRequestMapper<InvokeOperationSyncRequest, InvokeOperationSyncResponse> {
 
-    private static final String SUBMODEL_ELEMENT_PATH = RegExHelper.uniqueGroupName();
-    private static final String PATTERN = String.format("submodel-elements/%s/invoke(/\\$value)?", pathElement(SUBMODEL_ELEMENT_PATH));
+    private static final String PATTERN = "invoke(/\\$value)?";
 
     public InvokeOperationSyncRequestMapper(ServiceContext serviceContext) {
         super(serviceContext, HttpMethod.POST, PATTERN);
@@ -50,7 +50,7 @@ public class InvokeOperationSyncRequestMapper extends AbstractSubmodelInterfaceR
         InvokeOperationSyncRequest result;
         SubmodelElementIdentifier identifier = SubmodelElementIdentifier.builder()
                 .submodelId(getParameterBase64UrlEncoded(urlParameters, SUBMODEL_ID))
-                .idShortPath(IdShortPath.parse(EncodingHelper.urlDecode(urlParameters.get(SUBMODEL_ELEMENT_PATH))))
+                .idShortPath(IdShortPath.parse(getIdShortPath(urlParameters)))
                 .build();
         if (outputModifier.getContent() == Content.VALUE) {
             try {
@@ -67,7 +67,13 @@ public class InvokeOperationSyncRequestMapper extends AbstractSubmodelInterfaceR
             result = parseBody(httpRequest, InvokeOperationSyncRequest.class);
         }
         result.setSubmodelId(identifier.getSubmodelId());
-        result.setPath(identifier.getIdShortPath().toString());
+        result.setPath(getIdShortPath(urlParameters));
         return result;
+    }
+
+
+    @Override
+    protected List<Right> requiredRights() {
+        return List.of(Right.EXECUTE);
     }
 }

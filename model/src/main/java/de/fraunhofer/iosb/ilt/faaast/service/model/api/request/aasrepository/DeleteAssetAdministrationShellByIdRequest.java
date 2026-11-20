@@ -14,6 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.object.referable.REFERABLE_TYPES.AAS;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.security.accessrule.rule.Right.DELETE;
+
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithId;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasrepository.DeleteAssetAdministrationShellByIdResponse;
 import java.util.Objects;
@@ -23,6 +26,11 @@ import java.util.Objects;
  * Request class for DeleteAssetAdministrationShellById requests.
  */
 public class DeleteAssetAdministrationShellByIdRequest extends AbstractRequestWithId<DeleteAssetAdministrationShellByIdResponse> {
+
+    protected DeleteAssetAdministrationShellByIdRequest() {
+        super(DELETE, AAS);
+    }
+
 
     @Override
     public boolean equals(Object o) {

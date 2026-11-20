@@ -39,14 +39,15 @@ public class ReadDppByProductIdRequestHandler extends AbstractDppRequestHandler<
         AssetIdentification globalAssetId = GlobalAssetIdentification.builder().value(request.getId()).build();
         List<AssetAdministrationShell> aas = context.getPersistence()
                 .findAssetAdministrationShells(AssetAdministrationShellSearchCriteria.builder().assetId(globalAssetId).build(), QueryModifier.MAXIMAL,
-                        PagingInfo.ALL)
+                        PagingInfo.ALL, combineRemainingRuleFormulas(request),
+                        getFilters(request))
                 .getContent();
 
         if (aas.size() != 1) {
             return ReadDPPByProductIdResponse.builder().statusCode(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND).build();
         }
 
-        DigitalProductPassport dpp = buildFrom(aas.get(0), context.getPersistence());
+        DigitalProductPassport dpp = buildFrom(request, aas.get(0), context.getPersistence());
 
         if (!request.isInternal()) {
             distributeReadEvents(dpp, context.getMessageBus());

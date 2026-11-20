@@ -14,6 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler.proprietary;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.model.query.expression.LogicalExpression.identity;
+
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
@@ -22,6 +24,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.proprietary.Reset
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.proprietary.ResetResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementDeleteEventMessage;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.filter.QueryFilter;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.util.StreamHelper;
@@ -42,10 +45,11 @@ public class ResetRequestHandler extends AbstractRequestHandler<ResetRequest, Re
     @Override
     public ResetResponse process(ResetRequest request, RequestExecutionContext context) {
         try {
+            // TODO deny request if formula does not allow delete on all resources?
             StreamHelper.concat(
-                    context.getPersistence().getAllAssetAdministrationShells(QueryModifier.MINIMAL, PagingInfo.ALL).getContent().stream(),
-                    context.getPersistence().getAllSubmodels(QueryModifier.MINIMAL, PagingInfo.ALL).getContent().stream(),
-                    context.getPersistence().getAllConceptDescriptions(QueryModifier.MINIMAL, PagingInfo.ALL).getContent().stream())
+                    context.getPersistence().getAllAssetAdministrationShells(QueryModifier.MINIMAL, PagingInfo.ALL, identity(), QueryFilter.EMPTY).getContent().stream(),
+                    context.getPersistence().getAllSubmodels(QueryModifier.MINIMAL, PagingInfo.ALL, identity(), QueryFilter.EMPTY).getContent().stream(),
+                    context.getPersistence().getAllConceptDescriptions(QueryModifier.MINIMAL, PagingInfo.ALL, identity(), QueryFilter.EMPTY).getContent().stream())
                     .forEach(x -> {
                         try {
                             context.getMessageBus().publish(ElementDeleteEventMessage.builder()
