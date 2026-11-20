@@ -14,7 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua;
 
-import com.prosysopc.ua.SecureIdentityException;
 import com.prosysopc.ua.ServiceException;
 import com.prosysopc.ua.SessionActivationException;
 import com.prosysopc.ua.UserIdentity;
@@ -108,18 +107,18 @@ public class OpcUaEndpointAuthenticationTest {
 
 
     @Test
-    public void testSuccessfulLogin() throws SecureIdentityException, IOException, ServiceException {
+    public void testSuccessfulLogin() throws ServiceException {
         UaClient client = new UaClient(endpointUrl);
         client.setSecurityMode(SecurityMode.NONE);
         client.setUserIdentity(new UserIdentity(USERNAME, PASSWORD));
         TestUtils.initialize(client);
         client.connect();
-        Assert.assertTrue(client.isConnected());
+        Assert.assertTrue(client.hasConnected());
     }
 
 
     @Test(expected = SessionActivationException.class)
-    public void testPreventAnonymousAccess() throws SecureIdentityException, IOException, ServiceException {
+    public void testPreventAnonymousAccess() throws ServiceException {
         UaClient client = new UaClient(endpointUrl);
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
