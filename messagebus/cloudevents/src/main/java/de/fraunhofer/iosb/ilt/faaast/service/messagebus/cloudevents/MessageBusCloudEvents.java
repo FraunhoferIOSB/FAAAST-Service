@@ -17,10 +17,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.messagebus.cloudevents;
 import static de.fraunhofer.iosb.ilt.faaast.service.messagebus.cloudevents.mapper.CloudEventMapperRegistryProvider.defaultRegistry;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.Endpoint;
@@ -44,7 +40,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EnvironmentHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.HostnameUtil;
 import io.cloudevents.CloudEvent;
-import io.cloudevents.jackson.JsonFormat;
+import io.cloudevents.jackson3.JsonFormat;
 import java.net.URI;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -54,6 +50,11 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.json.JsonMapper;
 
 
 /**
@@ -81,11 +82,13 @@ public class MessageBusCloudEvents implements MessageBus<MessageBusCloudEventsCo
     public MessageBusCloudEvents() {
         executor = Executors.newSingleThreadExecutor();
         messageBusInternal = new MessageBusInternal();
-        mapper = new ObjectMapper()
+        mapper = JsonMapper.builder()
                 .enable(SerializationFeature.INDENT_OUTPUT)
                 .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-                .setDefaultPropertyInclusion(JsonInclude.Include.NON_EMPTY)
-                .registerModule(JsonFormat.getCloudEventJacksonModule());
+                .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_EMPTY))
+                .changeDefaultPropertyInclusion(incl -> incl.withContentInclusion(JsonInclude.Include.NON_EMPTY))
+                .addModule(JsonFormat.getCloudEventJacksonModule())
+                .build();
     }
 
 
@@ -191,7 +194,7 @@ public class MessageBusCloudEvents implements MessageBus<MessageBusCloudEventsCo
                 client.publish(config.getTopicPrefix(), mapper.writeValueAsString(cloudEvent));
             }
         }
-        catch (JsonProcessingException | MessageBusException publishException) {
+        catch (JacksonException | MessageBusException publishException) {
             LOGGER.warn(PUBLISH_ERROR_MSG, publishException.getClass().getSimpleName(), message.getClass(),
                     publishException);
         }

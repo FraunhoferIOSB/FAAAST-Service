@@ -14,7 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.messagebus.cloudevents.mqtt.client.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.cloudevents.mqtt.client.PahoClient;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.cloudevents.mqtt.client.config.MqttClientConfig;
@@ -28,6 +27,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.core.JacksonException;
 
 
 /**
@@ -69,7 +69,7 @@ public class TokenBasedPahoClient extends PahoClient {
         try {
             token = client.requestToken(request);
         }
-        catch (JsonProcessingException | MessageBusException e) {
+        catch (JacksonException | MessageBusException e) {
             logger.warn("Token refresh failed, will retry in 60s.", e);
             tokenRefreshScheduler.schedule(this::refresh, 60, TimeUnit.SECONDS);
             return;
