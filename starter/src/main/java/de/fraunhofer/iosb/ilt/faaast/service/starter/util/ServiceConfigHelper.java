@@ -15,16 +15,12 @@
 package de.fraunhofer.iosb.ilt.faaast.service.starter.util;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.JsonPathException;
-import com.jayway.jsonpath.spi.json.JacksonJsonNodeJsonProvider;
-import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
+import com.jayway.jsonpath.spi.json.Jackson3JsonNodeJsonProvider;
+import com.jayway.jsonpath.spi.mapper.Jackson3MappingProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.config.Config;
 import de.fraunhofer.iosb.ilt.faaast.service.config.Configurable;
@@ -48,6 +44,11 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.json.JsonMapper;
 
 
 /**
@@ -58,14 +59,16 @@ public class ServiceConfigHelper {
     private static final Logger LOGGER = LoggerFactory.getLogger(ServiceConfigHelper.class);
     private static final Configuration JSON_PATH_CONFIG = Configuration
             .builder()
-            .mappingProvider(new JacksonMappingProvider())
-            .jsonProvider(new JacksonJsonNodeJsonProvider())
+            .mappingProvider(new Jackson3MappingProvider())
+            .jsonProvider(new Jackson3JsonNodeJsonProvider())
             .build();
 
-    private static final ObjectMapper mapper = new ObjectMapper()
+    private static final ObjectMapper mapper = JsonMapper.builder()
             .enable(SerializationFeature.INDENT_OUTPUT)
             .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-            .setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+            .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_EMPTY))
+            .changeDefaultPropertyInclusion(incl -> incl.withContentInclusion(JsonInclude.Include.NON_EMPTY))
+            .build();
 
     private ServiceConfigHelper() {}
 
@@ -148,9 +151,9 @@ public class ServiceConfigHelper {
      * @param config the input config
      * @param properties properties to update, keys are JSONPath expressions, values the new values for that JSONPath
      * @return a new config with updated properties
-     * @throws JsonProcessingException if deserializing updated config fails
+     * @throws JacksonException if deserializing updated config fails
      */
-    public static ServiceConfig withProperties(ServiceConfig config, List<ConfigOverride> properties) throws JsonProcessingException {
+    public static ServiceConfig withProperties(ServiceConfig config, List<ConfigOverride> properties) throws JacksonException {
         if (properties == null || properties.isEmpty()) {
             return config;
         }

@@ -14,8 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.fixtures.bar;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AbstractAssetValueProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
@@ -26,6 +24,8 @@ import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 
 public class BarValueProvider extends AbstractAssetValueProvider<BarValueProviderConfig> {
@@ -58,7 +58,7 @@ public class BarValueProvider extends AbstractAssetValueProvider<BarValueProvide
         try {
             LOGGER.info("writing value to bar value provider (value: {})", new ObjectMapper().writeValueAsString(value));
         }
-        catch (JsonProcessingException e) {
+        catch (JacksonException e) {
             throw new AssetConnectionException("failed to write to bar value provider", e);
         }
     }

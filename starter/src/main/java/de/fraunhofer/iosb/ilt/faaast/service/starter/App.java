@@ -21,17 +21,11 @@ import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import ch.qos.logback.core.ConsoleAppender;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
-import com.jayway.jsonpath.spi.json.JacksonJsonNodeJsonProvider;
-import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
+import com.jayway.jsonpath.spi.json.Jackson3JsonNodeJsonProvider;
+import com.jayway.jsonpath.spi.mapper.Jackson3MappingProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
 import de.fraunhofer.iosb.ilt.faaast.service.config.ServiceConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentSerializationManager;
@@ -81,6 +75,13 @@ import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 import picocli.CommandLine.Spec;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.json.JsonMapper;
 
 
 /**
@@ -95,10 +96,12 @@ public class App implements Runnable {
     private static final Logger LOGGER = LoggerFactory.getLogger(App.class);
     private static final CountDownLatch SHUTDOWN_FINISHED = new CountDownLatch(1);
     private static final CountDownLatch SHUTDOWN_REQUESTED = new CountDownLatch(1);
-    private static final ObjectMapper mapper = new ObjectMapper()
+    private static final ObjectMapper mapper = JsonMapper.builder()
             .enable(SerializationFeature.INDENT_OUTPUT)
             .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-            .setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+            .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_EMPTY))
+            .changeDefaultPropertyInclusion(incl -> incl.withContentInclusion(JsonInclude.Include.NON_EMPTY))
+            .build();
     private static final AtomicReference<Service> serviceRef = new AtomicReference<>();
     // commands
     protected static final String COMMAND_CONFIG = "--config";
@@ -124,8 +127,8 @@ public class App implements Runnable {
     protected static final String MODEL_FILENAME_PATTERN = "model\\..*";
     private static final Configuration JSON_PATH_CONFIG = Configuration
             .builder()
-            .mappingProvider(new JacksonMappingProvider())
-            .jsonProvider(new JacksonJsonNodeJsonProvider())
+            .mappingProvider(new Jackson3MappingProvider())
+            .jsonProvider(new Jackson3JsonNodeJsonProvider())
             .build()
             .addOptions(com.jayway.jsonpath.Option.SUPPRESS_EXCEPTIONS);
 
@@ -574,7 +577,7 @@ public class App implements Runnable {
         try {
             return ServiceConfigHelper.withProperties(config, getConfigOverrides(config));
         }
-        catch (JsonProcessingException e) {
+        catch (JacksonException e) {
             throw new InitializationException("Overriding config properties failed", e);
         }
     }
@@ -585,7 +588,7 @@ public class App implements Runnable {
             try {
                 LOGGER.debug(mapper.writeValueAsString(config));
             }
-            catch (JsonProcessingException e) {
+            catch (JacksonException e) {
                 LOGGER.debug("Printing config failed", e);
             }
         }

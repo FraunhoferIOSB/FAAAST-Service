@@ -40,7 +40,7 @@ public abstract class ContextAwareElementValueDeserializer<T extends ElementValu
     public static final String CONTEXT_IS_EVENT = "isEvent";
 
     /**
-     * Fetches type information from {@link com.fasterxml.jackson.databind.DeserializationContext}. If no type
+     * Fetches type information from {@link tools.jackson.databind.DeserializationContext}. If no type
      * information is present, null is returned.
      *
      * @param context deserialization context holding the type information
