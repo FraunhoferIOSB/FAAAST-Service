@@ -23,7 +23,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.persistence.PersistenceConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.SubmodelTemplateProcessorConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ImplementationManager;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -169,9 +168,8 @@ public class ServiceConfig {
      *
      * @param in the stream to parse
      * @return the parsed config
-     * @throws IOException if loading fails
      */
-    public static ServiceConfig load(InputStream in) throws IOException {
+    public static ServiceConfig load(InputStream in) {
         return getMapper().readValue(in, ServiceConfig.class);
     }
 

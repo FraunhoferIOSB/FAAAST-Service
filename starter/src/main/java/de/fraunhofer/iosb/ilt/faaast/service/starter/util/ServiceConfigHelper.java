@@ -94,9 +94,8 @@ public class ServiceConfigHelper {
      *
      * @param configFile config file
      * @return loaded config
-     * @throws IOException if accessing file fails
      */
-    public static ServiceConfig load(File configFile) throws IOException {
+    public static ServiceConfig load(File configFile) {
         return ServiceConfig.load(configFile);
     }
 

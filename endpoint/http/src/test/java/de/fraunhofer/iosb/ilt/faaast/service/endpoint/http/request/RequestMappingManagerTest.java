@@ -135,7 +135,6 @@ import tools.jackson.core.JacksonException;
 public class RequestMappingManagerTest {
 
     private static final AssetAdministrationShell AAS = AASFull.AAS_1;
-    private static final String AASX_PACKAGE_ID = "examplePackageId";
     private static final List<SpecificAssetId> ASSET_IDENTIFIERS = Arrays.asList(
             new DefaultSpecificAssetId.Builder()
                     .name("globalAssetId")
@@ -1088,8 +1087,7 @@ public class RequestMappingManagerTest {
         builder.addTextBody("fileName", fileName, ContentType.TEXT_PLAIN);
         builder.addBinaryBody("file", content, contentType, fileName);
         builder.setBoundary("boundary");
-        byte[] multipart = EntityUtils.toByteArray(builder.build());
-        return multipart;
+        return EntityUtils.toByteArray(builder.build());
     }
 
 

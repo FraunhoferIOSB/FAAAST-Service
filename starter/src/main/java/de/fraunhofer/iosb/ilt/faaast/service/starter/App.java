@@ -368,7 +368,7 @@ public class App implements Runnable {
         try {
             config = getConfig();
         }
-        catch (IOException e) {
+        catch (JacksonException e) {
             throw new InitializationException("Error loading config file: " + e.getMessage(), e);
         }
         config = ServiceConfigHelper.autoComplete(config);
@@ -435,7 +435,7 @@ public class App implements Runnable {
     }
 
 
-    private ServiceConfig getConfig() throws IOException {
+    private ServiceConfig getConfig() {
         if (spec.commandLine().getParseResult().hasMatchedOption(COMMAND_CONFIG)) {
             try {
                 LOGGER.info("Config: {} (CLI)", configFile.getCanonicalFile());
