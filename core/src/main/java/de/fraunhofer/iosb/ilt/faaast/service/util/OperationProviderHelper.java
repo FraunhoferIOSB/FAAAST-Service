@@ -65,7 +65,6 @@ public class OperationProviderHelper {
             if (provider == null) {
                 throw new InvalidRequestException("invalid JSON: 'provider' field not found");
             }
-            //ObjectNode resultNode = connection.deepCopy();
             ObjectNode resultNode = connection.deepCopy().asObject();
             ObjectNode operationProviders = MAPPER.createObjectNode();
             operationProviders.set(ReferenceHelper.asString(operationReference), provider);

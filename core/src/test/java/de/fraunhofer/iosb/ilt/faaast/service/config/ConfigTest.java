@@ -64,12 +64,14 @@ public class ConfigTest {
     public void testSerialization() throws JacksonException, IOException, JSONException {
         String expected = Files.readString(CONFIG_FILE.toPath());
         String actual = mapper.writeValueAsString(config);
+        // This assertion makes sure, that sonar doesn't complain about missing asserts.
+        Assert.assertNotNull(actual);
         JSONAssert.assertEquals(expected, actual, JSONCompareMode.NON_EXTENSIBLE);
     }
 
 
     @Test
-    public void testDeserialization() throws JacksonException, IOException {
+    public void testDeserialization() throws JacksonException {
         ServiceConfig actual = mapper.readValue(CONFIG_FILE, ServiceConfig.class);
         Assert.assertEquals(config, actual);
     }

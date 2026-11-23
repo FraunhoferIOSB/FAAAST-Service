@@ -21,7 +21,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.UnsupportedModifierException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.util.Path;
-import java.io.IOException;
 import java.util.List;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAnnotatedRelationshipElement;
@@ -59,7 +58,7 @@ public class PathJsonSerializerTest {
     private static final String ID_PROPERTY_3 = "property3";
 
     @Test
-    public void testProperty() throws SerializationException, JSONException, IOException, ValueMappingException, UnsupportedModifierException {
+    public void testProperty() throws SerializationException, JSONException, ValueMappingException, UnsupportedModifierException {
         Object input = new DefaultProperty.Builder()
                 .idShort(ID_PROPERTY_1)
                 .build();
@@ -71,7 +70,7 @@ public class PathJsonSerializerTest {
 
 
     @Test
-    public void testCollection() throws SerializationException, JSONException, IOException, ValueMappingException, UnsupportedModifierException {
+    public void testCollection() throws SerializationException, JSONException, ValueMappingException, UnsupportedModifierException {
         Object input = new DefaultSubmodelElementCollection.Builder()
                 .idShort(ID_COLLECTION_1)
                 .value(new DefaultProperty.Builder()
@@ -107,7 +106,7 @@ public class PathJsonSerializerTest {
 
 
     @Test
-    public void testCollectionWithParent() throws SerializationException, JSONException, IOException, ValueMappingException, UnsupportedModifierException {
+    public void testCollectionWithParent() throws SerializationException, JSONException, ValueMappingException, UnsupportedModifierException {
         Object input = new DefaultSubmodelElementCollection.Builder()
                 .idShort(ID_COLLECTION_1)
                 .value(new DefaultProperty.Builder()
@@ -151,7 +150,7 @@ public class PathJsonSerializerTest {
 
 
     @Test
-    public void testListProperty() throws SerializationException, JSONException, IOException, ValueMappingException, UnsupportedModifierException {
+    public void testListProperty() throws SerializationException, JSONException, ValueMappingException, UnsupportedModifierException {
         Object input = new DefaultSubmodelElementList.Builder()
                 .idShort(ID_COLLECTION_1)
                 .value(new DefaultProperty.Builder()
@@ -172,7 +171,7 @@ public class PathJsonSerializerTest {
 
 
     @Test
-    public void testListComplex() throws SerializationException, JSONException, IOException, ValueMappingException, UnsupportedModifierException {
+    public void testListComplex() throws SerializationException, JSONException, ValueMappingException, UnsupportedModifierException {
         Object input = new DefaultSubmodel.Builder()
                 .idShort("Submodel")
                 .submodelElements(new DefaultProperty.Builder()
@@ -302,7 +301,7 @@ public class PathJsonSerializerTest {
 
 
     @Test
-    public void testSubmodelEmpty() throws SerializationException, JSONException, IOException, ValueMappingException, UnsupportedModifierException {
+    public void testSubmodelEmpty() throws SerializationException, JSONException, ValueMappingException, UnsupportedModifierException {
         Object input = new DefaultSubmodel.Builder()
                 .idShort(ID_SUBMODEL_1)
                 .build();
@@ -313,7 +312,7 @@ public class PathJsonSerializerTest {
 
 
     @Test
-    public void testSubmodel() throws SerializationException, JSONException, IOException, ValueMappingException, UnsupportedModifierException {
+    public void testSubmodel() throws SerializationException, JSONException, ValueMappingException, UnsupportedModifierException {
         Object input = new DefaultSubmodel.Builder()
                 .idShort(ID_SUBMODEL_1)
                 .submodelElements(new DefaultProperty.Builder()
@@ -342,7 +341,7 @@ public class PathJsonSerializerTest {
 
 
     @Test
-    public void testComplex() throws SerializationException, JSONException, IOException, ValueMappingException, JacksonException, UnsupportedModifierException {
+    public void testComplex() throws SerializationException, JSONException, ValueMappingException, JacksonException, UnsupportedModifierException {
         Object input = new DefaultSubmodel.Builder()
                 .idShort("TestSubmodel3")
                 .id("https://acplt.org/Test_Submodel")

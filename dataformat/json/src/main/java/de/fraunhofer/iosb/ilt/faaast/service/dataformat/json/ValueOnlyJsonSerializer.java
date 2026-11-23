@@ -111,7 +111,6 @@ public class ValueOnlyJsonSerializer {
 
 
     public ValueOnlyJsonSerializer() {
-        //this.wrapper = new SerializerWrapper(x -> modifyMapper(x));
         this.wrapper = new SerializerWrapper(this::modifyMapper);
     }
 
@@ -256,9 +255,6 @@ public class ValueOnlyJsonSerializer {
             throw new UnsupportedContentModifierException(Content.VALUE, obj.getClass());
         }
         try {
-            // TODO: must be checked
-            //TokenBuffer buffer = new TokenBuffer(wrapper.getMapper(), false);
-            //TokenBuffer buffer = new TokenBuffer(ObjectWriteContext.empty(), false);
             TokenBuffer buffer = wrapper.getMapper().writer()
                     .withAttribute(ModifierAwareSerializer.LEVEL, level)
                     .withAttribute(ModifierAwareSerializer.EXTEND, extend)

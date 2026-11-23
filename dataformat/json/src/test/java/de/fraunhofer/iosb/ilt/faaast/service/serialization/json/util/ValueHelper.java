@@ -15,7 +15,6 @@
 package de.fraunhofer.iosb.ilt.faaast.service.serialization.json.util;
 
 import java.io.File;
-import java.io.IOException;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import tools.jackson.databind.ObjectMapper;
 
@@ -25,7 +24,7 @@ public class ValueHelper {
     private ValueHelper() {}
 
 
-    public static String extractValueJson(File file, SubmodelElement submodelElement) throws IOException {
+    public static String extractValueJson(File file, SubmodelElement submodelElement) {
         return new ObjectMapper().readTree(file).get(submodelElement.getIdShort()).toString();
     }
 }

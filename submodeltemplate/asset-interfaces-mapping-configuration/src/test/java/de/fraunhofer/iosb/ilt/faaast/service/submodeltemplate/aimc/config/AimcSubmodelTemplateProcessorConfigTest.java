@@ -58,7 +58,7 @@ public class AimcSubmodelTemplateProcessorConfigTest {
             .build();
 
     @Test
-    public void testConfigDeserialization() throws JacksonException, IOException {
+    public void testConfigDeserialization() throws JacksonException {
         AimcSubmodelTemplateProcessorConfig actual = MAPPER.readValue(CONFIG_FILE, AimcSubmodelTemplateProcessorConfig.class);
         Assert.assertEquals(CONFIG, actual);
     }

@@ -158,9 +158,8 @@ public class ServiceConfig {
      *
      * @param file the file to parse
      * @return the parsed config
-     * @throws IOException if loading fails
      */
-    public static ServiceConfig load(File file) throws IOException {
+    public static ServiceConfig load(File file) {
         return getMapper().readValue(file, ServiceConfig.class);
     }
 
@@ -178,20 +177,13 @@ public class ServiceConfig {
 
 
     private static ObjectMapper getMapper() {
-        ObjectMapper mapper = JsonMapper.builder()
+        return JsonMapper.builder()
                 .enable(SerializationFeature.INDENT_OUTPUT)
                 .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
                 .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_EMPTY))
                 .changeDefaultPropertyInclusion(incl -> incl.withContentInclusion(JsonInclude.Include.NON_EMPTY))
                 .typeFactory(TypeFactory.createDefaultInstance().withClassLoader(ImplementationManager.getClassLoader()))
                 .build();
-
-        //ObjectMapper mapper = new ObjectMapper()
-        //        .enable(SerializationFeature.INDENT_OUTPUT)
-        //        .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-        //        .setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-        //mapper.setTypeFactory(mapper.getTypeFactory().withClassLoader(ImplementationManager.getClassLoader()));
-        return mapper;
     }
 
 

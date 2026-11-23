@@ -52,6 +52,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.core.JacksonException;
 
 
 public class JsonDeserializerTest {
@@ -323,7 +324,7 @@ public class JsonDeserializerTest {
                     try {
                         return ValueHelper.extractValueJson(x.getValue(), x.getKey());
                     }
-                    catch (IOException e) {
+                    catch (JacksonException e) {
                         LOGGER.error("failed to convert files to JSON array", e);
                     }
                     return null;
@@ -340,7 +341,7 @@ public class JsonDeserializerTest {
                                 x.getKey().getIdShort(),
                                 ValueHelper.extractValueJson(x.getValue(), x.getKey()));
                     }
-                    catch (IOException e) {
+                    catch (JacksonException e) {
                         LOGGER.error("failed to convert files to JSON object", e);
                     }
                     return null;

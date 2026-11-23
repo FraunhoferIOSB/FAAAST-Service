@@ -37,7 +37,7 @@ import tools.jackson.databind.ser.std.StdSerializer;
  */
 public class ElementValueSerializer extends StdSerializer<ElementValue> {
 
-    private final transient ValueSerializer<Object> defaultSerializer;
+    private final ValueSerializer<Object> defaultSerializer;
 
     public ElementValueSerializer(ValueSerializer<Object> defaultSerializer) {
         this(ElementValue.class, defaultSerializer);

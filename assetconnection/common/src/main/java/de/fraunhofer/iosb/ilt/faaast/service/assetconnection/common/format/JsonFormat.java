@@ -145,6 +145,5 @@ public class JsonFormat implements Format {
         StringBuilder retval = new StringBuilder();
         JsonStringEncoder.getInstance().quoteAsString(json, retval);
         return retval.toString();
-        //return new String(JsonStringEncoder.getInstance().quoteAsString(json));
     }
 }

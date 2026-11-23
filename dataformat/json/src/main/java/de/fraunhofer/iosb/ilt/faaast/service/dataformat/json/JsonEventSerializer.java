@@ -87,7 +87,6 @@ public class JsonEventSerializer {
                 .addMixIn(EventMessage.class, EventMessageMixin.class)
                 .addMixIn(ReferenceElementValue.class, ReferenceElementValueMixin.class)
                 .build();
-        //mapper.registerModule(new JavaTimeModule());
     }
 
 

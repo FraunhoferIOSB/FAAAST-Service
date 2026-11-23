@@ -549,8 +549,6 @@ public class JsonApiDeserializer implements ApiDeserializer {
                 .addModule(module)
                 .changeDefaultNullHandling(n -> n.withValueNulls(Nulls.SKIP))
                 .build();
-        //mapper.registerModule(new JavaTimeModule());
-        //.setDefaultSetterInfo(JsonSetter.Value.forValueNulls(Nulls.SKIP));
     }
 
 }

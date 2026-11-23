@@ -901,7 +901,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testPatchSubmodel() throws SerializationException, InvalidRequestException, MethodNotAllowedException, JacksonException {
+    public void testPatchSubmodel() throws InvalidRequestException, JacksonException {
         Request expected = PatchSubmodelRequest.builder()
                 .submodelId(SUBMODEL.getId())
                 .changes(JsonMergePatch.fromJson("{ \"category\": \"NewCategory\"}"))
@@ -916,7 +916,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testPatchSubmodelElementByPath() throws SerializationException, InvalidRequestException, MethodNotAllowedException, JacksonException {
+    public void testPatchSubmodelElementByPath() throws InvalidRequestException, JacksonException {
         Request expected = PatchSubmodelElementByPathRequest.builder()
                 .submodelId(SUBMODEL.getId())
                 .path(ReferenceHelper.toPath(SUBMODEL_ELEMENT_REF))

@@ -46,7 +46,6 @@ public class DeepCopyHelper {
 
     static {
         mapper = new JsonMapperFactory().create(new SimpleAbstractTypeResolverFactory().create());
-        //mapper.setTypeFactory(mapper.getTypeFactory().withClassLoader(ImplementationManager.getClassLoader()));
     }
 
     private DeepCopyHelper() {}
