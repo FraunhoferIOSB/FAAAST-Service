@@ -23,7 +23,6 @@ import tools.jackson.databind.ValueSerializer;
 
 /**
  * Serializer for Reference objects when used as key in lists.
- * TODO: implementation mostly AI-generated. Must be verified!
  */
 public class ReferenceKeySerializer extends ValueSerializer<Object> {
 
