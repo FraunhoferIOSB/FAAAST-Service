@@ -37,7 +37,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.persistence.PersistenceConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemoryConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.starter.model.ConfigOverride;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.function.Consumer;
@@ -105,9 +104,8 @@ public class ServiceConfigHelper {
      *
      * @param configFile input stream
      * @return loaded config
-     * @throws IOException if accessing stream fails
      */
-    public static ServiceConfig load(InputStream configFile) throws IOException {
+    public static ServiceConfig load(InputStream configFile) {
         return ServiceConfig.load(configFile);
     }
 
