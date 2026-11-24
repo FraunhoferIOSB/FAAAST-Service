@@ -88,6 +88,7 @@
         <jackson.annotations.version>2.23</jackson.annotations.version>
         <jackson.databind.version>3.1.8</jackson.databind.version>
         <jackson.version>3.1.8</jackson.version>
+        <jackson2.databind.version>2.23.0</jackson2.databind.version>
         <jakarta.annotation.version>3.0.0</jakarta.annotation.version>
         <jakarta.json-api.version>2.1.2</jakarta.json-api.version>
         <jakarta.xml.bind-api.version>4.0.5</jakarta.xml.bind-api.version>
