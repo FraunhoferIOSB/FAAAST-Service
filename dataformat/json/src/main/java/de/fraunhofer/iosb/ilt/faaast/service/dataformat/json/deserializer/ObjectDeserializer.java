@@ -15,7 +15,6 @@
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer;
 
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
-import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.deser.std.StdDeserializer;
@@ -37,7 +36,7 @@ public class ObjectDeserializer extends StdDeserializer<Object> {
 
 
     @Override
-    public Object deserialize(JsonParser parser, DeserializationContext context) throws JacksonException {
+    public Object deserialize(JsonParser parser, DeserializationContext context) {
         TypeInfo typeInfo = ContextAwareElementValueDeserializer.getTypeInfo(context);
         return context.readValue(parser, typeInfo.getType());
     }

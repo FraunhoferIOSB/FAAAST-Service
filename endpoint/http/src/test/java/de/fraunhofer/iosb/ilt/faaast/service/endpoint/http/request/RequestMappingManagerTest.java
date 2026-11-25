@@ -129,7 +129,6 @@ import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSpecificAssetId;
 import org.junit.Assert;
 import org.junit.Test;
 import org.opentmf.commons.patch.JsonMergePatch;
-import tools.jackson.core.JacksonException;
 
 
 public class RequestMappingManagerTest {
@@ -900,7 +899,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testPatchSubmodel() throws InvalidRequestException, JacksonException {
+    public void testPatchSubmodel() throws InvalidRequestException {
         Request expected = PatchSubmodelRequest.builder()
                 .submodelId(SUBMODEL.getId())
                 .changes(JsonMergePatch.fromJson("{ \"category\": \"NewCategory\"}"))
@@ -915,11 +914,10 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testPatchSubmodelElementByPath() throws InvalidRequestException, JacksonException {
+    public void testPatchSubmodelElementByPath() throws InvalidRequestException {
         Request expected = PatchSubmodelElementByPathRequest.builder()
                 .submodelId(SUBMODEL.getId())
                 .path(ReferenceHelper.toPath(SUBMODEL_ELEMENT_REF))
-                //.changes(new ObjectMapper().readValue("{ \"category\": \"NewCategory\"}", JsonMergePatch.class))
                 .changes(JsonMergePatch.fromJson("{ \"category\": \"NewCategory\"}"))
                 .build();
         Request actual = mappingManager.map(HttpRequest.builder()

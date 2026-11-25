@@ -47,6 +47,8 @@
 	- Removed duplicate requests that have not been mapped to any API (`GetAssetAdministrationShellByIdRequest`, `PutAssetAdministrationShellById`, `GetSubmodelByIdRequest`, `PatchSubmodelByIdRequest`, `PutSubmodelByIdRequest`)
 	- Update `ServiceContext` interface to now allow access to persistence, file storage, and asset connection manager
     - Allow more flexibility in license header: Owners registered in CONTRIBUTORS.txt may add their Copyright statement to source files
+	- Major version upgrades of AAS4J (version 3.0) and Jackson (version 3.1)
+	- Replaced dependency json-patch with opentmf-json-patch
 - Asset Connection
 	- Fixed bug that reading a SubmodelElement container, like a `SubmodelElementCollection`, didn't trigger the asset connection value providers of underlying elements recursively.
 	- Fixed asset connection JSON serialization not including blob values in serialization

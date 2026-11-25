@@ -18,7 +18,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.ContainerTypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import java.util.Collection;
-import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.JsonNode;
@@ -38,13 +37,13 @@ public class ValueArrayDeserializer extends ContainerDeserializerBase<Object[]> 
 
 
     @Override
-    public ElementValue[] deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException {
+    public ElementValue[] deserialize(JsonParser p, DeserializationContext ctxt) {
         return deserialize(p, ctxt, null);
     }
 
 
     @Override
-    public ElementValue[] deserialize(JsonParser parser, DeserializationContext context, Object[] temp) throws JacksonException {
+    public ElementValue[] deserialize(JsonParser parser, DeserializationContext context, Object[] temp) {
         TypeInfo typeInfo = ContextAwareElementValueDeserializer.getTypeInfo(context);
         if (typeInfo == null) {
             return context.reportBadDefinition(Collection.class, "missing type information");

@@ -18,7 +18,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingMetadata;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.FaaastConstants;
 import java.util.Objects;
-import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.JsonNode;
@@ -41,7 +40,7 @@ public class PagingMetadataDeserializer extends StdDeserializer<PagingMetadata> 
 
 
     @Override
-    public PagingMetadata deserialize(JsonParser parser, DeserializationContext context) throws JacksonException {
+    public PagingMetadata deserialize(JsonParser parser, DeserializationContext context) {
         JsonNode node = parser.objectReadContext().readTree(parser);
         if (Objects.isNull(node)) {
             return null;

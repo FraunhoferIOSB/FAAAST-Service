@@ -17,7 +17,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.dpp;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonFieldNames;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.MultiLanguagePropertyValue;
 import org.eclipse.digitaltwin.aas4j.v3.model.LangStringTextType;
-import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.ser.std.StdSerializer;
@@ -39,7 +38,7 @@ public class DppMultiLanguagePropertyValueSerializer extends StdSerializer<Multi
 
 
     @Override
-    public void serialize(MultiLanguagePropertyValue value, JsonGenerator generator, SerializationContext provider) throws JacksonException {
+    public void serialize(MultiLanguagePropertyValue value, JsonGenerator generator, SerializationContext provider) {
         if (value != null) {
             generator.writeStartArray();
             for (LangStringTextType langString: value.getLangStringSet()) {

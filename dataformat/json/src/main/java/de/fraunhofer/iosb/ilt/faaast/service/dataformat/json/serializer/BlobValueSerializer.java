@@ -19,7 +19,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.BlobValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
-import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.SerializationContext;
 
@@ -40,7 +39,7 @@ public class BlobValueSerializer extends ModifierAwareSerializer<BlobValue> {
 
 
     @Override
-    public void serialize(BlobValue value, JsonGenerator generator, SerializationContext context, Level level, Extent extent) throws JacksonException {
+    public void serialize(BlobValue value, JsonGenerator generator, SerializationContext context, Level level, Extent extent) {
         if (value != null) {
             generator.writeStartObject();
             if (value.getContentType() != null) {

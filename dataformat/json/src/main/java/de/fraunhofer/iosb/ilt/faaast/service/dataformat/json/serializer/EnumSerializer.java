@@ -15,7 +15,6 @@
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer;
 
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReflectionHelper;
-import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.ValueSerializer;
@@ -27,7 +26,7 @@ import tools.jackson.databind.ValueSerializer;
 public class EnumSerializer extends ValueSerializer<Enum> {
 
     @Override
-    public void serialize(Enum value, JsonGenerator gen, SerializationContext context) throws JacksonException {
+    public void serialize(Enum value, JsonGenerator gen, SerializationContext context) {
         if (value != null) {
             if (ReflectionHelper.ENUMS.contains(value.getClass())) {
                 gen.writeString(org.eclipse.digitaltwin.aas4j.v3.dataformat.core.internal.serialization.EnumSerializer.serializeEnumName(value.name()));

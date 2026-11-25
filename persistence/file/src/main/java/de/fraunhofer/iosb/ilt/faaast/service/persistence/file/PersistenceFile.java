@@ -84,13 +84,13 @@ public class PersistenceFile implements Persistence<PersistenceFileConfig> {
         SimpleModule module = new SimpleModule();
         module.addKeySerializer(OperationHandle.class, new ValueSerializer<OperationHandle>() {
             @Override
-            public void serialize(OperationHandle value, JsonGenerator gen, SerializationContext serializers) throws JacksonException {
+            public void serialize(OperationHandle value, JsonGenerator gen, SerializationContext serializers) {
                 gen.writeName(value.getHandleId());
             }
         });
         module.addKeyDeserializer(OperationHandle.class, new KeyDeserializer() {
             @Override
-            public Object deserializeKey(String key, DeserializationContext ctxt) throws JacksonException {
+            public Object deserializeKey(String key, DeserializationContext ctxt) {
                 return OperationHandle.builder()
                         .handleId(key)
                         .build();

@@ -22,7 +22,6 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.ser.std.StdSerializer;
@@ -48,7 +47,7 @@ public class SubmodelValueSerializer extends StdSerializer<Submodel> {
 
 
     @Override
-    public void serialize(Submodel value, JsonGenerator generator, SerializationContext context) throws JacksonException {
+    public void serialize(Submodel value, JsonGenerator generator, SerializationContext context) {
         generator.writeStartObject();
         for (SubmodelElement element: value.getSubmodelElements()) {
             if (ElementValueHelper.isValueOnlySupported(element)) {

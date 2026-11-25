@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.function.Function;
 import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
-import tools.jackson.core.JacksonException;
 
 
 /**
@@ -52,7 +51,7 @@ public class ValueChangedCloudEventMapper extends CloudEventMapper {
 
 
     @Override
-    protected byte[] getData(EventMessage message) throws JacksonException {
+    protected byte[] getData(EventMessage message) {
         return mapper.writeValueAsBytes(referableResolver.apply(message.getElement()));
     }
 

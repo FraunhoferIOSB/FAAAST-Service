@@ -20,7 +20,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.databind.BeanProperty;
 import tools.jackson.databind.DeserializationContext;
@@ -48,13 +47,13 @@ public class ValueMapDeserializer extends MapDeserializer {
 
 
     @Override
-    public Map<Object, Object> deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException {
+    public Map<Object, Object> deserialize(JsonParser p, DeserializationContext ctxt) {
         return deserialize(p, ctxt, new HashMap<>());
     }
 
 
     @Override
-    public Map<Object, Object> deserialize(JsonParser parser, DeserializationContext context, Map<Object, Object> result) throws JacksonException {
+    public Map<Object, Object> deserialize(JsonParser parser, DeserializationContext context, Map<Object, Object> result) {
         TypeInfo typeInfo = ContextAwareElementValueDeserializer.getTypeInfo(context);
         if (typeInfo == null || !ContainerTypeInfo.class.isAssignableFrom(typeInfo.getClass())) {
             return super.deserialize(parser, context);

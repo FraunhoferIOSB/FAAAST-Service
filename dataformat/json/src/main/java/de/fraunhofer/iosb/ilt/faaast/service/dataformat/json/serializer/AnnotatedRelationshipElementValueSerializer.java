@@ -18,7 +18,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonFieldNames;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.AnnotatedRelationshipElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import java.util.Map;
-import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.ser.std.StdSerializer;
@@ -40,7 +39,7 @@ public class AnnotatedRelationshipElementValueSerializer extends StdSerializer<A
 
 
     @Override
-    public void serialize(AnnotatedRelationshipElementValue value, JsonGenerator generator, SerializationContext context) throws JacksonException {
+    public void serialize(AnnotatedRelationshipElementValue value, JsonGenerator generator, SerializationContext context) {
         if (value != null) {
             generator.writeStartObject();
             if (value.getFirst() != null) {

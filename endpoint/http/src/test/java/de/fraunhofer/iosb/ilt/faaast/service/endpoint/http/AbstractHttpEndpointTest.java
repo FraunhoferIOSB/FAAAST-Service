@@ -125,7 +125,6 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import tools.jackson.core.JacksonException;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
@@ -1134,7 +1133,7 @@ public abstract class AbstractHttpEndpointTest {
     }
 
 
-    private void assertCompressedDppEquals(DigitalProductPassport expected, byte[] actual) throws SerializationException, JacksonException {
+    private void assertCompressedDppEquals(DigitalProductPassport expected, byte[] actual) throws SerializationException {
         JsonNode actualNode = new ObjectMapper().readValue(new String(actual), JsonNode.class);
         JsonDppSerializer dppserializer = new JsonDppSerializer();
         String expectedString = dppserializer.write(expected, DppSerializationMode.COMPRESSED);

@@ -17,7 +17,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonFieldNames;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.RangeValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
-import tools.jackson.core.JacksonException;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.JsonNode;
 
@@ -38,7 +37,7 @@ public class RangeValueDeserializer extends ContextAwareElementValueDeserializer
 
 
     @Override
-    public RangeValue deserializeValue(JsonNode node, DeserializationContext context) throws JacksonException {
+    public RangeValue deserializeValue(JsonNode node, DeserializationContext context) {
         RangeValue.Builder<?> builder = RangeValue.builder();
         if (node.has(JsonFieldNames.RANGE_VALUE_MIN)) {
             builder = builder.min(context.readTreeAsValue(node.get(JsonFieldNames.RANGE_VALUE_MIN), TypedValue.class));

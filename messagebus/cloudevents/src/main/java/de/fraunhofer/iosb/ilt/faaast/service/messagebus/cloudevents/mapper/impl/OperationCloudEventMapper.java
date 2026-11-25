@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.function.Function;
 import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
-import tools.jackson.core.JacksonException;
 
 
 /**
@@ -56,7 +55,7 @@ public class OperationCloudEventMapper extends CloudEventMapper {
 
 
     @Override
-    protected byte[] getData(EventMessage message) throws JacksonException {
+    protected byte[] getData(EventMessage message) {
         String serializedData = "{\"inoutputArguments\":{";
         if (message instanceof OperationInvokeEventMessage invoke) {
             serializedData = serializedData.concat(mapper.writeValueAsString(invoke.getInoutput()));

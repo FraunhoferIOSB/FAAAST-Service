@@ -20,7 +20,6 @@ import com.google.common.reflect.TypeToken;
 import de.fraunhofer.iosb.ilt.faaast.service.config.Config;
 import de.fraunhofer.iosb.ilt.faaast.service.config.Configurable;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ImplementationManager;
-import tools.jackson.core.JacksonException;
 import tools.jackson.databind.DatabindContext;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.jsontype.impl.TypeIdResolverBase;
@@ -38,7 +37,7 @@ public class ConfigTypeResolver extends TypeIdResolverBase {
 
 
     @Override
-    public String idFromValue(DatabindContext ctxt, Object value) throws JacksonException {
+    public String idFromValue(DatabindContext ctxt, Object value) {
         TypeToken<? extends Object> type = TypeToken.of(value.getClass());
         if (type.isSubtypeOf(Config.class)) {
             TypeToken<?> resolvedType = type.resolveType(Config.class.getTypeParameters()[0]);
@@ -49,13 +48,13 @@ public class ConfigTypeResolver extends TypeIdResolverBase {
 
 
     @Override
-    public String idFromValueAndType(DatabindContext ctxt, Object value, Class<?> suggestedType) throws JacksonException {
+    public String idFromValueAndType(DatabindContext ctxt, Object value, Class<?> suggestedType) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 
     @Override
-    public JavaType typeFromId(DatabindContext context, String id) throws JacksonException {
+    public JavaType typeFromId(DatabindContext context, String id) {
         try {
             Class<?> type = Class.forName(id, true, ImplementationManager.getClassLoader());
             if (!Configurable.class.isAssignableFrom(type)) {

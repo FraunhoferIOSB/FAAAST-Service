@@ -29,7 +29,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
-import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
 
 
@@ -61,7 +60,7 @@ public class ConfigTest {
 
 
     @Test
-    public void testSerialization() throws JacksonException, IOException, JSONException {
+    public void testSerialization() throws IOException, JSONException {
         String expected = Files.readString(CONFIG_FILE.toPath());
         String actual = mapper.writeValueAsString(config);
         // This assertion makes sure, that sonar doesn't complain about missing asserts.
@@ -71,7 +70,7 @@ public class ConfigTest {
 
 
     @Test
-    public void testDeserialization() throws JacksonException {
+    public void testDeserialization() {
         ServiceConfig actual = mapper.readValue(CONFIG_FILE, ServiceConfig.class);
         Assert.assertEquals(config, actual);
     }

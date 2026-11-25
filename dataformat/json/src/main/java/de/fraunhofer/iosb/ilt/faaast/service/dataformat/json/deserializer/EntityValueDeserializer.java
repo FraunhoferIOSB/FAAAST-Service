@@ -20,7 +20,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.EntityValue;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.internal.deserialization.EnumDeserializer;
 import org.eclipse.digitaltwin.aas4j.v3.model.EntityType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
-import tools.jackson.core.JacksonException;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.JsonNode;
 
@@ -41,7 +40,7 @@ public class EntityValueDeserializer extends ContextAwareElementValueDeserialize
 
 
     @Override
-    public EntityValue deserializeValue(JsonNode node, DeserializationContext context) throws JacksonException {
+    public EntityValue deserializeValue(JsonNode node, DeserializationContext context) {
         EntityValue.Builder builder = new EntityValue.Builder();
         if (node.has(JsonFieldNames.ENTITY_VALUE_ENTITY_TYPE)) {
             builder.entityType(EntityType.valueOf(EnumDeserializer.deserializeEnumName(node.get(JsonFieldNames.ENTITY_VALUE_ENTITY_TYPE).asText())));

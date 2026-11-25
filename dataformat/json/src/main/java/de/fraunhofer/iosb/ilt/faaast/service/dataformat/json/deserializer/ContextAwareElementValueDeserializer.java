@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
-import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.JsonNode;
@@ -59,7 +58,7 @@ public abstract class ContextAwareElementValueDeserializer<T extends ElementValu
 
 
     @Override
-    public T deserialize(JsonParser parser, DeserializationContext context) throws JacksonException {
+    public T deserialize(JsonParser parser, DeserializationContext context) {
         JsonNode node = context.readTree(parser);
         boolean mayUnwrap = !isSubmodelElementCollection(context) || isEvent(context);
         if (mayUnwrap && isWrapped(node)) {
@@ -99,9 +98,8 @@ public abstract class ContextAwareElementValueDeserializer<T extends ElementValu
      * @param node node to deserialize
      * @param context deserialization context
      * @return deserialized values
-     * @throws JacksonException is deserialization fails
      */
-    public abstract T deserializeValue(JsonNode node, DeserializationContext context) throws JacksonException;
+    public abstract T deserializeValue(JsonNode node, DeserializationContext context);
 
 
     /**
@@ -112,10 +110,9 @@ public abstract class ContextAwareElementValueDeserializer<T extends ElementValu
      * @param context deserialization context
      * @param type target type
      * @return map of sub-values identified by their idShort as key
-     * @throws JacksonException as reading node fails
      * @throws IllegalArgumentException if no type information can be found
      */
-    protected <D extends ElementValue> Map<String, D> deserializeChildren(JsonNode node, DeserializationContext context, Class<D> type) throws JacksonException {
+    protected <D extends ElementValue> Map<String, D> deserializeChildren(JsonNode node, DeserializationContext context, Class<D> type) {
         Map<String, D> result = new HashMap<>();
         if (node == null) {
             return result;

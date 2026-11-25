@@ -16,7 +16,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.config.serialization;
 
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
-import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.ValueSerializer;
@@ -28,7 +27,7 @@ import tools.jackson.databind.ValueSerializer;
 public class ReferenceSerializer extends ValueSerializer<Reference> {
 
     @Override
-    public void serialize(Reference value, JsonGenerator gen, SerializationContext ctxt) throws JacksonException {
+    public void serialize(Reference value, JsonGenerator gen, SerializationContext ctxt) {
         gen.writeName(ReferenceHelper.toString(value));
     }
 }

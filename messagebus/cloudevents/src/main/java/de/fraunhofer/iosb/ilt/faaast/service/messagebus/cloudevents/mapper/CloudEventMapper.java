@@ -155,9 +155,9 @@ public abstract class CloudEventMapper {
      *
      * @param message The message to get the data field from
      * @return The content of the data field or an empty array if no data is to be sent.
-     * @throws JacksonException On serialization of the data.
+     * @On serialization of the data.
      */
-    protected abstract byte[] getData(EventMessage message) throws JacksonException;
+    protected abstract byte[] getData(EventMessage message);
 
 
     /**

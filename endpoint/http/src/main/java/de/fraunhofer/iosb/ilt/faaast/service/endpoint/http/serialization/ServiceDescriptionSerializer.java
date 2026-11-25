@@ -17,7 +17,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization;
 import de.fraunhofer.iosb.ilt.faaast.service.model.ServiceDescription;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import java.util.Objects;
-import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.ser.std.StdSerializer;
@@ -41,7 +40,7 @@ public class ServiceDescriptionSerializer extends StdSerializer<ServiceDescripti
 
 
     @Override
-    public void serialize(ServiceDescription value, JsonGenerator generator, SerializationContext provider) throws JacksonException {
+    public void serialize(ServiceDescription value, JsonGenerator generator, SerializationContext provider) {
         generator.writeStartObject();
         generator.writeName(FIELD_PROFILES);
         generator.writeStartArray();

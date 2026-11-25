@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
-import tools.jackson.core.JacksonException;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.JsonNode;
 
@@ -42,14 +41,14 @@ public class SubmodelElementListValueDeserializer extends ContextAwareElementVal
 
 
     @Override
-    public SubmodelElementListValue deserializeValue(JsonNode node, DeserializationContext context) throws JacksonException {
+    public SubmodelElementListValue deserializeValue(JsonNode node, DeserializationContext context) {
         return new SubmodelElementListValue.Builder()
                 .values(deserializeChildrenInternal(node, context))
                 .build();
     }
 
 
-    private <T extends ElementValue> List<T> deserializeChildrenInternal(JsonNode node, DeserializationContext context) throws JacksonException {
+    private <T extends ElementValue> List<T> deserializeChildrenInternal(JsonNode node, DeserializationContext context) {
         List<T> result = new ArrayList<>();
         if (node == null) {
             return result;

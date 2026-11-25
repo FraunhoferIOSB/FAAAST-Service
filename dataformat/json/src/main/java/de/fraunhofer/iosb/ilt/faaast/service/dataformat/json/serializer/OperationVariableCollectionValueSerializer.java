@@ -19,7 +19,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapp
 import java.util.Collection;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
-import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.ser.std.StdSerializer;
@@ -41,7 +40,7 @@ public class OperationVariableCollectionValueSerializer extends StdSerializer<Co
 
 
     @Override
-    public void serialize(Collection<OperationVariable> values, JsonGenerator generator, SerializationContext context) throws JacksonException {
+    public void serialize(Collection<OperationVariable> values, JsonGenerator generator, SerializationContext context) {
         if (Objects.nonNull(values)) {
             generator.writeStartObject();
             for (var value: values) {

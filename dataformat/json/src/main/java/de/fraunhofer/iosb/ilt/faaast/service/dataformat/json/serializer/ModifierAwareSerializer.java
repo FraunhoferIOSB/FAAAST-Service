@@ -16,7 +16,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
-import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.ser.std.StdSerializer;
@@ -43,7 +42,7 @@ public abstract class ModifierAwareSerializer<T> extends StdSerializer<T> {
 
 
     @Override
-    public void serialize(T value, JsonGenerator gen, SerializationContext context) throws JacksonException {
+    public void serialize(T value, JsonGenerator gen, SerializationContext context) {
         serialize(value, gen, context,
                 context.getAttribute(LEVEL) != null && Level.class.isAssignableFrom(context.getAttribute(LEVEL).getClass())
                         ? (Level) context.getAttribute(LEVEL)
@@ -63,8 +62,8 @@ public abstract class ModifierAwareSerializer<T> extends StdSerializer<T> {
      * @param provider provider for accessing other serializers
      * @param level detail level of serialization
      * @param extend detail extent of serialization
-     * @throws JacksonException is serialization fails
+     * @is serialization fails
      */
-    public abstract void serialize(T value, JsonGenerator generator, SerializationContext provider, Level level, Extent extend) throws JacksonException;
+    public abstract void serialize(T value, JsonGenerator generator, SerializationContext provider, Level level, Extent extend);
 
 }

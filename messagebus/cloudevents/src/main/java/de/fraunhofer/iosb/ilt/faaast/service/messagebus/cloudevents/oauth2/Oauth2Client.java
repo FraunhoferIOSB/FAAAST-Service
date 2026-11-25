@@ -21,7 +21,6 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
-import tools.jackson.core.JacksonException;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.PropertyNamingStrategies;
@@ -56,9 +55,9 @@ public class Oauth2Client {
      * @param request Token request containing required credentials
      * @return Token response containing token and expiry information
      * @throws MessageBusException If the status code of the token response was not 2xx.
-     * @throws JacksonException Failed deserializing token response.
+     * @Failed deserializing token response.
      */
-    public Oauth2CredentialsResponse requestToken(Oauth2CredentialsRequest request) throws MessageBusException, JacksonException {
+    public Oauth2CredentialsResponse requestToken(Oauth2CredentialsRequest request) throws MessageBusException {
 
         HttpResponse<String> response;
         try {

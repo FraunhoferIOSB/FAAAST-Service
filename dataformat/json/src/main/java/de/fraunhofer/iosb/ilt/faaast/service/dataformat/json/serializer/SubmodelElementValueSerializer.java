@@ -18,7 +18,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingExcepti
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueHelper;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
-import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.ser.std.StdSerializer;
@@ -42,7 +41,7 @@ public class SubmodelElementValueSerializer extends StdSerializer<SubmodelElemen
 
 
     @Override
-    public void serialize(SubmodelElement value, JsonGenerator generator, SerializationContext context) throws JacksonException {
+    public void serialize(SubmodelElement value, JsonGenerator generator, SerializationContext context) {
         if (value != null && ElementValueHelper.isSerializableAsValue(value.getClass())) {
             try {
                 generator.writeStartObject();

@@ -28,7 +28,6 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.junit.Assert;
-import tools.jackson.core.JacksonException;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.SerializationFeature;
@@ -61,7 +60,7 @@ public abstract class AbstractCloudEventMapperTest {
                                                             Function<Reference, Referable> referableSupplier);
 
 
-    protected CloudEvent expectedFrom(String identifiableId, Referable referable, String dataSchemaSuffix, String eventTypeSuffix) throws JacksonException {
+    protected CloudEvent expectedFrom(String identifiableId, Referable referable, String dataSchemaSuffix, String eventTypeSuffix) {
         CloudEventBuilder builder = CloudEventBuilder.v1()
                 .withSource(URI.create(String.format("%s/submodels/%s/submodel-elements/%s", sourceUri, EncodingHelper.base64UrlEncode(identifiableId),
                         referable.getIdShort())))

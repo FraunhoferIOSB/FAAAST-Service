@@ -21,7 +21,6 @@ import java.io.StringWriter;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
-import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
@@ -51,7 +50,7 @@ public class ElementValueSerializer extends StdSerializer<ElementValue> {
 
 
     @Override
-    public void serialize(ElementValue value, JsonGenerator generator, SerializationContext provider) throws JacksonException {
+    public void serialize(ElementValue value, JsonGenerator generator, SerializationContext provider) {
         if (value != null) {
             generator.writeStartObject();
             generator.writeStringProperty(JsonFieldNames.EVENT_MODELTYPE, ElementValueMapper.getElementClass(value.getClass()).getSimpleName());

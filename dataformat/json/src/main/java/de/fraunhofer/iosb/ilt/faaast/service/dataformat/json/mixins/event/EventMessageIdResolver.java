@@ -20,7 +20,6 @@ import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ScanResult;
 import java.util.List;
 import java.util.Objects;
-import tools.jackson.core.JacksonException;
 import tools.jackson.databind.DatabindContext;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.jsontype.impl.TypeIdResolverBase;
@@ -47,13 +46,13 @@ public class EventMessageIdResolver extends TypeIdResolverBase {
 
 
     @Override
-    public String idFromValue(DatabindContext ctxt, Object value) throws JacksonException {
+    public String idFromValue(DatabindContext ctxt, Object value) {
         return idFromValueAndType(ctxt, value, value.getClass());
     }
 
 
     @Override
-    public String idFromValueAndType(DatabindContext ctxt, Object value, Class<?> suggestedType) throws JacksonException {
+    public String idFromValueAndType(DatabindContext ctxt, Object value, Class<?> suggestedType) {
         return removeSuffix(suggestedType.getSimpleName());
     }
 

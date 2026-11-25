@@ -18,7 +18,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.typing.ContainerTypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import java.util.ArrayList;
 import java.util.Collection;
-import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.databind.BeanProperty;
 import tools.jackson.databind.DeserializationContext;
@@ -38,20 +37,19 @@ public class ValueCollectionDeserializer extends CollectionDeserializer {
 
     @Override
     public CollectionDeserializer createContextual(DeserializationContext context,
-                                                   BeanProperty property)
-            throws JacksonException {
+                                                   BeanProperty property) {
         return new ValueCollectionDeserializer(super.createContextual(context, property));
     }
 
 
     @Override
-    public Collection<Object> deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException {
+    public Collection<Object> deserialize(JsonParser p, DeserializationContext ctxt) {
         return deserialize(p, ctxt, new ArrayList<>());
     }
 
 
     @Override
-    public Collection<Object> deserialize(JsonParser parser, DeserializationContext context, Collection<Object> result) throws JacksonException {
+    public Collection<Object> deserialize(JsonParser parser, DeserializationContext context, Collection<Object> result) {
         TypeInfo typeInfo = ContextAwareElementValueDeserializer.getTypeInfo(context);
         if (typeInfo == null || !ContainerTypeInfo.class.isAssignableFrom(typeInfo.getClass())) {
             return super.deserialize(parser, context, result);

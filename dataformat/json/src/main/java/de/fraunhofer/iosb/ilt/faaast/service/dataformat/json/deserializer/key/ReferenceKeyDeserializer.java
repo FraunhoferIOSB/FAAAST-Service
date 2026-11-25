@@ -15,7 +15,6 @@
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.key;
 
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
-import tools.jackson.core.JacksonException;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.KeyDeserializer;
 
@@ -26,7 +25,7 @@ import tools.jackson.databind.KeyDeserializer;
 public class ReferenceKeyDeserializer extends KeyDeserializer {
 
     @Override
-    public Object deserializeKey(String key, DeserializationContext ctxt) throws JacksonException {
+    public Object deserializeKey(String key, DeserializationContext ctxt) {
         return ReferenceHelper.parse(key);
     }
 }

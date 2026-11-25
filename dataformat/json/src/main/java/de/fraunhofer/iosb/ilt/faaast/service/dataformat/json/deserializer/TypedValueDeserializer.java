@@ -20,7 +20,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValueFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.ElementValueTypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
-import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.deser.std.StdDeserializer;
@@ -43,7 +42,7 @@ public class TypedValueDeserializer extends StdDeserializer<TypedValue> {
 
 
     @Override
-    public TypedValue deserialize(JsonParser parser, DeserializationContext context) throws JacksonException {
+    public TypedValue deserialize(JsonParser parser, DeserializationContext context) {
         TypeInfo typeInfo = ContextAwareElementValueDeserializer.getTypeInfo(context);
         if (typeInfo == null || !ElementValueTypeInfo.class.isAssignableFrom(typeInfo.getClass())) {
             throw new IllegalArgumentException("missing datatype information");

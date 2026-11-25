@@ -28,7 +28,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
-import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
 
 
@@ -58,7 +57,7 @@ public class AimcSubmodelTemplateProcessorConfigTest {
             .build();
 
     @Test
-    public void testConfigDeserialization() throws JacksonException {
+    public void testConfigDeserialization() {
         AimcSubmodelTemplateProcessorConfig actual = MAPPER.readValue(CONFIG_FILE, AimcSubmodelTemplateProcessorConfig.class);
         Assert.assertEquals(CONFIG, actual);
     }

@@ -169,7 +169,6 @@ import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.skyscreamer.jsonassert.JSONAssert;
-import tools.jackson.core.JacksonException;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
@@ -2993,7 +2992,7 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
     }
 
 
-    private void assertCompressedDppEquals(DigitalProductPassport expected, String actual) throws SerializationException, JacksonException {
+    private void assertCompressedDppEquals(DigitalProductPassport expected, String actual) throws SerializationException {
         JsonNode actualNode = new ObjectMapper().readValue(actual, JsonNode.class);
         JsonDppSerializer serializer = new JsonDppSerializer();
         String expectedString = serializer.write(expected, DppSerializationMode.COMPRESSED);

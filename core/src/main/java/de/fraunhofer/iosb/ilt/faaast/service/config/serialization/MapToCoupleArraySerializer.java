@@ -16,7 +16,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.config.serialization;
 
 import java.util.Map;
 import java.util.Map.Entry;
-import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.ValueSerializer;
@@ -46,7 +45,7 @@ public class MapToCoupleArraySerializer extends ValueSerializer<Map<?, ?>> {
 
 
     @Override
-    public void serialize(Map<?, ?> value, JsonGenerator generator, SerializationContext context) throws JacksonException {
+    public void serialize(Map<?, ?> value, JsonGenerator generator, SerializationContext context) {
         generator.writeStartArray();
         for (Entry<?, ?> entry: value.entrySet()) {
             generator.writeStartObject();

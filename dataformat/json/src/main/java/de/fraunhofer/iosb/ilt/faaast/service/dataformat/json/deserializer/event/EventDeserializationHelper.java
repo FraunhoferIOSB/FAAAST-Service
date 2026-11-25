@@ -18,7 +18,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import tools.jackson.core.JacksonException;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.JsonNode;
 
@@ -36,9 +35,9 @@ public class EventDeserializationHelper {
      * @param context deserialization context
      * @param type target type
      * @return deserialized children
-     * @throws JacksonException if deserialization fails
+     * @if deserialization fails
      */
-    public static <T extends ElementValue> Map<String, T> deserializeChildren(JsonNode node, DeserializationContext context, Class<T> type) throws JacksonException {
+    public static <T extends ElementValue> Map<String, T> deserializeChildren(JsonNode node, DeserializationContext context, Class<T> type) {
         Map<String, T> result = new HashMap<>();
         if (node == null) {
             return result;

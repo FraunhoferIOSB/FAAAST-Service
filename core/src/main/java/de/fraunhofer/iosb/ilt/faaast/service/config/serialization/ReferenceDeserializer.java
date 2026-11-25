@@ -16,7 +16,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.config.serialization;
 
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
-import tools.jackson.core.JacksonException;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.KeyDeserializer;
 
@@ -27,7 +26,7 @@ import tools.jackson.databind.KeyDeserializer;
 public class ReferenceDeserializer extends KeyDeserializer {
 
     @Override
-    public Reference deserializeKey(String value, DeserializationContext context) throws JacksonException {
+    public Reference deserializeKey(String value, DeserializationContext context) {
         return ReferenceHelper.parseReference(value);
     }
 }

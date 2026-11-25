@@ -16,7 +16,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.SubmodelElementCollectionValue;
-import tools.jackson.core.JacksonException;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.JsonNode;
 
@@ -37,7 +36,7 @@ public class SubmodelElementCollectionValueDeserializer extends ContextAwareElem
 
 
     @Override
-    public SubmodelElementCollectionValue deserializeValue(JsonNode node, DeserializationContext context) throws JacksonException {
+    public SubmodelElementCollectionValue deserializeValue(JsonNode node, DeserializationContext context) {
         return new SubmodelElementCollectionValue.Builder()
                 .values(deserializeChildren(node, context, ElementValue.class))
                 .build();

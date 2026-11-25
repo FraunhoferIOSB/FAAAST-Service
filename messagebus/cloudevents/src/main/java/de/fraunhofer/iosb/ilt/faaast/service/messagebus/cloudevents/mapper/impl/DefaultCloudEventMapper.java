@@ -22,7 +22,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.Eleme
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
 import java.util.List;
 import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
-import tools.jackson.core.JacksonException;
 
 
 /**
@@ -51,7 +50,7 @@ public class DefaultCloudEventMapper extends CloudEventMapper {
 
 
     @Override
-    protected byte[] getData(EventMessage message) throws JacksonException {
+    protected byte[] getData(EventMessage message) {
         ElementChangeEventMessage m = (ElementChangeEventMessage) message;
         return mapper.writeValueAsBytes(m.getValue());
     }

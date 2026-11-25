@@ -16,7 +16,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.event;
 
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonFieldNames;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
-import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.ser.std.StdSerializer;
@@ -39,7 +38,7 @@ public class TypedValueSerializer extends StdSerializer<TypedValue> {
 
 
     @Override
-    public void serialize(TypedValue value, JsonGenerator generator, SerializationContext context) throws JacksonException {
+    public void serialize(TypedValue value, JsonGenerator generator, SerializationContext context) {
         generator.writeStartObject();
         generator.writeStringProperty(JsonFieldNames.EVENT_DATATYPE, value.getDataType().getName());
         context.defaultSerializeProperty(JsonFieldNames.EVENT_VALUE, value.getValue(), generator);

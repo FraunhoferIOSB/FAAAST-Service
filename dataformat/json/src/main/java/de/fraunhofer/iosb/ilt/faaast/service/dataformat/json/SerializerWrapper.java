@@ -32,7 +32,6 @@ public class SerializerWrapper extends org.eclipse.digitaltwin.aas4j.v3.dataform
 
     public SerializerWrapper(UnaryOperator<JsonMapper> modifier) {
         if (modifier != null) {
-            //modifier.accept(mapper);
             mapper = modifier.apply(mapper);
             mapper = mapper.rebuild()
                     .disable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)

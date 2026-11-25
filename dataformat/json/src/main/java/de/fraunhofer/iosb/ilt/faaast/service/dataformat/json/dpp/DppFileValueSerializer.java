@@ -17,7 +17,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.dpp;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonFieldNames;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.FileValue;
 
-import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.ser.std.StdSerializer;
@@ -39,7 +38,7 @@ public class DppFileValueSerializer extends StdSerializer<FileValue> {
 
 
     @Override
-    public void serialize(FileValue value, JsonGenerator generator, SerializationContext context) throws JacksonException {
+    public void serialize(FileValue value, JsonGenerator generator, SerializationContext context) {
         if (value != null) {
             generator.writeStartObject();
             if (value.getContentType() != null) {

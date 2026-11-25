@@ -23,7 +23,6 @@ import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
 import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceTypes;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference;
-import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.ser.std.StdSerializer;
@@ -45,7 +44,7 @@ public class EntityValueSerializer extends StdSerializer<EntityValue> {
 
 
     @Override
-    public void serialize(EntityValue value, JsonGenerator generator, SerializationContext context) throws JacksonException {
+    public void serialize(EntityValue value, JsonGenerator generator, SerializationContext context) {
         if (value != null) {
             generator.writeStartObject();
             if (value.getStatements() != null && !value.getStatements().isEmpty()) {

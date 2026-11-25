@@ -16,7 +16,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.MultiLanguagePropertyValue;
 import java.util.Objects;
-import tools.jackson.core.JacksonException;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.JsonNode;
 
@@ -37,7 +36,7 @@ public class MultiLanguagePropertyValueDeserializer extends ContextAwareElementV
 
 
     @Override
-    public MultiLanguagePropertyValue deserializeValue(JsonNode node, DeserializationContext context) throws JacksonException {
+    public MultiLanguagePropertyValue deserializeValue(JsonNode node, DeserializationContext context) {
         MultiLanguagePropertyValue.Builder builder = MultiLanguagePropertyValue.builder();
         if (Objects.nonNull(node) && node.isArray()) {
             for (var entryNode: node) {

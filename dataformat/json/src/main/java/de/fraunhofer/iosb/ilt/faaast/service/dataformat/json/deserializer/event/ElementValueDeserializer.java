@@ -20,7 +20,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapp
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.internal.util.ReflectionHelper;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
-import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.JsonNode;
@@ -60,7 +59,7 @@ public class ElementValueDeserializer extends StdDeserializer<ElementValue> {
 
 
     @Override
-    public ElementValue deserialize(JsonParser parser, DeserializationContext context) throws JacksonException {
+    public ElementValue deserialize(JsonParser parser, DeserializationContext context) {
         JsonNode root = parser.readValueAsTree();
         return (ElementValue) context.readTreeAsValue(root, getInlineTypeInfo(root));
     }

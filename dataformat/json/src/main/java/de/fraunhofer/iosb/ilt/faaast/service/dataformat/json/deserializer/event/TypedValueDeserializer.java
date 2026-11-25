@@ -20,7 +20,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValueFactory;
 import java.util.Objects;
-import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.JsonNode;
@@ -59,7 +58,7 @@ public class TypedValueDeserializer extends StdDeserializer<TypedValue> {
 
 
     @Override
-    public TypedValue deserialize(JsonParser parser, DeserializationContext context) throws JacksonException {
+    public TypedValue deserialize(JsonParser parser, DeserializationContext context) {
         JsonNode root = parser.readValueAsTree();
         Datatype datatype = getDatatype(root);
         if (Objects.isNull(datatype)) {
