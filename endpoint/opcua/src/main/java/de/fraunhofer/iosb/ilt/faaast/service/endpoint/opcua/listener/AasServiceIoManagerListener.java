@@ -48,7 +48,7 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Class that listens to I/O-Events
+ * Class that listens to I/O-Events.
  */
 public class AasServiceIoManagerListener implements IoManagerListener {
 
@@ -58,10 +58,10 @@ public class AasServiceIoManagerListener implements IoManagerListener {
     private final AasServiceNodeManager nodeManager;
 
     /**
-     * Creates a new instance of AasServiceIoManagerListener
+     * Creates a new instance of AasServiceIoManagerListener.
      *
-     * @param endpoint the associated endpoint
-     * @param nodeManager the associated NodeManager
+     * @param endpoint the associated endpoint.
+     * @param nodeManager the associated NodeManager.
      */
     public AasServiceIoManagerListener(OpcUaEndpoint endpoint, AasServiceNodeManager nodeManager) {
         this.endpoint = endpoint;

@@ -44,10 +44,10 @@ public class AasServiceMethodManagerListener implements CallableListener {
     private final AasServiceNodeManager nodeManager;
 
     /**
-     * Creates a new instance of AasServiceMethodManagerListener
+     * Creates a new instance of AasServiceMethodManagerListener.
      *
-     * @param endpoint the associated endpoint
-     * @param nodeManager the associated NodeManager
+     * @param endpoint the associated endpoint.
+     * @param nodeManager the associated NodeManager.
      */
     public AasServiceMethodManagerListener(OpcUaEndpoint endpoint, AasServiceNodeManager nodeManager) {
         this.endpoint = endpoint;

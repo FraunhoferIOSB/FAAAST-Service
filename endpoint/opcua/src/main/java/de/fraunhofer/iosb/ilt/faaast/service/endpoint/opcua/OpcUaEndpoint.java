@@ -49,7 +49,7 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Class for the OPC UA endpoint
+ * Class for the OPC UA endpoint.
  */
 public class OpcUaEndpoint extends AbstractEndpoint<OpcUaEndpointConfig> {
 
@@ -62,7 +62,7 @@ public class OpcUaEndpoint extends AbstractEndpoint<OpcUaEndpointConfig> {
     private Server server;
 
     /**
-     * Creates a new instance of OpcUaEndpoint
+     * Creates a new instance of OpcUaEndpoint.
      */
     public OpcUaEndpoint() {
         aasEnvironment = null;
@@ -74,9 +74,9 @@ public class OpcUaEndpoint extends AbstractEndpoint<OpcUaEndpointConfig> {
 
 
     /**
-     * Gets the MessageBus
+     * Gets the MessageBus.
      *
-     * @return The MessageBus
+     * @return The MessageBus.
      */
     public MessageBus<?> getMessageBus() {
         return serviceContext.getMessageBus();
@@ -193,6 +193,19 @@ public class OpcUaEndpoint extends AbstractEndpoint<OpcUaEndpointConfig> {
     }
 
 
+    /**
+     * Calls an operation.
+     *
+     * @param operation The desired operation.
+     * @param input The desired input as JSON.
+     * @param submodel The corresponding Submodel.
+     * @param refElement The reference to the desired element.
+     * @return The output argument as JSON.
+     * @throws StatusException If an error occurs.
+     * @throws DeserializationException If a desrization error occurs.
+     * @throws SerializationException If a serialization error occurs.
+     * @throws UnsupportedModifierException If an error occurs.
+     */
     public String callOperation(Operation operation, String input, Submodel submodel, Reference refElement)
             throws StatusException, DeserializationException, SerializationException, UnsupportedModifierException {
         InvokeOperationSyncRequest request = deserializer.read(input, InvokeOperationSyncRequest.class);

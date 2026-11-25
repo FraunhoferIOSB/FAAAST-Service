@@ -55,7 +55,7 @@ public class SubmodelCreator {
 
 
     /**
-     * Adds a submodel to a given Node
+     * Adds a submodel to a given Node.
      *
      * @param node The desired Node where the submodel should be added
      * @param submodel The desired AAS submodel

@@ -123,7 +123,7 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Class to convert values between the AASService types and the OPC UA Types
+ * Class to convert values between the AASService types and the OPC UA Types.
  */
 public class ValueConverter {
 
@@ -305,11 +305,11 @@ public class ValueConverter {
 
 
     /**
-     * Converts the AAS DataTypeDef into the corresponding OPC UA type (NodeId)
+     * Converts the AAS DataTypeDef into the corresponding OPC UA type (NodeId).
      *
-     * @param valueType The desired valueType
+     * @param valueType The desired valueType.
      * @param nodeManager The NodeManager.
-     * @return The corresponding OPC UA type (NodeId)
+     * @return The corresponding OPC UA type (NodeId).
      * @throws ServiceResultException If an error occurs.
      */
     public static NodeId convertDataTypeDefToNodeId(DataTypeDefXsd valueType, NodeManager nodeManager) throws ServiceResultException {
@@ -331,11 +331,11 @@ public class ValueConverter {
 
 
     /**
-     * Converts the given DataType into the corresponding OPC UA type (NodeId)
+     * Converts the given DataType into the corresponding OPC UA type (NodeId).
      *
-     * @param datatype The desired datatype
+     * @param datatype The desired datatype.
      * @param nodeManager The NodeManager.
-     * @return The corresponding OPC UA type (NodeId)
+     * @return The corresponding OPC UA type (NodeId).
      * @throws ServiceResultException If an error occurs.
      */
     public static NodeId convertDataTypeToNodeId(Datatype datatype, NodeManager nodeManager) throws ServiceResultException {
@@ -344,11 +344,11 @@ public class ValueConverter {
 
 
     /**
-     * Converts the given DataType into the corresponding OPC UA type (NodeId)
+     * Converts the given DataType into the corresponding OPC UA type (NodeId).
      *
-     * @param datatype The desired datatype
+     * @param datatype The desired datatype.
      * @param client The OPC UA client.
-     * @return The corresponding OPC UA type (NodeId)
+     * @return The corresponding OPC UA type (NodeId).
      * @throws ServiceResultException If an error occurs.
      */
     public static NodeId convertDataTypeToNodeId(Datatype datatype, UaClient client) throws ServiceResultException {
@@ -359,8 +359,8 @@ public class ValueConverter {
     /**
      * Converts the given ModellingKind to the corresponding AASModellingKind.
      *
-     * @param value The desired ModellingKind
-     * @return The corresponding AASModellingKind
+     * @param value The desired ModellingKind.
+     * @return The corresponding AASModellingKind.
      */
     public static AASModellingKind convertModellingKind(ModellingKind value) {
         AASModellingKind retval;
@@ -385,7 +385,7 @@ public class ValueConverter {
      * Converts the given ModellingKind to an OPC UA HasKind woth the
      * corresponding AASHasKind.
      *
-     * @param value The desired ModellingKind
+     * @param value The desired ModellingKind.
      * @return The corresponding OPC UA HasKind.
      */
     public static AASHasKind convertHasKind(ModellingKind value) {
@@ -396,8 +396,8 @@ public class ValueConverter {
     /**
      * Converts the given QualifierKind to the corresponding AASQualifierKind.
      *
-     * @param value the desired QualifierKind
-     * @return The corresponding AASQualifierKind
+     * @param value the desired QualifierKind.
+     * @return The corresponding AASQualifierKind.
      */
     public static AASQualifierKind convertQualifierKind(QualifierKind value) {
         AASQualifierKind retval;
@@ -421,8 +421,8 @@ public class ValueConverter {
     /**
      * Converts the given AssetKind to the corresponding AASAssetKindDataType.
      *
-     * @param value The desired AssetKind
-     * @return The corresponding AASAssetKindDataType
+     * @param value The desired AssetKind.
+     * @return The corresponding AASAssetKindDataType.
      */
     public static AASAssetKind convertAssetKind(AssetKind value) {
         if (value == null) {
@@ -444,8 +444,8 @@ public class ValueConverter {
     /**
      * Converts the given ReferenceTypes to the corresponding AASReferenceTypes.
      *
-     * @param value The desired ReferenceTypes
-     * @return The corresponding AASReferenceTypes
+     * @param value The desired ReferenceTypes.
+     * @return The corresponding AASReferenceTypes.
      */
     public static AASReferenceTypes convertReferenceTypes(ReferenceTypes value) {
         if (value == null) {
@@ -492,8 +492,8 @@ public class ValueConverter {
     /**
      * Converts the given EntityType to the corresponding AASEntityEnumType.
      *
-     * @param value The desired EntityType
-     * @return The corresponding AASEntityEnumType
+     * @param value The desired EntityType.
+     * @return The corresponding AASEntityEnumType.
      */
     public static AASEntityEnumType convertEntityType(EntityType value) {
         if (value == null) {
@@ -517,8 +517,8 @@ public class ValueConverter {
     /**
      * Converts the given AASEntityEnumType to the corresponding EntityType.
      *
-     * @param value The desired AASEntityEnumType
-     * @return The corresponding EntityType
+     * @param value The desired AASEntityEnumType.
+     * @return The corresponding EntityType.
      */
     public static EntityType convertAASEntityEnumType(AASEntityEnumType value) {
         EntityType retval;
@@ -537,9 +537,9 @@ public class ValueConverter {
     /**
      * Gets a LocalizedText array from an AAS LangString Set.
      *
-     * @param <T> LangStringNameType or LangStringTextType
-     * @param value The desired AAS Lang String
-     * @return The corresponding LocalizedText array
+     * @param <T> LangStringNameType or LangStringTextType.
+     * @param value The desired AAS Lang String.
+     * @return The corresponding LocalizedText array.
      */
     public static <T extends AbstractLangString> LocalizedText[] convertLangStringSet(List<T> value) {
         LocalizedText[] retval;
@@ -556,8 +556,8 @@ public class ValueConverter {
     /**
      * Gets AAS LangString Set from a LocalizedText array.
      *
-     * @param value The desired Lang String Set
-     * @return The corresponding LocalizedText array
+     * @param value The desired Lang String Set.
+     * @return The corresponding LocalizedText array.
      */
     public static List<LangStringTextType> convertLocalizedText(LocalizedText[] value) {
         Ensure.requireNonNull(value, "value must not be null");
@@ -574,7 +574,7 @@ public class ValueConverter {
 
     /**
      * Converts the given KeyTypes value to the corresponding
-     * AASKeyTypesDataType
+     * AASKeyTypesDataType.
      *
      * @param value The desired KeyTypes value.
      * @return The converted AASKeyTypesDataType.
@@ -595,10 +595,10 @@ public class ValueConverter {
 
 
     /**
-     * Converts the given AASKeyTypes to the corresponding KeyTypes
+     * Converts the given AASKeyTypes to the corresponding KeyTypes.
      *
-     * @param value The desired AASKeyTypes
-     * @return The corresponding KeyTypes type
+     * @param value The desired AASKeyTypes.
+     * @return The corresponding KeyTypes type.
      */
     public static KeyTypes convertAASKeyTypes(AASKeyTypes value) {
         KeyTypes retval = null;
@@ -705,8 +705,8 @@ public class ValueConverter {
      * Sets the input arguments for an operation into the given inputVariables.
      *
      * @param inputVariables The desired inputVariables.
-     * @param inputArguments The desired inputArguments
-     * @throws StatusException If the operation fails
+     * @param inputArguments The desired inputArguments.
+     * @throws StatusException If the operation fails.
      */
     public static void setOperationValues(List<OperationVariable> inputVariables, Variant[] inputArguments) throws StatusException {
         if (inputArguments.length < inputVariables.size()) {
@@ -736,10 +736,10 @@ public class ValueConverter {
      * Sets the output arguments for an operation from the given output
      * variables.
      *
-     * @param outputVariables The desired output variables
-     * @param outputArguments The desired output arguments
-     * @throws StatusException If the operation fails
-     * @throws ValueMappingException Error when mapping to ElementValue fails
+     * @param outputVariables The desired output variables.
+     * @param outputArguments The desired output arguments.
+     * @throws StatusException If the operation fails.
+     * @throws ValueMappingException Error when mapping to ElementValue fails.
      */
     public static void setOutputArguments(List<OperationVariable> outputVariables, Variant[] outputArguments) throws StatusException, ValueMappingException {
 
@@ -764,12 +764,12 @@ public class ValueConverter {
 
 
     /**
-     * Gets the corresponding variant value from a given SubmodelElement
+     * Gets the corresponding variant value from a given SubmodelElement.
      *
-     * @param submodelElement The desired SubmodelElement
-     * @param type The desired type
-     * @return The corresponding value
-     * @throws ValueMappingException Error when mapping to ElementValue fails
+     * @param submodelElement The desired SubmodelElement.
+     * @param type The desired type.
+     * @return The corresponding value.
+     * @throws ValueMappingException Error when mapping to ElementValue fails.
      */
     public static Variant getSubmodelElementValue(SubmodelElement submodelElement, SubmodelElementData.Type type) throws ValueMappingException {
         Variant retval;
@@ -787,10 +787,10 @@ public class ValueConverter {
 
 
     /**
-     * Creates an OPC UA date time from Java date time
+     * Creates an OPC UA date time from Java date time.
      *
-     * @param value The input Java date time
-     * @return The OPC UA date time
+     * @param value The input Java date time.
+     * @return The OPC UA date time.
      */
     public static AASDateTime createDateTime(OffsetDateTime value) {
         if (value == null) {
@@ -801,10 +801,10 @@ public class ValueConverter {
 
 
     /**
-     * Creates an OPC UA date time from Java date time
+     * Creates an OPC UA date time from Java date time.
      *
-     * @param value The input Java date time
-     * @return The OPC UA date time
+     * @param value The input Java date time.
+     * @return The OPC UA date time.
      */
     public static DateTime createDateTime(LocalDateTime value) {
         if (value == null) {
@@ -870,6 +870,13 @@ public class ValueConverter {
     }
 
 
+    /**
+     * Converts the given TypedValue into the corresponding OPC UA value.
+     *
+     * @param typedValue The desired TypedValue.
+     * @return The converted OPC UA value.
+     * @throws NumberFormatException If the number format is incorrect.
+     */
     public static Object convertTypedValue(TypedValue<?> typedValue) throws NumberFormatException {
         if (typedValue == null) {
             return null;
@@ -939,7 +946,7 @@ public class ValueConverter {
 
     /**
      * Converts the given Direction value to the corresponding
-     * AASDirectionDataType
+     * AASDirectionDataType.
      *
      * @param value The desired Direction value.
      * @return The converted AASDirectionDataType.
@@ -962,8 +969,8 @@ public class ValueConverter {
      * Converts the given StateOfEvent to the corresponding
      * AASStateOfEventDataType.
      *
-     * @param value The desired StateOfEvent
-     * @return The corresponding AASStateOfEventDataType
+     * @param value The desired StateOfEvent.
+     * @return The corresponding AASStateOfEventDataType.
      */
 
     public static AASStateOfEvent getAasStateOfEventType(StateOfEvent value) {
@@ -984,8 +991,8 @@ public class ValueConverter {
      * Converts the given StateOfEvent to the corresponding
      * AASStateOfEventDataType.
      *
-     * @param value The desired StateOfEvent
-     * @return The corresponding AASStateOfEventDataType
+     * @param value The desired StateOfEvent.
+     * @return The corresponding AASStateOfEventDataType.
      */
     public static AASSubmodelElements convertAasSubmodelElements(AasSubmodelElements value) {
         AASSubmodelElements retval;
@@ -1017,8 +1024,8 @@ public class ValueConverter {
      * Converts the given DataTypeIec61360 to the corresponding
      * AASDataTypeIec61360.
      *
-     * @param value The desired DataTypeIec61360
-     * @return The corresponding AASDataTypeIec61360
+     * @param value The desired DataTypeIec61360.
+     * @return The corresponding AASDataTypeIec61360.
      */
     public static AASDataTypeIec61360 convertDataTypeIec61360(DataTypeIec61360 value) {
         if (value == null) {
@@ -1038,6 +1045,12 @@ public class ValueConverter {
     }
 
 
+    /**
+     * Converts the given ValueList into the corresponding AASValueReferencePair.
+     *
+     * @param value The desired ValueList.
+     * @return The converted AASValueReferencePair.
+     */
     public static AASValueReferencePair[] convertValueList(ValueList value) {
         List<AASValueReferencePair> retval = new ArrayList<>();
         if (value != null) {

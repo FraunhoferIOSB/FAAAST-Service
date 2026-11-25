@@ -53,6 +53,12 @@ public class BaseDataCreator {
     }
 
 
+    /**
+     * Get the HasSemantics information.
+     *
+     * @param semantics The desired HasSemantics
+     * @return The corresponding AASHasSemantics
+     */
     public static AASHasSemantics getHasSemantics(HasSemantics semantics) {
         if (semantics == null) {
             return null;
@@ -70,6 +76,12 @@ public class BaseDataCreator {
     }
 
 
+    /**
+     * Get the HasDataSpecification information.
+     *
+     * @param dataSpecification The desired HasDataSpecification.
+     * @return The corresponding HasDataSpecification
+     */
     public static AASHasDataSpecification getHasDataSpecification(HasDataSpecification dataSpecification) {
         if (dataSpecification == null) {
             return null;

@@ -247,6 +247,12 @@ public class SubmodelElementCreator {
     }
 
 
+    /**
+     * Gets the name from the given reference.
+     *
+     * @param reference The desired reference.
+     * @return The corresponding name.
+     */
     protected static String getNameFromReference(Reference reference) {
         String retval;
         Ensure.requireNonNull(reference);

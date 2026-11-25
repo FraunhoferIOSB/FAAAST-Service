@@ -126,6 +126,15 @@ public class EntityCreator extends SubmodelElementCreator {
     }
 
 
+    /**
+     * Sets the GlobalAssetId data in the given entity.
+     *
+     * @param entityNode The desired entity.
+     * @param value the desired GlobalAssetId value.
+     * @param nodeManager The Node Manager.
+     * @throws StatusException If an error occurs.
+     * @throws ServiceResultException If an error occurs.
+     */
     public static void setGlobalAssetIdData(AASEntityType entityNode, String value, NodeManagerUaNode nodeManager)
             throws StatusException, ServiceResultException {
         if (entityNode.getGlobalAssetIdNode() == null) {

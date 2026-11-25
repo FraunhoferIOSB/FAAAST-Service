@@ -73,7 +73,7 @@ public class ConceptDescriptionCreator {
     private static DictionaryFolderTypeNode dictEntriesFolder = null;
 
     /**
-     * Maps AAS references to dictionary entry types
+     * Maps AAS references to dictionary entry types.
      */
     private static final Map<Reference, DictionaryEntryType> dictionaryMap = new HashMap<>();
 

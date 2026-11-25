@@ -62,7 +62,7 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Class for the OPC UA server
+ * Class for the OPC UA server.
  */
 public class Server {
 
@@ -223,9 +223,9 @@ public class Server {
 
 
     /**
-     * Stops the OPC UA server
+     * Stops the OPC UA server.
      *
-     * @param secondsTillShutdown The number of seconds until the server stops
+     * @param secondsTillShutdown The number of seconds until the server stops.
      */
     public void shutdown(int secondsTillShutdown) {
         running = false;
@@ -234,9 +234,9 @@ public class Server {
 
 
     /**
-     * Indicates whether the server is running
+     * Indicates whether the server is running.
      *
-     * @return True if the server is running, false otherwise
+     * @return True if the server is running, false otherwise.
      */
     public boolean isRunning() {
         return running;
@@ -244,7 +244,7 @@ public class Server {
 
 
     /**
-     * Initialize the information for the Server BuildInfo structure
+     * Initialize the information for the Server BuildInfo structure.
      */
     protected void initBuildInfo() {
         // Initialize BuildInfo - using the version info from the SDK
@@ -291,7 +291,7 @@ public class Server {
 
 
     /**
-     * Creates the server address space
+     * Creates the server address space.
      */
     private void createAddressSpace() {
         try {
@@ -328,7 +328,7 @@ public class Server {
 
 
     /**
-     * Loads the AAS nodes from the NodeSet file
+     * Loads the AAS nodes from the NodeSet file.
      */
     private void loadAasNodes() {
         long start = System.currentTimeMillis();

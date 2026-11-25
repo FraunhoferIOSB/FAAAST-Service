@@ -20,7 +20,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 
 
 /**
- * Class with data for Submodel elements
+ * Class with data for Submodel elements.
  */
 public class SubmodelElementData {
 
@@ -30,12 +30,12 @@ public class SubmodelElementData {
     private final Reference reference;
 
     /**
-     * Creates a new instance of SubmodelElementData
+     * Creates a new instance of SubmodelElementData.
      *
-     * @param submodelElement The desired SubmodelElement
-     * @param submodel The desired Submodel
-     * @param type The desired type
-     * @param reference The desired reference
+     * @param submodelElement The desired SubmodelElement.
+     * @param submodel The desired Submodel.
+     * @param type The desired type.
+     * @param reference The desired reference.
      */
     public SubmodelElementData(SubmodelElement submodelElement, Submodel submodel, Type type, Reference reference) {
         this.submodelElement = submodelElement;
@@ -46,9 +46,9 @@ public class SubmodelElementData {
 
 
     /**
-     * Gets the SubmodelElement
+     * Gets the SubmodelElement.
      *
-     * @return The desired SubmodelElement
+     * @return The desired SubmodelElement.
      */
     public SubmodelElement getSubmodelElement() {
         return submodelElement;
@@ -56,9 +56,9 @@ public class SubmodelElementData {
 
 
     /**
-     * Gets the Submodel
+     * Gets the Submodel.
      *
-     * @return The desired Submodel
+     * @return The desired Submodel.
      */
     public Submodel getSubmodel() {
         return submodel;
@@ -66,9 +66,9 @@ public class SubmodelElementData {
 
 
     /**
-     * Gets the type
+     * Gets the type.
      *
-     * @return The type
+     * @return The type.
      */
     public Type getType() {
         return type;
@@ -78,7 +78,7 @@ public class SubmodelElementData {
     /**
      * Gets the reference.
      *
-     * @return The reference
+     * @return The reference.
      */
     public Reference getReference() {
         return reference;

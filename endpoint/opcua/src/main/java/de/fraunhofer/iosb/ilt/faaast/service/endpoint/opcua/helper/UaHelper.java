@@ -92,6 +92,15 @@ public class UaHelper {
     }
 
 
+    /**
+     * Creates a FileTypeNode.
+     *
+     * @param filePath The file path.
+     * @param parentNode The parent node.
+     * @param name The desired name.
+     * @param nodeManager The Node Manager.
+     * @return The created FileTypeNode.
+     */
     public static FileTypeNode createFile(String filePath, UaNode parentNode, String name, AasServiceNodeManager nodeManager) {
         FileTypeNode retval = null;
         Path path = null;
@@ -136,6 +145,12 @@ public class UaHelper {
     }
 
 
+    /**
+     * Checks whether the given string is an URI.
+     *
+     * @param input The desired input.
+     * @return True, if's an URI, false if not.
+     */
     public static boolean isUri(String input) {
         Ensure.requireNonNull(input);
         boolean retval;

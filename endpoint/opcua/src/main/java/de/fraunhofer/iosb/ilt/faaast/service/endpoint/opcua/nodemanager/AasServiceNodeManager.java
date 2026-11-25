@@ -33,7 +33,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.SubmodelElem
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.AasSubmodelElementHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.UaHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.listener.AasServiceMethodManagerListener;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
@@ -84,68 +83,68 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * A Node Manager for the AAS information model
+ * A Node Manager for the AAS information model.
  */
 public class AasServiceNodeManager extends NodeManagerUaNode {
 
     /**
-     * Make certain variable values read-only, because writing would not make
+     * Make certain variable values read-only, because writing would not make.
      * sense
      */
     public static final boolean VALUES_READ_ONLY = true;
 
     /**
-     * Text if node is null
+     * Text if node is null.
      */
     public static final String NODE_NULL = "node is null";
 
     /**
-     * Text for addIdentifiable Exception
+     * Text for addIdentifiable Exception.
      */
     public static final String ADD_IDENT_EXC = "addIdentifiable Exception";
 
     /**
-     * Text for Address Space Exception
+     * Text for Address Space Exception.
      */
     private static final String ERROR_ADDRESS_SPACE = "Error creating address space";
 
     /**
-     * Text if value is null
+     * Text if value is null.
      */
     private static final String VALUE_NULL = "value must not be null";
 
     /**
-     * Text if element is null
+     * Text if element is null.
      */
     private static final String ELEMENT_NULL = "element must not be null";
 
     /**
-     * The namespace URI of this node manager
+     * The namespace URI of this node manager.
      */
     public static final String NAMESPACE_URI = "http://www.iosb.fraunhofer.de/ILT/AAS/FA3ST";
 
     /**
-     * The logger for this class
+     * The logger for this class.
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(AasServiceNodeManager.class);
 
     /**
-     * The associated Endpoint
+     * The associated Endpoint.
      */
     private final OpcUaEndpoint endpoint;
 
     /**
-     * The OPC UA Node for the AAS Environment
+     * The OPC UA Node for the AAS Environment.
      */
     private final AASEnvironmentType aasEnvironmentNode;
 
     /**
-     * The AAS environment associated with this Node Manager
+     * The AAS environment associated with this Node Manager.
      */
     private Environment aasEnvironment;
 
     /**
-     * Maps NodeIds to AAS Data (e.g. Properties and operations)
+     * Maps NodeIds to AAS Data (e.g. Properties and operations).
      */
     private final Map<NodeId, SubmodelElementData> submodelElementAasMap;
 
@@ -155,17 +154,17 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     private final Map<SubmodelElementIdentifier, UaNode> submodelElementOpcUaMap;
 
     /**
-     * Maps Submodel references to the OPC UA Submodel
+     * Maps Submodel references to the OPC UA Submodel.
      */
     private final Map<SubmodelElementIdentifier, UaNode> submodelOpcUAMap;
 
     /**
-     * Maps reference to the corresponding Referable elements
+     * Maps reference to the corresponding Referable elements.
      */
     private final Map<Reference, ObjectData> referableMap;
 
     /**
-     * The MessageBus for signalling changes, e.g. changed values
+     * The MessageBus for signalling changes, e.g. changed values.
      */
     private final MessageBus<?> messageBus;
 
@@ -175,22 +174,17 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     private final List<SubscriptionId> subscriptions;
 
     /**
-     * The counter for default NodeIds
+     * The counter for default NodeIds.
      */
     private int nodeIdCounter;
 
     /**
-     * Maps references to ConceptDescriptions.
-     */
-    private final Map<String, ConceptDescription> conceptDescriptions;
-
-    /**
-     * Creates a new instance of AasServiceNodeManager
+     * Creates a new instance of AasServiceNodeManager.
      *
      * @param server the server in which the node manager is created.
-     * @param namespaceUri the namespace URI for the nodes
-     * @param aasEnvironment the AAS environment
-     * @param endpoint the associated endpoint
+     * @param namespaceUri the namespace URI for the nodes.
+     * @param aasEnvironment the AAS environment.
+     * @param endpoint the associated endpoint.
      * @param environmentNode The environment node in the Address space.
      */
     public AasServiceNodeManager(UaServer server, String namespaceUri, Environment aasEnvironment, OpcUaEndpoint endpoint, AASEnvironmentType environmentNode) {
@@ -205,7 +199,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         submodelElementOpcUaMap = new ConcurrentHashMap<>();
         submodelOpcUAMap = new ConcurrentHashMap<>();
         referableMap = new ConcurrentHashMap<>();
-        conceptDescriptions = new ConcurrentHashMap<>();
 
         messageBus = endpoint.getMessageBus();
         Ensure.requireNonNull(messageBus, "messageBus must not be null");
@@ -250,8 +243,8 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     /**
      * Gets the AAS Data for the given NodeId.
      *
-     * @param node The desired NodeId
-     * @return The associated AAS Data, null if it was not found
+     * @param node The desired NodeId.
+     * @return The associated AAS Data, null if it was not found.
      */
     public SubmodelElementData getAasData(NodeId node) {
         SubmodelElementData retval = null;
@@ -286,18 +279,15 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     /**
      * Creates the AAS nodes in the address space.
      *
-     * @throws StatusException If the operation fails
-     * @throws ServiceException If the operation fails
-     * @throws AddressSpaceException If the operation fails
-     * @throws ServiceResultException If the operation fails
-     * @throws ValueFormatException The data format of the value is invalid
-     * @throws AmbiguousElementException if there are multiple matching elements in the environment
+     * @throws StatusException If the operation fails.
+     * @throws ServiceException If the operation fails.
+     * @throws AddressSpaceException If the operation fails.
+     * @throws ServiceResultException If the operation fails.
+     * @throws ValueFormatException The data format of the value is invalid.
+     * @throws AmbiguousElementException if there are multiple matching elements in the environment.
      */
     private void createAasNodes()
             throws StatusException, ServiceResultException, ServiceException, AddressSpaceException, ValueFormatException, AmbiguousElementException {
-        for (ConceptDescription c: aasEnvironment.getConceptDescriptions()) {
-            conceptDescriptions.put(c.getId(), c);
-        }
         ConceptDescriptionCreator.addConceptDescriptions(aasEnvironmentNode, aasEnvironment.getConceptDescriptions(), this);
 
         List<Submodel> submodels = aasEnvironment.getSubmodels();
@@ -318,7 +308,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     /**
      * Subscribes to Events on the MessageBus (e.g. ValueChangeEvents).
      *
-     * @throws MessageBusException if subscribing fails
+     * @throws MessageBusException if subscribing fails.
      */
     private void subscribeMessageBus() throws MessageBusException {
         LOGGER.debug("subscribeMessageBus: subscribe ValueChangeEvents");
@@ -369,13 +359,13 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      *
      * @param element Reference to the created element.
      * @param value The element that was added.
-     * @throws StatusException If the operation fails
-     * @throws ServiceResultException If the operation fails
-     * @throws ServiceException If the operation fails
-     * @throws AddressSpaceException If the operation fails
-     * @throws ValueFormatException The data format of the value is invalid
-     * @throws AmbiguousElementException if there are multiple matching elements in the environment
-     * @throws PersistenceException if accessing the environment fails
+     * @throws StatusException If the operation fails.
+     * @throws ServiceResultException If the operation fails.
+     * @throws ServiceException If the operation fails.
+     * @throws AddressSpaceException If the operation fails.
+     * @throws ValueFormatException The data format of the value is invalid.
+     * @throws AmbiguousElementException if there are multiple matching elements in the environment.
+     * @throws PersistenceException if accessing the environment fails.
      */
     private void elementCreated(Reference element, Referable value)
             throws StatusException, ServiceResultException, ServiceException, AddressSpaceException, ValueFormatException, AmbiguousElementException, PersistenceException {
@@ -421,7 +411,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * Handles an elementDeleted event.
      *
      * @param element Reference to the deleted element.
-     * @throws StatusException If the operation fails
+     * @throws StatusException If the operation fails.
      */
     private void elementDeleted(Reference element) throws StatusException {
         Ensure.requireNonNull(element, ELEMENT_NULL);
@@ -489,12 +479,12 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     /**
      * Update the value of a SubmodelElement.
      *
-     * @param reference The reference of the desired SubmodelElement
-     * @param newValue The new value of the SubmodelElement
-     * @param oldValue The old value of the SubmodelElement
-     * @throws StatusException If the operation fails
-     * @throws ValueFormatException The data format of the value is invalid
-     * @throws ServiceResultException If the operation fails
+     * @param reference The reference of the desired SubmodelElement.
+     * @param newValue The new value of the SubmodelElement.
+     * @param oldValue The old value of the SubmodelElement.
+     * @throws StatusException If the operation fails.
+     * @throws ValueFormatException The data format of the value is invalid.
+     * @throws ServiceResultException If the operation fails.
      */
     public void updateSubmodelElementValue(Reference reference, ElementValue newValue, ElementValue oldValue) throws StatusException, ValueFormatException, ServiceResultException {
         Ensure.requireNonNull(reference, "reference must not be null");
@@ -514,7 +504,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     /**
      * Gets the next availabe default NodeId.
      * 
-     * @return The desired NodeId
+     * @return The desired NodeId.
      */
     public NodeId getDefaultNodeId() {
         return new NodeId(getNamespaceIndex(), ++nodeIdCounter);
@@ -536,7 +526,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * Retrieves the Submodel node for the given reference.
      * 
      * @param reference The desired submodel reference.
-     * @return The coresponding Submodel node
+     * @return The coresponding Submodel node.
      */
     public UaNode getSubmodelNode(Reference reference) {
         return submodelOpcUAMap.get(SubmodelElementIdentifier.fromReference(reference));
@@ -587,18 +577,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     }
 
 
-    public ConceptDescription getConceptDescription(Reference semanticId) {
-        // If a particular (Supplemental)SemanticId describes an ExternalReference, 
-        // where referredSemanticId is missing, and key contains exactly one element, 
-        // where key[0].type is set GlobalReference:
-        String id = UaHelper.extractId(semanticId);
-        if (conceptDescriptions.containsKey(id)) {
-            return conceptDescriptions.get(id);
-        }
-        return null;
-    }
-
-
     /**
      * Removes the given node (and all sub-nodes) from the maps.
      *
@@ -632,8 +610,8 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     /**
      * Removes the given SubmodelElement from the maps.
      *
-     * @param element The desired SubmodelElement
-     * @param reference The reference to the desired SubmodelElement
+     * @param element The desired SubmodelElement.
+     * @param reference The reference to the desired SubmodelElement.
      */
     private void doRemoveFromMaps(AASSubmodelElementVariableType element, Reference reference) {
         LOGGER.atDebug().log("doRemoveFromMaps: remove SubmodelElement {}", ReferenceHelper.toString(reference));
@@ -641,32 +619,35 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         submodelElementOpcUaMap.remove(smid);
         LOGGER.atDebug().log("doRemoveFromMaps: remove SubmodelElement from submodelElementOpcUAMap: {}", ReferenceHelper.toString(reference));
 
-        if (element instanceof AASPropertyType prop) {
-            if (submodelElementAasMap.containsKey(prop.getNodeId())) {
-                submodelElementAasMap.remove(prop.getNodeId());
-                LOGGER.debug("doRemoveFromMaps: remove Property NodeId {}", prop.getNodeId());
+        switch (element) {
+            case AASPropertyType prop -> {
+                if (submodelElementAasMap.containsKey(prop.getNodeId())) {
+                    submodelElementAasMap.remove(prop.getNodeId());
+                    LOGGER.debug("doRemoveFromMaps: remove Property NodeId {}", prop.getNodeId());
+                }
+            }
+            case AASRangeType range -> {
+                if (submodelElementAasMap.containsKey(range.getNodeId())) {
+                    submodelElementAasMap.remove(range.getNodeId());
+                    LOGGER.debug("doRemoveFromMaps: remove Range Max NodeId {}", range.getNodeId());
+                }
+            }
+            case AASMultiLanguagePropertyType mlp -> {
+                if (submodelElementAasMap.containsKey(mlp.getNodeId())) {
+                    submodelElementAasMap.remove(mlp.getNodeId());
+                    LOGGER.debug("doRemoveFromMaps: remove AASMultiLanguageProperty NodeId {}", mlp.getNodeId());
+                }
+            }
+            case AASReferenceElementType refElem -> {
+                NodeId nid = refElem.getNodeId();
+                if (submodelElementAasMap.containsKey(nid)) {
+                    submodelElementAasMap.remove(nid);
+                    LOGGER.debug("doRemoveFromMaps: remove AASReferenceElement NodeId {}", nid);
+                }
+            }
+            default -> {
             }
         }
-        else if (element instanceof AASRangeType range) {
-            if (submodelElementAasMap.containsKey(range.getNodeId())) {
-                submodelElementAasMap.remove(range.getNodeId());
-                LOGGER.debug("doRemoveFromMaps: remove Range Max NodeId {}", range.getNodeId());
-            }
-        }
-        else if (element instanceof AASMultiLanguagePropertyType mlp) {
-            if (submodelElementAasMap.containsKey(mlp.getNodeId())) {
-                submodelElementAasMap.remove(mlp.getNodeId());
-                LOGGER.debug("doRemoveFromMaps: remove AASMultiLanguageProperty NodeId {}", mlp.getNodeId());
-            }
-        }
-        else if (element instanceof AASReferenceElementType refElem) {
-            NodeId nid = refElem.getNodeId();
-            if (submodelElementAasMap.containsKey(nid)) {
-                submodelElementAasMap.remove(nid);
-                LOGGER.debug("doRemoveFromMaps: remove AASReferenceElement NodeId {}", nid);
-            }
-        }
-
         // Capability and File are currently not relevant here
     }
 
@@ -674,9 +655,9 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     /**
      * Removes the given SubmodelElement from the maps.
      *
-     * @param element The desired SubmodelElement
-     * @param reference The reference to the desired SubmodelElement
-     * @param referable The corresponding referable
+     * @param element The desired SubmodelElement.
+     * @param reference The reference to the desired SubmodelElement.
+     * @param referable The corresponding referable.
      */
     private void doRemoveFromMaps(AASSubmodelElementObjectType element, Reference reference, Referable referable) {
         LOGGER.atDebug().log("doRemoveFromMaps: remove SubmodelElement {}", ReferenceHelper.toString(reference));
@@ -752,18 +733,18 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * Removes the given SubmodelElement from the maps.
      *
      * @param parent The reference to the parent element.
-     * @param de The desired SubmodelElement
+     * @param de The desired SubmodelElement.
      */
     private void doRemoveFromMaps(Reference parent, SubmodelElement de) {
         Reference ref = AasUtils.toReference(parent, de);
         var entry = ReferenceHelper.getEntryBySameReference(referableMap, ref);
         if (entry != null) {
             ObjectData element = referableMap.remove(entry.getKey());
-            if (element.getNode() instanceof AASSubmodelElementVariableType aasSubmodelElementVariable) {
-                doRemoveFromMaps(aasSubmodelElementVariable, ref);
-            }
-            else if (element.getNode() instanceof AASSubmodelElementObjectType aasSubmodelElementObject) {
-                doRemoveFromMaps(aasSubmodelElementObject, ref, de);
+            switch (element.getNode()) {
+                case AASSubmodelElementVariableType aasSubmodelElementVariable -> doRemoveFromMaps(aasSubmodelElementVariable, ref);
+                case AASSubmodelElementObjectType aasSubmodelElementObject -> doRemoveFromMaps(aasSubmodelElementObject, ref, de);
+                default -> {
+                }
             }
         }
         else {
@@ -776,7 +757,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * Removes the given SubmodelElement from the maps.
      *
      * @param reference The reference to the desired submodel.
-     * @param submodel The desired submodel
+     * @param submodel The desired submodel.
      */
     private void doRemoveFromMaps(Reference reference, Submodel submodel) {
         LOGGER.atDebug().log("doRemoveFromMaps: remove submodel {}", ReferenceHelper.toString(reference));
@@ -794,20 +775,20 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
 
     private void addQualifier(ObjectData parent, Referable value) {
-        if (parent.getNode() instanceof AASSubmodelType aasSubmodelType) {
-            if (aasSubmodelType.getCommonAttributes().getQualifiable() == null) {
-                aasSubmodelType.getCommonAttributes().setQualifiable(new AASQualifiable());
+        switch (parent.getNode()) {
+            case AASSubmodelType aasSubmodelType -> {
+                if (aasSubmodelType.getCommonAttributes().getQualifiable() == null) {
+                    aasSubmodelType.getCommonAttributes().setQualifiable(new AASQualifiable());
+                }
+                QualifierCreator.addQualifiers(aasSubmodelType.getCommonAttributes().getQualifiable(), List.of((Qualifier) value));
             }
-            QualifierCreator.addQualifiers(aasSubmodelType.getCommonAttributes().getQualifiable(), List.of((Qualifier) value));
-        }
-        else if (parent.getNode() instanceof AASSubmodelElementVariableType aasSubmodelElementVariable) {
-            if (aasSubmodelElementVariable.getCommonAttributes().getQualifiable() == null) {
-                aasSubmodelElementVariable.getCommonAttributes().setQualifiable(new AASQualifiable());
+            case AASSubmodelElementVariableType aasSubmodelElementVariable -> {
+                if (aasSubmodelElementVariable.getCommonAttributes().getQualifiable() == null) {
+                    aasSubmodelElementVariable.getCommonAttributes().setQualifiable(new AASQualifiable());
+                }
+                QualifierCreator.addQualifiers(aasSubmodelElementVariable.getCommonAttributes().getQualifiable(), List.of((Qualifier) value));
             }
-            QualifierCreator.addQualifiers(aasSubmodelElementVariable.getCommonAttributes().getQualifiable(), List.of((Qualifier) value));
-        }
-        else {
-            LOGGER.debug("addQualifier: Constraint parent class not found");
+            default -> LOGGER.debug("addQualifier: Constraint parent class not found");
         }
     }
 

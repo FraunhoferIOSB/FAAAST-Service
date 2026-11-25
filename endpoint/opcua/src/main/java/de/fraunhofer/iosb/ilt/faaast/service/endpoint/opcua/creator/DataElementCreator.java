@@ -66,6 +66,16 @@ public class DataElementCreator extends SubmodelElementCreator {
     }
 
 
+    /**
+     * Creates an AASDataElement.
+     *
+     * @param aasDataElement The AAS DataElement.
+     * @param elementRef The element reference.
+     * @param submodel The corresponding Submodel.
+     * @param nodeManager The Node Manager.
+     * @return The created AASDataElement.
+     * @throws StatusException If an error occurs.
+     */
     public static UaNode createAasDataElement(DataElement aasDataElement, Reference elementRef, Submodel submodel, AasServiceNodeManager nodeManager)
             throws StatusException {
         UaNode retval = null;

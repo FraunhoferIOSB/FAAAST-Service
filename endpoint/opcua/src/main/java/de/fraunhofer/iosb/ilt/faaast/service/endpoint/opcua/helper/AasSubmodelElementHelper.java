@@ -70,16 +70,16 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Class with helper methods for SubmodelElements used by the NodeManager
+ * Class with helper methods for SubmodelElements used by the NodeManager.
  */
 public class AasSubmodelElementHelper {
     /**
-     * The logger for this class
+     * The logger for this class.
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(AasSubmodelElementHelper.class);
 
     /**
-     * Text if value is null
+     * Text if value is null.
      */
     private static final String VALUE_NULL = "value must not be null";
 
