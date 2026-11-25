@@ -620,23 +620,17 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         LOGGER.atDebug().log("doRemoveFromMaps: remove SubmodelElement from submodelElementOpcUAMap: {}", ReferenceHelper.toString(reference));
 
         switch (element) {
-            case AASPropertyType prop -> {
-                if (submodelElementAasMap.containsKey(prop.getNodeId())) {
-                    submodelElementAasMap.remove(prop.getNodeId());
-                    LOGGER.debug("doRemoveFromMaps: remove Property NodeId {}", prop.getNodeId());
-                }
+            case AASPropertyType prop when submodelElementAasMap.containsKey(prop.getNodeId()) -> {
+                submodelElementAasMap.remove(prop.getNodeId());
+                LOGGER.debug("doRemoveFromMaps: remove Property NodeId {}", prop.getNodeId());
             }
-            case AASRangeType range -> {
-                if (submodelElementAasMap.containsKey(range.getNodeId())) {
-                    submodelElementAasMap.remove(range.getNodeId());
-                    LOGGER.debug("doRemoveFromMaps: remove Range Max NodeId {}", range.getNodeId());
-                }
+            case AASRangeType range when submodelElementAasMap.containsKey(range.getNodeId()) -> {
+                submodelElementAasMap.remove(range.getNodeId());
+                LOGGER.debug("doRemoveFromMaps: remove Range Max NodeId {}", range.getNodeId());
             }
-            case AASMultiLanguagePropertyType mlp -> {
-                if (submodelElementAasMap.containsKey(mlp.getNodeId())) {
-                    submodelElementAasMap.remove(mlp.getNodeId());
-                    LOGGER.debug("doRemoveFromMaps: remove AASMultiLanguageProperty NodeId {}", mlp.getNodeId());
-                }
+            case AASMultiLanguagePropertyType mlp when submodelElementAasMap.containsKey(mlp.getNodeId()) -> {
+                submodelElementAasMap.remove(mlp.getNodeId());
+                LOGGER.debug("doRemoveFromMaps: remove AASMultiLanguageProperty NodeId {}", mlp.getNodeId());
             }
             case AASReferenceElementType refElem -> {
                 NodeId nid = refElem.getNodeId();
@@ -646,6 +640,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 }
             }
             default -> {
+                LOGGER.trace("SubmodelElement type not found / not relevant");
             }
         }
         // Capability and File are currently not relevant here
@@ -733,17 +728,18 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * Removes the given SubmodelElement from the maps.
      *
      * @param parent The reference to the parent element.
-     * @param de The desired SubmodelElement.
+     * @param submodelElement The desired SubmodelElement.
      */
-    private void doRemoveFromMaps(Reference parent, SubmodelElement de) {
-        Reference ref = AasUtils.toReference(parent, de);
+    private void doRemoveFromMaps(Reference parent, SubmodelElement submodelElement) {
+        Reference ref = AasUtils.toReference(parent, submodelElement);
         var entry = ReferenceHelper.getEntryBySameReference(referableMap, ref);
         if (entry != null) {
             ObjectData element = referableMap.remove(entry.getKey());
             switch (element.getNode()) {
                 case AASSubmodelElementVariableType aasSubmodelElementVariable -> doRemoveFromMaps(aasSubmodelElementVariable, ref);
-                case AASSubmodelElementObjectType aasSubmodelElementObject -> doRemoveFromMaps(aasSubmodelElementObject, ref, de);
+                case AASSubmodelElementObjectType aasSubmodelElementObject -> doRemoveFromMaps(aasSubmodelElementObject, ref, submodelElement);
                 default -> {
+                    LOGGER.trace("SubmodelElement Node not found");
                 }
             }
         }
