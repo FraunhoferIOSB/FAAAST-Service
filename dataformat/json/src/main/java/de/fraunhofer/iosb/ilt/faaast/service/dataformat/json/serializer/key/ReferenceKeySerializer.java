@@ -18,24 +18,21 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.SerializationContext;
-import tools.jackson.databind.ValueSerializer;
+import tools.jackson.databind.ser.jdk.JDKKeySerializers;
 
 
 /**
  * Serializer for Reference objects when used as key in lists.
  */
-public class ReferenceKeySerializer extends ValueSerializer<Object> {
+public class ReferenceKeySerializer extends JDKKeySerializers.StringKeySerializer {
 
     @Override
     public void serialize(Object key, JsonGenerator gen, SerializationContext context) {
         if (key instanceof Reference reference) {
             gen.writeName(ReferenceHelper.asString(reference));
         }
-        else if (key != null) {
-            gen.writeName(key.toString());
-        }
         else {
-            gen.writeName("");
+            super.serialize(key, gen, context);
         }
     }
 }
