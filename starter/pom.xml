@@ -315,7 +315,7 @@
             <repositories>
                 <repository>
                     <id>faaast-libs-prosys</id>
-                    <url>https://prosys-opcua.k3s.ilt-dmz.iosb.fraunhofer.de/artifactory/thirdparty-local/</url>
+                    <url>https://ilt-artifactory.iosb.fraunhofer.de/artifactory/prosys-local-repo/</url>
                 </repository>
             </repositories>
         </profile>
