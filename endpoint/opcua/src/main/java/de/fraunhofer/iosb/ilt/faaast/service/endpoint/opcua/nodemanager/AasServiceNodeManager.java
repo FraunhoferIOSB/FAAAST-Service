@@ -639,9 +639,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                     LOGGER.debug("doRemoveFromMaps: remove AASReferenceElement NodeId {}", nid);
                 }
             }
-            default -> {
-                LOGGER.trace("SubmodelElement type not found / not relevant");
-            }
+            default -> LOGGER.trace("SubmodelElement type not found / not relevant");
         }
         // Capability and File are currently not relevant here
     }
@@ -738,9 +736,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             switch (element.getNode()) {
                 case AASSubmodelElementVariableType aasSubmodelElementVariable -> doRemoveFromMaps(aasSubmodelElementVariable, ref);
                 case AASSubmodelElementObjectType aasSubmodelElementObject -> doRemoveFromMaps(aasSubmodelElementObject, ref, submodelElement);
-                default -> {
-                    LOGGER.trace("SubmodelElement Node not found");
-                }
+                default -> LOGGER.trace("SubmodelElement Node not found");
             }
         }
         else {
