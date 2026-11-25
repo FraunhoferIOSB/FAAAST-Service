@@ -18,7 +18,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.EnvironmentContext;
 import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.FileHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ImplementationManager;
 import io.github.classgraph.ClassGraph;
+import io.github.classgraph.ClassInfo;
 import io.github.classgraph.ScanResult;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
@@ -33,8 +35,8 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Provides access to {@link EnvironmentSerializer}s and {@link EnvironmentDeserializer}s based on desired
- * {@link DataFormat}.
+ * Provides access to {@link EnvironmentSerializer}s and
+ * {@link EnvironmentDeserializer}s based on desired {@link DataFormat}.
  */
 public class EnvironmentSerializationManager {
 
@@ -48,6 +50,11 @@ public class EnvironmentSerializationManager {
     private EnvironmentSerializationManager() {}
 
 
+    private static Class<?> loadClass(ClassInfo classInfo) throws ClassNotFoundException {
+        return Class.forName(classInfo.getName(), false, Thread.currentThread().getContextClassLoader());
+    }
+
+
     private static void init() {
         if (initialized) {
             return;
@@ -57,29 +64,36 @@ public class EnvironmentSerializationManager {
         deserializers = new EnumMap<>(DataFormat.class);
         try (ScanResult scanResult = new ClassGraph()
                 .enableClassInfo()
+                .enableClassLoaders(ImplementationManager.getClassLoader())
                 .enableAnnotationInfo()
                 .scan()) {
             for (var classInfo: scanResult.getClassesWithAnnotation(SupportedDataformat.class)) {
-                DataFormat dataFormat = ((SupportedDataformat) classInfo.getAnnotationInfo(SupportedDataformat.class).loadClassAndInstantiate()).value();
-                if (classInfo.implementsInterface(EnvironmentSerializer.class)) {
-                    try {
-                        // ensure default constructor is present
-                        classInfo.loadClass().getConstructor();
-                        serializers.put(dataFormat, classInfo.loadClass(EnvironmentSerializer.class));
+                try {
+                    Class<?> cls = loadClass(classInfo);
+                    DataFormat dataFormat = cls.getAnnotation(SupportedDataformat.class).value();
+                    if (classInfo.implementsInterface(EnvironmentSerializer.class)) {
+                        try {
+                            // ensure default constructor is present
+                            cls.getConstructor();
+                            serializers.put(dataFormat, cls.asSubclass(EnvironmentSerializer.class));
+                        }
+                        catch (NoSuchMethodException e) {
+                            LOGGER.warn("ignoring serializer because of missing default constructor (class: {})", classInfo.getName());
+                        }
                     }
-                    catch (NoSuchMethodException e) {
-                        LOGGER.warn("ignoring serializer because of missing default constructor (class: {})", classInfo.getName());
+                    if (classInfo.implementsInterface(EnvironmentDeserializer.class)) {
+                        try {
+                            // ensure default constructor is present
+                            cls.getConstructor();
+                            deserializers.put(dataFormat, cls.asSubclass(EnvironmentDeserializer.class));
+                        }
+                        catch (NoSuchMethodException e) {
+                            LOGGER.warn("ignoring deserializer because of missing default constructor (class: {})", classInfo.getName());
+                        }
                     }
                 }
-                if (classInfo.implementsInterface(EnvironmentDeserializer.class)) {
-                    try {
-                        // ensure default constructor is present
-                        classInfo.loadClass().getConstructor();
-                        deserializers.put(dataFormat, classInfo.loadClass(EnvironmentDeserializer.class));
-                    }
-                    catch (NoSuchMethodException e) {
-                        LOGGER.warn("ignoring deserializer because of missing default constructor (class: {})", classInfo.getName());
-                    }
+                catch (ClassNotFoundException e) {
+                    LOGGER.warn("failed to load de-/serializer (class: {})", classInfo.getName());
                 }
             }
         }
@@ -91,8 +105,8 @@ public class EnvironmentSerializationManager {
      *
      * @param dataFormat the dataFormat
      * @return suitable {@link EnvironmentSerializer} for the dataFormat
-     * @throws IllegalArgumentException if no {@link EnvironmentSerializer} exists for given dataType or instantiation
-     *             fails
+     * @throws IllegalArgumentException if no {@link EnvironmentSerializer}
+     *             exists for given dataType or instantiation fails
      */
     public static EnvironmentSerializer serializerFor(DataFormat dataFormat) {
         Ensure.requireNonNull(dataFormat, MSG_DATA_FORMAT_MUST_BE_NON_NULL);
@@ -115,8 +129,8 @@ public class EnvironmentSerializationManager {
      *
      * @param dataFormat the dataFormat
      * @return suitable {@link EnvironmentDeserializer} for the dataFormat
-     * @throws IllegalArgumentException if no {@link EnvironmentDeserializer} exists for given dataType or instantiation
-     *             fails
+     * @throws IllegalArgumentException if no {@link EnvironmentDeserializer}
+     *             exists for given dataType or instantiation fails
      */
     public static EnvironmentDeserializer deserializerFor(DataFormat dataFormat) {
         Ensure.requireNonNull(dataFormat, MSG_DATA_FORMAT_MUST_BE_NON_NULL);
@@ -135,8 +149,8 @@ public class EnvironmentSerializationManager {
 
 
     /**
-     * Reads an {@link Environment} from given file while automatically determining used data
-     * format based on file extension.
+     * Reads an {@link Environment} from given file while automatically
+     * determining used data format based on file extension.
      *
      * @param file the file to read
      * @return the deserialized environment context
@@ -166,13 +180,17 @@ public class EnvironmentSerializationManager {
 
 
     /**
-     * Gets the {@link de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat} for a given file. This is
-     * based on the file extension and in a second step the content of the file.
+     * Gets the
+     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat}
+     * for a given file. This is based on the file extension and in a second
+     * step the content of the file.
      *
      * @param file the input file
      * @return the data format of the file
-     * @throws DeserializationException if there is now data format matching the file extension
-     * @throws DeserializationException file cannot be deserialized in any supported data format
+     * @throws DeserializationException if there is now data format matching the
+     *             file extension
+     * @throws DeserializationException file cannot be deserialized in any
+     *             supported data format
      */
     public static DataFormat getDataFormat(File file) throws DeserializationException {
         List<DataFormat> potentialDataFormats = getPotentialDataFormats(file);

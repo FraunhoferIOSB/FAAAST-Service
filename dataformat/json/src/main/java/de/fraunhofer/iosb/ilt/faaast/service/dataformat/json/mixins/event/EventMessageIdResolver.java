@@ -19,6 +19,8 @@ import com.fasterxml.jackson.databind.DatabindContext;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.jsontype.impl.TypeIdResolverBase;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.EventMessage;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ImplementationManager;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReflectionHelper;
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ScanResult;
 import java.util.List;
@@ -26,7 +28,8 @@ import java.util.Objects;
 
 
 /**
- * Resolves type ids for event serialization; class name [...]EventMessage is equivalent to id [...]Event.
+ * Resolves type ids for event serialization; class name [...]EventMessage is
+ * equivalent to id [...]Event.
  */
 public class EventMessageIdResolver extends TypeIdResolverBase {
 
@@ -90,11 +93,14 @@ public class EventMessageIdResolver extends TypeIdResolverBase {
     private List<Class<EventMessage>> getEventMessagesTypes() {
         try (ScanResult scanResult = new ClassGraph()
                 .acceptPackages(EventMessage.class.getPackageName())
-                .enableClassInfo().scan()) {
-            return scanResult
-                    .getSubclasses(EventMessage.class)
-                    .filter(x -> !x.isAbstract())
-                    .loadClasses(EventMessage.class);
+                .enableClassInfo()
+                .enableClassLoaders(ImplementationManager.getClassLoader())
+                .scan()) {
+            return ReflectionHelper.loadClasses(
+                    scanResult
+                            .getAllSubclasses(EventMessage.class)
+                            .filter(x -> !x.isAbstract()),
+                    EventMessage.class);
         }
     }
 

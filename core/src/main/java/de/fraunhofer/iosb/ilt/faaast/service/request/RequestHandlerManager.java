@@ -26,6 +26,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.TypeInstantiationEx
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValidationException;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ImplementationManager;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReflectionHelper;
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ScanResult;
 import java.lang.reflect.InvocationTargetException;
@@ -62,10 +64,11 @@ public class RequestHandlerManager {
         // TODO implement build-time scan to improve performance (see https://github.com/classgraph/classgraph/wiki/Build-Time-Scanning)
         final Class<?>[] constructorArgTypes = AbstractRequestHandler.class.getDeclaredConstructors()[0].getParameterTypes();
         try (ScanResult scanResult = new ClassGraph()
-                .enableAllInfo()
+                .enableClassInfo()
+                .enableClassLoaders(ImplementationManager.getClassLoader())
                 .acceptPackages(getClass().getPackageName())
                 .scan()) {
-            handlers = scanResult.getSubclasses(AbstractRequestHandler.class).loadClasses().stream()
+            handlers = ReflectionHelper.loadClasses(scanResult.getAllSubclasses(AbstractRequestHandler.class), AbstractRequestHandler.class).stream()
                     .filter(x -> !Modifier.isAbstract(x.getModifiers()))
                     .map(x -> (Class<? extends AbstractRequestHandler>) x)
                     .collect(Collectors.toMap(
@@ -99,8 +102,8 @@ public class RequestHandlerManager {
 
 
     /**
-     * Properly shuts down this instance and releases all resources. Do not call any methods on this instance after
-     * calling this method.
+     * Properly shuts down this instance and releases all resources. Do not call
+     * any methods on this instance after calling this method.
      */
     public void shutdown() {
         requestHandlerExecutorService.shutdown();
@@ -127,7 +130,8 @@ public class RequestHandlerManager {
      * @param context the execution context
      * @return the reponse to this request
      * @throws java.lang.Exception if executing the request fails
-     * @throws TypeInstantiationException if response class could not be instantiated
+     * @throws TypeInstantiationException if response class could not be
+     *             instantiated
      * @throws IllegalArgumentException if request is null
      */
     public <I extends Request<O>, O extends Response> O execute(I request, RequestExecutionContext context) throws Exception {
@@ -181,7 +185,8 @@ public class RequestHandlerManager {
      * @param <O> type of response/output
      * @param request the request to execute
      * @param context the execution context
-     * @param callback callback handler which is called with the response once the request has been executed
+     * @param callback callback handler which is called with the response once
+     *            the request has been executed
      */
     public <I extends Request<O>, O extends Response> void executeAsync(I request, Consumer<O> callback, RequestExecutionContext context) {
         if (request == null) {
