@@ -32,10 +32,10 @@ import com.prosysopc.ua.stack.core.AttributeWriteMask;
 import com.prosysopc.ua.stack.core.StatusCodes;
 import com.prosysopc.ua.stack.core.TimestampsToReturn;
 import com.prosysopc.ua.stack.utils.NumericRange;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.OpcUaEndpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.nodemanager.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
@@ -48,7 +48,7 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Class that listens to I/O-Events
+ * Class that listens to I/O-Events.
  */
 public class AasServiceIoManagerListener implements IoManagerListener {
 
@@ -58,10 +58,10 @@ public class AasServiceIoManagerListener implements IoManagerListener {
     private final AasServiceNodeManager nodeManager;
 
     /**
-     * Creates a new instance of AasServiceIoManagerListener
+     * Creates a new instance of AasServiceIoManagerListener.
      *
-     * @param endpoint the associated endpoint
-     * @param nodeManager the associated NodeManager
+     * @param endpoint the associated endpoint.
+     * @param nodeManager the associated NodeManager.
      */
     public AasServiceIoManagerListener(OpcUaEndpoint endpoint, AasServiceNodeManager nodeManager) {
         this.endpoint = endpoint;
@@ -146,8 +146,8 @@ public class AasServiceIoManagerListener implements IoManagerListener {
 
     @Override
     public boolean onWriteValue(ServiceContext sc, NodeId nodeId, UaValueNode uvn, NumericRange indexRange, DataValue dv) throws StatusException {
-        LOGGER.trace(
-                "onWriteValue: nodeId={}{}{} value={}", nodeId, uvn != null ? " node=" + uvn.getBrowseName() : "", indexRange != null ? " indexRange=" + indexRange : "", dv);
+        LOGGER.atTrace().log("onWriteValue: nodeId={}{}{} value={}", nodeId, uvn != null ? " node=" + uvn.getBrowseName() : "",
+                indexRange != null ? " indexRange=" + indexRange : "", dv);
 
         try {
             if (dv.getStatusCode().isNotGood()) {

@@ -21,7 +21,7 @@ import com.prosysopc.ua.stack.builtintypes.QualifiedName;
 
 
 /**
- * Class with information for values
+ * Class with information for value.
  */
 public class ValueData {
     private final NodeId nodeId;

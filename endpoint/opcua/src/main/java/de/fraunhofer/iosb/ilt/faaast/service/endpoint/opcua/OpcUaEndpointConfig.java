@@ -93,9 +93,9 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
 
 
     /**
-     * Gets the desired port for the OPC.TCP Endpoint
+     * Gets the desired port for the OPC.TCP Endpoint.
      *
-     * @return The desired port for the OPC.TCP Endpoint
+     * @return The desired port for the OPC.TCP Endpoint.
      */
     public int getTcpPort() {
         return tcpPort;
@@ -103,9 +103,9 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
 
 
     /**
-     * Sets the given port for the OPC.TCP Endpoint
+     * Sets the given port for the OPC.TCP Endpoint.
      *
-     * @param tcpPort The desired port for the OPC.TCP Endpoint
+     * @param tcpPort The desired port for the OPC.TCP Endpoint.
      */
     public void setTcpPort(int tcpPort) {
         this.tcpPort = tcpPort;
@@ -113,9 +113,9 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
 
 
     /**
-     * Gets the number of seconds until the server stops on shutdown
+     * Gets the number of seconds until the server stops on shutdown.
      *
-     * @return The desired number of seconds
+     * @return The desired number of seconds.
      */
     public int getSecondsTillShutdown() {
         return secondsTillShutdown;
@@ -123,9 +123,9 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
 
 
     /**
-     * Sets the number of seconds until the server stops on shutdown
+     * Sets the number of seconds until the server stops on shutdown.
      *
-     * @param value The desired number of seconds
+     * @param value The desired number of seconds.
      */
     public void setSecondsTillShutdown(int value) {
         secondsTillShutdown = value;
@@ -133,9 +133,9 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
 
 
     /**
-     * Gets the user names (Key) and passwords (Value)
+     * Gets the user names (Key) and passwords (Value).
      * 
-     * @return The desired user names (Key) and passwords (Value)
+     * @return The desired user names (Key) and passwords (Value).
      */
     public Map<String, String> getUserMap() {
         return userMap;
@@ -143,9 +143,9 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
 
 
     /**
-     * Sets the user names (Key) and passwords (Value)
+     * Sets the user names (Key) and passwords (Value).
      * 
-     * @param value The desired user names (Key) and passwords (Value)
+     * @param value The desired user names (Key) and passwords (Value).
      */
     public void setUserMap(Map<String, String> value) {
         userMap = value;
@@ -156,7 +156,7 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
      * Gets the URL of the discovery server.
      * If this value is null or empty, the discovery server registration is disabled.
      * 
-     * @return The discovery server URL. Discovery registration is disabled if the value is null or empty
+     * @return The discovery server URL. Discovery registration is disabled if the value is null or empty.
      */
     public String getDiscoveryServerUrl() {
         return discoveryServerUrl;
@@ -167,7 +167,7 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
      * Sets the URL of the discovery server.
      * If this value is null or an empty string, the discovery server registration is disabled.
      * 
-     * @param value The discovery server URL. Discovery registration is disabled if the value is null or empty
+     * @param value The discovery server URL. Discovery registration is disabled if the value is null or empty.
      */
     public void setDiscoveryServerUrl(String value) {
         discoveryServerUrl = value;
@@ -175,9 +175,9 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
 
 
     /**
-     * Gets the base path for the server certificates
+     * Gets the base path for the server certificates.
      * 
-     * @return The server certificate base path
+     * @return The server certificate base path.
      */
     public String getServerCertificateBasePath() {
         return serverCertificateBasePath;
@@ -185,9 +185,9 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
 
 
     /**
-     * Sets the base path for the server certificates
+     * Sets the base path for the server certificates.
      * 
-     * @param value The server certificate base path
+     * @param value The server certificate base path.
      */
     public void setServerCertificateBasePath(String value) {
         serverCertificateBasePath = value;
@@ -195,9 +195,9 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
 
 
     /**
-     * Gets the base path for the user certificates
+     * Gets the base path for the user certificates.
      * 
-     * @return The user certificate base path
+     * @return The user certificate base path.
      */
     public String getUserCertificateBasePath() {
         return userCertificateBasePath;
@@ -205,9 +205,9 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
 
 
     /**
-     * Sets the base path for the user certificatess
+     * Sets the base path for the user certificatess.
      * 
-     * @param value The user certificate base path
+     * @param value The user certificate base path.
      */
     public void setUserCertificateBasePath(String value) {
         userCertificateBasePath = value;
