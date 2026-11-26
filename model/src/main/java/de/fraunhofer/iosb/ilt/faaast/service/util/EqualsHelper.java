@@ -31,7 +31,7 @@ public class EqualsHelper {
 
 
     /**
-     * Compares two {@link com.github.fge.jsonpatch.mergepatch.JsonMergePatch} instances by serializing them to Java.
+     * Compares two {@link org.opentmf.commons.patch.JsonMergePatch} instances by serializing them to Java.
      *
      * @param a instance a
      * @param b instance b
