@@ -14,20 +14,19 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.deser.std.MapDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.ContainerTypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
-import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.BeanProperty;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.deser.jdk.MapDeserializer;
+import tools.jackson.databind.exc.MismatchedInputException;
 
 
 /**
@@ -41,21 +40,20 @@ public class ValueMapDeserializer extends MapDeserializer {
 
 
     @Override
-    public JsonDeserializer<?> createContextual(DeserializationContext context,
-                                                BeanProperty property)
-            throws JsonMappingException {
+    public ValueDeserializer<?> createContextual(DeserializationContext context,
+                                                 BeanProperty property) {
         return new ValueMapDeserializer((MapDeserializer) super.createContextual(context, property));
     }
 
 
     @Override
-    public Map<Object, Object> deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+    public Map<Object, Object> deserialize(JsonParser p, DeserializationContext ctxt) {
         return deserialize(p, ctxt, new HashMap<>());
     }
 
 
     @Override
-    public Map<Object, Object> deserialize(JsonParser parser, DeserializationContext context, Map<Object, Object> result) throws IOException {
+    public Map<Object, Object> deserialize(JsonParser parser, DeserializationContext context, Map<Object, Object> result) {
         TypeInfo typeInfo = ContextAwareElementValueDeserializer.getTypeInfo(context);
         if (typeInfo == null || !ContainerTypeInfo.class.isAssignableFrom(typeInfo.getClass())) {
             return super.deserialize(parser, context);
@@ -64,11 +62,11 @@ public class ValueMapDeserializer extends MapDeserializer {
         if (!node.isObject()) {
             return context.reportBadDefinition(Collection.class, "expected array");
         }
-        Iterator<Map.Entry<String, JsonNode>> iterator = node.fields();
+        Iterator<Map.Entry<String, JsonNode>> iterator = node.properties().iterator();
         while (iterator.hasNext()) {
             Map.Entry<String, JsonNode> element = iterator.next();
             if (!typeInfo.getElements().containsKey(element.getKey())) {
-                throw new JsonMappingException(parser, String.format(
+                throw MismatchedInputException.from(context, String.format(
                         "found element '%s' during valueOnly deserialization that is not defined by type information",
                         element.getKey()));
             }

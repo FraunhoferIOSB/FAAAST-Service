@@ -52,6 +52,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.core.JacksonException;
 
 
 public class JsonDeserializerTest {
@@ -60,7 +61,7 @@ public class JsonDeserializerTest {
     private final JsonApiDeserializer deserializer = new JsonApiDeserializer();
 
     @Test
-    public void testAnnotatedRelationshipElementProperty() throws DeserializationException, FileNotFoundException, IOException, ValueMappingException {
+    public void testAnnotatedRelationshipElementProperty() throws DeserializationException, ValueMappingException {
         assertValue(ValueOnlyExamples.ANNOTATED_RELATIONSHIP_ELEMENT, ValueOnlyExamples.ANNOTATED_RELATIONSHIP_ELEMENT_FILE);
     }
 
@@ -78,13 +79,13 @@ public class JsonDeserializerTest {
 
 
     @Test
-    public void testBlob() throws DeserializationException, FileNotFoundException, IOException, ValueMappingException {
+    public void testBlob() throws DeserializationException, ValueMappingException {
         assertValue(ValueOnlyExamples.BLOB, ValueOnlyExamples.BLOB_FILE_WITH_BLOB);
     }
 
 
     @Test
-    public void testFile() throws DeserializationException, FileNotFoundException, IOException, ValueMappingException {
+    public void testFile() throws DeserializationException, ValueMappingException {
         assertValue(ValueOnlyExamples.FILE, ValueOnlyExamples.FILE_FILE);
     }
 
@@ -126,7 +127,7 @@ public class JsonDeserializerTest {
 
 
     @Test
-    public void testMultiLanguageProperty() throws DeserializationException, FileNotFoundException, IOException, ValueMappingException {
+    public void testMultiLanguageProperty() throws DeserializationException, ValueMappingException {
         assertValue(ValueOnlyExamples.MULTI_LANGUAGE_PROPERTY, ValueOnlyExamples.MULTI_LANGUAGE_PROPERTY_FILE);
     }
 
@@ -154,26 +155,26 @@ public class JsonDeserializerTest {
 
 
     @Test
-    public void testReferenceElementProperty() throws DeserializationException, FileNotFoundException, IOException, ValueMappingException {
+    public void testReferenceElementProperty() throws DeserializationException, ValueMappingException {
         assertValue(ValueOnlyExamples.REFERENCE_ELEMENT_MODEL, ValueOnlyExamples.REFERENCE_ELEMENT_MODEL_FILE);
         assertValue(ValueOnlyExamples.REFERENCE_ELEMENT_GLOBAL, ValueOnlyExamples.REFERENCE_ELEMENT_GLOBAL_FILE);
     }
 
 
     @Test
-    public void testRelationshipElementProperty() throws DeserializationException, FileNotFoundException, IOException, ValueMappingException {
+    public void testRelationshipElementProperty() throws DeserializationException, ValueMappingException {
         assertValue(ValueOnlyExamples.RELATIONSHIP_ELEMENT, ValueOnlyExamples.RELATIONSHIP_ELEMENT_FILE);
     }
 
 
     @Test
-    public void testSubmodelElementCollection() throws DeserializationException, FileNotFoundException, IOException, ValueMappingException {
+    public void testSubmodelElementCollection() throws DeserializationException, ValueMappingException {
         assertValue(ValueOnlyExamples.SUBMODEL_ELEMENT_COLLECTION, ValueOnlyExamples.SUBMODEL_ELEMENT_COLLECTION_FILE);
     }
 
 
     @Test
-    public void testSubmodelElementList() throws DeserializationException, FileNotFoundException, IOException, ValueMappingException {
+    public void testSubmodelElementList() throws DeserializationException, ValueMappingException {
         assertValue(ValueOnlyExamples.SUBMODEL_ELEMENT_LIST_SIMPLE, ValueOnlyExamples.SUBMODEL_ELEMENT_LIST_SIMPLE_FILE);
         assertValue(ValueOnlyExamples.SUBMODEL_ELEMENT_LIST, ValueOnlyExamples.SUBMODEL_ELEMENT_LIST_FILE);
     }
@@ -252,7 +253,7 @@ public class JsonDeserializerTest {
     }
 
 
-    private void assertValue(SubmodelElement element, File file) throws DeserializationException, IOException, ValueMappingException {
+    private void assertValue(SubmodelElement element, File file) throws DeserializationException, ValueMappingException {
         ElementValue expected = ElementValueMapper.toValue(element);
         TypeInfo typeInfo = TypeExtractor.extractTypeInfo(element);
         ElementValue actual = deserializer.readValue(ValueHelper.extractValueJson(file, element), typeInfo);
@@ -323,7 +324,7 @@ public class JsonDeserializerTest {
                     try {
                         return ValueHelper.extractValueJson(x.getValue(), x.getKey());
                     }
-                    catch (IOException e) {
+                    catch (JacksonException e) {
                         LOGGER.error("failed to convert files to JSON array", e);
                     }
                     return null;
@@ -340,7 +341,7 @@ public class JsonDeserializerTest {
                                 x.getKey().getIdShort(),
                                 ValueHelper.extractValueJson(x.getValue(), x.getKey()));
                     }
-                    catch (IOException e) {
+                    catch (JacksonException e) {
                         LOGGER.error("failed to convert files to JSON object", e);
                     }
                     return null;

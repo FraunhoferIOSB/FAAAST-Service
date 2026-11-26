@@ -15,8 +15,6 @@
 package de.fraunhofer.iosb.ilt.faaast.service.config;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.fixtures.foo.FooConnectionConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.fixtures.foo.FooValueProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
@@ -31,6 +29,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
+import tools.jackson.databind.ObjectMapper;
 
 
 public class ConfigTest {
@@ -53,21 +52,25 @@ public class ConfigTest {
                         .build())
                 .assetConnection(assetConnection)
                 .build();
-        mapper = new JsonMapperFactory().create(new SimpleAbstractTypeResolverFactory().create())
-                .setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+        mapper = new JsonMapperFactory().create(new SimpleAbstractTypeResolverFactory().create()).rebuild()
+                .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_EMPTY))
+                .changeDefaultPropertyInclusion(incl -> incl.withContentInclusion(JsonInclude.Include.NON_EMPTY))
+                .build();
     }
 
 
     @Test
-    public void testSerialization() throws JsonProcessingException, IOException, JSONException {
+    public void testSerialization() throws IOException, JSONException {
         String expected = Files.readString(CONFIG_FILE.toPath());
         String actual = mapper.writeValueAsString(config);
+        // This assertion makes sure, that sonar doesn't complain about missing asserts.
+        Assert.assertNotNull(actual);
         JSONAssert.assertEquals(expected, actual, JSONCompareMode.NON_EXTENSIBLE);
     }
 
 
     @Test
-    public void testDeserialization() throws JsonProcessingException, IOException {
+    public void testDeserialization() {
         ServiceConfig actual = mapper.readValue(CONFIG_FILE, ServiceConfig.class);
         Assert.assertEquals(config, actual);
     }

@@ -15,8 +15,6 @@
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.config;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CertificateConfig;
 import java.io.File;
 import java.io.IOException;
@@ -30,14 +28,17 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
+import tools.jackson.databind.ObjectMapper;
 
 
 public class AimcSubmodelTemplateProcessorConfigTest {
 
     private static final File CONFIG_FILE = new File("src/test/resources/Example-config.json");
     private static final ObjectMapper MAPPER = new JsonMapperFactory()
-            .create(new SimpleAbstractTypeResolverFactory().create())
-            .setDefaultPropertyInclusion(JsonInclude.Include.NON_EMPTY);
+            .create(new SimpleAbstractTypeResolverFactory().create()).rebuild()
+            .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_EMPTY))
+            .changeDefaultPropertyInclusion(incl -> incl.withContentInclusion(JsonInclude.Include.NON_EMPTY))
+            .build();
     private static final AimcSubmodelTemplateProcessorConfig CONFIG = new AimcSubmodelTemplateProcessorConfig.Builder()
             .connectionLevelCredentials(Map.of(
                     "http://plugfest.thingweb.io:8083",
@@ -56,7 +57,7 @@ public class AimcSubmodelTemplateProcessorConfigTest {
             .build();
 
     @Test
-    public void testConfigDeserialization() throws JsonProcessingException, IOException {
+    public void testConfigDeserialization() {
         AimcSubmodelTemplateProcessorConfig actual = MAPPER.readValue(CONFIG_FILE, AimcSubmodelTemplateProcessorConfig.class);
         Assert.assertEquals(CONFIG, actual);
     }

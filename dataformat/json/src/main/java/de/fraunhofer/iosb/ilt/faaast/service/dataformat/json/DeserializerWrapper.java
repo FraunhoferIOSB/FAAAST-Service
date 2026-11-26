@@ -14,9 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json;
 
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import java.util.function.Consumer;
+import java.util.function.UnaryOperator;
 import org.eclipse.digitaltwin.aas4j.v3.model.Message;
+import tools.jackson.databind.json.JsonMapper;
 
 
 /**
@@ -29,10 +29,10 @@ public class DeserializerWrapper extends org.eclipse.digitaltwin.aas4j.v3.datafo
     }
 
 
-    public DeserializerWrapper(Consumer<JsonMapper> modifier) {
+    public DeserializerWrapper(UnaryOperator<JsonMapper> modifier) {
         if (modifier != null) {
             useImplementation(Message.class, de.fraunhofer.iosb.ilt.faaast.service.model.api.Message.class);
-            modifier.accept(mapper);
+            mapper = modifier.apply(mapper);
         }
     }
 

@@ -14,18 +14,19 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.event;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonFieldNames;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValueFactory;
-import java.io.IOException;
 import java.util.Objects;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.deser.std.StdDeserializer;
+import tools.jackson.databind.exc.InvalidDefinitionException;
+import tools.jackson.databind.exc.InvalidFormatException;
+import tools.jackson.databind.node.ObjectNode;
 
 
 /**
@@ -34,7 +35,7 @@ import java.util.Objects;
 public class TypedValueDeserializer extends StdDeserializer<TypedValue> {
 
     public TypedValueDeserializer() {
-        this(null);
+        this(TypedValue.class);
     }
 
 
@@ -57,11 +58,11 @@ public class TypedValueDeserializer extends StdDeserializer<TypedValue> {
 
 
     @Override
-    public TypedValue deserialize(JsonParser parser, DeserializationContext context) throws IOException {
+    public TypedValue deserialize(JsonParser parser, DeserializationContext context) {
         JsonNode root = parser.readValueAsTree();
         Datatype datatype = getDatatype(root);
         if (Objects.isNull(datatype)) {
-            throw new IOException("Unable to determine datatype");
+            throw InvalidDefinitionException.from(context, "Unable to determine datatype");
         }
         if (root.isEmpty()) {
             return null;
@@ -70,7 +71,7 @@ public class TypedValueDeserializer extends StdDeserializer<TypedValue> {
             return TypedValueFactory.create(datatype, root.get(JsonFieldNames.EVENT_VALUE).asText());
         }
         catch (ValueFormatException e) {
-            throw new IOException(String.format("error deserializing typed value (datatype: %s, value %s", datatype.getName(), parser.getValueAsString()), e);
+            throw InvalidFormatException.from(context, String.format("error deserializing typed value (datatype: %s, value %s", datatype.getName(), parser.getValueAsString()), e);
         }
     }
 

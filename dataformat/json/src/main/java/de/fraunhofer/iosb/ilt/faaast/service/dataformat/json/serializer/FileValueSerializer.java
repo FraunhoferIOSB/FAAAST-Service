@@ -14,13 +14,11 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonFieldNames;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.FileValue;
-
-import java.io.IOException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 
 /**
@@ -39,14 +37,14 @@ public class FileValueSerializer extends StdSerializer<FileValue> {
 
 
     @Override
-    public void serialize(FileValue value, JsonGenerator generator, SerializerProvider provider) throws IOException {
+    public void serialize(FileValue value, JsonGenerator generator, SerializationContext context) {
         if (value != null) {
             generator.writeStartObject();
             if (value.getContentType() != null) {
-                generator.writeStringField(JsonFieldNames.FILE_VALUE_CONTENT_TYPE, value.getContentType());
+                generator.writeStringProperty(JsonFieldNames.FILE_VALUE_CONTENT_TYPE, value.getContentType());
             }
             if (value.getValue() != null) {
-                generator.writeStringField(JsonFieldNames.FILE_VALUE_VALUE, value.getValue());
+                generator.writeStringProperty(JsonFieldNames.FILE_VALUE_VALUE, value.getValue());
             }
             generator.writeEndObject();
         }

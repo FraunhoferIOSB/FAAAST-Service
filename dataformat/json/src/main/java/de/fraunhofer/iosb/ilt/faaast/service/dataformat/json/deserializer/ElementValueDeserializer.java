@@ -14,13 +14,11 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer;
 
-import com.fasterxml.jackson.core.JacksonException;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
-import java.io.IOException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
 
 /**
@@ -30,7 +28,7 @@ import java.io.IOException;
 public class ElementValueDeserializer extends StdDeserializer<ElementValue> {
 
     public ElementValueDeserializer() {
-        this(null);
+        this(ElementValue.class);
     }
 
 
@@ -40,7 +38,7 @@ public class ElementValueDeserializer extends StdDeserializer<ElementValue> {
 
 
     @Override
-    public ElementValue deserialize(JsonParser parser, DeserializationContext context) throws IOException, JacksonException {
+    public ElementValue deserialize(JsonParser parser, DeserializationContext context) {
         TypeInfo typeInfo = ContextAwareElementValueDeserializer.getTypeInfo(context);
         return (ElementValue) context.readValue(parser, typeInfo.getType());
     }

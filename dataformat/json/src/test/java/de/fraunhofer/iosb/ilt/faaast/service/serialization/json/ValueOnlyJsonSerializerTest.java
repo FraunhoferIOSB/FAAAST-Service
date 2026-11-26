@@ -37,6 +37,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
+import tools.jackson.core.JacksonException;
 
 
 public class ValueOnlyJsonSerializerTest {
@@ -144,7 +145,7 @@ public class ValueOnlyJsonSerializerTest {
                     try {
                         return ValueHelper.extractValueJson(x.getValue(), x.getKey());
                     }
-                    catch (IOException e) {
+                    catch (JacksonException e) {
                         Assert.fail("error extracting value from file");
                     }
                     return "";

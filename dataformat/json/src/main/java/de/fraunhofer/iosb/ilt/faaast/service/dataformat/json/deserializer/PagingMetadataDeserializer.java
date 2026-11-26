@@ -14,15 +14,14 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingMetadata;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.FaaastConstants;
-import java.io.IOException;
 import java.util.Objects;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
 
 /**
@@ -31,7 +30,7 @@ import java.util.Objects;
 public class PagingMetadataDeserializer extends StdDeserializer<PagingMetadata> {
 
     public PagingMetadataDeserializer() {
-        this(null);
+        this(PagingMetadata.class);
     }
 
 
@@ -41,8 +40,8 @@ public class PagingMetadataDeserializer extends StdDeserializer<PagingMetadata> 
 
 
     @Override
-    public PagingMetadata deserialize(JsonParser parser, DeserializationContext context) throws IOException {
-        JsonNode node = parser.getCodec().readTree(parser);
+    public PagingMetadata deserialize(JsonParser parser, DeserializationContext context) {
+        JsonNode node = parser.objectReadContext().readTree(parser);
         if (Objects.isNull(node)) {
             return null;
         }

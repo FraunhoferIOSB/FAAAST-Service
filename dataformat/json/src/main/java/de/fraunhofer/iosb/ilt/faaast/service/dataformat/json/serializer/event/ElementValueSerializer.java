@@ -14,21 +14,20 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.event;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonFieldNames;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
-import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ValueSerializer;
+import tools.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 
 /**
@@ -37,45 +36,45 @@ import java.util.Objects;
  */
 public class ElementValueSerializer extends StdSerializer<ElementValue> {
 
-    private final transient JsonSerializer<Object> defaultSerializer;
+    private final ValueSerializer<Object> defaultSerializer;
 
-    public ElementValueSerializer(JsonSerializer<Object> defaultSerializer) {
+    public ElementValueSerializer(ValueSerializer<Object> defaultSerializer) {
         this(ElementValue.class, defaultSerializer);
     }
 
 
-    public ElementValueSerializer(Class<ElementValue> type, JsonSerializer<Object> defaultSerializer) {
+    public ElementValueSerializer(Class<ElementValue> type, ValueSerializer<Object> defaultSerializer) {
         super(type);
         this.defaultSerializer = defaultSerializer;
     }
 
 
     @Override
-    public void serialize(ElementValue value, JsonGenerator generator, SerializerProvider provider) throws IOException {
+    public void serialize(ElementValue value, JsonGenerator generator, SerializationContext provider) {
         if (value != null) {
             generator.writeStartObject();
-            generator.writeStringField(JsonFieldNames.EVENT_MODELTYPE, ElementValueMapper.getElementClass(value.getClass()).getSimpleName());
+            generator.writeStringProperty(JsonFieldNames.EVENT_MODELTYPE, ElementValueMapper.getElementClass(value.getClass()).getSimpleName());
             StringWriter valueJson = new StringWriter();
-            JsonGenerator valueGenerator = generator.getCodec().getFactory().createGenerator(valueJson);
+            JsonGenerator valueGenerator = generator.objectWriteContext().createGenerator(valueJson);
             defaultSerializer.serialize(value, valueGenerator, provider);
             valueGenerator.flush();
             JsonNode contentNode = new ObjectMapper().readTree(valueJson.toString());
             if (Objects.nonNull(contentNode) && contentNode.isArray()) {
-                provider.defaultSerializeField(JsonFieldNames.EVENT_VALUE, contentNode, generator);
+                provider.defaultSerializeProperty(JsonFieldNames.EVENT_VALUE, contentNode, generator);
             }
             if (Objects.nonNull(contentNode)
                     && contentNode.size() == 1
                     && contentNode.has(JsonFieldNames.EVENT_VALUE)
-                    && contentNode.fields().next().getValue().isObject()) {
-                for (Iterator<Map.Entry<String, JsonNode>> i = ((ObjectNode) contentNode.fields().next().getValue()).fields(); i.hasNext();) {
+                    && contentNode.properties().iterator().next().getValue().isObject()) {
+                for (Iterator<Map.Entry<String, JsonNode>> i = ((ObjectNode) contentNode.properties().iterator().next().getValue()).properties().iterator(); i.hasNext();) {
                     Map.Entry<String, JsonNode> entry = i.next();
-                    provider.defaultSerializeField(entry.getKey(), entry.getValue(), generator);
+                    provider.defaultSerializeProperty(entry.getKey(), entry.getValue(), generator);
                 }
             }
             else if (Objects.nonNull(contentNode)) {
-                for (Iterator<Map.Entry<String, JsonNode>> i = contentNode.fields(); i.hasNext();) {
+                for (Iterator<Map.Entry<String, JsonNode>> i = contentNode.properties().iterator(); i.hasNext();) {
                     Map.Entry<String, JsonNode> entry = i.next();
-                    provider.defaultSerializeField(entry.getKey(), entry.getValue(), generator);
+                    provider.defaultSerializeProperty(entry.getKey(), entry.getValue(), generator);
                 }
             }
             generator.writeEndObject();

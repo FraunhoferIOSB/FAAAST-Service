@@ -14,18 +14,17 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueHelper;
-import java.io.IOException;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.internal.util.ReflectionHelper;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 
 /**
@@ -48,15 +47,15 @@ public class SubmodelValueSerializer extends StdSerializer<Submodel> {
 
 
     @Override
-    public void serialize(Submodel value, JsonGenerator generator, SerializerProvider provider) throws IOException {
+    public void serialize(Submodel value, JsonGenerator generator, SerializationContext context) {
         generator.writeStartObject();
         for (SubmodelElement element: value.getSubmodelElements()) {
             if (ElementValueHelper.isValueOnlySupported(element)) {
                 try {
-                    provider.defaultSerializeField(element.getIdShort(), ElementValueMapper.toValue(element), generator);
+                    context.defaultSerializeProperty(element.getIdShort(), ElementValueMapper.toValue(element), generator);
                 }
                 catch (ValueMappingException e) {
-                    provider.reportMappingProblem(e, "error mapping submodel element to value");
+                    context.reportMappingProblem(e, "error mapping submodel element to value");
                 }
             }
             else {

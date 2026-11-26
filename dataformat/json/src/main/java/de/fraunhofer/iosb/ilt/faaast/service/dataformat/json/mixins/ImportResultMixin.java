@@ -14,12 +14,12 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.key.ReferenceKeyDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.key.ReferenceKeySerializer;
 import java.util.Map;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonSerialize;
 
 
 /**

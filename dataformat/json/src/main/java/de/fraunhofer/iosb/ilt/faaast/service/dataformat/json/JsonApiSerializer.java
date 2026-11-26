@@ -14,10 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.ApiSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.AbstractRequestWithModifierMixin;
@@ -50,6 +46,10 @@ import java.util.List;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.Message;
 import org.eclipse.digitaltwin.aas4j.v3.model.Result;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectWriter;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.module.SimpleModule;
 
 
 /**
@@ -74,21 +74,25 @@ public class JsonApiSerializer implements ApiSerializer {
      * Modifies Jackson JsonMapper.
      *
      * @param mapper mapper to modify
+     * @return the modified JsonMapper.
      */
-    protected void modifyMapper(JsonMapper mapper) {
+    protected JsonMapper modifyMapper(JsonMapper mapper) {
         SimpleModule module = new SimpleModule();
         ReflectionHelper.ENUMS.forEach(x -> module.addSerializer(x, new EnumSerializer()));
         module.addSerializer(PagingMetadata.class, new PagingMetadataSerializer());
-        mapper.registerModule(module);
-        mapper.addMixIn(AbstractRequestWithModifier.class, AbstractRequestWithModifierMixin.class);
-        mapper.addMixIn(AbstractSubmodelInterfaceRequest.class, AbstractSubmodelInterfaceRequestMixin.class);
-        mapper.addMixIn(ReferenceElementValue.class, ReferenceElementValueMixin.class);
-        mapper.addMixIn(Page.class, PageMixin.class);
-        mapper.addMixIn(Message.class, MessageMixin.class);
-        mapper.addMixIn(ImportResult.class, ImportResultMixin.class);
-        mapper.addMixIn(InvokeOperationRequest.class, InvokeOperationRequestMixin.class);
-        mapper.addMixIn(Result.class, ResultMixin.class);
-        mapper.addMixIn(ServiceSpecificationProfile.class, ServiceSpecificationProfileMixin.class);
+
+        return mapper.rebuild()
+                .addModule(module)
+                .addMixIn(AbstractRequestWithModifier.class, AbstractRequestWithModifierMixin.class)
+                .addMixIn(AbstractSubmodelInterfaceRequest.class, AbstractSubmodelInterfaceRequestMixin.class)
+                .addMixIn(ReferenceElementValue.class, ReferenceElementValueMixin.class)
+                .addMixIn(Page.class, PageMixin.class)
+                .addMixIn(Message.class, MessageMixin.class)
+                .addMixIn(ImportResult.class, ImportResultMixin.class)
+                .addMixIn(InvokeOperationRequest.class, InvokeOperationRequestMixin.class)
+                .addMixIn(Result.class, ResultMixin.class)
+                .addMixIn(ServiceSpecificationProfile.class, ServiceSpecificationProfileMixin.class)
+                .build();
     }
 
 
@@ -137,7 +141,7 @@ public class JsonApiSerializer implements ApiSerializer {
                     .withAttribute(ModifierAwareSerializer.LEVEL, modifier)
                     .writeValueAsString(obj);
         }
-        catch (JsonProcessingException e) {
+        catch (JacksonException e) {
             throw new SerializationException("serialization failed", e);
         }
     }

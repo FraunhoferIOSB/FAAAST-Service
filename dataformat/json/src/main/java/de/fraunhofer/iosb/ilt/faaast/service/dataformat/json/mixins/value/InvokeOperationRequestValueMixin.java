@@ -14,12 +14,12 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.value;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.InvokeOperationRequestMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.OperationVariableCollectionValueSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOperationRequest;
 import java.util.List;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
+import tools.jackson.databind.annotation.JsonSerialize;
 
 
 /**

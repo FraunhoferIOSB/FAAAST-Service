@@ -14,12 +14,11 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.event;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonFieldNames;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
-import java.io.IOException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 
 /**
@@ -39,10 +38,10 @@ public class TypedValueSerializer extends StdSerializer<TypedValue> {
 
 
     @Override
-    public void serialize(TypedValue value, JsonGenerator generator, SerializerProvider provider) throws IOException {
+    public void serialize(TypedValue value, JsonGenerator generator, SerializationContext context) {
         generator.writeStartObject();
-        generator.writeStringField(JsonFieldNames.EVENT_DATATYPE, value.getDataType().getName());
-        provider.defaultSerializeField(JsonFieldNames.EVENT_VALUE, value.getValue(), generator);
+        generator.writeStringProperty(JsonFieldNames.EVENT_DATATYPE, value.getDataType().getName());
+        context.defaultSerializeProperty(JsonFieldNames.EVENT_VALUE, value.getValue(), generator);
         generator.writeEndObject();
     }
 

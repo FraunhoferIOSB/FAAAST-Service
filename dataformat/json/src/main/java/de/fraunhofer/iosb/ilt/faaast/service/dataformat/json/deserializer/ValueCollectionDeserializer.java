@@ -14,17 +14,15 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.deser.std.CollectionDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.ContainerTypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.BeanProperty;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.deser.jdk.CollectionDeserializer;
 
 
 /**
@@ -39,20 +37,19 @@ public class ValueCollectionDeserializer extends CollectionDeserializer {
 
     @Override
     public CollectionDeserializer createContextual(DeserializationContext context,
-                                                   BeanProperty property)
-            throws JsonMappingException {
+                                                   BeanProperty property) {
         return new ValueCollectionDeserializer(super.createContextual(context, property));
     }
 
 
     @Override
-    public Collection<Object> deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+    public Collection<Object> deserialize(JsonParser p, DeserializationContext ctxt) {
         return deserialize(p, ctxt, new ArrayList<>());
     }
 
 
     @Override
-    public Collection<Object> deserialize(JsonParser parser, DeserializationContext context, Collection<Object> result) throws IOException {
+    public Collection<Object> deserialize(JsonParser parser, DeserializationContext context, Collection<Object> result) {
         TypeInfo typeInfo = ContextAwareElementValueDeserializer.getTypeInfo(context);
         if (typeInfo == null || !ContainerTypeInfo.class.isAssignableFrom(typeInfo.getClass())) {
             return super.deserialize(parser, context, result);

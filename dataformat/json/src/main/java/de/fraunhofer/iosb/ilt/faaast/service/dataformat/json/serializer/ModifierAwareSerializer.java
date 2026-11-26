@@ -14,12 +14,11 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
-import java.io.IOException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 
 /**
@@ -43,13 +42,13 @@ public abstract class ModifierAwareSerializer<T> extends StdSerializer<T> {
 
 
     @Override
-    public void serialize(T value, JsonGenerator gen, SerializerProvider provider) throws IOException {
-        serialize(value, gen, provider,
-                provider.getAttribute(LEVEL) != null && Level.class.isAssignableFrom(provider.getAttribute(LEVEL).getClass())
-                        ? (Level) provider.getAttribute(LEVEL)
+    public void serialize(T value, JsonGenerator gen, SerializationContext context) {
+        serialize(value, gen, context,
+                context.getAttribute(LEVEL) != null && Level.class.isAssignableFrom(context.getAttribute(LEVEL).getClass())
+                        ? (Level) context.getAttribute(LEVEL)
                         : Level.DEFAULT,
-                provider.getAttribute(EXTEND) != null && Extent.class.isAssignableFrom(provider.getAttribute(EXTEND).getClass())
-                        ? (Extent) provider.getAttribute(EXTEND)
+                context.getAttribute(EXTEND) != null && Extent.class.isAssignableFrom(context.getAttribute(EXTEND).getClass())
+                        ? (Extent) context.getAttribute(EXTEND)
                         : Extent.DEFAULT);
 
     }
@@ -63,8 +62,8 @@ public abstract class ModifierAwareSerializer<T> extends StdSerializer<T> {
      * @param provider provider for accessing other serializers
      * @param level detail level of serialization
      * @param extend detail extent of serialization
-     * @throws IOException is serialization fails
+     * @is serialization fails
      */
-    public abstract void serialize(T value, JsonGenerator generator, SerializerProvider provider, Level level, Extent extend) throws IOException;
+    public abstract void serialize(T value, JsonGenerator generator, SerializationContext provider, Level level, Extent extend);
 
 }

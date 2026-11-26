@@ -35,6 +35,12 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson2.databind.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>de.fraunhofer.iosb.ilt.faaast.service</groupId>
             <artifactId>core</artifactId>
             <version>${project.version}</version>
@@ -70,7 +76,7 @@
         </dependency>
         <dependency>
             <groupId>io.cloudevents</groupId>
-            <artifactId>cloudevents-json-jackson</artifactId>
+            <artifactId>cloudevents-json-jackson3</artifactId>
             <version>${cloudevents.version}</version>
         </dependency>
         <dependency>

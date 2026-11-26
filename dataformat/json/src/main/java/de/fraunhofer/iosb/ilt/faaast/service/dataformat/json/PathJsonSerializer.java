@@ -14,7 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json;
 
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.path.IdShortPathElementWalker;
 import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
@@ -24,6 +23,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.UnsupportedModifier
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import tools.jackson.databind.json.JsonMapper;
 
 
 /**

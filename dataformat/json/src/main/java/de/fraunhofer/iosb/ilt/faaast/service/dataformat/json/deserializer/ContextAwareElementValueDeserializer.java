@@ -14,20 +14,18 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer;
 
-import com.fasterxml.jackson.core.JacksonException;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.SubmodelElementCollectionValue;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.ElementValueTypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
 
 /**
@@ -41,7 +39,7 @@ public abstract class ContextAwareElementValueDeserializer<T extends ElementValu
     public static final String CONTEXT_IS_EVENT = "isEvent";
 
     /**
-     * Fetches type information from {@link com.fasterxml.jackson.databind.DeserializationContext}. If no type
+     * Fetches type information from {@link tools.jackson.databind.DeserializationContext}. If no type
      * information is present, null is returned.
      *
      * @param context deserialization context holding the type information
@@ -54,18 +52,13 @@ public abstract class ContextAwareElementValueDeserializer<T extends ElementValu
     }
 
 
-    protected ContextAwareElementValueDeserializer() {
-        this(null);
-    }
-
-
     protected ContextAwareElementValueDeserializer(Class<T> type) {
         super(type);
     }
 
 
     @Override
-    public T deserialize(JsonParser parser, DeserializationContext context) throws IOException, JacksonException {
+    public T deserialize(JsonParser parser, DeserializationContext context) {
         JsonNode node = context.readTree(parser);
         boolean mayUnwrap = !isSubmodelElementCollection(context) || isEvent(context);
         if (mayUnwrap && isWrapped(node)) {
@@ -105,25 +98,22 @@ public abstract class ContextAwareElementValueDeserializer<T extends ElementValu
      * @param node node to deserialize
      * @param context deserialization context
      * @return deserialized values
-     * @throws IOException if reading node fails
-     * @throws JacksonException is deserialization fails
      */
-    public abstract T deserializeValue(JsonNode node, DeserializationContext context) throws IOException, JacksonException;
+    public abstract T deserializeValue(JsonNode node, DeserializationContext context);
 
 
     /**
      * Deserialize children as a map of element values with their idShort as key.
      *
-     * @param <T> element value type
+     * @param <D> element value type
      * @param node node to deserialize
      * @param context deserialization context
      * @param type target type
      * @return map of sub-values identified by their idShort as key
-     * @throws IOException as reading node fails
      * @throws IllegalArgumentException if no type information can be found
      */
-    protected <T extends ElementValue> Map<String, T> deserializeChildren(JsonNode node, DeserializationContext context, Class<T> type) throws IOException {
-        Map<String, T> result = new HashMap<>();
+    protected <D extends ElementValue> Map<String, D> deserializeChildren(JsonNode node, DeserializationContext context, Class<D> type) {
+        Map<String, D> result = new HashMap<>();
         if (node == null) {
             return result;
         }
@@ -133,12 +123,12 @@ public abstract class ContextAwareElementValueDeserializer<T extends ElementValu
         }
         Map<String, JsonNode> childNodes = new HashMap<>();
         if (node.isObject()) {
-            node.fields().forEachRemaining(x -> childNodes.put(x.getKey(), x.getValue()));
+            node.properties().iterator().forEachRemaining(x -> childNodes.put(x.getKey(), x.getValue()));
         }
         else if (node.isArray()) {
-            Iterator<JsonNode> iterator = node.elements();
+            Iterator<JsonNode> iterator = node.values().iterator();
             while (iterator.hasNext()) {
-                Map.Entry<String, JsonNode> child = iterator.next().fields().next();
+                Map.Entry<String, JsonNode> child = iterator.next().properties().iterator().next();
                 childNodes.put(child.getKey(), child.getValue());
             }
         }
@@ -147,7 +137,7 @@ public abstract class ContextAwareElementValueDeserializer<T extends ElementValu
             if (childTypeInfo == null || childTypeInfo.getType() == null) {
                 throw new IllegalArgumentException(String.format("no type information found for element (idShort: %s)", childNode.getKey()));
             }
-            result.put(childNode.getKey(), (T) context.setAttribute(CONTEXT_TYPE_INFO, childTypeInfo)
+            result.put(childNode.getKey(), (D) context.setAttribute(CONTEXT_TYPE_INFO, childTypeInfo)
                     .readTreeAsValue(childNode.getValue(), childTypeInfo.getType()));
 
         }

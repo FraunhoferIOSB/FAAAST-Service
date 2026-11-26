@@ -14,13 +14,12 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.event;
 
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonNode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.JsonNode;
 
 
 /**
@@ -36,9 +35,9 @@ public class EventDeserializationHelper {
      * @param context deserialization context
      * @param type target type
      * @return deserialized children
-     * @throws IOException if deserialization fails
+     * @if deserialization fails
      */
-    public static <T extends ElementValue> Map<String, T> deserializeChildren(JsonNode node, DeserializationContext context, Class<T> type) throws IOException {
+    public static <T extends ElementValue> Map<String, T> deserializeChildren(JsonNode node, DeserializationContext context, Class<T> type) {
         Map<String, T> result = new HashMap<>();
         if (node == null) {
             return result;
@@ -46,12 +45,12 @@ public class EventDeserializationHelper {
 
         Map<String, JsonNode> childNodes = new HashMap<>();
         if (node.isObject()) {
-            node.fields().forEachRemaining(x -> childNodes.put(x.getKey(), x.getValue()));
+            node.properties().iterator().forEachRemaining(x -> childNodes.put(x.getKey(), x.getValue()));
         }
         else if (node.isArray()) {
-            Iterator<JsonNode> iterator = node.elements();
+            Iterator<JsonNode> iterator = node.values().iterator();
             while (iterator.hasNext()) {
-                Map.Entry<String, JsonNode> child = iterator.next().fields().next();
+                Map.Entry<String, JsonNode> child = iterator.next().properties().iterator().next();
                 childNodes.put(child.getKey(), child.getValue());
             }
         }

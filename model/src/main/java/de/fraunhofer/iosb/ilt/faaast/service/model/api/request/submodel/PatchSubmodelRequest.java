@@ -14,11 +14,11 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel;
 
-import com.github.fge.jsonpatch.mergepatch.JsonMergePatch;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractSubmodelInterfaceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.PatchSubmodelResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EqualsHelper;
 import java.util.Objects;
+import org.opentmf.commons.patch.JsonMergePatch;
 
 
 /**

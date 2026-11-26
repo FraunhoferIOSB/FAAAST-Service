@@ -14,13 +14,12 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.dpp;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonFieldNames;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.MultiLanguagePropertyValue;
-import java.io.IOException;
 import org.eclipse.digitaltwin.aas4j.v3.model.LangStringTextType;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 
 /**
@@ -39,13 +38,13 @@ public class DppMultiLanguagePropertyValueSerializer extends StdSerializer<Multi
 
 
     @Override
-    public void serialize(MultiLanguagePropertyValue value, JsonGenerator generator, SerializerProvider provider) throws IOException {
+    public void serialize(MultiLanguagePropertyValue value, JsonGenerator generator, SerializationContext provider) {
         if (value != null) {
             generator.writeStartArray();
             for (LangStringTextType langString: value.getLangStringSet()) {
                 generator.writeStartObject();
-                generator.writeStringField(JsonFieldNames.DPP_MULTILANGUAGE_PROPERTY_VALUE, langString.getText());
-                generator.writeStringField(JsonFieldNames.DPP_MULTILANGUAGE_PROPERTY_LANGUAGE, langString.getLanguage());
+                generator.writeStringProperty(JsonFieldNames.DPP_MULTILANGUAGE_PROPERTY_VALUE, langString.getText());
+                generator.writeStringProperty(JsonFieldNames.DPP_MULTILANGUAGE_PROPERTY_LANGUAGE, langString.getLanguage());
                 generator.writeEndObject();
             }
             generator.writeEndArray();

@@ -15,9 +15,6 @@
 package de.fraunhofer.iosb.ilt.faaast.service.config;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.EndpointConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.filestorage.FileStorageConfig;
@@ -26,11 +23,15 @@ import de.fraunhofer.iosb.ilt.faaast.service.persistence.PersistenceConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.SubmodelTemplateProcessorConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ImplementationManager;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.type.TypeFactory;
 
 
 /**
@@ -156,9 +157,8 @@ public class ServiceConfig {
      *
      * @param file the file to parse
      * @return the parsed config
-     * @throws IOException if loading fails
      */
-    public static ServiceConfig load(File file) throws IOException {
+    public static ServiceConfig load(File file) {
         return getMapper().readValue(file, ServiceConfig.class);
     }
 
@@ -168,20 +168,20 @@ public class ServiceConfig {
      *
      * @param in the stream to parse
      * @return the parsed config
-     * @throws IOException if loading fails
      */
-    public static ServiceConfig load(InputStream in) throws IOException {
+    public static ServiceConfig load(InputStream in) {
         return getMapper().readValue(in, ServiceConfig.class);
     }
 
 
     private static ObjectMapper getMapper() {
-        ObjectMapper mapper = new ObjectMapper()
+        return JsonMapper.builder()
                 .enable(SerializationFeature.INDENT_OUTPUT)
                 .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-                .setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-        mapper.setTypeFactory(mapper.getTypeFactory().withClassLoader(ImplementationManager.getClassLoader()));
-        return mapper;
+                .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_EMPTY))
+                .changeDefaultPropertyInclusion(incl -> incl.withContentInclusion(JsonInclude.Include.NON_EMPTY))
+                .typeFactory(TypeFactory.createDefaultInstance().withClassLoader(ImplementationManager.getClassLoader()))
+                .build();
     }
 
 

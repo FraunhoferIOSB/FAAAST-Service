@@ -19,9 +19,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.fge.jsonpatch.mergepatch.JsonMergePatch;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.MethodNotAllowedException;
@@ -131,12 +128,12 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSpecificAssetId;
 import org.junit.Assert;
 import org.junit.Test;
+import org.opentmf.commons.patch.JsonMergePatch;
 
 
 public class RequestMappingManagerTest {
 
     private static final AssetAdministrationShell AAS = AASFull.AAS_1;
-    private static final String AASX_PACKAGE_ID = "examplePackageId";
     private static final List<SpecificAssetId> ASSET_IDENTIFIERS = Arrays.asList(
             new DefaultSpecificAssetId.Builder()
                     .name("globalAssetId")
@@ -902,10 +899,10 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testPatchSubmodel() throws SerializationException, InvalidRequestException, MethodNotAllowedException, JsonProcessingException {
+    public void testPatchSubmodel() throws InvalidRequestException {
         Request expected = PatchSubmodelRequest.builder()
                 .submodelId(SUBMODEL.getId())
-                .changes(new ObjectMapper().readValue("{ \"category\": \"NewCategory\"}", JsonMergePatch.class))
+                .changes(JsonMergePatch.fromJson("{ \"category\": \"NewCategory\"}"))
                 .build();
         Request actual = mappingManager.map(HttpRequest.builder()
                 .method(HttpMethod.PATCH)
@@ -917,11 +914,11 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testPatchSubmodelElementByPath() throws SerializationException, InvalidRequestException, MethodNotAllowedException, JsonProcessingException {
+    public void testPatchSubmodelElementByPath() throws InvalidRequestException {
         Request expected = PatchSubmodelElementByPathRequest.builder()
                 .submodelId(SUBMODEL.getId())
                 .path(ReferenceHelper.toPath(SUBMODEL_ELEMENT_REF))
-                .changes(new ObjectMapper().readValue("{ \"category\": \"NewCategory\"}", JsonMergePatch.class))
+                .changes(JsonMergePatch.fromJson("{ \"category\": \"NewCategory\"}"))
                 .build();
         Request actual = mappingManager.map(HttpRequest.builder()
                 .method(HttpMethod.PATCH)
@@ -1088,9 +1085,7 @@ public class RequestMappingManagerTest {
         builder.addTextBody("fileName", fileName, ContentType.TEXT_PLAIN);
         builder.addBinaryBody("file", content, contentType, fileName);
         builder.setBoundary("boundary");
-        byte[] multipart = null;
-        multipart = EntityUtils.toByteArray(builder.build());
-        return multipart;
+        return EntityUtils.toByteArray(builder.build());
     }
 
 

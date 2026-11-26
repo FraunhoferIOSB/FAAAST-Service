@@ -14,14 +14,12 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonFieldNames;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.BasicEventElementValue;
-import java.io.IOException;
 import java.util.Objects;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 
 /**
@@ -40,11 +38,11 @@ public class BasicEventElementValueSerializer extends StdSerializer<BasicEventEl
 
 
     @Override
-    public void serialize(BasicEventElementValue value, JsonGenerator generator, SerializerProvider provider) throws IOException, JsonProcessingException {
+    public void serialize(BasicEventElementValue value, JsonGenerator generator, SerializationContext context) {
         if (Objects.nonNull(value)) {
             generator.writeStartObject();
             if (Objects.nonNull(value.getObserved())) {
-                provider.defaultSerializeField(JsonFieldNames.BASIC_EVENT_ELEMENT_OBSERVED, value.getObserved(), generator);
+                context.defaultSerializeProperty(JsonFieldNames.BASIC_EVENT_ELEMENT_OBSERVED, value.getObserved(), generator);
             }
             generator.writeEndObject();
         }

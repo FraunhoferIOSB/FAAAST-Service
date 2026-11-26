@@ -14,10 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.ImportResultMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.MessageMixin;
@@ -56,6 +52,10 @@ import org.eclipse.digitaltwin.aas4j.v3.model.RelationshipElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectWriter;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.module.SimpleModule;
 
 
 /**
@@ -74,27 +74,31 @@ public class MetadataJsonSerializer {
      * Modifies Jackson JsonMapper.
      *
      * @param mapper mapper to modify
+     * @return the modified JsonMapper.
      */
-    protected void modifyMapper(JsonMapper mapper) {
-        mapper.addMixIn(AssetAdministrationShell.class, AssetAdministrationShellMixin.class);
-        mapper.addMixIn(Submodel.class, SubmodelMixin.class);
-        mapper.addMixIn(Entity.class, EntityMixin.class);
-        mapper.addMixIn(SubmodelElementCollection.class, SubmodelElementCollectionMixin.class);
-        mapper.addMixIn(SubmodelElementList.class, SubmodelElementListMixin.class);
-        mapper.addMixIn(Property.class, PropertyMixin.class);
-        mapper.addMixIn(MultiLanguageProperty.class, MultiLanguagePropertyMixin.class);
-        mapper.addMixIn(Range.class, RangeMixin.class);
-        mapper.addMixIn(ReferenceElement.class, ReferenceElementMixin.class);
-        mapper.addMixIn(RelationshipElement.class, RelationshipElementMixin.class);
-        mapper.addMixIn(AnnotatedRelationshipElement.class, AnnotatedRelationshipElementMixin.class);
-        mapper.addMixIn(Blob.class, BlobMixin.class);
-        mapper.addMixIn(File.class, FileMixin.class);
-        mapper.addMixIn(Page.class, PageMixin.class);
-        mapper.addMixIn(Message.class, MessageMixin.class);
-        mapper.addMixIn(ImportResult.class, ImportResultMixin.class);
+    protected JsonMapper modifyMapper(JsonMapper mapper) {
         SimpleModule module = new SimpleModule();
         module.addSerializer(PagingMetadata.class, new PagingMetadataSerializer());
-        mapper.registerModule(module);
+
+        return mapper.rebuild()
+                .addMixIn(AssetAdministrationShell.class, AssetAdministrationShellMixin.class)
+                .addMixIn(Submodel.class, SubmodelMixin.class)
+                .addMixIn(Entity.class, EntityMixin.class)
+                .addMixIn(SubmodelElementCollection.class, SubmodelElementCollectionMixin.class)
+                .addMixIn(SubmodelElementList.class, SubmodelElementListMixin.class)
+                .addMixIn(Property.class, PropertyMixin.class)
+                .addMixIn(MultiLanguageProperty.class, MultiLanguagePropertyMixin.class)
+                .addMixIn(Range.class, RangeMixin.class)
+                .addMixIn(ReferenceElement.class, ReferenceElementMixin.class)
+                .addMixIn(RelationshipElement.class, RelationshipElementMixin.class)
+                .addMixIn(AnnotatedRelationshipElement.class, AnnotatedRelationshipElementMixin.class)
+                .addMixIn(Blob.class, BlobMixin.class)
+                .addMixIn(File.class, FileMixin.class)
+                .addMixIn(Page.class, PageMixin.class)
+                .addMixIn(Message.class, MessageMixin.class)
+                .addMixIn(ImportResult.class, ImportResultMixin.class)
+                .addModule(module)
+                .build();
     }
 
 
@@ -126,7 +130,7 @@ public class MetadataJsonSerializer {
             return mapper.writer()
                     .writeValueAsString(obj);
         }
-        catch (JsonProcessingException e) {
+        catch (JacksonException e) {
             throw new SerializationException("serialization failed", e);
         }
     }

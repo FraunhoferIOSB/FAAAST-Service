@@ -14,12 +14,10 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer;
 
-import com.fasterxml.jackson.core.JacksonException;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonNode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.MultiLanguagePropertyValue;
-import java.io.IOException;
 import java.util.Objects;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.JsonNode;
 
 
 /**
@@ -28,7 +26,7 @@ import java.util.Objects;
 public class MultiLanguagePropertyValueDeserializer extends ContextAwareElementValueDeserializer<MultiLanguagePropertyValue> {
 
     public MultiLanguagePropertyValueDeserializer() {
-        this(null);
+        this(MultiLanguagePropertyValue.class);
     }
 
 
@@ -38,14 +36,14 @@ public class MultiLanguagePropertyValueDeserializer extends ContextAwareElementV
 
 
     @Override
-    public MultiLanguagePropertyValue deserializeValue(JsonNode node, DeserializationContext context) throws IOException, JacksonException {
+    public MultiLanguagePropertyValue deserializeValue(JsonNode node, DeserializationContext context) {
         MultiLanguagePropertyValue.Builder builder = MultiLanguagePropertyValue.builder();
         if (Objects.nonNull(node) && node.isArray()) {
             for (var entryNode: node) {
                 if (!entryNode.isObject() || entryNode.size() != 1) {
                     context.reportBadDefinition(MultiLanguagePropertyValue.class, "each entry must be a JSON object with language as single key and text as value");
                 }
-                var entry = entryNode.fields().next();
+                var entry = entryNode.properties().iterator().next();
                 builder.value(entry.getKey(), entry.getValue().textValue());
             }
         }

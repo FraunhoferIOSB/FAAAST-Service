@@ -14,11 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.dpp;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.dpp.DppSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.*;
@@ -32,6 +27,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.MultiLanguagePropertyVa
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.module.SimpleModule;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 
 /**
@@ -45,11 +45,12 @@ public class JsonDppSerializer implements DppSerializer {
         this.valueOnlySerializer = new ValueOnlyJsonSerializer() {
             @Override
             protected JsonMapper modifyMapper(JsonMapper mapper) {
-                JsonMapper result = super.modifyMapper(mapper);
                 SimpleModule module = new SimpleModule();
                 module.addSerializer(MultiLanguagePropertyValue.class, new DppMultiLanguagePropertyValueSerializer());
                 module.addSerializer(FileValue.class, new DppFileValueSerializer());
-                return (JsonMapper) result.registerModule(module);
+                return super.modifyMapper(mapper).rebuild()
+                        .addModule(module)
+                        .build();
             }
         };
     }

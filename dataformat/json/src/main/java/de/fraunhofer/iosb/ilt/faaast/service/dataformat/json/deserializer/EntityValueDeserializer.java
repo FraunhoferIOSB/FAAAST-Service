@@ -14,16 +14,14 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer;
 
-import com.fasterxml.jackson.core.JacksonException;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonNode;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonFieldNames;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.EntityValue;
-import java.io.IOException;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.internal.deserialization.EnumDeserializer;
 import org.eclipse.digitaltwin.aas4j.v3.model.EntityType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.JsonNode;
 
 
 /**
@@ -32,7 +30,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 public class EntityValueDeserializer extends ContextAwareElementValueDeserializer<EntityValue> {
 
     public EntityValueDeserializer() {
-        this(null);
+        this(EntityValue.class);
     }
 
 
@@ -42,7 +40,7 @@ public class EntityValueDeserializer extends ContextAwareElementValueDeserialize
 
 
     @Override
-    public EntityValue deserializeValue(JsonNode node, DeserializationContext context) throws IOException, JacksonException {
+    public EntityValue deserializeValue(JsonNode node, DeserializationContext context) {
         EntityValue.Builder builder = new EntityValue.Builder();
         if (node.has(JsonFieldNames.ENTITY_VALUE_ENTITY_TYPE)) {
             builder.entityType(EntityType.valueOf(EnumDeserializer.deserializeEnumName(node.get(JsonFieldNames.ENTITY_VALUE_ENTITY_TYPE).asText())));

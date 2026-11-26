@@ -14,7 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.messagebus.cloudevents.mapper.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.cloudevents.mapper.CloudEventMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.cloudevents.mapper.CloudEventMapperConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.EventMessage;
@@ -52,7 +51,7 @@ public class ValueChangedCloudEventMapper extends CloudEventMapper {
 
 
     @Override
-    protected byte[] getData(EventMessage message) throws JsonProcessingException {
+    protected byte[] getData(EventMessage message) {
         return mapper.writeValueAsBytes(referableResolver.apply(message.getElement()));
     }
 

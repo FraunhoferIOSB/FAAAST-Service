@@ -14,17 +14,14 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer;
 
-import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
-import java.io.IOException;
 import java.util.Collection;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 
 /**
@@ -43,16 +40,16 @@ public class OperationVariableCollectionValueSerializer extends StdSerializer<Co
 
 
     @Override
-    public void serialize(Collection<OperationVariable> values, JsonGenerator generator, SerializerProvider provider) throws IOException, JsonProcessingException {
+    public void serialize(Collection<OperationVariable> values, JsonGenerator generator, SerializationContext context) {
         if (Objects.nonNull(values)) {
             generator.writeStartObject();
             for (var value: values) {
                 if (Objects.nonNull(value.getValue())) {
                     try {
-                        provider.defaultSerializeField(value.getValue().getIdShort(), ElementValueMapper.toValue(value.getValue()), generator);
+                        context.defaultSerializeProperty(value.getValue().getIdShort(), ElementValueMapper.toValue(value.getValue()), generator);
                     }
                     catch (ValueMappingException e) {
-                        throw new JsonGenerationException("error serializing OperationVariable as valueOnly", generator);
+                        context.reportMappingProblem(e, "error serializing OperationVariable as valueOnly", generator);
                     }
                 }
             }

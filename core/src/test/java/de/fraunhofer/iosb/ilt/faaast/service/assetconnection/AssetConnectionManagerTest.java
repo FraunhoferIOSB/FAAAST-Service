@@ -20,7 +20,6 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.fixtures.bar.BarConnectionConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.fixtures.bar.BarSubscriptionProviderConfig;
@@ -41,6 +40,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.databind.ObjectMapper;
 
 
 public class AssetConnectionManagerTest {
@@ -55,8 +55,10 @@ public class AssetConnectionManagerTest {
     @BeforeClass
     public static void init() {
         service = mock(Service.class);
-        mapper = new JsonMapperFactory().create(new SimpleAbstractTypeResolverFactory().create())
-                .setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+        mapper = new JsonMapperFactory().create(new SimpleAbstractTypeResolverFactory().create()).rebuild()
+                .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_EMPTY))
+                .changeDefaultPropertyInclusion(incl -> incl.withContentInclusion(JsonInclude.Include.NON_EMPTY))
+                .build();
     }
 
 

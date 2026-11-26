@@ -14,23 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json;
 
-import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.BeanDescription;
-import com.fasterxml.jackson.databind.DeserializationConfig;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.deser.BeanDeserializerModifier;
-import com.fasterxml.jackson.databind.deser.std.CollectionDeserializer;
-import com.fasterxml.jackson.databind.deser.std.MapDeserializer;
-import com.fasterxml.jackson.databind.deser.std.ObjectArrayDeserializer;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.databind.type.ArrayType;
-import com.fasterxml.jackson.databind.type.CollectionType;
-import com.fasterxml.jackson.databind.type.MapType;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.ApiDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
@@ -105,6 +89,20 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperationVariable;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.BeanDescription;
+import tools.jackson.databind.DeserializationConfig;
+import tools.jackson.databind.JavaType;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.deser.ValueDeserializerModifier;
+import tools.jackson.databind.deser.jdk.CollectionDeserializer;
+import tools.jackson.databind.deser.jdk.MapDeserializer;
+import tools.jackson.databind.deser.jdk.ObjectArrayDeserializer;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.module.SimpleModule;
+import tools.jackson.databind.type.ArrayType;
+import tools.jackson.databind.type.CollectionType;
+import tools.jackson.databind.type.MapType;
 
 
 /**
@@ -134,7 +132,7 @@ public class JsonApiDeserializer implements ApiDeserializer {
         try {
             return wrapper.getMapper().readValue(json, type);
         }
-        catch (JsonProcessingException e) {
+        catch (JacksonException e) {
             throw new DeserializationException(ERROR_MSG_DESERIALIZATION_FAILED, e);
         }
     }
@@ -152,7 +150,7 @@ public class JsonApiDeserializer implements ApiDeserializer {
                             List.class,
                             wrapper.getMapper().getTypeFactory().constructType(type)));
         }
-        catch (JsonProcessingException e) {
+        catch (JacksonException e) {
             throw new DeserializationException(ERROR_MSG_DESERIALIZATION_FAILED, e);
         }
     }
@@ -171,13 +169,11 @@ public class JsonApiDeserializer implements ApiDeserializer {
             throw new DeserializationException("missing root type information");
         }
         try {
-            return (T) wrapper.getMapper().reader()
+            return (T) wrapper.getMapper().readerFor(typeInfo.getType())
                     .withAttribute(ContextAwareElementValueDeserializer.CONTEXT_TYPE_INFO, typeInfo)
-                    .readValue(
-                            StringHelper.isEmpty(json) ? EMPTY_JSON_STRING : json,
-                            typeInfo.getType());
+                    .readValue(StringHelper.isEmpty(json) ? EMPTY_JSON_STRING : json);
         }
-        catch (IOException e) {
+        catch (JacksonException e) {
             throw new DeserializationException(ERROR_MSG_DESERIALIZATION_FAILED, e);
         }
     }
@@ -190,7 +186,7 @@ public class JsonApiDeserializer implements ApiDeserializer {
                     StringHelper.isEmpty(json) ? EMPTY_JSON_STRING : json,
                     type);
         }
-        catch (JsonProcessingException e) {
+        catch (JacksonException e) {
             throw new DeserializationException(ERROR_MSG_DESERIALIZATION_FAILED, e);
         }
     }
@@ -224,7 +220,7 @@ public class JsonApiDeserializer implements ApiDeserializer {
                     .forType(wrapper.getMapper().getTypeFactory().constructArrayType(containerTypeInfo.getContentType()))
                     .readValue(json);
         }
-        catch (IOException e) {
+        catch (JacksonException e) {
             throw new DeserializationException(ERROR_MSG_DESERIALIZATION_FAILED, e);
         }
     }
@@ -236,8 +232,7 @@ public class JsonApiDeserializer implements ApiDeserializer {
      * @throws IllegalArgumentException if typeInfo is null
      * @throws IllegalArgumentException if typeInfo is not a
      *             {@link de.fraunhofer.iosb.ilt.faaast.service.typing.ContainerTypeInfo}
-     * @throws DeserializationException if typeInfo does not contain type information
-     * @throws DeserializationException if typeInfo does contain content type information
+     * @throws DeserializationException if typeInfo does not contain type information or contains content type information
      */
     @Override
     public <T extends ElementValue> List<T> readValueList(String json, TypeInfo typeInfo) throws DeserializationException {
@@ -258,7 +253,7 @@ public class JsonApiDeserializer implements ApiDeserializer {
                     .forType(wrapper.getMapper().getTypeFactory().constructCollectionType(List.class, containerTypeInfo.getContentType()))
                     .readValue(json);
         }
-        catch (IOException e) {
+        catch (JacksonException e) {
             throw new DeserializationException(ERROR_MSG_DESERIALIZATION_FAILED, e);
         }
     }
@@ -270,9 +265,9 @@ public class JsonApiDeserializer implements ApiDeserializer {
      * @throws IllegalArgumentException if typeInfo is null
      * @throws IllegalArgumentException if typeInfo is not a
      *             {@link de.fraunhofer.iosb.ilt.faaast.service.typing.ContainerTypeInfo}
-     * @throws DeserializationException if typeInfo does not contain type information
-     * @throws DeserializationException if typeInfo does contain content type information
+     * @throws DeserializationException if typeInfo does not contain type information or contain content type information
      */
+    @Override
     public <T extends ElementValue> Page<T> readValuePage(String json, TypeInfo typeInfo) throws DeserializationException {
         Ensure.requireNonNull(typeInfo, ERROR_MSG_TYPE_INFO_MUST_BE_NON_NULL);
         if (!ContainerTypeInfo.class.isAssignableFrom(typeInfo.getClass())) {
@@ -291,7 +286,7 @@ public class JsonApiDeserializer implements ApiDeserializer {
                     .forType(wrapper.getMapper().getTypeFactory().constructParametricType(Page.class, ElementValue.class))
                     .readValue(json);
         }
-        catch (IOException e) {
+        catch (JacksonException e) {
             throw new DeserializationException(ERROR_MSG_DESERIALIZATION_FAILED, e);
         }
     }
@@ -303,8 +298,7 @@ public class JsonApiDeserializer implements ApiDeserializer {
      * @throws IllegalArgumentException if typeInfo is null
      * @throws IllegalArgumentException if typeInfo is not a
      *             {@link de.fraunhofer.iosb.ilt.faaast.service.typing.ContainerTypeInfo}
-     * @throws DeserializationException if typeInfo does not contain type information
-     * @throws DeserializationException if typeInfo does contain content type information
+     * @throws DeserializationException if typeInfo does not contain type information or contains content type information
      */
     @Override
     public <K, V extends ElementValue> Map<K, V> readValueMap(String json, TypeInfo typeInfo) throws DeserializationException {
@@ -325,7 +319,7 @@ public class JsonApiDeserializer implements ApiDeserializer {
                     .forType(wrapper.getMapper().getTypeFactory().constructMapType(Map.class, Object.class, Object.class))
                     .readValue(json);
         }
-        catch (IOException e) {
+        catch (JacksonException e) {
             throw new DeserializationException(ERROR_MSG_DESERIALIZATION_FAILED, e);
         }
     }
@@ -337,8 +331,7 @@ public class JsonApiDeserializer implements ApiDeserializer {
      * @throws IllegalArgumentException if typeInfo is null
      * @throws IllegalArgumentException if typeInfo is not a
      *             {@link de.fraunhofer.iosb.ilt.faaast.service.typing.ContainerTypeInfo}
-     * @throws DeserializationException if typeInfo does not contain type information
-     * @throws DeserializationException if typeInfo does contain content type information
+     * @throws DeserializationException if typeInfo does not contain type information or contains content type information
      */
     @Override
     public <K, V extends ElementValue> Map<K, V> readValueMap(JsonNode json, TypeInfo typeInfo) throws DeserializationException {
@@ -359,7 +352,7 @@ public class JsonApiDeserializer implements ApiDeserializer {
                     .forType(wrapper.getMapper().getTypeFactory().constructMapType(Map.class, Object.class, Object.class))
                     .readValue(json);
         }
-        catch (IOException e) {
+        catch (JacksonException e) {
             throw new DeserializationException(ERROR_MSG_DESERIALIZATION_FAILED, e);
         }
     }
@@ -414,7 +407,7 @@ public class JsonApiDeserializer implements ApiDeserializer {
         try {
             node = wrapper.getMapper().readTree(json);
         }
-        catch (IOException e) {
+        catch (JacksonException e) {
             throw new DeserializationException(String.format(
                     "error deserializing valueOnly operation invocation payload - unable to parse payload (reference: %s, payload: %s)",
                     ReferenceHelper.asString(operationIdentifier.toReference()),
@@ -489,49 +482,42 @@ public class JsonApiDeserializer implements ApiDeserializer {
      * Modifies Jackson JsonMapper.
      *
      * @param mapper mapper to modify
+     * @return the modified JsonMapper.
      */
-    protected void modifyMapper(JsonMapper mapper) {
-        mapper.addMixIn(PropertyValue.class, PropertyValueMixin.class);
-        mapper.addMixIn(AbstractRequestWithModifier.class, AbstractRequestWithModifierMixin.class);
-        mapper.addMixIn(AbstractSubmodelInterfaceRequest.class, AbstractSubmodelInterfaceRequestMixin.class);
-        mapper.addMixIn(ReferenceElementValue.class, ReferenceElementValueMixin.class);
-        mapper.addMixIn(Page.class, PageMixin.class);
-        mapper.addMixIn(Message.class, MessageMixin.class);
-        mapper.addMixIn(ImportResult.class, ImportResultMixin.class);
-        mapper.addMixIn(InvokeOperationRequest.class, InvokeOperationRequestMixin.class);
+    protected JsonMapper modifyMapper(JsonMapper mapper) {
         SimpleModule module = new SimpleModule() {
             @Override
             public void setupModule(SetupContext context) {
                 super.setupModule(context);
-                context.addBeanDeserializerModifier(new BeanDeserializerModifier() {
+                context.addDeserializerModifier(new ValueDeserializerModifier() {
                     @Override
-                    public com.fasterxml.jackson.databind.JsonDeserializer<?> modifyMapDeserializer(DeserializationConfig config,
-                                                                                                    MapType type, BeanDescription beanDesc,
-                                                                                                    com.fasterxml.jackson.databind.JsonDeserializer<?> deserializer) {
-                        if (deserializer instanceof MapDeserializer) {
-                            return new ValueMapDeserializer((MapDeserializer) deserializer);
+                    public tools.jackson.databind.ValueDeserializer<?> modifyMapDeserializer(DeserializationConfig config,
+                                                                                             MapType type, BeanDescription.Supplier beanDesc,
+                                                                                             tools.jackson.databind.ValueDeserializer<?> deserializer) {
+                        if (deserializer instanceof MapDeserializer mapDeserializer) {
+                            return new ValueMapDeserializer(mapDeserializer);
                         }
                         return super.modifyMapDeserializer(config, type, beanDesc, deserializer);
                     }
 
 
                     @Override
-                    public com.fasterxml.jackson.databind.JsonDeserializer<?> modifyArrayDeserializer(DeserializationConfig config,
-                                                                                                      ArrayType valueType, BeanDescription beanDesc,
-                                                                                                      com.fasterxml.jackson.databind.JsonDeserializer<?> deserializer) {
-                        if (deserializer instanceof ObjectArrayDeserializer) {
-                            return new ValueArrayDeserializer((ObjectArrayDeserializer) deserializer);
+                    public tools.jackson.databind.ValueDeserializer<?> modifyArrayDeserializer(DeserializationConfig config,
+                                                                                               ArrayType valueType, BeanDescription.Supplier beanDesc,
+                                                                                               tools.jackson.databind.ValueDeserializer<?> deserializer) {
+                        if (deserializer instanceof ObjectArrayDeserializer objectArrayDeserializer) {
+                            return new ValueArrayDeserializer(objectArrayDeserializer);
                         }
                         return super.modifyArrayDeserializer(config, valueType, beanDesc, deserializer);
                     }
 
 
                     @Override
-                    public com.fasterxml.jackson.databind.JsonDeserializer<?> modifyCollectionDeserializer(DeserializationConfig config,
-                                                                                                           CollectionType type, BeanDescription beanDesc,
-                                                                                                           com.fasterxml.jackson.databind.JsonDeserializer<?> deserializer) {
-                        if (deserializer instanceof CollectionDeserializer) {
-                            return new ValueCollectionDeserializer((CollectionDeserializer) deserializer);
+                    public tools.jackson.databind.ValueDeserializer<?> modifyCollectionDeserializer(DeserializationConfig config,
+                                                                                                    CollectionType type, BeanDescription.Supplier beanDesc,
+                                                                                                    tools.jackson.databind.ValueDeserializer<?> deserializer) {
+                        if (deserializer instanceof CollectionDeserializer collectionDeserializer) {
+                            return new ValueCollectionDeserializer(collectionDeserializer);
                         }
                         return super.modifyCollectionDeserializer(config, type, beanDesc, deserializer);
                     }
@@ -550,9 +536,19 @@ public class JsonApiDeserializer implements ApiDeserializer {
         module.addDeserializer(RangeValue.class, new RangeValueDeserializer());
         module.addDeserializer(PagingMetadata.class, new PagingMetadataDeserializer());
         ReflectionHelper.ENUMS.forEach(x -> module.addDeserializer(x, new EnumDeserializer(x)));
-        mapper.registerModule(module);
-        mapper.registerModule(new JavaTimeModule());
-        mapper.setDefaultSetterInfo(JsonSetter.Value.forValueNulls(Nulls.SKIP));
+
+        return mapper.rebuild()
+                .addMixIn(PropertyValue.class, PropertyValueMixin.class)
+                .addMixIn(AbstractRequestWithModifier.class, AbstractRequestWithModifierMixin.class)
+                .addMixIn(AbstractSubmodelInterfaceRequest.class, AbstractSubmodelInterfaceRequestMixin.class)
+                .addMixIn(ReferenceElementValue.class, ReferenceElementValueMixin.class)
+                .addMixIn(Page.class, PageMixin.class)
+                .addMixIn(Message.class, MessageMixin.class)
+                .addMixIn(ImportResult.class, ImportResultMixin.class)
+                .addMixIn(InvokeOperationRequest.class, InvokeOperationRequestMixin.class)
+                .addModule(module)
+                .changeDefaultNullHandling(n -> n.withValueNulls(Nulls.SKIP))
+                .build();
     }
 
 }

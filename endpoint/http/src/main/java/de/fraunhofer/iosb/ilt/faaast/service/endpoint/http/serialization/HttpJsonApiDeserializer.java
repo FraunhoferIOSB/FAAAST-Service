@@ -14,8 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization;
 
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonApiDeserializer;
+import tools.jackson.databind.json.JsonMapper;
 
 
 /**
@@ -24,7 +24,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonApiDeserializer
 public class HttpJsonApiDeserializer extends JsonApiDeserializer {
 
     @Override
-    protected void modifyMapper(JsonMapper mapper) {
-        super.modifyMapper(mapper);
+    protected JsonMapper modifyMapper(JsonMapper mapper) {
+        return super.modifyMapper(mapper);
     }
 }

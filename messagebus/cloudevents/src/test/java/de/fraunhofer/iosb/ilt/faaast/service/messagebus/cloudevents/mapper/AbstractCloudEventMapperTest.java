@@ -15,15 +15,11 @@
 package de.fraunhofer.iosb.ilt.faaast.service.messagebus.cloudevents.mapper;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import io.cloudevents.CloudEvent;
 import io.cloudevents.core.builder.CloudEventBuilder;
-import io.cloudevents.jackson.JsonFormat;
+import io.cloudevents.jackson3.JsonFormat;
 import java.net.URI;
 import java.util.UUID;
 import java.util.function.Function;
@@ -32,17 +28,23 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.junit.Assert;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.json.JsonMapper;
 
 
 public abstract class AbstractCloudEventMapperTest {
     private final String eventTypePrefix = "my.prefix.test.";
     private final String sourceUri = "https://localhost:12345/api/v3.1";
     private final String dataSchemaPrefix = "https://my-data-schema-prefix/path#";
-    protected final ObjectMapper mapper = new ObjectMapper()
+    protected final ObjectMapper mapper = JsonMapper.builder()
             .enable(SerializationFeature.INDENT_OUTPUT)
             .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-            .setDefaultPropertyInclusion(JsonInclude.Include.NON_EMPTY)
-            .registerModule(JsonFormat.getCloudEventJacksonModule());
+            .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_EMPTY))
+            .changeDefaultPropertyInclusion(incl -> incl.withContentInclusion(JsonInclude.Include.NON_EMPTY))
+            .addModule(JsonFormat.getCloudEventJacksonModule())
+            .build();
 
     protected CloudEventMapper getCloudEventMapper(Function<Reference, Referable> referableSupplier) {
         return getCloudEventMapper(false, referableSupplier);
@@ -58,7 +60,7 @@ public abstract class AbstractCloudEventMapperTest {
                                                             Function<Reference, Referable> referableSupplier);
 
 
-    protected CloudEvent expectedFrom(String identifiableId, Referable referable, String dataSchemaSuffix, String eventTypeSuffix) throws JsonProcessingException {
+    protected CloudEvent expectedFrom(String identifiableId, Referable referable, String dataSchemaSuffix, String eventTypeSuffix) {
         CloudEventBuilder builder = CloudEventBuilder.v1()
                 .withSource(URI.create(String.format("%s/submodels/%s/submodel-elements/%s", sourceUri, EncodingHelper.base64UrlEncode(identifiableId),
                         referable.getIdShort())))

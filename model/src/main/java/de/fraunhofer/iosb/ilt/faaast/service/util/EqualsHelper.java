@@ -14,12 +14,12 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.util;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.fge.jsonpatch.mergepatch.JsonMergePatch;
 import org.json.JSONException;
+import org.opentmf.commons.patch.JsonMergePatch;
 import org.skyscreamer.jsonassert.JSONCompare;
 import org.skyscreamer.jsonassert.JSONCompareMode;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 
 /**
@@ -42,7 +42,7 @@ public class EqualsHelper {
         try {
             return JSONCompare.compareJSON(mapper.writeValueAsString(a), mapper.writeValueAsString(b), JSONCompareMode.STRICT).passed();
         }
-        catch (JsonProcessingException | JSONException e) {
+        catch (JacksonException | JSONException e) {
             return false;
         }
     }
