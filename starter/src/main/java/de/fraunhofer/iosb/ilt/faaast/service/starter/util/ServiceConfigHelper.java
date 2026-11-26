@@ -147,7 +147,6 @@ public class ServiceConfigHelper {
      * @param config the input config
      * @param properties properties to update, keys are JSONPath expressions, values the new values for that JSONPath
      * @return a new config with updated properties
-     * @if deserializing updated config fails
      */
     public static ServiceConfig withProperties(ServiceConfig config, List<ConfigOverride> properties) {
         if (properties == null || properties.isEmpty()) {
