@@ -14,38 +14,38 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data;
 
-import com.prosysopc.ua.types.opcua.BaseObjectType;
+import com.prosysopc.ua.nodes.UaNode;
 import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 
 
 /**
- * Class with information for AAS objects
+ * Class with information for AAS objects.
  */
 public class ObjectData {
 
     /**
-     * The Referable
+     * The Referable.
      */
     private final Referable referable;
 
     /**
-     * The OPC UA Node
+     * The OPC UA Node.
      */
-    private final BaseObjectType node;
+    private final UaNode node;
 
     /**
-     * The corresponding Submodel, if available
+     * The corresponding Submodel, if available.
      */
     private final Submodel submodel;
 
     /**
      * Creates a new instance of ObjectData.
      *
-     * @param referable The Referable
-     * @param node The OPC UA Node
+     * @param referable The Referable.
+     * @param node The OPC UA Node.
      */
-    public ObjectData(Referable referable, BaseObjectType node) {
+    public ObjectData(Referable referable, UaNode node) {
         this.referable = referable;
         this.node = node;
         this.submodel = null;
@@ -55,11 +55,11 @@ public class ObjectData {
     /**
      * Creates a new instance of ObjectData.
      *
-     * @param referable The Referable
-     * @param node The OPC UA Node
-     * @param submodel The corresponding Submodel
+     * @param referable The Referable.
+     * @param node The OPC UA Node.
+     * @param submodel The corresponding Submodel.
      */
-    public ObjectData(Referable referable, BaseObjectType node, Submodel submodel) {
+    public ObjectData(Referable referable, UaNode node, Submodel submodel) {
         this.referable = referable;
         this.node = node;
         this.submodel = submodel;
@@ -67,9 +67,9 @@ public class ObjectData {
 
 
     /**
-     * Gets the Referable,
+     * Gets the Referable.
      *
-     * @return The Referable
+     * @return The Referable.
      */
     public Referable getReferable() {
         return referable;
@@ -77,19 +77,19 @@ public class ObjectData {
 
 
     /**
-     * Gets the OPC UA Node
+     * Gets the OPC UA Node.
      *
-     * @return The Node
+     * @return The Node.
      */
-    public BaseObjectType getNode() {
+    public UaNode getNode() {
         return node;
     }
 
 
     /**
-     * Gets the corresponding Submodel
+     * Gets the corresponding Submodel.
      *
-     * @return The corresponding Submodel, null if not available
+     * @return The corresponding Submodel, null if not available.
      */
     public Submodel getSubmodel() {
         return submodel;
