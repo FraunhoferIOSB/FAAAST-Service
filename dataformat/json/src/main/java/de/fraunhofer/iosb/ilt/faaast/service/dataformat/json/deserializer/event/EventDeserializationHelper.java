@@ -35,7 +35,6 @@ public class EventDeserializationHelper {
      * @param context deserialization context
      * @param type target type
      * @return deserialized children
-     * @if deserialization fails
      */
     public static <T extends ElementValue> Map<String, T> deserializeChildren(JsonNode node, DeserializationContext context, Class<T> type) {
         Map<String, T> result = new HashMap<>();

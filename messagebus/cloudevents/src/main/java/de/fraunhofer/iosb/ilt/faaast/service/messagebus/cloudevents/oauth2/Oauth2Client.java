@@ -55,7 +55,6 @@ public class Oauth2Client {
      * @param request Token request containing required credentials
      * @return Token response containing token and expiry information
      * @throws MessageBusException If the status code of the token response was not 2xx.
-     * @Failed deserializing token response.
      */
     public Oauth2CredentialsResponse requestToken(Oauth2CredentialsRequest request) throws MessageBusException {
 

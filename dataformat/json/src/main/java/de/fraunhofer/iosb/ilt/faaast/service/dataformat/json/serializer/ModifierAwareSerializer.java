@@ -62,7 +62,6 @@ public abstract class ModifierAwareSerializer<T> extends StdSerializer<T> {
      * @param provider provider for accessing other serializers
      * @param level detail level of serialization
      * @param extend detail extent of serialization
-     * @is serialization fails
      */
     public abstract void serialize(T value, JsonGenerator generator, SerializationContext provider, Level level, Extent extend);
 

@@ -18,7 +18,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.EventMessage;
 import io.cloudevents.CloudEvent;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 
 /**
@@ -59,8 +58,6 @@ public class CloudEventMapperRegistry {
      *
      * @param message The FA³ST event message
      * @return The mapped CloudEvent
-     * @Mapping AAS referable to JSON failed
-     * @throws NoSuchElementException No mapper can handle this EventMessage type
      */
     public CloudEvent createCloudEvent(EventMessage message) {
         return mappers.stream()
