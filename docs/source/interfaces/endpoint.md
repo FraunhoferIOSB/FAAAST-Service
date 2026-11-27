@@ -255,9 +255,7 @@ Currently, only the `compressed` DPP serialization format is supported and is th
 
 The OPC UA Endpoint allows accessing data and execute operations within the FA³ST Service via [OPC UA](https://opcfoundation.org/about/opc-technologies/opc-ua/).
 
-Unfortunately, there is currently no official mapping of the AAS API to OPC UA for AAS v3.0.
-Nevertheless, FA³ST Service decided to still provide an OPC UA endpoint even though it is not (yet) standard-compliant.
-This implementation is based on the [OPC UA Companion Specification OPC UA for Asset Administration Shell (AAS)](https://opcfoundation.org/developer-tools/specifications-opc-ua-information-models/opc-ua-for-i4-asset-administration-shell/) which defines a mapping between AAS and OPC UA for AAS v2.0 enriched with some custom adjustments and extensions to be used with AAS v3.0.
+This implementation is based on the [OPC 30271 AAS Generic Mapping](https://opcfoundation.org/developer-tools/documents/view/407) which defines a mapping between AAS and OPC UA.
 
 The OPC UA Endpoint is built with the [Prosys OPC UA SDK for Java](https://www.prosysopc.com/products/opc-ua-java-sdk/) which means in case you want to compile the OPC UA Endpoint yourself, you need a valid license for the SDK (which you can buy [here](https://www.prosysopc.com/products/opc-ua-java-sdk/purchase/).
 For evaluation purposes, you also have the possibility to request an [evaluation license](https://www.prosysopc.com/products/opc-ua-java-sdk/evaluate).
@@ -357,42 +355,42 @@ These datatypes are mapped to String.
 
 The mapping is as follows
 
-| AAS datatype                    | OPC UA datatype      | Comment                                   |
-| ------------------------------- | -------------------- | ----------------------------------------- |
-| xs:string                       | String               |                                           |
-| xs:boolean                      | Boolean              |                                           |
-| xs:decimal                      | String               |                                           |
-| xs:integer                      | String               |                                           |
-| xs:double                       | Double               | No distinction between +0.0 and -0.0      |
-| xs:float                        | Float                | No distinction between +0.0 and -0.0      |
-| xs:date                         | String               |                                           |
-| xs:dateTime                     | DateTime             | Converted to UTC, TZ offset is lost.      |
-| xs:time                         | String               |                                           |
-| xs:gYear                        | String               |                                           |
-| xs:gMonth                       | String               |                                           |
-| xs:gDay                         | String               |                                           |
-| xs:gYearMonth                   | String               |                                           |
-| xs:gMonthDay                    | String               |                                           |
-| xs:duration                     | String               |                                           |
-| xs:byte                         | SByte                |                                           |
-| xs:short                        | Int16                |                                           |
-| xs:int                          | Int32                |                                           |
-| xs:long                         | Int64                |                                           |
-| xs:unsignedByte                 | Byte                 |                                           |
-| xs:unsignedShort                | UInt16               |                                           |
-| xs:unsignedInt                  | UInt32               |                                           |
-| xs:unsignedLong                 | UInt64               |                                           |
-| xs:positiveInteger              | String               |                                           |
-| xs:nonNegativeInteger           | String               |                                           |
-| xs:negativeInteger              | String               |                                           |
-| xs:nonPositiveInteger           | String               |                                           |
-| xs:hexBinary                    | ByteString           |                                           |
-| xs:base64Binary                 | ByteString           |                                           |
-| xs:anyURI                       | String               |                                           |
+| AAS datatype                    | OPC UA datatype       | Comment                                   |
+| ------------------------------- | --------------------  | ----------------------------------------- |
+| xs:string                       | String                |                                           |
+| xs:boolean                      | Boolean               |                                           |
+| xs:decimal                      | Decimal               |                                           |
+| xs:integer                      | AASInteger            |                                           |
+| xs:double                       | Double                | No distinction between +0.0 and -0.0      |
+| xs:float                        | Float                 | No distinction between +0.0 and -0.0      |
+| xs:date                         | DateString            |                                           |
+| xs:dateTime                     | AASDateTime           | Date and time with or without timezone    |
+| xs:time                         | TimeString            |                                           |
+| xs:gYear                        | AASgYear              |                                           |
+| xs:gMonth                       | AASgMonth             |                                           |
+| xs:gDay                         | AASgDay               |                                           |
+| xs:gYearMonth                   | AASgYearMonth         |                                           |
+| xs:gMonthDay                    | AASgMonthDay          |                                           |
+| xs:duration                     | DurationString        |                                           |
+| xs:byte                         | SByte                 |                                           |
+| xs:short                        | Int16                 |                                           |
+| xs:int                          | Int32                 |                                           |
+| xs:long                         | Int64                 |                                           |
+| xs:unsignedByte                 | Byte                  |                                           |
+| xs:unsignedShort                | UInt16                |                                           |
+| xs:unsignedInt                  | UInt32                |                                           |
+| xs:unsignedLong                 | UInt64                |                                           |
+| xs:positiveInteger              | AASPositiveInteger    |                                           |
+| xs:nonNegativeInteger           | AASNonNegativeInteger |                                           |
+| xs:negativeInteger              | AASNegativeInteger    |                                           |
+| xs:nonPositiveInteger           | AASNonPositiveInteger |                                           |
+| xs:hexBinary                    | AASHexBinary          |                                           |
+| xs:base64Binary                 | AASBase64Binary       |                                           |
+| xs:anyURI                       | UriString             |                                           |
 
 ### API
 
-As stated, there is currently no official mapping of the AAS API to OPC UA for AAS v3.0 but FA³ST Service implements its proprietary adaption of the mapping for AAS v2.0.
+FA³ST Service implements the mapping of AAS to OPC UA as defined by [OPC 30271 AAS Generic Mapping](https://opcfoundation.org/developer-tools/documents/view/407).
 
 #### Supported Functionality
 
@@ -404,7 +402,7 @@ As stated, there is currently no official mapping of the AAS API to OPC UA for A
 	- ReferenceElement
 	- RelationshipElement
 	- Entity
-- Operations (OPC UA method calls). Exception: Inoutput-Variables are not supported in OPC UA.
+- Operations (OPC UA method calls). Please be aware of the argument mapping. All operations have one input argument, which is a JSON document as defined by the AAS HTTP API. They also have one output argument which is the JSON document as returned by the AAS HTTP API.
 
 #### Not (yet) Supported Functionality
 
@@ -414,9 +412,3 @@ As stated, there is currently no official mapping of the AAS API to OPC UA for A
 	- Qualifier
 	- Category
 	- ModelingKind
-- AASDataTypeDefXsd
-	- Base64Binary
-	- UnsignedInt
-	- UnsignedLong
-	- UnsignedShort
-	- UnsignedByte
